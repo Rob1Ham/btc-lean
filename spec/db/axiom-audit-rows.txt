@@ -1,0 +1,653 @@
+# ROWAXIOM — axiom audit of the row-target scope
+# audit snapshot: release tree
+# generated: 2026-10-17
+# source: spec/db/rules.yaml, 676 proven rows, 633 distinct lean_target values
+# probe: spec/scripts/axiom_probe_rows.lean
+# command: cd spec/proofs && lake env lean ../scripts/axiom_probe_rows.lean
+# full-probe rc=1 (14 unavailable targets; 34 stale target names also error)
+# control probe (619 available targets): rc=0
+#
+# columns: target<TAB>decl<TAB>status<TAB>axioms<TAB>module<TAB>rows<TAB>note
+# status: clean = none/propext/Quot.sound/Classical.choice only
+#         flagged = sorryAx/Lean.ofReduceBool/Lean.trustCompiler/other
+#         build-failed = declaring module does not build at HEAD
+#         missing = no declaration at HEAD
+# counts: clean 619, flagged 0, build-failed 10, missing 4 (targets)
+#         rows with a clean declaration 662, unresolved 14 (rows)
+# axioms tally: [] 71, [propext] 135, [Quot.sound] 1,
+#               [propext,Quot.sound] 253,
+#               [propext,Classical.choice,Quot.sound] 159
+# manifest scope (unchanged): 223 named public theorems; 34 row targets exact
+BitcoinProofs.AF.PDW22.checkTransaction_vin_empty_reject	BitcoinProofs.AF.PDW22.checkTransaction_vin_empty_reject	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW22.PDW22	INV-001	-
+BitcoinProofs.AF.PDW22.checkTransaction_vout_empty_reject	BitcoinProofs.AF.PDW22.checkTransaction_vout_empty_reject	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW22.PDW22	INV-002	-
+Bitcoin.Consensus.TxCheck.checkTransaction	Bitcoin.Consensus.checkTransaction	clean	Classical.choice,Quot.sound,propext	Bitcoin.Consensus.TxCheck	INV-003,INV-006,TXV-003	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW22.checkTransaction_ok_outputs_nonneg	BitcoinProofs.AF.PDW22.checkTransaction_ok_outputs_nonneg	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW22.PDW22	INV-004	-
+BitcoinProofs.AF.PDW22.checkTransaction_ok_outputs_le_MAX_MONEY	BitcoinProofs.AF.PDW22.checkTransaction_ok_outputs_le_MAX_MONEY	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW22.PDW22	INV-005	-
+Bitcoin.TxValidation.checkTransaction_ok_no_dup_prevouts	Bitcoin.TxValidation.checkTransaction_ok_no_dup_prevouts	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	INV-007	-
+BitcoinProofs.AF.PDW69TxCheck.checkTransaction_ok_cbLength	-	build-failed	none	BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck	INV-008	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW22.checkTransaction_ok_no_null_prevout	BitcoinProofs.AF.PDW22.checkTransaction_ok_no_null_prevout	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW22.PDW22	INV-009	-
+Bitcoin.Data.Tx.isCoinBase	Bitcoin.Data.Tx.isCoinBase	clean	Classical.choice,Quot.sound,propext	Bitcoin.Data.Tx	INV-010,TXV-010	-
+Bitcoin.DataLaws.final_locktime_zero	Bitcoin.DataLaws.final_locktime_zero	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Interface	INV-011,TXV-027	-
+Bitcoin.DataLaws.final_height_domain	Bitcoin.DataLaws.final_height_domain	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Interface	INV-012	-
+Bitcoin.DataLaws.final_time_domain	Bitcoin.DataLaws.final_time_domain	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Interface	INV-013	-
+Bitcoin.DataLaws.final_sequence_final	Bitcoin.DataLaws.final_sequence_final	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Interface	INV-014,TXV-030	-
+BitcoinProofs.AF.PDW48.bip113_cutoff_finality_sandwich	BitcoinProofs.AF.PDW48.bip113_cutoff_finality_sandwich	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW48.PDW48Finality	INV-015	-
+BitcoinProofs.AF.PDW48.blockAllFinal_mono_cutoff	BitcoinProofs.AF.PDW48.blockAllFinal_mono_cutoff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW48.PDW48Finality	INV-016	-
+BitcoinProofs.AF.PDW48.bip68Enabled_row_iff	BitcoinProofs.AF.PDW48.bip68Enabled_row_iff	clean	propext	BitcoinProofs.AF.PDW48.PDW48Locktime	INV-017	-
+BitcoinProofs.AF.PDW20.seqIsDisabled_bit31_iff	BitcoinProofs.AF.PDW20.seqIsDisabled_bit31_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW20.PDW20	INV-018	-
+BitcoinProofs.AF.PDW63.seqIsTimeBased_row	BitcoinProofs.AF.PDW63.seqIsTimeBased_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW63.PDW63	INV-019	-
+BitcoinProofs.AF.PDW48.seqRelative_height_lock	BitcoinProofs.AF.PDW48.seqRelative_height_lock	clean	Quot.sound,propext	BitcoinProofs.AF.PDW48.PDW48Locktime	INV-020	-
+BitcoinProofs.AF.PDW48.sequenceLocksOk_enabled_iff	BitcoinProofs.AF.PDW48.sequenceLocksOk_enabled_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW48.PDW48Locktime	INV-021	-
+BitcoinProofs.AF.PDW68x.cltv_accept_iff	BitcoinProofs.AF.PDW68x.cltv_accept_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW68x.PDW68x	INV-022	-
+BitcoinProofs.AF.PDW68x.csv_accept_iff	BitcoinProofs.AF.PDW68x.csv_accept_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW68x.PDW68x	INV-023	-
+BitcoinProofs.PDW9.moneyRange_spec	BitcoinProofs.PDW9.moneyRange_spec	clean	propext	BitcoinProofs.PDW9.MoneyRange	INV-024	-
+Bitcoin.Invariants.RC03.inputValuesLoop_ok_perCoinMoneyRange	Bitcoin.Invariants.RC03.inputValuesLoop_ok_perCoinMoneyRange	clean	propext	Bitcoin.Invariants.RC03	INV-025	-
+Bitcoin.Invariants.RC03.inputValuesLoop_ok_runningSumInRange	Bitcoin.Invariants.RC03.inputValuesLoop_ok_runningSumInRange	clean	propext	Bitcoin.Invariants.RC03	INV-026	-
+Bitcoin.Ledger.applyTxStepU_missing_or_spent	Bitcoin.Ledger.applyTxStepU_missing_or_spent	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-027,BLK-102	-
+Bitcoin.Ledger.maturity_boundary	Bitcoin.Ledger.maturity_boundary	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-028,BLK-100	-
+Bitcoin.Invariants.RC03.checkTxInputs_ok_valueIn_ge_valueOut	Bitcoin.Invariants.RC03.checkTxInputs_ok_valueIn_ge_valueOut	clean	Classical.choice,Quot.sound,propext	Bitcoin.Invariants.RC03	INV-029	-
+Bitcoin.Conservation.single_tx_fee_in_range	Bitcoin.Conservation.single_tx_fee_in_range	clean	propext	Bitcoin.Conservation.Interface	INV-030,TXV-025	-
+Bitcoin.Invariants.RC03.connectChecks_ok_feeAccumInRange	Bitcoin.Invariants.RC03.connectChecks_ok_feeAccumInRange	clean	Classical.choice,Quot.sound,propext	Bitcoin.Invariants.RC03	INV-031	-
+Bitcoin.Invariants.RC03.connectChecks_ok_noInflation	Bitcoin.Invariants.RC03.connectChecks_ok_noInflation	clean	Classical.choice,Quot.sound,propext	Bitcoin.Invariants.RC03	INV-032	-
+Bitcoin.Conservation.blockSubsidy	Bitcoin.Conservation.blockSubsidy	clean	none	Bitcoin.Conservation.Interface	INV-033,BLK-090	-
+Bitcoin.Invariants.RC03.coin_constants	Bitcoin.Invariants.RC03.coin_constants	clean	none	Bitcoin.Invariants.RC03	INV-034	-
+Bitcoin.Block.Sigops.legacySigOpCountTx	Bitcoin.Block.Sigops.legacySigOpCountTx	clean	none	Bitcoin.Block.Sigops	INV-035	-
+Bitcoin.Invariants.RC03.p2shSigOpCount_zero_of_noP2SH	Bitcoin.Invariants.RC03.p2shSigOpCount_zero_of_noP2SH	clean	Classical.choice,Quot.sound,propext	Bitcoin.Invariants.RC03	INV-036	-
+BitcoinProofs.AF.PDW44.witnessSigOps_v0_20	BitcoinProofs.AF.PDW44.witnessSigOps_v0_20	clean	Quot.sound,propext	BitcoinProofs.AF.PDW44.PDW44	INV-037	-
+Bitcoin.Interpreter.SigOps.sigOpCost	Bitcoin.Interpreter.SigOps.sigOpCost	clean	none	Bitcoin.Interpreter.SigOps	INV-038	-
+Bitcoin.Interpreter.SigOps.blockSigOpCostOk	Bitcoin.Interpreter.SigOps.blockSigOpCostOk	clean	none	Bitcoin.Interpreter.SigOps	INV-039,SWT-021	-
+BitcoinProofs.AF.PDW74.legacySigOpBudgetOk_iff	BitcoinProofs.AF.PDW74.legacySigOpBudgetOk_iff	clean	propext	BitcoinProofs.AF.PDW74.PDW74	INV-040	-
+Bitcoin.Interpreter.Defs.evalScriptBytes	Bitcoin.Interpreter.evalScriptBytes	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	INV-041	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW67.pushSize_row	BitcoinProofs.AF.PDW67.pushSize_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67.PDW67	INV-042	-
+BitcoinProofs.AF.PDW88.stepBody_opCount_gate	BitcoinProofs.AF.PDW88.stepBody_opCount_gate	clean	Quot.sound,propext	BitcoinProofs.AF.PDW88.PDW88	INV-043	-
+BitcoinProofs.AF.PDW39b.stepChecked_stack_alt_bound	BitcoinProofs.AF.PDW39b.stepChecked_stack_alt_bound	clean	Quot.sound,propext	BitcoinProofs.AF.PDW39b.PDW39b	INV-044	-
+Bitcoin.Interpreter.Defs.stepBody	Bitcoin.Interpreter.stepBody	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	INV-045,SCR-046,SCR-062,SCR-064,SCR-078,SCR-156	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW81.checkMinimalPush_iff	BitcoinProofs.AF.PDW81.checkMinimalPush_iff	clean	Quot.sound,propext	BitcoinProofs.AF.PDW81.PDW81	INV-046	-
+BitcoinProofs.AF.PDW39b.evalFrom_ok_vf_nil	BitcoinProofs.AF.PDW39b.evalFrom_ok_vf_nil	clean	Quot.sound,propext	BitcoinProofs.AF.PDW39b.PDW39b	INV-047	-
+BitcoinProofs.AF.PDW67.verifyScriptFull_evalFalse_row	BitcoinProofs.AF.PDW67.verifyScriptFull_evalFalse_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67.PDW67	INV-048	-
+BitcoinProofs.AF.PDW80.inv049_pubkey_limit	BitcoinProofs.AF.PDW80.inv049_pubkey_limit	clean	Quot.sound,propext	BitcoinProofs.AF.PDW80.PDW80A	INV-049	-
+BitcoinProofs.AF.PDW69.checkMultiSig_nulldummy_row	BitcoinProofs.AF.PDW69.checkMultiSig_nulldummy_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW69.PDW69	INV-050	-
+BitcoinProofs.AF.PDW18.cmsCleanup_nullFail_fires	BitcoinProofs.AF.PDW18.cmsCleanup_nullFail_fires	clean	Quot.sound,propext	BitcoinProofs.AF.PDW18.PDW18	INV-051	-
+Bitcoin.Crypto.Seam.Der.checkSignatureEncoding_dersig_iff	Bitcoin.Crypto.Seam.Der.checkSignatureEncoding_dersig_iff	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Seam.Der	INV-052	-
+BitcoinProofs.AF.PDW81.checkLowS_iff	BitcoinProofs.AF.PDW81.checkLowS_iff	clean	Quot.sound,propext	BitcoinProofs.AF.PDW81.PDW81	INV-053	-
+BitcoinProofs.AF.PDW81.checkPubKeyEncoding_none_iff	BitcoinProofs.AF.PDW81.checkPubKeyEncoding_none_iff	clean	propext	BitcoinProofs.AF.PDW81.PDW81	INV-054	-
+Bitcoin.SigHash.htBase_cover	Bitcoin.SigHash.htBase_cover	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Digest	INV-055	-
+BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged	BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged	clean	Quot.sound,propext	BitcoinProofs.AF.PDW59.PDW59d	INV-056	-
+Bitcoin.SigHash.findAndDeleteL_codeSep_eq	Bitcoin.SigHash.findAndDeleteL_codeSep_eq	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Ops	INV-057	-
+BitcoinProofs.AF.PDW93.decodeNum_size_le	BitcoinProofs.AF.PDW93.decodeNum_size_le	clean	Quot.sound,propext	BitcoinProofs.AF.PDW93.PDW93b	INV-058	-
+BitcoinProofs.AF.PDW88.stepBody_tapscript_minimalif_reject	BitcoinProofs.AF.PDW88.stepBody_tapscript_minimalif_reject	clean	Quot.sound,propext	BitcoinProofs.AF.PDW88.PDW88	INV-059	-
+BitcoinProofs.AF.PDW73.checksigAddStep_ok	BitcoinProofs.AF.PDW73.checksigAddStep_ok	clean	propext	BitcoinProofs.AF.PDW73.PDW73	INV-060	-
+Bitcoin.Script.Tapscript.executeWitnessScript_success_total	Bitcoin.Script.Tapscript.executeWitnessScript_success_total	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	INV-061,TPR-061	-
+Bitcoin.Script.Tapscript.checkMultiSig_tapscript_fails	Bitcoin.Script.Tapscript.checkMultiSig_tapscript_fails	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	INV-062,TPR-059	-
+BitcoinProofs.AF.PDW59.disabledWire_iff	BitcoinProofs.AF.PDW59.disabledWire_iff	clean	Quot.sound,propext	BitcoinProofs.AF.PDW59.PDW59d	INV-063	-
+BitcoinProofs.AF.PDW59.verifyScriptFull_scriptSig_error	BitcoinProofs.AF.PDW59.verifyScriptFull_scriptSig_error	clean	Quot.sound,propext	BitcoinProofs.AF.PDW59.PDW59d	INV-064	-
+BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail	BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62b.PDW62b	INV-065	-
+Bitcoin.Interpreter.p2shInner	Bitcoin.Interpreter.p2shInner	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	INV-066	-
+BitcoinProofs.AF.PDW52.verifyWitnessProgram_v0_wrongLength	BitcoinProofs.AF.PDW52.verifyWitnessProgram_v0_wrongLength	clean	Quot.sound,propext	BitcoinProofs.AF.PDW52.PDW52	INV-067	-
+BitcoinProofs.AF.PDW52.witnessMalleated_bare	BitcoinProofs.AF.PDW52.witnessMalleated_bare	clean	Quot.sound,propext	BitcoinProofs.AF.PDW52.PDW52	INV-068	-
+BitcoinProofs.AF.PDW52.p2shInner_witnessMalleatedP2SH	BitcoinProofs.AF.PDW52.p2shInner_witnessMalleatedP2SH	clean	Quot.sound,propext	BitcoinProofs.AF.PDW52.PDW52	INV-069	-
+BitcoinProofs.AF.PDW52.verifyWitnessProgram_v1_upgradable	BitcoinProofs.AF.PDW52.verifyWitnessProgram_v1_upgradable	clean	Quot.sound,propext	BitcoinProofs.AF.PDW52.PDW52	INV-070	-
+Bitcoin.SigHash.bip143MsgL_determined	Bitcoin.SigHash.bip143MsgL_determined	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	INV-071	-
+Bitcoin.Interpreter.verifyWitnessProgram_keypath	Bitcoin.Interpreter.verifyWitnessProgram_keypath	clean	Quot.sound,propext	Bitcoin.Interpreter.Rules	INV-072	-
+BitcoinProofs.AF.PDW58.tapleafCommitment_singleLeaf_row	BitcoinProofs.AF.PDW58.tapleafCommitment_singleLeaf_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58	INV-073	-
+BitcoinProofs.AF.PDW58.tapleafCommitment_short_none	BitcoinProofs.AF.PDW58.tapleafCommitment_short_none	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58	INV-073	-
+BitcoinProofs.AF.PDW42B.isTapscriptLeaf_face	BitcoinProofs.AF.PDW42B.isTapscriptLeaf_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW42.PDW42B	INV-074	-
+Bitcoin.Interpreter.Defs.verifyWitnessProgram	Bitcoin.Interpreter.verifyWitnessProgram	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	INV-075,SCR-137,SWT-013,SWT-014	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW52.witnessUnexpected_nonWitness	BitcoinProofs.AF.PDW52.witnessUnexpected_nonWitness	clean	Quot.sound,propext	BitcoinProofs.AF.PDW52.PDW52	INV-077	-
+Bitcoin.SigHash.signatureHashLegacyImpl	Bitcoin.SigHash.signatureHashLegacyImpl	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Digest	INV-078	-
+BitcoinProofs.AF.PDW55.checkBlockTxs_none_iff_row	BitcoinProofs.AF.PDW55.checkBlockTxs_none_iff_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW55.PDW55	INV-085	-
+BitcoinProofs.AF.PDW70.signetBlockOk_skip_row	BitcoinProofs.AF.PDW70.signetBlockOk_skip_row	clean	propext	BitcoinProofs.AF.PDW70.PDW70B	INV-086	-
+BitcoinProofs.AF.PDW66.witnessCommitmentOutput_some_iff	BitcoinProofs.AF.PDW66.witnessCommitmentOutput_some_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-088	-
+BitcoinProofs.AF.PDW66.witnessCommitmentOutput_shape	BitcoinProofs.AF.PDW66.witnessCommitmentOutput_shape	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-088	-
+BitcoinProofs.AF.PDW41b.commitmentNonceOk_head_32	BitcoinProofs.AF.PDW41b.commitmentNonceOk_head_32	clean	propext	BitcoinProofs.AF.PDW41b.PDW41b	INV-089	-
+BitcoinProofs.AF.PDW55.witnessCommitmentMatch_zeroNonce_row	BitcoinProofs.AF.PDW55.witnessCommitmentMatch_zeroNonce_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW55.PDW55	INV-090	-
+BitcoinProofs.AF.PDW43b.commitmentGate_true_iff	BitcoinProofs.AF.PDW43b.commitmentGate_true_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW43b.PDW43b	INV-091	-
+BitcoinProofs.AF.PDW76.witnessLeaves_cons	BitcoinProofs.AF.PDW76.witnessLeaves_cons	clean	Quot.sound,propext	BitcoinProofs.AF.PDW76.PDW76	INV-092	-
+BitcoinProofs.AF.PDW51.weightOk_iff	BitcoinProofs.AF.PDW51.weightOk_iff	clean	propext	BitcoinProofs.AF.PDW51.PDW51	INV-093	-
+BitcoinProofs.AF.PDW55B.blockBitsOk_badDiffbits_row	BitcoinProofs.AF.PDW55B.blockBitsOk_badDiffbits_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW55.PDW55b	INV-094	-
+BitcoinProofs.AF.PDW55B.retarget_boundary_row	BitcoinProofs.AF.PDW55B.retarget_boundary_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW55.PDW55b	INV-095	-
+BitcoinProofs.AF.PDW55B.clampedTimespan_bounds_window_row	BitcoinProofs.AF.PDW55B.clampedTimespan_bounds_window_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW55.PDW55b	INV-096	-
+BitcoinProofs.AF.PDW38.calculateNextWorkRequired_target_mid	-	missing	none	BitcoinProofs.AF.PDW38	INV-097	no declaration at HEAD (AF/PDW38 deleted)
+BitcoinProofs.AF.PDW46.permittedDifficultyTransition_nonboundary	BitcoinProofs.AF.PDW46.permittedDifficultyTransition_nonboundary	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW46.PDW46	INV-098	-
+BitcoinProofs.AF.PDW71.timeNotTooOld_row	BitcoinProofs.AF.PDW71.timeNotTooOld_row	clean	propext	BitcoinProofs.AF.PDW71.PDW71	INV-099	-
+BitcoinProofs.AF.PDW3.timewarpOk_reject	BitcoinProofs.AF.PDW3.timewarpOk_reject	clean	propext	BitcoinProofs.AF.PDW3.INV100TimewarpCor	INV-100	-
+BitcoinProofs.AF.PDW3.timeNotTooNew_le	BitcoinProofs.AF.PDW3.timeNotTooNew_le	clean	propext	BitcoinProofs.AF.PDW3.INV101TimeNotTooNewCor	INV-101	-
+BitcoinProofs.AF.PDW32.versionOk_row_iff	BitcoinProofs.AF.PDW32.versionOk_row_iff	clean	propext	BitcoinProofs.AF.PDW32.PDW32	INV-102	-
+BitcoinProofs.AF.PDW66.bip34Ok_active_eq	BitcoinProofs.AF.PDW66.bip34Ok_active_eq	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-103	-
+BitcoinProofs.AF.PDW66.bip34Ok_below_height	BitcoinProofs.AF.PDW66.bip34Ok_below_height	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-103	-
+BitcoinProofs.AF.PDW71.bip30Collision_row	BitcoinProofs.AF.PDW71.bip30Collision_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW71.PDW71	INV-104	-
+BitcoinProofs.AF.PDW71.bip30DisconnectRelaxed_row	BitcoinProofs.AF.PDW71.bip30DisconnectRelaxed_row	clean	propext	BitcoinProofs.AF.PDW71.PDW71	INV-105	-
+BitcoinProofs.AF.PDW71.bip30OptimizationWindow_row	BitcoinProofs.AF.PDW71.bip30OptimizationWindow_row	clean	propext	BitcoinProofs.AF.PDW71.PDW71	INV-106	-
+BitcoinProofs.AF.PDW49.connectGenesis_hash_face	BitcoinProofs.AF.PDW49.connectGenesis_hash_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW49.PDW49	INV-107	-
+BitcoinProofs.AF.PDW53.blockSequenceLocksOk_gate_off	BitcoinProofs.AF.PDW53.blockSequenceLocksOk_gate_off	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW53.PDW53	INV-108	-
+BitcoinProofs.AF.PDW20.chainLinkOk_iff	BitcoinProofs.AF.PDW20.chainLinkOk_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW20.PDW20	INV-109	-
+Bitcoin.Ledger.updateCoins_spend_gone	Bitcoin.Ledger.updateCoins_spend_gone	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-110	-
+Bitcoin.Ledger.updateCoins_insert_isSome	Bitcoin.Ledger.updateCoins_insert_isSome	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-111	-
+Bitcoin.Ledger.addedCoins_lookup_none_of_unspendable	Bitcoin.Ledger.addedCoins_lookup_none_of_unspendable	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-112	-
+Bitcoin.Ledger.updateCoins_spend_recreate	Bitcoin.Ledger.updateCoins_spend_recreate	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-113	-
+BitcoinProofs.AF.PDW18.isSpent_true_iff_none	BitcoinProofs.AF.PDW18.isSpent_true_iff_none	clean	propext	BitcoinProofs.AF.PDW18.PDW18	INV-114	-
+BitcoinProofs.AF.PDW20.coinMeta_roundtrip	BitcoinProofs.AF.PDW20.coinMeta_roundtrip	clean	Quot.sound,propext	BitcoinProofs.AF.PDW20.PDW20	INV-115	-
+Bitcoin.Ledger.updateCoins_undo	Bitcoin.Ledger.updateCoins_undo	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	INV-116	-
+BitcoinProofs.AF.PDW58.undoCoins_restore_wins	BitcoinProofs.AF.PDW58.undoCoins_restore_wins	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58C	INV-117	-
+BitcoinProofs.AF.PDW21.sentinel_ne_real_height	BitcoinProofs.AF.PDW21.sentinel_ne_real_height	clean	Quot.sound,propext	BitcoinProofs.AF.PDW21.PDW21	INV-118	-
+BitcoinProofs.AF.PDW21.muhashSet_split	BitcoinProofs.AF.PDW21.muhashSet_split	clean	propext	BitcoinProofs.AF.PDW21.PDW21	INV-119	-
+BitcoinProofs.AF.PDW21.setBestBlock_coins'	BitcoinProofs.AF.PDW21.setBestBlock_coins'	clean	none	BitcoinProofs.AF.PDW21.PDW21	INV-120	-
+BitcoinProofs.AF.PDW21.defined_started	BitcoinProofs.AF.PDW21.defined_started	clean	propext	BitcoinProofs.AF.PDW21.PDW21	INV-121	-
+BitcoinProofs.AF.PDW27.versionBitsSignals_iff	BitcoinProofs.AF.PDW27.versionBitsSignals_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW27.BLK004INV122	INV-122	-
+Bitcoin.Activation.bip9_threshold_locks_in	Bitcoin.Activation.bip9_threshold_locks_in	clean	none	Bitcoin.Activation.Bip9	INV-123,BLK-075	-
+Bitcoin.Activation.bip9_timeout_fails	Bitcoin.Activation.bip9_timeout_fails	clean	Quot.sound,propext	Bitcoin.Activation.Bip9	INV-124,BLK-076	-
+Bitcoin.Activation.bip9_min_activation	Bitcoin.Activation.bip9_min_activation	clean	Quot.sound,propext	Bitcoin.Activation.Bip9	INV-125,BLK-078	-
+BitcoinProofs.AF.PDW21.bip9State_eq'	BitcoinProofs.AF.PDW21.bip9State_eq'	clean	Quot.sound,propext	BitcoinProofs.AF.PDW21.PDW21	INV-126	-
+Bitcoin.Activation.buried_heights_mainnet	Bitcoin.Activation.buried_heights_mainnet	clean	none	Bitcoin.Activation.Flags	INV-127,BLK-070,BLK-071	-
+Bitcoin.Activation.dersig_flag_flow	Bitcoin.Activation.dersig_flag_flow	clean	propext	Bitcoin.Activation.Flags	INV-128,SCR-103,BLK-085	-
+Bitcoin.Activation.cltv_flag_flow	Bitcoin.Activation.cltv_flag_flow	clean	propext	Bitcoin.Activation.Flags	INV-129,BLK-086	-
+BitcoinProofs.Activation.PDW5.cltv_flag_off	BitcoinProofs.Activation.PDW5.cltv_flag_off	clean	propext	BitcoinProofs.Activation.PDW5	INV-129	-
+Bitcoin.Activation.csv_flag_flow	Bitcoin.Activation.csv_flag_flow	clean	propext	Bitcoin.Activation.Flags	INV-130,BLK-087	-
+Bitcoin.Activation.nulldummy_flag_flow	Bitcoin.Activation.nulldummy_flag_flow	clean	propext	Bitcoin.Activation.Flags	INV-131,TXV-057,BLK-088	-
+Bitcoin.Activation.base_flags_p2sh_witness_taproot	Bitcoin.Activation.base_flags_p2sh_witness_taproot	clean	propext	Bitcoin.Activation.Flags	INV-132,BLK-083	-
+BitcoinProofs.AF.PDW27.mainnetExceptionMap_fail_closed	BitcoinProofs.AF.PDW27.mainnetExceptionMap_fail_closed	clean	propext	BitcoinProofs.AF.PDW27.SCR015INV133	INV-133	-
+BitcoinProofs.AF.PDW58.bip113Cutoff_mtp_of_active	BitcoinProofs.AF.PDW58.bip113Cutoff_mtp_of_active	clean	none	BitcoinProofs.AF.PDW58.PDW58A	INV-134	-
+BitcoinProofs.AF.PDW57b.bip34Ok_pre	BitcoinProofs.AF.PDW57b.bip34Ok_pre	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW57b.PDW57b	INV-135	-
+BitcoinProofs.AF.PDW43b.commitmentGate_eq_if	BitcoinProofs.AF.PDW43b.commitmentGate_eq_if	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW43b.PDW43b	INV-136	-
+BitcoinProofs.AF.PDW88.deploymentActiveAt_iff	BitcoinProofs.AF.PDW88.deploymentActiveAt_iff	clean	propext	BitcoinProofs.AF.PDW88.PDW88Act	INV-138	-
+BitcoinProofs.AF.PDW66.calculateNextWorkRequired_noRetarget	BitcoinProofs.AF.PDW66.calculateNextWorkRequired_noRetarget	clean	Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-139	-
+BitcoinProofs.AF.PDW66.calculateNextWorkRequired_bip94_lastBits_irrel	BitcoinProofs.AF.PDW66.calculateNextWorkRequired_bip94_lastBits_irrel	clean	Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	INV-139	-
+BitcoinProofs.AF.PDW24.mostWork?_pair_maximality	BitcoinProofs.AF.PDW24.mostWork?_pair_maximality	clean	Quot.sound,propext	BitcoinProofs.AF.PDW24.PDW24	INV-140	-
+BitcoinProofs.AF.PDW24.workOf_pos_of_inRange	BitcoinProofs.AF.PDW24.workOf_pos_of_inRange	clean	Quot.sound,propext	BitcoinProofs.AF.PDW24.PDW24	INV-141	-
+BitcoinProofs.AF.PDW29.proofEquivalentWork_row_vector	BitcoinProofs.AF.PDW29.proofEquivalentWork_row_vector	clean	Quot.sound,propext	BitcoinProofs.AF.PDW29.PDW29	INV-142	-
+BitcoinProofs.AF.PDW29.prunedCandidates_descendant	BitcoinProofs.AF.PDW29.prunedCandidates_descendant	clean	propext	BitcoinProofs.AF.PDW29.PDW29	INV-143	-
+BitcoinProofs.AF.PDW29.submitVerdict_cached_iff	BitcoinProofs.AF.PDW29.submitVerdict_cached_iff	clean	propext	BitcoinProofs.AF.PDW29.PDW29	INV-144	-
+BitcoinProofs.AF.PDW49.prevNotFailed_iff	BitcoinProofs.AF.PDW49.prevNotFailed_iff	clean	Quot.sound,propext	BitcoinProofs.AF.PDW49.PDW49	INV-145	-
+BitcoinProofs.AF.PDW49.minChainWorkOk_iff	BitcoinProofs.AF.PDW49.minChainWorkOk_iff	clean	propext	BitcoinProofs.AF.PDW49.PDW49	INV-147	-
+BitcoinProofs.AF.PDW63.assumevalidSkipped_none_row	BitcoinProofs.AF.PDW63.assumevalidSkipped_none_row	clean	none	BitcoinProofs.AF.PDW63.PDW63	INV-148	-
+BitcoinProofs.AF.PDW57b.nMinimumChainWorkMainnet_row	BitcoinProofs.AF.PDW57b.nMinimumChainWorkMainnet_row	clean	none	BitcoinProofs.AF.PDW57b.PDW57b	INV-149	-
+BitcoinProofs.AF.PDW90.verifyScriptFull_sequential	BitcoinProofs.AF.PDW90.verifyScriptFull_sequential	clean	Quot.sound,propext	BitcoinProofs.AF.PDW90.PDW90	SCR-001	-
+BitcoinProofs.AF.PDW73.verifyScriptFull_ok_base_stack	BitcoinProofs.AF.PDW73.verifyScriptFull_ok_base_stack	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW73.PDW73	SCR-002	-
+BitcoinProofs.AF.PDW39b.evalFrom_nil_ok	BitcoinProofs.AF.PDW39b.evalFrom_nil_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW39b.PDW39b	SCR-003	-
+BitcoinProofs.AF.PDW90.verifyScriptFull_empty_spk	BitcoinProofs.AF.PDW90.verifyScriptFull_empty_spk	clean	Quot.sound,propext	BitcoinProofs.AF.PDW90.PDW90	SCR-004	-
+BitcoinProofs.AF.PDW62.p2shInner_reeval_stackCopy	BitcoinProofs.AF.PDW62.p2shInner_reeval_stackCopy	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62.PDW62	SCR-005	-
+BitcoinProofs.AF.PDW62.p2shInner_nonpush_fail	BitcoinProofs.AF.PDW62.p2shInner_nonpush_fail	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62.PDW62	SCR-006	-
+BitcoinProofs.AF.PDW62.p2shInner_stack_snapshot	BitcoinProofs.AF.PDW62.p2shInner_stack_snapshot	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62.PDW62	SCR-007	-
+BitcoinProofs.AF.PDW90.verifyScriptFull_cleanstack_fails	BitcoinProofs.AF.PDW90.verifyScriptFull_cleanstack_fails	clean	Quot.sound,propext	BitcoinProofs.AF.PDW90.PDW90	SCR-008	-
+BitcoinProofs.AF.PDW33.flagsComboOk_consensus_row	BitcoinProofs.AF.PDW33.flagsComboOk_consensus_row	clean	propext	BitcoinProofs.AF.PDW33.PDW33	SCR-009	-
+Bitcoin.Interpreter.Defs.verifyScriptFull	Bitcoin.Interpreter.verifyScriptFull	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-010	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW62.verifyScriptFull_native_witness_malleated	BitcoinProofs.AF.PDW62.verifyScriptFull_native_witness_malleated	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62.PDW62	SCR-011	-
+BitcoinProofs.AF.PDW62.p2shInner_witness_malleated	BitcoinProofs.AF.PDW62.p2shInner_witness_malleated	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62.PDW62	SCR-012	-
+BitcoinProofs.AF.PDW90.verifyScriptFull_witness_unexpected	BitcoinProofs.AF.PDW90.verifyScriptFull_witness_unexpected	clean	Quot.sound,propext	BitcoinProofs.AF.PDW90.PDW90	SCR-013	-
+BitcoinProofs.AF.PDW36.flagsComboOk_iff	BitcoinProofs.AF.PDW36.flagsComboOk_iff	clean	propext	BitcoinProofs.AF.PDW36.PDW36	SCR-014	-
+BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq	BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq	clean	propext	BitcoinProofs.AF.PDW27.SCR015INV133	SCR-015	-
+Bitcoin.Activation.flags_bip16_exception	Bitcoin.Activation.flags_bip16_exception	clean	none	Bitcoin.Activation.Interface	SCR-016	-
+BitcoinProofs.AF.PDW62b.verifyScriptFull_first_eval_fail	BitcoinProofs.AF.PDW62b.verifyScriptFull_first_eval_fail	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62b.PDW62b	SCR-017	-
+BitcoinProofs.AF.PDW57b.evalScriptBytes_oversize	BitcoinProofs.AF.PDW57b.evalScriptBytes_oversize	clean	Quot.sound,propext	BitcoinProofs.AF.PDW57b.PDW57b	SCR-018	-
+BitcoinProofs.AF.PDW39b.evalScriptBytes_tapscript_no_size_guard	BitcoinProofs.AF.PDW39b.evalScriptBytes_tapscript_no_size_guard	clean	Quot.sound,propext	BitcoinProofs.AF.PDW39b.PDW39b	SCR-019	-
+BitcoinProofs.AF.PDW73.stepBody_opCount_reject	BitcoinProofs.AF.PDW73.stepBody_opCount_reject	clean	Quot.sound,propext	BitcoinProofs.AF.PDW73.PDW73	SCR-020	-
+BitcoinProofs.AF.PDW67b.executeWitnessScript_item_size	BitcoinProofs.AF.PDW67b.executeWitnessScript_item_size	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67b.PDW67bC2	SCR-021	-
+BitcoinProofs.AF.PDW80.scr022_budget_exceeded	BitcoinProofs.AF.PDW80.scr022_budget_exceeded	clean	Quot.sound,propext	BitcoinProofs.AF.PDW80.PDW80B	SCR-022	-
+BitcoinProofs.AF.PDW85.stepBody_unexecuted_if_counts	BitcoinProofs.AF.PDW85.stepBody_unexecuted_if_counts	clean	Quot.sound,propext	BitcoinProofs.AF.PDW85.PDW85	SCR-023	-
+Bitcoin.Script.Parser.countsTowardOpLimit	Bitcoin.Script.Parser.countsTowardOpLimit	clean	none	Bitcoin.Script.Parser.Defs	SCR-024	-
+BitcoinProofs.AF.PDW79.stepBody_opCount_precedes_disabled	BitcoinProofs.AF.PDW79.stepBody_opCount_precedes_disabled	clean	Quot.sound,propext	BitcoinProofs.AF.PDW79.PDW79	SCR-025	-
+Bitcoin.Interpreter.Defs.cmsLoop	Bitcoin.Interpreter.cmsLoop	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-026,SCR-027,SCR-028	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Defs.stepChecked_ok_bound	Bitcoin.Interpreter.stepChecked_ok_bound	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-029	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Defs.evalScriptBytes_ok_stack_bound	Bitcoin.Interpreter.evalScriptBytes_ok_stack_bound	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-030	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Defs.executeWitnessScript	Bitcoin.Interpreter.executeWitnessScript	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-031,SCR-040,SWT-010	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW69.cmsLoop_charges_nKeys_row	BitcoinProofs.AF.PDW69.cmsLoop_charges_nKeys_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW69.PDW69	SCR-032	-
+BitcoinProofs.AF.PDW36.sigOpCount_eq	BitcoinProofs.AF.PDW36.sigOpCount_eq	clean	none	BitcoinProofs.AF.PDW36.PDW36	SCR-033	-
+BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed	BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed	clean	Quot.sound,propext	BitcoinProofs.AF.PDW36.PDW36	SCR-034	-
+BitcoinProofs.AF.PDW33.witnessSigOps_v0_32	BitcoinProofs.AF.PDW33.witnessSigOps_v0_32	clean	Quot.sound,propext	BitcoinProofs.AF.PDW33.PDW33b	SCR-035	-
+BitcoinProofs.AF.PDW33.countWitnessSigOps_p2sh_wrapped	BitcoinProofs.AF.PDW33.countWitnessSigOps_p2sh_wrapped	clean	Quot.sound,propext	BitcoinProofs.AF.PDW33.PDW33b	SCR-036	-
+BitcoinProofs.AF.PDW36.sigOpCost_eq	BitcoinProofs.AF.PDW36.sigOpCost_eq	clean	none	BitcoinProofs.AF.PDW36.PDW36	SCR-037	-
+BitcoinProofs.AF.PDW33.blockSigOpsCostOk_iff	BitcoinProofs.AF.PDW33.blockSigOpsCostOk_iff	clean	propext	BitcoinProofs.AF.PDW33.PDW33b	SCR-038	-
+BitcoinProofs.AF.PDW74.MAX_STANDARD_TX_SIGOPS_COST_eq	BitcoinProofs.AF.PDW74.MAX_STANDARD_TX_SIGOPS_COST_eq	clean	none	BitcoinProofs.AF.PDW74.PDW74	SCR-039	-
+Bitcoin.Interpreter.Defs.evalChecksigTapscript	Bitcoin.Interpreter.evalChecksigTapscript	clean	none	Bitcoin.Interpreter.Defs	SCR-041	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW18.evalChecksigTapscript_upgradable_key_decrements	BitcoinProofs.AF.PDW18.evalChecksigTapscript_upgradable_key_decrements	clean	Quot.sound,propext	BitcoinProofs.AF.PDW18.SCR042	SCR-042	-
+BitcoinProofs.AF.PDW36.MAX_PUBKEYS_PER_MULTI_A_eq	BitcoinProofs.AF.PDW36.MAX_PUBKEYS_PER_MULTI_A_eq	clean	none	BitcoinProofs.AF.PDW36.PDW36	SCR-043	-
+BitcoinProofs.AF.PDW57b.MIN_TRANSACTION_WEIGHT_row	BitcoinProofs.AF.PDW57b.MIN_TRANSACTION_WEIGHT_row	clean	none	BitcoinProofs.AF.PDW57b.PDW57b	SCR-044	-
+Bitcoin.Script.Parser.getOp	Bitcoin.Script.Parser.getOp	clean	Quot.sound,propext	Bitcoin.Script.Parser.Defs	SCR-045	-
+Bitcoin.Interpreter.encodeScriptNum_1negate_0x81	Bitcoin.Interpreter.encodeScriptNum_1negate_0x81	clean	none	Bitcoin.Interpreter.Rules	SCR-047	-
+BitcoinProofs.AF.PDW98.stepBody_pushBytes_nonminimal	BitcoinProofs.AF.PDW98.stepBody_pushBytes_nonminimal	clean	Quot.sound,propext	BitcoinProofs.AF.PDW98.PDW98	SCR-048	-
+BitcoinProofs.AF.PDW98.stepBody_pushBytes_unexec_ok	BitcoinProofs.AF.PDW98.stepBody_pushBytes_unexec_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW98.PDW98	SCR-049	-
+BitcoinProofs.AF.PDW80.scr050_minimal_reject	BitcoinProofs.AF.PDW80.scr050_minimal_reject	clean	Quot.sound,propext	BitcoinProofs.AF.PDW80.PDW80A	SCR-050	-
+BitcoinProofs.AF.PDW98.stepBody_cltv_nonminimal	BitcoinProofs.AF.PDW98.stepBody_cltv_nonminimal	clean	Quot.sound,propext	BitcoinProofs.AF.PDW98.PDW98	SCR-051	-
+Bitcoin.Interpreter.Defs.isPushOnlyWire	Bitcoin.Interpreter.isPushOnlyWire	clean	none	Bitcoin.Interpreter.Defs	SCR-052	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Defs.isWitnessProgram	Bitcoin.Interpreter.isWitnessProgram	clean	none	Bitcoin.Interpreter.Defs	SCR-053,SCR-054,SCR-055,SWT-002	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW72.scr056_if_effect	BitcoinProofs.AF.PDW72.scr056_if_effect	clean	Quot.sound,propext	BitcoinProofs.AF.PDW72.PDW72	SCR-056	-
+Bitcoin.Numeric.castToBool	Bitcoin.Numeric.castToBool	clean	none	Bitcoin.Numeric.Interface	SCR-057	-
+BitcoinProofs.AF.PDW72.scr058_minimalIf_tapscript	BitcoinProofs.AF.PDW72.scr058_minimalIf_tapscript	clean	Quot.sound,propext	BitcoinProofs.AF.PDW72.PDW72	SCR-058	-
+BitcoinProofs.AF.PDW89.stepBody_minimalif_witnessv0	BitcoinProofs.AF.PDW89.stepBody_minimalif_witnessv0	clean	Quot.sound,propext	BitcoinProofs.AF.PDW89.PDW89	SCR-059	-
+BitcoinProofs.AF.PDW85b.stepBody_unexecuted_if_stack	BitcoinProofs.AF.PDW85b.stepBody_unexecuted_if_stack	clean	Quot.sound,propext	BitcoinProofs.AF.PDW85.PDW85b	SCR-060	-
+BitcoinProofs.AF.PDW72.scr061_else_toggle	BitcoinProofs.AF.PDW72.scr061_else_toggle	clean	Quot.sound,propext	BitcoinProofs.AF.PDW72.PDW72	SCR-061	-
+BitcoinProofs.AF.PDW39b.evalFrom_nil_unbalanced	BitcoinProofs.AF.PDW39b.evalFrom_nil_unbalanced	clean	Quot.sound,propext	BitcoinProofs.AF.PDW39b.PDW39b	SCR-063	-
+BitcoinProofs.AF.PDW67b.stepBody_opVerif_badOpcode	BitcoinProofs.AF.PDW67b.stepBody_opVerif_badOpcode	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67b.PDW67bE	SCR-065	-
+BitcoinProofs.AF.PDW67b.stepBody_opVer_unexecuted	BitcoinProofs.AF.PDW67b.stepBody_opVer_unexecuted	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67b.PDW67bF	SCR-066	-
+BitcoinProofs.AF.PDW88.stepBody_if_counts_opcode	BitcoinProofs.AF.PDW88.stepBody_if_counts_opcode	clean	Quot.sound,propext	BitcoinProofs.AF.PDW88.PDW88	SCR-067	-
+BitcoinProofs.AF.PDW72.scr068_verify_success	BitcoinProofs.AF.PDW72.scr068_verify_success	clean	Quot.sound,propext	BitcoinProofs.AF.PDW72.PDW72	SCR-068	-
+BitcoinProofs.AF.PDW72.scr069_return_always	BitcoinProofs.AF.PDW72.scr069_return_always	clean	Quot.sound,propext	BitcoinProofs.AF.PDW72.PDW72	SCR-069	-
+BitcoinProofs.PDW9.scriptUnspendable_of_oversize	BitcoinProofs.PDW9.scriptUnspendable_of_oversize	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.PDW9.Unspendable	SCR-070	-
+BitcoinProofs.AF.PDW69.nopClass_discourage_row	BitcoinProofs.AF.PDW69.nopClass_discourage_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW69.PDW69	SCR-071	-
+BitcoinProofs.AF.PDW73.stepBody_cltv_csv_noflag_nop	BitcoinProofs.AF.PDW73.stepBody_cltv_csv_noflag_nop	clean	Quot.sound,propext	BitcoinProofs.AF.PDW73.PDW73	SCR-072	-
+BitcoinProofs.AF.PDW67b.stepBody_fromAltstack_empty	BitcoinProofs.AF.PDW67b.stepBody_fromAltstack_empty	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67b.PDW67bD	SCR-073	-
+BitcoinProofs.AF.PDW79.stepBody_depth_check	BitcoinProofs.AF.PDW79.stepBody_depth_check	clean	Quot.sound,propext	BitcoinProofs.AF.PDW79.PDW79	SCR-074	-
+BitcoinProofs.AF.PDW79.stepBody_pickroll_oob	BitcoinProofs.AF.PDW79.stepBody_pickroll_oob	clean	Quot.sound,propext	BitcoinProofs.AF.PDW79.PDW79	SCR-075	-
+BitcoinProofs.AF.PDW85.stepBody_size_minimal_scriptnum	BitcoinProofs.AF.PDW85.stepBody_size_minimal_scriptnum	clean	Quot.sound,propext	BitcoinProofs.AF.PDW85.PDW85	SCR-076	-
+BitcoinProofs.AF.PDW79.stepBody_ifdup_true	BitcoinProofs.AF.PDW79.stepBody_ifdup_true	clean	Quot.sound,propext	BitcoinProofs.AF.PDW79.PDW79	SCR-077	-
+Bitcoin.Numeric.scriptNum_four_byte_rule	Bitcoin.Numeric.scriptNum_four_byte_rule	clean	propext	Bitcoin.Numeric.Interface	SCR-079	-
+Bitcoin.Numeric.SCRIPT_NUM_DEFAULT_MAX_SIZE	Bitcoin.Numeric.SCRIPT_NUM_DEFAULT_MAX_SIZE	clean	none	Bitcoin.Numeric.Interface	SCR-080	-
+BitcoinProofs.AF.PDW62b.decodeScriptNum_width_none	BitcoinProofs.AF.PDW62b.decodeScriptNum_width_none	clean	propext	BitcoinProofs.AF.PDW62b.PDW62b	SCR-081	-
+Bitcoin.Numeric.encodeScriptNum	Bitcoin.Numeric.encodeScriptNum	clean	none	Bitcoin.Numeric.Interface	SCR-082,SCR-085	-
+Bitcoin.Numeric.setVchBE_neg_zero	Bitcoin.Numeric.setVchBE_neg_zero	clean	Quot.sound,propext	Bitcoin.Numeric.ScriptNum	SCR-083	-
+Bitcoin.Numeric.scriptNum_minimal_reject	Bitcoin.Numeric.scriptNum_minimal_reject	clean	Quot.sound,propext	Bitcoin.Numeric.Interface	SCR-084	-
+Bitcoin.Numeric.getIntClamped	Bitcoin.Numeric.getIntClamped	clean	none	Bitcoin.Numeric.ScriptNum	SCR-086	-
+BitcoinProofs.AF.PDW86.stepBody_unop	BitcoinProofs.AF.PDW86.stepBody_unop	clean	Quot.sound,propext	BitcoinProofs.AF.PDW86.PDW86	SCR-087	-
+BitcoinProofs.AF.PDW86.stepBody_binop	BitcoinProofs.AF.PDW86.stepBody_binop	clean	Quot.sound,propext	BitcoinProofs.AF.PDW86.PDW86	SCR-088	-
+BitcoinProofs.AF.PDW86.stepBody_within	BitcoinProofs.AF.PDW86.stepBody_within	clean	Quot.sound,propext	BitcoinProofs.AF.PDW86.PDW86	SCR-089	-
+BitcoinProofs.AF.PDW79.stepBody_numequalverify_false	BitcoinProofs.AF.PDW79.stepBody_numequalverify_false	clean	Quot.sound,propext	BitcoinProofs.AF.PDW79.PDW79	SCR-090	-
+BitcoinProofs.AF.PDW86.stepBody_size_raw	BitcoinProofs.AF.PDW86.stepBody_size_raw	clean	Quot.sound,propext	BitcoinProofs.AF.PDW86.PDW86	SCR-091	-
+Bitcoin.Interpreter.opNotequal_0x8e_disabled_and_success	Bitcoin.Interpreter.opNotequal_0x8e_disabled_and_success	clean	Quot.sound,propext	Bitcoin.Interpreter.Rules	SCR-092	-
+BitcoinProofs.AF.PDW78.scr093_hashForOp_widths	BitcoinProofs.AF.PDW78.scr093_hashForOp_widths	clean	Quot.sound,propext	BitcoinProofs.AF.PDW78.PDW78	SCR-093	-
+BitcoinProofs.AF.PDW78.scr094_hash_composition	BitcoinProofs.AF.PDW78.scr094_hash_composition	clean	Quot.sound,propext	BitcoinProofs.AF.PDW78.PDW78	SCR-094	-
+BitcoinProofs.AF.PDW78.scr095_emptyElement_hashed	BitcoinProofs.AF.PDW78.scr095_emptyElement_hashed	clean	Quot.sound,propext	BitcoinProofs.AF.PDW78.PDW78	SCR-095	-
+BitcoinProofs.AF.PDW85b.stepBody_codeseparator	BitcoinProofs.AF.PDW85b.stepBody_codeseparator	clean	Quot.sound,propext	BitcoinProofs.AF.PDW85.PDW85b	SCR-096	-
+BitcoinProofs.AF.PDW85b.stepBody_codeseparator_unexecuted	BitcoinProofs.AF.PDW85b.stepBody_codeseparator_unexecuted	clean	Quot.sound,propext	BitcoinProofs.AF.PDW85.PDW85b	SCR-097	-
+BitcoinProofs.AF.PDW83.findAndDelete_empty_needle	BitcoinProofs.AF.PDW83.findAndDelete_empty_needle	clean	Quot.sound,propext	BitcoinProofs.AF.PDW83.PDW83	SCR-098	-
+BitcoinProofs.AF.PDW83.evalChecksigPreTapscript_constScriptCode_row	BitcoinProofs.AF.PDW83.evalChecksigPreTapscript_constScriptCode_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW83.PDW83	SCR-099	-
+BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_findAndDelete	BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_findAndDelete	clean	Quot.sound,propext	BitcoinProofs.AF.PDW87.PDW87	SCR-100	-
+Bitcoin.SigHash.scriptCodeOf_idempotent	Bitcoin.SigHash.scriptCodeOf_idempotent	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Interface	SCR-101	-
+BitcoinProofs.AF.PDW82.isValidSigEncoding_size	BitcoinProofs.AF.PDW82.isValidSigEncoding_size	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW82.PDW82	SCR-102	-
+BitcoinProofs.AF.PDW89c.checkLowS_row	BitcoinProofs.AF.PDW89c.checkLowS_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW89.PDW89c	SCR-104	-
+BitcoinProofs.AF.PDW81.isDefinedHashtype_iff	BitcoinProofs.AF.PDW81.isDefinedHashtype_iff	clean	propext	BitcoinProofs.AF.PDW81.PDW81	SCR-105	-
+BitcoinProofs.AF.PDW68x.pubkey_strictenc_reject	BitcoinProofs.AF.PDW68x.pubkey_strictenc_reject	clean	propext	BitcoinProofs.AF.PDW68x.PDW68xB	SCR-106	-
+BitcoinProofs.AF.PDW68x.witness_pubkeytype_reject	BitcoinProofs.AF.PDW68x.witness_pubkeytype_reject	clean	propext	BitcoinProofs.AF.PDW68x.PDW68xB	SCR-107	-
+Bitcoin.Interpreter.Defs.checkSigEncoding	Bitcoin.Interpreter.checkSigEncoding	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-108,SWT-058,SWT-060	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_empty_sig	BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_empty_sig	clean	Quot.sound,propext	BitcoinProofs.AF.PDW87.PDW87	SCR-109	-
+BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_nullfail	BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_nullfail	clean	Quot.sound,propext	BitcoinProofs.AF.PDW87.PDW87	SCR-110	-
+Bitcoin.SigHash.htAcp	Bitcoin.SigHash.htAcp	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Digest	SCR-111	-
+BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_pk_invalid	BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_pk_invalid	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62b.PDW62b	SCR-112	-
+BitcoinProofs.AF.PDW86.stepBody_nop_opCount	BitcoinProofs.AF.PDW86.stepBody_nop_opCount	clean	Quot.sound,propext	BitcoinProofs.AF.PDW86.PDW86	SCR-113	-
+BitcoinProofs.AF.PDW80.scr114_pubkey_range	BitcoinProofs.AF.PDW80.scr114_pubkey_range	clean	Quot.sound,propext	BitcoinProofs.AF.PDW80.PDW80A	SCR-114	-
+BitcoinProofs.AF.PDW84.cms_fad_before_check_row	BitcoinProofs.AF.PDW84.cms_fad_before_check_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW84.PDW84c	SCR-115	-
+BitcoinProofs.AF.PDW83.cmsLoop_sig_exceeds_keys	BitcoinProofs.AF.PDW83.cmsLoop_sig_exceeds_keys	clean	Quot.sound,propext	BitcoinProofs.AF.PDW83.PDW83	SCR-116	-
+BitcoinProofs.AF.PDW80.scr117_sig_encoding_in_loop	BitcoinProofs.AF.PDW80.scr117_sig_encoding_in_loop	clean	Quot.sound,propext	BitcoinProofs.AF.PDW80.PDW80B	SCR-117	-
+BitcoinProofs.AF.PDW87.checkMultiSig_extra_item_consumed	BitcoinProofs.AF.PDW87.checkMultiSig_extra_item_consumed	clean	Quot.sound,propext	BitcoinProofs.AF.PDW87.PDW87	SCR-118	-
+BitcoinProofs.AF.PDW87.checkMultiSig_nulldummy	BitcoinProofs.AF.PDW87.checkMultiSig_nulldummy	clean	Quot.sound,propext	BitcoinProofs.AF.PDW87.PDW87	SCR-119	-
+BitcoinProofs.AF.PDW69.checkMultiSigVerify_fail_row	BitcoinProofs.AF.PDW69.checkMultiSigVerify_fail_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW69.PDW69	SCR-120	-
+BitcoinProofs.AF.PDW73.stepBody_tapscript_checkmultisig_ban	BitcoinProofs.AF.PDW73.stepBody_tapscript_checkmultisig_ban	clean	Quot.sound,propext	BitcoinProofs.AF.PDW73.PDW73	SCR-121	-
+BitcoinProofs.AF.PDW58.cltv_negative_errors	BitcoinProofs.AF.PDW58.cltv_negative_errors	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58F	SCR-122	-
+BitcoinProofs.AF.PDW46b.cltv_mixed_type_false	BitcoinProofs.AF.PDW46b.cltv_mixed_type_false	clean	propext	BitcoinProofs.AF.PDW46b.PDW46b	SCR-123	-
+BitcoinProofs.AF.PDW46b.cltv_above_locktime_false	BitcoinProofs.AF.PDW46b.cltv_above_locktime_false	clean	propext	BitcoinProofs.AF.PDW46b.PDW46b	SCR-124	-
+BitcoinProofs.AF.PDW46b.cltv_final_input_false	BitcoinProofs.AF.PDW46b.cltv_final_input_false	clean	propext	BitcoinProofs.AF.PDW46b.PDW46b	SCR-125	-
+BitcoinProofs.AF.PDW58.csv_negative_errors	BitcoinProofs.AF.PDW58.csv_negative_errors	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58F	SCR-126	-
+Bitcoin.Interpreter.Defs.checkSequenceDef	Bitcoin.Interpreter.checkSequenceDef	clean	propext	Bitcoin.Interpreter.Defs	SCR-127	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Rules.checkSequenceDef_version_gate	Bitcoin.Interpreter.checkSequenceDef_version_gate	clean	propext	Bitcoin.Interpreter.Rules	SCR-128	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW46b.csv_tx_disable_flag_false	BitcoinProofs.AF.PDW46b.csv_tx_disable_flag_false	clean	propext	BitcoinProofs.AF.PDW46b.PDW46bB	SCR-129	-
+BitcoinProofs.AF.PDW46b.csv_masked_above_false	BitcoinProofs.AF.PDW46b.csv_masked_above_false	clean	propext	BitcoinProofs.AF.PDW46b.PDW46bB	SCR-130	-
+BitcoinProofs.AF.PDW68x.csv_accept_masked_le	BitcoinProofs.AF.PDW68x.csv_accept_masked_le	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW68x.PDW68x	SCR-131	-
+BitcoinProofs.AF.PDW33.locktimeEnvOf_congr_row	BitcoinProofs.AF.PDW33.locktimeEnvOf_congr_row	clean	propext	BitcoinProofs.AF.PDW33.PDW33	SCR-132	-
+BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_script	BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_script	clean	Quot.sound,propext	BitcoinProofs.AF.PDW75.PDW75	SCR-133	-
+BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_empty	BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_empty	clean	Quot.sound,propext	BitcoinProofs.AF.PDW75.PDW75	SCR-134	-
+BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_mismatch	BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wsh_mismatch	clean	Quot.sound,propext	BitcoinProofs.AF.PDW75.PDW75	SCR-135	-
+BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wpkh_wrong_len	BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wpkh_wrong_len	clean	Quot.sound,propext	BitcoinProofs.AF.PDW75.PDW75	SCR-136	-
+BitcoinProofs.AF.PDW65.verifyWitnessProgram_v0_20_ok_cleanstack	BitcoinProofs.AF.PDW65.verifyWitnessProgram_v0_20_ok_cleanstack	clean	Quot.sound,propext	BitcoinProofs.AF.PDW65.PDW65	SCR-138	-
+Bitcoin.Interpreter.Defs.evalChecksigPreTapscript	Bitcoin.Interpreter.evalChecksigPreTapscript	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-139	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.bip143MsgL	Bitcoin.SigHash.bip143MsgL	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Digest	SCR-140	-
+Bitcoin.SigHash.bip143_single_oor	Bitcoin.SigHash.bip143_single_oor	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SCR-141	-
+BitcoinProofs.AF.PDW19.verifyWitnessProgram_taproot_gate_silent_ok	BitcoinProofs.AF.PDW19.verifyWitnessProgram_taproot_gate_silent_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW19.PDW19	SCR-142	-
+BitcoinProofs.AF.PDW82c.verifyWitnessProgram_annex_detected	BitcoinProofs.AF.PDW82c.verifyWitnessProgram_annex_detected	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW82.PDW82c	SCR-143	-
+BitcoinProofs.AF.PDW19.verifyWitnessProgram_keypath	BitcoinProofs.AF.PDW19.verifyWitnessProgram_keypath	clean	Quot.sound,propext	BitcoinProofs.AF.PDW19.PDW19	SCR-144	-
+BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad	BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad	clean	Quot.sound,propext	BitcoinProofs.AF.PDW83.PDW83	SCR-145	-
+BitcoinProofs.AF.PDW58.tapLeafHash_size_row	BitcoinProofs.AF.PDW58.tapLeafHash_size_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58	SCR-146	-
+Bitcoin.Interpreter.Rules.tweakPoint_determined	Bitcoin.Interpreter.tweakPoint_determined	clean	Classical.choice,Quot.sound,propext	Bitcoin.Interpreter.Rules	SCR-147	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW67.verifyTaprootLeafDispatch_c0_row	BitcoinProofs.AF.PDW67.verifyTaprootLeafDispatch_c0_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW67.PDW67	SCR-148	-
+BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok	BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW19.PDW19	SCR-149	-
+BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_anchor_ok	BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_anchor_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW59.PDW59c	SCR-150	-
+BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok	BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW59.PDW59c	SCR-151	-
+Bitcoin.Interpreter.Defs.disabledWire	Bitcoin.Interpreter.disabledWire	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SCR-152,SCR-170	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW82b.executeWitnessScript_opSuccess_ok	BitcoinProofs.AF.PDW82b.executeWitnessScript_opSuccess_ok	clean	Quot.sound,propext	BitcoinProofs.AF.PDW82.PDW82b	SCR-153	-
+BitcoinProofs.AF.PDW97.executeWitnessScript_opSuccess_discouraged	BitcoinProofs.AF.PDW97.executeWitnessScript_opSuccess_discouraged	clean	Quot.sound,propext	BitcoinProofs.AF.PDW97.PDW97	SCR-154	-
+BitcoinProofs.AF.PDW91.stepBody_nop_tapscript_overbudget	BitcoinProofs.AF.PDW91.stepBody_nop_tapscript_overbudget	clean	Quot.sound,propext	BitcoinProofs.AF.PDW91.PDW91	SCR-155	-
+BitcoinProofs.AF.PDW89.checksigAddStep_nonminimal	BitcoinProofs.AF.PDW89.checksigAddStep_nonminimal	clean	Quot.sound,propext	BitcoinProofs.AF.PDW89.PDW89	SCR-157	-
+BitcoinProofs.AF.PDW90b.evalChecksigTapscript_empty_pubkey_fails	BitcoinProofs.AF.PDW90b.evalChecksigTapscript_empty_pubkey_fails	clean	Quot.sound,propext	BitcoinProofs.AF.PDW90.PDW90b	SCR-158	-
+BitcoinProofs.AF.PDW82.evalChecksigTapscript_weight_before_pubkey	BitcoinProofs.AF.PDW82.evalChecksigTapscript_weight_before_pubkey	clean	Quot.sound,propext	BitcoinProofs.AF.PDW82.PDW82	SCR-159	-
+BitcoinProofs.AF.PDW82.evalChecksigTapscript_empty_sig_no_weight	BitcoinProofs.AF.PDW82.evalChecksigTapscript_empty_sig_no_weight	clean	propext	BitcoinProofs.AF.PDW82.PDW82	SCR-160	-
+BitcoinProofs.AF.PDW47.schnorrVerdict_size_gate	BitcoinProofs.AF.PDW47.schnorrVerdict_size_gate	clean	Quot.sound,propext	BitcoinProofs.AF.PDW47.PDW47	SCR-161	-
+BitcoinProofs.AF.PDW47.schnorrVerdict_65_default_rejected	BitcoinProofs.AF.PDW47.schnorrVerdict_65_default_rejected	clean	Quot.sound,propext	BitcoinProofs.AF.PDW47.PDW47	SCR-162	-
+BitcoinProofs.AF.PDW58.isValidBip341Hashtype_valid_iff	BitcoinProofs.AF.PDW58.isValidBip341Hashtype_valid_iff	clean	propext	BitcoinProofs.AF.PDW58.PDW58	SCR-163	-
+BitcoinProofs.AF.PDW89b.extSlice_tapscript_ext	BitcoinProofs.AF.PDW89b.extSlice_tapscript_ext	clean	propext	BitcoinProofs.AF.PDW89.PDW89b	SCR-164	-
+BitcoinProofs.AF.PDW47.schnorrVerdict_default_64	BitcoinProofs.AF.PDW47.schnorrVerdict_default_64	clean	propext	BitcoinProofs.AF.PDW47.PDW47	SCR-165	-
+BitcoinProofs.AF.PDW47.schnorrVerdict_sighash_fail_closed	BitcoinProofs.AF.PDW47.schnorrVerdict_sighash_fail_closed	clean	Quot.sound,propext	BitcoinProofs.AF.PDW47.PDW47	SCR-166	-
+BitcoinProofs.AF.PDW47.stepBody_codesep_records_next	BitcoinProofs.AF.PDW47.stepBody_codesep_records_next	clean	Quot.sound,propext	BitcoinProofs.AF.PDW47.PDW47	SCR-167	-
+Bitcoin.Interpreter.Rules.evalChecksigTapscript_budget_exactly_zero	Bitcoin.Interpreter.evalChecksigTapscript_budget_exactly_zero	clean	propext	Bitcoin.Interpreter.Rules	SCR-168	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW83.sighashTaproot_epoch_row	BitcoinProofs.AF.PDW83.sighashTaproot_epoch_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW83.PDW83	SCR-169	-
+BitcoinProofs.AF.PDW91.stepBody_disabled_unexec	BitcoinProofs.AF.PDW91.stepBody_disabled_unexec	clean	Quot.sound,propext	BitcoinProofs.AF.PDW91.PDW91	SCR-171	-
+BitcoinProofs.AF.PDW58.disabledWire_successx_matrix_row	BitcoinProofs.AF.PDW58.disabledWire_successx_matrix_row	clean	none	BitcoinProofs.AF.PDW58.PDW58	SCR-172	-
+BitcoinProofs.AF.PDW68.opNameKnown_covered	BitcoinProofs.AF.PDW68.opNameKnown_covered	clean	propext	BitcoinProofs.AF.PDW68.PDW68	SCR-173	-
+BitcoinProofs.AF.PDW91.stepBody_invalidopcode	BitcoinProofs.AF.PDW91.stepBody_invalidopcode	clean	Quot.sound,propext	BitcoinProofs.AF.PDW91.PDW91	SCR-174	-
+BitcoinProofs.AF.PDW63.checkTransaction_vinEmpty_row	BitcoinProofs.AF.PDW63.checkTransaction_vinEmpty_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW63.PDW63	TXV-001	-
+BitcoinProofs.AF.PDW63.checkTransaction_voutEmpty_row	BitcoinProofs.AF.PDW63.checkTransaction_voutEmpty_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW63.PDW63	TXV-002	-
+BitcoinProofs.AF.PDW59.checkOutputs_none_nonneg	BitcoinProofs.AF.PDW59.checkOutputs_none_nonneg	clean	propext	BitcoinProofs.AF.PDW59.PDW59b	TXV-004	-
+BitcoinProofs.AF.PDW59.checkOutputs_none_le_MAX	BitcoinProofs.AF.PDW59.checkOutputs_none_le_MAX	clean	propext	BitcoinProofs.AF.PDW59.PDW59b	TXV-005	-
+BitcoinProofs.AF.PDW59.checkOutputs_none_total_moneyRange	BitcoinProofs.AF.PDW59.checkOutputs_none_total_moneyRange	clean	propext	BitcoinProofs.AF.PDW59.PDW59b	TXV-006	-
+BitcoinProofs.AF.PDW69TxCheck.checkTransaction_none_noDup	-	build-failed	none	BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck	TXV-007	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW74.checkTransaction_ok_cbLength	BitcoinProofs.AF.PDW74.checkTransaction_ok_cbLength	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW74.PDW74	TXV-008	-
+BitcoinProofs.AF.PDW69TxCheck.checkTransaction_ok_prevoutNotNull	-	build-failed	none	BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck	TXV-009	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW40.decTxCore_base_layout	BitcoinProofs.AF.PDW40.decTxCore_base_layout	clean	Quot.sound,propext	BitcoinProofs.AF.PDW40.PDW40	TXV-011	-
+Bitcoin.Serialization.Interface.decCS	Bitcoin.Serialization.decCS	clean	propext	Bitcoin.Serialization.Interface	TXV-012	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW40.decTxCore_flag0_shortRecord	BitcoinProofs.AF.PDW40.decTxCore_flag0_shortRecord	clean	Quot.sound,propext	BitcoinProofs.AF.PDW40.PDW40	TXV-013	-
+BitcoinProofs.AF.PDW40.decTxCore_witness_layout	BitcoinProofs.AF.PDW40.decTxCore_witness_layout	clean	Quot.sound,propext	BitcoinProofs.AF.PDW40.PDW40	TXV-014	-
+BitcoinProofs.AF.PDW40.decTxCore_superfluous	BitcoinProofs.AF.PDW40.decTxCore_superfluous	clean	Quot.sound,propext	BitcoinProofs.AF.PDW40.PDW40	TXV-015	-
+BitcoinProofs.AF.PDW40.decTxCore_unknownFlag	BitcoinProofs.AF.PDW40.decTxCore_unknownFlag	clean	Quot.sound,propext	BitcoinProofs.AF.PDW40.PDW40	TXV-016	-
+BitcoinProofs.AF.PDW42.txid_identity_face	BitcoinProofs.AF.PDW42.txid_identity_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW42.PDW42	TXV-017	-
+BitcoinProofs.AF.PDW42.wtxid_witness_face	BitcoinProofs.AF.PDW42.wtxid_witness_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW42.PDW42	TXV-018	-
+Bitcoin.DataLaws.txWeight_formula	Bitcoin.DataLaws.txWeight_formula	clean	propext	Bitcoin.DataLaws.Interface	TXV-019,SWT-019	-
+Bitcoin.TxValidation.haveInputs	Bitcoin.TxValidation.haveInputs	clean	none	Bitcoin.TxValidation.Interface	TXV-020	-
+BitcoinProofs.AF.PDW66.coinMatured_iff	BitcoinProofs.AF.PDW66.coinMatured_iff	clean	propext	BitcoinProofs.AF.PDW66.PDW66	TXV-021	-
+Bitcoin.TxValidation.coinHeightOfCode_pack	Bitcoin.TxValidation.coinHeightOfCode_pack	clean	Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-022	-
+BitcoinProofs.AF.PDW70.inputValuesLoop_ok_sum_row	BitcoinProofs.AF.PDW70.inputValuesLoop_ok_sum_row	clean	propext	BitcoinProofs.AF.PDW70.PDW70B	TXV-023	-
+Bitcoin.Numeric.feeOf_nonneg_iff	Bitcoin.Numeric.feeOf_nonneg_iff	clean	propext	Bitcoin.Numeric.Interface	TXV-024	-
+BitcoinProofs.AF.PDW38.feeAccumInRange_iff	-	missing	none	BitcoinProofs.AF.PDW38	TXV-026	no declaration at HEAD (AF/PDW38 deleted)
+Bitcoin.DataLaws.locktimeIsTimeDomain_iff	Bitcoin.DataLaws.locktimeIsTimeDomain_iff	clean	propext	Bitcoin.DataLaws.Interface	TXV-028	-
+Bitcoin.DataLaws.isFinalTx_iff	Bitcoin.DataLaws.isFinalTx_iff	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Interface	TXV-029	-
+BitcoinProofs.AF.PDW63.bip113Cutoff_row	BitcoinProofs.AF.PDW63.bip113Cutoff_row	clean	none	BitcoinProofs.AF.PDW63.PDW63	TXV-031	-
+BitcoinProofs.AF.PDW100.validateTx_nonfinal	BitcoinProofs.AF.PDW100.validateTx_nonfinal	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW100.PDW100	TXV-032	-
+Bitcoin.TxValidation.Mempool.checkFinalTxAtTip	Bitcoin.TxValidation.Mempool.checkFinalTxAtTip	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Mempool	TXV-033	-
+Bitcoin.DataLaws.bip68Enabled	Bitcoin.DataLaws.bip68Enabled	clean	none	Bitcoin.DataLaws.Laws	TXV-034	-
+Bitcoin.DataLaws.seqIsDisabled_iff	Bitcoin.DataLaws.seqIsDisabled_iff	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Laws	TXV-035	-
+Bitcoin.DataLaws.seqIsTimeBased_iff	Bitcoin.DataLaws.seqIsTimeBased_iff	clean	Quot.sound,propext	Bitcoin.DataLaws.Laws	TXV-036	-
+Bitcoin.DataLaws.seqRelative_eq_mod	Bitcoin.DataLaws.seqRelative_eq_mod	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Laws	TXV-037	-
+Bitcoin.DataLaws.seqHeightLock_last_invalid	Bitcoin.DataLaws.seqHeightLock_last_invalid	clean	Classical.choice,Quot.sound,propext	Bitcoin.DataLaws.Laws	TXV-038	-
+Bitcoin.TxValidation.sequenceLocksOk_iff	Bitcoin.TxValidation.sequenceLocksOk_iff	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-039	-
+Bitcoin.TxValidation.bip68HeightOk	Bitcoin.TxValidation.bip68HeightOk	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-040	-
+Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTip	Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTip	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Mempool	TXV-041	-
+Bitcoin.TxValidation.mempoolHeight	Bitcoin.TxValidation.mempoolHeight	clean	none	Bitcoin.TxValidation.Interface	TXV-042	-
+Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_domain_mismatch_fails	Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_domain_mismatch_fails	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-043	-
+Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_gt_fails	Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_gt_fails	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-044	-
+Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_finalSeq_fails	Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_finalSeq_fails	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-045	-
+Bitcoin.TxValidation.LocktimeSigOps.checkSequence_version_fails	Bitcoin.TxValidation.LocktimeSigOps.checkSequence_version_fails	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-046	-
+Bitcoin.TxValidation.LocktimeSigOps.checkSequence_disable_fails	Bitcoin.TxValidation.LocktimeSigOps.checkSequence_disable_fails	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-047	-
+Bitcoin.TxValidation.LocktimeSigOps.checkSequence_masked	Bitcoin.TxValidation.LocktimeSigOps.checkSequence_masked	clean	propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-048	-
+Bitcoin.TxValidation.LocktimeSigOps.txLegacySigOps_one_in_out	Bitcoin.TxValidation.LocktimeSigOps.txLegacySigOps_one_in_out	clean	Quot.sound,propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-049	-
+Bitcoin.TxValidation.SigOpsCost.p2shSigOpsTx_coinbase_zero	Bitcoin.TxValidation.SigOpsCost.p2shSigOpsTx_coinbase_zero	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.SigOpsCost	TXV-050	-
+Bitcoin.TxValidation.SigOpsCost.p2shSigOpsTx_one_p2sh	Bitcoin.TxValidation.SigOpsCost.p2shSigOpsTx_one_p2sh	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.SigOpsCost	TXV-050	-
+Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTx	Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTx	clean	Quot.sound,propext	Bitcoin.TxValidation.SigOpsCost	TXV-051	-
+Bitcoin.TxValidation.LocktimeSigOps.sigOpCost_scale	Bitcoin.TxValidation.LocktimeSigOps.sigOpCost_scale	clean	Quot.sound,propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-052	-
+BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_of_per_tx_bound	BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_of_per_tx_bound	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.Theorems.BlockCor	TXV-053,BLK-036	-
+Bitcoin.TxValidation.LocktimeSigOps.sigOpStep_le_maxMultisig	Bitcoin.TxValidation.LocktimeSigOps.sigOpStep_le_maxMultisig	clean	Quot.sound,propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-054	-
+BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row	BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row	clean	propext	BitcoinProofs.AF.PDW84.PDW84e	TXV-055	-
+Bitcoin.Activation.exception_replaces_base	Bitcoin.Activation.exception_replaces_base	clean	propext	Bitcoin.Activation.Flags	TXV-056,BLK-084	-
+Bitcoin.TxValidation.Full.scriptLane	Bitcoin.TxValidation.Full.scriptLane	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Full	TXV-058	-
+Bitcoin.TxValidation.Full.txVerdictFull_coinbase_skip	Bitcoin.TxValidation.Full.txVerdictFull_coinbase_skip	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Full	TXV-059	-
+Bitcoin.TxValidation.Full.txVerdictFull_script_fail	Bitcoin.TxValidation.Full.txVerdictFull_script_fail	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Full	TXV-060	-
+Bitcoin.TxValidation.Full.txCheckerFor	Bitcoin.TxValidation.Full.txCheckerFor	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Full	TXV-061	-
+Bitcoin.TxValidation.ScriptExecCache.checkInputScriptsCached	Bitcoin.TxValidation.ScriptExecCache.checkInputScriptsCached	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.ScriptExecCache	TXV-062	-
+BitcoinProofs.Theorems.CapstoneBip30Loop.applyBlockL_loop_iff	BitcoinProofs.Theorems.CapstoneBip30Loop.applyBlockL_loop_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.Theorems.CapstoneBip30Loop	TXV-063	-
+Bitcoin.TxValidation.Mempool.first_spender_wins	Bitcoin.TxValidation.Mempool.first_spender_wins	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Mempool	TXV-064	-
+Bitcoin.TxValidation.Mempool.applyBlockU_cons_ok_step	Bitcoin.TxValidation.Mempool.applyBlockU_cons_ok_step	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Mempool	TXV-065	-
+Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_spk_irrelevant	Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_spk_irrelevant	clean	Quot.sound	Bitcoin.TxValidation.LocktimeSigOps	TXV-066	-
+Bitcoin.TxValidation.checkTxInputs	Bitcoin.TxValidation.checkTxInputs	clean	none	Bitcoin.TxValidation.Interface	TXV-067	-
+Bitcoin.Numeric.moneyRange_iff	Bitcoin.Numeric.moneyRange_iff	clean	propext	Bitcoin.Numeric.Interface	TXV-068	-
+Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange	Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.LocktimeSigOps	TXV-069	-
+Bitcoin.TxValidation.coinbase_maturity_boundary	Bitcoin.TxValidation.coinbase_maturity_boundary	clean	Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-070	-
+Bitcoin.TxValidation.validateTx	Bitcoin.TxValidation.validateTx	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-071	-
+BitcoinProofs.AF.PDW81.validateTx_coinbase_ok	BitcoinProofs.AF.PDW81.validateTx_coinbase_ok	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW81.PDW81	TXV-072	-
+Bitcoin.TxValidation.Mempool.mempoolKey	Bitcoin.TxValidation.Mempool.mempoolKey	clean	Quot.sound,propext	Bitcoin.TxValidation.Mempool	TXV-073	-
+Bitcoin.TxValidation.checkTransaction_ok_getValueOut_moneyRange	Bitcoin.TxValidation.checkTransaction_ok_getValueOut_moneyRange	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	TXV-074	-
+Bitcoin.Invariants.RC10.isSpent_iff	Bitcoin.Invariants.RC10.isSpent_iff	clean	propext	Bitcoin.Invariants.RC10	TXV-075	-
+Bitcoin.Serialization.decodeBlockHeader_encodeBlockHeader	Bitcoin.Serialization.decodeBlockHeader_encodeBlockHeader	clean	Quot.sound,propext	Bitcoin.Serialization.Interface	BLK-001	-
+Bitcoin.Serialization.decodeBlock_encodeBlock	Bitcoin.Serialization.decodeBlock_encodeBlock	clean	Quot.sound,propext	Bitcoin.Serialization.Interface	BLK-002	-
+BitcoinProofs.AF.PDW68.headerHash_row	BitcoinProofs.AF.PDW68.headerHash_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW68.PDW68	BLK-003	-
+BitcoinProofs.AF.PDW27.headerIsNull_iff	BitcoinProofs.AF.PDW27.headerIsNull_iff	clean	propext	BitcoinProofs.AF.PDW27.BLK004INV122	BLK-004	-
+BitcoinProofs.AF.PDW50.txidOf_eq_sha256d_serTx	BitcoinProofs.AF.PDW50.txidOf_eq_sha256d_serTx	clean	Quot.sound,propext	BitcoinProofs.AF.PDW50.PDW50	BLK-005	-
+BitcoinProofs.AF.PDW50.wtxidOf_eq_txidOf_of_noWitness	BitcoinProofs.AF.PDW50.wtxidOf_eq_txidOf_of_noWitness	clean	Quot.sound,propext	BitcoinProofs.AF.PDW50.PDW50	BLK-006	-
+BitcoinProofs.AF.PDW50.merkleRootOfBlock_eq	BitcoinProofs.AF.PDW50.merkleRootOfBlock_eq	clean	Quot.sound,propext	BitcoinProofs.AF.PDW50.PDW50	BLK-007	-
+BitcoinProofs.AF.PDW50.merkleLevel_singleton	BitcoinProofs.AF.PDW50.merkleLevel_singleton	clean	Quot.sound,propext	BitcoinProofs.AF.PDW50.PDW50	BLK-008	-
+BitcoinProofs.AF.PDW50.pairHash_eq_sha256d_append	BitcoinProofs.AF.PDW50.pairHash_eq_sha256d_append	clean	Quot.sound,propext	BitcoinProofs.AF.PDW50.PDW50	BLK-009	-
+BitcoinProofs.AF.PDW12.merkleOk_of_eq	BitcoinProofs.AF.PDW12.merkleOk_of_eq	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW12.PDW12	BLK-010	-
+BitcoinProofs.AF.PDW12.levelHasAdjacentDup_cons2_of_beq	BitcoinProofs.AF.PDW12.levelHasAdjacentDup_cons2_of_beq	clean	propext	BitcoinProofs.AF.PDW12.PDW12	BLK-011	-
+BitcoinProofs.AF.PDW53.merkleFailureKind_mutated	BitcoinProofs.AF.PDW53.merkleFailureKind_mutated	clean	Quot.sound,propext	BitcoinProofs.AF.PDW53.PDW53	BLK-012	-
+BitcoinProofs.AF.PDW76.merkleRootOf_nil	BitcoinProofs.AF.PDW76.merkleRootOf_nil	clean	Quot.sound,propext	BitcoinProofs.AF.PDW76.PDW76	BLK-013	-
+BitcoinProofs.AF.PDW41b.witnessLeaves_length	BitcoinProofs.AF.PDW41b.witnessLeaves_length	clean	Quot.sound,propext	BitcoinProofs.AF.PDW41b.PDW41b	BLK-014	-
+BitcoinProofs.AF.PDW41b.witnessCommitmentOutput_some_spec	BitcoinProofs.AF.PDW41b.witnessCommitmentOutput_some_spec	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW41b.PDW41b	BLK-015	-
+BitcoinProofs.AF.PDW41b.commitmentValueZero_eq_true_iff	BitcoinProofs.AF.PDW41b.commitmentValueZero_eq_true_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW41b.PDW41b	BLK-016	-
+BitcoinProofs.AF.PDW13.witnessCommitmentOk_eq_true	BitcoinProofs.AF.PDW13.witnessCommitmentOk_eq_true	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW13.PDW13	BLK-017	-
+BitcoinProofs.AF.PDW13.commitmentNonceOk_eq_true	BitcoinProofs.AF.PDW13.commitmentNonceOk_eq_true	clean	propext	BitcoinProofs.AF.PDW13.PDW13	BLK-018	-
+BitcoinProofs.AF.PDW13.commitmentGate_unexpected_witness	BitcoinProofs.AF.PDW13.commitmentGate_unexpected_witness	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW13.PDW13	BLK-019	-
+BitcoinProofs.AF.PDW14.commitmentGate_forces_binding	BitcoinProofs.AF.PDW14.commitmentGate_forces_binding	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW14.B020	BLK-020	-
+BitcoinProofs.AF.PDW53.contextualChecksOrdered_row	BitcoinProofs.AF.PDW53.contextualChecksOrdered_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW53.PDW53	BLK-021	-
+BitcoinProofs.AF.PDW41b.vtxNonempty_eq_true_iff	BitcoinProofs.AF.PDW41b.vtxNonempty_eq_true_iff	clean	propext	BitcoinProofs.AF.PDW41b.PDW41b	BLK-022	-
+BitcoinProofs.AF.PDW28.vtxCountWeightOk_eq	BitcoinProofs.AF.PDW28.vtxCountWeightOk_eq	clean	propext	BitcoinProofs.AF.PDW28.PDW28	BLK-023	-
+BitcoinProofs.AF.PDW51.strippedSize_row	BitcoinProofs.AF.PDW51.strippedSize_row	clean	propext	BitcoinProofs.AF.PDW51.PDW51	BLK-024	-
+BitcoinProofs.AF.PDW51.blockWeight_row	BitcoinProofs.AF.PDW51.blockWeight_row	clean	propext	BitcoinProofs.AF.PDW51.PDW51	BLK-025	-
+BitcoinProofs.Theorems.CapstoneWeight.weightOk_iff	BitcoinProofs.Theorems.CapstoneWeight.weightOk_iff	clean	propext	BitcoinProofs.Theorems.CapstoneWeightCor	BLK-026	-
+BitcoinProofs.AF.PDW51.cbPositionOk_cons_iff	BitcoinProofs.AF.PDW51.cbPositionOk_cons_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW51.PDW51	BLK-027	-
+BitcoinProofs.AF.PDW68.cbPositionOk_tail_reject	BitcoinProofs.AF.PDW68.cbPositionOk_tail_reject	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW68.PDW68	BLK-028	-
+BitcoinProofs.AF.PDW32.cbLengthOk_iff	BitcoinProofs.AF.PDW32.cbLengthOk_iff	clean	propext	BitcoinProofs.AF.PDW32.PDW32	BLK-029	-
+Bitcoin.Capstone.Block.validateBlock	Bitcoin.Capstone.Block.validateBlock	clean	Classical.choice,Quot.sound,propext	Bitcoin.Capstone.Block	BLK-030	-
+BitcoinProofs.AF.PDW68.hasDupPrevouts_pair_dup	BitcoinProofs.AF.PDW68.hasDupPrevouts_pair_dup	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW68.PDW68	BLK-031	-
+BitcoinProofs.AF.PDW34.checkTransaction_none_weight	-	build-failed	none	BitcoinProofs.AF.PDW34.PDW34	BLK-032	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW29.legacySigOpCountTx_row_vector	BitcoinProofs.AF.PDW29.legacySigOpCountTx_row_vector	clean	none	BitcoinProofs.AF.PDW29.PDW29Sigops	BLK-033	-
+BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_le_20000	BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_le_20000	clean	Quot.sound,propext	BitcoinProofs.Theorems.BlockCor	BLK-034	-
+BitcoinProofs.AF.PDW29.txSigOpCost_decompose_row	BitcoinProofs.AF.PDW29.txSigOpCost_decompose_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW29.PDW29Sigops	BLK-035	-
+BitcoinProofs.AF.PDW16.compactTarget_eq	BitcoinProofs.AF.PDW16.compactTarget_eq	clean	Quot.sound,propext	BitcoinProofs.AF.PDW16.PDW16	BLK-037	-
+BitcoinProofs.AF.PDW16.targetOk_eq	BitcoinProofs.AF.PDW16.targetOk_eq	clean	Quot.sound,propext	BitcoinProofs.AF.PDW16.PDW16	BLK-038	-
+BitcoinProofs.Theorems.CapstonePow.powOk_iff_conj	BitcoinProofs.Theorems.CapstonePow.powOk_iff_conj	clean	Quot.sound,propext	BitcoinProofs.Theorems.CapstonePowCor	BLK-039	-
+BitcoinProofs.AF.PDW28.powLimitMainnet_pin	BitcoinProofs.AF.PDW28.powLimitMainnet_pin	clean	none	BitcoinProofs.AF.PDW28.PDW28	BLK-040	-
+BitcoinProofs.AF.PDW28.powLimitSignet_pin	BitcoinProofs.AF.PDW28.powLimitSignet_pin	clean	none	BitcoinProofs.AF.PDW28.PDW28	BLK-041	-
+BitcoinProofs.AF.PDW12.nextWorkRequired_nonboundary_const	BitcoinProofs.AF.PDW12.nextWorkRequired_nonboundary_const	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW12.PDW12	BLK-042	-
+BitcoinProofs.AF.PDW31.nextWorkRequired_retarget_boundary	BitcoinProofs.AF.PDW31.nextWorkRequired_retarget_boundary	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW31.PDW31	BLK-043	-
+BitcoinProofs.AF.PDW38.nextWorkRequired_timespan_anchor	-	missing	none	BitcoinProofs.AF.PDW38	BLK-044	no declaration at HEAD (AF/PDW38 deleted)
+BitcoinProofs.AF.PDW31.calculateNextWorkRequired_clamp_low	BitcoinProofs.AF.PDW31.calculateNextWorkRequired_clamp_low	clean	Quot.sound,propext	BitcoinProofs.AF.PDW31.PDW31	BLK-045	-
+BitcoinProofs.AF.PDW43.calculateNextWorkRequired_scaled	BitcoinProofs.AF.PDW43.calculateNextWorkRequired_scaled	clean	Quot.sound,propext	BitcoinProofs.AF.PDW43.PDW43	BLK-046	-
+BitcoinProofs.AF.PDW43.calculateNextWorkRequired_bip94_base	BitcoinProofs.AF.PDW43.calculateNextWorkRequired_bip94_base	clean	Quot.sound,propext	BitcoinProofs.AF.PDW43.PDW43	BLK-047	-
+BitcoinProofs.AF.PDW31.calculateNextWorkRequired_capped_target	BitcoinProofs.AF.PDW31.calculateNextWorkRequired_capped_target	clean	Quot.sound,propext	BitcoinProofs.AF.PDW31.PDW31	BLK-048	-
+BitcoinProofs.AF.PDW38.calculateNextWorkRequired_noRetarget	BitcoinProofs.AF.PDW66.calculateNextWorkRequired_noRetarget	clean	Quot.sound,propext	BitcoinProofs.AF.PDW66.PDW66	BLK-049	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW46.permittedDifficultyTransition_bounds	BitcoinProofs.AF.PDW46.permittedDifficultyTransition_bounds	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW46.PDW46	BLK-050	-
+BitcoinProofs.AF.PDW31.permittedDifficultyTransition_nonboundary	BitcoinProofs.AF.PDW31.permittedDifficultyTransition_nonboundary	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW31.PDW31	BLK-051	-
+BitcoinProofs.AF.PDW28.permitted_mindiff_true	BitcoinProofs.AF.PDW28.permitted_mindiff_true	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW28.PDW28	BLK-052	-
+BitcoinProofs.AF.PDW28.nextWorkRequired_minDiff_slow	BitcoinProofs.AF.PDW28.nextWorkRequired_minDiff_slow	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW28.PDW28	BLK-053	-
+BitcoinProofs.AF.PDW46.minDiffWalkBack_nearest	BitcoinProofs.AF.PDW46.minDiffWalkBack_nearest	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW46.PDW46	BLK-054	-
+BitcoinProofs.AF.PDW13.timewarpOk_true_iff	BitcoinProofs.AF.PDW13.timewarpOk_true_iff	clean	propext	BitcoinProofs.AF.PDW13.PDW13	BLK-055	-
+BitcoinProofs.AF.PDW31.medianTimePast_congr	BitcoinProofs.AF.PDW31.medianTimePast_congr	clean	Quot.sound,propext	BitcoinProofs.AF.PDW31.PDW31	BLK-056	-
+BitcoinProofs.AF.PDW13.timeNotTooOld_eq	BitcoinProofs.AF.PDW13.timeNotTooOld_eq	clean	propext	BitcoinProofs.AF.PDW13.PDW13	BLK-057	-
+BitcoinProofs.AF.PDW12.timeNotTooNew_eq	BitcoinProofs.AF.PDW12.timeNotTooNew_eq	clean	propext	BitcoinProofs.AF.PDW12.PDW12	BLK-058	-
+BitcoinProofs.AF.PDW30.connectHeight_row	BitcoinProofs.AF.PDW30.connectHeight_row	clean	none	BitcoinProofs.AF.PDW30.PDW30	BLK-059	-
+BitcoinProofs.AF.PDW32.versionOk_bip34_face	BitcoinProofs.AF.PDW32.versionOk_bip34_face	clean	propext	BitcoinProofs.AF.PDW32.PDW32	BLK-060	-
+BitcoinProofs.AF.PDW32.versionOk_bip66_face	BitcoinProofs.AF.PDW32.versionOk_bip66_face	clean	propext	BitcoinProofs.AF.PDW32.PDW32	BLK-061	-
+BitcoinProofs.AF.PDW32.versionOk_bip65_face	BitcoinProofs.AF.PDW32.versionOk_bip65_face	clean	propext	BitcoinProofs.AF.PDW32.PDW32	BLK-062	-
+BitcoinProofs.AF.PDW8.prevHeaderKnown_true_iff	BitcoinProofs.AF.PDW8.prevHeaderKnown_true_iff	clean	none	BitcoinProofs.AF.PDW8.Blk063Cor	BLK-063	-
+BitcoinProofs.AF.PDW8.prevHeaderKnown_false_iff	BitcoinProofs.AF.PDW8.prevHeaderKnown_false_iff	clean	none	BitcoinProofs.AF.PDW8.Blk063Cor	BLK-063	-
+BitcoinProofs.AF.PDW8.prevNotFailed_true_iff	BitcoinProofs.AF.PDW8.prevNotFailed_true_iff	clean	Quot.sound,propext	BitcoinProofs.AF.PDW8.Blk064Cor	BLK-064	-
+Bitcoin.Block.Params.cachedVerdict	Bitcoin.Block.Params.cachedVerdict	clean	none	Bitcoin.Block.Params	BLK-065	-
+BitcoinProofs.AF.PDW43.isFinalTx_iff_row	BitcoinProofs.AF.PDW43.isFinalTx_iff_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW43.PDW43	BLK-066	-
+BitcoinProofs.AF.PDW38.finalityCutoff_iff	-	missing	none	BitcoinProofs.AF.PDW38	BLK-067	no declaration at HEAD (AF/PDW38 deleted)
+Bitcoin.Block.Connect.blockFinalityOk_all	Bitcoin.Block.Connect.blockFinalityOk_all	clean	Classical.choice,Quot.sound,propext	Bitcoin.Block.Connect	BLK-068	-
+BitcoinProofs.AF.PDW14.bip34Ok_push_prefix	BitcoinProofs.AF.PDW14.bip34Ok_push_prefix	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW14.B069	BLK-069	-
+Bitcoin.Activation.buriedActive_true	Bitcoin.Activation.buriedActive_true	clean	none	Bitcoin.Activation.Flags	BLK-072	-
+Bitcoin.Activation.buriedActive_false	Bitcoin.Activation.buriedActive_false	clean	none	Bitcoin.Activation.Flags	BLK-072	-
+Bitcoin.Activation.versionBitsSignals	Bitcoin.Activation.versionBitsSignals	clean	Classical.choice,Quot.sound,propext	Bitcoin.Activation.Bip9	BLK-073	-
+Bitcoin.Activation.bip9State_next_period	Bitcoin.Activation.bip9State_next_period	clean	Quot.sound,propext	Bitcoin.Activation.Interface	BLK-074	-
+Bitcoin.Activation.count_beats_timeout	Bitcoin.Activation.count_beats_timeout	clean	none	Bitcoin.Activation.Bip9	BLK-077	-
+Bitcoin.Activation.bip9_never_active	Bitcoin.Activation.bip9_never_active	clean	none	Bitcoin.Activation.Interface	BLK-079	-
+Bitcoin.Activation.bip9_genesis_defined	Bitcoin.Activation.bip9_genesis_defined	clean	none	Bitcoin.Activation.Bip9	BLK-080	-
+BitcoinProofs.AF.PDW20.mainnet_testdummy_table	BitcoinProofs.AF.PDW20.mainnet_testdummy_table	clean	none	BitcoinProofs.AF.PDW20.PDW20	BLK-081	-
+BitcoinProofs.AF.PDW16.testnet4_testdummy_table	BitcoinProofs.AF.PDW16.testnet4_testdummy_table	clean	none	BitcoinProofs.AF.PDW16.PDW16	BLK-082	-
+BitcoinProofs.AF.PDW14.cbAmountOk_iff	BitcoinProofs.AF.PDW14.cbAmountOk_iff	clean	propext	BitcoinProofs.AF.PDW14.B089B104	BLK-089	-
+BitcoinProofs.AF.PDW12.feeAccumInRange_eq	BitcoinProofs.AF.PDW12.feeAccumInRange_eq	clean	propext	BitcoinProofs.AF.PDW12.PDW12	BLK-091	-
+BitcoinProofs.AF.PDW70.updateCoinsL_row	BitcoinProofs.AF.PDW70.updateCoinsL_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW70.PDW70	BLK-092	-
+BitcoinProofs.AF.PDW70.addedCoins_spendable_row	BitcoinProofs.AF.PDW70.addedCoins_spendable_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW70.PDW70	BLK-093	-
+BitcoinProofs.PDW9.scriptUnspendable_of_opReturn	BitcoinProofs.PDW9.scriptUnspendable_of_opReturn	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.PDW9.Unspendable	BLK-094	-
+BitcoinProofs.AF.PDW70.updateCoinsL_coinbase_row	BitcoinProofs.AF.PDW70.updateCoinsL_coinbase_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW70.PDW70	BLK-095	-
+Bitcoin.Ledger.bip30Enforced	Bitcoin.Ledger.bip30Enforced	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	BLK-096,BLK-097,BLK-098	-
+BitcoinProofs.AF.PDW71.bip30DisconnectRelaxed_pair_row	BitcoinProofs.AF.PDW71.bip30DisconnectRelaxed_pair_row	clean	none	BitcoinProofs.AF.PDW71.PDW71	BLK-099	-
+BitcoinProofs.AF.PDW18.Coin_mk_eta	BitcoinProofs.AF.PDW18.Coin_mk_eta	clean	none	BitcoinProofs.AF.PDW18.PDW18	BLK-101	-
+Bitcoin.TxValidation.checkTxInputs_ok_conservation	Bitcoin.TxValidation.checkTxInputs_ok_conservation	clean	Classical.choice,Quot.sound,propext	Bitcoin.TxValidation.Interface	BLK-103	-
+BitcoinProofs.AF.PDW14.blockSequenceLocksOk_all	BitcoinProofs.AF.PDW14.blockSequenceLocksOk_all	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW14.B089B104	BLK-104	-
+Bitcoin.Ledger.spentUndo_hit	Bitcoin.Ledger.spentUndo_hit	clean	Classical.choice,Quot.sound,propext	Bitcoin.Ledger.Interface	BLK-105	-
+Bitcoin.Block.Params.replayUndos	Bitcoin.Block.Params.replayUndos	clean	none	Bitcoin.Block.Params	BLK-106	-
+BitcoinProofs.AF.PDW23.disconnectRelevant_row_iff	BitcoinProofs.AF.PDW23.disconnectRelevant_row_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW23.PDW23	BLK-107	-
+BitcoinProofs.AF.PDW23.undoCountOk_row_iff	BitcoinProofs.AF.PDW23.undoCountOk_row_iff	clean	propext	BitcoinProofs.AF.PDW23.PDW23	BLK-108	-
+BitcoinProofs.AF.PDW49.connectGenesis_utxo_face	BitcoinProofs.AF.PDW49.connectGenesis_utxo_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW49.PDW49	BLK-109	-
+BitcoinProofs.AF.PDW68.emptyUtxo_row	BitcoinProofs.AF.PDW68.emptyUtxo_row	clean	none	BitcoinProofs.AF.PDW68.PDW68	BLK-110	-
+BitcoinProofs.AF.PDW23.genesisHeader_row	BitcoinProofs.AF.PDW23.genesisHeader_row	clean	none	BitcoinProofs.AF.PDW23.PDW23	BLK-111	-
+BitcoinProofs.AF.PDW16.genesisCoinbaseTx_coinbase	BitcoinProofs.AF.PDW16.genesisCoinbaseTx_coinbase	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW16.PDW16	BLK-112	-
+BitcoinProofs.AF.PDW24.workOf_zero_invalid	BitcoinProofs.AF.PDW24.workOf_zero_invalid	clean	Quot.sound,propext	BitcoinProofs.AF.PDW24.PDW24	BLK-113	-
+BitcoinProofs.AF.PDW24.chainWork_cons_eq	BitcoinProofs.AF.PDW24.chainWork_cons_eq	clean	Quot.sound,propext	BitcoinProofs.AF.PDW24.PDW24	BLK-114	-
+BitcoinProofs.AF.PDW24.mostWork?_maximality	BitcoinProofs.AF.PDW24.mostWork?_maximality	clean	Quot.sound,propext	BitcoinProofs.AF.PDW24.PDW24	BLK-115	-
+BitcoinProofs.AF.PDW30.betterThan_tie_earlier	BitcoinProofs.AF.PDW30.betterThan_tie_earlier	clean	Quot.sound,propext	BitcoinProofs.AF.PDW30.PDW30	BLK-116	-
+BitcoinProofs.AF.PDW30.switchTip_strict	BitcoinProofs.AF.PDW30.switchTip_strict	clean	propext	BitcoinProofs.AF.PDW30.PDW30	BLK-117	-
+BitcoinProofs.AF.PDW30.reorgPlan_disconnect	BitcoinProofs.AF.PDW30.reorgPlan_disconnect	clean	propext	BitcoinProofs.AF.PDW30.PDW30b	BLK-118	-
+BitcoinProofs.AF.PDW30.prunedCandidates_subset	BitcoinProofs.AF.PDW30.prunedCandidates_subset	clean	propext	BitcoinProofs.AF.PDW30.PDW30b	BLK-119	-
+BitcoinProofs.AF.PDW8.submitVerdict_duplicate_invalid_iff	BitcoinProofs.AF.PDW8.submitVerdict_duplicate_invalid_iff	clean	propext	BitcoinProofs.AF.PDW8.Blk120Cor	BLK-120	-
+BitcoinProofs.AF.PDW46.bestInvalidWork_ge_mem	BitcoinProofs.AF.PDW46.bestInvalidWork_ge_mem	clean	propext	BitcoinProofs.AF.PDW46.PDW46	BLK-121	-
+BitcoinProofs.AF.PDW8.minChainWorkOk_true_iff	BitcoinProofs.AF.PDW8.minChainWorkOk_true_iff	clean	propext	BitcoinProofs.AF.PDW8.Blk122Cor	BLK-122	-
+BitcoinProofs.AF.PDW46.assumevalidSkipped_below_guard	BitcoinProofs.AF.PDW46.assumevalidSkipped_below_guard	clean	none	BitcoinProofs.AF.PDW46.PDW46	BLK-123	-
+BitcoinProofs.AF.PDW49.scriptVerdicts_serial	BitcoinProofs.AF.PDW49.scriptVerdicts_serial	clean	none	BitcoinProofs.AF.PDW49.PDW49	BLK-124	-
+Bitcoin.Block.Params.mutated64ByteTx	Bitcoin.Block.Params.mutated64ByteTx	clean	Classical.choice,Quot.sound,propext	Bitcoin.Block.Params	BLK-125	-
+BitcoinProofs.AF.PDW8.signetDefaultChallenge_script_shape	BitcoinProofs.AF.PDW8.signetDefaultChallenge_script_shape	clean	none	BitcoinProofs.AF.PDW8.Blk126Cor	BLK-126	-
+Bitcoin.Block.Params.memoVerdict	Bitcoin.Block.Params.memoVerdict	clean	none	Bitcoin.Block.Params	BLK-127	-
+Bitcoin.Block.Params.reservedValueFill	Bitcoin.Block.Params.reservedValueFill	clean	none	Bitcoin.Block.Params	BLK-128	-
+Bitcoin.Block.Params.merklePathRoot	Bitcoin.Block.Params.merklePathRoot	clean	Quot.sound,propext	Bitcoin.Block.Params	BLK-129	-
+BitcoinProofs.AF.PDW16.timestamp_window_eq_max_future	BitcoinProofs.AF.PDW16.timestamp_window_eq_max_future	clean	none	BitcoinProofs.AF.PDW16.PDW16	BLK-130	-
+BitcoinProofs.AF.PDW45.isWitnessProgram_template	BitcoinProofs.AF.PDW45.isWitnessProgram_template	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW45.PDW45	SWT-001	-
+BitcoinProofs.AF.PDW65.witnessMalleated_bare	BitcoinProofs.AF.PDW65.witnessMalleated_bare	clean	Quot.sound,propext	BitcoinProofs.AF.PDW65.PDW65	SWT-003	-
+BitcoinProofs.AF.PDW65.p2shInner_witnessMalleatedP2SH	BitcoinProofs.AF.PDW65.p2shInner_witnessMalleatedP2SH	clean	Quot.sound,propext	BitcoinProofs.AF.PDW65.PDW65	SWT-004	-
+BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wpkh_arity	BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wpkh_arity	clean	Quot.sound,propext	BitcoinProofs.AF.PDW45.PDW45	SWT-005	-
+BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wpkh_script	BitcoinProofs.AF.PDW75.verifyWitnessProgram_v0_p2wpkh_script	clean	Quot.sound,propext	BitcoinProofs.AF.PDW75.PDW75	SWT-006	-
+BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wsh_empty_witness	BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wsh_empty_witness	clean	Quot.sound,propext	BitcoinProofs.AF.PDW45.PDW45	SWT-007	-
+BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wsh_mismatch	BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_p2wsh_mismatch	clean	Quot.sound,propext	BitcoinProofs.AF.PDW45.PDW45	SWT-008	-
+BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_wrongLength	BitcoinProofs.AF.PDW45.verifyWitnessProgram_v0_wrongLength	clean	Quot.sound,propext	BitcoinProofs.AF.PDW45.PDW45	SWT-009	-
+Bitcoin.SigHash.witnessScriptSizeOk_spec	Bitcoin.SigHash.witnessScriptSizeOk_spec	clean	propext	Bitcoin.SigHash.Theorems	SWT-011	-
+BitcoinProofs.AF.PDW65.executeWitnessScript_witnessV0_cleanstack	BitcoinProofs.AF.PDW65.executeWitnessScript_witnessV0_cleanstack	clean	Quot.sound,propext	BitcoinProofs.AF.PDW65.PDW65	SWT-012	-
+BitcoinProofs.AF.PDW65.witnessUnexpected_nonWitness	BitcoinProofs.AF.PDW65.witnessUnexpected_nonWitness	clean	Quot.sound,propext	BitcoinProofs.AF.PDW65.PDW65	SWT-015	-
+Bitcoin.Activation.Flags.witness_implies_p2sh	Bitcoin.Activation.witness_implies_p2sh	clean	propext	Bitcoin.Activation.Flags	SWT-016	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW51.blockWeight_witness_discount	BitcoinProofs.AF.PDW51.blockWeight_witness_discount	clean	Quot.sound,propext	BitcoinProofs.AF.PDW51.PDW51	SWT-017	-
+BitcoinProofs.AF.PDW20.witness_scale_factor_eq_four	BitcoinProofs.AF.PDW20.witness_scale_factor_eq_four	clean	none	BitcoinProofs.AF.PDW20.PDW20	SWT-018	-
+Bitcoin.DataLaws.Interface.vsize	Bitcoin.DataLaws.vsize	clean	propext	Bitcoin.DataLaws.Interface	SWT-020	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW44.sigOpCost_legacy_scale	BitcoinProofs.AF.PDW44.sigOpCost_legacy_scale	clean	none	BitcoinProofs.AF.PDW44.PDW44	SWT-022	-
+BitcoinProofs.AF.PDW44.sigOpCost_p2sh_step	BitcoinProofs.AF.PDW44.sigOpCost_p2sh_step	clean	Quot.sound,propext	BitcoinProofs.AF.PDW44.PDW44	SWT-023	-
+Bitcoin.Interpreter.SigOps.sigOpCost_witness_scale_one	Bitcoin.Interpreter.SigOps.sigOpCost_witness_scale_one	clean	Quot.sound,propext	Bitcoin.Interpreter.SigOps	SWT-024	-
+Bitcoin.Interpreter.SigOps.witnessSigOps_p2wpkh	Bitcoin.Interpreter.SigOps.witnessSigOps_p2wpkh	clean	Quot.sound,propext	Bitcoin.Interpreter.SigOps	SWT-025	-
+BitcoinProofs.AF.PDW19.witnessSigOps_p2wsh	BitcoinProofs.AF.PDW19.witnessSigOps_p2wsh	clean	Quot.sound,propext	BitcoinProofs.AF.PDW19.PDW19	SWT-026	-
+BitcoinProofs.AF.PDW44.p2shWitnessSigOps_p2wpkh	BitcoinProofs.AF.PDW44.p2shWitnessSigOps_p2wpkh	clean	Quot.sound,propext	BitcoinProofs.AF.PDW44.PDW44	SWT-027	-
+Bitcoin.Interpreter.SigOps.witnessSigOps_future_zero	Bitcoin.Interpreter.SigOps.witnessSigOps_future_zero	clean	Quot.sound,propext	Bitcoin.Interpreter.SigOps	SWT-028	-
+BitcoinProofs.AF.PDW76.witnessCommitmentOutput_some_spec	BitcoinProofs.AF.PDW76.witnessCommitmentOutput_some_spec	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW76.PDW76	SWT-029	-
+BitcoinProofs.AF.PDW58.witnessCommitmentOk_iff	BitcoinProofs.AF.PDW58.witnessCommitmentOk_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58B	SWT-030	-
+BitcoinProofs.AF.PDW76.commitmentNonceOk_eq_true	BitcoinProofs.AF.PDW76.commitmentNonceOk_eq_true	clean	propext	BitcoinProofs.AF.PDW76.PDW76b	SWT-031	-
+BitcoinProofs.AF.PDW43b.witnessMerkleRoot_cons	BitcoinProofs.AF.PDW43b.witnessMerkleRoot_cons	clean	Quot.sound,propext	BitcoinProofs.AF.PDW43b.PDW43b	SWT-032	-
+BitcoinProofs.AF.PDW43b.commitmentGate_no_witness	BitcoinProofs.AF.PDW43b.commitmentGate_no_witness	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW43b.PDW43b	SWT-033	-
+BitcoinProofs.AF.PDW43b.commitmentGate_witness_true_iff	BitcoinProofs.AF.PDW43b.commitmentGate_witness_true_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW43b.PDW43b	SWT-034	-
+Bitcoin.Activation.Flags.buried_heights_mainnet	Bitcoin.Activation.buried_heights_mainnet	clean	none	Bitcoin.Activation.Flags	SWT-035	stale-name: target is not a resolvable FQN
+Bitcoin.Activation.segwitBip9Deployment	Bitcoin.Activation.segwitBip9Deployment	clean	none	Bitcoin.Activation.Bip9	SWT-036	-
+BitcoinProofs.AF.PDW69.decTxCore_extended_roundtrip_row	BitcoinProofs.AF.PDW69.decTxCore_extended_roundtrip_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW69.PDW69	SWT-037	-
+BitcoinProofs.AF.PDW34.encTxL_witness_marker_flag	-	build-failed	none	BitcoinProofs.AF.PDW34.PDW34	SWT-038	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW34.decTxCore_flag_one_superfluous	-	build-failed	none	BitcoinProofs.AF.PDW34.PDW34	SWT-039	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW34.decTxCore_flag_even_unknown	-	build-failed	none	BitcoinProofs.AF.PDW34.PDW34	SWT-040	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW76.wtxidOf_noWitness	BitcoinProofs.AF.PDW76.wtxidOf_noWitness	clean	Quot.sound,propext	BitcoinProofs.AF.PDW76.PDW76	SWT-041	-
+Bitcoin.SigHash.signatureHashBip143Impl	Bitcoin.SigHash.signatureHashBip143Impl	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Digest	SWT-042	-
+Bitcoin.SigHash.Theorems.hashPrevoutsL_cases	Bitcoin.SigHash.hashPrevoutsL_cases	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SWT-043	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.Theorems.hashSequenceL_cases	Bitcoin.SigHash.hashSequenceL_cases	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SWT-044	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.Theorems.hashOutputsL_cases	Bitcoin.SigHash.hashOutputsL_cases	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SWT-045	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.Theorems.bip143_single_oor	Bitcoin.SigHash.bip143_single_oor	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SWT-046	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.Theorems.p2wpkhScriptCodeL_spec	Bitcoin.SigHash.p2wpkhScriptCodeL_spec	clean	none	Bitcoin.SigHash.Theorems	SWT-047	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW98.evalChecksigPreTapscript_scriptCode_extract	BitcoinProofs.AF.PDW98.evalChecksigPreTapscript_scriptCode_extract	clean	Quot.sound,propext	BitcoinProofs.AF.PDW98.PDW98	SWT-048	-
+BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_nonbase	BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_nonbase	clean	Quot.sound,propext	BitcoinProofs.AF.PDW62b.PDW62b	SWT-049	-
+BitcoinProofs.AF.PDW23.bip143MsgL_amount_field	BitcoinProofs.AF.PDW23.bip143MsgL_amount_field	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW23.PDW23	SWT-050	-
+BitcoinProofs.AF.PDW23.bip143MsgL_hashtype_tail	BitcoinProofs.AF.PDW23.bip143MsgL_hashtype_tail	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW23.PDW23	SWT-051	-
+BitcoinProofs.AF.PDW34.dshaL_is_sha256d	-	build-failed	none	BitcoinProofs.AF.PDW34.PDW34	SWT-052	declaring module does not build at HEAD
+Bitcoin.Crypto.Seam.Entry.ecdsaEntry_pops_hashtype	Bitcoin.Crypto.Seam.Entry.ecdsaEntry_pops_hashtype	clean	Quot.sound,propext	Bitcoin.Crypto.Seam.Entry	SWT-053	-
+Bitcoin.Crypto.Seam.Entry.ecdsaEntry_empty_sig_false	Bitcoin.Crypto.Seam.Entry.ecdsaEntry_empty_sig_false	clean	propext	Bitcoin.Crypto.Seam.Entry	SWT-054	-
+Bitcoin.Crypto.Seam.Entry.ecdsaEntry_witnessV0_missing_amount_false	Bitcoin.Crypto.Seam.Entry.ecdsaEntry_witnessV0_missing_amount_false	clean	Quot.sound,propext	Bitcoin.Crypto.Seam.Entry	SWT-055	-
+BitcoinProofs.AF.PDW93.witnessPubkeyType_off	BitcoinProofs.AF.PDW93.witnessPubkeyType_off	clean	propext	BitcoinProofs.AF.PDW93.PDW93b	SWT-056	-
+BitcoinProofs.AF.PDW66.cmsCleanup_no_nullfail	BitcoinProofs.AF.PDW66.cmsCleanup_no_nullfail	clean	propext	BitcoinProofs.AF.PDW66.PDW66	SWT-059	-
+BitcoinProofs.AF.PDW66.cmsCleanup_nullfail_error	BitcoinProofs.AF.PDW66.cmsCleanup_nullfail_error	clean	propext	BitcoinProofs.AF.PDW66.PDW66	SWT-059	-
+Bitcoin.Activation.Flags.dersig_flag_flow	Bitcoin.Activation.dersig_flag_flow	clean	propext	Bitcoin.Activation.Flags	SWT-061	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW98.stepBody_if_tapscript_minimalIf	BitcoinProofs.AF.PDW98.stepBody_if_tapscript_minimalIf	clean	Quot.sound,propext	BitcoinProofs.AF.PDW98.PDW98	SWT-062	-
+Bitcoin.Activation.Flags.nulldummy_flag_flow	Bitcoin.Activation.nulldummy_flag_flow	clean	propext	Bitcoin.Activation.Flags	SWT-063	stale-name: target is not a resolvable FQN
+Bitcoin.Interpreter.Defs.stepBody.checkMultiSig	Bitcoin.Interpreter.stepBody.checkMultiSig	clean	Quot.sound,propext	Bitcoin.Interpreter.Defs	SWT-064,SWT-065	stale-name: target is not a resolvable FQN
+Bitcoin.SigHash.Theorems.signatureHashBip143Impl_determined	Bitcoin.SigHash.signatureHashBip143Impl_determined	clean	Classical.choice,Quot.sound,propext	Bitcoin.SigHash.Theorems	SWT-066	stale-name: target is not a resolvable FQN
+Bitcoin.DataLaws.Interface.serWitness	Bitcoin.DataLaws.serWitness	clean	propext	Bitcoin.DataLaws.Interface	SWT-067	stale-name: target is not a resolvable FQN
+BitcoinProofs.AF.PDW67b.verifyInput_taproot_unjudged	BitcoinProofs.AF.PDW67b.verifyInput_taproot_unjudged	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW67b.PDW67bC3	SWT-068	-
+BitcoinProofs.AF.PDW25.isPayToTaproot_p2trScript_iff	BitcoinProofs.AF.PDW25.isPayToTaproot_p2trScript_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW25.PDW25	TPR-001	-
+BitcoinProofs.AF.PDW25.taprootLane_gate_off	BitcoinProofs.AF.PDW25.taprootLane_gate_off	clean	propext	BitcoinProofs.AF.PDW25.PDW25	TPR-002	-
+Bitcoin.Crypto.Taproot.Program.taprootLane_p2sh_wrapped	Bitcoin.Crypto.Taproot.Program.taprootLane_p2sh_wrapped	clean	propext	Bitcoin.Crypto.Taproot.Program	TPR-003	-
+BitcoinProofs.AF.PDW41.isPayToAnchor_iff	BitcoinProofs.AF.PDW41.isPayToAnchor_iff	clean	propext	BitcoinProofs.AF.PDW41.TPR004	TPR-004	-
+BitcoinProofs.AF.PDW25.isAnnex_def	BitcoinProofs.AF.PDW25.isAnnex_def	clean	none	BitcoinProofs.AF.PDW25.PDW25	TPR-005	-
+BitcoinProofs.AF.PDW41.annexHash_row	BitcoinProofs.AF.PDW41.annexHash_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW41.TPR006	TPR-006	-
+BitcoinProofs.AF.PDW25.classifySpend_one_keyPath	BitcoinProofs.AF.PDW25.classifySpend_one_keyPath	clean	propext	BitcoinProofs.AF.PDW25.PDW25	TPR-007	-
+BitcoinProofs.AF.PDW25.classifySpend_many_scriptPath	BitcoinProofs.AF.PDW25.classifySpend_many_scriptPath	clean	propext	BitcoinProofs.AF.PDW25.PDW25	TPR-008	-
+BitcoinProofs.AF.PDW18.controlBlockSizeOk_sizes	BitcoinProofs.AF.PDW18.controlBlockSizeOk_sizes	clean	propext	BitcoinProofs.AF.PDW18.PDW18	TPR-009	-
+BitcoinProofs.AF.PDW41.leafVersionOf_row	BitcoinProofs.AF.PDW41.leafVersionOf_row	clean	propext	BitcoinProofs.AF.PDW41.TPR010	TPR-010	-
+BitcoinProofs.AF.PDW35.parityOk_row	BitcoinProofs.AF.PDW35.parityOk_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW35.PDW35	TPR-011	-
+BitcoinProofs.AF.PDW56.tapLeaf_wire_eq	BitcoinProofs.AF.PDW56.tapLeaf_wire_eq	clean	Quot.sound,propext	BitcoinProofs.AF.PDW56.PDW56	TPR-012	-
+BitcoinProofs.AF.PDW35.tapBranch_row	BitcoinProofs.AF.PDW35.tapBranch_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW35.PDW35	TPR-013	-
+BitcoinProofs.AF.PDW35.taprootMerkleRoot_row	BitcoinProofs.AF.PDW35.taprootMerkleRoot_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW35.PDW35	TPR-014	-
+BitcoinProofs.AF.PDW56.taptweak_some_face	BitcoinProofs.AF.PDW56.taptweak_some_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW56.PDW56	TPR-015	-
+BitcoinProofs.AF.PDW56.tweakPoint_commitment_face	BitcoinProofs.AF.PDW56.tweakPoint_commitment_face	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW56.PDW56	TPR-016	-
+BitcoinProofs.AF.PDW56.tweakPoint_overflow_face	BitcoinProofs.AF.PDW56.tweakPoint_overflow_face	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW56.PDW56	TPR-017	-
+BitcoinProofs.AF.PDW35.internalKeyOk_row	BitcoinProofs.AF.PDW35.internalKeyOk_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW35.PDW35	TPR-018	-
+Bitcoin.Crypto.Taproot.LeafDispatch.leafVersionSpend	Bitcoin.Crypto.Taproot.LeafDispatch.leafVersionSpend	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Taproot.LeafDispatch	TPR-019,TPR-020,TPR-021	-
+BitcoinProofs.AF.PDW41.validationWeightInit_row	BitcoinProofs.AF.PDW41.validationWeightInit_row	clean	propext	BitcoinProofs.AF.PDW41.TPR022	TPR-022	-
+BitcoinProofs.AF.PDW74.evalChecksigTapscript_unknown_pubkey_discouraged	BitcoinProofs.AF.PDW74.evalChecksigTapscript_unknown_pubkey_discouraged	clean	propext	BitcoinProofs.AF.PDW74.PDW74	TPR-027	-
+BitcoinProofs.AF.PDW35.hashtypeValid_row	BitcoinProofs.AF.PDW35.hashtypeValid_row	clean	propext	BitcoinProofs.AF.PDW35.PDW35	TPR-030	-
+Bitcoin.Crypto.Taproot.sighashTaproot_epoch	Bitcoin.Crypto.Taproot.sighashTaproot_epoch	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Taproot.Sighash	TPR-032	-
+BitcoinProofs.AF.PDW33b.sigMsgTaproot_exists_row	BitcoinProofs.AF.PDW33b.sigMsgTaproot_exists_row	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW33b.PDW33b	TPR-033	-
+BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_prevouts	BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_prevouts	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW37.PDW37	TPR-034	-
+BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_amounts	BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_amounts	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW37.PDW37	TPR-035	-
+BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_scripts	BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_scripts	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW37.PDW37	TPR-036	-
+BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_sequences	BitcoinProofs.AF.PDW37.sigMsgTaproot_binds_sequences	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW37.PDW37	TPR-037	-
+BitcoinProofs.AF.PDW37.sigMsgTaproot_noAcp_outputs_gate	BitcoinProofs.AF.PDW37.sigMsgTaproot_noAcp_outputs_gate	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW37.PDW37	TPR-038	-
+BitcoinProofs.AF.PDW33b.spendType_row	BitcoinProofs.AF.PDW33b.spendType_row	clean	none	BitcoinProofs.AF.PDW33b.PDW33b	TPR-039	-
+Bitcoin.Crypto.Taproot.acpSlice_acp	Bitcoin.Crypto.Taproot.acpSlice_acp	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Taproot.Sighash	TPR-040	-
+Bitcoin.Crypto.Taproot.acpSlice_notACP	Bitcoin.Crypto.Taproot.acpSlice_notACP	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Taproot.Sighash	TPR-041	-
+BitcoinProofs.AF.PDW33b.singleSlice_some_row	BitcoinProofs.AF.PDW33b.singleSlice_some_row	clean	Quot.sound,propext	BitcoinProofs.AF.PDW33b.PDW33b	TPR-042	-
+BitcoinProofs.AF.PDW41.extSlice_tapscript_row	BitcoinProofs.AF.PDW41.extSlice_tapscript_row	clean	propext	BitcoinProofs.AF.PDW41.TPR043	TPR-043	-
+BitcoinProofs.AF.PDW33b.extSlice_tapscript_some_row	BitcoinProofs.AF.PDW33b.extSlice_tapscript_some_row	clean	propext	BitcoinProofs.AF.PDW33b.PDW33b	TPR-044	-
+BitcoinProofs.AF.PDW95.extSlice_requires_codesepPosInit	BitcoinProofs.AF.PDW95.extSlice_requires_codesepPosInit	clean	propext	BitcoinProofs.AF.PDW95.PDW95e	TPR-045	-
+Bitcoin.Crypto.Taproot.sighashTaproot_size	Bitcoin.Crypto.Taproot.sighashTaproot_size	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Taproot.Sighash	TPR-046	-
+Bitcoin.Crypto.Taproot.Program.taggedHash_unfold	Bitcoin.Crypto.Taproot.Program.taggedHash_unfold	clean	Quot.sound,propext	Bitcoin.Crypto.Taproot.Program	TPR-047	-
+Bitcoin.Crypto.Schnorr.Verify.eOf	Bitcoin.Crypto.Schnorr.Verify.eOf	clean	Quot.sound,propext	Bitcoin.Crypto.Schnorr.Verify	TPR-048	-
+Bitcoin.Crypto.Curve.Secp.liftX_onCurve	Bitcoin.Crypto.Curve.Secp.liftX_onCurve	clean	Quot.sound,propext	Bitcoin.Crypto.Curve.Secp	TPR-049	-
+Bitcoin.Crypto.Schnorr.Verify.verifyImpl	Bitcoin.Crypto.Schnorr.Verify.verifyImpl	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Schnorr.Verify	TPR-050,TPR-051,TPR-053	-
+BitcoinProofs.AF.PDW95.tpr052_verifyImpl_iff	BitcoinProofs.AF.PDW95.tpr052_verifyImpl_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW95.PDW95f	TPR-052	-
+BitcoinProofs.AF.PDW42.liftX_x_preserved	BitcoinProofs.AF.PDW42.liftX_x_preserved	clean	Quot.sound,propext	BitcoinProofs.AF.PDW42.PDW42	TPR-054	-
+Bitcoin.Script.Tapscript.evalChecksigDispatch_tapscript_arm	Bitcoin.Script.Tapscript.evalChecksigDispatch_tapscript_arm	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-055	-
+Bitcoin.Script.Tapscript.checksigAddStep_result	Bitcoin.Script.Tapscript.checksigAddStep_result	clean	propext	Bitcoin.Script.Tapscript.Delta	TPR-056	-
+Bitcoin.Script.Tapscript.checksigadd_outside_tapscript	Bitcoin.Script.Tapscript.checksigadd_outside_tapscript	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-057	-
+Bitcoin.Script.Tapscript.checksigadd_num4_bound	Bitcoin.Script.Tapscript.checksigadd_num4_bound	clean	none	Bitcoin.Script.Tapscript.Delta	TPR-058	-
+BitcoinProofs.AF.PDW93.isOpSuccessWire_iff	BitcoinProofs.AF.PDW93.isOpSuccessWire_iff	clean	propext	BitcoinProofs.AF.PDW93.PDW93	TPR-060	-
+Bitcoin.Script.Tapscript.executeWitnessScript_success_discourage	Bitcoin.Script.Tapscript.executeWitnessScript_success_discourage	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-062	-
+Bitcoin.Script.Tapscript.minimalif_tapscript_unconditional	Bitcoin.Script.Tapscript.minimalif_tapscript_unconditional	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-063	-
+Bitcoin.Script.Tapscript.evalScriptBytes_tapscript_no_script_size	Bitcoin.Script.Tapscript.evalScriptBytes_tapscript_no_script_size	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-064	-
+Bitcoin.Script.Tapscript.tapscript_opcount_guard_off	Bitcoin.Script.Tapscript.tapscript_opcount_guard_off	clean	propext	Bitcoin.Script.Tapscript.Delta	TPR-065	-
+BitcoinProofs.AF.PDW93.executeWitnessScript_stack_limit	BitcoinProofs.AF.PDW93.executeWitnessScript_stack_limit	clean	Quot.sound,propext	BitcoinProofs.AF.PDW93.PDW93	TPR-066	-
+BitcoinProofs.AF.PDW78.tpr067_stepChecked_cap	BitcoinProofs.AF.PDW78.tpr067_stepChecked_cap	clean	Quot.sound,propext	BitcoinProofs.AF.PDW78.PDW78	TPR-067	-
+BitcoinProofs.AF.PDW78.tpr068_ok_push_bound	BitcoinProofs.AF.PDW78.tpr068_ok_push_bound	clean	Quot.sound,propext	BitcoinProofs.AF.PDW78.PDW78	TPR-068	-
+BitcoinProofs.AF.PDW44.witnessSigOps_v1_zero	BitcoinProofs.AF.PDW44.witnessSigOps_v1_zero	clean	Quot.sound,propext	BitcoinProofs.AF.PDW44.PDW44	TPR-069	-
+Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included	Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included	clean	Quot.sound,propext	Bitcoin.Crypto.Taproot.Program	TPR-071	-
+Bitcoin.Crypto.Seam.Entry.schnorrEntry_execData_plumbed	Bitcoin.Crypto.Seam.Entry.schnorrEntry_execData_plumbed	clean	propext	Bitcoin.Crypto.Seam.Entry	TPR-072	-
+Bitcoin.Script.Tapscript.cltv_negative_tapscript	Bitcoin.Script.Tapscript.cltv_negative_tapscript	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-073	-
+Bitcoin.Script.Tapscript.disabledWire_success	Bitcoin.Script.Tapscript.disabledWire_success	clean	Quot.sound,propext	Bitcoin.Script.Tapscript.Delta	TPR-074	-
+BitcoinProofs.AF.PDW33b.taprootBip9Deployment_row	BitcoinProofs.AF.PDW33b.taprootBip9Deployment_row	clean	none	BitcoinProofs.AF.PDW33b.PDW33b	TPR-075	-
+Bitcoin.Activation.taproot_exception_block_flags	Bitcoin.Activation.taproot_exception_block_flags	clean	propext	Bitcoin.Activation.Taproot	TPR-076	-
+Bitcoin.Activation.taproot_always_on_base	Bitcoin.Activation.taproot_always_on_base	clean	propext	Bitcoin.Activation.Taproot	TPR-077	-
+BitcoinProofs.AF.PDW88.deploymentActiveAt_pprev_row	BitcoinProofs.AF.PDW88.deploymentActiveAt_pprev_row	clean	propext	BitcoinProofs.AF.PDW88.PDW88Act	TPR-078	-
+BitcoinProofs.AF.PDW56.taptweak_none_face	BitcoinProofs.AF.PDW56.taptweak_none_face	clean	Quot.sound,propext	BitcoinProofs.AF.PDW56.PDW56	TPR-083	-
+Bitcoin.Activation.tapscript_reimports_policy	Bitcoin.Activation.tapscript_reimports_policy	clean	propext	Bitcoin.Activation.Flags	SCR-183	-
+BitcoinProofs.AF.PDW93.checkSigEncoding_lowS_off	BitcoinProofs.AF.PDW93.checkSigEncoding_lowS_off	clean	Quot.sound,propext	BitcoinProofs.AF.PDW93.PDW93b	SCR-175	-
+BitcoinProofs.AF.PDW63b.strictenc_policy_only	BitcoinProofs.AF.PDW63b.strictenc_policy_only	clean	none	BitcoinProofs.AF.PDW63b.PDW63b	SCR-176	-
+BitcoinProofs.AF.PDW63b.minimaldata_policy_only	BitcoinProofs.AF.PDW63b.minimaldata_policy_only	clean	none	BitcoinProofs.AF.PDW63b.PDW63b	SCR-177	-
+BitcoinProofs.AF.PDW63b.minimalif_policy_and_tapscript	BitcoinProofs.AF.PDW63b.minimalif_policy_and_tapscript	clean	propext	BitcoinProofs.AF.PDW63b.PDW63b	SCR-178	-
+BitcoinProofs.AF.PDW63b.nullfail_policy_only	BitcoinProofs.AF.PDW63b.nullfail_policy_only	clean	none	BitcoinProofs.AF.PDW63b.PDW63b	SCR-179	-
+BitcoinProofs.AF.PDW63b.cleanstack_policy_and_tapscript	BitcoinProofs.AF.PDW63b.cleanstack_policy_and_tapscript	clean	propext	BitcoinProofs.AF.PDW63b.PDW63b	SCR-180	-
+BitcoinProofs.AF.PDW57b.constScriptCode_not_consensus	BitcoinProofs.AF.PDW57b.constScriptCode_not_consensus	clean	none	BitcoinProofs.AF.PDW57b.PDW57b	SCR-181	-
+BitcoinProofs.AF.PDW89.witnessPubKeyType_rejects_uncompressed	BitcoinProofs.AF.PDW89.witnessPubKeyType_rejects_uncompressed	clean	propext	BitcoinProofs.AF.PDW89.PDW89	SCR-182	-
+Bitcoin.Crypto.Curve.Secp.G_onCurve	Bitcoin.Crypto.Curve.Secp.G_onCurve	clean	none	Bitcoin.Crypto.Curve.Secp	SGN-101	-
+Bitcoin.Crypto.Curve.Mod.invM_correct	Bitcoin.Crypto.Curve.Mod.invM_correct	clean	Classical.choice,Quot.sound,propext	Bitcoin.Crypto.Curve.Mod	SGN-102	-
+Bitcoin.Crypto.Curve.Mod.expBits_eq_pow_mod	Bitcoin.Crypto.Curve.Mod.expBits_eq_pow_mod	clean	propext	Bitcoin.Crypto.Curve.Mod	SGN-103	-
+BitcoinProofs.Crypto.CurveZMod.P_prime	BitcoinProofs.Crypto.CurveZMod.P_prime	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.Crypto.CurveZMod	SGN-104	-
+BitcoinProofs.AF.PDW69TxCheck.parsePubKey_wrong_length	-	build-failed	none	BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck	SGN-105	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW69TxCheck.parseDerLax_badHead	-	build-failed	none	BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck	SGN-106	declaring module does not build at HEAD
+BitcoinProofs.AF.PDW95.sgn107_verifyImpl_mod_n_invariant	BitcoinProofs.AF.PDW95.sgn107_verifyImpl_mod_n_invariant	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW95.PDW95d	SGN-107	-
+BitcoinProofs.AF.PDW74.isLowDERSignature_true_iff	BitcoinProofs.AF.PDW74.isLowDERSignature_true_iff	clean	propext	BitcoinProofs.AF.PDW74.PDW74	SGN-108	-
+BitcoinProofs.AF.PDW58.parseDerLax_tag_none	BitcoinProofs.AF.PDW58.parseDerLax_tag_none	clean	Quot.sound,propext	BitcoinProofs.AF.PDW58.PDW58	SGN-109	-
+BitcoinProofs.AF.PDW58.parseDerLax_empty_row	BitcoinProofs.AF.PDW58.parseDerLax_empty_row	clean	propext	BitcoinProofs.AF.PDW58.PDW58	SGN-109	-
+BitcoinProofs.AF.PDW95.sgn110_verifyImpl_iff	BitcoinProofs.AF.PDW95.sgn110_verifyImpl_iff	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW95.PDW95d	SGN-110	-
+BitcoinProofs.AF.PDW42B.isDERSignature_len	BitcoinProofs.AF.PDW42B.isDERSignature_len	clean	Classical.choice,Quot.sound,propext	BitcoinProofs.AF.PDW42.PDW42B	SGN-111	-

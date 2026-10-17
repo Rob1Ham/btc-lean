@@ -1,0 +1,14 @@
+import BitcoinProofs.AF.PDW31.PDW31
+
+open BitcoinProofs.AF.PDW31
+#print axioms nextWorkRequired_retarget_boundary
+#print axioms nextWorkRequired_copy_nonboundary
+#print axioms calculateNextWorkRequired_clamp_low
+#print axioms calculateNextWorkRequired_clamp_high
+#print axioms calculateNextWorkRequired_clamp_mid
+#print axioms calculateNextWorkRequired_capped_target
+#print axioms calculateNextWorkRequired_copy_noRetarget
+#print axioms permittedDifficultyTransition_nonboundary
+#print axioms medianTimePast_eleven_some
+#print axioms medianTimePast_congr
+#print axioms medianTimePast_none

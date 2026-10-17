@@ -1,0 +1,19 @@
+# L2-INV tier-3: bitcoind v31.1.0 (official binary) behavioral confirmation
+# node /Satoshi:31.1.0/ @ http://127.0.0.1:18443 (shared harness regtest node) · testmempoolaccept (non-mutating) · 16 rows = 7 F-L2INV-001 diverge + 9 agree-controls
+# id | stripped | witness | oracle-want | bitcoind-allowed | reject-reason | verdict
+inv-0113 | 1000000 | 0 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0116 | 999000 | 100004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0117 | 950000 | 200004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0119 | 1000000 | 5 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0120 | 999999 | 100004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0523 | 980000 | 150004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0524 | 970000 | 120004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0110 | 999997 | 0 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0111 | 999998 | 0 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0112 | 999999 | 0 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0114 | 1000001 | 0 | bad-txns-oversize | False | bad-txns-oversize | BITCOIND-CONFIRMS-REJECT
+inv-0115 | 1000002 | 0 | bad-txns-oversize | False | bad-txns-oversize | BITCOIND-CONFIRMS-REJECT
+inv-0118 | 900000 | 200004 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0520 | 999996 | 0 | - | False | tx-size | BITCOIND-CONFIRMS-ACCEPT
+inv-0521 | 1000003 | 0 | bad-txns-oversize | False | bad-txns-oversize | BITCOIND-CONFIRMS-REJECT
+inv-0522 | 1000010 | 0 | bad-txns-oversize | False | bad-txns-oversize | BITCOIND-CONFIRMS-REJECT

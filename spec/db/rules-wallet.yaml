@@ -1,0 +1,1847 @@
+# rules-wallet.yaml — second census for wallet construction and signing
+#
+# This file is separate from spec/db/rules.yaml and is never merged into it.
+# It records wallet-level behaviour only: descriptors, miniscript, PSBT,
+# spend construction, and wallet signing. Every row is a checkable
+# proposition about the pinned Bitcoin Core tree, not a task description.
+#
+# Ground truth: Bitcoin Core commit
+# cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66 (a v21.99 development
+# snapshot). Paths in core_ref are relative to the Core source root
+# (the directory containing script/, wallet/, psbt.h, pubkey.cpp).
+#
+# Schema: mirrors a rules.yaml row (id, summary, check, core_ref, bip_cve,
+# lean_target, test_vector_ids, status, difficulty, consensus, notes,
+# source) with two deliberate differences:
+#   * statement  — the checkable proposition required by this census;
+#                  summary is only a short label.
+#   * difficulty — s | m | l | xl (scope/size estimate, not the 1..5
+#                  consensus-census scale).
+# `consensus: false` on every row: no wallet row is a consensus rule.
+# `status: planned` on every row: none of these is implemented or proven.
+#
+# Validate with:
+#   CORE_SRC=/path/to/bitcoin/src python3 spec/scripts/wallet_census.py
+# Rows: 140
+
+rules:
+- id: DESC-001
+  summary: checksum character set
+  statement: DescriptorChecksum returns the empty string if and only if at least one payload character is absent from INPUT_CHARSET.
+  check: checksum charset membership
+  core_ref: script/descriptor.cpp:169
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level descriptor grammar; not a consensus rule. Does not model private-key descriptors or checksum collision probability.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-002
+  summary: checksum symbol grouping
+  statement: Every group of three payload characters contributes one extra PolyMod symbol equal to 3*cls + (position >> 5), and a final partial group contributes its accumulated class value.
+  check: checksum 3-character grouping
+  core_ref: script/descriptor.cpp:171
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level descriptor grammar. Does not model the algebraic proof that single-character edits change at most one checksum symbol.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-003
+  summary: checksum finalisation
+  statement: After all payload symbols, DescriptorChecksum applies eight zero-valued PolyMod steps and XORs the result with 1 before choosing checksum characters.
+  check: checksum final shift and xor
+  core_ref: script/descriptor.cpp:180
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level descriptor grammar; the constant is an encoding detail, not a consensus rule.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-004
+  summary: checksum alphabet
+  statement: The j-th checksum character is CHECKSUM_CHARSET[(c >> (5*(7-j))) & 31] for j from 0 through 7.
+  check: checksum base32 emission
+  core_ref: script/descriptor.cpp:184
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level descriptor grammar. Does not model typo-correction beyond the checksum's stated error classes.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-005
+  summary: checksum attachment
+  statement: AddChecksum(s) is exactly s concatenated with '#' and the eight-character DescriptorChecksum(s).
+  check: checksum suffix construction
+  core_ref: script/descriptor.cpp:188
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level descriptor serialization; no claim about descriptor safety.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-006
+  summary: multiple hash separators
+  statement: CheckChecksum rejects any descriptor containing two or more '#' characters.
+  check: checksum separator uniqueness
+  core_ref: script/descriptor.cpp:2981
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser behaviour. Does not model recovery of malformed descriptor text.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-007
+  summary: required checksum
+  statement: When require_checksum is true, a descriptor without '#' is rejected with the error text 'Missing checksum'.
+  check: required checksum presence
+  core_ref: script/descriptor.cpp:2985
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser behaviour; callers choose whether a checksum is required.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-008
+  summary: checksum length
+  statement: When a checksum is present, CheckChecksum rejects it unless it is exactly eight characters long.
+  check: checksum length 8
+  core_ref: script/descriptor.cpp:2990
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser behaviour. Does not model truncated-but-prefix-matching checksums.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-009
+  summary: checksum mismatch
+  statement: A present checksum that differs from DescriptorChecksum(payload) is rejected and no descriptor is returned.
+  check: checksum equality
+  core_ref: script/descriptor.cpp:3001
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser behaviour; mismatch handling is all-or-nothing.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-010
+  summary: complete parse
+  statement: Parse succeeds only when ParseScript consumes the entire input remaining after checksum removal.
+  check: no trailing input
+  core_ref: script/descriptor.cpp:3017
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level parser behaviour. Does not model partial parses or error-position reporting.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-011
+  summary: hybrid keys
+  statement: A hexadecimal public key that is valid but hybrid (prefix 0x06 or 0x07) is rejected.
+  check: hybrid pubkey rejection
+  core_ref: script/descriptor.cpp:2002
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level key grammar. Does not model WIF or xprv handling.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-012
+  summary: uncompressed key contexts
+  statement: An uncompressed public key is accepted only when the parse context is TOP or P2SH; every nested segwit or taproot context rejects it.
+  check: uncompressed key context
+  core_ref: script/descriptor.cpp:1986
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level key grammar; mirrors script-level compressed-key policy, not a consensus rule.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-013
+  summary: x-only key parsing
+  statement: A 32-byte hexadecimal key is accepted only in P2TR context, where it is lifted to a compressed key with an even-y prefix.
+  check: x-only key literal
+  core_ref: script/descriptor.cpp:2014
+  bip_cve: BIP386
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level key grammar. Does not model x-only keys that fail curve validation.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-014
+  summary: extended private key neutering
+  statement: Parsing an xprv stores its private key in the signing provider and continues expansion from the neutered xpub.
+  check: xprv to xpub
+  core_ref: script/descriptor.cpp:2051
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level key grammar. Does not model encryption or secure storage of the stored private key.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-015
+  summary: range specifier
+  statement: A trailing '*' selects unhardened ranged derivation, while a trailing '*\'' or '*h' selects hardened ranged derivation.
+  check: wildcard derivation kind
+  core_ref: script/descriptor.cpp:1971
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level derivation grammar. Does not model concrete child-key bytes.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-016
+  summary: origin fingerprint
+  statement: A key origin fingerprint is accepted only as exactly eight hexadecimal characters, which decode to four bytes.
+  check: origin fingerprint width
+  core_ref: script/descriptor.cpp:2226
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level key-origin grammar. Does not model origin provenance or trust.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-017
+  summary: key path element
+  statement: A key path element is hardened exactly when its last character is '\'' or 'h', and its numeric value must be strictly less than 2^31.
+  check: hardened key path element
+  core_ref: util/bip32.cpp:26
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level key-path grammar shared with other BIP32 parsers.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-018
+  summary: multipath alternatives
+  statement: A multipath specifier contains at least two alternatives and rejects repeated numeric values.
+  check: multipath cardinality
+  core_ref: script/descriptor.cpp:1933
+  bip_cve: BIP389
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level grammar for multipath descriptors. Does not model expansion order across branches.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-019
+  summary: multipath outside origin
+  statement: ParsePubkey calls ParseKeyPath with allow_multipath=false for the key origin, so a multipath specifier inside brackets is rejected.
+  check: origin multipath rejection
+  core_ref: script/descriptor.cpp:2241
+  bip_cve: BIP389
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level grammar; multipath is permitted only in the derivation suffix.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-020
+  summary: pk expansion
+  statement: pk(K) expands to a single script consisting of the key push followed by OP_CHECKSIG, using a 32-byte push when the context is P2TR.
+  check: pk scriptPubKey
+  core_ref: script/descriptor.cpp:1242
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level expansion into the existing script model. Does not prove interpreter acceptance.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-021
+  summary: pkh expansion
+  statement: pkh(K) expands to OP_DUP OP_HASH160 <HASH160(K)> OP_EQUALVERIFY OP_CHECKSIG.
+  check: pkh scriptPubKey
+  core_ref: script/descriptor.cpp:1280
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level expansion. Does not model key derivation or signing.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-022
+  summary: wpkh expansion
+  statement: 'wpkh(K) expands to a witness-v0 key-hash program: OP_0 followed by the 20-byte HASH160(K) push.'
+  check: wpkh scriptPubKey
+  core_ref: script/descriptor.cpp:1313
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level expansion. Does not prove witness-program consensus semantics.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-023
+  summary: sh expansion
+  statement: sh(X) expands to OP_HASH160 <HASH160(script(X))> OP_EQUAL and records script(X) as the redeem script.
+  check: sh scriptPubKey
+  core_ref: script/descriptor.cpp:1464
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level expansion. Does not model nested script execution.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-024
+  summary: wsh expansion
+  statement: 'wsh(X) expands to a witness-v0 script-hash program: OP_0 followed by the 32-byte SHA256(script(X)) push, and records script(X) as the witness script.'
+  check: wsh scriptPubKey
+  core_ref: script/descriptor.cpp:1514
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level expansion. Does not model miniscript satisfaction.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-025
+  summary: sorted multisig
+  statement: multi preserves descriptor key order, while sortedmulti sorts the expanded public keys lexicographically before constructing the CHECKMULTISIG script.
+  check: sortedmulti key ordering
+  core_ref: script/descriptor.cpp:1376
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level expansion. Sorting is over serialized compressed public keys; uncompressed keys are excluded by context.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-026
+  summary: bare multisig limit
+  statement: In TOP context, multi and sortedmulti reject any key count greater than three.
+  check: bare multisig key cap
+  core_ref: script/descriptor.cpp:2479
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser policy mirroring standardness, not a consensus rule.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-027
+  summary: p2sh multisig size
+  statement: In P2SH context, multi rejects a script when script_size + 3 exceeds MAX_SCRIPT_ELEMENT_SIZE (520 bytes).
+  check: p2sh redeem script size
+  core_ref: script/descriptor.cpp:2485
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level parser policy; MAX_SCRIPT_ELEMENT_SIZE is a consensus push limit.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-028
+  summary: taproot key-path expansion
+  statement: tr(internal) with no script leaves finalizes a TaprootBuilder with an empty branch and outputs the witness-v1 program of the BIP341-tweaked internal key.
+  check: taproot key path output
+  core_ref: script/descriptor.cpp:1565
+  bip_cve: BIP386
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level expansion. Does not model script-path leaves or control-block construction.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-029
+  summary: taproot tree depth
+  statement: A tr() script tree whose nesting depth exceeds TAPROOT_CONTROL_MAX_NODE_COUNT is rejected during parsing.
+  check: taproot tree depth
+  core_ref: script/descriptor.cpp:2603
+  bip_cve: BIP386
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level parser bound. Does not model tree balancing choices.
+  source: Bitcoin Core cce32b168 source tree
+- id: DESC-030
+  summary: combo expansion
+  statement: combo(K) expands to P2PK and P2PKH, and additionally to P2WPKH and P2SH-P2WPKH when K is compressed.
+  check: combo output set
+  core_ref: script/descriptor.cpp:1347
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level expansion. combo() is not modelled by the planned wallet Lean fragment; this row fixes its Core behaviour.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-001
+  summary: type bitmap
+  statement: Each miniscript type character maps to a distinct bit in the type bitmap, covering B,V,K,W,z,o,n,d,u,e,f,s,m,x,g,h,i,j,k.
+  check: type bit assignment
+  core_ref: script/miniscript.h:167
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level miniscript model. Does not model the parser or policy compiler.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-002
+  summary: PK_K type
+  statement: ComputeType(PK_K) is exactly Konudemsxk in every context.
+  check: pk_k type
+  core_ref: script/miniscript.cpp:89
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level typing. Does not model key validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-003
+  summary: PK_H type
+  statement: ComputeType(PK_H) is exactly Knudemsxk in every context.
+  check: pk_h type
+  core_ref: script/miniscript.cpp:90
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level typing. Does not model key-hash collisions.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-004
+  summary: relative timelock type
+  statement: OLDER(n) carries g when n has the sequence lock-time flag and h otherwise, in addition to Bzfmxk.
+  check: older type properties
+  core_ref: script/miniscript.cpp:91
+  bip_cve: BIP379/BIP68
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model actual sequence validation.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-005
+  summary: absolute timelock type
+  statement: AFTER(n) carries i when n is at least LOCKTIME_THRESHOLD and j otherwise, in addition to Bzfmxk.
+  check: after type properties
+  core_ref: script/miniscript.cpp:95
+  bip_cve: BIP379/BIP65
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model actual lock-time validation.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-006
+  summary: hash fragment type
+  statement: Each of SHA256, HASH256, RIPEMD160 and HASH160 computes type Bonudmk.
+  check: hash fragment type
+  core_ref: script/miniscript.cpp:99
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level typing. Does not model preimage availability.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-007
+  summary: altstack wrapper type
+  statement: WRAP_A has W exactly when its child has B, inherits the child's timelock and satisfaction properties, and always adds x.
+  check: 'a: wrapper type'
+  core_ref: script/miniscript.cpp:105
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model stack effects.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-008
+  summary: swap wrapper type
+  statement: WRAP_S has W exactly when its child has both B and o, and otherwise inherits the child's properties including x.
+  check: 's: wrapper type'
+  core_ref: script/miniscript.cpp:110
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model stack effects.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-009
+  summary: checksig wrapper type
+  statement: WRAP_C has B exactly when its child has K, always has u and s, and inherits o,n,d,f,e,m plus timelock properties from the child.
+  check: 'c: wrapper type'
+  core_ref: script/miniscript.cpp:114
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model signature validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-010
+  summary: dup-if wrapper type
+  statement: WRAP_D has B exactly when its child has both V and z, has u only in Tapscript context, and always has n,d,x.
+  check: 'd: wrapper type'
+  core_ref: script/miniscript.cpp:119
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. The u/Tapscript distinction depends on MINIMALIF being consensus in BIP342 but policy-only in BIP141.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-011
+  summary: verify wrapper type
+  statement: WRAP_V has V exactly when its child has B, always has f and x, and inherits the child's satisfaction and timelock properties.
+  check: 'v: wrapper type'
+  core_ref: script/miniscript.cpp:128
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model the merged -VERIFY opcode.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-012
+  summary: nonzero wrapper type
+  statement: WRAP_J has B exactly when its child has both B and n, and always has n,d,x.
+  check: 'j: wrapper type'
+  core_ref: script/miniscript.cpp:133
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. Does not model the OP_SIZE guard.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-013
+  summary: and_v type
+  statement: AND_V takes B, V or K from its right child when its left child has V, and has k only when neither child mixes height and time locks.
+  check: and_v type
+  core_ref: script/miniscript.cpp:143
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model execution order beyond concatenation.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-014
+  summary: and_b type
+  statement: AND_B has B exactly when its left child has B and its right child has W, always has u and x, and composes e only when both children have e and s.
+  check: and_b type
+  core_ref: script/miniscript.cpp:157
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model OP_BOOLAND stack effects.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-015
+  summary: or_b type
+  statement: OR_B has B exactly when the left child has B and d and the right child has W and d, and always has d,u,x.
+  check: or_b type
+  core_ref: script/miniscript.cpp:172
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model OP_BOOLOR stack effects.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-016
+  summary: or_d type
+  statement: OR_D has B exactly when its left child has B,d,u and its right child has B, takes u,f,d,e from its right child, and always has x.
+  check: or_d type
+  core_ref: script/miniscript.cpp:180
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model OP_IFDUP.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-017
+  summary: or_c type
+  statement: OR_C has V exactly when its left child has B,d,u and its right child has V, and always has f and x.
+  check: or_c type
+  core_ref: script/miniscript.cpp:189
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model OP_NOTIF.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-018
+  summary: or_i type
+  statement: OR_I intersects B, V and K across both children, has o exactly when both children have z, and takes d from either child.
+  check: or_i type
+  core_ref: script/miniscript.cpp:197
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level typing. Does not model branch selection.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-019
+  summary: andor type
+  statement: ANDOR takes B, K or V from its second and third children when its first child has B,d,u, and takes d only from its third child.
+  check: andor type
+  core_ref: script/miniscript.cpp:206
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: xl
+  consensus: false
+  notes: Wallet-level typing. Does not model the OP_NOTIF/OP_ELSE control flow.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-020
+  summary: multi type
+  statement: MULTI has type Bnudemsk and is valid only in P2WSH context.
+  check: multi type and context
+  core_ref: script/miniscript.cpp:224
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level typing. Does not model CHECKMULTISIG dummy-element semantics.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-021
+  summary: multi_a type
+  statement: MULTI_A has type Budemsk and is valid only in Tapscript context.
+  check: multi_a type and context
+  core_ref: script/miniscript.cpp:227
+  bip_cve: BIP379/BIP342
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level typing. Does not model CHECKSIGADD semantics.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-022
+  summary: thresh type
+  statement: THRESH requires its first child to have B,d,u and every later child to have W,d,u, and has k only when every child has k and either k <= 1, or 2 <= k and no height/time lock mix occurs among its branches.
+  check: thresh type
+  core_ref: script/miniscript.cpp:242
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: xl
+  consensus: false
+  notes: Wallet-level typing. Does not model the O(n) ADD chain at execution time. No public calcType_thresh theorem exists; this row remains an explicit unproved obligation (oblig_MS_022) and is not claimed proved.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-023
+  summary: pk opcodes
+  statement: ToScript emits PK_K as the key push alone and PK_H as OP_DUP OP_HASH160 <keyhash> OP_EQUALVERIFY.
+  check: pk script emission
+  core_ref: script/miniscript.h:817
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level script generation. Does not prove the interpreter accepts the result.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-024
+  summary: timelock and hash opcodes
+  statement: ToScript emits OLDER as <n> OP_CHECKSEQUENCEVERIFY, AFTER as <n> OP_CHECKLOCKTIMEVERIFY, and each hash fragment as OP_SIZE 32 OP_EQUALVERIFY <hash-op> <digest> followed by OP_EQUAL or OP_EQUALVERIFY according to verify context.
+  check: timelock and hash script emission
+  core_ref: script/miniscript.h:819
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level script generation. Does not model digest computation.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-025
+  summary: wrapper opcodes
+  statement: 'ToScript emits a:,s:,c:,d:,v:,j:,n: wrappers as altstack round-trip, swap, checksig/checksigverify, dup-if, verify-or-last-opcode, size-nonzero-if, and 0notequal respectively.'
+  check: wrapper script emission
+  core_ref: script/miniscript.h:825
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level script generation. Does not model stack-depth limits.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-026
+  summary: combinator opcodes
+  statement: ToScript emits and_v by concatenation, and_b with OP_BOOLAND, or_b with OP_BOOLOR, or_d with OP_IFDUP OP_NOTIF, or_c with OP_NOTIF, or_i with OP_IF/OP_ELSE, and andor with OP_NOTIF/OP_ELSE.
+  check: combinator script emission
+  core_ref: script/miniscript.h:840
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level script generation. Does not model branch reachability.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-027
+  summary: multisig encodings
+  statement: ToScript emits MULTI as <k> followed by the key pushes and <n> OP_CHECKMULTISIG[VERIFY], and MULTI_A as <key0> OP_CHECKSIG followed by OP_CHECKSIGADD per later key and <k> OP_NUMEQUAL[VERIFY].
+  check: multi versus multi_a encoding
+  core_ref: script/miniscript.h:847
+  bip_cve: BIP379/BIP342
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level script generation. Does not model signature ordering.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-028
+  summary: threshold opcodes
+  statement: ToScript emits THRESH by concatenating the first child, then each later child followed by OP_ADD, then <k> OP_EQUAL or OP_EQUALVERIFY.
+  check: thresh script emission
+  core_ref: script/miniscript.h:863
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level script generation. Does not model numeric overflow of the accumulator.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-029
+  summary: validity
+  statement: A node is IsValid exactly when its computed type is non-empty and its ScriptSize is at most MaxScriptSize for its context.
+  check: miniscript validity
+  core_ref: script/miniscript.h:1675
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level typing. MaxScriptSize is a policy-derived bound, not a consensus script-size rule for Tapscript.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-030
+  summary: sanity
+  statement: IsSane holds exactly when IsValidTopLevel, IsSaneSubexpression and NeedsSignature all hold.
+  check: miniscript sanity
+  core_ref: script/miniscript.h:1702
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level sanity predicate. Does not claim that a sane miniscript matches user intent.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-031
+  summary: operation limit
+  statement: CheckOpsLimit accepts a P2WSH node exactly when its maximum ops is at most 201, and always accepts a Tapscript node.
+  check: operation limit
+  core_ref: script/miniscript.h:1573
+  bip_cve: BIP379/BIP342
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level validity. The 201-op limit is consensus for P2WSH; Tapscript removes it.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-032
+  summary: stack limit
+  statement: CheckStackSize bounds Tapscript execution stack by MAX_STACK_SIZE (1000) and P2WSH satisfaction stack by MAX_STANDARD_P2WSH_STACK_ITEMS (100).
+  check: stack-size limit
+  core_ref: script/miniscript.h:1595
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level validity. The P2WSH limit is standardness policy, not consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-033
+  summary: non-malleable satisfaction
+  statement: When nonmalleable is true, Satisfy returns NO if the produced satisfaction is malleable or contains no signature.
+  check: satisfaction filtering
+  core_ref: script/miniscript.h:1709
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level satisfaction. Does not model witness serialization.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-034
+  summary: key satisfaction
+  statement: ProduceInput emits exactly one signature stack element for a PK_K node when the satisfier can sign, and returns unavailable otherwise.
+  check: pk satisfaction
+  core_ref: script/miniscript.h:1256
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level satisfaction. Does not model the signing key lookup path.
+  source: Bitcoin Core cce32b168 source tree
+- id: MS-035
+  summary: context-sensitive parsing
+  statement: FromString accepts multi_a only in TAPSCRIPT context and multi only in P2WSH context, and rejects key counts above the context's MAX_PUBKEYS bound.
+  check: parser context and key bound
+  core_ref: script/miniscript.h:1880
+  bip_cve: BIP379
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level parser behaviour. Does not model error-message text.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-001
+  summary: magic bytes
+  statement: A PSBT stream is accepted only if it begins with the five bytes 0x70 0x73 0x62 0x74 0xff.
+  check: PSBT magic
+  core_ref: psbt.h:1352
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level serialization. Does not model transport or file storage.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-002
+  summary: length-prefixed records
+  statement: Every map record is a length-prefixed key followed by a length-prefixed value, and a stated length that disagrees with the decoded fields is rejected.
+  check: record framing
+  core_ref: psbt.h:1372
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level serialization. Does not model maximum file size enforcement.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-003
+  summary: duplicate keys
+  statement: Two records with identical key bytes in the same map are rejected as a duplicate key.
+  check: duplicate map key
+  core_ref: psbt.h:1382
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level serialization. Does not model map ordering.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-004
+  summary: unsigned transaction emptiness
+  statement: A v0 global unsigned transaction is rejected if any input scriptSig is non-empty or any input scriptWitness is non-null.
+  check: empty scriptSigs in unsigned tx
+  core_ref: psbt.h:1403
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level serialization. Does not model transaction validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-005
+  summary: v0 unsigned transaction required
+  statement: A PSBT with version 0 is rejected unless PSBT_GLOBAL_UNSIGNED_TX is present.
+  check: v0 unsigned tx requirement
+  core_ref: psbt.h:1517
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level serialization. Does not model PSBT role sequencing.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-006
+  summary: v0 field exclusion
+  statement: A PSBT with version 0 is rejected if any of TX_VERSION, FALLBACK_LOCKTIME, INPUT_COUNT, OUTPUT_COUNT or TX_MODIFIABLE is present.
+  check: v0 forbidden v2 fields
+  core_ref: psbt.h:1521
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level serialization. Does not model forward compatibility.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-007
+  summary: version 1 absent
+  statement: A PSBT declaring version 1 is rejected because no PSBT version 1 exists.
+  check: version 1 rejection
+  core_ref: psbt.h:1538
+  bip_cve: BIP174/BIP370
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level serialization. Does not model proprietary version negotiation.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-008
+  summary: v2 required globals
+  statement: A PSBT with version 2 requires TX_VERSION, INPUT_COUNT and OUTPUT_COUNT, and rejects PSBT_GLOBAL_UNSIGNED_TX.
+  check: v2 required globals
+  core_ref: psbt.h:1544
+  bip_cve: BIP370
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level serialization. Does not model v2 creation policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-009
+  summary: global xpub record
+  statement: A PSBT_GLOBAL_XPUB key is accepted only at its fixed extended-key-plus-version length and only when the embedded public key is fully valid.
+  check: global xpub validation
+  core_ref: psbt.h:1458
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level field semantics. Does not model xpub origin trust.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-010
+  summary: non-witness UTXO field
+  statement: A non-witness UTXO is serialized under type 0x00 as a full transaction without witness data.
+  check: non-witness UTXO encoding
+  core_ref: psbt.h:363
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level field semantics. Does not model UTXO retrieval.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-011
+  summary: witness UTXO field
+  statement: A witness UTXO is serialized under type 0x01 as a single CTxOut.
+  check: witness UTXO encoding
+  core_ref: psbt.h:366
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level field semantics. Does not model amount provenance.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-012
+  summary: finalisation suppresses partial data
+  statement: When either final_script_sig is non-empty or final_script_witness is non-null, partial signatures, sighash type, redeem script, witness script, key paths, preimages and taproot fields are not serialized.
+  check: final field exclusivity
+  core_ref: psbt.h:371
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level field semantics. Does not model merge after finalisation.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-013
+  summary: final scripts
+  statement: Final scriptSig and final scriptWitness are serialized under types 0x07 and 0x08 respectively.
+  check: final script fields
+  core_ref: psbt.h:510
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level field semantics. Does not model script validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-014
+  summary: taproot key signature
+  statement: A Taproot key-path signature is serialized under type 0x13 as a 64-byte or 65-byte value.
+  check: taproot key sig field
+  core_ref: psbt.h:787
+  bip_cve: BIP371
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level field semantics. Does not model signature verification.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-015
+  summary: taproot script signature
+  statement: A Taproot script-path signature uses a 64-byte key consisting of the x-only pubkey followed by the leaf hash, under type 0x14.
+  check: taproot script sig field
+  core_ref: psbt.h:432
+  bip_cve: BIP371
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level field semantics. Does not model leaf-hash computation.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-016
+  summary: taproot leaf script
+  statement: A Taproot leaf script is serialized under type 0x15 with the control block as key and the script followed by its leaf version as value.
+  check: taproot leaf field
+  core_ref: psbt.h:440
+  bip_cve: BIP371
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level field semantics. Does not model control-block validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-017
+  summary: taproot bip32 derivation
+  statement: A Taproot BIP32 derivation record uses a 32-byte x-only key and a value consisting of a leaf-hash set followed by a key origin.
+  check: taproot keypath field
+  core_ref: psbt.h:450
+  bip_cve: BIP371
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level field semantics. Does not model derivation from the origin.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-018
+  summary: taproot output tree
+  statement: A Taproot output tree record is rejected if empty, if a leaf depth exceeds TAPROOT_CONTROL_MAX_NODE_COUNT, if a leaf version has bits outside TAPROOT_LEAF_MASK, or if the resulting builder is incomplete.
+  check: taproot output tree validation
+  core_ref: psbt.h:1162
+  bip_cve: BIP371
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level field semantics. Does not model tree canonicalisation.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-019
+  summary: UTXO selection
+  statement: PSBTInput::GetUTXO prefers non_witness_utxo and requires its txid and output index to match prev_txid and prev_out; otherwise it returns witness_utxo; otherwise it returns false.
+  check: input UTXO resolution
+  core_ref: psbt.cpp:269
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model coinbase maturity or chain state.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-020
+  summary: witness-only signing safety
+  statement: When only witness_utxo is available, SignPSBTInput fails with INCOMPLETE unless the produced signature data is a witness signature.
+  check: witness UTXO signing requirement
+  core_ref: psbt.cpp:733
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing safety. Non-witness signatures cannot commit to a witness-only prevout.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-021
+  summary: default sighash
+  statement: If neither the caller nor the input specifies a sighash type, SignPSBTInput uses SIGHASH_DEFAULT for Taproot prevouts and SIGHASH_ALL otherwise, and rejects an explicit input type that differs.
+  check: PSBT sighash default
+  core_ref: psbt.cpp:690
+  bip_cve: BIP174/BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing policy. Policy defaults, not consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-022
+  summary: existing signature sighash agreement
+  statement: When a non-default sighash is selected, every existing Taproot key signature must be 65 bytes with that type as its last byte, every Taproot script signature must likewise be 65 bytes with that type, and every ECDSA partial signature must end in that type.
+  check: sighash agreement
+  core_ref: psbt.cpp:713
+  bip_cve: BIP174/BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing safety. Does not model signature validity.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-023
+  summary: merge identity
+  statement: Two PSBTs merge only when both expose the same unique transaction id and declare the same version.
+  check: merge identity
+  core_ref: psbt.cpp:42
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model conflict resolution for differing signatures.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-024
+  summary: merge field precedence
+  statement: Input merge keeps an existing non-empty field, fills only empty fields from the other input, and unions maps whose keys are distinct.
+  check: merge precedence
+  core_ref: psbt.cpp:420
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level lifecycle. Taproot leaf scripts are merged by control block, not by leaf.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-025
+  summary: duplicate input rejection
+  statement: AddInput rejects an input whose prevout duplicates an input already present in the PSBT.
+  check: duplicate input
+  core_ref: psbt.cpp:169
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model duplicate detection across different PSBTs.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-026
+  summary: v2 locktime computation
+  statement: For PSBT version 2, ComputeTimeLock returns the maximum height lock if any positive height lock exists, otherwise the maximum time lock, and returns nullopt when different inputs require one height lock and one time lock.
+  check: v2 locktime aggregation
+  core_ref: psbt.cpp:92
+  bip_cve: BIP370
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model final transaction locktime policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-027
+  summary: unsigned transaction reconstruction
+  statement: GetUnsignedTx sets every missing input sequence to SEQUENCE_FINAL and fails if ComputeTimeLock fails.
+  check: unsigned tx reconstruction
+  core_ref: psbt.cpp:134
+  bip_cve: BIP174/BIP370
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model anti-fee-sniping sequence selection.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-028
+  summary: finalisation
+  statement: FinalizePSBT invokes SignPSBTInput with no keys and finalize=true on every input, and returns true only if every input finalises successfully.
+  check: PSBT finalisation
+  core_ref: psbt.cpp:811
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model partial finalisation success.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-029
+  summary: extraction
+  statement: FinalizeAndExtractPSBT returns false if FinalizePSBT fails, and otherwise copies each input's final scriptSig and final scriptWitness into the reconstructed unsigned transaction.
+  check: PSBT extraction
+  core_ref: psbt.cpp:832
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level lifecycle. Does not model transaction broadcast.
+  source: Bitcoin Core cce32b168 source tree
+- id: PSBT-030
+  summary: signed-and-verified predicate
+  statement: PSBTInputSignedAndVerified validates the non-witness UTXO against the prevout and then executes VerifyScript with STANDARD_SCRIPT_VERIFY_FLAGS on the reconstructed unsigned transaction.
+  check: PSBT verification
+  core_ref: psbt.cpp:580
+  bip_cve: BIP174
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level lifecycle. Uses script policy flags; not a consensus-acceptance claim.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-001
+  summary: spent outputs excluded
+  statement: AvailableCoins omits any wallet output for which IsSpent(outpoint) holds.
+  check: spent coin filtering
+  core_ref: wallet/spend.cpp:437
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level coin availability. Does not model chain reorganisation.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-002
+  summary: unsafe outputs excluded
+  statement: AvailableCoins excludes outputs from unsafe transactions unless include_unsafe_inputs is set, and otherwise includes only transactions it deems trusted or safe.
+  check: unsafe coin filtering
+  core_ref: wallet/spend.cpp:412
+  bip_cve: BIP125
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level policy. Trust classification is not consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-003
+  summary: effective value
+  statement: For a coin with known input size, effective_value equals txout.nValue minus the fee for input_bytes at the effective feerate.
+  check: effective value definition
+  core_ref: wallet/coinselection.h:88
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level accounting. Does not model ancestor bump fees, which are applied separately.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-004
+  summary: positive-value groups
+  statement: The positive-only coin group includes exactly those outputs whose effective value is strictly greater than zero.
+  check: positive effective value
+  core_ref: wallet/spend.cpp:643
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level coin selection input construction.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-005
+  summary: BnB target window
+  statement: BnB treats a selection as a potential solution exactly when its amount lies between selection_target and selection_target + cost_of_change inclusive, and shifts away from selections above that upper bound.
+  check: BnB target window
+  core_ref: wallet/coinselection.cpp:189
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level selection. BnB is a policy algorithm, not part of consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-006
+  summary: BnB search cap
+  statement: BnB stops after TOTAL_TRIES (100000) node expansions and marks the result as not guaranteed optimal.
+  check: BnB try limit
+  core_ref: wallet/coinselection.cpp:213
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level selection. Does not promise optimality.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-007
+  summary: BnB weight pruning
+  statement: BnB shifts away from any partial selection whose accumulated weight exceeds max_selection_weight.
+  check: BnB weight bound
+  core_ref: wallet/coinselection.cpp:185
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level selection. Weight is computed from signed-input estimates.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-008
+  summary: SRD change padding
+  statement: SRD raises its target by CHANGE_LOWER plus change_fee before selecting, so a barely-covered target does not produce tiny change.
+  check: SRD change padding
+  core_ref: wallet/coinselection.cpp:620
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level selection policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-009
+  summary: SRD weight trimming
+  statement: When an SRD selection exceeds max_selection_weight, it repeatedly removes the least valuable selected group until the weight fits or the selection is empty.
+  check: SRD weight trimming
+  core_ref: wallet/coinselection.cpp:641
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level selection. Does not model the heap ordering proof.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-010
+  summary: Knapsack exact match
+  statement: Knapsack immediately returns a single group whose selection amount equals the target, provided its weight fits.
+  check: Knapsack exact match
+  core_ref: wallet/coinselection.cpp:746
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level selection.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-011
+  summary: Knapsack larger-coin fallback
+  statement: When the sum of lower groups is below the target, Knapsack spends the smallest single group above the target, or fails if none exists.
+  check: Knapsack larger coin
+  core_ref: wallet/coinselection.cpp:768
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level selection.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-012
+  summary: Knapsack approximation
+  statement: ApproximateBestSubset performs at most 1000 randomised passes and retains the smallest reachable total at or above the target that fits the weight limit.
+  check: Knapsack subset search
+  core_ref: wallet/coinselection.cpp:707
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level selection. Randomised search gives no optimality guarantee.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-013
+  summary: change target bounds
+  statement: GenerateChangeTarget returns change_fee + CHANGE_LOWER when the mean payment is at most CHANGE_LOWER/2, and otherwise change_fee plus a uniform value in [CHANGE_LOWER, min(2*payment, CHANGE_UPPER)).
+  check: change target distribution
+  core_ref: wallet/coinselection.cpp:885
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level change policy; randomness affects privacy, not consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-014
+  summary: change threshold
+  statement: SelectionResult::GetChange returns zero whenever the computed change is below min_viable_change, and otherwise returns the computed change.
+  check: change viability
+  core_ref: wallet/coinselection.cpp:1055
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level change policy. Sub-threshold change is dropped to fees.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-015
+  summary: waste metric
+  statement: Selection waste equals the sum over inputs of (fee - long_term_fee), minus any bump-fee discount, plus change_cost when change is created, or plus the excess over target when no change is created.
+  check: waste metric
+  core_ref: wallet/coinselection.cpp:910
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level selection. Waste is a heuristic, not a consensus quantity.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-016
+  summary: algorithm portfolio
+  statement: ChooseSelectionResult runs BnB unless SFFO is active, always runs Knapsack and SRD, and additionally runs CoinGrinder only when the effective feerate exceeds three times the long-term feerate.
+  check: selection algorithm portfolio
+  core_ref: wallet/spend.cpp:766
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level selection policy. Algorithm set is implementation policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-017
+  summary: selection weight budget
+  statement: The maximum selection weight is the transaction weight limit minus the weight of the header and recipient outputs, then minus the change-output weight for algorithms that may create change.
+  check: selection weight budget
+  core_ref: wallet/spend.cpp:742
+  bip_cve: BIP141
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level construction. MAX_STANDARD_TX_WEIGHT is policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-018
+  summary: SFFO skips BnB
+  statement: When subtract-fee-from-outputs is active, ChooseSelectionResult does not run BnB and starts with the algorithms that may create change.
+  check: SFFO and BnB
+  core_ref: wallet/spend.cpp:748
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level policy interaction.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-019
+  summary: recipient dust rejection
+  statement: CreateTransaction rejects a recipient whose output is dust under the wallet's relay dust fee before coin selection begins.
+  check: recipient dust
+  core_ref: wallet/spend.cpp:1094
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level policy. Dust thresholds are relay policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-020
+  summary: selection target
+  statement: The selection target equals the sum of recipient amounts plus the effective-feerate fee for the non-input, non-change transaction size, except that SFFO excludes that fee.
+  check: selection target
+  core_ref: wallet/spend.cpp:1197
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level funding arithmetic. Does not include change-output fee.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-021
+  summary: minimum viable change
+  statement: The minimum viable change equals the maximum of (change_spend_fee + 1) and the dust threshold of the change output at the discard feerate.
+  check: minimum viable change
+  core_ref: wallet/spend.cpp:1193
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level change policy. Dust threshold is relay policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-022
+  summary: cost of change
+  statement: The cost of change equals the discard-feerate fee for spending the change output plus the effective-feerate fee for creating it.
+  check: cost of change
+  core_ref: wallet/spend.cpp:1184
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level selection accounting.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-023
+  summary: required fee
+  statement: The required fee equals the effective-feerate fee for the estimated signed virtual size plus the selected inputs' total ancestor bump fees.
+  check: required fee
+  core_ref: wallet/spend.cpp:1337
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level funding arithmetic. Fee estimation is policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-024
+  summary: change top-up
+  statement: If a change output exists and the current fee exceeds the required fee, CreateTransaction increases the change value by the difference and re-checks that fee needed equals fee paid.
+  check: change fee reconciliation
+  core_ref: wallet/spend.cpp:1348
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level conservation. Prevents overpaying fees when change is present.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-025
+  summary: SFFO distribution
+  statement: Under SFFO, the fee shortfall is divided equally among flagged recipients, with the remainder charged to the first flagged recipient, and any resulting dust or negative output aborts the transaction.
+  check: subtract fee from outputs
+  core_ref: wallet/spend.cpp:1371
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level conservation. Does not model fee rounding preferences.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-026
+  summary: fee sufficiency invariant
+  statement: CreateTransaction aborts if the required fee exceeds the fee actually paid after all adjustments.
+  check: fee sufficiency
+  core_ref: wallet/spend.cpp:1398
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level conservation invariant.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-027
+  summary: standard transaction weight
+  statement: CreateTransaction rejects a signed transaction whose actual weight exceeds MAX_STANDARD_TX_WEIGHT, and an unsigned one whose estimated weight does.
+  check: transaction weight limit
+  core_ref: wallet/spend.cpp:1415
+  bip_cve: BIP141
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level standardness, not a consensus block-weight rule.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-028
+  summary: fee ceilings
+  statement: CreateTransaction rejects a transaction whose fee exceeds the wallet's absolute maximum fee or whose fee exceeds the maximum fee rate applied to its virtual size.
+  check: wallet fee ceilings
+  core_ref: wallet/spend.cpp:1421
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level safety policy; limits are user-configured.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-029
+  summary: output conservation
+  statement: After change construction, CreateTransaction assumes recipients_sum + change_amount equals the sum of output values, and rejects a negative fee computed as selected value minus output value.
+  check: funding conservation
+  core_ref: wallet/spend.cpp:1339
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level conservation. Assumes no output value is created or destroyed outside the checked path.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-030
+  summary: fee rate precedence
+  statement: GetMinimumFeeRate uses an explicit coin-control feerate first, then the confirmation-target estimator, then the wallet fallback fee, and raises the result to at least the required feerate.
+  check: minimum fee rate precedence
+  core_ref: wallet/fees.cpp:40
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level fee policy. Estimation and fallback are not consensus.
+  source: Bitcoin Core cce32b168 source tree
+- id: WSP-031
+  summary: discard feerate floor
+  statement: GetDiscardRate never returns a rate below the chain's relay dust fee.
+  check: discard feerate floor
+  core_ref: wallet/fees.cpp:98
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: s
+  consensus: false
+  notes: Wallet-level change policy.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-001
+  summary: single-argument signing overload
+  statement: The single-argument CWallet::SignTransaction overload builds the wallet coin map and delegates to the sighash-taking overload with SIGHASH_DEFAULT.
+  check: wallet default sighash
+  core_ref: wallet/wallet.cpp:1991
+  bip_cve: BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing policy. SIGHASH_DEFAULT aliases to SIGHASH_ALL for non-Taproot inputs.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-002
+  summary: signing manager sweep
+  statement: CWallet::SignTransaction returns true as soon as one ScriptPubKeyMan reports that the transaction is fully signed, and otherwise tries every manager.
+  check: signing manager selection
+  core_ref: wallet/wallet.cpp:1997
+  bip_cve: '-'
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level key lookup. Does not model wallet database layout.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-003
+  summary: descriptor signing providers
+  statement: DescriptorScriptPubKeyMan::SignTransaction builds a merged signing provider from every coin's scriptPubKey and then calls the generic SignTransaction with the requested sighash.
+  check: descriptor signing provider
+  core_ref: wallet/scriptpubkeyman.cpp:1379
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing. Does not model encryption or locked wallets.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-004
+  summary: cached expansion
+  statement: GetSigningProvider expands the descriptor at the script's derivation index from the descriptor cache and reuses a cached provider when one exists.
+  check: descriptor provider expansion
+  core_ref: wallet/scriptpubkeyman.cpp:1326
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level key lookup. Does not model cache invalidation.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-005
+  summary: private-key injection
+  statement: When the descriptor manager has private keys and include_private is true, GetSigningProvider calls ExpandPrivate for the same index and includes the resulting keys.
+  check: private key expansion
+  core_ref: wallet/scriptpubkeyman.cpp:1348
+  bip_cve: BIP380
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing. Does not model key storage or encryption.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-006
+  summary: ECDSA default aliasing
+  statement: CreateSig replaces SIGHASH_DEFAULT with SIGHASH_ALL for BASE and WITNESS_V0 signatures and refuses SIGHASH_SINGLE when the input index has no corresponding output.
+  check: ECDSA sighash selection
+  core_ref: script/sign.cpp:75
+  bip_cve: BIP143
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing. The SIGHASH_SINGLE guard prevents committing to no output.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-007
+  summary: ECDSA preconditions
+  statement: CreateSig refuses an uncompressed key for WITNESS_V0 and refuses a WITNESS_V0 signature when the spent amount is outside MoneyRange.
+  check: ECDSA signing preconditions
+  core_ref: script/sign.cpp:63
+  bip_cve: BIP143
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing. Does not model low-S normalisation.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-008
+  summary: Schnorr data requirements
+  statement: CreateSchnorrSig requires precomputed BIP341 data and spent outputs, signs without an annex or OP_CODESEPARATOR, and requires a leaf hash for TAPSCRIPT.
+  check: Schnorr signing preconditions
+  core_ref: script/sign.cpp:91
+  bip_cve: BIP341/BIP342
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing. Annex and OP_CODESEPARATOR signing are explicitly not modelled.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-009
+  summary: taproot key path order
+  statement: SignTaproot first attempts a key-path signature with the internal key and its merkle root, and only if that fails attempts the output key with a null merkle root.
+  check: taproot key path signing
+  core_ref: script/sign.cpp:608
+  bip_cve: BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing. Does not model MuSig2 aggregation.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-010
+  summary: tapscript leaf version
+  statement: SignTaprootScript signs a script leaf only when its leaf version equals TAPROOT_LEAF_TAPSCRIPT, and parses the leaf as miniscript.
+  check: tapscript leaf signing
+  core_ref: script/sign.cpp:553
+  bip_cve: BIP342
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signing. Non-tapscript leaf versions are not modelled.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-011
+  summary: taproot tweak hash
+  statement: The Taproot tweak for an internal key is taggedHash("TapTweak", internal_xonly) when the merkle root is null and taggedHash("TapTweak", internal_xonly || merkle_root) otherwise, where taggedHash("TapTweak", msg) = SHA256(SHA256("TapTweak") || SHA256("TapTweak") || msg); these are the taptweak_none and taptweak_some equations.
+  check: BIP341 tweak hash
+  core_ref: pubkey.cpp:246
+  bip_cve: BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level key derivation; this hash is also consensus-critical in script validation. Core call sites are src/key.cpp:415 and src/script/interpreter.cpp:1924 at cce32b168, with the hash defined in src/pubkey.cpp:246-255.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-012
+  summary: tweaked keypair
+  statement: KeyPair construction with a non-null merkle root adds the TapTweak hash to the secret key before producing a Schnorr signature.
+  check: tweaked signing key
+  core_ref: key.cpp:415
+  bip_cve: BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: l
+  consensus: false
+  notes: Wallet-level signing. Does not model parity correction beyond the keypair API.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-013
+  summary: x-only key lookup
+  statement: CreateSchnorrSig looks up the private key by x-only public key and fails if no matching key exists.
+  check: x-only key lookup
+  core_ref: script/sign.cpp:111
+  bip_cve: BIP340
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level key lookup. Does not model lookup by full public key.
+  source: Bitcoin Core cce32b168 source tree
+- id: SGN2-014
+  summary: sighash byte emission
+  statement: CreateSchnorrSig appends the sighash byte only when the configured sighash type is present, so SIGHASH_DEFAULT remains a 64-byte signature.
+  check: Schnorr sighash byte
+  core_ref: script/sign.cpp:119
+  bip_cve: BIP341
+  lean_target: null
+  test_vector_ids: []
+  status: planned
+  difficulty: m
+  consensus: false
+  notes: Wallet-level signature encoding.
+  source: Bitcoin Core cce32b168 source tree

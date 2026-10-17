@@ -1,0 +1,51 @@
+name: gates
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-gates:
+    name: static gates (no Lean build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python3 -m pip install --disable-pip-version-check PyYAML==6.0.2
+
+      - name: Static gates
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: make gates
+
+      - name: Verify in-tree data manifest
+        run: sha256sum -c --strict spec/data/MANIFEST.sha256
+
+      - name: Gate summary
+        if: success()
+        run: |
+          {
+            echo "### Static gates: passed"
+            echo ""
+            echo "No Lean build and no dynamic \`#print axioms\` probe ran in CI."
+            echo "Full builds and the dynamic probes are release/manual jobs."
+          } >> "$GITHUB_STEP_SUMMARY"

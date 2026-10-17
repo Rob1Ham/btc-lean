@@ -1,0 +1,6953 @@
+[
+ {
+  "id": "C0-blockhash",
+  "anchor": "setup_common.cpp:679",
+  "desc": "block13b8a GetHash == 0000000000013b8a...0f7af",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C0-nTx",
+  "anchor": "setup_common.cpp:680",
+  "desc": "block13b8a has 9 txs",
+  "pass": true,
+  "detail": "got 9"
+ },
+ {
+  "id": "C0-txhash2",
+  "anchor": "merkleblock_tests.cpp:24,28",
+  "desc": "txids[1] == txhash2 (second txn)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C0-txhash1",
+  "anchor": "merkleblock_tests.cpp:24,28",
+  "desc": "txids[8] == txhash1 (last txn)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C0-mutated",
+  "anchor": "merkle.cpp:51-73",
+  "desc": "real block: mutated == false",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C0-root",
+  "anchor": "merkle.cpp:76-84",
+  "desc": "BlockMerkleRoot(block13b8a) == header.hashMerkleRoot",
+  "pass": true,
+  "detail": "root=2fda58e5959b0ee53c5253da9b9f3c0c739422ae04946966991cf55895287552 hdr=2fda58e5959b0ee53c5253da9b9f3c0c739422ae04946966991cf55895287552"
+ },
+ {
+  "id": "C1-vMatchedTxn",
+  "anchor": "merkleblock.cpp:44-48",
+  "desc": "MB1 vMatchedTxn empty (no bloom)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C1-nTx",
+  "anchor": "merkleblock.h:60",
+  "desc": "MB1 txn.nTransactions == 9",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C1-root",
+  "anchor": "merkleblock_tests.cpp:46",
+  "desc": "MB1 ExtractMatches root == block.hashMerkleRoot",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C1-nmatched",
+  "anchor": "merkleblock_tests.cpp:47",
+  "desc": "MB1 vMatched.size() == 2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C1-order",
+  "anchor": "merkleblock_tests.cpp:49-52",
+  "desc": "MB1 DFS order vMatched == [txhash2, txhash1] && vIndex == [1, 8]",
+  "pass": true,
+  "detail": "idx=[1, 8]"
+ },
+ {
+  "id": "C1-lane",
+  "anchor": "merkleblock.cpp:153-184",
+  "desc": "MB1 extract: no reject lane",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C2-vMatchedTxn",
+  "anchor": "merkleblock_tests.cpp:65-68",
+  "desc": "MB2 vMatchedTxn empty",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C2-root",
+  "anchor": "merkleblock_tests.cpp:71",
+  "desc": "MB2 not-found: ExtractMatches root == block.hashMerkleRoot (STILL)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C2-empty",
+  "anchor": "merkleblock_tests.cpp:72-73",
+  "desc": "MB2 vMatched == 0 && vIndex == 0",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C3-null",
+  "anchor": "pmt_tests.cpp:125",
+  "desc": "pmt_malleability ExtractMatches returns IsNull()",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C3-lane",
+  "anchor": "merkleblock.cpp:175-176",
+  "desc": "reject lane = L5 (fBad), not L1-L4/L6/L7",
+  "pass": true,
+  "detail": "lane=L5 reason=R_branches:124"
+ },
+ {
+  "id": "C3-branches",
+  "anchor": "merkleblock.cpp:124-128",
+  "desc": "fBad fired via identical-branches R_branches:124",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C3-node",
+  "anchor": "merkleblock.cpp:124",
+  "desc": "identical-branches node = (height 2, pos 2)",
+  "pass": true,
+  "detail": "nodes=[(2, 2)]"
+ },
+ {
+  "id": "C3-bits",
+  "anchor": "merkleblock.cpp:80-96",
+  "desc": "pmt_malleability tree: 10 bits / 5 hashes",
+  "pass": true,
+  "detail": "bits=10 hashes=5"
+ },
+ {
+  "id": "C3-partial",
+  "anchor": "merkleblock.cpp:114-117",
+  "desc": "partial matches pushed before fBad = [u256{10}@9, u256{9}@10]",
+  "pass": true,
+  "detail": "matched=['000000000000000000000000000000000000000000000000000000000000000a', '0000000000000000000000000000000000000000000000000000000000000009'] idx=[9, 10]"
+ },
+ {
+  "id": "C3-consumed",
+  "anchor": "merkleblock.cpp:172,178,181",
+  "desc": "nBitsUsed==10 (all), nHashUsed==5 (all) at fBad",
+  "pass": true,
+  "detail": "bits=10 hash=5"
+ },
+ {
+  "id": "C3-roundtrip",
+  "anchor": "merkleblock.h:90-98",
+  "desc": "serialize/deser roundtrip: same L5 reject",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C4-pmt-mall-rootequal",
+  "anchor": "merkle.cpp:16-50",
+  "desc": "root(10-leaves) == root(12-leaves) (CVE-2012-2459 mutation equality on pmt-mall data)",
+  "pass": true,
+  "detail": "r10=32fbde28df7035c8efd122307ed55e7a4887d56c4bd51a767b8354ce54b34378 r12=32fbde28df7035c8efd122307ed55e7a4887d56c4bd51a767b8354ce54b34378"
+ },
+ {
+  "id": "C4-pmt-mall-mutated",
+  "anchor": "merkle.cpp:60-62",
+  "desc": "mutated: 10-leaves=False, 12-leaves=True",
+  "pass": true,
+  "detail": "m10=[False] m12=[True]"
+ },
+ {
+  "id": "C4-merkle.cpp:33-rootequal",
+  "anchor": "merkle.cpp:16-50",
+  "desc": "root(6-leaves) == root(8-leaves) (CVE-2012-2459 mutation equality on merkle.cpp:33 data)",
+  "pass": true,
+  "detail": "r10=c1fc49bf1f7fd3c814361396822de08d7a758746c354e08bfa6b56887d4907e6 r12=c1fc49bf1f7fd3c814361396822de08d7a758746c354e08bfa6b56887d4907e6"
+ },
+ {
+  "id": "C4-merkle.cpp:33-mutated",
+  "anchor": "merkle.cpp:60-62",
+  "desc": "mutated: 6-leaves=False, 8-leaves=True",
+  "pass": true,
+  "detail": "m10=[False] m12=[True]"
+ },
+ {
+  "id": "C5a-1-0-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-1-0: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-1-0-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-1-0: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-1-1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-1-1: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-1-1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-1-1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-0-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-0: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-0-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-0: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-1: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-2: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-3: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-4: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-5: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-6: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-7: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-8: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-9: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-10: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-11: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-12: ser size 103 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-13: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-14: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-15-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-4-15: ser size 135 <= 10+(258*4+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-4-15-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-4-15: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-0-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-0: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-0-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-0: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-1: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-2: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-3: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-4: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-5: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-6: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-7: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-8: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-9: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-10: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-11: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-12: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-13: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-14: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-15-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-15: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-15-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-15: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-16-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-16: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-16-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-16: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-17-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-17: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-17-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-17: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-18-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-18: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-18-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-18: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-19-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-19: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-19-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-19: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-20-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-20: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-20-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-20: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-21-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-21: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-21-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-21: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-22-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-22: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-22-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-22: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-23-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-23: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-23-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-23: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-24-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-24: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-24-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-24: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-25-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-25: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-25-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-25: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-26-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-26: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-26-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-26: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-27-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-27: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-27-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-27: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-28-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-28: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-28-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-28: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-29-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-29: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-29-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-29: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-30-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-30: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-30-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-30: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-31-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-31: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-31-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-31: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-32-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-32: ser size 135 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-32-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-32: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-33-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-33: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-33-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-33: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-34-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-34: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-34-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-34: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-35-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-35: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-35-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-35: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-36-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-36: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-36-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-36: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-37-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-37: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-37-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-37: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-38-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-38: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-38-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-38: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-39-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-39: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-39-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-39: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-40-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-40: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-40-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-40: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-41-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-41: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-41-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-41: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-42-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-42: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-42-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-42: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-43-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-43: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-43-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-43: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-44-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-44: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-44-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-44: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-45-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-45: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-45-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-45: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-46-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-46: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-46-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-46: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-47-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-47: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-47-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-47: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-48-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-48: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-48-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-48: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-49-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-49: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-49-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-49: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-50-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-50: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-50-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-50: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-51-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-51: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-51-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-51: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-52-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-52: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-52-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-52: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-53-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-53: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-53-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-53: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-54-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-54: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-54-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-54: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-55-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-55: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-55-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-55: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-56-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-56: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-56-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-56: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-57-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-57: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-57-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-57: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-58-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-58: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-58-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-58: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-59-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-59: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-59-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-59: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-60-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-60: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-60-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-60: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-61-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-61: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-61-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-61: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-62-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-62: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-62-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-62: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-63-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-63: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-63-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-63: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-64-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-64: ser size 103 <= 10+(258*5+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-64-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-64: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-65-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-65: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-65-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-65: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-66-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-66: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-66-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-66: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-67-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-67: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-67-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-67: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-68-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-68: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-68-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-68: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-69-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-69: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-69-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-69: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-70-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-70: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-70-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-70: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-71-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-71: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-71-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-71: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-72-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-72: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-72-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-72: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-73-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-73: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-73-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-73: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-74-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-74: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-74-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-74: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-75-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-75: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-75-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-75: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-76-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-76: ser size 168 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-76-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-76: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-77-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-77: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-77-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-77: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-78-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-78: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-78-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-78: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-79-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-79: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-79-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-79: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-80-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-80: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-80-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-80: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-81-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-81: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-81-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-81: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-82-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-82: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-82-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-82: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-83-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-83: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-83-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-83: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-84-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-84: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-84-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-84: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-85-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-85: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-85-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-85: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-86-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-86: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-86-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-86: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-87-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-87: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-87-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-87: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-88-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-88: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-88-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-88: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-89-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-89: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-89-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-89: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-90-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-90: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-90-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-90: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-91-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-91: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-91-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-91: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-92-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-92: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-92-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-92: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-93-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-93: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-93-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-93: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-94-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-94: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-94-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-94: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-95-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-95: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-95-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-95: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-96-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-96: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-96-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-96: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-97-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-97: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-97-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-97: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-98-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-98: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-98-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-98: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-99-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-99: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-99-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-99: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-100-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-100: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-100-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-100: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-101-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-101: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-101-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-101: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-102-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-102: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-102-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-102: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-103-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-103: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-103-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-103: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-104-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-104: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-104-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-104: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-105-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-105: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-105-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-105: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-106-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-106: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-106-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-106: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-107-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-107: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-107-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-107: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-108-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-108: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-108-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-108: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-109-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-109: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-109-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-109: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-110-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-110: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-110-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-110: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-111-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-111: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-111-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-111: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-112-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-112: ser size 135 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-112-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-112: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-113-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-113: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-113-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-113: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-114-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-114: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-114-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-114: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-115-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-115: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-115-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-115: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-116-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-116: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-116-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-116: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-117-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-117: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-117-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-117: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-118-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-118: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-118-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-118: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-119-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-119: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-119-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-119: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-120-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-120: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-120-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-120: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-121-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-121: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-121-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-121: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-122-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-122: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-122-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-122: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-123-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-123: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-123-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-123: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-124-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-124: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-124-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-124: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-125-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-125: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-125-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-125: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-126-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-126: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-126-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-126: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-127-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-7-127: ser size 232 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-7-127-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-7-127: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-exhaustive",
+  "anchor": "pmt_tests.cpp:34-109",
+  "desc": "nTx=17: all 2^17 = 131072 subsets build+roundtrip+extract clean (size bound, root, matched-in-order, index)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-0-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-17-0: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-0-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-17-0: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-17-1: ser size 200 <= 10+(258*7+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-17-1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-131071-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-17-131071: ser size 555 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-131071-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-17-131071: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-98305-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-17-98305: ser size 297 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-98305-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-17-98305: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-218453-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5a-17-218453: ser size 555 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5a-17-218453-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5a-17-218453: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att1: ser size 1812 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att2: ser size 1619 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att3: ser size 1651 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att4: ser size 1200 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att5: ser size 1071 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att6: ser size 1038 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att7: ser size 780 <= 10+(258*43+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att8: ser size 361 <= 10+(258*15+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att9: ser size 361 <= 10+(258*22+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att10: ser size 232 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att11: ser size 232 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att12: ser size 361 <= 10+(258*15+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att13: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-att14: ser size 232 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-last: ser size 200 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-first: ser size 232 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-tail2: ser size 200 <= 10+(258*15+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-firstlast: ser size 361 <= 10+(258*15+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-56-mid: ser size 232 <= 10+(258*8+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-56-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-56-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att1: ser size 3232 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att2: ser size 2780 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att3: ser size 2716 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att4: ser size 2006 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att5: ser size 2038 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att6: ser size 1619 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att7: ser size 1232 <= 10+(258*81+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att8: ser size 974 <= 10+(258*57+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att9: ser size 813 <= 10+(258*41+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att10: ser size 426 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att11: ser size 458 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att12: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att13: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-att14: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-last: ser size 168 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-first: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-tail2: ser size 168 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-firstlast: ser size 361 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-100-mid: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-100-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-100-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att1: ser size 4102 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att2: ser size 3747 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att3: ser size 3780 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att4: ser size 2715 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att5: ser size 2780 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att6: ser size 1877 <= 10+(258*127+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att7: ser size 1458 <= 10+(258*121+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att8: ser size 1200 <= 10+(258*65+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att9: ser size 942 <= 10+(258*49+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att10: ser size 619 <= 10+(258*25+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att11: ser size 426 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att12: ser size 619 <= 10+(258*25+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att13: ser size 619 <= 10+(258*25+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-att14: ser size 619 <= 10+(258*25+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-last: ser size 232 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-first: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-tail2: ser size 264 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-firstlast: ser size 426 <= 10+(258*17+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-127-mid: ser size 264 <= 10+(258*9+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-127-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-127-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att1: ser size 8264 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att2: ser size 7101 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att3: ser size 7230 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att4: ser size 5360 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att5: ser size 5457 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att6: ser size 3199 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att7: ser size 3199 <= 10+(258*256+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att8: ser size 1425 <= 10+(258*82+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att9: ser size 2167 <= 10+(258*136+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att10: ser size 1200 <= 10+(258*73+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att11: ser size 1683 <= 10+(258*100+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att12: ser size 1200 <= 10+(258*55+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att13: ser size 942 <= 10+(258*46+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-att14: ser size 39 <= 10+(258*1+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-last: ser size 297 <= 10+(258*10+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-first: ser size 297 <= 10+(258*10+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-tail2: ser size 297 <= 10+(258*19+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-firstlast: ser size 522 <= 10+(258*19+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-256-mid: ser size 297 <= 10+(258*10+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-256-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-256-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att1: ser size 10071 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att2: ser size 8394 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att3: ser size 8361 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att4: ser size 6166 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att5: ser size 6360 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att6: ser size 3844 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att7: ser size 5038 <= 10+(258*312+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att8: ser size 2554 <= 10+(258*171+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att9: ser size 3264 <= 10+(258*251+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att10: ser size 1426 <= 10+(258*71+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att11: ser size 1393 <= 10+(258*91+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att12: ser size 748 <= 10+(258*31+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att13: ser size 1587 <= 10+(258*81+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-att14: ser size 265 <= 10+(258*11+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-last: ser size 232 <= 10+(258*11+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-first: ser size 329 <= 10+(258*11+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-tail2: ser size 232 <= 10+(258*21+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-firstlast: ser size 490 <= 10+(258*21+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-312-mid: ser size 329 <= 10+(258*11+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-312-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-312-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att1: ser size 16554 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att2: ser size 14070 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att3: ser size 14585 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att4: ser size 10199 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att5: ser size 10522 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att6: ser size 6327 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att7: ser size 6360 <= 10+(258*513+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att8: ser size 4909 <= 10+(258*419+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att9: ser size 4812 <= 10+(258*386+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att10: ser size 1845 <= 10+(258*122+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att11: ser size 2715 <= 10+(258*177+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att12: ser size 1167 <= 10+(258*56+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att13: ser size 2006 <= 10+(258*111+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-att14: ser size 587 <= 10+(258*23+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-last: ser size 72 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-first: ser size 361 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-tail2: ser size 362 <= 10+(258*23+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-firstlast: ser size 362 <= 10+(258*23+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-513-mid: ser size 361 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-513-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-513-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att1: ser size 32259 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att2: ser size 28195 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att3: ser size 26937 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att4: ser size 20649 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att5: ser size 19746 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att6: ser size 14005 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att7: ser size 14198 <= 10+(258*1000+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att8: ser size 8004 <= 10+(258*639+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att9: ser size 9651 <= 10+(258*804+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att10: ser size 4779 <= 10+(258*320+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att11: ser size 6360 <= 10+(258*452+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att12: ser size 2619 <= 10+(258*133+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att13: ser size 3393 <= 10+(258*177+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-att14: ser size 2296 <= 10+(258*122+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-last: ser size 297 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-first: ser size 361 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-tail2: ser size 297 <= 10+(258*23+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-firstlast: ser size 587 <= 10+(258*23+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-1000-mid: ser size 361 <= 10+(258*12+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-1000-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-1000-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att1-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att1: ser size 132074 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att1-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att1: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att2: ser size 112692 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att3-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att3: ser size 113498 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att3-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att3: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att4-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att4: ser size 80345 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att4-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att4: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att5-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att5: ser size 83409 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att5-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att5: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att6-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att6: ser size 56577 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att6-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att6: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att7-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att7: ser size 57093 <= 10+(258*4095+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att7-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att7: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att8-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att8: ser size 36292 <= 10+(258*3446+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att8-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att8: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att9-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att9: ser size 35227 <= 10+(258*3381+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att9-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att9: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att10-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att10: ser size 21261 <= 10+(258*1652+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att10-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att10: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att11-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att11: ser size 18617 <= 10+(258*1366+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att11-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att11: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att12-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att12: ser size 12005 <= 10+(258*755+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att12-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att12: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att13-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att13: ser size 12554 <= 10+(258*833+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att13-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att13: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att14-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-att14: ser size 6811 <= 10+(258*365+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-att14-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-att14: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-last-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-last: ser size 393 <= 10+(258*14+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-last-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-last: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-first-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-first: ser size 426 <= 10+(258*14+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-first-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-first: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-tail2-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-tail2: ser size 426 <= 10+(258*27+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-tail2-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-tail2: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-firstlast-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-firstlast: ser size 748 <= 10+(258*27+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-firstlast-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-firstlast: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-mid-size",
+  "anchor": "pmt_tests.cpp:80-81",
+  "desc": "C5b-4095-mid: ser size 426 <= 10+(258*14+7)/8",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5b-4095-mid-extract",
+  "anchor": "pmt_tests.cpp:93-97",
+  "desc": "C5b-4095-mid: root==root1 && !null && matched-in-order",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C3-damageX",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C3: ALL 1280 exhaustive vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C1-MB1-damageX",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C1-MB1: ALL 1280 exhaustive vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C2-MB2-damageX",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C2-MB2: ALL 256 exhaustive vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5a-4-5-damageX",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5a-4-5: ALL 1024 exhaustive vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5a-7-42-damageX",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5a-7-42: ALL 1792 exhaustive vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-1-0-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-1-0: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-1-1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-1-1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-0-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-0: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-4-15-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-4-15: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-0-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-0: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-15-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-15: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-16-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-16: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-17-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-17: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-18-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-18: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-19-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-19: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-20-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-20: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-21-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-21: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-22-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-22: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-23-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-23: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-24-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-24: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-25-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-25: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-26-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-26: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-27-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-27: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-28-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-28: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-29-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-29: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-30-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-30: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-31-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-31: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-32-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-32: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-33-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-33: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-34-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-34: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-35-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-35: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-36-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-36: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-37-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-37: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-38-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-38: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-39-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-39: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-40-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-40: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-41-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-41: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-42-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-42: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-43-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-43: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-44-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-44: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-45-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-45: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-46-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-46: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-47-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-47: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-48-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-48: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-49-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-49: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-50-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-50: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-51-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-51: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-52-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-52: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-53-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-53: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-54-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-54: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-55-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-55: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-56-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-56: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-57-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-57: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-58-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-58: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-59-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-59: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-60-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-60: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-61-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-61: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-62-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-62: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-63-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-63: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-64-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-64: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-65-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-65: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-66-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-66: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-67-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-67: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-68-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-68: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-69-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-69: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-70-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-70: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-71-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-71: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-72-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-72: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-73-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-73: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-74-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-74: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-75-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-75: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-76-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-76: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-77-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-77: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-78-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-78: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-79-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-79: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-80-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-80: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-81-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-81: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-82-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-82: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-83-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-83: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-84-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-84: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-85-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-85: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-86-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-86: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-87-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-87: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-88-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-88: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-89-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-89: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-90-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-90: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-91-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-91: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-92-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-92: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-93-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-93: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-94-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-94: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-95-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-95: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-96-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-96: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-97-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-97: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-98-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-98: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-99-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-99: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-100-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-100: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-101-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-101: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-102-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-102: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-103-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-103: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-104-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-104: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-105-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-105: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-106-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-106: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-107-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-107: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-108-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-108: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-109-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-109: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-110-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-110: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-111-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-111: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-112-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-112: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-113-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-113: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-114-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-114: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-115-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-115: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-116-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-116: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-117-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-117: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-118-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-118: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-119-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-119: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-120-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-120: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-121-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-121: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-122-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-122: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-123-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-123: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-124-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-124: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-125-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-125: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-126-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-126: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-7-127-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-7-127: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-17-0-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-17-0: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-17-1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-17-1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-17-131071-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-17-131071: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-17-98305-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-17-98305: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5a-17-218453-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5a-17-218453: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-56-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-56-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-100-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-100-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-127-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-127-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-256-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-256-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-312-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-312-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-513-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-513-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-1000-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-1000-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att1-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att1: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att3-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att3: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att4-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att4: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att5-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att5: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att6-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att6: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att7-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att7: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att8-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att8: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att9-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att9: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att10-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att10: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att11-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att11: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att12-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att12: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att13-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att13: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-att14-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-att14: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-last-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-last: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-first-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-first: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-tail2-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-tail2: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-firstlast-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-firstlast: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5s-C5b-4095-mid-damage",
+  "anchor": "pmt_tests.cpp:100-106",
+  "desc": "C5s-C5b-4095-mid: 4 seeded vHash bit flips break authentication (root != root1)",
+  "pass": true,
+  "detail": "0 flips failed"
+ },
+ {
+  "id": "C5d-pad-mall12-m0",
+  "anchor": "merkleblock.cpp:177-179",
+  "desc": "pad-bits: k<=7 accepted-same-root (b=1), k>7 = L6 reject",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5d-pad-MB1",
+  "anchor": "merkleblock.cpp:177-179",
+  "desc": "pad-bits: k<=4 accepted-same-root (b=12), k>4 = L6 reject",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b0",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[0] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b1",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[1] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b2",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[2] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b3",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[3] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b4",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[4] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b5",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[5] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b6",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[6] 1->0: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b7",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[7] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b8",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[8] 1->0: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-mall-b9",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[9] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b0",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[0] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b1",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[1] 1->0: auth broken (L6)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b2",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[2] 1->0: auth broken (root!=root1)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b3",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[3] 1->0: auth broken (root!=root1)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b4",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[4] 0->1: auth broken (match-tamper:+)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b5",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[5] 1->0: auth broken (match-tamper:-)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b6",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[6] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b7",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[7] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b8",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[8] 1->0: auth broken (root!=root1)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b9",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[9] 1->0: auth broken (root!=root1)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b10",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[10] 1->0: auth broken (root!=root1)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB1-b11",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[11] 1->0: auth broken (match-tamper:-)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-MB2-b0",
+  "anchor": "merkleblock.cpp:99-135 (untested in Core)",
+  "desc": "vBits[0] 0->1: auth broken (L5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C5e-extrahash",
+  "anchor": "merkleblock.cpp:181-182",
+  "desc": "vHash+[x] -> L7 (all-hashes-consumed check)",
+  "pass": true,
+  "detail": "lane=L7"
+ },
+ {
+  "id": "C5f-L1",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L1 -> lane L1, null root",
+  "pass": true,
+  "detail": "got L1"
+ },
+ {
+  "id": "C5f-L2",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L2 -> lane L2, null root",
+  "pass": true,
+  "detail": "got L2"
+ },
+ {
+  "id": "C5f-L2-boundary-PASS",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L2-boundary-PASS -> lane None, null root",
+  "pass": true,
+  "detail": "got None"
+ },
+ {
+  "id": "C5f-L3",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L3 -> lane L3, null root",
+  "pass": true,
+  "detail": "got L3"
+ },
+ {
+  "id": "C5f-L4",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L4 -> lane L4, null root",
+  "pass": true,
+  "detail": "got L4"
+ },
+ {
+  "id": "C5f-L5",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L5 -> lane L5, null root",
+  "pass": true,
+  "detail": "got L5"
+ },
+ {
+  "id": "C5f-L6",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L6 -> lane L6, null root",
+  "pass": true,
+  "detail": "got L6"
+ },
+ {
+  "id": "C5f-L7",
+  "anchor": "merkleblock.cpp:156-182",
+  "desc": "wire-crafted L7 -> lane L7, null root",
+  "pass": true,
+  "detail": "got L7"
+ },
+ {
+  "id": "C5f-coverage",
+  "anchor": "merkleblock.cpp:153-184",
+  "desc": "Core pmt_tests/merkleblock_tests cover 1/7 reject lanes (L5); CT01 covers 7/7 + boundary (['L1', 'L2', 'L3', 'L4', 'L6', 'L7'] untested in Core)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-13b8a",
+  "anchor": "merkle.cpp:98-190 + fuzz/merkle.cpp:59-70",
+  "desc": "block13b8a: path replay == BlockMerkleRoot for all 9 positions (odd 9-leaf tree; paths through H(h,h) self-pairs)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-1",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "1-leaf tree: path replay == root for all 1 positions (1 leaf: empty path, root = leaf)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-2",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "2-leaf tree: path replay == root for all 2 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-3",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "3-leaf tree: path replay == root for all 3 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-4",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "4-leaf tree: path replay == root for all 4 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-5",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "5-leaf tree: path replay == root for all 5 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-6",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "6-leaf tree: path replay == root for all 6 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-7",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "7-leaf tree: path replay == root for all 7 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-8",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "8-leaf tree: path replay == root for all 8 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-9",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "9-leaf tree: path replay == root for all 9 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6-25",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "25-leaf tree: path replay == root for all 25 positions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C6[1..6,5,6]",
+  "anchor": "merkle.cpp:98-190",
+  "desc": "mutated 8-leaf [1..6,5,6]: path replay == root for all positions (mutation invisible to path replay \u2014 no mutation check in ComputeMerkleRootFromPath, fuzz/merkle.cpp:17-35)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C7-12leaf-law",
+  "anchor": "merkleblock.cpp:124-128",
+  "desc": "12leaf ([b'\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'..b'\\x08\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00',b'\\t\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00',b'\\n\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'] dup-pair data): over all 2^4 match subsets of the dup region, L5(malleability) <=> match \u2229 dup-region \u2260 \u2205",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C7-12leaf-outside",
+  "anchor": "merkleblock.cpp:124-128",
+  "desc": "12leaf + match{0}: L5 independent of outside-region matches",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C7-8leaf-law",
+  "anchor": "merkleblock.cpp:124-128",
+  "desc": "8leaf ([b'\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'..b'\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00',b'\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00',b'\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'] dup-pair data): over all 2^4 match subsets of the dup region, L5(malleability) <=> match \u2229 dup-region \u2260 \u2205",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "id": "C7-8leaf-outside",
+  "anchor": "merkleblock.cpp:124-128",
+  "desc": "8leaf + match{0}: L5 independent of outside-region matches",
+  "pass": true,
+  "detail": ""
+ }
+]

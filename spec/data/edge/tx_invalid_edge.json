@@ -1,0 +1,103 @@
+[
+ {
+  "id": "te-000",
+  "expectValid": false,
+  "segwit": true,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [],
+  "vout": [
+   {
+    "value": 1,
+    "spk": "51"
+   }
+  ],
+  "witness": [],
+  "locktime": 0,
+  "rawHex": "01000000000100010100000000000000015100000000",
+  "expectedError": "vinEmpty",
+  "comment": "EDGE-MUTANT te-000 (FIND-W16-001) bad-txns-vin-empty: vin=[] is wire-representable via the BIP144 marker path (ver 01000000 | marker 00 | flag 01 | nvin 00 | nvout 01 | 1 sat | 51 | lt 00000000 = 22 bytes; Core UnserializeTransaction reads the 0x00 vin count as the marker, 0x01 as the flag, then vin count 0). checkTransaction = some .vinEmpty. MUTANT-TXV-001 (drop vin-empty) returns none -> runner flips pass->fail = killed-RUNNER. NOTE (Core divergence, report-only): Core's deserializer THROWS 'Superfluous witness record' on this exact wire (flags=1 with no witness data, transaction.h UnserializeTransaction) - the codegen reference decoder + W02 lean decodeTx accept it (note-only) and CheckTransaction's vin-empty guard is the defense-in-depth behind the decoder, as FIND-W16-001 says. rawHex = machine-exact wire (rawTx default empty in the record = not ser_judged)."
+ },
+ {
+  "id": "te-001",
+  "expectValid": false,
+  "segwit": false,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "n": 4294967295,
+    "scriptSig": "515151515151",
+    "sequence": 4294967295
+   }
+  ],
+  "voutRange": {
+   "n": 99994,
+   "value": 1,
+   "spk": "51"
+  },
+  "witness": [],
+  "locktime": 0,
+  "expectedError": "oversize",
+  "comment": "EDGE-MUTANT te-001 v3 (post-FIX-TS04 918df3c) bad-txns-oversize at the exact +4 mutant boundary: 1 coinbase-shape input (null prevout, 6-BYTE scriptSig 51x6), 99994 minimal vouts (1 sat, OP_1). base serTxSize = 1000001 (nvout cs = 5 bytes: 99994 -> fe 9a 86 01 00); the checkTransaction oversize gate is txStrippedWeightL = 4*serTxSize (Core tx_check.cpp:26-30 @cce32b16: GetSerializeSize(TX_NO_WITNESS)*WITNESS_SCALE_FACTOR, witness/marker excluded; F-TS04-001) = 4000004 > MAX_BLOCK_WEIGHT (reject) but NOT > MAX+4 = 4000004 (a +4-loosened bound ACCEPTS -> runner flips pass->oos = judged pass 2038->2037 = killed-RUNNER). Core-model-AGNOSTIC reject: witness-LESS row (stripped = Core 4*noWitness = 4000004 reject; FIX-TS04 evidence: the base-1000001 fz rows AGREE reject). voutRange row: 1MB wire not carried (record tx built by replication, List.range 99994).map (make_edge_vecs); rawTx default empty = not ser_judged. HISTORY: v1 (620bbb6) = s=4 witness-FUL weight 4000001 = the OLD txWeightL gate + claimed Core-consistent (F-EM-002, stale); v2 = s=5 divergence-forensics pair with te-004 (both = stripped 4000000 = accept post-TS04 = broken oos); v3 = s=6 = the FIX-TS04-gate repair. te-004 dropped (v2 vestige): the stripped gate is witness/marker-BLIND, so the witness-FUL Core-exact-companion design is mooted. The accept side of this boundary = ve-002 (s=5, stripped 4000000 = AT the bound). MUT-TXV-003 (+4 loosening) = killed-RUNNER here + killed-TEST (Pins.lean bigW) + killed-PACK (MutationPack.lean bigTx8)."
+ },
+ {
+  "id": "te-002",
+  "expectValid": false,
+  "segwit": false,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0101010101010101010101010101010101010101010101010101010101010101",
+    "n": 0,
+    "scriptSig": "",
+    "sequence": 4294967295
+   }
+  ],
+  "vout": [
+   {
+    "value": 2100000000000001,
+    "spk": "51"
+   }
+  ],
+  "witness": [],
+  "locktime": 0,
+  "expectedError": "voutTooLarge",
+  "comment": "EDGE-MUTANT te-002 (FIND-W16-003) bad-txns-vout-toolarge at the exact per-output boundary: 1 output of MAX_MONEY+1 = 2100000000000001 sat. checkTransaction = some .voutTooLarge. NOTE: the MUT-TXV-005 +1-loosened per-output mutant STILL rejects this row (for v = MAX+1 the mutant's per-output test passes but acc' = MAX+1 fails the cumulative MoneyRange guard -> some .txoutTotalTooLarge): the mutant is error-constructor-EQUIVALENT at the runner's accept/reject level (any v > MAX_MONEY surviving the mutant's > MAX+1 per-output test implies acc' > MAX_MONEY) => the runner pass-rate can NEVER flip; the corpus row pins the boundary shape (ti-007/008 far from it) and the error constructor is pinned kernel-side by spec/core/Test/Edge/Pins.lean (mutation tests: channel)."
+ },
+ {
+  "id": "te-003",
+  "expectValid": false,
+  "segwit": false,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0101010101010101010101010101010101010101010101010101010101010101",
+    "n": 0,
+    "scriptSig": "",
+    "sequence": 4294967295
+   }
+  ],
+  "vout": [
+   {
+    "value": 2100000000000000,
+    "spk": "51"
+   },
+   {
+    "value": 1,
+    "spk": "51"
+   }
+  ],
+  "witness": [],
+  "locktime": 0,
+  "expectedError": "txoutTotalTooLarge",
+  "comment": "EDGE-MUTANT te-003 (FIND-W16-003 companion) bad-txns-txouttotal-toolarge at the exact cumulative boundary: 2 outputs (MAX_MONEY, 1) summing to MAX_MONEY+1 - per-output in range, cumulative MoneyRange reject. checkTransaction = some .txoutTotalTooLarge. (Also a MUT-TXV-006 cumulative-drop mutant-killer: dropping the cumulative guard returns none here.)"
+ }
+]

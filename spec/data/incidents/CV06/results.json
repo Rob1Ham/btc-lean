@@ -1,0 +1,10 @@
+{
+ "runner": "Test/Audit/MalRun.lean (lean --run, LEAN_PATH=runners+core oleans, LEAN 4.35.0)",
+ "gen": "python3 <case-workdir>/CV06/gen_mal.py -> spec/runners/Test/Audit/MalGen.lean",
+ "checker": "Bitcoin.Interpreter.verifyScriptFull (W09 Defs.lean, working-tree olean 2026-10-16 21:37:53)",
+ "ec_seam": "Bitcoin.Crypto.Seam.Mock.mockChecker (per-row (sig,pk)->true table; stubChecker accepts any nonempty)",
+ "base_material": "script_tests.json sc-1016 (real 71B low-S DER + 65B pk, vendored hash-pinned corpus)",
+ "expected": "python mirror of Core cce32b16 flag/policy dispatch (checkSigEncoding interpreter.cpp:120-160)",
+ "result": "30/30 PASS",
+ "output": "{\"summary\": {\"total\": 30, \"pass\": 30, \"fail\": 0}}"
+}

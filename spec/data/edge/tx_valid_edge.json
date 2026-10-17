@@ -1,0 +1,87 @@
+[
+ {
+  "id": "ve-000",
+  "expectValid": true,
+  "segwit": false,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0101010101010101010101010101010101010101010101010101010101010101",
+    "n": 0,
+    "scriptSig": "",
+    "sequence": 4294967295
+   }
+  ],
+  "vout": [
+   {
+    "value": 2100000000000000,
+    "spk": "51"
+   },
+   {
+    "value": 0,
+    "spk": "51"
+   }
+  ],
+  "witness": [],
+  "locktime": 0,
+  "expectedError": null,
+  "comment": "EDGE-MUTANT ve-000 (FIND-W16-003 accept side) two outputs (MAX_MONEY, 0) summing to EXACTLY MAX_MONEY = 2100000000000000 sat: per-output in range AND cumulative MoneyRange in range = checkTransaction = none (ACCEPT) - the accept side of the cumulative boundary, one sat below te-003 (sum MAX+1 = reject). Core tx_check.cpp: nValueOut <= MAX_MONEY accepts."
+ },
+ {
+  "id": "ve-001",
+  "expectValid": true,
+  "segwit": true,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0101010101010101010101010101010101010101010101010101010101010101",
+    "n": 0,
+    "scriptSig": "",
+    "sequence": 4294967295
+   }
+  ],
+  "vout": [
+   {
+    "value": 1,
+    "spk": "51"
+   }
+  ],
+  "witness": [
+   [
+    "51"
+   ]
+  ],
+  "locktime": 0,
+  "expectedError": null,
+  "comment": "EDGE-MUTANT ve-001 (FIND-W16-001 accept side) NON-empty vin, segwit framing (wire ver 01000000 | 00 01 | nvin 01 | prevout 32x01 n=00 ss=empty seq=ffffffff | nvout 01 | 1 sat | 51 | witness: 1 stack = [51] (cs(1)+cs(1)+0x51) | lt 00000000): checkTransaction = none (ACCEPT) - the smallest well-formed witness-FUL tx, the accept side of the vin-empty boundary (te-000 companion). Core HasWitness() = true (1 non-empty item) -> no Superfluous-witness-record throw. EDGE_RULES: [TXV-001, INV-001] (v3: the 003-accept-side role moved to ve-002)."
+ },
+ {
+  "id": "ve-002",
+  "expectValid": true,
+  "segwit": false,
+  "flags": "NONE",
+  "policyFlags": "",
+  "version": 1,
+  "vin": [
+   {
+    "hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "n": 4294967295,
+    "scriptSig": "5151515151",
+    "sequence": 4294967295
+   }
+  ],
+  "voutRange": {
+   "n": 99994,
+   "value": 1,
+   "spk": "51"
+  },
+  "witness": [],
+  "locktime": 0,
+  "expectedError": null,
+  "comment": "EDGE-MUTANT ve-002 v3 (FIND-W16-002 accept side, post-FIX-TS04) bad-txns-oversize AT the exact bound: te-001's structure with the 5-byte scriptSig (s=5) = base serTxSize 1000000 -> txStrippedWeightL = 4*serTxSize = 4000000 = MAX_BLOCK_WEIGHT, NOT > (accept: checkTransaction = none). The stripped gate (4*noWitness, Core tx_check.cpp:26-30, F-TS04-001) is witness/marker-BLIND, so the boundary is EXACTLY at 4M: Core 4*1000000 = 4000000 = accept (Core rejects iff 4b > 4M). One weight-unit ABOVE = te-001 (s=6, 4000004, reject); the +4-loosened MUT-TXV-003 mutant (> 4M+4) also accepts here = the mutant-blind accept companion of the te-001 killer row (same relation as ve-000 to te-003). Replaces 620bbb6-v1's divergent s=4/ve-001 story (F-EM-002): under the OLD txWeightL(=3b+t) gate this s=5 witness-LESS shape = 4000003 = REJECT (the Lean-vs-Core gate divergence F-TS04-001 closed); under the stripped gate = 4M accept = Core AGREE. voutRange row: 1MB wire not carried (replication-built); rawTx empty = not ser_judged."
+ }
+]

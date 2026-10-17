@@ -1,0 +1,9 @@
+[
+ {
+  "id": "pe-000",
+  "bits": "1e800000",
+  "faithful": "0",
+  "mutant": "huge",
+  "comment": "EDGE-MUTANT FIND-W16-004: safe mask 0x007fffff vs 0x00ffffff. bits 0x1e800000 carry bit 23 (sign-magnitude flag nibble); faithful compactTarget = 0, widened-mask mutant shifts 0x800000 by 8*(30-3)=216 -> nonzero. Not in any runner layer; pinned by Test/Edge/Pins.lean. Core SetCompact treats bit 23 as the negative flag; the model's masking is the audited seam."
+ }
+]

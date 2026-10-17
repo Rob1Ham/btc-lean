@@ -1,0 +1,489 @@
+import Bitcoin.SigHash.Interface
+import Bitcoin.Serialization.Interface
+
+/-! # GENERATED FILE — do not hand-edit (regenerate: python3
+build/scratch/W11/gen_fixtures.py, then crosscheck.py).
+
+W11 sighash conformance harness — legacy (S1) + BIP143 (S2) digests.
+
+Provenance chain (all @ Core cce32b168):
+  * vectors   : spec/vectors/core/sighash.json (Core's own 500-row corpus)
+                + spec/vectors/bips/bip-0143.mediawiki (7 worked examples)
+  * python ref: build/scratch/W11/mirror.py (hashlib; itself
+                500/500 + 7/7 vs the corpora, E2 preimage byte-exact)
+  * this file : every row asserted against the mirror before emission;
+                crosscheck.py re-derives all rows from the corpora
+
+BYTE ORDER: sighash.json prints digests as uint256::GetHex() (REVERSED
+internal order) — legacy expectations are compared `.reverse`d. BIP143
+prints the digest in INTERNAL order — compared as-is. hashType is the
+JSON signed int32 reinterpreted as UInt32 (two's complement).
+
+Build-time checks only (`native_decide`, Test-scoped per sorry-lint L1;
+plain `decide` does not whnf-reduce the 64-round compression).
+-/
+
+namespace Test.Sighash
+
+open Bitcoin.SigHash Bitcoin.Serialization Bitcoin.Data
+
+set_option maxRecDepth 100000
+
+private def hexDigitVal (c : Char) : Option Nat :=
+  let n := c.toNat
+  if 48 ≤ n ∧ n ≤ 57 then some (n - 48)
+  else if 97 ≤ n ∧ n ≤ 102 then some (n - 87)
+  else if 65 ≤ n ∧ n ≤ 70 then some (n - 55)
+  else none
+
+private def fromHex (s : String) : ByteArray :=
+  go (s.toList.filter (fun c => c != '\n' && c != ' ')) ByteArray.empty
+where
+  go : List Char → ByteArray → ByteArray
+    | [], acc => acc
+    | [_], acc => acc
+    | a :: b :: rest, acc =>
+        match hexDigitVal a, hexDigitVal b with
+        | some ha, some hb => go rest (acc.push ((ha * 16 + hb).toUInt8))
+        | _, _ => go rest acc
+
+/-- sighash.json / uint256::GetHex() byte order (reversed internal). -/
+private def revHex (s : String) : ByteArray := bytesOfList (bL (fromHex s)).reverse
+
+/-- BIP143 printed byte order (internal SHA256d output). -/
+private def beHex (s : String) : ByteArray := fromHex s
+
+deriving instance Inhabited for Tx
+
+/-- Decode a vector's raw transaction (W02 decoder). Every emitted vector
+is decode-validated by the generator, so the panic branch is dead. -/
+private def txOf (hex : String) : Tx :=
+  match decodeTx (fromHex hex) with
+  | .ok t => t
+  | .error e => panic! s!"W11 harness: vector tx failed to decode: {repr e}"
+
+private def scOf (hex : String) : Script := ⟨fromHex hex⟩
+
+/-! ## S1 — legacy digest, 52 corpus vectors + 1 synthetic overflow -/
+-- sh-000: hashtype 1864164639 (0x6f1ce51f) = ALL*(0x1f), nIn 2, scriptCode 0B, vin 3, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "907c2bc503ade11cc3b04eb2918b6f547b0630ab569273824748c87ea14b0696526c66ba740200000004ab65ababfd1f9bdd\
+  4ef073c7afc4ae00da8a66f429c917a0081ad1e1dabce28d373eab81d8628de802000000096aab5253ab52000052ad042b5f\
+  25efb33beec9f3364e8a9139e8439d9d7e26529c3c30b6c3fd89f8684cfd68ea0200000009ab53526500636a52ab599ac2fe\
+  02a526ed040000000008535300516352515164370e010000000003006300ab2ec229") 2 (scOf "") 0x6f1ce51f)
+    (revHex "31af167a6cf3f9d5f6875caa4d31704ceb0eba078d132b78dab52c3b8997317e") = true := by native_decide
+
+-- sh-001: hashtype -1391424484 (0xad108c1c) = ALL*(0x1c), nIn 0, scriptCode 1B, vin 4, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "a0aa3126041621a6dea5b800141aa696daf28408959dfb2df96095db9fa425ad3f427f2f6103000000015360290e9c6063fa\
+  26912c2e7fb6a0ad80f1c5fea1771d42f12976092e7a85a4229fdb6e890000000001abc109f6e47688ac0e46829887857446\
+  02b8c87228fcef0695085edf19088af1a9db126e93000000000665516aac536affffffff8fe53e0806e12dfd05d67ac68f47\
+  68fdbe23fc48ace22a5aa8ba04c96d58e2750300000009ac51abac63ab5153650524aa680455ce7b000000000000499e5003\
+  0000000008636a00ac526563ac5051ee030000000003abacabd2b6fe000000000003516563910fb6b5") 0 (scOf "65") 0xad108c1c)
+    (revHex "48d6a1bd2cd9eec54eb866fc71209418a950402b5d7e52363bfb75c98e141175") = true := by native_decide
+
+-- sh-002: hashtype 479279909 (0x1c913b25) = ALL*(0x5), nIn 0, scriptCode 5B, vin 4, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "6e7e9d4b04ce17afa1e8546b627bb8d89a6a7fefd9d892ec8a192d79c2ceafc01694a6a7e7030000000953ac6a5100635363\
+  6a33bced1544f797f08ceed02f108da22cd24c9e7809a446c61eb3895914508ac91f07053a01000000055163ab516affffff\
+  ff11dc54eee8f9e4ff0bcf6b1a1a35b1cd10d63389571375501af7444073bcec3c02000000046aab53514a821f0ce3956e23\
+  5f71e4c69d91abe1e93fb703bd33039ac567249ed339bf0ba0883ef300000000090063ab65000065ac654bec3cc504bcf499\
+  020000000005ab6a52abac64eb060100000000076a6a5351650053bbbc130100000000056a6aab53abd6e138010000000002\
+  6a51c4e509b8") 0 (scOf "acab655151") 0x1c913b25)
+    (revHex "2a3d95b09237b72034b23f2d2bb29fa32a58ab5c6aa72f6aafdfa178ab1dd01c") = true := by native_decide
+
+-- sh-003: hashtype 1190874345 (0x46fb4ce9) = ALL*(0x9)|ACP, nIn 1, scriptCode 8B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "73107cbd025c22ebc8c3e0a47b2a760739216a528de8d4dab5d45cbeb3051cebae73b01ca10200000007ab6353656a636aff\
+  ffffffe26816dffc670841e6a6c8c61c586da401df1261a330a6c6b3dd9f9a0789bc9e000000000800ac6552ac6aac51ffff\
+  ffff0174a8f0010000000004ac52515100000000") 1 (scOf "5163ac63635151ac") 0x46fb4ce9)
+    (revHex "06e328de263a87b09beabe222a21627a6ea5c7f560030da31610c4611f4a46bc") = true := by native_decide
+
+-- sh-004: hashtype -886562767 (0xcb282031) = ALL*(0x11), nIn 1, scriptCode 7B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "e93bbf6902be872933cb987fc26ba0f914fcfc2f6ce555258554dd9939d12032a8536c8802030000000453ac5353eabb6451\
+  e074e6fef9de211347d6a45900ea5aaf2636ef7967f565dce66fa451805c5cd10000000003525253ffffffff047dc3e60200\
+  00000007516565ac656aabec9eea010000000001633e46e600000000000015080a030000000001ab00000000") 1 (scOf "5300ac6a53ab6a") 0xcb282031)
+    (revHex "f03aa4fc5f97e826323d0daa03343ebf8a34ed67a1ce18631f8b88e5c992e798") = true := by native_decide
+
+-- sh-005: hashtype 946795545 (0x386ef419) = ALL*(0x19), nIn 0, scriptCode 2B, vin 1, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "50818f4c01b464538b1e7e7f5ae4ed96ad23c68c830e78da9a845bc19b5c3b0b20bb82e5e9030000000763526a63655352ff\
+  ffffff023b3f9c040000000008630051516a6a5163a83caf01000000000553ab65510000000000") 0 (scOf "6aac") 0x386ef419)
+    (revHex "746306f322de2b4b58ffe7faae83f6a72433c22f88062cdde881d4dd8a5a4e2d") = true := by native_decide
+
+-- sh-006: hashtype 1773442520 (0x69b495d8) = ALL*(0x18)|ACP, nIn 1, scriptCode 5B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "a93e93440250f97012d466a6cc24839f572def241c814fe6ae94442cf58ea33eb0fdd9bcc1030000000600636a0065acffff\
+  ffff5dee3a6e7e5ad6310dea3e5b3ddda1a56bf8de7d3b75889fc024b5e233ec10f80300000007ac53635253ab53ffffffff\
+  0160468b04000000000800526a5300ac526a00000000") 1 (scOf "ac00636a53") 0x69b495d8)
+    (revHex "5c9d3a2ce9365bb72cfabbaa4579c843bb8abf200944612cf8ae4b56a908bcbd") = true := by native_decide
+
+-- sh-007: hashtype 2030598449 (0x79087931) = ALL*(0x11), nIn 1, scriptCode 6B, vin 4, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "ce7d371f0476dda8b811d4bf3b64d5f86204725deeaa3937861869d5b2766ea7d17c57e40b0100000003535265ffffffff7e\
+  7e9188f76c34a46d0bbe856bde5cb32f089a07a70ea96e15e92abb37e479a10100000006ab6552ab655225bcab06d1c28967\
+  09f364b1e372814d842c9c671356a1aa5ca4e060462c65ae55acc02d0000000006abac0063ac5281b33e332f96beebdbc6a3\
+  79ebe6aea36af115c067461eb99d22ba1afbf59462b59ae0bd0200000004ab635365be15c23801724a170400000000096500\
+  6a65ac00000052ca555572") 1 (scOf "53ab530051ab") 0x79087931)
+    (revHex "c336b2f7d3702fbbdeffc014d106c69e3413c7c71e436ba7562d8a7a2871f181") = true := by native_decide
+
+-- sh-008: hashtype -1960128125 (0x8b2ad183) = SINGLE|ACP, nIn 0, scriptCode 8B, vin 1, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "d3b7421e011f4de0f1cea9ba7458bf3486bee722519efab711a963fa8c100970cf7488b7bb0200000003525352dcd61b3001\
+  48be5d05000000000000000000") 0 (scOf "535251536aac536a") 0x8b2ad183)
+    (revHex "29aa6d2d752d3310eba20442770ad345b7f6a35f96161ede5f07b33e92053e2a") = true := by native_decide
+
+-- sh-009: hashtype 764174870 (0x2d8c6216) = ALL*(0x16), nIn 1, scriptCode 7B, vin 3, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "04bac8c5033460235919a9c63c42b2db884c7c8f2ed8fcd69ff683a0a2cccd9796346a04050200000003655351fcad3a2c5a\
+  7cbadeb4ec7acc9836c3f5c3e776e5c566220f7f965cf194f8ef98efb5e3530200000007526a006552526526a2f55ba5f696\
+  99ece76692552b399ba908301907c5763d28a15b08581b23179cb01eac03000000075363ab6a516351073942c2025aa98a05\
+  000000000765006aabac65abd7ffa6030000000004516a655200000000") 1 (scOf "53ac6365ac526a") 0x2d8c6216)
+    (revHex "bf5fdc314ded2372a0ad078568d76c5064bf2affbde0764c335009e56634481b") = true := by native_decide
+
+-- sh-010: hashtype 2146479410 (0x7ff0ad32) = ALL*(0x12), nIn 0, scriptCode 0B, vin 1, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "c363a70c01ab174230bbe4afe0c3efa2d7f2feaf179431359adedccf30d1f69efe0c86ed390200000002ab51558648fe0231\
+  318b04000000000151662170000000000008ac5300006a63acac00000000") 0 (scOf "") 0x7ff0ad32)
+    (revHex "191ab180b0d753763671717d051f138d4866b7cb0d1d4811472e64de595d2c70") = true := by native_decide
+
+-- sh-011: hashtype -315779667 (0xed2d95ad) = ALL*(0xd)|ACP, nIn 3, scriptCode 1B, vin 4, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "8d437a7304d8772210a923fd81187c425fc28c17a5052571501db05c7e89b11448b36618cd02000000026a6340fec14ad2c9\
+  298fde1477f1e8325e5747b61b7e2ff2a549f3d132689560ab6c45dd43c3010000000963ac00ac000051516a447ed907a7ef\
+  ffebeb103988bf5f947fc688aab2c6a7914f48238cf92c337fad4a79348102000000085352ac526a5152517436edf2d80e3e\
+  f06725227c970a816b25d0b58d2cd3c187a7af2cea66d6b27ba69bf33a0300000007000063ab526553f3f0d6140386815d03\
+  0000000003ab6300de138f00000000000900525153515265abac1f87040300000000036aac6500000000") 3 (scOf "51") 0xed2d95ad)
+    (revHex "b6632ac53578a741ae8c36d8b69e79f39b89913a2c781cdf1bf47a8c29d997a5") = true := by native_decide
+
+-- sh-012: hashtype 1729787658 (0x671a770a) = ALL*(0xa), nIn 0, scriptCode 3B, vin 3, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "fd878840031e82fdbe1ad1d745d1185622b0060ac56638290ec4f66b1beef4450817114a2c0000000009516a63ab53650051\
+  abffffffff37b7a10322b5418bfd64fb09cd8a27ddf57731aeb1f1f920ffde7cb2dfb6cdb70300000008536a5365ac535153\
+  69ecc034f1594690dbe189094dc816d6d57ea75917de764cbf8eccce4632cbabe7e116cd0100000003515352ffffffff0357\
+  77fc000000000003515200abe9140300000000050063005165bed6d10200000000076300536363ab65195e9110") 0 (scOf "635265") 0x671a770a)
+    (revHex "6e3735d37a4b28c45919543aabcb732e7a3e1874db5315abb7cc6b143d62ff10") = true := by native_decide
+
+-- sh-013: hashtype -1778064747 (0x9604e295) = ALL*(0x15)|ACP, nIn 1, scriptCode 6B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "f40a750702af06efff3ea68e5d56e42bc41cdb8b6065c98f1221fe04a325a898cb61f3d7ee030000000363acacffffffffb5\
+  788174aef79788716f96af779d7959147a0c2e0e5bfb6c2dba2df5b4b97894030000000965510065535163ac6affffffff04\
+  45e6fd0200000000096aac536365526a526aa6546b000000000008acab656a6552535141a0fd010000000000c897ea030000\
+  000008526500ab526a6a631b39dba3") 1 (scOf "00abab5163ac") 0x9604e295)
+    (revHex "d76d0fc0abfa72d646df888bce08db957e627f72962647016eeae5a8412354cf") = true := by native_decide
+
+-- sh-014: hashtype -232881718 (0xf21e81ca) = ALL*(0xa)|ACP, nIn 3, scriptCode 0B, vin 4, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "a63bc673049c75211aa2c09ecc38e360eaa571435fedd2af1116b5c1fa3d0629c269ecccbf0000000008ac65ab516352ac52\
+  ffffffffbf1a76fdda7f451a5f0baff0f9ccd0fe9136444c094bb8c544b1af0fa2774b06010000000463535253ffffffff13\
+  d6b7c3ddceef255d680d87181e100864eeb11a5bb6a3528cb0d70d7ee2bbbc02000000056a0052abab951241809623313b19\
+  8bb520645c15ec96bfcc74a2b0f3db7ad61d455cc32db04afc5cc702000000016309c9ae25014d9473020000000004abab6a\
+  ac3bb1e803") 3 (scOf "") 0xf21e81ca)
+    (revHex "6e48f3da3a4ac07eb4043a232df9f84e110485d7c7669dd114f679c27d15b97e") = true := by native_decide
+
+-- sh-015: hashtype 70712784 (0x0436fdd0) = ALL*(0x10)|ACP, nIn 3, scriptCode 0B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "4c565efe04e7d32bac03ae358d63140c1cfe95de15e30c5b84f31bb0b65bb542d637f49e0f010000000551abab536348ae32\
+  b31c7d3132030a510a1b1aacf7b7c3f19ce8dc49944ef93e5fa5fe2d356b4a73a00100000009abac635163ac00ab514c8bc5\
+  7b6b844e04555c0a4f4fb426df139475cd2396ae418bc7015820e852f711519bc202000000086a00510000abac52488ff4ae\
+  c72cbcfcc98759c58e20a8d2d9725aa4a80f83964e69bc4e793a4ff25cd75dc701000000086a52ac6aac5351532ec6b10802\
+  463e0200000000000553005265523e08680100000000002f39a6b0") 3 (scOf "") 0x0436fdd0)
+    (revHex "c6076b6a45e6fcfba14d3df47a34f6aadbacfba107e95621d8d7c9c0e40518ed") = true := by native_decide
+
+-- sh-016: hashtype -114996813 (0xf92549b3) = ALL*(0x13)|ACP, nIn 1, scriptCode 6B, vin 3, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "1233d5e703403b3b8b4dae84510ddfc126b4838dcb47d3b23df815c0b3a07b55bf3098110e010000000163c5c55528041f48\
+  0f40cf68a8762d6ed3efe2bd402795d5233e5d94bf5ddee71665144898030000000965525165655151656affffffff638166\
+  7e78bb74d0880625993bec0ea3bd41396f2bcccc3cc097b240e5e92d6a01000000096363acac6a63536365ffffffff04610a\
+  d60200000000065251ab65ab52e90d680200000000046351516ae30e98010000000008abab52520063656a67185601000000\
+  0004ac6aac514c84e383") 1 (scOf "6aabab636300") 0xf92549b3)
+    (revHex "aeb8c5a62e8a0b572c28f2029db32854c0b614dbecef0eaa726abebb42eebb8d") = true := by native_decide
+
+-- sh-017: hashtype -2040012771 (0x8667e01d) = ALL*(0x1d), nIn 1, scriptCode 5B, vin 3, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "0c69702103b25ceaed43122cc2672de84a3b9aa49872f2a5bb458e19a52f8cc75973abb9f102000000055365656aacffffff\
+  ff3ffb1cf0f76d9e3397de0942038c856b0ebbea355dc9d8f2b06036e19044b0450100000000ffffffff4b7793f4169617c5\
+  4b734f2cd905ed65f1ce3d396ecd15b6c426a677186ca0620200000008655263526551006a181a25b703240cce0100000000\
+  046352ab53dee22903000000000865526a6a516a51005e121602000000000852ab52ababac655200000000") 1 (scOf "6a516aab63") 0x8667e01d)
+    (revHex "a6e6cb69f409ec14e10dd476f39167c29e586e99bfac93a37ed2c230fcc1dbbe") = true := by native_decide
+
+-- sh-018: hashtype 309309168 (0x126faef0) = ALL*(0x10)|ACP, nIn 1, scriptCode 7B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "fd22692802db8ae6ab095aeae3867305a954278f7c076c542f0344b2591789e7e33e4d29f4020000000151ffffffffb94091\
+  29cfed9d3226f3b6bab7a2c83f99f48d039100eeb5796f00903b0e5e5e0100000006656552ac63abd226abac0403e6490000\
+  00000007abab51ac5100ac8035f10000000000095165006a63526a52510d42db030000000007635365ac6a63ab24ef590100\
+  0000000453ab6a0000000000") 1 (scOf "536a52516aac6a") 0x126faef0)
+    (revHex "7ca0f75e6530ec9f80d031fc3513ca4ecd67f20cb38b4dacc6a1d825c3cdbfdb") = true := by native_decide
+
+-- sh-019: hashtype 2028978692 (0x78efc204) = ALL*(0x4), nIn 0, scriptCode 1B, vin 1, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "a43f85f701ffa54a3cc57177510f3ea28ecb6db0d4431fc79171cad708a6054f6e5b4f89170000000008ac6a006a53655165\
+  2bebeaa2013e779c05000000000665ac5363635100000000") 0 (scOf "ac") 0x78efc204)
+    (revHex "58294f0d7f2e68fe1fd30c01764fe1619bcc7961d68968944a0e263af6550437") = true := by native_decide
+
+-- sh-020: hashtype -894181723 (0xcab3dea5) = ALL*(0x5)|ACP, nIn 0, scriptCode 8B, vin 1, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "c2b0b99001acfecf7da736de0ffaef8134a9676811602a6299ba5a2563a23bb09e8cbedf9300000000026300ffffffff0429\
+  97c50300000000045252536a272437030000000007655353ab6363ac663752030000000002ab6a6d5c900000000000066a6a\
+  5265abab00000000") 0 (scOf "52ac525163515251") 0xcab3dea5)
+    (revHex "8b300032a1915a4ac05cea2f7d44c26f2a08d109a71602636f15866563eaafdc") = true := by native_decide
+
+-- sh-021: hashtype -635779440 (0xda1ac690) = ALL*(0x10)|ACP, nIn 3, scriptCode 0B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "82f9f10304c17a9d954cf3380db817814a8c738d2c811f0412284b2c791ec75515f38c4f8c020000000265ab5729ca7db1b7\
+  9abee66c8a757221f29280d0681355cb522149525f36da760548dbd7080a0100000001510b477bd9ce9ad5bb81c0306273a3\
+  a7d051e053f04ecf3a1dbeda543e20601a5755c0cfae030000000451ac656affffffff71141a04134f6c292c2e0d415e6705\
+  dfd8dcee892b0d0807828d5aeb7d11f5ef0300000001520b6c6dc802a6f3dd0000000000056aab515163bfb6800300000000\
+  015300000000") 3 (scOf "") 0xda1ac690)
+    (revHex "d55ed1e6c53510f2608716c12132a11fb5e662ec67421a513c074537eeccc34b") = true := by native_decide
+
+-- sh-022: hashtype 1520147826 (0x5a9b9d72) = ALL*(0x12), nIn 0, scriptCode 9B, vin 1, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "8edcf5a1014b604e53f0d12fe143cf4284f86dc79a634a9f17d7e9f8725f7beb95e8ffcd2403000000046aabac52ffffffff\
+  01c402b5040000000005ab6a63525100000000") 0 (scOf "6351525251acabab6a") 0x5a9b9d72)
+    (revHex "2765bbdcd3ebb8b1a316c04656b28d637f80bffbe9b040661481d3dc83eea6d6") = true := by native_decide
+
+-- sh-023: hashtype -1804671183 (0x946ee731) = ALL*(0x11), nIn 0, scriptCode 4B, vin 1, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "2074bad5011847f14df5ea7b4afd80cd56b02b99634893c6e3d5aaad41ca7c8ee8e5098df003000000026a6affffffff018a\
+  d59700000000000900ac656a526551635300000000") 0 (scOf "65635265") 0x946ee731)
+    (revHex "663c999a52288c9999bff36c9da2f8b78d5c61b8347538f76c164ccba9868d0a") = true := by native_decide
+
+-- sh-024: hashtype -1210499507 (0xb7d93e4d) = ALL*(0xd), nIn 0, scriptCode 4B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "7100b11302e554d4ef249ee416e7510a485e43b2ba4b8812d8fe5529fe33ea75f36d392c4403000000020000ffffffff3d01\
+  a37e075e9a7715a657ae1bdf1e44b46e236ad16fd2f4c74eb9bf370368810000000007636553ac536365ffffffff01db696a\
+  0400000000065200ac656aac00000000") 0 (scOf "63005151") 0xb7d93e4d)
+    (revHex "b9c3aee8515a4a3b439de1ffc9c156824bda12cb75bfe5bc863164e8fd31bd7a") = true := by native_decide
+
+-- sh-025: hashtype -241626954 (0xf19910b6) = ALL*(0x16)|ACP, nIn 0, scriptCode 6B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "02c1017802091d1cb08fec512db7b012fe4220d57a5f15f9e7676358b012786e1209bcff950100000004acab6352ffffffff\
+  799bc282724a970a6fea1828984d0aeb0f16b67776fa213cbdc4838a2f1961a3010000000951516a536552ab6aabffffffff\
+  016c7b4b03000000000865abac5253ac5352b70195ad") 0 (scOf "65655200516a") 0xf19910b6)
+    (revHex "be567cb47170b34ff81c66c1142cb9d27f9b6898a384d6dfc4fce16b75b6cb14") = true := by native_decide
+
+-- sh-026: hashtype 1182109299 (0x46758e73) = ALL*(0x13), nIn 0, scriptCode 9B, vin 1, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "cb3178520136cd294568b83bb2520f78fecc507898f4a2db2674560d72fd69b9858f75b3b502000000066aac00515100ffff\
+  ffff03ab005a01000000000563526363006e3836030000000001abfbda3200000000000665ab0065006500000000") 0 (scOf "ab516a0063006a5300") 0x46758e73)
+    (revHex "2149e79c3f4513da4e4378608e497dcfdfc7f27c21a826868f728abd2b8a637a") = true := by native_decide
+
+-- sh-027: hashtype 2052372230 (0x7a54b706) = ALL*(0x6), nIn 3, scriptCode 8B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "18a4b0c004702cf0e39686ac98aab78ad788308f1d484b1ddfe70dc1997148ba0e28515c310300000000ffffffff05275a52\
+  a23c59da91129093364e275da5616c4070d8a05b96df5a2080ef259500000000096aac51656a6aac53ab66e64966b3b36a07\
+  dd2bb40242dd4a3743d3026e7e1e0d9e9e18f11d068464b989661321030000000265ac383339c4fae63379cafb63b0bab2ec\
+  a70e1f5fc7d857eb5c88ccd6c0465093924bba8b2a000000000300636ab5e0545402bc2c4c010000000000cd41c002000000\
+  000000000000") 3 (scOf "abac635253656a00") 0x7a54b706)
+    (revHex "32db877b6b1ca556c9e859442329406f0f8246706522369839979a9f7a235a32") = true := by native_decide
+
+-- sh-028: hashtype -210854112 (0xf36e9f20) = ALL*(0x0), nIn 0, scriptCode 2B, vin 1, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "1d9c5df20139904c582285e1ea63dec934251c0f9cf5c47e86abfb2b394ebc57417a81f67c010000000353515222ba722504\
+  800d3402000000000353656a3c0b4a0200000000000fb8d20500000000076300ab005200516462f304000000000152000000\
+  00") 0 (scOf "ab65") 0xf36e9f20)
+    (revHex "edf73e2396694e58f6b619f68595b0c1cdcb56a9b3147845b6d6afdb5a80b736") = true := by native_decide
+
+-- sh-029: hashtype -31909119 (0xfe191b01) = ALL, nIn 1, scriptCode 6B, vin 4, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "4504cb1904c7a4acf375ddae431a74de72d5436efc73312cf8e9921f431267ea6852f9714a01000000066a656a656553a2fb\
+  d587c098b3a1c5bd1d6480f730a0d6d9b537966e20efc0e352d971576d0f87df0d6d01000000016321aeec3c4dcc819f1290\
+  edb463a737118f39ab5765800547522708c425306ebfca3f396603000000055300ac656a1d09281d05bfac57b5eb17eb3fa8\
+  1ffcedfbcd3a917f1be0985c944d473d2c34d245eb350300000007656a51525152ac263078d9032f470f0500000000066aac\
+  00000052e12da60200000000003488410200000000076365006300ab539981e432") 1 (scOf "52536a52526a") 0xfe191b01)
+    (revHex "f0a2deee7fd8a3a9fad6927e763ded11c940ee47e9e6d410f94fda5001f82e0c") = true := by native_decide
+
+-- sh-030: hashtype -1460947095 (0xa8ebb769) = ALL*(0x9), nIn 0, scriptCode 5B, vin 3, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "14bc7c3e03322ec0f1311f4327e93059c996275302554473104f3f7b46ca179bfac9ef753503000000016affffffff9d405e\
+  aeffa1ca54d9a05441a296e5cc3a3e32bb8307afaf167f7b57190b07e00300000008abab51ab5263abab45533aa242c61bca\
+  90dd15d46079a0ab0841d85df67b29ba87f2393cd764a6997c372b55030000000452005263ffffffff0250f40e0200000000\
+  0651516a0063630e95ab0000000000046a5151ac00000000") 0 (scOf "6a65005151") 0xa8ebb769)
+    (revHex "aa418d096929394c9147be8818d8c9dafe6d105945ab9cd7ec682df537b5dd79") = true := by native_decide
+
+-- sh-031: hashtype -1955078165 (0x8b77dfeb) = ALL*(0xb)|ACP, nIn 3, scriptCode 7B, vin 4, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "2b3bd0dd04a1832f893bf49a776cd567ec4b43945934f4786b615d6cb850dfc0349b33301a000000000565ac000051cf80c6\
+  70f6ddafab63411adb4d91a69c11d9ac588898cbfb4cb16061821cc104325c895103000000025163ffffffffa9e2d7506d2d\
+  7d53b882bd377bbcc941f7a0f23fd15d2edbef3cd9df8a4c39d10200000009ac63006a52526a5265ffffffff44c099cdf10b\
+  10ce87d4b38658d002fd6ea17ae4a970053c05401d86d6e75f99000000000963ab53526a5252ab63ffffffff035af69c0100\
+  0000000100ba9b8b0400000000004cead10500000000026a520b77d667") 3 (scOf "ab52abac526553") 0x8b77dfeb)
+    (revHex "eb9ceecc3b401224cb79a44d23aa8f428e29f1405daf69b4e01910b848ef1523") = true := by native_decide
+
+-- sh-032: hashtype 593793071 (0x2364902f) = ALL*(0xf), nIn 3, scriptCode 2B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "35df11f004a48ba439aba878fe9df20cc935b4a761c262b1b707e6f2b33e2bb7565cd68b130000000000ffffffffb2a2f99a\
+  bf64163bb57ca900500b863f40c02632dfd9ea2590854c5fb4811da90200000006ac006363636affffffffaf9d89b2a8d267\
+  0ca37c8f7c140600b81259f2e037cb4590578ec6e37af8bf200000000005abac6a655270a4751eb551f058a93301ffeda2e2\
+  52b6614a1fdd0e283e1d9fe53c96c5bbaafaac57b8030000000153ffffffff020d9f3b02000000000100ed70080300000000\
+  04abac000000000000") 3 (scOf "abac") 0x2364902f)
+    (revHex "88fdee1c2d4aeead71d62396e28dc4d00e5a23498eea66844b9f5d26d1f21042") = true := by native_decide
+
+-- sh-033: hashtype -1158911348 (0xbaec6a8c) = ALL*(0xc)|ACP, nIn 1, scriptCode 4B, vin 4, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "a08ff466049fb7619e25502ec22fedfb229eaa1fe275aa0b5a23154b318441bf547989d0510000000005ab5363636affffff\
+  ff2b0e335cb5383886751cdbd993dc0720817745a6b1c9b8ab3d15547fc9aafd03000000000965656a536a52656a532b53d1\
+  0584c290d3ac1ab74ab0a19201a4a039cb59dc58719821c024f6bf2eb26322b33f010000000965ac6aac0053ab6353ffffff\
+  ff048decba6ebbd2db81e416e39dde1f821ba69329725e702bcdea20c5cc0ecc6402000000086363ab5351ac6551466e377b\
+  0468c0fa00000000000651ab53ac6a513461c6010000000008636a636365535100eeb3dc010000000006526a52ac516a43f3\
+  62010000000005000063536500000000") 1 (scOf "0063516a") 0xbaec6a8c)
+    (revHex "f6a1ecb50bd7c2594ebecea5a1aa23c905087553e40486dade793c2f127fdfae") = true := by native_decide
+
+-- sh-034: hashtype 1518400956 (0x5a80f5bc) = ALL*(0x1c)|ACP, nIn 2, scriptCode 9B, vin 3, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "5ac2f17d03bc902e2bac2469907ec7d01a62b5729340bc58c343b7145b66e6b97d434b30fa000000000163ffffffff44028a\
+  a674192caa0d0b4ebfeb969c284cb16b80c312d096efd80c6c6b094cca000000000763acabac516a52ffffffff10c809106e\
+  04b10f9b43085855521270fb48ab579266e7474657c6c625062d2d030000000351636595a0a97004a1b69603000000000465\
+  ab005352ad68010000000008636a5263acac5100da7105010000000002acab90325200000000000000000000") 2 (scOf "6a6aab516a63526353") 0x5a80f5bc)
+    (revHex "f7efb74b1dcc49d316b49c632301bc46f98d333c427e55338be60c7ef0d953be") = true := by native_decide
+
+-- sh-035: hashtype 1084852870 (0x40a98a86) = ALL*(0x6)|ACP, nIn 0, scriptCode 7B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "aeb2e11902dc3770c218b97f0b1960d6ee70459ecb6a95eff3f05295dc1ef4a0884f10ba460300000005516352526393e9b1\
+  b3e6ae834102d699ddd3845a1e159aa7cf7635edb5c02003f7830fee3788b795f20100000009ab006a526553ac006ad8809c\
+  570469290e0400000000050000abab00b10fd5040000000008ab655263abac53ab630b180300000000009d99930400000000\
+  02516300000000") 0 (scOf "5351ababac6a65") 0x40a98a86)
+    (revHex "f2286001af0b0170cbdad92693d0a5ebaa8262a4a9d66e002f6d79a8c94026d1") = true := by native_decide
+
+-- sh-036: hashtype -962088116 (0xc6a7b34c) = ALL*(0xc), nIn 1, scriptCode 9B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "9860ca9a0294ff4812534def8c3a3e3db35b817e1a2ddb7f0bf673f70eab71bb79e90a2f3100000000086a636551acac5165\
+  ffffffffed4d6d3cd9ff9b2d490e0c089739121161a1445844c3e204296816ab06e0a83702000000035100ac88d0db5201c3\
+  b59a050000000005ac6a0051ab00000000") 1 (scOf "535263ab006a526aab") 0xc6a7b34c)
+    (revHex "30df2473e1403e2b8e637e576825f785528d998af127d501556e5f7f5ed89a2a") = true := by native_decide
+
+-- sh-037: hashtype 1055317633 (0x3ee6de81) = ALL|ACP, nIn 0, scriptCode 7B, vin 2, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "4ddaa680026ec4d8060640304b86823f1ac760c260cef81d85bd847952863d629a3002b54b0200000008526365636a656aab\
+  65457861fc6c24bdc760c8b2e906b6656edaf9ed22b5f50e1fb29ec076ceadd9e8ebcb6b000000000152ffffffff033ff04f\
+  00000000000551526a00657a1d900300000000002153af040000000003006a6300000000") 0 (scOf "ab526a53acabab") 0x3ee6de81)
+    (revHex "7f21b62267ed52462e371a917eb3542569a4049b9dfca2de3c75872b39510b26") = true := by native_decide
+
+-- sh-038: hashtype -1420559003 (0xab53fd65) = ALL*(0x5), nIn 0, scriptCode 6B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "01e76dcd02ad54cbc8c71d68eaf3fa7c883b65d74217b30ba81f1f5144ef80b706c0dc82ca000000000352ab6a078ec18bcd\
+  0514825feced2e8b8ea1ccb34429fae41c70cc0b73a2799e85603613c6870002000000086363ab6365536a53ffffffff043a\
+  cea90000000000016ad20e1803000000000100fa00830200000000056352515351e864ee00000000000865535253ab6a6551\
+  d0c46672") 0 (scOf "6a6365abacab") 0xab53fd65)
+    (revHex "8af0b4cbdbc011be848edf4dbd2cde96f0578d662cfebc42252495387114224a") = true := by native_decide
+
+-- sh-039: hashtype 799022412 (0x2fa01d4c) = ALL*(0xc), nIn 0, scriptCode 5B, vin 2, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "fa00b26402670b97906203434aa967ce1559d9bd097d56dbe760469e6032e7ab61accb54160100000006635163630052ffff\
+  fffffe0d3f4f0f808fd9cfb162e9f0c004601acf725cd7ea5683bbdc9a9a433ef15a0200000005ab52536563d09c7bef0490\
+  40f305000000000153a7c7b9020000000004ac63ab52847a2503000000000553ab00655390ed80010000000005006553ab52\
+  860671d4") 0 (scOf "536565ab52") 0x2fa01d4c)
+    (revHex "40ed8e7bbbd893e15f3cce210ae02c97669818de5946ca37eefc7541116e2c78") = true := by native_decide
+
+-- sh-040: hashtype -1514251329 (0xa5be5bbf) = ALL*(0x1f)|ACP, nIn 0, scriptCode 2B, vin 1, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "cb5c06dc01b022ee6105ba410f0eb12b9ce5b5aa185b28532492d839a10cef33d06134b91b010000000153ffffffff02cec0\
+  530400000000005e1e4504000000000865656551acacac6a00000000") 0 (scOf "ab53") 0xa5be5bbf)
+    (revHex "136beb95459fe6b126cd6cefd54eb5d971524b0e883e41a292a78f78015cb8d5") = true := by native_decide
+
+-- sh-041: hashtype 1552495929 (0x5c893539) = ALL*(0x19), nIn 0, scriptCode 2B, vin 3, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "f10a0356031cd569d652dbca8e7a4d36c8da33cdff428d003338602b7764fe2c96c505175b010000000465ac516affffffff\
+  bb54563c71136fa944ee20452d78dc87073ac2365ba07e638dce29a5d179da600000000003635152ffffffff9a411d8e2d42\
+  1b1e6085540ee2809901e590940bbb41532fa38bd7a16b68cc350100000007535251635365636195df1603b61c4501000000\
+  0002ab65bf6a310400000000026352fcbba10200000000016aa30b7ff0") 0 (scOf "5351") 0x5c893539)
+    (revHex "9eb8adf2caecb4bf9ac59d7f46bd20e83258472db2f569ee91aba4cf5ee78e29") = true := by native_decide
+
+-- sh-042: hashtype -68961433 (0xfbe3bb67) = ALL*(0x7), nIn 0, scriptCode 2B, vin 1, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "c3325c9b012f659466626ca8f3c61dfd36f34670abc054476b7516a1839ec43cd0870aa0c0000000000753525265005351e7\
+  e3f04b0112650500000000000363ac6300000000") 0 (scOf "acac") 0xfbe3bb67)
+    (revHex "5ca70e727d91b1a42b78488af2ed551642c32d3de4712a51679f60f1456a8647") = true := by native_decide
+
+-- sh-043: hashtype 598653797 (0x23aebb65) = ALL*(0x5), nIn 3, scriptCode 7B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "2333e54c044370a8af16b9750ac949b151522ea6029bacc9a34261599549581c7b4e5ece470000000007510052006563abff\
+  ffffff80630fc0155c750ce20d0ca4a3d0c8e8d83b014a5b40f0b0be0dd4c63ac28126020000000465000000ffffffff1b5f\
+  1433d38cdc494093bb1d62d84b10abbdae57e3d04e82e600857ab3b1dc990300000003515100b76564be13e4890a908ea750\
+  8afdad92ec1b200a9a67939fadce6eb7a29eb4550a0a28cb0300000001acffffffff02926c93030000000001637380020100\
+  0000000153d27ee740") 3 (scOf "ab6365ab516a53") 0x23aebb65)
+    (revHex "2be27a686eb7940dd32c44ff3a97c1b28feb7ab9c5c0b1593b2d762361cfc2db") = true := by native_decide
+
+-- sh-044: hashtype -2024394677 (0x8756304b) = ALL*(0xb), nIn 0, scriptCode 4B, vin 1, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "b500ca48011ec57c2e5252e5da6432089130603245ffbafb0e4c5ffe6090feb629207eeb0e010000000652ab6a636aab8302\
+  c9d2042b44f40500000000015278c05a050000000004ac5251524be080020000000007636aac63ac5252c93a9a0400000000\
+  0965ab6553636aab5352d91f9ddb") 0 (scOf "52005100") 0x8756304b)
+    (revHex "49c8a6940a461cc7225637f1e512cdd174c99f96ec05935a59637ededc77124c") = true := by native_decide
+
+-- sh-045: hashtype 1130989496 (0x436987b8) = ALL*(0x18)|ACP, nIn 0, scriptCode 4B, vin 2, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "f52ff64b02ee91adb01f3936cc42e41e1672778962b68cf013293d649536b519bc3271dd2c00000000020065afee11313784\
+  849a7c15f44a61cd5fd51ccfcdae707e5896d131b082dc9322a19e12858501000000036aac654e8ca882022deb7c02000000\
+  0006006a515352abd3defc0000000000016300000000") 0 (scOf "63520063") 0x436987b8)
+    (revHex "7f208df9a5507e98c62cebc5c1e2445eb632e95527594929b9577b53363e96f6") = true := by native_decide
+
+-- sh-046: hashtype 911316637 (0x3651969d) = ALL*(0x1d)|ACP, nIn 0, scriptCode 9B, vin 2, vout 1
+example : bytesBEq (signatureHashLegacy (txOf "ab7d6f36027a7adc36a5cf7528fe4fb5d94b2c96803a4b38a83a675d7806dda62b380df86a0000000003000000ffffffff5b\
+  c00131e29e22057c04be854794b4877dda42e416a7a24706b802ff9da521b20000000007ac6a0065ac52ac957cf45501b9f0\
+  6501000000000500ac6363ab25f1110b") 0 (scOf "00526500536a635253") 0x3651969d)
+    (revHex "5fa09d43c8aef6f6fa01c383a69a5a61a609cd06e37dce35a39dc9eae3ddfe6c") = true := by native_decide
+
+-- sh-047: hashtype 39900215 (0x0260d437) = ALL*(0x17), nIn 0, scriptCode 2B, vin 2, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "f940888f023dce6360263c850372eb145b864228fdbbb4c1186174fa83aab890ff38f8c9a90300000000ffffffff01e80ccd\
+  b081e7bbae1c776531adcbfb77f2e5a7d0e5d0d0e2e6c8758470e85f00000000020053ffffffff03b4908805000000000465\
+  6a52ab428bd604000000000951630065ab63ac636a0cbacf0400000000070063ac5265ac53d6e16604") 0 (scOf "ac63") 0x0260d437)
+    (revHex "713ddeeefcfe04929e7b6593c792a4efbae88d2b5280d1f0835d2214eddcbad6") = true := by native_decide
+
+-- sh-050: hashtype 797877378 (0x2f8ea482) = NONE|ACP, nIn 0, scriptCode 2B, vin 1, vout 4
+example : bytesBEq (signatureHashLegacy (txOf "25ee54ef0187387564bb86e0af96baec54289ca8d15e81a507a2ed6668dc92683111dfb7a50100000004005263634cecf17d\
+  0429aa4d000000000007636a6aabab5263daa75601000000000251ab4df70a01000000000151980a890400000000065253ac\
+  6a006377fd24e3") 0 (scOf "65ab") 0x2f8ea482)
+    (revHex "069f38fd5d47abff46f04ee3ae27db03275e9aa4737fa0d2f5394779f9654845") = true := by native_decide
+
+-- sh-079: hashtype 1541581667 (0x5be2ab63) = SINGLE, nIn 0, scriptCode 0B, vin 2, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "ff5400dd02fec5beb9a396e1cbedc82bedae09ed44bae60ba9bef2ff375a6858212478844b03000000025253ffffffff01e4\
+  6c203577a79d1172db715e9cc6316b9cfc59b5e5e4d9199fef201c6f9f0f000000000900ab6552656a5165acffffffff02e8\
+  ce62040000000002515312ce3e00000000000251513f119316") 0 (scOf "") 0x5be2ab63)
+    (revHex "1e0da47eedbbb381b0e0debbb76e128d042e02e65b11125e17fd127305fc65cd") = true := by native_decide
+
+-- sh-098: hashtype 827296034 (0x314f8922) = NONE, nIn 0, scriptCode 8B, vin 4, vout 2
+example : bytesBEq (signatureHashLegacy (txOf "36e42018044652286b19a90e5dd4f8d9f361d0760d080c5c5add1970296ff0f1de630233c8010000000200ac39260c760601\
+  7d2246ee14ddb7611586178067e6a4be38e788e33f39a3a95a55a13a6775010000000352ac638bea784f7c2354ed02ea0b93\
+  f0240cdfb91796fa77649beee6f7027caa70778b091deee700000000066a65ac656363ffffffff4d9d77ab676d711267ef65\
+  363f2d192e1bd55d3cd37f2280a34c72e8b4c559d700000000056a006aab00001764e1020d30220100000000085252516aac\
+  ab0053472097040000000009635353ab6a636a5100a56407a1") 0 (scOf "006a536551ab53ab") 0x314f8922)
+    (revHex "daec2af5622bbe220c762da77bab14dc75e7d28aa1ade9b7f100798f7f0fd97a") = true := by native_decide
+
+-- sh-123: hashtype -67986012 (0xfbf29da4) = ALL*(0x4)|ACP, nIn 0, scriptCode 6B, vin 4, vout 3
+example : bytesBEq (signatureHashLegacy (txOf "690fd1f80476db1f9eebe91317f2f130a60cbc1f4feadd9d6474d438e9cb7f91e4994600af0300000004ab536a63a15ce9fa\
+  6622d0c4171d895b42bff884dc6e8a7452f827fdc68a29c3c88e6fdee364eaf50000000002ab52ffffffff022dc39d3c0956\
+  b24d7f410b1e387859e7a72955f45d6ffb1e884d77888d18fe0300000005ac6a63656afffffffff10b06bce1800f5c49153d\
+  24748fdefb0bf514c12863247d1042d56018c3e25c03000000086a63ac6365536a52ffffffff031f162f0500000000060000\
+  655265abffbcd40500000000045151ac001a9c8c05000000000652ac53656a6300000000") 0 (scOf "ac51ab63acac") 0xfbf29da4)
+    (revHex "051c0df7ac688c2c930808dabde1f50300aea115f2bb3334f4753d5169b51e46") = true := by native_decide
+
+-- synthetic SINGLE-overflow: vector sh-000's tx, nIn = 2 ≥ vout.length 2, ht 0x03.
+-- Legacy's early return fires BEFORE any vin access ⇒ uint256::ONE
+-- (32 × 0x01, INTERNAL byte order — compared as-is, not reversed).
+example : bytesBEq (signatureHashLegacy (txOf "907c2bc503ade11cc3b04eb2918b6f547b0630ab569273824748c87ea14b0696526c66ba740200000004ab65ababfd1f9bdd\
+  4ef073c7afc4ae00da8a66f429c917a0081ad1e1dabce28d373eab81d8628de802000000096aab5253ab52000052ad042b5f\
+  25efb33beec9f3364e8a9139e8439d9d7e26529c3c30b6c3fd89f8684cfd68ea0200000009ab53526500636a52ab599ac2fe\
+  02a526ed040000000008535300516352515164370e010000000003006300ab2ec229") 2 (scOf "") 0x03)
+    (beHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+
+/-! ## S2 — BIP143 (SegWit v0) digest, the 7 worked examples -/
+
+-- E1: native P2WPKH, ALL | nIn 1 | amount 600000000 | ht 0x01 | P2WSH
+-- BIP digest: c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670
+example : bytesBEq (signatureHashBip143 (txOf "0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b8\
+  04cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a914\
+  8280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f016\
+  7faa815988ac11000000") 1 (scOf "76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac") 0x01 600000000)
+    (beHex "c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670") = true := by native_decide
+
+-- E2: P2SH-P2WPKH, ALL | nIn 0 | amount 1000000000 | ht 0x01 | P2WSH
+-- BIP digest: 64f3b0f4dd2bb3aa1ce8566d220cc74dda9df97d8490cc81d89d735c92e59fb6
+example : bytesBEq (signatureHashBip143 (txOf "0100000001db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a54770100000000feffffff02b8b4eb\
+  0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac0008af2f000000001976a914fd270b1ee6abca\
+  ea97fea7ad0402e8bd8ad6d77c88ac92040000") 0 (scOf "76a91479091972186c449eb1ded22b78e40d009bdf008988ac") 0x01 1000000000)
+    (beHex "64f3b0f4dd2bb3aa1ce8566d220cc74dda9df97d8490cc81d89d735c92e59fb6") = true := by native_decide
+
+-- E3a: P2WSH SINGLE out-of-range, full witnessScript | nIn 1 | amount 4900000000 | ht 0x03 | P2WSH
+-- BIP digest: 82dde6e4f1e94d02c2b7ad03d2115d691f48d064e9d52f58194a6637e4194391
+example : bytesBEq (signatureHashBip143 (txOf "0100000002fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e0000000000ffffffff0815cf02\
+  0f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f80000000000ffffffff0100f2052a010000001976a914\
+  a30741f8145e5acadf23f751864167f32e0963f788ac00000000") 1 (scOf "21026dccc749adc2a9d0d89497ac511f760f45c47dc5ed9cf352a58ac706453880aeadab210255a9626aebf5e29c0e6538428ba0d1dcf6ca98ffdf086aa8ced5e0d0215ea465ac") 0x03 4900000000)
+    (beHex "82dde6e4f1e94d02c2b7ad03d2115d691f48d064e9d52f58194a6637e4194391") = true := by native_decide
+
+-- E3b: P2WSH SINGLE out-of-range, post-codesep subscript | nIn 1 | amount 4900000000 | ht 0x03 | P2WSH
+-- BIP digest: fef7bd749cce710c5c052bd796df1af0d935e59cea63736268bcbe2d2134fc47
+example : bytesBEq (signatureHashBip143 (txOf "0100000002fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e0000000000ffffffff0815cf02\
+  0f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f80000000000ffffffff0100f2052a010000001976a914\
+  a30741f8145e5acadf23f751864167f32e0963f788ac00000000") 1 (scOf "210255a9626aebf5e29c0e6538428ba0d1dcf6ca98ffdf086aa8ced5e0d0215ea465ac") 0x03 4900000000)
+    (beHex "fef7bd749cce710c5c052bd796df1af0d935e59cea63736268bcbe2d2134fc47") = true := by native_decide
+
+-- E4a: P2WSH SINGLE|ANYONECANPAY, codesep not executed | nIn 0 | amount 16777215 | ht 0x83 | P2WSH
+-- BIP digest: e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a
+example : bytesBEq (signatureHashBip143 (txOf "0100000002e9b542c5176808107ff1df906f46bb1f2583b16112b95ee5380665ba7fcfc0010000000000ffffffff80e68831\
+  516392fcd100d186b3c2c7b95c80b53c77e77c35ba03a66b429a2a1b0000000000ffffffff0280969800000000001976a914\
+  de4b231626ef508c9a74a8517e6783c0546d6b2888ac80969800000000001976a9146648a8cd4531e1ec47f35916de8e2592\
+  37294d1e88ac00000000") 0 (scOf "0063ab68210392972e2eb617b2388771abe27235fd5ac44af8e61693261550447a4c3e39da98ac") 0x83 16777215)
+    (beHex "e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a") = true := by native_decide
+
+-- E4b: P2WSH SINGLE|ANYONECANPAY, post-codesep subscript | nIn 1 | amount 16777215 | ht 0x83 | P2WSH
+-- BIP digest: cd72f1f1a433ee9df816857fad88d8ebd97e09a75cd481583eb841c330275e54
+example : bytesBEq (signatureHashBip143 (txOf "0100000002e9b542c5176808107ff1df906f46bb1f2583b16112b95ee5380665ba7fcfc0010000000000ffffffff80e68831\
+  516392fcd100d186b3c2c7b95c80b53c77e77c35ba03a66b429a2a1b0000000000ffffffff0280969800000000001976a914\
+  de4b231626ef508c9a74a8517e6783c0546d6b2888ac80969800000000001976a9146648a8cd4531e1ec47f35916de8e2592\
+  37294d1e88ac00000000") 1 (scOf "68210392972e2eb617b2388771abe27235fd5ac44af8e61693261550447a4c3e39da98ac") 0x83 16777215)
+    (beHex "cd72f1f1a433ee9df816857fad88d8ebd97e09a75cd481583eb841c330275e54") = true := by native_decide
+
+-- E5: P2WSH ALL, no FindAndDelete (sig not removed) | nIn 0 | amount 987654321 | ht 0x01 | P2WSH
+-- BIP digest: 185c0be5263dce5b4bb50a047973c1b6272bfbd0103a89444597dc40b248ee7c
+example : bytesBEq (signatureHashBip143 (txOf "010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a4\
+  35000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688acc0832f05000000001976a9147480a33f950689\
+  af511e6e84c138dbbd3c3ee41588ac00000000") 0 (scOf "56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae") 0x01 987654321)
+    (beHex "185c0be5263dce5b4bb50a047973c1b6272bfbd0103a89444597dc40b248ee7c") = true := by native_decide
+
+-- P2WPKH program-entry check: the digest from the 20-byte pkh via the
+-- re-derived p2pkh scriptPubKey (p2wpkhScriptCodeL) equals the direct one (E1).
+example : bytesBEq (signatureHashBip143P2wpkh (txOf "0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b8\
+  04cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a914\
+  8280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f016\
+  7faa815988ac11000000") 1
+    (bL (fromHex "1d0f172a0ecb48aee1be1f2687d2963ae33f71a1")) 0x01 600000000)
+    (beHex "c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670") = true := by native_decide
+
+end Test.Sighash

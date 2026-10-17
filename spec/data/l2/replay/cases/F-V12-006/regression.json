@@ -1,0 +1,52 @@
+{
+  "finding": "F-V12-006",
+  "class": "replay",
+  "core_pin": "cce32b16",
+  "rule": "validation.cpp:4177 CheckWitnessMalleation(block, DeploymentActiveAfter(pindexPrev, DEPLOYMENT_SEGWIT))",
+  "predicate": "segwitActive(blockHeight) = (481824 <= blockHeight); DeploymentActiveAfter(pprev) = pprev->nHeight + 1 >= 481824",
+  "fix": "commitmentGate now takes segwitActive: pre-activation it is the Core fall-through no-witness rule (a commitment-shaped output is a no-op); post-activation a present commitment must bind the tree. Nonce/value checks are gated likewise.",
+  "cases": [
+    {
+      "id": "rpl-full-anchors2-V12-470000",
+      "height": 470000,
+      "src": "anchors2/V12",
+      "lane": "block-full",
+      "want": "T",
+      "verdict": "AGREE",
+      "activation": "pre-segwit",
+      "segwitActive": false,
+      "anyWitness": false,
+      "commitmentOutput": true,
+      "commitmentGate": true,
+      "txs": 413,
+      "scriptOk": 5404,
+      "foldAgrees": true,
+      "ms": 1010793,
+      "rawSha256": "fbdea51c2bf947633b654bad47e9e88382802a0c858dd3e349365bac11817b48",
+      "blockHash": "0000000000000000006c539c722e280a0769abd510af0073430159d71e6d7589",
+      "resultFile": "spec/vectors/l2/replay/results/full_blocks.jsonl",
+      "why": "The only pre-segwit in-corpus block with a commitment marker. Before the fix Lean rejected with unexpected-witness; Core treats the commitment requirement as a no-op pre-activation."
+    },
+    {
+      "id": "rpl-full-anchors2-481828",
+      "height": 481828,
+      "src": "anchors2",
+      "lane": "block-full",
+      "want": "T",
+      "verdict": "AGREE",
+      "activation": "post-segwit",
+      "segwitActive": true,
+      "anyWitness": true,
+      "commitmentOutput": true,
+      "commitmentGate": true,
+      "txs": 1,
+      "scriptOk": 0,
+      "foldAgrees": true,
+      "ms": 0,
+      "rawSha256": "63b02346d1e5c22432dbdea6c43705a1d1de87b92e66ff821b873c35c299f226",
+      "blockHash": "000000000000000000bc331eb461d522cb3673b3881217dc30c6a5cf91710f23",
+      "resultFile": "spec/vectors/l2/replay/results/full_blocks.jsonl",
+      "why": "Post-activation positive control: witness data present with a commitment output, so the binding branch of the conditional gate is exercised and passes."
+    }
+  ]
+}

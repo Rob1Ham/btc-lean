@@ -1,0 +1,286 @@
+{
+ "cases": [
+  {
+   "id": "MAL-04a-PAD-R",
+   "ss": "4830450221004710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "30450221004710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "sigDer"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "sigDer"
+    ],
+    [
+     "F0+LOW_S",
+     "{}",
+     "{ lowS := true }",
+     "sigDer"
+    ],
+    [
+     "F0+STRICTENC",
+     "{}",
+     "{ strictEnc := true }",
+     "sigDer"
+    ]
+   ],
+   "mutation_class": "non-canonical DER (R padded 0x00, 72B)",
+   "core_verdict": "CONSENSUS post-BIP66 under DERSIG (mandatory)",
+   "note": "interpreter.cpp:150-152 (positive R); :120-160 CheckSignatureEncoding"
+  },
+  {
+   "id": "MAL-04b-R31",
+   "ss": "463043021f4710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc80220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "3043021f4710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc80220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "F0+LOW_S",
+     "{}",
+     "{ lowS := true }",
+     "ok"
+    ],
+    [
+     "F0+STRICTENC",
+     "{}",
+     "{ strictEnc := true }",
+     "ok"
+    ]
+   ],
+   "mutation_class": "short R (31 B, self-consistent DER)",
+   "core_verdict": "POLICY (valid DER structure; Core accepts 1..33-B ints post-BIP66) - EC-verifiable only w/ the matching key (a 31-B-R malleation needs a re-sign, NOT a pure re-encode)",
+   "note": "interpreter.cpp:139-152; BIP66 minimal-int = no 0x00 pad, R31 R[0]=0x47"
+  },
+  {
+   "id": "MAL-03-HIGH-S",
+   "ss": "48304502204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c022100fa94f336b6416c79133a093d53fb6cd82a7d013529d08282be60a9420f0ec83f01",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "304502204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c022100fa94f336b6416c79133a093d53fb6cd82a7d013529d08282be60a9420f0ec83f01",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "F0+LOW_S",
+     "{}",
+     "{ lowS := true }",
+     "sigHighS"
+    ],
+    [
+     "FD+LOW_S",
+     "{ dersig := true }",
+     "{ lowS := true }",
+     "sigHighS"
+    ],
+    [
+     "FD+STRICTENC",
+     "{ dersig := true }",
+     "{ strictEnc := true }",
+     "ok"
+    ]
+   ],
+   "mutation_class": "HIGH-S (s := n - s)",
+   "core_verdict": "POLICY (BIP62 r5 / BIP146 LOW_S; never in GetBlockScriptFlags)",
+   "note": "CheckLowS branch, interpreter.cpp:211-227; consensus ScriptFlags has no LOW_S bit"
+  },
+  {
+   "id": "MAL-05-HT-UNDEF",
+   "ss": "47304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790200",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790200",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "F0+LOW_S",
+     "{}",
+     "{ lowS := true }",
+     "ok"
+    ],
+    [
+     "F0+STRICTENC",
+     "{}",
+     "{ strictEnc := true }",
+     "sigHashType"
+    ],
+    [
+     "FD+STRICTENC",
+     "{ dersig := true }",
+     "{ strictEnc := true }",
+     "sigHashType"
+    ]
+   ],
+   "mutation_class": "undefined hashtype byte (0x00)",
+   "core_verdict": "POLICY (BIP62 r5 / BIP146 STRICTENC)",
+   "note": "IsDefinedHashtype interpreter.cpp:200-209; DERSIG covers structure, not the hashtype byte"
+  },
+  {
+   "id": "MAL-01-PUSHDATA1",
+   "ss": "4c47304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "F0+MINIMALDATA",
+     "{}",
+     "{ minimalData := true }",
+     "minimalData"
+    ]
+   ],
+   "mutation_class": "non-minimal push (PUSHDATA1 of 71B)",
+   "core_verdict": "POLICY (BIP62 r3 / MINIMALDATA)",
+   "note": "CheckMinimalPush script.cpp:373-396; 71B minimal = direct 1-byte-length push"
+  },
+  {
+   "id": "MAL-08-SS-JUNK",
+   "ss": "47304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac12779020161",
+   "spk": "41048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26cafac",
+   "mock": [
+    [
+     "304402204710a85181663b32d25c70ec2bbd14adff5ddfff6cb50d09e155ef5f541fc86c0220056b0cc949be9386ecc5f6c2ac0493269031dbb185781db90171b54ac127790201",
+     "048282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f5150811f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf",
+     true
+    ]
+   ],
+   "runs": [
+    [
+     "F0-preBIP66",
+     "{}",
+     "{}",
+     "ok"
+    ],
+    [
+     "FD-postBIP66",
+     "{ dersig := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "FM-today",
+     "{ p2sh := true, dersig := true, nullDummy := true, witness := true }",
+     "{}",
+     "ok"
+    ],
+    [
+     "F0+SIGPUSHONLY",
+     "{}",
+     "{ sigPushOnly := true }",
+     "sigPushOnly"
+    ]
+   ],
+   "mutation_class": "scriptSig trailing non-push byte (OP_NOP)",
+   "core_verdict": "POLICY (BIP62 r2 / SIGPUSHONLY); no consensus non-push gate (contrast: P2SH inner-eval IsPushOnly, BIP16-push-optional)",
+   "note": "IsPushOnly interpreter.cpp:2021-2023; OP_NOP = no stack effect"
+  }
+ ]
+}

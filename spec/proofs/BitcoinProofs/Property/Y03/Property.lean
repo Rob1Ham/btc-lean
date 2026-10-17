@@ -1,0 +1,564 @@
+import Bitcoin.Script.Parser.Interface
+
+/-!
+# BitcoinProofs.Property.Y03 — property corpus for Script/parser (W4/Y03)
+
+Random + edge-case program bytes -> parse -> print -> reparse, checked
+by kernel `decide`. Every EXPECTED value below was computed by the
+scratch reference `y03ref.py` (an independent Python port of Core
+@ cce32b168: script.cpp:313-363 GetScriptOp, script.h:408-427
+AppendDataSize) and CROSS-CHECKED case-for-case against W05's
+`Test/Script/Parser/ref.py` norm_walk (78/78 agree; see
+`spec/db/findings-w4/Y03.md`). Generator: fixed seed 20261016 —
+fully reproducible (`python3 scratch/Y03/gen.py` regenerates this file).
+
+Per canonical valid case (kinds P/R/K):
+  P  parse(input) = some ops          — parser agrees with Core walk
+  I  serialize ops = input            — printer is byte-identical on
+                                        canonically-encoded inputs
+  T  parse(print ops) = some ops      — print->reparse roundtrip
+                                        (instance of the frozen law
+                                        parse_serialize_roundtrip)
+FAIL cases pin clean truncation failure (parse = none).
+Checker policy (measured, see findings F-Y03-004): kernel `decide` on
+ByteArray parse is ~O(n^2) with a large constant (122 s standalone for
+one 255-byte push), so cases with <= 60 bytes are checked by kernel
+`decide` (strongest form) and heavier cases by `native_decide`
+(compiled evaluation, W05 Tests.lean precedent) -- the named theorem
+below stays kernel-decide, so its axiom pin remains the standard trio.
+-/
+
+namespace BitcoinProofs.Property.Y03
+
+open Bitcoin.Script.Parser
+
+set_option maxRecDepth 10000
+set_option maxHeartbeats 2000000
+
+/-- c01: empty script — input  -/
+def c01 : ByteArray := ByteArray.empty
+def ops_c01 : List Opcode := []
+
+/-- c02: OP_0 -> push empty — input 00 -/
+def c02 : ByteArray := ByteArray.mk #[(0x00:UInt8)]
+def ops_c02 : List Opcode := [Opcode.pushBytes ByteArray.empty]
+
+/-- c03: OP_1NEGATE -> pushNum 0 — input 4f -/
+def c03 : ByteArray := ByteArray.mk #[(0x4f:UInt8)]
+def ops_c03 : List Opcode := [Opcode.pushNum 0]
+
+/-- c04: OP_RESERVED -> op 0x50 (not a push) — input 50 -/
+def c04 : ByteArray := ByteArray.mk #[(0x50:UInt8)]
+def ops_c04 : List Opcode := [Opcode.op ⟨0x50, by decide⟩]
+
+/-- c05: OP_1 — input 51 -/
+def c05 : ByteArray := ByteArray.mk #[(0x51:UInt8)]
+def ops_c05 : List Opcode := [Opcode.pushNum 1]
+
+/-- c06: OP_16 — input 60 -/
+def c06 : ByteArray := ByteArray.mk #[(0x60:UInt8)]
+def ops_c06 : List Opcode := [Opcode.pushNum 16]
+
+/-- c07: direct push, 75-byte boundary (max direct) — input 4b070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707070707 -/
+def c07 : ByteArray := ByteArray.mk #[(0x4b:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8)]
+def ops_c07 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8)])]
+
+/-- c08: PUSHDATA1 length 76 (min non-direct, canonical) — input 4c4cabababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab -/
+def c08 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8)]
+def ops_c08 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8), (0xab:UInt8)])]
+
+/-- c09: PUSHDATA1 length 0 -> push empty (same AST as OP_0) — input 4c00 -/
+def c09 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x00:UInt8)]
+def ops_c09 : List Opcode := [Opcode.pushBytes ByteArray.empty]
+
+/-- c10: PUSHDATA1 length 255 boundary — input 4cffcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd -/
+def c10 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0xff:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8)]
+def ops_c10 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8), (0xcd:UInt8)])]
+
+/-- c11: PUSHDATA2 length 0 — input 4d0000 -/
+def c11 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x00:UInt8), (0x00:UInt8)]
+def ops_c11 : List Opcode := [Opcode.pushBytes ByteArray.empty]
+
+/-- c12: PUSHDATA4 length 0 — input 4e00000000 -/
+def c12 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x00:UInt8), (0x00:UInt8), (0x00:UInt8), (0x00:UInt8)]
+def ops_c12 : List Opcode := [Opcode.pushBytes ByteArray.empty]
+
+/-- c13: PUSHDATA2 length 256 boundary — input 4d000111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 -/
+def c13 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x00:UInt8), (0x01:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8)]
+def ops_c13 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8), (0x11:UInt8)])]
+
+/-- c14: PUSHDATA4 length 300 (printer uses PD2) — input 4e2c010000222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222 -/
+def c14 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x2c:UInt8), (0x01:UInt8), (0x00:UInt8), (0x00:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8)]
+def ops_c14 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8)])]
+
+/-- c15: truncated direct push (claims 5, has 3) -> FAIL — input 05070707 -/
+def c15 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x07:UInt8), (0x07:UInt8), (0x07:UInt8)]
+
+/-- c16: PUSHDATA1 missing length byte -> FAIL — input 4c -/
+def c16 : ByteArray := ByteArray.mk #[(0x4c:UInt8)]
+
+/-- c17: PUSHDATA1 claims 5, has 2 -> FAIL — input 4c050909 -/
+def c17 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x05:UInt8), (0x09:UInt8), (0x09:UInt8)]
+
+/-- c18: PUSHDATA2 truncated length -> FAIL — input 4d07 -/
+def c18 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x07:UInt8)]
+
+/-- c19: PUSHDATA2 claims 300, has 10 -> FAIL — input 4d2c0133333333333333333333 -/
+def c19 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x2c:UInt8), (0x01:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8), (0x33:UInt8)]
+
+/-- c20: PUSHDATA4 truncated length -> FAIL — input 4e010000 -/
+def c20 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x01:UInt8), (0x00:UInt8), (0x00:UInt8)]
+
+/-- c21: PUSHDATA4 claims 7000, has 5 -> FAIL — input 4e581b00004444444444 -/
+def c21 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x58:UInt8), (0x1b:UInt8), (0x00:UInt8), (0x00:UInt8), (0x44:UInt8), (0x44:UInt8), (0x44:UInt8), (0x44:UInt8), (0x44:UInt8)]
+
+/-- c22: OP_NOP — input 61 -/
+def c22 : ByteArray := ByteArray.mk #[(0x61:UInt8)]
+def ops_c22 : List Opcode := [Opcode.op ⟨0x61, by decide⟩]
+
+/-- c23: 0xff -> op 0xff (OP_INVALIDOPCODE wire byte) — input ff -/
+def c23 : ByteArray := ByteArray.mk #[(0xff:UInt8)]
+def ops_c23 : List Opcode := [Opcode.op ⟨0xff, by decide⟩]
+
+/-- c24: OP_CAT disabled opcode decodes (SCR: interpreter-side) — input 7e -/
+def c24 : ByteArray := ByteArray.mk #[(0x7e:UInt8)]
+def ops_c24 : List Opcode := [Opcode.op ⟨0x7e, by decide⟩]
+
+/-- c25: OP_RSHIFT(0x9a) disabled opcode decodes — input 9a -/
+def c25 : ByteArray := ByteArray.mk #[(0x9a:UInt8)]
+def ops_c25 : List Opcode := [Opcode.op ⟨0x9a, by decide⟩]
+
+/-- c26: P2PKH-shaped: DUP HASH160 push20 EQUALVERIFY CHECKSIG — input 76a91489abcdef89abcdef89abcdef89abcdef89abcdef88ac -/
+def c26 : ByteArray := ByteArray.mk #[(0x76:UInt8), (0xa9:UInt8), (0x14:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x88:UInt8), (0xac:UInt8)]
+def ops_c26 : List Opcode := [Opcode.op ⟨0x76, by decide⟩, Opcode.op ⟨0xa9, by decide⟩, Opcode.pushBytes (ByteArray.mk #[(0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8), (0x89:UInt8), (0xab:UInt8), (0xcd:UInt8), (0xef:UInt8)]), Opcode.op ⟨0x88, by decide⟩, Opcode.op ⟨0xac, by decide⟩]
+
+/-- c27: bare 1-of-1 multisig shape — input 512102020202020202020202020202020202020202020202020202020202020202020251ae -/
+def c27 : ByteArray := ByteArray.mk #[(0x51:UInt8), (0x21:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x51:UInt8), (0xae:UInt8)]
+def ops_c27 : List Opcode := [Opcode.pushNum 1, Opcode.pushBytes (ByteArray.mk #[(0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8)]), Opcode.pushNum 1, Opcode.op ⟨0xae, by decide⟩]
+
+/-- c28: OP_0 1NEGATE 1 16 in a row — input 004f5160 -/
+def c28 : ByteArray := ByteArray.mk #[(0x00:UInt8), (0x4f:UInt8), (0x51:UInt8), (0x60:UInt8)]
+def ops_c28 : List Opcode := [Opcode.pushBytes ByteArray.empty, Opcode.pushNum 0, Opcode.pushNum 1, Opcode.pushNum 16]
+
+/-- c29: OP_RETURN + push4 + OP_0 — input 6a04beef00 -/
+def c29 : ByteArray := ByteArray.mk #[(0x6a:UInt8), (0x04:UInt8), (0xbe:UInt8), (0xef:UInt8), (0x00:UInt8)]
+
+/-- c30: CODESEPARATOR / OP_0 / RESERVED / 0xff soup — input ab0050ff -/
+def c30 : ByteArray := ByteArray.mk #[(0xab:UInt8), (0x00:UInt8), (0x50:UInt8), (0xff:UInt8)]
+def ops_c30 : List Opcode := [Opcode.op ⟨0xab, by decide⟩, Opcode.pushBytes ByteArray.empty, Opcode.op ⟨0x50, by decide⟩, Opcode.op ⟨0xff, by decide⟩]
+
+/-- c31: non-canonical: PUSHDATA1 for a 5-byte payload — input 4c050101010101 -/
+def c31 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x05:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8)]
+def ops_c31 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8)])]
+
+/-- c32: non-canonical: PUSHDATA2 for a 5-byte payload — input 4d05000202020202 -/
+def c32 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x05:UInt8), (0x00:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8)]
+def ops_c32 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8)])]
+
+/-- c33: non-canonical: PUSHDATA4 for a 5-byte payload — input 4e050000000303030303 -/
+def c33 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x05:UInt8), (0x00:UInt8), (0x00:UInt8), (0x00:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8)]
+def ops_c33 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8)])]
+
+/-- c34: IF/NOTIF/ELSE/ENDIF header bytes only — input 61616364 -/
+def c34 : ByteArray := ByteArray.mk #[(0x61:UInt8), (0x61:UInt8), (0x63:UInt8), (0x64:UInt8)]
+def ops_c34 : List Opcode := [Opcode.op ⟨0x61, by decide⟩, Opcode.op ⟨0x61, by decide⟩, Opcode.op ⟨0x63, by decide⟩, Opcode.op ⟨0x64, by decide⟩]
+
+/-- c35: OP_NOP10 + truncated direct push -> FAIL — input b901 -/
+def c35 : ByteArray := ByteArray.mk #[(0xb9:UInt8), (0x01:UInt8)]
+
+/-- k01: opCount: pushes exempt, 4 ops > 0x60 (76,a9,14? no: 14 is a push) — input 5176a914898989898989898989898989898989898989898988ac -/
+def k01 : ByteArray := ByteArray.mk #[(0x51:UInt8), (0x76:UInt8), (0xa9:UInt8), (0x14:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x88:UInt8), (0xac:UInt8)]
+def ops_k01 : List Opcode := [Opcode.pushNum 1, Opcode.op ⟨0x76, by decide⟩, Opcode.op ⟨0xa9, by decide⟩, Opcode.pushBytes (ByteArray.mk #[(0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8), (0x89:UInt8)]), Opcode.op ⟨0x88, by decide⟩, Opcode.op ⟨0xac, by decide⟩]
+
+/-- k02: opCount: 0 (all push-shaped) — input 004f5160 -/
+def k02 : ByteArray := ByteArray.mk #[(0x00:UInt8), (0x4f:UInt8), (0x51:UInt8), (0x60:UInt8)]
+def ops_k02 : List Opcode := [Opcode.pushBytes ByteArray.empty, Opcode.pushNum 0, Opcode.pushNum 1, Opcode.pushNum 16]
+
+/-- k03: opCount: 3 (NOP, 0xff, disabled 0x7e all count) — input 61ff7e -/
+def k03 : ByteArray := ByteArray.mk #[(0x61:UInt8), (0xff:UInt8), (0x7e:UInt8)]
+def ops_k03 : List Opcode := [Opcode.op ⟨0x61, by decide⟩, Opcode.op ⟨0xff, by decide⟩, Opcode.op ⟨0x7e, by decide⟩]
+
+/-- r01: seeded random script #1 (rng seed 20261016) — input 4d7f968c4b71 -/
+def r01 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8), (0x8c:UInt8), (0x4b:UInt8), (0x71:UInt8)]
+
+/-- r02: seeded random script #2 (rng seed 20261016) — input 4c4cf4d9863b87440d2abac3cffca0bec3a2a4a70faf00bee49a785b9068aaa4f3a25c9764771e6ea26b580f809a3ba9b40779398e8250ebc225c32340c5db858a26c917e3cbc2d26772791348f20128 -/
+def r02 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0xf4:UInt8), (0xd9:UInt8), (0x86:UInt8), (0x3b:UInt8), (0x87:UInt8), (0x44:UInt8), (0x0d:UInt8), (0x2a:UInt8), (0xba:UInt8), (0xc3:UInt8), (0xcf:UInt8), (0xfc:UInt8), (0xa0:UInt8), (0xbe:UInt8), (0xc3:UInt8), (0xa2:UInt8), (0xa4:UInt8), (0xa7:UInt8), (0x0f:UInt8), (0xaf:UInt8), (0x00:UInt8), (0xbe:UInt8), (0xe4:UInt8), (0x9a:UInt8), (0x78:UInt8), (0x5b:UInt8), (0x90:UInt8), (0x68:UInt8), (0xaa:UInt8), (0xa4:UInt8), (0xf3:UInt8), (0xa2:UInt8), (0x5c:UInt8), (0x97:UInt8), (0x64:UInt8), (0x77:UInt8), (0x1e:UInt8), (0x6e:UInt8), (0xa2:UInt8), (0x6b:UInt8), (0x58:UInt8), (0x0f:UInt8), (0x80:UInt8), (0x9a:UInt8), (0x3b:UInt8), (0xa9:UInt8), (0xb4:UInt8), (0x07:UInt8), (0x79:UInt8), (0x39:UInt8), (0x8e:UInt8), (0x82:UInt8), (0x50:UInt8), (0xeb:UInt8), (0xc2:UInt8), (0x25:UInt8), (0xc3:UInt8), (0x23:UInt8), (0x40:UInt8), (0xc5:UInt8), (0xdb:UInt8), (0x85:UInt8), (0x8a:UInt8), (0x26:UInt8), (0xc9:UInt8), (0x17:UInt8), (0xe3:UInt8), (0xcb:UInt8), (0xc2:UInt8), (0xd2:UInt8), (0x67:UInt8), (0x72:UInt8), (0x79:UInt8), (0x13:UInt8), (0x48:UInt8), (0xf2:UInt8), (0x01:UInt8), (0x28:UInt8)]
+def ops_r02 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xf4:UInt8), (0xd9:UInt8), (0x86:UInt8), (0x3b:UInt8), (0x87:UInt8), (0x44:UInt8), (0x0d:UInt8), (0x2a:UInt8), (0xba:UInt8), (0xc3:UInt8), (0xcf:UInt8), (0xfc:UInt8), (0xa0:UInt8), (0xbe:UInt8), (0xc3:UInt8), (0xa2:UInt8), (0xa4:UInt8), (0xa7:UInt8), (0x0f:UInt8), (0xaf:UInt8), (0x00:UInt8), (0xbe:UInt8), (0xe4:UInt8), (0x9a:UInt8), (0x78:UInt8), (0x5b:UInt8), (0x90:UInt8), (0x68:UInt8), (0xaa:UInt8), (0xa4:UInt8), (0xf3:UInt8), (0xa2:UInt8), (0x5c:UInt8), (0x97:UInt8), (0x64:UInt8), (0x77:UInt8), (0x1e:UInt8), (0x6e:UInt8), (0xa2:UInt8), (0x6b:UInt8), (0x58:UInt8), (0x0f:UInt8), (0x80:UInt8), (0x9a:UInt8), (0x3b:UInt8), (0xa9:UInt8), (0xb4:UInt8), (0x07:UInt8), (0x79:UInt8), (0x39:UInt8), (0x8e:UInt8), (0x82:UInt8), (0x50:UInt8), (0xeb:UInt8), (0xc2:UInt8), (0x25:UInt8), (0xc3:UInt8), (0x23:UInt8), (0x40:UInt8), (0xc5:UInt8), (0xdb:UInt8), (0x85:UInt8), (0x8a:UInt8), (0x26:UInt8), (0xc9:UInt8), (0x17:UInt8), (0xe3:UInt8), (0xcb:UInt8), (0xc2:UInt8), (0xd2:UInt8), (0x67:UInt8), (0x72:UInt8), (0x79:UInt8), (0x13:UInt8), (0x48:UInt8), (0xf2:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x28:UInt8)])]
+
+/-- r03: seeded random script #3 (rng seed 20261016) — input a914999aa00de21052fa1759108cf7db1062b6afb11005ed811d -/
+def r03 : ByteArray := ByteArray.mk #[(0xa9:UInt8), (0x14:UInt8), (0x99:UInt8), (0x9a:UInt8), (0xa0:UInt8), (0x0d:UInt8), (0xe2:UInt8), (0x10:UInt8), (0x52:UInt8), (0xfa:UInt8), (0x17:UInt8), (0x59:UInt8), (0x10:UInt8), (0x8c:UInt8), (0xf7:UInt8), (0xdb:UInt8), (0x10:UInt8), (0x62:UInt8), (0xb6:UInt8), (0xaf:UInt8), (0xb1:UInt8), (0x10:UInt8), (0x05:UInt8), (0xed:UInt8), (0x81:UInt8), (0x1d:UInt8)]
+
+/-- r04: seeded random script #4 (rng seed 20261016) — input 4c4c3f515270102082bcd298709b5435d179eaa5e606737de21064ca6e0aafe7d4aefd4fb0f5a7ff6bea157abdeef16767f888a58750dcbf32d9063e34d75ef9cb590005680ff2dc3686b03d950a4d07006fa94defe6337b051a03b641b04b86ece971e310c89b0623bfecf8d355b5e0dc5f358b1aef6c8d31bb65fe1babd8cf29daa80caaebc900a7232dcc2cc643675de88fd35f71a3e791548b3f4fcf789d9d874063a3b7eb216abf004b9c58e17e4275b1195d81faf67e6c1e979d4c7de71809d7ef29631bee009fcdd7a7091207f4a7b42cc5495be3b1a083cc771f3bcc19ba69413059f751bd5b6466ef01455d1788fe93679a65 -/
+def r04 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0x3f:UInt8), (0x51:UInt8), (0x52:UInt8), (0x70:UInt8), (0x10:UInt8), (0x20:UInt8), (0x82:UInt8), (0xbc:UInt8), (0xd2:UInt8), (0x98:UInt8), (0x70:UInt8), (0x9b:UInt8), (0x54:UInt8), (0x35:UInt8), (0xd1:UInt8), (0x79:UInt8), (0xea:UInt8), (0xa5:UInt8), (0xe6:UInt8), (0x06:UInt8), (0x73:UInt8), (0x7d:UInt8), (0xe2:UInt8), (0x10:UInt8), (0x64:UInt8), (0xca:UInt8), (0x6e:UInt8), (0x0a:UInt8), (0xaf:UInt8), (0xe7:UInt8), (0xd4:UInt8), (0xae:UInt8), (0xfd:UInt8), (0x4f:UInt8), (0xb0:UInt8), (0xf5:UInt8), (0xa7:UInt8), (0xff:UInt8), (0x6b:UInt8), (0xea:UInt8), (0x15:UInt8), (0x7a:UInt8), (0xbd:UInt8), (0xee:UInt8), (0xf1:UInt8), (0x67:UInt8), (0x67:UInt8), (0xf8:UInt8), (0x88:UInt8), (0xa5:UInt8), (0x87:UInt8), (0x50:UInt8), (0xdc:UInt8), (0xbf:UInt8), (0x32:UInt8), (0xd9:UInt8), (0x06:UInt8), (0x3e:UInt8), (0x34:UInt8), (0xd7:UInt8), (0x5e:UInt8), (0xf9:UInt8), (0xcb:UInt8), (0x59:UInt8), (0x00:UInt8), (0x05:UInt8), (0x68:UInt8), (0x0f:UInt8), (0xf2:UInt8), (0xdc:UInt8), (0x36:UInt8), (0x86:UInt8), (0xb0:UInt8), (0x3d:UInt8), (0x95:UInt8), (0x0a:UInt8), (0x4d:UInt8), (0x07:UInt8), (0x00:UInt8), (0x6f:UInt8), (0xa9:UInt8), (0x4d:UInt8), (0xef:UInt8), (0xe6:UInt8), (0x33:UInt8), (0x7b:UInt8), (0x05:UInt8), (0x1a:UInt8), (0x03:UInt8), (0xb6:UInt8), (0x41:UInt8), (0xb0:UInt8), (0x4b:UInt8), (0x86:UInt8), (0xec:UInt8), (0xe9:UInt8), (0x71:UInt8), (0xe3:UInt8), (0x10:UInt8), (0xc8:UInt8), (0x9b:UInt8), (0x06:UInt8), (0x23:UInt8), (0xbf:UInt8), (0xec:UInt8), (0xf8:UInt8), (0xd3:UInt8), (0x55:UInt8), (0xb5:UInt8), (0xe0:UInt8), (0xdc:UInt8), (0x5f:UInt8), (0x35:UInt8), (0x8b:UInt8), (0x1a:UInt8), (0xef:UInt8), (0x6c:UInt8), (0x8d:UInt8), (0x31:UInt8), (0xbb:UInt8), (0x65:UInt8), (0xfe:UInt8), (0x1b:UInt8), (0xab:UInt8), (0xd8:UInt8), (0xcf:UInt8), (0x29:UInt8), (0xda:UInt8), (0xa8:UInt8), (0x0c:UInt8), (0xaa:UInt8), (0xeb:UInt8), (0xc9:UInt8), (0x00:UInt8), (0xa7:UInt8), (0x23:UInt8), (0x2d:UInt8), (0xcc:UInt8), (0x2c:UInt8), (0xc6:UInt8), (0x43:UInt8), (0x67:UInt8), (0x5d:UInt8), (0xe8:UInt8), (0x8f:UInt8), (0xd3:UInt8), (0x5f:UInt8), (0x71:UInt8), (0xa3:UInt8), (0xe7:UInt8), (0x91:UInt8), (0x54:UInt8), (0x8b:UInt8), (0x3f:UInt8), (0x4f:UInt8), (0xcf:UInt8), (0x78:UInt8), (0x9d:UInt8), (0x9d:UInt8), (0x87:UInt8), (0x40:UInt8), (0x63:UInt8), (0xa3:UInt8), (0xb7:UInt8), (0xeb:UInt8), (0x21:UInt8), (0x6a:UInt8), (0xbf:UInt8), (0x00:UInt8), (0x4b:UInt8), (0x9c:UInt8), (0x58:UInt8), (0xe1:UInt8), (0x7e:UInt8), (0x42:UInt8), (0x75:UInt8), (0xb1:UInt8), (0x19:UInt8), (0x5d:UInt8), (0x81:UInt8), (0xfa:UInt8), (0xf6:UInt8), (0x7e:UInt8), (0x6c:UInt8), (0x1e:UInt8), (0x97:UInt8), (0x9d:UInt8), (0x4c:UInt8), (0x7d:UInt8), (0xe7:UInt8), (0x18:UInt8), (0x09:UInt8), (0xd7:UInt8), (0xef:UInt8), (0x29:UInt8), (0x63:UInt8), (0x1b:UInt8), (0xee:UInt8), (0x00:UInt8), (0x9f:UInt8), (0xcd:UInt8), (0xd7:UInt8), (0xa7:UInt8), (0x09:UInt8), (0x12:UInt8), (0x07:UInt8), (0xf4:UInt8), (0xa7:UInt8), (0xb4:UInt8), (0x2c:UInt8), (0xc5:UInt8), (0x49:UInt8), (0x5b:UInt8), (0xe3:UInt8), (0xb1:UInt8), (0xa0:UInt8), (0x83:UInt8), (0xcc:UInt8), (0x77:UInt8), (0x1f:UInt8), (0x3b:UInt8), (0xcc:UInt8), (0x19:UInt8), (0xba:UInt8), (0x69:UInt8), (0x41:UInt8), (0x30:UInt8), (0x59:UInt8), (0xf7:UInt8), (0x51:UInt8), (0xbd:UInt8), (0x5b:UInt8), (0x64:UInt8), (0x66:UInt8), (0xef:UInt8), (0x01:UInt8), (0x45:UInt8), (0x5d:UInt8), (0x17:UInt8), (0x88:UInt8), (0xfe:UInt8), (0x93:UInt8), (0x67:UInt8), (0x9a:UInt8), (0x65:UInt8)]
+def ops_r04 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x3f:UInt8), (0x51:UInt8), (0x52:UInt8), (0x70:UInt8), (0x10:UInt8), (0x20:UInt8), (0x82:UInt8), (0xbc:UInt8), (0xd2:UInt8), (0x98:UInt8), (0x70:UInt8), (0x9b:UInt8), (0x54:UInt8), (0x35:UInt8), (0xd1:UInt8), (0x79:UInt8), (0xea:UInt8), (0xa5:UInt8), (0xe6:UInt8), (0x06:UInt8), (0x73:UInt8), (0x7d:UInt8), (0xe2:UInt8), (0x10:UInt8), (0x64:UInt8), (0xca:UInt8), (0x6e:UInt8), (0x0a:UInt8), (0xaf:UInt8), (0xe7:UInt8), (0xd4:UInt8), (0xae:UInt8), (0xfd:UInt8), (0x4f:UInt8), (0xb0:UInt8), (0xf5:UInt8), (0xa7:UInt8), (0xff:UInt8), (0x6b:UInt8), (0xea:UInt8), (0x15:UInt8), (0x7a:UInt8), (0xbd:UInt8), (0xee:UInt8), (0xf1:UInt8), (0x67:UInt8), (0x67:UInt8), (0xf8:UInt8), (0x88:UInt8), (0xa5:UInt8), (0x87:UInt8), (0x50:UInt8), (0xdc:UInt8), (0xbf:UInt8), (0x32:UInt8), (0xd9:UInt8), (0x06:UInt8), (0x3e:UInt8), (0x34:UInt8), (0xd7:UInt8), (0x5e:UInt8), (0xf9:UInt8), (0xcb:UInt8), (0x59:UInt8), (0x00:UInt8), (0x05:UInt8), (0x68:UInt8), (0x0f:UInt8), (0xf2:UInt8), (0xdc:UInt8), (0x36:UInt8), (0x86:UInt8), (0xb0:UInt8), (0x3d:UInt8), (0x95:UInt8), (0x0a:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x6f:UInt8), (0xa9:UInt8), (0x4d:UInt8), (0xef:UInt8), (0xe6:UInt8), (0x33:UInt8), (0x7b:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x1a:UInt8), (0x03:UInt8), (0xb6:UInt8), (0x41:UInt8), (0xb0:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x86:UInt8), (0xec:UInt8), (0xe9:UInt8), (0x71:UInt8), (0xe3:UInt8), (0x10:UInt8), (0xc8:UInt8), (0x9b:UInt8), (0x06:UInt8), (0x23:UInt8), (0xbf:UInt8), (0xec:UInt8), (0xf8:UInt8), (0xd3:UInt8), (0x55:UInt8), (0xb5:UInt8), (0xe0:UInt8), (0xdc:UInt8), (0x5f:UInt8), (0x35:UInt8), (0x8b:UInt8), (0x1a:UInt8), (0xef:UInt8), (0x6c:UInt8), (0x8d:UInt8), (0x31:UInt8), (0xbb:UInt8), (0x65:UInt8), (0xfe:UInt8), (0x1b:UInt8), (0xab:UInt8), (0xd8:UInt8), (0xcf:UInt8), (0x29:UInt8), (0xda:UInt8), (0xa8:UInt8), (0x0c:UInt8), (0xaa:UInt8), (0xeb:UInt8), (0xc9:UInt8), (0x00:UInt8), (0xa7:UInt8), (0x23:UInt8), (0x2d:UInt8), (0xcc:UInt8), (0x2c:UInt8), (0xc6:UInt8), (0x43:UInt8), (0x67:UInt8), (0x5d:UInt8), (0xe8:UInt8), (0x8f:UInt8), (0xd3:UInt8), (0x5f:UInt8), (0x71:UInt8), (0xa3:UInt8), (0xe7:UInt8), (0x91:UInt8), (0x54:UInt8), (0x8b:UInt8), (0x3f:UInt8), (0x4f:UInt8), (0xcf:UInt8), (0x78:UInt8), (0x9d:UInt8), (0x9d:UInt8), (0x87:UInt8), (0x40:UInt8), (0x63:UInt8), (0xa3:UInt8), (0xb7:UInt8), (0xeb:UInt8), (0x21:UInt8), (0x6a:UInt8), (0xbf:UInt8)]), Opcode.pushBytes ByteArray.empty, Opcode.pushBytes (ByteArray.mk #[(0x9c:UInt8), (0x58:UInt8), (0xe1:UInt8), (0x7e:UInt8), (0x42:UInt8), (0x75:UInt8), (0xb1:UInt8), (0x19:UInt8), (0x5d:UInt8), (0x81:UInt8), (0xfa:UInt8), (0xf6:UInt8), (0x7e:UInt8), (0x6c:UInt8), (0x1e:UInt8), (0x97:UInt8), (0x9d:UInt8), (0x4c:UInt8), (0x7d:UInt8), (0xe7:UInt8), (0x18:UInt8), (0x09:UInt8), (0xd7:UInt8), (0xef:UInt8), (0x29:UInt8), (0x63:UInt8), (0x1b:UInt8), (0xee:UInt8), (0x00:UInt8), (0x9f:UInt8), (0xcd:UInt8), (0xd7:UInt8), (0xa7:UInt8), (0x09:UInt8), (0x12:UInt8), (0x07:UInt8), (0xf4:UInt8), (0xa7:UInt8), (0xb4:UInt8), (0x2c:UInt8), (0xc5:UInt8), (0x49:UInt8), (0x5b:UInt8), (0xe3:UInt8), (0xb1:UInt8), (0xa0:UInt8), (0x83:UInt8), (0xcc:UInt8), (0x77:UInt8), (0x1f:UInt8), (0x3b:UInt8), (0xcc:UInt8), (0x19:UInt8), (0xba:UInt8), (0x69:UInt8), (0x41:UInt8), (0x30:UInt8), (0x59:UInt8), (0xf7:UInt8), (0x51:UInt8), (0xbd:UInt8), (0x5b:UInt8), (0x64:UInt8), (0x66:UInt8), (0xef:UInt8), (0x01:UInt8), (0x45:UInt8), (0x5d:UInt8), (0x17:UInt8), (0x88:UInt8), (0xfe:UInt8), (0x93:UInt8), (0x67:UInt8), (0x9a:UInt8), (0x65:UInt8)])]
+
+/-- r05: seeded random script #5 (rng seed 20261016) — input 00 -/
+def r05 : ByteArray := ByteArray.mk #[(0x00:UInt8)]
+def ops_r05 : List Opcode := [Opcode.pushBytes ByteArray.empty]
+
+/-- r06: seeded random script #6 (rng seed 20261016) — input 05 -/
+def r06 : ByteArray := ByteArray.mk #[(0x05:UInt8)]
+
+/-- r07: seeded random script #7 (rng seed 20261016) — input 285c10c6d06aa9d86bff28467aed27fac14f23efa747102cb69c606c4344c42ea23683cc5787c2842560070510ed2db2d16163 -/
+def r07 : ByteArray := ByteArray.mk #[(0x28:UInt8), (0x5c:UInt8), (0x10:UInt8), (0xc6:UInt8), (0xd0:UInt8), (0x6a:UInt8), (0xa9:UInt8), (0xd8:UInt8), (0x6b:UInt8), (0xff:UInt8), (0x28:UInt8), (0x46:UInt8), (0x7a:UInt8), (0xed:UInt8), (0x27:UInt8), (0xfa:UInt8), (0xc1:UInt8), (0x4f:UInt8), (0x23:UInt8), (0xef:UInt8), (0xa7:UInt8), (0x47:UInt8), (0x10:UInt8), (0x2c:UInt8), (0xb6:UInt8), (0x9c:UInt8), (0x60:UInt8), (0x6c:UInt8), (0x43:UInt8), (0x44:UInt8), (0xc4:UInt8), (0x2e:UInt8), (0xa2:UInt8), (0x36:UInt8), (0x83:UInt8), (0xcc:UInt8), (0x57:UInt8), (0x87:UInt8), (0xc2:UInt8), (0x84:UInt8), (0x25:UInt8), (0x60:UInt8), (0x07:UInt8), (0x05:UInt8), (0x10:UInt8), (0xed:UInt8), (0x2d:UInt8), (0xb2:UInt8), (0xd1:UInt8), (0x61:UInt8), (0x63:UInt8)]
+def ops_r07 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x5c:UInt8), (0x10:UInt8), (0xc6:UInt8), (0xd0:UInt8), (0x6a:UInt8), (0xa9:UInt8), (0xd8:UInt8), (0x6b:UInt8), (0xff:UInt8), (0x28:UInt8), (0x46:UInt8), (0x7a:UInt8), (0xed:UInt8), (0x27:UInt8), (0xfa:UInt8), (0xc1:UInt8), (0x4f:UInt8), (0x23:UInt8), (0xef:UInt8), (0xa7:UInt8), (0x47:UInt8), (0x10:UInt8), (0x2c:UInt8), (0xb6:UInt8), (0x9c:UInt8), (0x60:UInt8), (0x6c:UInt8), (0x43:UInt8), (0x44:UInt8), (0xc4:UInt8), (0x2e:UInt8), (0xa2:UInt8), (0x36:UInt8), (0x83:UInt8), (0xcc:UInt8), (0x57:UInt8), (0x87:UInt8), (0xc2:UInt8), (0x84:UInt8), (0x25:UInt8)]), Opcode.pushNum 16, Opcode.pushBytes (ByteArray.mk #[(0x05:UInt8), (0x10:UInt8), (0xed:UInt8), (0x2d:UInt8), (0xb2:UInt8), (0xd1:UInt8), (0x61:UInt8)]), Opcode.op ⟨0x63, by decide⟩]
+
+/-- r08: seeded random script #8 (rng seed 20261016) — input 4d7f96594f63 -/
+def r08 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8), (0x59:UInt8), (0x4f:UInt8), (0x63:UInt8)]
+
+/-- r09: seeded random script #9 (rng seed 20261016) — input 0129ba -/
+def r09 : ByteArray := ByteArray.mk #[(0x01:UInt8), (0x29:UInt8), (0xba:UInt8)]
+def ops_r09 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x29:UInt8)]), Opcode.op ⟨0xba, by decide⟩]
+
+/-- r10: seeded random script #10 (rng seed 20261016) — input 1414ae6ea975260e868b2f0debe098076f221ec7c7 -/
+def r10 : ByteArray := ByteArray.mk #[(0x14:UInt8), (0x14:UInt8), (0xae:UInt8), (0x6e:UInt8), (0xa9:UInt8), (0x75:UInt8), (0x26:UInt8), (0x0e:UInt8), (0x86:UInt8), (0x8b:UInt8), (0x2f:UInt8), (0x0d:UInt8), (0xeb:UInt8), (0xe0:UInt8), (0x98:UInt8), (0x07:UInt8), (0x6f:UInt8), (0x22:UInt8), (0x1e:UInt8), (0xc7:UInt8), (0xc7:UInt8)]
+def ops_r10 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x14:UInt8), (0xae:UInt8), (0x6e:UInt8), (0xa9:UInt8), (0x75:UInt8), (0x26:UInt8), (0x0e:UInt8), (0x86:UInt8), (0x8b:UInt8), (0x2f:UInt8), (0x0d:UInt8), (0xeb:UInt8), (0xe0:UInt8), (0x98:UInt8), (0x07:UInt8), (0x6f:UInt8), (0x22:UInt8), (0x1e:UInt8), (0xc7:UInt8), (0xc7:UInt8)])]
+
+/-- r11: seeded random script #11 (rng seed 20261016) — input 00128a2baacf4dc6442f36f75a3f7af3eb5e763d28f9086a21ff8e88b65ae0eb7efdb2ebb8704c2a0d6b50724a34a23d643d34a140f0e64874b9c8b42a28ab3f874999f40f0d2946a7c861430a346b78906e8d4195c3d53b5ef62158c191741abf93543d0f3a -/
+def r11 : ByteArray := ByteArray.mk #[(0x00:UInt8), (0x12:UInt8), (0x8a:UInt8), (0x2b:UInt8), (0xaa:UInt8), (0xcf:UInt8), (0x4d:UInt8), (0xc6:UInt8), (0x44:UInt8), (0x2f:UInt8), (0x36:UInt8), (0xf7:UInt8), (0x5a:UInt8), (0x3f:UInt8), (0x7a:UInt8), (0xf3:UInt8), (0xeb:UInt8), (0x5e:UInt8), (0x76:UInt8), (0x3d:UInt8), (0x28:UInt8), (0xf9:UInt8), (0x08:UInt8), (0x6a:UInt8), (0x21:UInt8), (0xff:UInt8), (0x8e:UInt8), (0x88:UInt8), (0xb6:UInt8), (0x5a:UInt8), (0xe0:UInt8), (0xeb:UInt8), (0x7e:UInt8), (0xfd:UInt8), (0xb2:UInt8), (0xeb:UInt8), (0xb8:UInt8), (0x70:UInt8), (0x4c:UInt8), (0x2a:UInt8), (0x0d:UInt8), (0x6b:UInt8), (0x50:UInt8), (0x72:UInt8), (0x4a:UInt8), (0x34:UInt8), (0xa2:UInt8), (0x3d:UInt8), (0x64:UInt8), (0x3d:UInt8), (0x34:UInt8), (0xa1:UInt8), (0x40:UInt8), (0xf0:UInt8), (0xe6:UInt8), (0x48:UInt8), (0x74:UInt8), (0xb9:UInt8), (0xc8:UInt8), (0xb4:UInt8), (0x2a:UInt8), (0x28:UInt8), (0xab:UInt8), (0x3f:UInt8), (0x87:UInt8), (0x49:UInt8), (0x99:UInt8), (0xf4:UInt8), (0x0f:UInt8), (0x0d:UInt8), (0x29:UInt8), (0x46:UInt8), (0xa7:UInt8), (0xc8:UInt8), (0x61:UInt8), (0x43:UInt8), (0x0a:UInt8), (0x34:UInt8), (0x6b:UInt8), (0x78:UInt8), (0x90:UInt8), (0x6e:UInt8), (0x8d:UInt8), (0x41:UInt8), (0x95:UInt8), (0xc3:UInt8), (0xd5:UInt8), (0x3b:UInt8), (0x5e:UInt8), (0xf6:UInt8), (0x21:UInt8), (0x58:UInt8), (0xc1:UInt8), (0x91:UInt8), (0x74:UInt8), (0x1a:UInt8), (0xbf:UInt8), (0x93:UInt8), (0x54:UInt8), (0x3d:UInt8), (0x0f:UInt8), (0x3a:UInt8)]
+def ops_r11 : List Opcode := [Opcode.pushBytes ByteArray.empty, Opcode.pushBytes (ByteArray.mk #[(0x8a:UInt8), (0x2b:UInt8), (0xaa:UInt8), (0xcf:UInt8), (0x4d:UInt8), (0xc6:UInt8), (0x44:UInt8), (0x2f:UInt8), (0x36:UInt8), (0xf7:UInt8), (0x5a:UInt8), (0x3f:UInt8), (0x7a:UInt8), (0xf3:UInt8), (0xeb:UInt8), (0x5e:UInt8), (0x76:UInt8), (0x3d:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xf9:UInt8), (0x08:UInt8), (0x6a:UInt8), (0x21:UInt8), (0xff:UInt8), (0x8e:UInt8), (0x88:UInt8), (0xb6:UInt8), (0x5a:UInt8), (0xe0:UInt8), (0xeb:UInt8), (0x7e:UInt8), (0xfd:UInt8), (0xb2:UInt8), (0xeb:UInt8), (0xb8:UInt8), (0x70:UInt8), (0x4c:UInt8), (0x2a:UInt8), (0x0d:UInt8), (0x6b:UInt8), (0x50:UInt8), (0x72:UInt8), (0x4a:UInt8), (0x34:UInt8), (0xa2:UInt8), (0x3d:UInt8), (0x64:UInt8), (0x3d:UInt8), (0x34:UInt8), (0xa1:UInt8), (0x40:UInt8), (0xf0:UInt8), (0xe6:UInt8), (0x48:UInt8), (0x74:UInt8), (0xb9:UInt8), (0xc8:UInt8), (0xb4:UInt8), (0x2a:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xab:UInt8), (0x3f:UInt8), (0x87:UInt8), (0x49:UInt8), (0x99:UInt8), (0xf4:UInt8), (0x0f:UInt8), (0x0d:UInt8), (0x29:UInt8), (0x46:UInt8), (0xa7:UInt8), (0xc8:UInt8), (0x61:UInt8), (0x43:UInt8), (0x0a:UInt8), (0x34:UInt8), (0x6b:UInt8), (0x78:UInt8), (0x90:UInt8), (0x6e:UInt8), (0x8d:UInt8), (0x41:UInt8), (0x95:UInt8), (0xc3:UInt8), (0xd5:UInt8), (0x3b:UInt8), (0x5e:UInt8), (0xf6:UInt8), (0x21:UInt8), (0x58:UInt8), (0xc1:UInt8), (0x91:UInt8), (0x74:UInt8), (0x1a:UInt8), (0xbf:UInt8), (0x93:UInt8), (0x54:UInt8), (0x3d:UInt8), (0x0f:UInt8), (0x3a:UInt8)])]
+
+/-- r12: seeded random script #12 (rng seed 20261016) — input 01 -/
+def r12 : ByteArray := ByteArray.mk #[(0x01:UInt8)]
+
+/-- r13: seeded random script #13 (rng seed 20261016) — input 4c4c3376b1d88b80966745a6325ba010db2a860fdf6aca8e0105fd5bd19d1637cd3911c98d2bb295cd4cd76eb71ea14e363ebce4e0d841f35022d25d469ea092a34e505d4afc1f58ddb9a99e912f01 -/
+def r13 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0x33:UInt8), (0x76:UInt8), (0xb1:UInt8), (0xd8:UInt8), (0x8b:UInt8), (0x80:UInt8), (0x96:UInt8), (0x67:UInt8), (0x45:UInt8), (0xa6:UInt8), (0x32:UInt8), (0x5b:UInt8), (0xa0:UInt8), (0x10:UInt8), (0xdb:UInt8), (0x2a:UInt8), (0x86:UInt8), (0x0f:UInt8), (0xdf:UInt8), (0x6a:UInt8), (0xca:UInt8), (0x8e:UInt8), (0x01:UInt8), (0x05:UInt8), (0xfd:UInt8), (0x5b:UInt8), (0xd1:UInt8), (0x9d:UInt8), (0x16:UInt8), (0x37:UInt8), (0xcd:UInt8), (0x39:UInt8), (0x11:UInt8), (0xc9:UInt8), (0x8d:UInt8), (0x2b:UInt8), (0xb2:UInt8), (0x95:UInt8), (0xcd:UInt8), (0x4c:UInt8), (0xd7:UInt8), (0x6e:UInt8), (0xb7:UInt8), (0x1e:UInt8), (0xa1:UInt8), (0x4e:UInt8), (0x36:UInt8), (0x3e:UInt8), (0xbc:UInt8), (0xe4:UInt8), (0xe0:UInt8), (0xd8:UInt8), (0x41:UInt8), (0xf3:UInt8), (0x50:UInt8), (0x22:UInt8), (0xd2:UInt8), (0x5d:UInt8), (0x46:UInt8), (0x9e:UInt8), (0xa0:UInt8), (0x92:UInt8), (0xa3:UInt8), (0x4e:UInt8), (0x50:UInt8), (0x5d:UInt8), (0x4a:UInt8), (0xfc:UInt8), (0x1f:UInt8), (0x58:UInt8), (0xdd:UInt8), (0xb9:UInt8), (0xa9:UInt8), (0x9e:UInt8), (0x91:UInt8), (0x2f:UInt8), (0x01:UInt8)]
+
+/-- r14: seeded random script #14 (rng seed 20261016) — input 4c4c4dafa32ee1f0203e84a11d079638d76f476eb3919a7118d02c9d27af7c0a5149319f6b698704e4b1bfb9dfb3b54dfb7a005d11d05e197dc385b089143cbf880e2511f5982ca24ece14da26934d0a007ddea4c621422dc9eda24d7f96acce3a -/
+def r14 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0x4d:UInt8), (0xaf:UInt8), (0xa3:UInt8), (0x2e:UInt8), (0xe1:UInt8), (0xf0:UInt8), (0x20:UInt8), (0x3e:UInt8), (0x84:UInt8), (0xa1:UInt8), (0x1d:UInt8), (0x07:UInt8), (0x96:UInt8), (0x38:UInt8), (0xd7:UInt8), (0x6f:UInt8), (0x47:UInt8), (0x6e:UInt8), (0xb3:UInt8), (0x91:UInt8), (0x9a:UInt8), (0x71:UInt8), (0x18:UInt8), (0xd0:UInt8), (0x2c:UInt8), (0x9d:UInt8), (0x27:UInt8), (0xaf:UInt8), (0x7c:UInt8), (0x0a:UInt8), (0x51:UInt8), (0x49:UInt8), (0x31:UInt8), (0x9f:UInt8), (0x6b:UInt8), (0x69:UInt8), (0x87:UInt8), (0x04:UInt8), (0xe4:UInt8), (0xb1:UInt8), (0xbf:UInt8), (0xb9:UInt8), (0xdf:UInt8), (0xb3:UInt8), (0xb5:UInt8), (0x4d:UInt8), (0xfb:UInt8), (0x7a:UInt8), (0x00:UInt8), (0x5d:UInt8), (0x11:UInt8), (0xd0:UInt8), (0x5e:UInt8), (0x19:UInt8), (0x7d:UInt8), (0xc3:UInt8), (0x85:UInt8), (0xb0:UInt8), (0x89:UInt8), (0x14:UInt8), (0x3c:UInt8), (0xbf:UInt8), (0x88:UInt8), (0x0e:UInt8), (0x25:UInt8), (0x11:UInt8), (0xf5:UInt8), (0x98:UInt8), (0x2c:UInt8), (0xa2:UInt8), (0x4e:UInt8), (0xce:UInt8), (0x14:UInt8), (0xda:UInt8), (0x26:UInt8), (0x93:UInt8), (0x4d:UInt8), (0x0a:UInt8), (0x00:UInt8), (0x7d:UInt8), (0xde:UInt8), (0xa4:UInt8), (0xc6:UInt8), (0x21:UInt8), (0x42:UInt8), (0x2d:UInt8), (0xc9:UInt8), (0xed:UInt8), (0xa2:UInt8), (0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8), (0xac:UInt8), (0xce:UInt8), (0x3a:UInt8)]
+
+/-- r15: seeded random script #15 (rng seed 20261016) — input 120e788e8066d8f4d343be8bd32678714e548e4adfcbb2a34727cad11a0840746d807eb01a59e1cebfe34fc3a6c858503c8c5b95b866afca466d99b543e58161aa68ad055f2a91bdd74918e2253eee7912bdf75973742598c689ab8cbf414f4e7f96dc -/
+def r15 : ByteArray := ByteArray.mk #[(0x12:UInt8), (0x0e:UInt8), (0x78:UInt8), (0x8e:UInt8), (0x80:UInt8), (0x66:UInt8), (0xd8:UInt8), (0xf4:UInt8), (0xd3:UInt8), (0x43:UInt8), (0xbe:UInt8), (0x8b:UInt8), (0xd3:UInt8), (0x26:UInt8), (0x78:UInt8), (0x71:UInt8), (0x4e:UInt8), (0x54:UInt8), (0x8e:UInt8), (0x4a:UInt8), (0xdf:UInt8), (0xcb:UInt8), (0xb2:UInt8), (0xa3:UInt8), (0x47:UInt8), (0x27:UInt8), (0xca:UInt8), (0xd1:UInt8), (0x1a:UInt8), (0x08:UInt8), (0x40:UInt8), (0x74:UInt8), (0x6d:UInt8), (0x80:UInt8), (0x7e:UInt8), (0xb0:UInt8), (0x1a:UInt8), (0x59:UInt8), (0xe1:UInt8), (0xce:UInt8), (0xbf:UInt8), (0xe3:UInt8), (0x4f:UInt8), (0xc3:UInt8), (0xa6:UInt8), (0xc8:UInt8), (0x58:UInt8), (0x50:UInt8), (0x3c:UInt8), (0x8c:UInt8), (0x5b:UInt8), (0x95:UInt8), (0xb8:UInt8), (0x66:UInt8), (0xaf:UInt8), (0xca:UInt8), (0x46:UInt8), (0x6d:UInt8), (0x99:UInt8), (0xb5:UInt8), (0x43:UInt8), (0xe5:UInt8), (0x81:UInt8), (0x61:UInt8), (0xaa:UInt8), (0x68:UInt8), (0xad:UInt8), (0x05:UInt8), (0x5f:UInt8), (0x2a:UInt8), (0x91:UInt8), (0xbd:UInt8), (0xd7:UInt8), (0x49:UInt8), (0x18:UInt8), (0xe2:UInt8), (0x25:UInt8), (0x3e:UInt8), (0xee:UInt8), (0x79:UInt8), (0x12:UInt8), (0xbd:UInt8), (0xf7:UInt8), (0x59:UInt8), (0x73:UInt8), (0x74:UInt8), (0x25:UInt8), (0x98:UInt8), (0xc6:UInt8), (0x89:UInt8), (0xab:UInt8), (0x8c:UInt8), (0xbf:UInt8), (0x41:UInt8), (0x4f:UInt8), (0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8), (0xdc:UInt8)]
+
+/-- r16: seeded random script #16 (rng seed 20261016) — input 4c4c8c4e1c19a9aade375cf395687e996d4d86b2fe0fbc9f029facd4d8e420270b4f09ea83d0a6bccdf8b06645c53a27ce15870f3af9f8084f1df393e42c373285ec0769fb58356935898f0bc4f24d7f961a17 -/
+def r16 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0x8c:UInt8), (0x4e:UInt8), (0x1c:UInt8), (0x19:UInt8), (0xa9:UInt8), (0xaa:UInt8), (0xde:UInt8), (0x37:UInt8), (0x5c:UInt8), (0xf3:UInt8), (0x95:UInt8), (0x68:UInt8), (0x7e:UInt8), (0x99:UInt8), (0x6d:UInt8), (0x4d:UInt8), (0x86:UInt8), (0xb2:UInt8), (0xfe:UInt8), (0x0f:UInt8), (0xbc:UInt8), (0x9f:UInt8), (0x02:UInt8), (0x9f:UInt8), (0xac:UInt8), (0xd4:UInt8), (0xd8:UInt8), (0xe4:UInt8), (0x20:UInt8), (0x27:UInt8), (0x0b:UInt8), (0x4f:UInt8), (0x09:UInt8), (0xea:UInt8), (0x83:UInt8), (0xd0:UInt8), (0xa6:UInt8), (0xbc:UInt8), (0xcd:UInt8), (0xf8:UInt8), (0xb0:UInt8), (0x66:UInt8), (0x45:UInt8), (0xc5:UInt8), (0x3a:UInt8), (0x27:UInt8), (0xce:UInt8), (0x15:UInt8), (0x87:UInt8), (0x0f:UInt8), (0x3a:UInt8), (0xf9:UInt8), (0xf8:UInt8), (0x08:UInt8), (0x4f:UInt8), (0x1d:UInt8), (0xf3:UInt8), (0x93:UInt8), (0xe4:UInt8), (0x2c:UInt8), (0x37:UInt8), (0x32:UInt8), (0x85:UInt8), (0xec:UInt8), (0x07:UInt8), (0x69:UInt8), (0xfb:UInt8), (0x58:UInt8), (0x35:UInt8), (0x69:UInt8), (0x35:UInt8), (0x89:UInt8), (0x8f:UInt8), (0x0b:UInt8), (0xc4:UInt8), (0xf2:UInt8), (0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8), (0x1a:UInt8), (0x17:UInt8)]
+
+/-- r17: seeded random script #17 (rng seed 20261016) — input 4f -/
+def r17 : ByteArray := ByteArray.mk #[(0x4f:UInt8)]
+def ops_r17 : List Opcode := [Opcode.pushNum 0]
+
+/-- r18: seeded random script #18 (rng seed 20261016) — input 63 -/
+def r18 : ByteArray := ByteArray.mk #[(0x63:UInt8)]
+def ops_r18 : List Opcode := [Opcode.op ⟨0x63, by decide⟩]
+
+/-- r19: seeded random script #19 (rng seed 20261016) — input 0005 -/
+def r19 : ByteArray := ByteArray.mk #[(0x00:UInt8), (0x05:UInt8)]
+
+/-- r20: seeded random script #20 (rng seed 20261016) — input 4d7f96 -/
+def r20 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8)]
+
+/-- r21: seeded random script #21 (rng seed 20261016) — input 584a0818cf6963edf9df0ad9a96c7679d8c40c107546b855279e4cffedcf451dcfa4499d057716284ec9239d5e970da93c816093c8bde2ef06aa9eeaeb95e01cd40740a01ab4b38449a5c0514d7f96ac96 -/
+def r21 : ByteArray := ByteArray.mk #[(0x58:UInt8), (0x4a:UInt8), (0x08:UInt8), (0x18:UInt8), (0xcf:UInt8), (0x69:UInt8), (0x63:UInt8), (0xed:UInt8), (0xf9:UInt8), (0xdf:UInt8), (0x0a:UInt8), (0xd9:UInt8), (0xa9:UInt8), (0x6c:UInt8), (0x76:UInt8), (0x79:UInt8), (0xd8:UInt8), (0xc4:UInt8), (0x0c:UInt8), (0x10:UInt8), (0x75:UInt8), (0x46:UInt8), (0xb8:UInt8), (0x55:UInt8), (0x27:UInt8), (0x9e:UInt8), (0x4c:UInt8), (0xff:UInt8), (0xed:UInt8), (0xcf:UInt8), (0x45:UInt8), (0x1d:UInt8), (0xcf:UInt8), (0xa4:UInt8), (0x49:UInt8), (0x9d:UInt8), (0x05:UInt8), (0x77:UInt8), (0x16:UInt8), (0x28:UInt8), (0x4e:UInt8), (0xc9:UInt8), (0x23:UInt8), (0x9d:UInt8), (0x5e:UInt8), (0x97:UInt8), (0x0d:UInt8), (0xa9:UInt8), (0x3c:UInt8), (0x81:UInt8), (0x60:UInt8), (0x93:UInt8), (0xc8:UInt8), (0xbd:UInt8), (0xe2:UInt8), (0xef:UInt8), (0x06:UInt8), (0xaa:UInt8), (0x9e:UInt8), (0xea:UInt8), (0xeb:UInt8), (0x95:UInt8), (0xe0:UInt8), (0x1c:UInt8), (0xd4:UInt8), (0x07:UInt8), (0x40:UInt8), (0xa0:UInt8), (0x1a:UInt8), (0xb4:UInt8), (0xb3:UInt8), (0x84:UInt8), (0x49:UInt8), (0xa5:UInt8), (0xc0:UInt8), (0x51:UInt8), (0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8), (0xac:UInt8), (0x96:UInt8)]
+
+/-- r22: seeded random script #22 (rng seed 20261016) — input 4b7252 -/
+def r22 : ByteArray := ByteArray.mk #[(0x4b:UInt8), (0x72:UInt8), (0x52:UInt8)]
+
+/-- r23: seeded random script #23 (rng seed 20261016) — input 4aa691f3282b474f8a8f7edb8570c19ea9df647427213fd54f82c63acca4f6165f146fd2b83f917bc1690452223348f4a9a473f776d1962b3989d904ff45c1107cf43ca598f21701daf9b707fc90a3a5282b54 -/
+def r23 : ByteArray := ByteArray.mk #[(0x4a:UInt8), (0xa6:UInt8), (0x91:UInt8), (0xf3:UInt8), (0x28:UInt8), (0x2b:UInt8), (0x47:UInt8), (0x4f:UInt8), (0x8a:UInt8), (0x8f:UInt8), (0x7e:UInt8), (0xdb:UInt8), (0x85:UInt8), (0x70:UInt8), (0xc1:UInt8), (0x9e:UInt8), (0xa9:UInt8), (0xdf:UInt8), (0x64:UInt8), (0x74:UInt8), (0x27:UInt8), (0x21:UInt8), (0x3f:UInt8), (0xd5:UInt8), (0x4f:UInt8), (0x82:UInt8), (0xc6:UInt8), (0x3a:UInt8), (0xcc:UInt8), (0xa4:UInt8), (0xf6:UInt8), (0x16:UInt8), (0x5f:UInt8), (0x14:UInt8), (0x6f:UInt8), (0xd2:UInt8), (0xb8:UInt8), (0x3f:UInt8), (0x91:UInt8), (0x7b:UInt8), (0xc1:UInt8), (0x69:UInt8), (0x04:UInt8), (0x52:UInt8), (0x22:UInt8), (0x33:UInt8), (0x48:UInt8), (0xf4:UInt8), (0xa9:UInt8), (0xa4:UInt8), (0x73:UInt8), (0xf7:UInt8), (0x76:UInt8), (0xd1:UInt8), (0x96:UInt8), (0x2b:UInt8), (0x39:UInt8), (0x89:UInt8), (0xd9:UInt8), (0x04:UInt8), (0xff:UInt8), (0x45:UInt8), (0xc1:UInt8), (0x10:UInt8), (0x7c:UInt8), (0xf4:UInt8), (0x3c:UInt8), (0xa5:UInt8), (0x98:UInt8), (0xf2:UInt8), (0x17:UInt8), (0x01:UInt8), (0xda:UInt8), (0xf9:UInt8), (0xb7:UInt8), (0x07:UInt8), (0xfc:UInt8), (0x90:UInt8), (0xa3:UInt8), (0xa5:UInt8), (0x28:UInt8), (0x2b:UInt8), (0x54:UInt8)]
+def ops_r23 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xa6:UInt8), (0x91:UInt8), (0xf3:UInt8), (0x28:UInt8), (0x2b:UInt8), (0x47:UInt8), (0x4f:UInt8), (0x8a:UInt8), (0x8f:UInt8), (0x7e:UInt8), (0xdb:UInt8), (0x85:UInt8), (0x70:UInt8), (0xc1:UInt8), (0x9e:UInt8), (0xa9:UInt8), (0xdf:UInt8), (0x64:UInt8), (0x74:UInt8), (0x27:UInt8), (0x21:UInt8), (0x3f:UInt8), (0xd5:UInt8), (0x4f:UInt8), (0x82:UInt8), (0xc6:UInt8), (0x3a:UInt8), (0xcc:UInt8), (0xa4:UInt8), (0xf6:UInt8), (0x16:UInt8), (0x5f:UInt8), (0x14:UInt8), (0x6f:UInt8), (0xd2:UInt8), (0xb8:UInt8), (0x3f:UInt8), (0x91:UInt8), (0x7b:UInt8), (0xc1:UInt8), (0x69:UInt8), (0x04:UInt8), (0x52:UInt8), (0x22:UInt8), (0x33:UInt8), (0x48:UInt8), (0xf4:UInt8), (0xa9:UInt8), (0xa4:UInt8), (0x73:UInt8), (0xf7:UInt8), (0x76:UInt8), (0xd1:UInt8), (0x96:UInt8), (0x2b:UInt8), (0x39:UInt8), (0x89:UInt8), (0xd9:UInt8), (0x04:UInt8), (0xff:UInt8), (0x45:UInt8), (0xc1:UInt8), (0x10:UInt8), (0x7c:UInt8), (0xf4:UInt8), (0x3c:UInt8), (0xa5:UInt8), (0x98:UInt8), (0xf2:UInt8), (0x17:UInt8), (0x01:UInt8), (0xda:UInt8), (0xf9:UInt8), (0xb7:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xfc:UInt8), (0x90:UInt8), (0xa3:UInt8), (0xa5:UInt8), (0x28:UInt8), (0x2b:UInt8), (0x54:UInt8)])]
+
+/-- r24: seeded random script #24 (rng seed 20261016) — input 0d9aa334ebe4c104b237d11d350c4be745380a068b1c1ab5812a20693bdeb606966f41e95b83e1778b5ed60edcf5b349153b180c982d1e14e7065357232a1bb26282d3078a3dadab76ff705c7d25583d8a360135011ce53b82b105 -/
+def r24 : ByteArray := ByteArray.mk #[(0x0d:UInt8), (0x9a:UInt8), (0xa3:UInt8), (0x34:UInt8), (0xeb:UInt8), (0xe4:UInt8), (0xc1:UInt8), (0x04:UInt8), (0xb2:UInt8), (0x37:UInt8), (0xd1:UInt8), (0x1d:UInt8), (0x35:UInt8), (0x0c:UInt8), (0x4b:UInt8), (0xe7:UInt8), (0x45:UInt8), (0x38:UInt8), (0x0a:UInt8), (0x06:UInt8), (0x8b:UInt8), (0x1c:UInt8), (0x1a:UInt8), (0xb5:UInt8), (0x81:UInt8), (0x2a:UInt8), (0x20:UInt8), (0x69:UInt8), (0x3b:UInt8), (0xde:UInt8), (0xb6:UInt8), (0x06:UInt8), (0x96:UInt8), (0x6f:UInt8), (0x41:UInt8), (0xe9:UInt8), (0x5b:UInt8), (0x83:UInt8), (0xe1:UInt8), (0x77:UInt8), (0x8b:UInt8), (0x5e:UInt8), (0xd6:UInt8), (0x0e:UInt8), (0xdc:UInt8), (0xf5:UInt8), (0xb3:UInt8), (0x49:UInt8), (0x15:UInt8), (0x3b:UInt8), (0x18:UInt8), (0x0c:UInt8), (0x98:UInt8), (0x2d:UInt8), (0x1e:UInt8), (0x14:UInt8), (0xe7:UInt8), (0x06:UInt8), (0x53:UInt8), (0x57:UInt8), (0x23:UInt8), (0x2a:UInt8), (0x1b:UInt8), (0xb2:UInt8), (0x62:UInt8), (0x82:UInt8), (0xd3:UInt8), (0x07:UInt8), (0x8a:UInt8), (0x3d:UInt8), (0xad:UInt8), (0xab:UInt8), (0x76:UInt8), (0xff:UInt8), (0x70:UInt8), (0x5c:UInt8), (0x7d:UInt8), (0x25:UInt8), (0x58:UInt8), (0x3d:UInt8), (0x8a:UInt8), (0x36:UInt8), (0x01:UInt8), (0x35:UInt8), (0x01:UInt8), (0x1c:UInt8), (0xe5:UInt8), (0x3b:UInt8), (0x82:UInt8), (0xb1:UInt8), (0x05:UInt8)]
+
+/-- r25: seeded random script #25 (rng seed 20261016) — input 05bc43d2020f011d0b13bf7605107a9b791e9f6b4d020097a9059b50dd7f6c12d7feae88f0884f38d91946f6909623c4d77b -/
+def r25 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0xbc:UInt8), (0x43:UInt8), (0xd2:UInt8), (0x02:UInt8), (0x0f:UInt8), (0x01:UInt8), (0x1d:UInt8), (0x0b:UInt8), (0x13:UInt8), (0xbf:UInt8), (0x76:UInt8), (0x05:UInt8), (0x10:UInt8), (0x7a:UInt8), (0x9b:UInt8), (0x79:UInt8), (0x1e:UInt8), (0x9f:UInt8), (0x6b:UInt8), (0x4d:UInt8), (0x02:UInt8), (0x00:UInt8), (0x97:UInt8), (0xa9:UInt8), (0x05:UInt8), (0x9b:UInt8), (0x50:UInt8), (0xdd:UInt8), (0x7f:UInt8), (0x6c:UInt8), (0x12:UInt8), (0xd7:UInt8), (0xfe:UInt8), (0xae:UInt8), (0x88:UInt8), (0xf0:UInt8), (0x88:UInt8), (0x4f:UInt8), (0x38:UInt8), (0xd9:UInt8), (0x19:UInt8), (0x46:UInt8), (0xf6:UInt8), (0x90:UInt8), (0x96:UInt8), (0x23:UInt8), (0xc4:UInt8), (0xd7:UInt8), (0x7b:UInt8)]
+def ops_r25 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xbc:UInt8), (0x43:UInt8), (0xd2:UInt8), (0x02:UInt8), (0x0f:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x1d:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x13:UInt8), (0xbf:UInt8), (0x76:UInt8), (0x05:UInt8), (0x10:UInt8), (0x7a:UInt8), (0x9b:UInt8), (0x79:UInt8), (0x1e:UInt8), (0x9f:UInt8), (0x6b:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x97:UInt8), (0xa9:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x9b:UInt8), (0x50:UInt8), (0xdd:UInt8), (0x7f:UInt8), (0x6c:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xd7:UInt8), (0xfe:UInt8), (0xae:UInt8), (0x88:UInt8), (0xf0:UInt8), (0x88:UInt8), (0x4f:UInt8), (0x38:UInt8), (0xd9:UInt8), (0x19:UInt8), (0x46:UInt8), (0xf6:UInt8), (0x90:UInt8), (0x96:UInt8), (0x23:UInt8), (0xc4:UInt8), (0xd7:UInt8), (0x7b:UInt8)])]
+
+/-- r26: seeded random script #26 (rng seed 20261016) — input 0582a12dc14c584c4c2715a03c82a419ef7bd9cc6adc70baa2d396e287399b52ff139d3d84fa6e091987d776abfaa1c079eed3718dc34f0c88979cdc97c9398ca14d2a18522c21ed00c6e6926ccf842ce3ba97c864a5 -/
+def r26 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x82:UInt8), (0xa1:UInt8), (0x2d:UInt8), (0xc1:UInt8), (0x4c:UInt8), (0x58:UInt8), (0x4c:UInt8), (0x4c:UInt8), (0x27:UInt8), (0x15:UInt8), (0xa0:UInt8), (0x3c:UInt8), (0x82:UInt8), (0xa4:UInt8), (0x19:UInt8), (0xef:UInt8), (0x7b:UInt8), (0xd9:UInt8), (0xcc:UInt8), (0x6a:UInt8), (0xdc:UInt8), (0x70:UInt8), (0xba:UInt8), (0xa2:UInt8), (0xd3:UInt8), (0x96:UInt8), (0xe2:UInt8), (0x87:UInt8), (0x39:UInt8), (0x9b:UInt8), (0x52:UInt8), (0xff:UInt8), (0x13:UInt8), (0x9d:UInt8), (0x3d:UInt8), (0x84:UInt8), (0xfa:UInt8), (0x6e:UInt8), (0x09:UInt8), (0x19:UInt8), (0x87:UInt8), (0xd7:UInt8), (0x76:UInt8), (0xab:UInt8), (0xfa:UInt8), (0xa1:UInt8), (0xc0:UInt8), (0x79:UInt8), (0xee:UInt8), (0xd3:UInt8), (0x71:UInt8), (0x8d:UInt8), (0xc3:UInt8), (0x4f:UInt8), (0x0c:UInt8), (0x88:UInt8), (0x97:UInt8), (0x9c:UInt8), (0xdc:UInt8), (0x97:UInt8), (0xc9:UInt8), (0x39:UInt8), (0x8c:UInt8), (0xa1:UInt8), (0x4d:UInt8), (0x2a:UInt8), (0x18:UInt8), (0x52:UInt8), (0x2c:UInt8), (0x21:UInt8), (0xed:UInt8), (0x00:UInt8), (0xc6:UInt8), (0xe6:UInt8), (0x92:UInt8), (0x6c:UInt8), (0xcf:UInt8), (0x84:UInt8), (0x2c:UInt8), (0xe3:UInt8), (0xba:UInt8), (0x97:UInt8), (0xc8:UInt8), (0x64:UInt8), (0xa5:UInt8)]
+def ops_r26 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x82:UInt8), (0xa1:UInt8), (0x2d:UInt8), (0xc1:UInt8), (0x4c:UInt8)]), Opcode.pushNum 8, Opcode.pushBytes (ByteArray.mk #[(0x27:UInt8), (0x15:UInt8), (0xa0:UInt8), (0x3c:UInt8), (0x82:UInt8), (0xa4:UInt8), (0x19:UInt8), (0xef:UInt8), (0x7b:UInt8), (0xd9:UInt8), (0xcc:UInt8), (0x6a:UInt8), (0xdc:UInt8), (0x70:UInt8), (0xba:UInt8), (0xa2:UInt8), (0xd3:UInt8), (0x96:UInt8), (0xe2:UInt8), (0x87:UInt8), (0x39:UInt8), (0x9b:UInt8), (0x52:UInt8), (0xff:UInt8), (0x13:UInt8), (0x9d:UInt8), (0x3d:UInt8), (0x84:UInt8), (0xfa:UInt8), (0x6e:UInt8), (0x09:UInt8), (0x19:UInt8), (0x87:UInt8), (0xd7:UInt8), (0x76:UInt8), (0xab:UInt8), (0xfa:UInt8), (0xa1:UInt8), (0xc0:UInt8), (0x79:UInt8), (0xee:UInt8), (0xd3:UInt8), (0x71:UInt8), (0x8d:UInt8), (0xc3:UInt8), (0x4f:UInt8), (0x0c:UInt8), (0x88:UInt8), (0x97:UInt8), (0x9c:UInt8), (0xdc:UInt8), (0x97:UInt8), (0xc9:UInt8), (0x39:UInt8), (0x8c:UInt8), (0xa1:UInt8), (0x4d:UInt8), (0x2a:UInt8), (0x18:UInt8), (0x52:UInt8), (0x2c:UInt8), (0x21:UInt8), (0xed:UInt8), (0x00:UInt8), (0xc6:UInt8), (0xe6:UInt8), (0x92:UInt8), (0x6c:UInt8), (0xcf:UInt8), (0x84:UInt8), (0x2c:UInt8), (0xe3:UInt8), (0xba:UInt8), (0x97:UInt8), (0xc8:UInt8), (0x64:UInt8)]), Opcode.op ⟨0xa5, by decide⟩]
+
+/-- r27: seeded random script #27 (rng seed 20261016) — input 4d7f96 -/
+def r27 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x7f:UInt8), (0x96:UInt8)]
+
+/-- r28: seeded random script #28 (rng seed 20261016) — input 4e7f96 -/
+def r28 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8)]
+
+/-- r29: seeded random script #29 (rng seed 20261016) — input 14d42956cea95a08387ee3ef9ac447339e4ff1bfae4b7a5fa645586bc8002be7985f052d6af700af231ea35956e9cf0e58cabb568c992e03a1fb3ba997f242ce5dac92f4ecbe91084dacd07e97c935eee1caa9f59f4e34df65e9e5d3236388c72c127d2c7c8f782503b1ce41bcf00587f434a517 -/
+def r29 : ByteArray := ByteArray.mk #[(0x14:UInt8), (0xd4:UInt8), (0x29:UInt8), (0x56:UInt8), (0xce:UInt8), (0xa9:UInt8), (0x5a:UInt8), (0x08:UInt8), (0x38:UInt8), (0x7e:UInt8), (0xe3:UInt8), (0xef:UInt8), (0x9a:UInt8), (0xc4:UInt8), (0x47:UInt8), (0x33:UInt8), (0x9e:UInt8), (0x4f:UInt8), (0xf1:UInt8), (0xbf:UInt8), (0xae:UInt8), (0x4b:UInt8), (0x7a:UInt8), (0x5f:UInt8), (0xa6:UInt8), (0x45:UInt8), (0x58:UInt8), (0x6b:UInt8), (0xc8:UInt8), (0x00:UInt8), (0x2b:UInt8), (0xe7:UInt8), (0x98:UInt8), (0x5f:UInt8), (0x05:UInt8), (0x2d:UInt8), (0x6a:UInt8), (0xf7:UInt8), (0x00:UInt8), (0xaf:UInt8), (0x23:UInt8), (0x1e:UInt8), (0xa3:UInt8), (0x59:UInt8), (0x56:UInt8), (0xe9:UInt8), (0xcf:UInt8), (0x0e:UInt8), (0x58:UInt8), (0xca:UInt8), (0xbb:UInt8), (0x56:UInt8), (0x8c:UInt8), (0x99:UInt8), (0x2e:UInt8), (0x03:UInt8), (0xa1:UInt8), (0xfb:UInt8), (0x3b:UInt8), (0xa9:UInt8), (0x97:UInt8), (0xf2:UInt8), (0x42:UInt8), (0xce:UInt8), (0x5d:UInt8), (0xac:UInt8), (0x92:UInt8), (0xf4:UInt8), (0xec:UInt8), (0xbe:UInt8), (0x91:UInt8), (0x08:UInt8), (0x4d:UInt8), (0xac:UInt8), (0xd0:UInt8), (0x7e:UInt8), (0x97:UInt8), (0xc9:UInt8), (0x35:UInt8), (0xee:UInt8), (0xe1:UInt8), (0xca:UInt8), (0xa9:UInt8), (0xf5:UInt8), (0x9f:UInt8), (0x4e:UInt8), (0x34:UInt8), (0xdf:UInt8), (0x65:UInt8), (0xe9:UInt8), (0xe5:UInt8), (0xd3:UInt8), (0x23:UInt8), (0x63:UInt8), (0x88:UInt8), (0xc7:UInt8), (0x2c:UInt8), (0x12:UInt8), (0x7d:UInt8), (0x2c:UInt8), (0x7c:UInt8), (0x8f:UInt8), (0x78:UInt8), (0x25:UInt8), (0x03:UInt8), (0xb1:UInt8), (0xce:UInt8), (0x41:UInt8), (0xbc:UInt8), (0xf0:UInt8), (0x05:UInt8), (0x87:UInt8), (0xf4:UInt8), (0x34:UInt8), (0xa5:UInt8), (0x17:UInt8)]
+def ops_r29 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0xd4:UInt8), (0x29:UInt8), (0x56:UInt8), (0xce:UInt8), (0xa9:UInt8), (0x5a:UInt8), (0x08:UInt8), (0x38:UInt8), (0x7e:UInt8), (0xe3:UInt8), (0xef:UInt8), (0x9a:UInt8), (0xc4:UInt8), (0x47:UInt8), (0x33:UInt8), (0x9e:UInt8), (0x4f:UInt8), (0xf1:UInt8), (0xbf:UInt8), (0xae:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x7a:UInt8), (0x5f:UInt8), (0xa6:UInt8), (0x45:UInt8), (0x58:UInt8), (0x6b:UInt8), (0xc8:UInt8), (0x00:UInt8), (0x2b:UInt8), (0xe7:UInt8), (0x98:UInt8), (0x5f:UInt8), (0x05:UInt8), (0x2d:UInt8), (0x6a:UInt8), (0xf7:UInt8), (0x00:UInt8), (0xaf:UInt8), (0x23:UInt8), (0x1e:UInt8), (0xa3:UInt8), (0x59:UInt8), (0x56:UInt8), (0xe9:UInt8), (0xcf:UInt8), (0x0e:UInt8), (0x58:UInt8), (0xca:UInt8), (0xbb:UInt8), (0x56:UInt8), (0x8c:UInt8), (0x99:UInt8), (0x2e:UInt8), (0x03:UInt8), (0xa1:UInt8), (0xfb:UInt8), (0x3b:UInt8), (0xa9:UInt8), (0x97:UInt8), (0xf2:UInt8), (0x42:UInt8), (0xce:UInt8), (0x5d:UInt8), (0xac:UInt8), (0x92:UInt8), (0xf4:UInt8), (0xec:UInt8), (0xbe:UInt8), (0x91:UInt8), (0x08:UInt8), (0x4d:UInt8), (0xac:UInt8), (0xd0:UInt8), (0x7e:UInt8), (0x97:UInt8), (0xc9:UInt8), (0x35:UInt8), (0xee:UInt8), (0xe1:UInt8), (0xca:UInt8), (0xa9:UInt8), (0xf5:UInt8), (0x9f:UInt8), (0x4e:UInt8), (0x34:UInt8), (0xdf:UInt8), (0x65:UInt8), (0xe9:UInt8), (0xe5:UInt8), (0xd3:UInt8), (0x23:UInt8), (0x63:UInt8), (0x88:UInt8), (0xc7:UInt8), (0x2c:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x7d:UInt8), (0x2c:UInt8), (0x7c:UInt8), (0x8f:UInt8), (0x78:UInt8), (0x25:UInt8), (0x03:UInt8), (0xb1:UInt8), (0xce:UInt8), (0x41:UInt8), (0xbc:UInt8), (0xf0:UInt8), (0x05:UInt8), (0x87:UInt8), (0xf4:UInt8), (0x34:UInt8), (0xa5:UInt8), (0x17:UInt8)])]
+
+/-- r30: seeded random script #30 (rng seed 20261016) — input 05c7b6 -/
+def r30 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0xc7:UInt8), (0xb6:UInt8)]
+
+/-- r31: seeded random script #31 (rng seed 20261016) — input 145231585467c31241fa47f00edb2345d207754e35284ea3194e40cd0349a572025a14fa758b304ffe1b34eceb4e5a0614fc68ed6cfe35d4926baebb8508 -/
+def r31 : ByteArray := ByteArray.mk #[(0x14:UInt8), (0x52:UInt8), (0x31:UInt8), (0x58:UInt8), (0x54:UInt8), (0x67:UInt8), (0xc3:UInt8), (0x12:UInt8), (0x41:UInt8), (0xfa:UInt8), (0x47:UInt8), (0xf0:UInt8), (0x0e:UInt8), (0xdb:UInt8), (0x23:UInt8), (0x45:UInt8), (0xd2:UInt8), (0x07:UInt8), (0x75:UInt8), (0x4e:UInt8), (0x35:UInt8), (0x28:UInt8), (0x4e:UInt8), (0xa3:UInt8), (0x19:UInt8), (0x4e:UInt8), (0x40:UInt8), (0xcd:UInt8), (0x03:UInt8), (0x49:UInt8), (0xa5:UInt8), (0x72:UInt8), (0x02:UInt8), (0x5a:UInt8), (0x14:UInt8), (0xfa:UInt8), (0x75:UInt8), (0x8b:UInt8), (0x30:UInt8), (0x4f:UInt8), (0xfe:UInt8), (0x1b:UInt8), (0x34:UInt8), (0xec:UInt8), (0xeb:UInt8), (0x4e:UInt8), (0x5a:UInt8), (0x06:UInt8), (0x14:UInt8), (0xfc:UInt8), (0x68:UInt8), (0xed:UInt8), (0x6c:UInt8), (0xfe:UInt8), (0x35:UInt8), (0xd4:UInt8), (0x92:UInt8), (0x6b:UInt8), (0xae:UInt8), (0xbb:UInt8), (0x85:UInt8), (0x08:UInt8)]
+def ops_r31 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x52:UInt8), (0x31:UInt8), (0x58:UInt8), (0x54:UInt8), (0x67:UInt8), (0xc3:UInt8), (0x12:UInt8), (0x41:UInt8), (0xfa:UInt8), (0x47:UInt8), (0xf0:UInt8), (0x0e:UInt8), (0xdb:UInt8), (0x23:UInt8), (0x45:UInt8), (0xd2:UInt8), (0x07:UInt8), (0x75:UInt8), (0x4e:UInt8), (0x35:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x4e:UInt8), (0xa3:UInt8), (0x19:UInt8), (0x4e:UInt8), (0x40:UInt8), (0xcd:UInt8), (0x03:UInt8), (0x49:UInt8), (0xa5:UInt8), (0x72:UInt8), (0x02:UInt8), (0x5a:UInt8), (0x14:UInt8), (0xfa:UInt8), (0x75:UInt8), (0x8b:UInt8), (0x30:UInt8), (0x4f:UInt8), (0xfe:UInt8), (0x1b:UInt8), (0x34:UInt8), (0xec:UInt8), (0xeb:UInt8), (0x4e:UInt8), (0x5a:UInt8), (0x06:UInt8), (0x14:UInt8), (0xfc:UInt8), (0x68:UInt8), (0xed:UInt8), (0x6c:UInt8), (0xfe:UInt8), (0x35:UInt8), (0xd4:UInt8), (0x92:UInt8), (0x6b:UInt8), (0xae:UInt8), (0xbb:UInt8), (0x85:UInt8), (0x08:UInt8)])]
+
+/-- r32: seeded random script #32 (rng seed 20261016) — input 027ecf4e7f96 -/
+def r32 : ByteArray := ByteArray.mk #[(0x02:UInt8), (0x7e:UInt8), (0xcf:UInt8), (0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8)]
+
+/-- r33: seeded random script #33 (rng seed 20261016) — input 0515dc578aa305 -/
+def r33 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x15:UInt8), (0xdc:UInt8), (0x57:UInt8), (0x8a:UInt8), (0xa3:UInt8), (0x05:UInt8)]
+
+/-- r34: seeded random script #34 (rng seed 20261016) — input 4e7f96 -/
+def r34 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8)]
+
+/-- r35: seeded random script #35 (rng seed 20261016) — input 1454e1012894d34c056b48eaad4a40db9d5e06ca12 -/
+def r35 : ByteArray := ByteArray.mk #[(0x14:UInt8), (0x54:UInt8), (0xe1:UInt8), (0x01:UInt8), (0x28:UInt8), (0x94:UInt8), (0xd3:UInt8), (0x4c:UInt8), (0x05:UInt8), (0x6b:UInt8), (0x48:UInt8), (0xea:UInt8), (0xad:UInt8), (0x4a:UInt8), (0x40:UInt8), (0xdb:UInt8), (0x9d:UInt8), (0x5e:UInt8), (0x06:UInt8), (0xca:UInt8), (0x12:UInt8)]
+def ops_r35 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x54:UInt8), (0xe1:UInt8), (0x01:UInt8), (0x28:UInt8), (0x94:UInt8), (0xd3:UInt8), (0x4c:UInt8), (0x05:UInt8), (0x6b:UInt8), (0x48:UInt8), (0xea:UInt8), (0xad:UInt8), (0x4a:UInt8), (0x40:UInt8), (0xdb:UInt8), (0x9d:UInt8), (0x5e:UInt8), (0x06:UInt8), (0xca:UInt8), (0x12:UInt8)])]
+
+/-- r36: seeded random script #36 (rng seed 20261016) — input 0012c17723bdf5e804663f846c29ddccfddd5fa914f090a57986da51a710eb727dceeefc744a90043251 -/
+def r36 : ByteArray := ByteArray.mk #[(0x00:UInt8), (0x12:UInt8), (0xc1:UInt8), (0x77:UInt8), (0x23:UInt8), (0xbd:UInt8), (0xf5:UInt8), (0xe8:UInt8), (0x04:UInt8), (0x66:UInt8), (0x3f:UInt8), (0x84:UInt8), (0x6c:UInt8), (0x29:UInt8), (0xdd:UInt8), (0xcc:UInt8), (0xfd:UInt8), (0xdd:UInt8), (0x5f:UInt8), (0xa9:UInt8), (0x14:UInt8), (0xf0:UInt8), (0x90:UInt8), (0xa5:UInt8), (0x79:UInt8), (0x86:UInt8), (0xda:UInt8), (0x51:UInt8), (0xa7:UInt8), (0x10:UInt8), (0xeb:UInt8), (0x72:UInt8), (0x7d:UInt8), (0xce:UInt8), (0xee:UInt8), (0xfc:UInt8), (0x74:UInt8), (0x4a:UInt8), (0x90:UInt8), (0x04:UInt8), (0x32:UInt8), (0x51:UInt8)]
+def ops_r36 : List Opcode := [Opcode.pushBytes ByteArray.empty, Opcode.pushBytes (ByteArray.mk #[(0xc1:UInt8), (0x77:UInt8), (0x23:UInt8), (0xbd:UInt8), (0xf5:UInt8), (0xe8:UInt8), (0x04:UInt8), (0x66:UInt8), (0x3f:UInt8), (0x84:UInt8), (0x6c:UInt8), (0x29:UInt8), (0xdd:UInt8), (0xcc:UInt8), (0xfd:UInt8), (0xdd:UInt8), (0x5f:UInt8), (0xa9:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xf0:UInt8), (0x90:UInt8), (0xa5:UInt8), (0x79:UInt8), (0x86:UInt8), (0xda:UInt8), (0x51:UInt8), (0xa7:UInt8), (0x10:UInt8), (0xeb:UInt8), (0x72:UInt8), (0x7d:UInt8), (0xce:UInt8), (0xee:UInt8), (0xfc:UInt8), (0x74:UInt8), (0x4a:UInt8), (0x90:UInt8), (0x04:UInt8), (0x32:UInt8)]), Opcode.pushNum 1]
+
+/-- r37: seeded random script #37 (rng seed 20261016) — input 05726163ac0808e690484a8b576b32015c12ddb02e039d0433ae5d276df301494aeddf630183ad -/
+def r37 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x72:UInt8), (0x61:UInt8), (0x63:UInt8), (0xac:UInt8), (0x08:UInt8), (0x08:UInt8), (0xe6:UInt8), (0x90:UInt8), (0x48:UInt8), (0x4a:UInt8), (0x8b:UInt8), (0x57:UInt8), (0x6b:UInt8), (0x32:UInt8), (0x01:UInt8), (0x5c:UInt8), (0x12:UInt8), (0xdd:UInt8), (0xb0:UInt8), (0x2e:UInt8), (0x03:UInt8), (0x9d:UInt8), (0x04:UInt8), (0x33:UInt8), (0xae:UInt8), (0x5d:UInt8), (0x27:UInt8), (0x6d:UInt8), (0xf3:UInt8), (0x01:UInt8), (0x49:UInt8), (0x4a:UInt8), (0xed:UInt8), (0xdf:UInt8), (0x63:UInt8), (0x01:UInt8), (0x83:UInt8), (0xad:UInt8)]
+def ops_r37 : List Opcode := [Opcode.pushBytes (ByteArray.mk #[(0x72:UInt8), (0x61:UInt8), (0x63:UInt8), (0xac:UInt8), (0x08:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xe6:UInt8), (0x90:UInt8), (0x48:UInt8), (0x4a:UInt8), (0x8b:UInt8), (0x57:UInt8), (0x6b:UInt8), (0x32:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x5c:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0xdd:UInt8), (0xb0:UInt8), (0x2e:UInt8), (0x03:UInt8), (0x9d:UInt8), (0x04:UInt8), (0x33:UInt8), (0xae:UInt8), (0x5d:UInt8), (0x27:UInt8), (0x6d:UInt8), (0xf3:UInt8), (0x01:UInt8), (0x49:UInt8), (0x4a:UInt8), (0xed:UInt8), (0xdf:UInt8), (0x63:UInt8)]), Opcode.pushBytes (ByteArray.mk #[(0x83:UInt8)]), Opcode.op ⟨0xad, by decide⟩]
+
+/-- r38: seeded random script #38 (rng seed 20261016) — input 515005ca09 -/
+def r38 : ByteArray := ByteArray.mk #[(0x51:UInt8), (0x50:UInt8), (0x05:UInt8), (0xca:UInt8), (0x09:UInt8)]
+
+/-- r39: seeded random script #39 (rng seed 20261016) — input 4e7f9641e081 -/
+def r39 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8), (0x41:UInt8), (0xe0:UInt8), (0x81:UInt8)]
+
+/-- r40: seeded random script #40 (rng seed 20261016) — input 4e7f969c -/
+def r40 : ByteArray := ByteArray.mk #[(0x4e:UInt8), (0x7f:UInt8), (0x96:UInt8), (0x9c:UInt8)]
+
+/-! ## P: parse agrees with the Core walk (reference verdicts) -/
+
+example : parseScript ⟨c01⟩ = some ops_c01 := by decide
+example : parseScript ⟨c02⟩ = some ops_c02 := by decide
+example : parseScript ⟨c03⟩ = some ops_c03 := by decide
+example : parseScript ⟨c04⟩ = some ops_c04 := by decide
+example : parseScript ⟨c05⟩ = some ops_c05 := by decide
+example : parseScript ⟨c06⟩ = some ops_c06 := by decide
+example : parseScript ⟨c07⟩ = some ops_c07 := by native_decide
+example : parseScript ⟨c08⟩ = some ops_c08 := by native_decide
+example : parseScript ⟨c09⟩ = some ops_c09 := by decide
+example : parseScript ⟨c10⟩ = some ops_c10 := by native_decide
+example : parseScript ⟨c11⟩ = some ops_c11 := by decide
+example : parseScript ⟨c12⟩ = some ops_c12 := by decide
+example : parseScript ⟨c13⟩ = some ops_c13 := by native_decide
+example : parseScript ⟨c14⟩ = some ops_c14 := by native_decide
+example : parseScript ⟨c15⟩ = none := by decide
+example : parseScript ⟨c16⟩ = none := by decide
+example : parseScript ⟨c17⟩ = none := by decide
+example : parseScript ⟨c18⟩ = none := by decide
+example : parseScript ⟨c19⟩ = none := by decide
+example : parseScript ⟨c20⟩ = none := by decide
+example : parseScript ⟨c21⟩ = none := by decide
+example : parseScript ⟨c22⟩ = some ops_c22 := by decide
+example : parseScript ⟨c23⟩ = some ops_c23 := by decide
+example : parseScript ⟨c24⟩ = some ops_c24 := by decide
+example : parseScript ⟨c25⟩ = some ops_c25 := by decide
+example : parseScript ⟨c26⟩ = some ops_c26 := by native_decide
+example : parseScript ⟨c27⟩ = some ops_c27 := by native_decide
+example : parseScript ⟨c28⟩ = some ops_c28 := by decide
+example : parseScript ⟨c29⟩ = none := by decide
+example : parseScript ⟨c30⟩ = some ops_c30 := by decide
+example : parseScript ⟨c31⟩ = some ops_c31 := by decide
+example : parseScript ⟨c32⟩ = some ops_c32 := by decide
+example : parseScript ⟨c33⟩ = some ops_c33 := by decide
+example : parseScript ⟨c34⟩ = some ops_c34 := by decide
+example : parseScript ⟨c35⟩ = none := by decide
+example : parseScript ⟨k01⟩ = some ops_k01 := by native_decide
+example : parseScript ⟨k02⟩ = some ops_k02 := by decide
+example : parseScript ⟨k03⟩ = some ops_k03 := by decide
+example : parseScript ⟨r01⟩ = none := by decide
+example : parseScript ⟨r02⟩ = some ops_r02 := by native_decide
+example : parseScript ⟨r03⟩ = none := by native_decide
+example : parseScript ⟨r04⟩ = some ops_r04 := by native_decide
+example : parseScript ⟨r05⟩ = some ops_r05 := by decide
+example : parseScript ⟨r06⟩ = none := by decide
+example : parseScript ⟨r07⟩ = some ops_r07 := by native_decide
+example : parseScript ⟨r08⟩ = none := by decide
+example : parseScript ⟨r09⟩ = some ops_r09 := by decide
+example : parseScript ⟨r10⟩ = some ops_r10 := by native_decide
+example : parseScript ⟨r11⟩ = some ops_r11 := by native_decide
+example : parseScript ⟨r12⟩ = none := by decide
+example : parseScript ⟨r13⟩ = none := by native_decide
+example : parseScript ⟨r14⟩ = none := by native_decide
+example : parseScript ⟨r15⟩ = none := by native_decide
+example : parseScript ⟨r16⟩ = none := by native_decide
+example : parseScript ⟨r17⟩ = some ops_r17 := by decide
+example : parseScript ⟨r18⟩ = some ops_r18 := by decide
+example : parseScript ⟨r19⟩ = none := by decide
+example : parseScript ⟨r20⟩ = none := by decide
+example : parseScript ⟨r21⟩ = none := by native_decide
+example : parseScript ⟨r22⟩ = none := by decide
+example : parseScript ⟨r23⟩ = some ops_r23 := by native_decide
+example : parseScript ⟨r24⟩ = none := by native_decide
+example : parseScript ⟨r25⟩ = some ops_r25 := by native_decide
+example : parseScript ⟨r26⟩ = some ops_r26 := by native_decide
+example : parseScript ⟨r27⟩ = none := by decide
+example : parseScript ⟨r28⟩ = none := by decide
+example : parseScript ⟨r29⟩ = some ops_r29 := by native_decide
+example : parseScript ⟨r30⟩ = none := by decide
+example : parseScript ⟨r31⟩ = some ops_r31 := by native_decide
+example : parseScript ⟨r32⟩ = none := by decide
+example : parseScript ⟨r33⟩ = none := by decide
+example : parseScript ⟨r34⟩ = none := by decide
+example : parseScript ⟨r35⟩ = some ops_r35 := by native_decide
+example : parseScript ⟨r36⟩ = some ops_r36 := by native_decide
+example : parseScript ⟨r37⟩ = some ops_r37 := by native_decide
+example : parseScript ⟨r38⟩ = none := by decide
+example : parseScript ⟨r39⟩ = none := by decide
+example : parseScript ⟨r40⟩ = none := by decide
+
+/-! ## I: printer byte-identity on canonical inputs -/
+
+example : serializeOpcodes ops_c01 = c01 := by decide
+example : serializeOpcodes ops_c02 = c02 := by decide
+example : serializeOpcodes ops_c03 = c03 := by decide
+example : serializeOpcodes ops_c04 = c04 := by decide
+example : serializeOpcodes ops_c05 = c05 := by decide
+example : serializeOpcodes ops_c06 = c06 := by decide
+example : serializeOpcodes ops_c07 = c07 := by native_decide
+example : serializeOpcodes ops_c08 = c08 := by native_decide
+/-- canonical form the printer must emit for c09 -/
+def canon_c09 : ByteArray := ByteArray.mk #[(0x00:UInt8)]
+example : serializeOpcodes ops_c09 = canon_c09 := by decide
+example : serializeOpcodes ops_c10 = c10 := by native_decide
+/-- canonical form the printer must emit for c11 -/
+def canon_c11 : ByteArray := ByteArray.mk #[(0x00:UInt8)]
+example : serializeOpcodes ops_c11 = canon_c11 := by decide
+/-- canonical form the printer must emit for c12 -/
+def canon_c12 : ByteArray := ByteArray.mk #[(0x00:UInt8)]
+example : serializeOpcodes ops_c12 = canon_c12 := by decide
+example : serializeOpcodes ops_c13 = c13 := by native_decide
+/-- canonical form the printer must emit for c14 -/
+def canon_c14 : ByteArray := ByteArray.mk #[(0x4d:UInt8), (0x2c:UInt8), (0x01:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8), (0x22:UInt8)]
+example : serializeOpcodes ops_c14 = canon_c14 := by native_decide
+example : serializeOpcodes ops_c22 = c22 := by decide
+example : serializeOpcodes ops_c23 = c23 := by decide
+example : serializeOpcodes ops_c24 = c24 := by decide
+example : serializeOpcodes ops_c25 = c25 := by decide
+example : serializeOpcodes ops_c26 = c26 := by native_decide
+example : serializeOpcodes ops_c27 = c27 := by native_decide
+example : serializeOpcodes ops_c28 = c28 := by decide
+example : serializeOpcodes ops_c30 = c30 := by decide
+/-- canonical form the printer must emit for c31 -/
+def canon_c31 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8), (0x01:UInt8)]
+example : serializeOpcodes ops_c31 = canon_c31 := by decide
+/-- canonical form the printer must emit for c32 -/
+def canon_c32 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8), (0x02:UInt8)]
+example : serializeOpcodes ops_c32 = canon_c32 := by decide
+/-- canonical form the printer must emit for c33 -/
+def canon_c33 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8), (0x03:UInt8)]
+example : serializeOpcodes ops_c33 = canon_c33 := by decide
+example : serializeOpcodes ops_c34 = c34 := by decide
+example : serializeOpcodes ops_k01 = k01 := by native_decide
+example : serializeOpcodes ops_k02 = k02 := by decide
+example : serializeOpcodes ops_k03 = k03 := by decide
+example : serializeOpcodes ops_r02 = r02 := by native_decide
+/-- canonical form the printer must emit for r04 -/
+def canon_r04 : ByteArray := ByteArray.mk #[(0x4c:UInt8), (0x4c:UInt8), (0x3f:UInt8), (0x51:UInt8), (0x52:UInt8), (0x70:UInt8), (0x10:UInt8), (0x20:UInt8), (0x82:UInt8), (0xbc:UInt8), (0xd2:UInt8), (0x98:UInt8), (0x70:UInt8), (0x9b:UInt8), (0x54:UInt8), (0x35:UInt8), (0xd1:UInt8), (0x79:UInt8), (0xea:UInt8), (0xa5:UInt8), (0xe6:UInt8), (0x06:UInt8), (0x73:UInt8), (0x7d:UInt8), (0xe2:UInt8), (0x10:UInt8), (0x64:UInt8), (0xca:UInt8), (0x6e:UInt8), (0x0a:UInt8), (0xaf:UInt8), (0xe7:UInt8), (0xd4:UInt8), (0xae:UInt8), (0xfd:UInt8), (0x4f:UInt8), (0xb0:UInt8), (0xf5:UInt8), (0xa7:UInt8), (0xff:UInt8), (0x6b:UInt8), (0xea:UInt8), (0x15:UInt8), (0x7a:UInt8), (0xbd:UInt8), (0xee:UInt8), (0xf1:UInt8), (0x67:UInt8), (0x67:UInt8), (0xf8:UInt8), (0x88:UInt8), (0xa5:UInt8), (0x87:UInt8), (0x50:UInt8), (0xdc:UInt8), (0xbf:UInt8), (0x32:UInt8), (0xd9:UInt8), (0x06:UInt8), (0x3e:UInt8), (0x34:UInt8), (0xd7:UInt8), (0x5e:UInt8), (0xf9:UInt8), (0xcb:UInt8), (0x59:UInt8), (0x00:UInt8), (0x05:UInt8), (0x68:UInt8), (0x0f:UInt8), (0xf2:UInt8), (0xdc:UInt8), (0x36:UInt8), (0x86:UInt8), (0xb0:UInt8), (0x3d:UInt8), (0x95:UInt8), (0x0a:UInt8), (0x07:UInt8), (0x6f:UInt8), (0xa9:UInt8), (0x4d:UInt8), (0xef:UInt8), (0xe6:UInt8), (0x33:UInt8), (0x7b:UInt8), (0x05:UInt8), (0x1a:UInt8), (0x03:UInt8), (0xb6:UInt8), (0x41:UInt8), (0xb0:UInt8), (0x4b:UInt8), (0x86:UInt8), (0xec:UInt8), (0xe9:UInt8), (0x71:UInt8), (0xe3:UInt8), (0x10:UInt8), (0xc8:UInt8), (0x9b:UInt8), (0x06:UInt8), (0x23:UInt8), (0xbf:UInt8), (0xec:UInt8), (0xf8:UInt8), (0xd3:UInt8), (0x55:UInt8), (0xb5:UInt8), (0xe0:UInt8), (0xdc:UInt8), (0x5f:UInt8), (0x35:UInt8), (0x8b:UInt8), (0x1a:UInt8), (0xef:UInt8), (0x6c:UInt8), (0x8d:UInt8), (0x31:UInt8), (0xbb:UInt8), (0x65:UInt8), (0xfe:UInt8), (0x1b:UInt8), (0xab:UInt8), (0xd8:UInt8), (0xcf:UInt8), (0x29:UInt8), (0xda:UInt8), (0xa8:UInt8), (0x0c:UInt8), (0xaa:UInt8), (0xeb:UInt8), (0xc9:UInt8), (0x00:UInt8), (0xa7:UInt8), (0x23:UInt8), (0x2d:UInt8), (0xcc:UInt8), (0x2c:UInt8), (0xc6:UInt8), (0x43:UInt8), (0x67:UInt8), (0x5d:UInt8), (0xe8:UInt8), (0x8f:UInt8), (0xd3:UInt8), (0x5f:UInt8), (0x71:UInt8), (0xa3:UInt8), (0xe7:UInt8), (0x91:UInt8), (0x54:UInt8), (0x8b:UInt8), (0x3f:UInt8), (0x4f:UInt8), (0xcf:UInt8), (0x78:UInt8), (0x9d:UInt8), (0x9d:UInt8), (0x87:UInt8), (0x40:UInt8), (0x63:UInt8), (0xa3:UInt8), (0xb7:UInt8), (0xeb:UInt8), (0x21:UInt8), (0x6a:UInt8), (0xbf:UInt8), (0x00:UInt8), (0x4b:UInt8), (0x9c:UInt8), (0x58:UInt8), (0xe1:UInt8), (0x7e:UInt8), (0x42:UInt8), (0x75:UInt8), (0xb1:UInt8), (0x19:UInt8), (0x5d:UInt8), (0x81:UInt8), (0xfa:UInt8), (0xf6:UInt8), (0x7e:UInt8), (0x6c:UInt8), (0x1e:UInt8), (0x97:UInt8), (0x9d:UInt8), (0x4c:UInt8), (0x7d:UInt8), (0xe7:UInt8), (0x18:UInt8), (0x09:UInt8), (0xd7:UInt8), (0xef:UInt8), (0x29:UInt8), (0x63:UInt8), (0x1b:UInt8), (0xee:UInt8), (0x00:UInt8), (0x9f:UInt8), (0xcd:UInt8), (0xd7:UInt8), (0xa7:UInt8), (0x09:UInt8), (0x12:UInt8), (0x07:UInt8), (0xf4:UInt8), (0xa7:UInt8), (0xb4:UInt8), (0x2c:UInt8), (0xc5:UInt8), (0x49:UInt8), (0x5b:UInt8), (0xe3:UInt8), (0xb1:UInt8), (0xa0:UInt8), (0x83:UInt8), (0xcc:UInt8), (0x77:UInt8), (0x1f:UInt8), (0x3b:UInt8), (0xcc:UInt8), (0x19:UInt8), (0xba:UInt8), (0x69:UInt8), (0x41:UInt8), (0x30:UInt8), (0x59:UInt8), (0xf7:UInt8), (0x51:UInt8), (0xbd:UInt8), (0x5b:UInt8), (0x64:UInt8), (0x66:UInt8), (0xef:UInt8), (0x01:UInt8), (0x45:UInt8), (0x5d:UInt8), (0x17:UInt8), (0x88:UInt8), (0xfe:UInt8), (0x93:UInt8), (0x67:UInt8), (0x9a:UInt8), (0x65:UInt8)]
+example : serializeOpcodes ops_r04 = canon_r04 := by native_decide
+example : serializeOpcodes ops_r05 = r05 := by decide
+example : serializeOpcodes ops_r07 = r07 := by native_decide
+example : serializeOpcodes ops_r09 = r09 := by decide
+example : serializeOpcodes ops_r10 = r10 := by native_decide
+example : serializeOpcodes ops_r11 = r11 := by native_decide
+example : serializeOpcodes ops_r17 = r17 := by decide
+example : serializeOpcodes ops_r18 = r18 := by decide
+example : serializeOpcodes ops_r23 = r23 := by native_decide
+/-- canonical form the printer must emit for r25 -/
+def canon_r25 : ByteArray := ByteArray.mk #[(0x05:UInt8), (0xbc:UInt8), (0x43:UInt8), (0xd2:UInt8), (0x02:UInt8), (0x0f:UInt8), (0x01:UInt8), (0x1d:UInt8), (0x0b:UInt8), (0x13:UInt8), (0xbf:UInt8), (0x76:UInt8), (0x05:UInt8), (0x10:UInt8), (0x7a:UInt8), (0x9b:UInt8), (0x79:UInt8), (0x1e:UInt8), (0x9f:UInt8), (0x6b:UInt8), (0x02:UInt8), (0x97:UInt8), (0xa9:UInt8), (0x05:UInt8), (0x9b:UInt8), (0x50:UInt8), (0xdd:UInt8), (0x7f:UInt8), (0x6c:UInt8), (0x12:UInt8), (0xd7:UInt8), (0xfe:UInt8), (0xae:UInt8), (0x88:UInt8), (0xf0:UInt8), (0x88:UInt8), (0x4f:UInt8), (0x38:UInt8), (0xd9:UInt8), (0x19:UInt8), (0x46:UInt8), (0xf6:UInt8), (0x90:UInt8), (0x96:UInt8), (0x23:UInt8), (0xc4:UInt8), (0xd7:UInt8), (0x7b:UInt8)]
+example : serializeOpcodes ops_r25 = canon_r25 := by native_decide
+example : serializeOpcodes ops_r26 = r26 := by native_decide
+example : serializeOpcodes ops_r29 = r29 := by native_decide
+example : serializeOpcodes ops_r31 = r31 := by native_decide
+example : serializeOpcodes ops_r35 = r35 := by native_decide
+example : serializeOpcodes ops_r36 = r36 := by native_decide
+example : serializeOpcodes ops_r37 = r37 := by native_decide
+
+/-! ## T: print -> reparse roundtrip (instances of the frozen law) -/
+
+example : parseScript ⟨serializeOpcodes ops_c01⟩ = some ops_c01 := by decide
+example : parseScript ⟨serializeOpcodes ops_c02⟩ = some ops_c02 := by decide
+example : parseScript ⟨serializeOpcodes ops_c03⟩ = some ops_c03 := by decide
+example : parseScript ⟨serializeOpcodes ops_c04⟩ = some ops_c04 := by decide
+example : parseScript ⟨serializeOpcodes ops_c05⟩ = some ops_c05 := by decide
+example : parseScript ⟨serializeOpcodes ops_c06⟩ = some ops_c06 := by decide
+example : parseScript ⟨serializeOpcodes ops_c07⟩ = some ops_c07 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c08⟩ = some ops_c08 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c09⟩ = some ops_c09 := by decide
+example : parseScript ⟨serializeOpcodes ops_c10⟩ = some ops_c10 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c11⟩ = some ops_c11 := by decide
+example : parseScript ⟨serializeOpcodes ops_c12⟩ = some ops_c12 := by decide
+example : parseScript ⟨serializeOpcodes ops_c13⟩ = some ops_c13 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c14⟩ = some ops_c14 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c22⟩ = some ops_c22 := by decide
+example : parseScript ⟨serializeOpcodes ops_c23⟩ = some ops_c23 := by decide
+example : parseScript ⟨serializeOpcodes ops_c24⟩ = some ops_c24 := by decide
+example : parseScript ⟨serializeOpcodes ops_c25⟩ = some ops_c25 := by decide
+example : parseScript ⟨serializeOpcodes ops_c26⟩ = some ops_c26 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c27⟩ = some ops_c27 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_c28⟩ = some ops_c28 := by decide
+example : parseScript ⟨serializeOpcodes ops_c30⟩ = some ops_c30 := by decide
+example : parseScript ⟨serializeOpcodes ops_c31⟩ = some ops_c31 := by decide
+example : parseScript ⟨serializeOpcodes ops_c32⟩ = some ops_c32 := by decide
+example : parseScript ⟨serializeOpcodes ops_c33⟩ = some ops_c33 := by decide
+example : parseScript ⟨serializeOpcodes ops_c34⟩ = some ops_c34 := by decide
+example : parseScript ⟨serializeOpcodes ops_k01⟩ = some ops_k01 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_k02⟩ = some ops_k02 := by decide
+example : parseScript ⟨serializeOpcodes ops_k03⟩ = some ops_k03 := by decide
+example : parseScript ⟨serializeOpcodes ops_r02⟩ = some ops_r02 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r04⟩ = some ops_r04 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r05⟩ = some ops_r05 := by decide
+example : parseScript ⟨serializeOpcodes ops_r07⟩ = some ops_r07 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r09⟩ = some ops_r09 := by decide
+example : parseScript ⟨serializeOpcodes ops_r10⟩ = some ops_r10 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r11⟩ = some ops_r11 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r17⟩ = some ops_r17 := by decide
+example : parseScript ⟨serializeOpcodes ops_r18⟩ = some ops_r18 := by decide
+example : parseScript ⟨serializeOpcodes ops_r23⟩ = some ops_r23 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r25⟩ = some ops_r25 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r26⟩ = some ops_r26 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r29⟩ = some ops_r29 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r31⟩ = some ops_r31 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r35⟩ = some ops_r35 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r36⟩ = some ops_r36 := by native_decide
+example : parseScript ⟨serializeOpcodes ops_r37⟩ = some ops_r37 := by native_decide
+
+/-! ## 520-byte element-size boundary (SCR-045), compiled eval -/
+
+def bz (n : Nat) : ByteArray := ByteArray.mk (Array.replicate n (0x00:UInt8))
+
+def ops520 : List Opcode := [Opcode.pushBytes (bz 520)]
+
+example : parseScript ⟨serializeOpcodes ops520⟩ = some ops520 :=
+  by native_decide
+
+/-! ## K: opcodeCount hook (SCR-024; wire byte > 0x60 counts) -/
+
+example : opcodeCount ops_k01 = 4 := by decide
+example : opcodeCount ops_k02 = 0 := by decide
+example : opcodeCount ops_k03 = 3 := by decide
+
+/-! ## Named instance of the frozen roundtrip law + axiom pin -/
+
+def opsSmall : List Opcode :=
+  [Opcode.op ⟨0x76, by decide⟩, Opcode.op ⟨0xa9, by decide⟩,
+   Opcode.pushBytes (ByteArray.mk #[(0xde:UInt8), (0xad:UInt8)]),
+   Opcode.pushNum 5, Opcode.op ⟨0x88, by decide⟩,
+   Opcode.op ⟨0xac, by decide⟩]
+
+/-- the WF side is proved by hand: `decide` cannot synthesize a
+Decidable instance for `∀ o ∈ ops, opcodeWF o` (findings F-Y03-005) -/
+theorem y03_roundtrip_small :
+    parseScript ⟨serializeOpcodes opsSmall⟩ = some opsSmall :=
+  parse_serialize_roundtrip _ (by
+    intro o ho
+    simp only [opsSmall, List.mem_cons, List.not_mem_nil] at ho
+    rcases ho with rfl | ho
+    · exact Or.inr (by decide)
+    · rcases ho with rfl | ho
+      · exact Or.inr (by decide)
+      · rcases ho with rfl | ho
+        · show (ByteArray.mk #[(0xde:UInt8), (0xad:UInt8)]).size ≤ MAX_SCRIPT_ELEMENT_SIZE
+          decide   -- 2 ≤ 520
+        · rcases ho with rfl | ho
+          · show 5 ≤ 16
+            decide   -- pushNum 5
+          · rcases ho with rfl | ho
+            · exact Or.inr (by decide)
+            · rcases ho with rfl | ho
+              · exact Or.inr (by decide)
+              · exact ho.elim)
+
+/-- info: 'BitcoinProofs.Property.Y03.y03_roundtrip_small' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms y03_roundtrip_small
+
+end BitcoinProofs.Property.Y03

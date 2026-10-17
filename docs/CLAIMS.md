@@ -1,0 +1,49 @@
+# Claims and evidence
+
+This page states the claims made by the README and gives the file and command
+that reproduce each one. It also states what each claim does **not** mean.
+Counts are rule-row dispositions, not theorem-declaration counts. In this
+release snapshot, `make gates` passes all nine static gates; a
+passing gate is evidence about the checked file set, not an external audit or
+a proof of the model.
+
+| Claim | Evidence file | How to reproduce | What it does *not* mean |
+|---|---|---|---|
+| The consensus census has 726 rows: 676 proven, 50 obsolete, 0 implemented, 0 planned. Twenty-six of the proven rows are explicit model residuals. | `spec/db/rules.yaml`; contract and constants in `spec/scripts/gate_census.py`; `docs/RESIDUALS.md`. | `python3 spec/scripts/gate_census.py` | It is not a count of Lean theorems, and it does not assert that every possible consensus behaviour is modelled. The 50 obsolete rows remain in the denominator; the 26 residuals are counted in `proven` but are not claims of Core equivalence. |
+| Every proven row names a Lean declaration carrying that row's `@[rule "<ID>"]` tag, and every tag names a census row. | `spec/db/rules.yaml`; `@[rule]` attributes under `spec/core` and `spec/proofs`; `spec/scripts/rule_crosscheck.py`. | `python3 spec/scripts/rule_crosscheck.py` | Tag presence and target existence do not independently prove the row statement, and this gate does not re-elaborate Lean. Statement fidelity and build status are separate obligations. |
+| The gate-scanned `spec/core` and `spec/proofs` trees contain no `sorry`, and the lint rejects core `native_decide`/`unsafe`/`partial`/FFI hazards. | `spec/scripts/sorry_lint.sh`; `spec/scripts/sorry_lint.py`. | `bash spec/scripts/sorry_lint.sh` | The static lint scans `spec/core` and `spec/proofs`; it is comment-aware. A clean lint is not a proof of correctness, and it does not cover prose, generated data, or untracked files. It also does not establish statement fidelity. |
+| The committed axiom manifest contains no `sorryAx` or native/compiler-trust marker and stays within the permitted axiom set. | `spec/db/axiom-manifest.txt`; `spec/scripts/axiom_manifest.sh`. | `bash spec/scripts/axiom_manifest.sh --check-static` | The static check does not run Lean and does not re-derive every theorem's `#print axioms`. It also does not prove the statements are the right ones. |
+| The probed declarations' dynamic axiom footprints stay within `[propext, Classical.choice, Quot.sound]`; the consensus manifest has 223 entries. | `spec/db/axiom-manifest.txt`; `spec/scripts/axiom_probe.lean`; `spec/scripts/axiom_probe_rows.lean`; `spec/db/axiom-audit-rows.txt`. | `bash spec/scripts/axiom_manifest.sh` (requires Lean; local/full probe) | This is a footprint check for the probed declarations, not an external audit. The row-target probe has 14 unavailable targets and is not a claim that every row target was dynamically probed. |
+| The core package builds with no Lake dependencies (72 jobs recorded). | `spec/core/lakefile.lean`; `spec/core/lake-manifest.json`; `spec/core/lean-toolchain`. | `cd spec/core && lake build Bitcoin` | A successful build means the Lean definitions elaborate; it does not mean the model is equivalent to bitcoind or that all theorems were rebuilt. |
+| The default proof target `BitcoinProofs` builds against the pinned Lean toolchain and mathlib revision (29-module import closure; 1722 jobs recorded). | `spec/proofs/lakefile.lean`; `spec/proofs/lake-manifest.json`; `spec/proofs/lean-toolchain`; `docs/PROOF-BUILD.md`. | `cd spec/proofs && lake build BitcoinProofs` | This is not a package-wide build: 381 modules are outside the default closure; 361 build individually and 20 do not, including one cited target (`Theorems.Ops.O07`). mathlib and its dependencies are trusted external dependencies. Build success is not an external audit, and the proofs are about the Lean statements, not directly about C++ code. |
+| `spec/db/rules.yaml` is a regeneration fixed point of `spec/scripts/extract_rules.py` plus its curation layer, with no field drift. | `spec/scripts/extract_rules.py`; `spec/scripts/rules_overrides_sync.py`; `spec/db/rules.yaml`. | `python3 spec/scripts/extract_rules.py --check` and `python3 spec/scripts/backfill_overrides.py --check` | A fixed point means the generated file matches its sources and overrides. It does not independently verify the historical accuracy of every row or its Core line anchor. |
+| The wallet census is a separate 140-row database and is never merged into the consensus census. Forty rows carry tags (37 are recorded as entailed; three tagged rows also have partial obligations); 99 rows are in the obligation register (30 PARTIAL, 69 UNMODELLED; 75 model gaps, 24 proof gaps) and four further rows are corrected statements without a proof. | `spec/db/rules-wallet.yaml`; `docs/WALLET-OBLIGATIONS.md`; `spec/scripts/wallet_crosscheck.py`; `spec/db/rules-wallet.lock`. | `CORE_SRC=/path/to/bitcoin/src bash spec/scripts/wallet_gates.sh` | Wallet rows are not consensus rules and do not contribute to the 726/676/50 counts. The wallet layer is a specification/obligation layer with partial proofs, not 140 proved contracts. |
+| Wallet code does not leak into the consensus package, and the consensus census remains 726/676/50/0/0 while wallet gates run. | `spec/scripts/wallet_isolation.py`; `spec/core/Bitcoin.lean`; `spec/proofs/BitcoinProofs.lean`. | `python3 spec/scripts/wallet_isolation.py` | Isolation is a source and census check; it does not compile Lean and does not prove wallet statements. It asserts dependency direction, not semantic non-interference. |
+| The capstone replays serialized historical mainnet anchor blocks through the validation pipeline. | `spec/db/capstone.md`; `docs/DATA.md`; `release/README.md`; `spec/scripts/capstone_report.py`. | Extract the release bundle at the repository root (`--extract .`) so its `spec/vectors` tree is available, then `cd spec/core && lake exe capstone` (long run) | This is an offline replay of release-supplied block data, not committed data and not live-network validation, peer synchronization, chain-tip following, or a claim of bitcoind equivalence. |
+| Compiled conformance runners exercise the model against the corpus and record the results. | `spec/db/results.json`; `spec/Test/`; `spec/runners/`. | Run the relevant runner under `spec/Test/` or `spec/runners/` | Runtime conformance is not a kernel theorem. Corpus coverage is finite, and the result record is only as current as the run that produced it. |
+| The candidate tracks a 161-file, 4,852,246-byte data subset with a SHA-256 manifest; the larger data-only corpus payload and anchor blocks are release assets, not git objects. | `spec/data/MANIFEST.sha256`; `docs/DATA.md`; `release/README.md`. | `sha256sum -c --strict spec/data/MANIFEST.sha256`; `bash scripts/check_subset_size.sh --root spec/data` | The subset is not the release payload and does not contain the anchor blocks. The release payload is data-only and is not the complete source corpus. The manifest is an integrity check, not a signature or a publisher attestation. |
+| The data release archive is `btc-lean-data-2026.10.17.tar.gz`, 357,916,214 bytes, SHA-256 `1ac846bdc24740cfdcf599c3ccf357e48bed50d7fd32071efae605d2a84168b8`; its content manifest is `release/manifest.sha256`, SHA-256 `6c2f51e44624cbff05340610d5168dd869dbf9dd6c03f45d0c01a2f3594eba07`. | `release/assets.sha256`; `release/README.md`; `docs/DATA.md`. | Download the assets, verify `assets.sha256` against an out-of-band pin, then `sha256sum -c assets.sha256` and `sha256sum -c manifest.sha256` after extraction | Transport checksums are not signatures. The archive is not tracked in git, and a correct digest does not establish publisher identity without an out-of-band pin. |
+| The repository is MIT-licensed and third-party provenance is documented. | `LICENSE`; `docs/PROVENANCE.md`; `spec/data/MANIFEST.sha256`; `release/manifest.sha256`. | Read `LICENSE`; compare vendored vectors against their pinned upstream notices and manifest hashes | This is a provenance record, not legal advice. Upstream vector files retain their own upstream license terms. |
+| No external security audit or certification is claimed. | This page; `docs/TCB.md`; `docs/RESIDUALS.md`. | Inspect the repository for the stated trust boundary and row-level residuals | Review records are not a third-party audit, certification, or endorsement. |
+
+## Verification note
+
+The nine static gates are run by `.github/workflows/gates.yml` and by
+`make gates`; in this candidate all nine pass, and no Lean build or dynamic
+`#print axioms` probe runs in CI. The recorded dynamic checks are separate:
+223 consensus axiom entries (237 manifest lines) and 844 wallet theorem/lemma
+declarations in the wallet axiom manifest. Job counts and pins are in
+`docs/REPRODUCIBILITY.md`. Wallet gates are package-local and are listed
+separately in the README.
+
+## Metric boundaries
+
+- **Rule rows** (`spec/db/rules.yaml`): 726 dispositions, 676 proven and 50
+  obsolete. Twenty-six proven rows are explicit model residuals.
+- **Wallet rows** (`spec/db/rules-wallet.yaml`): 140 separate wallet-level
+  propositions, never merged. Forty are tagged; 99 are explicit obligations
+  (30 PARTIAL, 69 UNMODELLED; 75 model gaps, 24 proof gaps); four are
+  corrected statements without a proof.
+- **Theorem declarations**: a different metric from rule rows. The repository
+  does not publish a consensus declaration count; the census is authoritative.
+  The wallet axiom manifest separately covers 844 declarations.

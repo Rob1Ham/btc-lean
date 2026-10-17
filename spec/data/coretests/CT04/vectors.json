@@ -1,0 +1,138 @@
+{
+  "id": "CT04",
+  "source": "Bitcoin Core v32.99 @ cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66 (pin D-001)",
+  "scope": "src/test/txvalidation_tests.cpp (568 lines, 3 test cases) + src/test/validation_tests.cpp (363 lines, 5 test cases) - NOT covered by the tx_valid/tx_invalid JSON corpora (those are driven by transaction_tests.cpp) nor by script_tests.json",
+  "local_checkouts": "local clones @ c50817fe; diff vs pin = IDENTICAL for both files (fetched from the pin over raw.github and diffed)",
+  "lean": "spec/Test/TxValidation/CT04.lean (226 lines, elaborates clean via lake env lean, 20 decide vectors)",
+  "consensus_vs_policy": {
+    "consensus": ["CTI-010", "CTI-020A", "CTI-020B", "CTI-020C", "CTI-020D", "CTI-021"],
+    "policy": ["CTI-010L", "CTI-011", "CTI-030", "CTI-031", "CTI-032"],
+    "core_only": ["CTI-040", "CTI-041", "CTI-042", "CTI-043"]
+  },
+  "vectors": [
+    {
+      "id": "CTI-010",
+      "name": "tx_mempool_reject_coinbase",
+      "src": "txvalidation_tests.cpp:27-58",
+      "fixture": "TestChain100Setup (100-block coinbase chain @ regtest)",
+      "src_tx": "coinbaseTx: v1, 1 vin (null prevout), 1 vout 1*CENT, scriptSig OP_11 OP_EQUAL (2B), scriptPubKey P2PK(coinbaseKey); asserts CTransaction(coinbaseTx).IsCoinBase()",
+      "src_checks": "ProcessTransaction(coinbaseTx) -> INVALID, rejectReason 'coinbase', result TX_CONSENSUS; mempool size unchanged",
+      "core_gate": "validation.cpp:799-801 (MemPoolAccept::PreChecks): if (tx.IsCoinBase()) return state.Invalid(TX_CONSENSUS, 'coinbase')",
+      "classification": "PIPELINE-LOCUS DIVERGENCE (finding F1): mempool-acceptance gate one layer above validateTx",
+      "lean": "c04_cbTx (Core 1-out shape) + c04_coreTx (make_tx:79-91 25-out P2PK shape); validateTx = .ok 0 (TXV-072) = early-exit-consistent",
+      "lean_status": "VERIFIED (decide)"
+    },
+    {
+      "id": "CTI-010L",
+      "name": "'coinbase' reject line locus",
+      "src": "validation.cpp:800-801",
+      "core_gate": "ProcessTransaction-only (Core block path CheckBlock:3959-3963 instead rejects non-coinbase-first = 'bad-cb-missing'; ConnectBlock skips CheckTxInputs for IsCoinBase)",
+      "classification": "gate = mempool-locus (BOTH); validateTx (block-context) = CORRECT to .ok 0",
+      "lean": "TXV-072 divergence resolution; no lean change",
+      "lean_status": "VERIFIED"
+    },
+    {
+      "id": "CTI-011",
+      "name": "IsStandardTx (standardness tier)",
+      "src": "validation.cpp:803-806: TX_NOT_STANDARD",
+      "classification": "POLICY (requires mempool require_standard)",
+      "lean": "not modeled (validateTx = consensus pipeline)",
+      "lean_status": "N/A"
+    },
+    {
+      "id": "CTI-020",
+      "name": "max-money overflow",
+      "src": "A+B: tx_invalid.json:42-46 ('MAX_MONEY + 1 output' / 'MAX_MONEY output + 1 output'); C+D: txvalidation_tests.cpp:62-93 make_tx TestChain100Setup (core Tx-Tests Asserts 20A-20D)",
+      "src_checks": "A rejects single output value > MAX_MONEY; B rejects two per-coin-valid outputs (MAX_MONEY + 1) sum > MAX_MONEY; C rejects input coin > MAX_MONEY; D rejects MAX_MONEY + 1 coin sum",
+      "core_gate": "tx_invalid.json:42-46 + validation.cpp:788 (MemPoolAccept::PreChecks) + tx_check.cpp:CheckTransaction + tx_verify.cpp:190-194 + amount.h:26 (MAX_MONEY = 21*COIN = 2100000000000000)",
+      "classification": "CONSENSUS",
+      "lean": "CTI-020A (.error voutTooLarge) + 20B (.error txoutTotalTooLarge) + 20C/20D (.error badTxnsInputvaluesOutOfRange)",
+      "lean_status": "VERIFIED (decide)"
+    },
+    {
+      "id": "CTI-021",
+      "name": "coinbase-maturity (TestChain100Setup = 100-block coinbase chain)",
+      "src": "txvalidation_tests.cpp:26-27 (fixture 100 = COINBASE_MATURITY)",
+      "src_checks": "D2A/3I BOTH DA DA DA",
+      "core_gate": "tx_verify.cpp:184-188 (nSpendHeight - coin.nHeight < COINBASE_MATURITY -> TX_PREMATURE_SPEND) + validation.cpp:376-390 (removeForReorg re-check) + coins.h:29 (COINBASE_MATURITY = 100)",
+      "classification": "CONSENSUS",
+      "lean": "A (199 = depth 99 -> error) + B (200 = depth 100 -> .ok) + C (Tax)",
+      "lean_status": "VERIFIED (decide)"
+    },
+    {
+      "id": "CTI-030",
+      "name": "version3_tests (BIP431 TRUC)",
+      "src": "txvalidation_tests.cpp:275-567",
+      "src_checks": "v2-from-v3 rejects (exact wtxid strprintf); v3-from-v2 rejects; TRUC_ANCESTOR_LIMIT=2 (multi-parent + multi-gen); TRUC_DESCENDANT_LIMIT=2 (sibling eviction); TRUC_CHILD_MAX_VSIZE (101-in tx rejects); sigops vsize equivalent (DEFAULT_BYTES_PER_SIGOP/WITNESS_SCALE_FACTOR = 50); TRUC_VERSION = 3",
+      "core_gate": "policy/truc_policy.cpp (SingleTRUCChecks + PackageTRUCChecks); rule = INV-163 (consensus: false); NOT validation.cpp",
+      "classification": "POLICY",
+      "lean": "TRUC-version-blindness (v2 = v3 through validateTx)",
+      "lean_status": "VERIFIED (decide)"
+    },
+    {
+      "id": "CTI-031",
+      "name": "ephemeral_tests (BIP433)",
+      "src": "txvalidation_tests.cpp:114-273",
+      "src_checks": "CheckEphemeralSpends: dust must be spent (CFeeRate(0)); non-dust-spend child rejects; parent dust fully spent ok; dust-non-spend = reject; 25-out make_tx(10000) P2PK + make_ephemeral_tx (2*10000 + 0-value dust); DUST_RELAY_TX_FEE",
+      "core_gate": "policy/ephemeral_policy.cpp:33 (CheckEphemeralSpends); rule = INV-164 (consensus: false)",
+      "classification": "POLICY",
+      "lean": "TRUC/ephemeral version-blindness",
+      "lean_status": "VERIFIED (decide)"
+    },
+    {
+      "id": "CTI-032",
+      "name": "TRUC size/sigops limits",
+      "src": "txvalidation_tests.cpp:443-482",
+      "core_gate": "TRUC_CHILD_MAX_VSIZE (1000 vB); GetVirtualTransactionSize(nSigOpCost); TRUC policy",
+      "classification": "POLICY",
+      "lean_status": "N/A"
+    },
+    {
+      "id": "CTI-033",
+      "name": "OP_RETURN nuance",
+      "src": "NO OP_RETURN syntax check in txvalidation_tests.cpp; OP_RETURN appears in validation_tests.cpp make_coinbase_tx (block_malleation) + signet witness commitment",
+      "core_gate": "OP_RETURN output = CONSENSUS (TVA) = valid (TXV-066 core_ref: absence); policy = IsStandardTx dust/datacarrier (TX_NOT_STANDARD); 36-byte witness commitment + OP_RETURN = INV-088",
+      "classification": "CONSENSUS (TVA)"
+    },
+    {
+      "id": "CTI-040",
+      "name": "block_subsidy_test (BIP42)",
+      "src": "validation_tests.cpp:24-39 (TestBlockSubsidyHalvings) + 48-54 (main/regtest/1000)",
+      "src_checks": "maxHalvings 64: halvings 0-63: nSubsidy = prev/2; halvings = 64 (height = 64*interval) = 0",
+      "core_gate": "validation.cpp:1833-1843 (GetBlockSubsidy); BIP42 = halvings >= 64 -> 0",
+      "classification": "CONSENSUS (Core-only Layer)",
+      "lean": "INV-033 (Bitcoin.Conservation.blockSubsidy); TVA NOT run",
+      "lean_status": "COVERED (W08)"
+    },
+    {
+      "id": "CTI-041",
+      "name": "block_malleation (CVE-2012-2459) (208 lines)",
+      "src": "validation_tests.cpp:153-361",
+      "src_checks": "empty block merkle root = 0; 1-tx root = txid; 2-tx root = dsha256(txid1||txid2); duplicate tx (same txid) = MUTATED; 64-byte-serialization tx (SPV weak-merkle) = MUTATED; witness commitment paths; witness malleated (invalid commitment); coinbase witness reserved value malleated",
+      "core_gate": "IsBlockMutated (validation.cpp:4035-4061) + CheckMerkleRoot (3845-3870) + CheckWitnessMalleation (3878-3924) + validation.cpp:3944 (CheckBlock: fCheckMerkleRoot) + 4177 (ContextualCheckBlock) + merkle.cpp:53-70 (ComputeMerkleRoot) + 76-83 (BlockMerkleRoot) + 86-95 (BlockWitnessMerkleRoot)",
+      "classification": "BLOCK LAYER (Core-only) + block",
+      "lean": "INV-082 (merkle mutation = consensus) + BLK-125 (64-byte = relay-only) + BLK-082 (V1); TVA NOT run",
+      "lean_status": "COVERED (X08 BLK)"
+    },
+    {
+      "id": "CTI-042",
+      "name": "signet_parse_tests (BIP325)",
+      "src": "validation_tests.cpp:69-128",
+      "src_checks": "challenge = OP_TRUE; empty block = fail; no witness commitment = fail; BIP141 header (0xaa21a9ed) 32B = valid; 141 header + section_325 header only = valid; premature end of data = invalid; 141 header + 325 header + 0x00 0x51 = valid; extraneous data = invalid",
+      "core_gate": "signet.cpp:31-56 (FetchAndClearCommitmentSection) + 58-67 (ComputeModifiedMerkleRoot) + 69-122 (SignetTxs::Create) + 125-152 (CheckSignetBlockSolution) + validation.cpp:3939",
+      "classification": "BLOCK LAYER (Core-only)",
+      "lean": "INV-086 (planned); NOT TVA",
+      "lean_status": "N/A"
+    },
+    {
+      "id": "CTI-043",
+      "name": "test_assumeutxo",
+      "src": "validation_tests.cpp:131-151 (regtest)",
+      "src_checks": "bad heights = {0, 100, 111, 115, 209, 211} = no snapshot; height 110 = 86e9a120..., 111 txs",
+      "core_gate": "kernel/chainparams (AssumeutxoForHeight/Blockhash); validation.cpp (B1: post PR #31649)",
+      "classification": "CORE-ONLY (B1 = removed checkpoints non-consensus)",
+      "lean": "INV-147 (planned); NOT TVA",
+      "lean_status": "N/A"
+    }
+  ]
+}
