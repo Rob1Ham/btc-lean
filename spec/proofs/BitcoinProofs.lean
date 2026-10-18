@@ -32,3 +32,6 @@ import BitcoinProofs.Crypto.CurveZMod
 import BitcoinProofs.Crypto.Schnorr
 
 import BitcoinProofs.Theorems.CapstoneWitness
+
+import BitcoinProofs.Theorems.WitnessSerialization
+import BitcoinProofs.Theorems.CapstoneTaproot

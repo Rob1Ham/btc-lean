@@ -61,11 +61,10 @@ theorem verifyWitnessProgram_keypath
     (isP2SH : Bool) (htap : flags.taproot = true)
     (h32 : program.size = 32) (hp2 : isP2SH = false) :
     verifyWitnessProgram fuel [sig] 1 program flags pol chk isP2SH
-      = if chk.base.checkSchnorrSignature sig program SigVersion.taproot
+      = schnorrOutcome (checkSchnorrWithContext chk sig program SigVersion.taproot
               { (default : ScriptExecutionData) with
                 annexInit := true, annexPresent := false,
-                annexHash := (default : ScriptExecutionData).annexHash }
-        then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
+                annexHash := (default : ScriptExecutionData).annexHash }) := by
   simp [verifyWitnessProgram, htap, h32, hp2]
 
 theorem verifyWitnessProgram_keypath_fail_closed
@@ -73,14 +72,14 @@ theorem verifyWitnessProgram_keypath_fail_closed
     (flags : ScriptFlags) (pol : PolicyFlags) (chk : ScriptChecker)
     (isP2SH : Bool) (htap : flags.taproot = true)
     (h32 : program.size = 32) (hp2 : isP2SH = false)
-    (hchk : chk.base.checkSchnorrSignature sig program SigVersion.taproot
+    (hchk : checkSchnorrWithContext chk sig program SigVersion.taproot
               { (default : ScriptExecutionData) with
                 annexInit := true, annexPresent := false,
                 annexHash := (default : ScriptExecutionData).annexHash }
-            = false) :
+            = .error .schnorrSig) :
     verifyWitnessProgram fuel [sig] 1 program flags pol chk isP2SH
       = VerifyOutcome.fail .schnorrSig := by
-  simp [verifyWitnessProgram, htap, h32, hp2, hchk]
+  simp [verifyWitnessProgram, htap, h32, hp2, hchk, schnorrOutcome]
 
 /-! ## SCR-149 — the non-0xc0 TAPROOT leaf-version fall-through
 (Core `interpreter.cpp:1995-1998`)

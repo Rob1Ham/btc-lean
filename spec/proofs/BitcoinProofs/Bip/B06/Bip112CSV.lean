@@ -79,7 +79,7 @@ def st0 (stack : Stack) : State :=
 records exactly what Core's `TransactionSignatureChecker` reads:
 `txTo->nVersion`, `txTo->vin[nIn].nSequence`, `txTo->nLockTime`). -/
 def csvCtx (env : LocktimeEnv) : Ctx :=
-  { flags := { csv := true }, pol := default, chk := ⟨stubChecker, env⟩,
+  { flags := { csv := true }, pol := default, chk := ⟨stubChecker, env, none⟩,
     sv := .base, bytes := ByteArray.empty, ed := default }
 
 /-- The corpus-default env: version 1, nSequence 0xFFFFFFFF (final). -/

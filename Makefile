@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops test-capstone-sigop-budget test-capstone-witness help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops test-capstone-sigop-budget test-capstone-witness test-capstone-taproot help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -34,6 +34,7 @@ help:
 	@echo "make test-capstone-sigops # static sigop counter regressions (needs Lean)"
 	@echo "make test-capstone-sigop-budget # live block resource-boundary regressions (needs Lean)"
 	@echo "make test-capstone-witness # witness commitment/nonce/value regressions (needs Lean)"
+	@echo "make test-capstone-taproot # real key/script-path, cache and budget regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -88,6 +89,8 @@ gate-repro:
 	@$(PYTHON) $(SCRIPTS)/check_reproducibility.py
 	@$(PYTHON) $(SCRIPTS)/generate_sigop_blocks.py --check
 	@$(PYTHON) $(SCRIPTS)/generate_witness_commitment_block.py --check
+	@$(PYTHON) $(SCRIPTS)/generate_taproot_validation.py --check
+	@$(PYTHON) $(SCRIPTS)/test_capstone_report.py
 
 wallet-gates:
 	@bash $(SCRIPTS)/wallet_gates.sh
@@ -114,3 +117,11 @@ test-capstone-sigop-budget:
 test-capstone-witness:
 	cd spec/core && lake env lean --run Test/Capstone/WitnessCommitment.lean
 	cd spec/core && lake env lean --run Test/Capstone/WitnessStage.lean
+
+# Support library is explicit; runtime drivers remain outside the model library.
+test-capstone-taproot:
+	cd spec/core && lake build CapstoneTestSupport Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
+	cd spec/core && lake env lean --run Test/Capstone/WitnessInputs.lean
+	cd spec/core && lake env lean --run Test/Capstone/TaprootInputs.lean
+	cd spec/core && lake env lean --run Test/Capstone/TaprootBlocks.lean
+	cd spec/core && lake env lean --run Test/Capstone/SchnorrAssembly.lean

@@ -1,0 +1,211 @@
+R06 implementation checkpoint (uncommitted)
+
+Parent 62d11c60d7dc6653981877fe1027b1b00f523745, branch codex/audit-remediation.
+User explicitly resumed current work. Goal controller still reports paused;
+available tools cannot activate it. Do not recreate/complete/pause that goal.
+No GitHub writes authorized. Latest refresh: issues4/16 open, no new item in
+issue list; PR/main refresh process28828 must be consumed.
+
+IMPLEMENTED
+Typed optional Schnorr callback; real BIP341/BIP340 production adapter;
+missing signature context -> internal unavailable -> explicit unjudged.
+All prevout amounts/scripts resolved in vin order from the same evolving
+view; cache completeness/exact lookup kernel proofs connect CheckTxInputs.
+Broad native-v>=1 bypass removed. Actual control/q binding, leaf dispatch,
+annex/tapleaf execution data preserved, tapscript execution enabled.
+BIP342 uses separate opcode-index/codeSepPos (initial0xffffffff); legacy
+byte-offset codeSep remains. Parsed pushes/skipped opcodes count; only an
+executed separator records index. CHECKSIG and CHECKSIGADD use live index.
+Witness serialization includes stack-count CompactSize; interpreter aliases
+canonical Program size. Encoder-length bridge and exact budget equations.
+Public CapReport.scriptAdjudication and complete/incomplete iff zero/nonzero
+unjudged proofs. Runners/report tool refuse false green for incomplete scripts.
+
+REGRESSIONS
+12 WitnessInputs checks pass; strict before9fails3controls. Retroactive
+Taproot flags mean an empty witness atheight709631 rejects too. Never revive
+the initial mistaken activation-height pass expectation.
+33 TaprootInputs checks pass (after fixing test oracle: ACP input1 must
+mutate another input, not itself). Official7keypaths, other-prevout binding,
+annex, hashtype/size, cache missing/truncated, same-block spends, codesep
+index6 vs byteoffset9, no-separatorffffffff vs zero, exact150byte/200WU/four
+signature budget and252/253count boundary.
+8 TaprootBlocks pass BOTH public entry paths. Strict before6fails2controls
+at62d: oldmodelok2:10, newok12:0; old accepts altered amount and q too.
+Two initial failed repro attempts were oracle/setup mistakes; final strict
+wrapper requiresok2:10. Logs /tmp/btc-lean-r06-public-before2.log and
+-inputs-after3.log / -public-after1.log; strict wrapper persists in review dir.
+Mined fixture5transactions1986bytes atheight709632, supplied conditional
+history/UTXO, NOT reachable historical chain or wholebitcoind verdict.
+Nonce3652175247,time1231006507; mining7,947,354,112hashes431.412s8workers;
+actual doubleSHA target independently checked during generator promotion.
+Existing tracked BIP341 corpus is byteidentical to both exact Core and BIPs
+commit927b6de9915c9262615a6399de51b200f81e5aa4 sources; SHA403e19fb...
+Source VerifyWitnessProgram,VerifyScript,SignatureHashSchnorr bodies identical
+bothpins; primary/alternative source files cached in/tmp/btc-lean-core*.
+
+PROOF REPAIRS/STATUS
+Selected default+affected proof build passed1754jobs in
+/tmp/btc-lean-r06-affected-proofs5.log. Two wallet universal-unjudged theorems
+and three capstone universal-bypass theorems removed because now false.
+No axioms/trust shortcuts added. Corrected typed-checker premises and state
+contracts; actual measured standard-axiom guards updated, no arbitrary
+allowlist expansion. Historical Bool-only compatibility adapter remains.
+Corrected four old Y15 native examples: valid control size with wrong q
+now fails witnessProgramMismatch. Existing native tests remain labeled tests;
+no kernel theorem replaced with native_decide. Corrected old size equations.
+New WitnessSerialization has two extra seed proofs added AFTER that build;
+needs rebuild/guard pass. Actual12 initial new footprints measured allstandard
+in/tmp/btc-lean-r06-new-guards.log; persist in-file and dynamic probes.
+Core default build passed149jobs in/tmp/btc-lean-r06-core-build.log; latest
+comment-only changes after it mean final builds still required.
+
+RUNNING
+Wallet53import build handle43021, log/tmp/btc-lean-r06-wallet-build.log.
+Do not run another Lake build against same outputs until it finishes.
+No miner now running (21454 consumed exit0).
+Earlier sessions96395exit1,51617/68866builds finished (68866 success), needs
+consume; runtime67616/97778 success needconsume; core87942success consume.
+
+NEXT
+Finish wallet build; compile/guard new seed proofs; rebuild default/affected
+proofs after final guard edits; regenerate both manifests with strict
+standard-only review, run dynamic probes and static/generated/checksum gates.
+Build/check all six runners; test malformed/incomplete report output (2 unittest
+methods,13 subcases alreadypass); coretest16 and retained188runtime+new53.
+Add provenance/source-comparison receipt with exact bounded scope, no full
+Core or reachable-chain claim. Stage new files before tracked-only indexes.
+Update docs counts/scope/prose, ledger/census and validation-r06.json; commit
+cohesive R06 only once all required scoped checks pass. Full416modulematrix,
+remaining census classifications, other audit issues remain open.
+
+ADDITIONAL CONFIRMED R18
+CSV CheckSequenceDef uses signed env.txVersion<2. Public transaction version-1
+(wireffffffff), sequence1, spent script OP1 CSV DROP OP1 rejects
+unsatisfiedLocktime; version2control ok1:0. Both pinned Core CTransaction.version
+fields uint32_t, CheckSequence version<2. Raw sources already cached.
+/tmp/btc-lean-r06-csv-public-candidate.log; minimal driver samebasename. Ledger
+R18 added. Fix in a separate coherent followup after R06, with durable strict
+regression and extracted Core bodies. Do not mislabel as preexisting BIP68
+context fix; that code already treats raw version bits unsigned.
+
+LATEST RESOURCE/VERIFICATION CHECKPOINT
+
+All241targeted runtime +16coretests pass; allsix runner sources check and
+primary nativecapstonebuild passes after explicit BlockResult type andV08
+statusfield fixes. Consensus dynamic313entries406lines passes; wallet
+manifest updated836entries, but finalwallet check hit300s while concurrent
+heavy compilers ran. OfficialSchnorr19/sighash10+2/program/commitment7+4
+suites allpass; TaprootProgram oldbudget116corrected117 and Activation
+support modules built11jobs first. CoreTestDelta check hit180s underpressure;
+no pass claim. Root/53wallet/selectedaffected3321jobs pass.
+
+Extra all31CHANGEDproofmodule run found OpsO07codeSepPos contracts and
+EndToEndChecksig signatureExecutionData simplification missing. Both source
+fixes nowapplied; MUST rebuild. Two heavy remaining modules Z09Corners and
+S02Flip wereSTOPped thenTERM+CONTcleaned alongwiththeirLake parent to free
+resources. Oldhandle60352 exit241, notsuccess. Noheartbeat override added.
+Do not leave any suspended child; cleanupcommandexit0.
+
+CurrentONLY Lean run: serial walletprobe handle21057; logs
+/tmp/btc-lean-r06-wallet-serial-progress.log and-wallet-serial.log;600s
+timeout inwrapper. Waitforit beforeotherheavyLeanwork. Mainfinalchecks
+script /tmp/btc-lean-r06-final-checks.py supportsresumeindex e.g gates;
+first3build/corechecks and241runtime/allrunnerchecks+consensusprobe pass;
+retainsfailedattempts. Walletserialreceipt can replace latestfailedwallet
+entry inacceptance, without erasingfailurehistory. Thenresumefromgates.
+Needrerunchangedproofs SERIALLY pernamedmodule (no fullLake fanout) with
+boundedresource perexperiment; fixnewErrors without sorry/trust/HBraises.
+ThenchangedCoreTestDelta/InterpreterTests elaboration, strictbeforewrappers,
+static/generated/repro/checksums, exact finalcounts+sourcefingerprints.
+Draftvalidation-r06.json saysIN_PROGRESS and embedsreceipts/scopes; keepit
+honestuntilallrequiredscopedchecksresolve. NoR06commit yet.
+
+Docsnow36default/416modules/380outside,313consensus406lines/836wallet,
+172datafiles5045836bytes171payloads,25residuals. SCR040closedspecific
+encoder/budgetgap; TPR071weightproofremainsopen. Rules3rowscuratedand
+overlays regenerated; proofscope/residualindexes regenerated. Needgates.
+CSV-VERSION-REPRO.lean andR18Reviewsection nowpersistnewfinding; stillopen.
+
+FOLLOWUP CHECKPOINT
+Serialwalletprobe PASS836entries in52.033s (receipt/tmp/btc-lean-r06-wallet-serial-receipt.json).
+Finalmaincheckspassedallremaininggates/repro/checksums/strictbefore/reference
+commands; finalprogress4 endsALL24CHECKSPASSED (historyincludesfailedfirst
+runner/V08compilesandwallet300stimeout; do noteraseattempts).
+Subsetindexrefreshednow172files5045836bytes. Allofficialcrypto suitespass.
+OpsO07andEndToEndChecksig correctedproofs PASS1657jobs, log-two-repaired-proofs.
+Additionaldirectbudgetseedtheorem executeWitnessScript_exact_seed now
+builds28jobs (exact-seed-proof4.log): showsactualEvalScript calledwithfull
+encoderlength+50 andcallerannex/tapleafdata. Needmeasurefootprint, addguard
+anddynamicprobeentry, curateSCR040targettoit, updatecounts314/likely409
+(measureactual!), recheckdefault+manifests/staticgeneratedchecks.
+
+CURRENTsingleLeanprocess: temporarykernel-CBVtrialforZ09Corners, handle26648,
+/tmp/btc-lean-r06-z09-cbv-trial.lean/log/progress.log.180s limit. RepoZ09
+stillbydecide, no tacticchangeapplied. Trial usespinnedLean certified
+decide_cbv (sourceLean/Elab/Tactic/Cbv.lean); MUSTmeasurefootprints/no
+ofReduceBool/sorry/trustCompiler ifadopted. Actualstatementsunchanged.
+S02Flip isexplicit measurement-only native_decide->decide experiment,
+header saysanerrorisameasurementwall. Never calltimeoutpass orsilently
+deleteexperimentalmoduletoimprovefullmatrix. CouldtrysamecertifiedCBV
+firsthashcase inTEMPbeforedecidinghowtohandleexperimentR08. NoHBraises.
+CoreTestDeltaandInterpreterTests checksneedSERIALretry too; first180s
+Delta timeoutwasunderresourcepressure. Othernoheavyprocessremain; stopped
+compilerswereTERM+CONTcleaned (oldbuildhandle60352exit241).
+
+LATEST: fullZ09PASS26jobs165.379s withallconcreteexamples; source
+includesnewopcodeIndexfoldresult andmissingliteralNOPsubstitutionsfixed.
+NoCBVtacticchangeadopted; temponlyCBVtrialtimedout180sandwasnotapass.
+FairUInt32/Natfoldmicrobenchmarkbothpass(1.203/1.011s); noindex-type
+changeimplementedorjustified. S02declarations-only interfacecheckPASS
+13.508s (20closedmeasurementexamplesomittedexplicitly; nofullfileclaim).
+InterpreterTestscheckPASS8.42s. DeltaNativecheckfoundoneadditionaltwofield
+ckBadconstructor; fixednonefield, currenthandle10130 -delta-final.log.
+Otherwhole31modifiedproofmodulechecks nowallpassEXCEPTfullS02Flip
+measurementexperimentstillunrununderfairbounds; keepR08matrixopen.
+
+Newexactseedtheorembuilds/probed[propext,Quot.sound]; fifteenthguardand
+primaryprobeentryADDEDbutCapstoneTaproot/rootneedrebuildandprimary
+manifest--update/check. Newcount314; measuredold406+new1physical=407,
+verifyactual. Docs314/407nowset; SCR040curatedtargetexact_seed andoverlay
+regeneratedafterfinalmaingates, soSTATIC/GENERATEDchecksneedrefresh.
+AllCoreproductionbehaviorunchangedafter241runtimepass. Thenfinalreport,
+sourcefingerprints, ledgerstatus, scopepublicdocs, localR06commit.
+
+R19 FOLLOWUP / CURRENT FINALIZATION
+ExplicitlybuildingCoreSchnorrEntry2(disabledfromBitcoinroot)exposedwrong
+algorithm: openSchnorr.Verify madeunqualifiedverifyImplfilltheECDSAslot.
+FixedtofullyqualifiedECDSA, fixedoldnone-rewrite proof'sunreducedmatch,
+addedunconditionalrealCheckerFullOf2_ecdsa_eqwithguardstdtrio. Namespace
+MUSTbeBitcoin.Crypto.EcdsaDeep.SchnorrEntry2(realfunctionmodule).
+TestCapstone/SchnorrAssembly.lean4checksPASS, strictbeforewrapper
+reproduce_schnorr_assembly.py2fails2productioncontrolsPASS at62d executable
+prefixonly(originalmoduleproofsectionsfailed; explicitlyomitted). Logs
+/tmp/btc-lean-r19-after2.log,-before2.log,-axiom.log. Initialnamespace
+setupfailureswerenotacceptedascounterexamples. Ledger+ReviewR19P2added.
+PrimaryprobeimportsEntry2andnewguard; expected315entries410lines, measure.
+Newruntimecount245(241prior+4assembly). Newguardcount16.
+RealCheckerECDSAreferencesnowfullyqualified(samepreviousresolvedfunction).
+SourcecommentsWalletCommit/RealChecker/Entry2nowcurrent. Mainrunnerbanner
+corrected(scriptadjudicationexplicit, historicalcontextunavailable).
+Corelakefileevery-submodulecommentcorrected:131trackedcoremodelmodules,
+72Bitcoinrootimports,59outside. R08andGoalPromptnowrequirebothcore+proof
+matrices. S02measurementfullbuildstillopen; durablepartialhelper
+check_s02_declarations.pySHA-pinnedandPASS13s, omits20experimentsopenly.
+
+Currentserialrefreshhandle44189, /tmp/btc-lean-r06-refresh-progress4.log:
+116namedtargets(allchangedproofsexceptS02plusallprimary/walletimports),
+thenprimaryrunnerbuild,walletprobe,consensusupdate/check,gates/scope/
+residuals/checksums. Lastfailedrefresh3wasoldEntry2fault; retainhistory,
+currentrefreshafterallfixesmustpass. Needfreshrepro+245runtimeafternew
+Makefiletarget/newhelperstaged, finalJSON/ledger/docsnumbers/sourcehashes
+andlocalR06+R19commit. DoNOTmarkentirerepositorygoalcomplete. NextR18
+CSVversionfix, thenR07historicalhash/genesisandR08/fullcensus/archiveetc.
+
+FINAL SCOPED DISPOSITION
+All final serial checks pass. See validation-r06.json for exact receipts, source
+fingerprints and earlier failed attempts. R06 and R19 are fixed within documented
+scope; 245 runtime checks, 16 core checks, 116 named targets/3343 Lake jobs,
+315 consensus/836 wallet probes and all gates pass. Full 131-core/416-proof
+matrix, S02 measurement experiment disposition, census and remaining semantic
+findings remain open. Next coherent change is R18 CSV unsigned version gate.

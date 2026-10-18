@@ -193,26 +193,37 @@ theorem checkSigEncoding_consensus_path (flags : ScriptFlags) (sig : ByteArray)
  Quot.sound] -/
 #guard_msgs in
 #print axioms isWitnessProgram_version_closure
-/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_wrongLength' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_wrongLength' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_v0_wrongLength
 /-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_p2wsh_empty_witness' depends on axioms: [propext,
+ Classical.choice,
  Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_v0_p2wsh_empty_witness
-/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_p2wpkh_arity' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_p2wpkh_arity' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_v0_p2wpkh_arity
-/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_p2wsh_mismatch' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_v0_p2wsh_mismatch' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_v0_p2wsh_mismatch
 /-- info: 'BitcoinProofs.Theorems.WitnessRules.executeWitnessScript_item_cap' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in
 #print axioms executeWitnessScript_item_cap
-/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_future_ok' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_future_ok' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_future_ok
-/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_discourage_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.WitnessRules.verifyWitnessProgram_discourage_fail' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms verifyWitnessProgram_discourage_fail
 /-- info: 'BitcoinProofs.Theorems.WitnessRules.witnessSigOps_p2wpkh_one' depends on axioms: [propext, Quot.sound] -/

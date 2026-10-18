@@ -36,6 +36,10 @@ import BitcoinProofs.AF.PDW36.PDW36Guards
 import BitcoinProofs.AF.PDW21.PDW21
 import Bitcoin.TxValidation.LocktimeSigOps
 
+import BitcoinProofs.Theorems.CapstoneTaproot
+
+import Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
+
 /-!
 # Axiom probe — the input of the axiom-manifest gate
 
@@ -407,3 +411,24 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_values
 #print axioms BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness
 #print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values
+
+-- R06: actual prevout cache, full serialized budget and explicit status.
+#print axioms Bitcoin.Capstone.Block.collectSpentOutputs_spec
+#print axioms Bitcoin.Capstone.Block.collectSpentOutputs_complete
+#print axioms Bitcoin.Capstone.Block.checkTxInputs_spentOutputs
+#print axioms Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size
+#print axioms Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size_mono
+#print axioms Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_single
+#print axioms Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_strict
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.witnessSerSize_eq_encoder
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.interpreter_size_eq_encoder
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_script_status
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_complete_iff
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_incomplete_iff
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.validationWeightInit_eq_encoder
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_encoder_budget
+
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed
+
+-- R19: unconditional ECDSA preservation in the Boolean compatibility assembly.
+#print axioms Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq

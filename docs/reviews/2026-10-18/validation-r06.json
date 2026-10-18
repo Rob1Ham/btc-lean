@@ -1,0 +1,1159 @@
+{
+  "finding": "R06 native witness validity, real Taproot, spent-output cache and BIP342 dataflow; R19 compatibility checker algorithm binding",
+  "status": "fixed_and_verified_with_scoped_evidence",
+  "implementation_parent": "62d11c60d7dc6653981877fe1027b1b00f523745",
+  "updated_at_utc": "2026-10-18T18:29:53.705186+00:00",
+  "upstream_main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
+  "open_issues": [
+    4,
+    16
+  ],
+  "open_prs": [],
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "goal_controller": "paused; user authorized current chat work; API cannot activate existing goal",
+  "baseline_regressions": [
+    {
+      "driver": "WitnessInputs",
+      "strict_before": "reproduce_witness_inputs.py",
+      "failures": 9,
+      "passing_controls": 3
+    },
+    {
+      "driver": "TaprootBlocks",
+      "strict_before": "reproduce_taproot_blocks.py",
+      "failures": 6,
+      "passing_controls": 2,
+      "old_public_result": "ok:2:10"
+    },
+    {
+      "driver": "SchnorrAssembly",
+      "strict_before": "reproduce_schnorr_assembly.py",
+      "failures": 2,
+      "passing_controls": 2,
+      "scope": "Three unchanged executable factory definitions; original broken proof declarations explicitly excluded."
+    }
+  ],
+  "runtime": {
+    "targeted_checks": 245,
+    "core_checks": 16,
+    "new_checks": 57,
+    "official_schnorr": "19 vectors;9 accept10reject",
+    "official_sighash": "7 official +3 synthetic +2 rejects",
+    "official_program": "7 official scriptPubKey and structural/activation cases",
+    "official_commitment": "7 official output +4 synthetic verdicts"
+  },
+  "fixture": {
+    "kind": "conditional public Taproot integration fixture",
+    "height": 709632,
+    "time": 1231006507,
+    "nonce": 3652175247,
+    "bits": "1d00ffff",
+    "parent": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+    "blockHash": "00000000d0419bf535d8d3e7bb7453258ffc4963afe7de7f50329733cb04d99d",
+    "blockSha256": "7c0360dfe42ce6b9228d122c244c5a732444fe1fddcdec298ca180429aba29dd",
+    "initialCoins": [
+      {
+        "txid": "7de20cbff686da83a54981d2b9bab3586f4ca7e48f57f5b55963115f3b334e9c",
+        "n": 1,
+        "amount": 420000000,
+        "scriptPubKey": "512053a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343"
+      },
+      {
+        "txid": "d7b7cab57b1393ace2d064f4d4a2cb8af6def61273e127517d44759b6dafdd99",
+        "n": 0,
+        "amount": 462000000,
+        "scriptPubKey": "5120147c9c57132f6e7ecddba9800bb0c4449251c92a1e60371ee77557b6620f3ea3"
+      },
+      {
+        "txid": "f8e1f583384333689228c5d28eac13366be082dc57441760d957275419a41842",
+        "n": 0,
+        "amount": 294000000,
+        "scriptPubKey": "76a914751e76e8199196d454941c45d1b3a323f1433bd688ac"
+      },
+      {
+        "txid": "f0689180aa63b30cb162a73c6d2a38b7eeda2a83ece74310fda0843ad604853b",
+        "n": 1,
+        "amount": 504000000,
+        "scriptPubKey": "5120e4d810fd50586274face62b8a807eb9719cef49c04177cc6b76a9a4251d5450e"
+      },
+      {
+        "txid": "aa5202bdf6d8ccd2ee0f0202afbbb7461d9264a25e5bfd3c5a52ee1239e0ba6c",
+        "n": 0,
+        "amount": 630000000,
+        "scriptPubKey": "512091b64d5324723a985170e4dc5a0f84c041804f2cd12660fa5dec09fc21783605"
+      },
+      {
+        "txid": "956149bdc66faa968eb2be2d2faa29718acbfe3941215893a2a3446d32acd050",
+        "n": 0,
+        "amount": 378000000,
+        "scriptPubKey": "00147dd65592d0ab2fe0d0257d571abf032cd9db93dc"
+      },
+      {
+        "txid": "e664b9773b88c09c32cb70a2a3e4da0ced63b7ba3b22f848531bbb1d5d5f4c94",
+        "n": 1,
+        "amount": 672000000,
+        "scriptPubKey": "512075169f4001aa68f15bbed28b218df1d0a62cbbcf1188c6665110c293c907b831"
+      },
+      {
+        "txid": "e9aa6b8e6c9de67619e6a3924ae25696bb7b694bb677a632a74ef7eadfd4eabf",
+        "n": 0,
+        "amount": 546000000,
+        "scriptPubKey": "5120712447206d7a5238acc7ff53fbe94a3b64539ad291c7cdbc490b7577e4b17df5"
+      },
+      {
+        "txid": "a778eb6a263dc090464cd125c466b5a99667720b1c110468831d058aa1b82af1",
+        "n": 1,
+        "amount": 588000000,
+        "scriptPubKey": "512077e30a5522dd9f894c3f8b8bd4c4b2cf82ca7da8a3ea6a239655c39c050ab220"
+      },
+      {
+        "txid": "abababababababababababababababababababababababababababababababab",
+        "n": 0,
+        "amount": 10,
+        "scriptPubKey": "512077e30a5522dd9f894c3f8b8bd4c4b2cf82ca7da8a3ea6a239655c39c050ab220"
+      }
+    ],
+    "expectedScriptOk": 12,
+    "expectedScriptUnjudged": 0,
+    "officialCorpusSha256": "403e19fb81dd1f31e745699216308f61fb403774b2aafa87b631b8f7c042d37f",
+    "officialSources": [
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66/src/test/data/bip341_wallet_vectors.json",
+      "https://raw.githubusercontent.com/bitcoin/bips/927b6de9915c9262615a6399de51b200f81e5aa4/bip-0341/wallet-test-vectors.json"
+    ],
+    "officialKeypathInputs": [
+      0,
+      1,
+      3,
+      4,
+      6,
+      7,
+      8
+    ],
+    "childSighash": "cdfab2d02d97f97f94d9d52f80dcf74612aba21a60a738a39333d73278f85320",
+    "budgetSighash": "390216cd1ae025c804940dee43ae1cc4d203643f62be8081be5d02fc6857c475",
+    "budgetWitnessBytes": 150,
+    "budgetInitial": 200,
+    "budgetSigops": 4,
+    "separatorOpcodeIndex": 6,
+    "legacySeparatorByteOffset": 9,
+    "keyPathAnnexTx": "020000000001097de20cbff686da83a54981d2b9bab3586f4ca7e48f57f5b55963115f3b334e9c010000000000000000d7b7cab57b1393ace2d064f4d4a2cb8af6def61273e127517d44759b6dafdd990000000000fffffffff8e1f583384333689228c5d28eac13366be082dc57441760d957275419a41842000000006b4830450221008f3b8f8f0537c420654d2283673a761b7ee2ea3c130753103e08ce79201cf32a022079e7ab904a1980ef1c5890b648c8783f4d10103dd62f740d13daa79e298d50c201210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798fffffffff0689180aa63b30cb162a73c6d2a38b7eeda2a83ece74310fda0843ad604853b0100000000feffffffaa5202bdf6d8ccd2ee0f0202afbbb7461d9264a25e5bfd3c5a52ee1239e0ba6c0000000000feffffff956149bdc66faa968eb2be2d2faa29718acbfe3941215893a2a3446d32acd050000000000000000000e664b9773b88c09c32cb70a2a3e4da0ced63b7ba3b22f848531bbb1d5d5f4c94010000000000000000e9aa6b8e6c9de67619e6a3924ae25696bb7b694bb677a632a74ef7eadfd4eabf0000000000ffffffffa778eb6a263dc090464cd125c466b5a99667720b1c110468831d058aa1b82af10100000000ffffffff0200ca9a3b000000001976a91406afd46bcdfd22ef94ac122aa11f241244a37ecc88ac807840cb0000000020ac9a87f5594be208f8532db38cff670c450ed2fea8fcdefcc9a663f78bab962b02413a0a6fe8ede413e24c4e041724f917f968c9d223362867e21c53a6baa2bfc2a85e7cb5b106614e0f02a45778c2e4f27cc27b8b1a35b9a9efc9fac4d7dcd1b660030250990141052aedffc554b41f52b521071793a6b88d6dbca9dba94cf34c83696de0c1ec35ca9c5ed4ab28059bd606a4f3a657eec0bb96661d42921b5f50a95ad33675b54f83000141ff45f742a876139946a149ab4d9185574b98dc919d2eb6754f8abaa59d18b025637a3aa043b91817739554f4ed2026cf8022dbd83e351ce1fabc272841d2510a010140b4010dd48a617db09926f729e79c33ae0b4e94b79f04a1ae93ede6315eb3669de185a17d2b0ac9ee09fd4c64b678a0b61a0a86fa888a273c8511be83bfd6810f0247304402202b795e4de72646d76eab3f0ab27dfa30b810e856ff3a46c9a702df53bb0d8cc302203ccc4d822edab5f35caddb10af1be93583526ccfbade4b4ead350781e2f8adcd012102f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f90141a3785919a2ce3c4ce26f298c3d51619bc474ae24014bcdd31328cd8cfbab2eff3395fa0a16fe5f486d12f22a9cedded5ae74feb4bbe5351346508c5405bcfee0020141ea0c6ba90763c2d3a296ad82ba45881abb4f426b3f87af162dd24d5109edc1cdd11915095ba47c3a9963dc1e6c432939872bc49212fe34c632cd3ab9fed429c4820141bbc9584a11074e83bc8c6759ec55401f0ae7b03ef290c3139814f545b58a9f8127258000874f44bc46db7646322107d4d86aec8e73b8719a61fff761d75b5dd9810065cd1d",
+    "extraCases": [
+      {
+        "name": "no separator sentinel",
+        "rawTx": "0200000000010144444444444444444444444444444444444444444444444444444444444444440000000000ffffffff010800000000000000015103403b31f8756eee7eda2d78559b8c389d136d9b03b11d8ceae20fe86d35da1887fc4fd134dd072b19d2ddf1e3e428574a1e698e059e2c605e000b101a3c3ae953ff222079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ac21c1c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee500000000",
+        "amount": 9,
+        "scriptPubKey": "5120f64638a62d337d787458d7a76aa58618aeb4e41f74860be37ee45adf4a51366a",
+        "expected": "pass"
+      },
+      {
+        "name": "wrong zero separator sentinel",
+        "rawTx": "0200000000010144444444444444444444444444444444444444444444444444444444444444440000000000ffffffff01080000000000000001510340fd74bb92bc3638a4d64fad487c5673cc3aa5602e6cbd21efe00e20916d63e0879d2808bcd3688d962ad95f73fca77570440278df0538dfe1eb2cb71d4fe342ca222079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ac21c1c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee500000000",
+        "amount": 9,
+        "scriptPubKey": "5120f64638a62d337d787458d7a76aa58618aeb4e41f74860be37ee45adf4a51366a",
+        "expected": "schnorrSig"
+      },
+      {
+        "name": "wrong byte-offset separator",
+        "rawTx": "0200000000010144444444444444444444444444444444444444444444444444444444444444440000000000ffffffff01080000000000000001510440509bfc7293d36f3a90ef38e2ee8b2d9106e086f84fd454ff0379a6b178f5e88ebdf4e74c11115167ad05825b3a72e533e1cf841c8de633cd352f4d87c847015c2b02aabb750063ab68ab2079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ac21c1c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee502509900000000",
+        "amount": 9,
+        "scriptPubKey": "5120c2d916d06839634b4aab419ba6a7e030d651f7c9399018d8ca1bd12db015bbd7",
+        "expected": "schnorrSig"
+      }
+    ],
+    "scope": "Real PoW; caller-supplied ancestor/UTXO state is conditional, not a reachable historical-mainnet-chain claim or whole-bitcoind verdict."
+  },
+  "core_reference": [
+    {
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "source_sha256": "57a6f328c7e6202f499e48366a86eb26e09c8ebb78e92eef7e839207230be333",
+      "functions_sha256": {
+        "VerifyWitnessProgram": "4c27fadcb9b2223910aa2eb29f56b2cc8a65b943beadbd2ebb0376e6b0c0c2dd",
+        "VerifyScript": "a8a53001908dc5a2a2779c5dac7dcf912616c18a1ac4ce1060d9b6cb4d0fb2ac",
+        "SignatureHashSchnorr": "1973053bedb20b058fdff8195922149352fa254cf69dd6f8cdc737002c267294",
+        "CheckSequence": "817ed85a9ef9d56bec4b00ec1d504a0b153e6d338caccbfe07541385940d6136"
+      },
+      "checks": {
+        "active empty witness": "witnessProgramWitnessEmpty",
+        "flag off empty witness": "pass",
+        "future version empty witness": "pass",
+        "future size empty witness": "pass",
+        "wrapped taproot is upgradable": "pass",
+        "v0 wrong program length": "witnessProgramWrongLength",
+        "v0 wrong witness count": "witnessProgramMismatch",
+        "bad control size": "taprootWrongControlSize",
+        "wrong script commitment": "witnessProgramMismatch",
+        "keypath typed error": "schnorrSigSize",
+        "keypath annex propagation": "pass",
+        "full witness budget": "pass",
+        "annex retained in budget": "pass",
+        "upgradable leaf still binds q": "witnessProgramMismatch",
+        "upgradable leaf pass": "pass",
+        "upgradable leaf policy": "discourageUpgradableTaprootVersion",
+        "future witness policy": "discourageUpgradableWitnessProgram"
+      },
+      "scope": "Execute the unchanged pinned Core witness dispatcher at abstract EC seams.\n\nContainer/flag/serialization shims; SHA256 is real. Commitment and Schnorr\nverdicts and inner execution are explicit test parameters. This tests actual\nCore dispatch/order/dataflow, NOT EC arithmetic, signature hashing, a parser\nor whole-Core block acceptance. Real crypto is tested separately with the\nbyte-identical official BIP341 corpus and independent Python signatures.",
+      "cpp_standard": "c++20",
+      "compile_timeout_seconds": 60,
+      "execution_timeout_seconds": 30
+    },
+    {
+      "core_commit": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+      "source_sha256": "858d409164ac071eb1ec038330b8c1dca43f5e9edd9f6092e49895258c7edb56",
+      "functions_sha256": {
+        "VerifyWitnessProgram": "4c27fadcb9b2223910aa2eb29f56b2cc8a65b943beadbd2ebb0376e6b0c0c2dd",
+        "VerifyScript": "a8a53001908dc5a2a2779c5dac7dcf912616c18a1ac4ce1060d9b6cb4d0fb2ac",
+        "SignatureHashSchnorr": "1973053bedb20b058fdff8195922149352fa254cf69dd6f8cdc737002c267294",
+        "CheckSequence": "817ed85a9ef9d56bec4b00ec1d504a0b153e6d338caccbfe07541385940d6136"
+      },
+      "checks": {
+        "active empty witness": "witnessProgramWitnessEmpty",
+        "flag off empty witness": "pass",
+        "future version empty witness": "pass",
+        "future size empty witness": "pass",
+        "wrapped taproot is upgradable": "pass",
+        "v0 wrong program length": "witnessProgramWrongLength",
+        "v0 wrong witness count": "witnessProgramMismatch",
+        "bad control size": "taprootWrongControlSize",
+        "wrong script commitment": "witnessProgramMismatch",
+        "keypath typed error": "schnorrSigSize",
+        "keypath annex propagation": "pass",
+        "full witness budget": "pass",
+        "annex retained in budget": "pass",
+        "upgradable leaf still binds q": "witnessProgramMismatch",
+        "upgradable leaf pass": "pass",
+        "upgradable leaf policy": "discourageUpgradableTaprootVersion",
+        "future witness policy": "discourageUpgradableWitnessProgram"
+      },
+      "scope": "Execute the unchanged pinned Core witness dispatcher at abstract EC seams.\n\nContainer/flag/serialization shims; SHA256 is real. Commitment and Schnorr\nverdicts and inner execution are explicit test parameters. This tests actual\nCore dispatch/order/dataflow, NOT EC arithmetic, signature hashing, a parser\nor whole-Core block acceptance. Real crypto is tested separately with the\nbyte-identical official BIP341 corpus and independent Python signatures.",
+      "cpp_standard": "c++20",
+      "compile_timeout_seconds": 60,
+      "execution_timeout_seconds": 30
+    }
+  ],
+  "proofs": {
+    "default_closure": 36,
+    "local_modules": 416,
+    "outside_default": 380,
+    "consensus_manifest_entries": 315,
+    "consensus_manifest_lines": 410,
+    "wallet_declarations": 836,
+    "wallet_modules": 53,
+    "scoped_combined_build_jobs": 3343,
+    "new_guarded_footprints": 16,
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "removed_false_claims": [
+      "Wallet.Taproot.verifyInput_unjudged_of_v1_program",
+      "Wallet.Taproot.verifyInput_unjudged_of_v1_34",
+      "Theorems.CapstoneWiring.verifyInput_taproot_lane",
+      "Theorems.CapstoneWiring.verifyInput_taproot_not_pass",
+      "Theorems.CapstoneWiring.verifyInput_taproot_not_fail"
+    ],
+    "remaining": "Complete 131-core/416-proof module and cited-target matrix remains R08. Every changed proof module built except explicit S02Flip measurement experiments: declarations-only check omits 20 closed examples and is not a whole-module pass. Z09 whole module passes unchanged kernel decide proofs. No native or CBV substitutions adopted.",
+    "scoped_named_targets": 116
+  },
+  "resource_limits": {
+    "before_witness_seconds": 120,
+    "before_public_seconds": 180,
+    "cpp_compile_seconds": 60,
+    "cpp_execution_seconds": 30,
+    "initial_wallet_probe_seconds": 300,
+    "retry_wallet_probe_seconds": 600,
+    "new_heartbeat_overrides": false,
+    "os_memory_cap": null,
+    "concurrency_note": "Initial extra changed-module build and test check contended with wallet probe; wallet probe hit300s, test Delta hit180s. Task-owned compilers stopped; rerun serially. No failed/timed-out check is a pass."
+  },
+  "verification_attempts": [
+    {
+      "name": "scoped-proof-wallet",
+      "argv": [
+        "lake",
+        "build",
+        "Bitcoin.Wallet.Crypto.Hmac",
+        "Bitcoin.Wallet.Crypto.Sha512",
+        "Bitcoin.Wallet.Descriptor",
+        "Bitcoin.Wallet.Descriptor.Ast",
+        "Bitcoin.Wallet.Descriptor.Checksum",
+        "Bitcoin.Wallet.Descriptor.Expand",
+        "Bitcoin.Wallet.Descriptor.Parse",
+        "Bitcoin.Wallet.Encoding",
+        "Bitcoin.Wallet.Encoding.Base58",
+        "Bitcoin.Wallet.Encoding.Bech32",
+        "Bitcoin.Wallet.Key.Bip32",
+        "Bitcoin.Wallet.Key.Origin",
+        "Bitcoin.Wallet.Miniscript",
+        "Bitcoin.Wallet.Miniscript.Node",
+        "Bitcoin.Wallet.Miniscript.Satisfy",
+        "Bitcoin.Wallet.Miniscript.Script",
+        "Bitcoin.Wallet.Miniscript.Tests",
+        "Bitcoin.Wallet.Miniscript.Type",
+        "Bitcoin.Wallet.Psbt.Decode",
+        "Bitcoin.Wallet.Psbt.Encode",
+        "Bitcoin.Wallet.Psbt.Laws",
+        "Bitcoin.Wallet.Psbt.Model",
+        "Bitcoin.Wallet.Psbt.Psbt",
+        "Bitcoin.Wallet.Psbt.Tests",
+        "Bitcoin.Wallet.RuleAttr",
+        "Bitcoin.Wallet.Spend",
+        "Bitcoin.Wallet.Spend.Fee",
+        "Bitcoin.Wallet.Spend.Funding",
+        "Bitcoin.Wallet.Spend.Laws",
+        "Bitcoin.Wallet.Spend.Selection",
+        "Bitcoin.Wallet.Taproot.Commit",
+        "BitcoinProofs.Wallet.Desc.Checksum",
+        "BitcoinProofs.Wallet.Desc.Expand",
+        "BitcoinProofs.Wallet.Desc.Parse",
+        "BitcoinProofs.Wallet.Encoding.Base58Props",
+        "BitcoinProofs.Wallet.Encoding.Bech32Props",
+        "BitcoinProofs.Wallet.Encoding.Laws",
+        "BitcoinProofs.Wallet.Key.Laws",
+        "BitcoinProofs.Wallet.Key.Serialize",
+        "BitcoinProofs.Wallet.Miniscript.Interp",
+        "BitcoinProofs.Wallet.Miniscript.SatShape",
+        "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+        "BitcoinProofs.Wallet.Miniscript.TypeSound",
+        "BitcoinProofs.Wallet.Obligations",
+        "BitcoinProofs.Wallet.Psbt.Canonical",
+        "BitcoinProofs.Wallet.Psbt.Invariants",
+        "BitcoinProofs.Wallet.Psbt.Lifecycle",
+        "BitcoinProofs.Wallet.Psbt.RoundTrip",
+        "BitcoinProofs.Wallet.Sign.Bridge",
+        "BitcoinProofs.Wallet.Sign.Spec",
+        "BitcoinProofs.Wallet.Spend.Selection",
+        "BitcoinProofs.Wallet.Taproot.Bridge",
+        "BitcoinProofs.Wallet.Taproot.Program",
+        "BitcoinProofs",
+        "BitcoinProofs.AF.PDW41.PDW41Guards",
+        "BitcoinProofs.AF.PDW73.PDW73b",
+        "BitcoinProofs.Property.Y15.WitnessProps",
+        "BitcoinProofs.AF.PDW19.PDW19Guards",
+        "BitcoinProofs.AF.PDW47.PDW47Guards",
+        "BitcoinProofs.AF.PDW67.PDW67",
+        "BitcoinProofs.AF.PDW42.PDW42B",
+        "BitcoinProofs.AF.PDW75.PDW75",
+        "BitcoinProofs.AF.PDW83.PDW83",
+        "BitcoinProofs.AF.PDW90.PDW90b",
+        "BitcoinProofs.AF.PDW91.PDW91"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 15.132,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r06-final-scoped-proof-wallet.log",
+      "log_sha256": "ad8e15156c9ba2d232065155e77be7b851c8f0aaa2f83d171c1bb071d0c841a4"
+    },
+    {
+      "name": "core-build",
+      "argv": [
+        "lake",
+        "build"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 2.993,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-core-build.log",
+      "log_sha256": "88fa174bcff559910808e6f4c61fb23bd0136e6f70502fa17c4d11f950ec57a9"
+    },
+    {
+      "name": "core-tests",
+      "argv": [
+        "lake",
+        "test"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.983,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-core-tests.log",
+      "log_sha256": "da6f8d90a3204f6748de647ea824a1a1ca7bf6a814052541f2cf7b6f38bd6c9e"
+    },
+    {
+      "name": "runner-build",
+      "argv": [
+        "lake",
+        "build",
+        "capstone"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 1,
+      "seconds": 1.747,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-runner-build.log",
+      "log_sha256": "ae6194293075b4009bb1d96e219a44b0e965865b9d760ec54a7bd5c44eaf5bd9"
+    },
+    {
+      "name": "runner-build",
+      "argv": [
+        "lake",
+        "build",
+        "capstone"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 4.083,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-runner-build.log",
+      "log_sha256": "58b452a567ca0c25a038ca0515e676c422de2707f9573688533f162c089c4cf5"
+    },
+    {
+      "name": "runtime",
+      "argv": [
+        "make",
+        "test-capstone-values",
+        "test-capstone-funding",
+        "test-capstone-context",
+        "test-capstone-finality",
+        "test-capstone-sigops",
+        "test-capstone-sigop-budget",
+        "test-capstone-witness",
+        "test-capstone-taproot"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 35.714,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r06-final-runtime.log",
+      "log_sha256": "57bd4341f41c2690f6983d6cd940a91b3b9a99e1fb109d4260290fa68ec4efab"
+    },
+    {
+      "name": "runner-Run",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/Run.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.325,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-Run.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "runner-RunV01",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/RunV01.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.305,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-RunV01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "runner-RunV302",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/RunV302.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.266,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-RunV302.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "runner-V04Run",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/V04Run.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.265,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-V04Run.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "runner-V08-RunV08",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/V08/RunV08.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 1,
+      "seconds": 1.225,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-V08-RunV08.log",
+      "log_sha256": "fdc22f0fdf03fc944cfa773871eff12c8d394bb74abb0ce2c45fa8834229de0f"
+    },
+    {
+      "name": "runner-V08-RunV08",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/V08/RunV08.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 6.968,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-V08-RunV08.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "runner-GenchainRun",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Capstone/GenchainRun.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 3.812,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-final-runner-GenchainRun.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "consensus-probe",
+      "argv": [
+        "bash",
+        "spec/scripts/axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 12.301,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-consensus-probe.log",
+      "log_sha256": "6bef57fcdef1d017d94c8fb2d21a144debc431dfb5a169703f158557054b7036"
+    },
+    {
+      "name": "wallet-probe",
+      "argv": [
+        "bash",
+        "spec/scripts/wallet_axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 124,
+      "seconds": 300.051,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-final-wallet-probe.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "crypto_verification_attempts": [
+    {
+      "name": "SchnorrTest",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "../Test/Crypto/SchnorrTest.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 4.027,
+      "timeout_seconds": 240,
+      "log": "/tmp/btc-lean-r06-crypto-SchnorrTest.log",
+      "log_sha256": "b60671778f99179faf0ecc015a0e610eae09dbe98adf6e7bca8384621073165d"
+    },
+    {
+      "name": "TaprootSighashTest",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "../Test/Crypto/TaprootSighashTest.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.243,
+      "timeout_seconds": 240,
+      "log": "/tmp/btc-lean-r06-crypto-TaprootSighashTest.log",
+      "log_sha256": "b82a7f7639423ef352ae5b6600e8a57a9bd10534a9463f1e317887715bace2eb"
+    },
+    {
+      "name": "TaprootProgramTest",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "../Test/Crypto/TaprootProgramTest.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 1,
+      "seconds": 0.725,
+      "timeout_seconds": 240,
+      "log": "/tmp/btc-lean-r06-crypto-TaprootProgramTest.log",
+      "log_sha256": "4a5073441b3129e96683ec230ab431c2df79160a2c4e9516ce3de511752b6d83"
+    },
+    {
+      "name": "TaprootProgramTest",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "../Test/Crypto/TaprootProgramTest.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 17.666,
+      "timeout_seconds": 240,
+      "log": "/tmp/btc-lean-r06-crypto-TaprootProgramTest.log",
+      "log_sha256": "bc5dad80c99857e84a2c07a69722381e9f218bb7ce5e66264885ae6dd8dc6bbb"
+    },
+    {
+      "name": "TaprootVerifyTest",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "../Test/Crypto/TaprootVerifyTest.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 6.561,
+      "timeout_seconds": 240,
+      "log": "/tmp/btc-lean-r06-crypto-TaprootVerifyTest.log",
+      "log_sha256": "c02295f9cc76ab8647997a74d1a986c9072879cd71d54e463089c129a0c2cb67"
+    }
+  ],
+  "changed_test_attempts": [
+    {
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Script/Tapscript/Delta.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 124,
+      "seconds": 180.484,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-changed-test-Delta.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scope_limits": [
+    "Conditional supplied history and UTXO fixture; not reachable historical mainnet or whole-bitcoind acceptance.",
+    "Extracted Core dispatcher uses explicit EC/inner-execution seams; real signatures are checked separately.",
+    "Released historical anchor corpus replay not run. Empty-selection negative control rejects as intended.",
+    "Full core/proof/cited-target matrix, experimental S02 disposition and full 726-row census remain open.",
+    "R18 signed CSV-version gate and R07 historical hash/UTXO/powLimit wiring remain separate confirmed gaps.",
+    "Early failed/timed-out attempts remain recorded; later scoped checks supersede them only where named."
+  ],
+  "refresh_verification_attempts": [
+    {
+      "name": "build-current-probes",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs",
+        "BitcoinProofs.AF.PDW19.PDW19",
+        "BitcoinProofs.AF.PDW19.PDW19Guards",
+        "BitcoinProofs.AF.PDW41.TPR022",
+        "BitcoinProofs.AF.PDW47.PDW47",
+        "BitcoinProofs.AF.PDW67.PDW67",
+        "BitcoinProofs.AF.PDW73.PDW73b",
+        "BitcoinProofs.AF.PDW83.PDW83",
+        "BitcoinProofs.AF.PDW90.PDW90b",
+        "BitcoinProofs.AF.PDW91.PDW91",
+        "BitcoinProofs.Audit.Z07.Audit",
+        "BitcoinProofs.Audit.Z09.Corners",
+        "BitcoinProofs.Bip.B06.Bip112CSV",
+        "BitcoinProofs.Bip.B11.NullDummyVectors",
+        "BitcoinProofs.Bip.B14.Tests",
+        "BitcoinProofs.EcdsaDeep.EndToEndChecksig",
+        "BitcoinProofs.Property.Y06.StackOpsProps",
+        "BitcoinProofs.Property.Y07.Arith",
+        "BitcoinProofs.Property.Y15.WitnessProps",
+        "BitcoinProofs.Theorems.CapstonePipelineCor",
+        "BitcoinProofs.Theorems.CapstoneSigops",
+        "BitcoinProofs.Theorems.CapstoneTaproot",
+        "BitcoinProofs.Theorems.CapstoneWiringCor",
+        "BitcoinProofs.Theorems.Ops.O02",
+        "BitcoinProofs.Theorems.Ops.O04",
+        "BitcoinProofs.Theorems.Ops.O07",
+        "BitcoinProofs.Theorems.WitnessRulesCor",
+        "BitcoinProofs.Theorems.WitnessSerialization",
+        "BitcoinProofs.Wallet.Miniscript.Interp",
+        "BitcoinProofs.Wallet.Taproot.Bridge",
+        "Bitcoin.Data.Basic",
+        "Bitcoin.Chain.Basic",
+        "Bitcoin.Crypto.Seam.Interface",
+        "Bitcoin.Crypto.Seam.Der",
+        "Bitcoin.Crypto.Seam.Entry",
+        "Bitcoin.Crypto.Seam.Mock",
+        "Bitcoin.Crypto.Curve.Mod",
+        "Bitcoin.Crypto.Curve.Secp",
+        "Bitcoin.Crypto.Curve.Interface",
+        "Bitcoin.Crypto.Ecdsa.Der",
+        "Bitcoin.Crypto.Ecdsa.Verify",
+        "Bitcoin.Conservation.Interface",
+        "Bitcoin.TxValidation.Interface",
+        "Bitcoin.DataLaws.Interface",
+        "Bitcoin.Numeric.Amount",
+        "Bitcoin.Script.Parser.Interface",
+        "Bitcoin.Interpreter.Interface",
+        "Bitcoin.Serialization.Interface",
+        "BitcoinProofs.Theorems.ParserCor",
+        "BitcoinProofs.Theorems.FlagsCor",
+        "BitcoinProofs.Theorems.NumericCor",
+        "BitcoinProofs.Theorems.LedgerCor",
+        "BitcoinProofs.Theorems.InterpCor",
+        "BitcoinProofs.Crypto.CurveZMod",
+        "BitcoinProofs.Theorems.CapstoneFunding",
+        "BitcoinProofs.Theorems.CapstoneContext",
+        "BitcoinProofs.Theorems.CapstoneSequence",
+        "BitcoinProofs.Theorems.CapstoneWitness",
+        "BitcoinProofs.AF.PDW29.PDW29Sigops",
+        "BitcoinProofs.AF.PDW36.PDW36Guards",
+        "BitcoinProofs.AF.PDW21.PDW21",
+        "Bitcoin.TxValidation.LocktimeSigOps",
+        "Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2",
+        "Bitcoin.Wallet.Crypto.Hmac",
+        "Bitcoin.Wallet.Crypto.Sha512",
+        "Bitcoin.Wallet.Descriptor",
+        "Bitcoin.Wallet.Descriptor.Ast",
+        "Bitcoin.Wallet.Descriptor.Checksum",
+        "Bitcoin.Wallet.Descriptor.Expand",
+        "Bitcoin.Wallet.Descriptor.Parse",
+        "Bitcoin.Wallet.Encoding",
+        "Bitcoin.Wallet.Encoding.Base58",
+        "Bitcoin.Wallet.Encoding.Bech32",
+        "Bitcoin.Wallet.Key.Bip32",
+        "Bitcoin.Wallet.Key.Origin",
+        "Bitcoin.Wallet.Miniscript",
+        "Bitcoin.Wallet.Miniscript.Node",
+        "Bitcoin.Wallet.Miniscript.Satisfy",
+        "Bitcoin.Wallet.Miniscript.Script",
+        "Bitcoin.Wallet.Miniscript.Tests",
+        "Bitcoin.Wallet.Miniscript.Type",
+        "Bitcoin.Wallet.Psbt.Decode",
+        "Bitcoin.Wallet.Psbt.Encode",
+        "Bitcoin.Wallet.Psbt.Laws",
+        "Bitcoin.Wallet.Psbt.Model",
+        "Bitcoin.Wallet.Psbt.Psbt",
+        "Bitcoin.Wallet.Psbt.Tests",
+        "Bitcoin.Wallet.RuleAttr",
+        "Bitcoin.Wallet.Spend",
+        "Bitcoin.Wallet.Spend.Fee",
+        "Bitcoin.Wallet.Spend.Funding",
+        "Bitcoin.Wallet.Spend.Laws",
+        "Bitcoin.Wallet.Spend.Selection",
+        "Bitcoin.Wallet.Taproot.Commit",
+        "BitcoinProofs.Wallet.Desc.Checksum",
+        "BitcoinProofs.Wallet.Desc.Expand",
+        "BitcoinProofs.Wallet.Desc.Parse",
+        "BitcoinProofs.Wallet.Encoding.Base58Props",
+        "BitcoinProofs.Wallet.Encoding.Bech32Props",
+        "BitcoinProofs.Wallet.Encoding.Laws",
+        "BitcoinProofs.Wallet.Key.Laws",
+        "BitcoinProofs.Wallet.Key.Serialize",
+        "BitcoinProofs.Wallet.Miniscript.SatShape",
+        "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+        "BitcoinProofs.Wallet.Miniscript.TypeSound",
+        "BitcoinProofs.Wallet.Obligations",
+        "BitcoinProofs.Wallet.Psbt.Canonical",
+        "BitcoinProofs.Wallet.Psbt.Invariants",
+        "BitcoinProofs.Wallet.Psbt.Lifecycle",
+        "BitcoinProofs.Wallet.Psbt.RoundTrip",
+        "BitcoinProofs.Wallet.Sign.Bridge",
+        "BitcoinProofs.Wallet.Sign.Spec",
+        "BitcoinProofs.Wallet.Spend.Selection",
+        "BitcoinProofs.Wallet.Taproot.Program",
+        "BitcoinProofs.AF.PDW41.PDW41Guards",
+        "BitcoinProofs.AF.PDW47.PDW47Guards"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 33.373,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r06-refresh-build-current-probes.log",
+      "log_sha256": "9eaaad9afbf24d86ec7efe598afc8e9466475444e723e31892336d955e7f905f"
+    },
+    {
+      "name": "runner-build-current",
+      "argv": [
+        "lake",
+        "build",
+        "capstone"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 4.037,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-refresh-runner-build-current.log",
+      "log_sha256": "f9904ab2464a3a8f46e372492dc5bcb96d3f51feb254ddd2b92497286caa5dbe"
+    },
+    {
+      "name": "wallet-current",
+      "argv": [
+        "bash",
+        "spec/scripts/wallet_axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 11.934,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-refresh-wallet-current.log",
+      "log_sha256": "6a0cb812089b50d35ea71f201b0fabfc79e83899b286ffdbc1d484c6c15f1edd"
+    },
+    {
+      "name": "consensus-update",
+      "argv": [
+        "bash",
+        "spec/scripts/axiom_manifest.sh",
+        "--update"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 4.396,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-refresh-consensus-update.log",
+      "log_sha256": "0fa11b4843e588ba1ef79ab12d07ac87bda0b29235310068360e418fdd84952c"
+    },
+    {
+      "name": "consensus-final",
+      "argv": [
+        "bash",
+        "spec/scripts/axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 3.606,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-refresh-consensus-final.log",
+      "log_sha256": "07b538fd245ae367f7d0073bc767b0f8825f07e73cbffeb6f8cc15e145223058"
+    },
+    {
+      "name": "gates-final",
+      "argv": [
+        "make",
+        "gates"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 10.506,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-refresh-gates-final.log",
+      "log_sha256": "15d059a6ed725e5650831cd6a9b0928bec6d5c8b974ea912e05fb9bfca82dff3"
+    },
+    {
+      "name": "scope-final",
+      "argv": [
+        "python3",
+        "spec/scripts/proof_scope.py",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.145,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r06-refresh-scope-final.log",
+      "log_sha256": "9d7311552584f0b2c99a1b74f7b7ed787b6a3ea945867f94cd23c5b7dc3b3e3a"
+    },
+    {
+      "name": "residuals-final",
+      "argv": [
+        "python3",
+        "spec/scripts/residuals_index.py",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.059,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r06-refresh-residuals-final.log",
+      "log_sha256": "cd2d8c3702bd07a6f9e2ea2a47f57f53bbda6db3f3479774630ebd8a5dc99d8e"
+    },
+    {
+      "name": "checksums-final",
+      "argv": [
+        "shasum",
+        "-a",
+        "256",
+        "-c",
+        "spec/data/MANIFEST.sha256"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.119,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r06-refresh-checksums-final.log",
+      "log_sha256": "7538b7753fbed671fa392b8cb28447dbc3331f1ecd189a6220f9334c21ecb647"
+    }
+  ],
+  "final_verification_attempts": [
+    {
+      "name": "runtime-245",
+      "argv": [
+        "make",
+        "test-capstone-values",
+        "test-capstone-funding",
+        "test-capstone-context",
+        "test-capstone-finality",
+        "test-capstone-sigops",
+        "test-capstone-sigop-budget",
+        "test-capstone-witness",
+        "test-capstone-taproot"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 42.173,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r06-last-runtime-245.log",
+      "log_sha256": "1e5c79d9996d3959dd420da4372d1899467b6f4a82297194eefa3260bf5e38ee"
+    },
+    {
+      "name": "repro-final",
+      "argv": [
+        "make",
+        "gate-repro"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 2.856,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-last-repro-final.log",
+      "log_sha256": "f2face8045339e85d75e691af45d186532b40892a03c7b86a71b807f70bc0429"
+    },
+    {
+      "name": "s02-interface",
+      "argv": [
+        "python3",
+        "docs/reviews/2026-10-18/check_s02_declarations.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 2.962,
+      "timeout_seconds": 90,
+      "log": "/tmp/btc-lean-r06-last-s02-interface.log",
+      "log_sha256": "51eb0eff7fb3330afc427ab5740393a75cc1d4014fabfc12ce6aadb08203e574"
+    },
+    {
+      "name": "r19-before",
+      "argv": [
+        "python3",
+        "docs/reviews/2026-10-18/reproduce_schnorr_assembly.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 1.899,
+      "timeout_seconds": 150,
+      "log": "/tmp/btc-lean-r06-last-r19-before.log",
+      "log_sha256": "01dd3ea068a1f0d44200ed982de4b7dc0d27a24f7e9986e0c60db933a929587c"
+    },
+    {
+      "name": "empty-selection",
+      "argv": [
+        "python3",
+        "-c",
+        "import os,subprocess; p=subprocess.run(['.lake/build/bin/capstone'],env={**os.environ,'CAPSTONE_ONLY':'1'},capture_output=True,text=True); print(p.stdout+p.stderr,end=''); assert p.returncode==1; assert 'SUMMARY blocks=0 missing=0 allOk=false' in p.stdout; print('Expected empty-selection rejection confirmed; no corpus replay claimed.')"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.658,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r06-last-empty-selection.log",
+      "log_sha256": "deca5396df9573b84e99049d8b8e52b3da5ec96d744a2dd6b9efe926a9980f9d"
+    }
+  ],
+  "serial_extra_attempts": [
+    {
+      "name": "z09-full",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs.Audit.Z09.Corners"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 165.379,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r06-extra-z09-full.log",
+      "log_sha256": "af50a1d3eed804c7edccb73c7537984ab48f0c6ed170aaa789292c3f80a400dc",
+      "concurrency": "one Lean check; process group terminated on timeout"
+    },
+    {
+      "name": "s02-declarations-only",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "/tmp/btc-lean-r06-s02-declarations-only.lean"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 13.508,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r06-extra-s02-declarations-only.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "concurrency": "one Lean check; process group terminated on timeout"
+    },
+    {
+      "name": "delta-tests",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "Test/Script/Tapscript/Delta.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 1,
+      "seconds": 4.147,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r06-extra-delta-tests.log",
+      "log_sha256": "790058f1e83af28edd8910ca9cfc21fea3d2ba71b132337a3ab3688fa6489fe3",
+      "concurrency": "one Lean check; process group terminated on timeout"
+    },
+    {
+      "name": "interpreter-tests",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "../Test/Script/Interpreter/Tests.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 8.42,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r06-extra-interpreter-tests.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "concurrency": "one Lean check; process group terminated on timeout"
+    }
+  ],
+  "final_evidence_logs": [
+    {
+      "path": "/tmp/btc-lean-r06-delta-final.log",
+      "sha256": "79fa4b704a630025fc9dbc1b69af5ddc32a4a7b8f2479d5be6e9cea56e3e479f",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/btc-lean-r06-report-tests-final.log",
+      "sha256": "53b77ed73b881186e0f76e3a51bce55b2d9b1423f4fc18759eb12e7a5b519b65",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/btc-lean-r06-entry2-lemma-build.log",
+      "sha256": "909c70e8a7fa542f1b70d4b8260da4ab3476dc1e2d9fed620c0267e9becc1712",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/btc-lean-r19-axiom.log",
+      "sha256": "c36bfa6a9b87d145ba7de7096c62948a89319a42c576acedc427190196dde813",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/btc-lean-r06-exact-seed-axioms.log",
+      "sha256": "3b99a569b2d3fb3fca7738bd1ace7c28c9f4ff57669e33c6561c9a152c019d3b",
+      "exit_code": 0
+    },
+    {
+      "path": "/tmp/btc-lean-r06-final-subset-index.log",
+      "sha256": "4416e6a419c21f0bdcb3ce8828fa92f454f3b05339167c7a4b2b031c95c49329",
+      "exit_code": 0
+    }
+  ],
+  "environment": {
+    "lean": "Lean 4.35.0; Lake 5 eb6cafb",
+    "lean_bin": "/tmp/btc-lean-toolchain/lean-4.35.0-darwin_aarch64/bin",
+    "gate_python": "/tmp/btc-lean-review-py312/bin/python3 (3.12.11)",
+    "orchestration_python": "host Python 3.15.0 in some receipt scripts; subprocess Python gates use PATH-pinned 3.12.11",
+    "cpp": "Apple clang 17 clang-1700.3.19.1; C++20; SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk; CommonCrypto reference harness is macOS specific"
+  },
+  "source_fingerprints": {
+    "Makefile": "c13de950df7f6570578548a32a71bbe65b068b47c358dacfa59c39a99b588368",
+    "spec/Test/Crypto/TaprootProgramTest.lean": "fd294532a3288e88d1028bc4d4200ee76943a008bc9a4413ca2bfd8657af0758",
+    "spec/Test/Crypto/gen_schnorr_random.py": "fc5d4fa633d361c1c0c7400155c1f6605f4ba1fdfaf3183599114c6342c2b4a5",
+    "spec/Test/Crypto/taproot_sighash_crosscheck.py": "c5c0559a4bda4fe1cadd2e383add9809ee6a131e6bea925f27df6b8b738766eb",
+    "spec/Test/Script/Interpreter/Tests.lean": "5add42b6d51f63b381ff7d968637ae9c475a6b3ff0ad39c5ec6dcbfe76ff92b8",
+    "spec/core/Bitcoin/Capstone/Block.lean": "de48f632965332dfe76f6c5e2142b21cf8685ef4a634f7ef45cdf43afe87b4f0",
+    "spec/core/Bitcoin/Capstone/RealChecker.lean": "03b49d5ee377ff97ee25743539170f38113777c8275f1d497bfac4d2e40f75b4",
+    "spec/core/Bitcoin/Crypto/EcdsaDeep/SchnorrEntry2.lean": "ef96ed37542c9035e801523d780b93cea3bb9bd960b741ee0f1b3764be980fe3",
+    "spec/core/Bitcoin/Crypto/Taproot/Program.lean": "b73e4cca988304c57a9cbfedf2b7577b425a235d882ea5770e8449bc419349ba",
+    "spec/core/Bitcoin/Interpreter/Defs.lean": "c73626b23aa30d441387204800918481b5c127b1e3e9a6984747573daed504c4",
+    "spec/core/Bitcoin/Interpreter/Rules.lean": "022d048829ab70540ccf0d8e0db83bb3c9d2469f959d501b71ff8d809da6b34f",
+    "spec/core/Bitcoin/Script/Tapscript/Delta.lean": "38eb1103547a22705a5233d92cf565a3d0b76dcec1b7d3003cb6687df70788fc",
+    "spec/core/Bitcoin/Script/Tapscript/LeafVersion.lean": "220ee9424841d8bc492d36ede2e0197b3a8c837d4fe8a1f3d100eb023d1ef52e",
+    "spec/core/Bitcoin/Wallet/Taproot/Commit.lean": "48a5338576d3130c0821dcceb67d2d0760e077be2394b9589c038cb1492f5e3d",
+    "spec/core/Test/Capstone/GenchainRun.lean": "2319fff6c7386632eac5cd686c029f16d294572520714d417c94e2094a5b9611",
+    "spec/core/Test/Capstone/Run.lean": "dd0165c4d4430d9546a1d4eac345e8f4b3dcf46f5b3cfc6bd95e314ad67293b1",
+    "spec/core/Test/Capstone/RunV01.lean": "39dfaf9584eba9fa759708eff1671fe6e48ccb22fdadfa20ab4320e3fe9a4824",
+    "spec/core/Test/Capstone/RunV302.lean": "5853aba399989ff5469356b863c27054ef251b7865efa232fb807f8a4328c140",
+    "spec/core/Test/Capstone/SchnorrAssembly.lean": "b8a69a4edda98d8e4cdc6a4d787b8ebcfb2aa16b857ac990e0450f79d230a411",
+    "spec/core/Test/Capstone/TaprootBlocks.lean": "77424c6133aaa1fad2b720f3b87f1289fc5e03c546de9ea2b359b34163467c50",
+    "spec/core/Test/Capstone/TaprootFixture.lean": "e503ab366f24361eca338eec9e5051b8ccd08021a5304406931dae08a4520c78",
+    "spec/core/Test/Capstone/TaprootInputs.lean": "a566c7707cff10fcff4c81fb5b2a424fa86734a797ddf369f70f5cece507137b",
+    "spec/core/Test/Capstone/V04Run.lean": "fa6d913f6d1fa5ff916d7ba9ee9534fc1fee6a75fd55b7ad3f2063e9f3caed0a",
+    "spec/core/Test/Capstone/V08/RunV08.lean": "c9f46692cd0c2be3941dfbd1ad0e8b35bc47ba9113830ebf8b2d6990f8ca93bf",
+    "spec/core/Test/Capstone/WitnessInputs.lean": "30aaff51056a0ae30d58c6fcb11776dabc5fab74384e8070c8fffb3bf94e8b7c",
+    "spec/core/Test/Script/Tapscript/Delta.lean": "750da1e1e5ee31a9d769b264535db9662058caadf327b0efedb632d18480dc06",
+    "spec/core/lakefile.lean": "790fc389a17fbd80dfd59af3afddf324d7c8ec872b6c772df02d583f19b40fda",
+    "spec/data/MANIFEST.sha256": "7df40f22a9bf435cdebb1bef65df02cfde3158c94a9265cc9c5b3cca1232c122",
+    "spec/data/review/taproot-validation/provenance.json": "61ad659bf408d24e918c9e38db1e552904fd84a825ef00c62ee8c250fc45bcf8",
+    "spec/data/review/taproot-validation/valid.raw": "7c0360dfe42ce6b9228d122c244c5a732444fe1fddcdec298ca180429aba29dd",
+    "spec/db/axiom-manifest-wallet.txt": "9c9a07c25ec18e3e25fefc3b409e87f0e9e1ae96cccc592385b66742614061fa",
+    "spec/db/axiom-manifest.txt": "47b8ef52798f195b4601545ea59921034b851a1c96107b3894ebb9f70a95cfe2",
+    "spec/db/residuals.yaml": "004eae988661d9db8474d1b2fd77c3b10bd8b3643619d184190f793f0f848a88",
+    "spec/db/rules.yaml": "e6f4506f76e8b0ba17b33a0465a4cb17db0975e40ed1bbe3d16d95840426fbdb",
+    "spec/lean-toolchain": "ead308ab4fc749eb2389819903fd7baa11bf06e490827f6896a8cbfe622fa703",
+    "spec/proofs/BitcoinProofs.lean": "906686f906c50c384793e213b3bb50c91fd7711ba15308bbe044283441f3475b",
+    "spec/proofs/BitcoinProofs/AF/PDW19/PDW19.lean": "fe275efe3e1c8645351dde00c404eefe2a255e8712b746a79d4110aeac6221aa",
+    "spec/proofs/BitcoinProofs/AF/PDW19/PDW19Guards.lean": "e3e070381841a20294219b62c1830e246ed4c7a323a7162bfdffdfdfe35159a7",
+    "spec/proofs/BitcoinProofs/AF/PDW41/TPR022.lean": "a74db379ff4910b4d0b1919cc40272f81cb8209c161d74246548f4ae8d414dc1",
+    "spec/proofs/BitcoinProofs/AF/PDW47/PDW47.lean": "fb930b73e4beceb6470124300be1b1dc6463ea30d9788f0354cc4c0d65b794be",
+    "spec/proofs/BitcoinProofs/AF/PDW67/PDW67.lean": "3e90da6407b0259b100c3448e125808b70d15761588819e84f317834c1cd4e77",
+    "spec/proofs/BitcoinProofs/AF/PDW73/PDW73b.lean": "f611bf1083a124daf4c5c05026972c91257c55d08c70e4f32caf4e30c9115eaf",
+    "spec/proofs/BitcoinProofs/AF/PDW83/PDW83.lean": "ec60876b32acaacdf2bf9c90ea01bba161d1b72ecc41594214eb6372bfa2f971",
+    "spec/proofs/BitcoinProofs/AF/PDW90/PDW90b.lean": "cbfdee2883811dde6cdbf59fb84f1aa0486b746bca49830c0dee62a630cab170",
+    "spec/proofs/BitcoinProofs/AF/PDW91/PDW91.lean": "d1b9d3a3e1a28fa6b94298a2e0f026aecf50813aa17c8155fd54ba010525ac91",
+    "spec/proofs/BitcoinProofs/Audit/Z07/Audit.lean": "c3c5a25b6d2cfd795da21dcc69c4887d7066fe646b0065e26d9d85a6d37a6bf3",
+    "spec/proofs/BitcoinProofs/Audit/Z09/Corners.lean": "b87063af8396dacf20b9ac0bd30419a4afb793c12ad79440fe0fa0303aebe38d",
+    "spec/proofs/BitcoinProofs/Bip/B06/Bip112CSV.lean": "fb550a9fbc939882212aaf00db98ba98e35c9d8cd34be944b01c2333cee41ca2",
+    "spec/proofs/BitcoinProofs/Bip/B11/NullDummyVectors.lean": "81e6dd7783f0f33a595e150bcd1ef97e812552fba870630cfcc8815cf7d2ef3f",
+    "spec/proofs/BitcoinProofs/Bip/B14/Tests.lean": "415e5492fcf52a57ae0fb63c7b314e8bf641401114ade3ec4ed19395f78378b7",
+    "spec/proofs/BitcoinProofs/EcdsaDeep/EndToEndChecksig.lean": "7d9a08beadf62d341fbaf5781199209b4e13ec60b15aecf7a7b370e8a83cb2dd",
+    "spec/proofs/BitcoinProofs/EcdsaDeep/S02Flip.lean": "5d08a9c64e7361d3ae833315e3a94f68788c776036d18bd91340f8f56bc9898b",
+    "spec/proofs/BitcoinProofs/Property/Y06/StackOpsProps.lean": "de56bf4ca6ef44f43db8c1013958d680518eba0430f2f0f4c4243dcbcd979f8d",
+    "spec/proofs/BitcoinProofs/Property/Y07/Arith.lean": "b70596b233ef398897350ec1fc36d2bb6597d8ee1a9e231fc88694f60afcb15a",
+    "spec/proofs/BitcoinProofs/Property/Y15/WitnessProps.lean": "edc946267a27979019ee243b5f020ab1d5d4cfac8a0deaf99faf1f7f5704172a",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "635bffa59d19ba400519bcd0e3cc0df19efbd6758240782db9a5fc4433cf5239",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSigops.lean": "f336843b8de797ec98dbf1ca20ba7f135ad71b1d23adf7816fb182d704252fd6",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneTaproot.lean": "6340359402baefebe68fd625aedce056612ba04daeeaac7acce0025763b63d01",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneWiringCor.lean": "903765c4e3de447a76acc8444fab1b38234b050604714b4bb773140a65481b76",
+    "spec/proofs/BitcoinProofs/Theorems/Ops/O02.lean": "b820735ac1c51f0c38e0d122be212cfad2ef250f654e8f977a324728e8ec2ac8",
+    "spec/proofs/BitcoinProofs/Theorems/Ops/O04.lean": "934c8654544235b389e2a65669ed19a98ac78afea8228a15d28ca0a4ccc0b2cb",
+    "spec/proofs/BitcoinProofs/Theorems/Ops/O07.lean": "cf1900b3d9595fde2f8cc287a37c00977f5680b6b0feeb7daca4fb809e5c5029",
+    "spec/proofs/BitcoinProofs/Theorems/WitnessRulesCor.lean": "d69d5fb59d5291ff910075ca5ead351b3066aaaf0127f9330eb95e559356dda4",
+    "spec/proofs/BitcoinProofs/Theorems/WitnessSerialization.lean": "de4471093b460f1cb9a32ccc2c58bbe1b6bc0b9df3ba33e67c6471875e24535c",
+    "spec/proofs/BitcoinProofs/Wallet/Miniscript/Interp.lean": "51267a683df0c42a99acaa2225cb6c873bbb634318a1e26caf36753240fc95d3",
+    "spec/proofs/BitcoinProofs/Wallet/Taproot/Bridge.lean": "bb585b5a36aaabab2f2277907c9b7c7d002330ada6902a18a927fd89cb0bc3d8",
+    "spec/proofs/lake-manifest.json": "e53a2c4d4fe1e22ebcbcf5bdca92376fa04518785d267ff4981af09e599ae5a0",
+    "spec/scripts/axiom_probe.lean": "1d20f5e1719fd9ca8c328d91e471b754c9c858443cdda1e2403f8b00133a3e37",
+    "spec/scripts/capstone_report.py": "5918820f5aec3977f40886cc213d867b1764c9e5f7a6351ff95979bdc2c843c1",
+    "spec/scripts/check_taproot_dispatch_core.py": "bc7953fee35cf6d1289c428f919daddb5f80382c29f583f94b4e20d74acc704b",
+    "spec/scripts/generate_taproot_validation.py": "101ef51807c010d8c9a7249146afac19bc4809d68225c301c2f26bd8aed5909a",
+    "spec/scripts/residuals_index.py": "13e149ce88014fb0bca693bd09b1846a60598e201224e1eb55bb532a585633da",
+    "spec/scripts/rules_overrides_sync.py": "806e02e1693faeb862ce086eb80342f8082e4ea39f447e91d2b7fa685c0ef4ec",
+    "spec/scripts/test_capstone_report.py": "46dfb92eb6631a025dca744d85c2ddb6226196524ecc8516ab8ccd13af96268d",
+    "spec/scripts/wallet_axiom_probe.lean": "59da93c5f0b1a129df88b6c04f728dbe3435cdb7cfaa450e54584da0576d9302"
+  }
+}

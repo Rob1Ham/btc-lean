@@ -255,8 +255,8 @@ def cbPositionOk (txs : List Tx) : Bool :=
 /-- Witness bytes of input `i` (the per-input `CScriptWitness`). -/
 def witnessAt (tx : Tx) (i : Nat) : WitnessStack := tx.witness.getD i []
 
-/-- BIP141 scriptPubKey gate for the unjudged lane: a witness program of
-version ≥ 1 (v0 stays fully adjudicated through the witness paths). -/
+/-- Historical witness-version recognizer. It is not a validator bypass;
+every version now goes through the ordinary script/witness dispatch. -/
 def isTaprootProgram (spk : ByteArray) : Bool :=
   match isWitnessProgram spk with
   | some (v, _) => 1 ≤ v
@@ -269,39 +269,98 @@ inductive InputVerdict where
   | unjudgedTaproot
 deriving Repr, DecidableEq
 
-/-- Script check for input `i` of `tx` spending `coin`:
-`verifyScriptFull` (flags = `getBlockScriptFlags` at the block
-height, policy = consensus default), checker = the REAL seam wiring
-(adapter × verifier × sighash). Fuel = script+witness byte
-budget (each opcode consumes ≥ 1 wire byte). A v1-witness (Taproot)
-program routes to the unjudged lane BEFORE the checker can fail-closed.
-SWT-068: mixed-scheme transactions — the dispatch is PER INPUT
-(BASE/WITNESS_V0/TAPROOT lanes decided independently per input from the
-prevout's scriptPubKey; Core's PrecomputedTransactionData::Init fills
-per-input sigversion data — no shared cache in this model, each input
-carries its own `ScriptExecutionData`). -/
+/-- Resolve every spent output in vin order from the current pre-spend view.
+Missing coins produce none; they can never silently shorten the sighash cache. -/
+def collectSpentOutputs (u : List (OutPoint × Coin)) : List TxIn → Option (List TxOut)
+  | [] => some []
+  | input :: rest => do
+      let coin ← coinLookup u input.prevout
+      let outputs ← collectSpentOutputs u rest
+      pure (⟨coin.value, coin.scriptPubKey⟩ :: outputs)
+
+/-- A successful cache has the complete vin length and exactly the amount
+and script returned by each corresponding current-view lookup. -/
+theorem collectSpentOutputs_spec {u : List (OutPoint × Coin)} {inputs : List TxIn}
+    {outputs : List TxOut} (h : collectSpentOutputs u inputs = some outputs) :
+    outputs.length = inputs.length ∧ ∀ i : Nat,
+      ((inputs[i]?).bind (fun input => (coinLookup u input.prevout).map
+        (fun coin => (⟨coin.value, coin.scriptPubKey⟩ : TxOut)))) = outputs[i]? := by
+  induction inputs generalizing outputs with
+  | nil =>
+    simp only [collectSpentOutputs, Option.some.injEq] at h
+    subst outputs
+    simp
+  | cons input rest ih =>
+    cases hc : coinLookup u input.prevout with
+    | none => simp [collectSpentOutputs, hc] at h
+    | some coin =>
+      cases hr : collectSpentOutputs u rest with
+      | none => simp [collectSpentOutputs, hc, hr] at h
+      | some tail =>
+        simp [collectSpentOutputs, hc, hr] at h
+        subst outputs
+        obtain ⟨length, lookup⟩ := ih hr
+        refine ⟨by simpa using congrArg Nat.succ length, ?_⟩
+        intro i
+        cases i with
+        | zero => simp [hc]
+        | succ i => simpa using lookup i
+
+/-- HaveInputs is sufficient to resolve a complete cache; missing coins
+cannot be interpreted as a shorter successful precomputed-data vector. -/
+theorem collectSpentOutputs_complete (u : List (OutPoint × Coin)) (inputs : List TxIn)
+    (h : ∀ input ∈ inputs, (coinLookup u input.prevout).isSome = true) :
+    ∃ outputs, collectSpentOutputs u inputs = some outputs := by
+  induction inputs with
+  | nil => exact ⟨[], rfl⟩
+  | cons input rest ih =>
+    cases hc : coinLookup u input.prevout with
+    | none =>
+      have bad := h input (by simp)
+      simp [hc] at bad
+    | some coin =>
+      obtain ⟨tail, ht⟩ := ih (fun item hm => h item (by simp [hm]))
+      exact ⟨⟨coin.value, coin.scriptPubKey⟩ :: tail, by simp [collectSpentOutputs, hc, ht]⟩
+
+/-- The canonical input-value check already establishes the prerequisite
+for the real signature cache, on precisely the same evolving UTXO view. -/
+theorem checkTxInputs_spentOutputs {tx : Tx} {u : List (OutPoint × Coin)}
+    {height : UInt32} {fee : Amount}
+    (h : checkTxInputs tx (viewOf u) height = .ok fee) :
+    ∃ outputs, collectSpentOutputs u tx.vin = some outputs ∧
+      outputs.length = tx.vin.length ∧ ∀ i : Nat,
+      ((tx.vin[i]?).bind (fun input => (coinLookup u input.prevout).map
+        (fun coin => (⟨coin.value, coin.scriptPubKey⟩ : TxOut)))) = outputs[i]? := by
+  have haveAll := Bitcoin.Ledger.checkTxInputs_ok_haveInputs tx (viewOf u) height fee h
+  simp only [haveInputs, viewOf, List.all_eq_true] at haveAll
+  obtain ⟨outputs, hc⟩ := collectSpentOutputs_complete u tx.vin haveAll
+  exact ⟨outputs, hc, collectSpentOutputs_spec hc⟩
+
+/-- Every input runs the ordinary script/witness gates. The typed adapter
+adjudicates Schnorr only with complete transaction/prevout data; unavailable
+data reaches the explicit unjudged outcome after adjudicable checks.
+SWT-068: dispatch and the coin amount are per input. -/
 @[rule "SWT-068"]
 def verifyInput (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
-    (txIdx inputIdx : Nat) : InputVerdict :=
-  if isTaprootProgram coin.scriptPubKey.bytes then InputVerdict.unjudgedTaproot
-  else
-    let ss := (tx.vin.getD i dummyTxIn).scriptSig.bytes
-    let spk := coin.scriptPubKey.bytes
-    let w := witnessAt tx i
-    let wbytes := (w.map (·.size)).foldl Nat.add 0
-    let fuel := ss.size + spk.size + wbytes + 10
-    let flags := getBlockScriptFlags height
-    let chk := realCheckerOf tx i coin.value
-    match verifyScriptFull fuel flags default ss spk w chk with
-    | .ok => InputVerdict.pass
-    | .unjudged => InputVerdict.unjudgedTaproot
-    | .fail e => InputVerdict.fail (CapError.scriptFail txIdx inputIdx e)
+    (txIdx inputIdx : Nat) (spentOutputs : Option (List TxOut) := none) : InputVerdict :=
+  let ss := (tx.vin.getD i dummyTxIn).scriptSig.bytes
+  let spk := coin.scriptPubKey.bytes
+  let w := witnessAt tx i
+  let wbytes := (w.map (·.size)).foldl Nat.add 0
+  let fuel := ss.size + spk.size + wbytes + 10
+  let flags := getBlockScriptFlags height
+  let chk := realCheckerWithTaproot tx i coin.value spentOutputs
+  match verifyScriptFull fuel flags default ss spk w chk with
+  | .ok => InputVerdict.pass
+  | .unjudged => InputVerdict.unjudgedTaproot
+  | .fail e => InputVerdict.fail (CapError.scriptFail txIdx inputIdx e)
 
 /-- All input script verdicts of a non-coinbase tx, against the CURRENT
 UTXO view. Fails fast on the first adjudicated failure. -/
 def verifyTxInputs (height : UInt32) (tx : Tx) (txIdx : Nat)
     (u : List (OutPoint × Coin)) : Except CapError (Nat × Nat) :=
   -- (adjudicated count, unjudged count)
+  let spentOutputs := collectSpentOutputs u tx.vin
   let rec loop : Nat → Nat → Nat → Except CapError (Nat × Nat)
     | i, okN, unjN =>
       if i ≥ tx.vin.length then .ok (okN, unjN)
@@ -310,7 +369,7 @@ def verifyTxInputs (height : UInt32) (tx : Tx) (txIdx : Nat)
         match coinLookup u prevout with
         | none => .ok (okN, unjN)   -- HaveInputs reports through the ledger / transaction-validation error lane
         | some coin =>
-          match verifyInput height tx i coin txIdx i with
+          match verifyInput height tx i coin txIdx i spentOutputs with
           | .pass => loop (i+1) (okN+1) unjN
           | .unjudgedTaproot => loop (i+1) okN (unjN+1)
           | .fail e => .error e
@@ -895,17 +954,28 @@ theorem applyBlockTransactions_ok {height : UInt32} {txs : List Tx}
       subst r
       exact applyTxsWithFees_ok hf
 
-/-- Run report: the new state plus the honest per-layer counters. -/
+inductive ScriptAdjudication where
+  | complete
+  | incomplete
+deriving Repr, DecidableEq, BEq
+
+def ScriptAdjudication.label : ScriptAdjudication → String
+  | .complete => "complete"
+  | .incomplete => "incomplete"
+
+/-- Run report: state, counters and an explicit script-only adjudication
+status. Header coverage and remaining model/Core gaps are separate claims. -/
 structure CapReport where
   state : CapState
   txs : Nat
-  scriptOk : Nat          -- inputs adjudicated PASS (real ECDSA + the interpreter layer + the sig-hash layer)
-  scriptUnjudged : Nat    -- inputs on the Taproot unjudged lane
+  scriptOk : Nat          -- inputs adjudicated PASS by the real crypto/interpreter layers
+  scriptUnjudged : Nat    -- inputs requiring unavailable Taproot signature data
   headerContextChecked : Bool := false -- expected nBits, parent MTP, node-clock bound
   absoluteFinalityChecked : Bool := false
   sequenceLocksChecked : Bool := false
   sigOpBudgetChecked : Bool := false
   sigOpCost : Nat := 0
+  scriptAdjudication : ScriptAdjudication := .incomplete
   deriving Repr
 
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
@@ -985,7 +1055,8 @@ def validateBlock (raw : ByteArray) (st : CapState)
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
          headerContextChecked := context.isSome
          absoluteFinalityChecked := context.isSome, sequenceLocksChecked := context.isSome
-         sigOpBudgetChecked := true, sigOpCost := sigops }
+         sigOpBudgetChecked := true, sigOpCost := sigops
+         scriptAdjudication := if unjN = 0 then .complete else .incomplete }
 
 /-- Explicit partial anchor-replay adapter. No ancestor/clock checks are
 claimed; script adjudication may also be incomplete as the report records. -/
@@ -994,8 +1065,8 @@ def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
 
 /-- Header-context entry point. Checks expected nBits, parent MTP and node
 time, absolute finality and both BIP68 domains as well as the funded replay
-gates and both sigop budgets. Witness adjudication, height-based script
-flag selection and other historical-exception work remain open; success
+gates and both sigop budgets. Height-based script flag selection and
+other historical-exception work remain open; success
 is not yet a full consensus-validation claim. -/
 def validateBlockInContext (raw : ByteArray) (st : CapState)
     (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=

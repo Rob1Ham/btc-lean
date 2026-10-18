@@ -2398,16 +2398,20 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-040
-  summary: "budget = serialized witness size + 50 WU"
-  check: "Tapscript validation weight budget"
-  core_ref: "interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168"
-  bip_cve: "BIP342"
-  lean_target: "Bitcoin.Interpreter.Defs.executeWitnessScript"
+  summary: budget = serialized witness size + 50 WU
+  check: Tapscript validation weight budget
+  core_ref: interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168
+  bip_cve: BIP342
+  lean_target: BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed
   test_vector_ids: []
   status: proven
   difficulty: 3
   consensus: true
-  source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
+  source: 06-script-interpreter.md:AppendixB §B.2 Limits & accounting
+  notes: ' R06: live interpreter aliases the count-prefixed full witness size. Kernel encoder/seed bridge and exact150byte200WUfour-signature
+    public regression pass; original count-prefix omission is fixed. Exact live-execution theorem shows EvalScript
+    receives the full encoder length +50 while caller annex/tapleaf data is preserved, under the actual early size/success
+    gates.'
 - id: SCR-041
   summary: "decrement on non-empty sig regardless of validity; <0 ⇒ TAPSCRIPT_VALIDATION_WEIGHT"
   check: "50 WU per non-empty sig"
@@ -7120,16 +7124,19 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-022
-  summary: "budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)` additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)"
-  check: "Validation-weight init"
-  core_ref: "interpreter.cpp:1991; script.h:62,65@cce32b168"
-  bip_cve: "342 §Resource limits"
-  lean_target: "BitcoinProofs.AF.PDW41.validationWeightInit_row"
+  summary: budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)`
+    additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)
+  check: Validation-weight init
+  core_ref: interpreter.cpp:1991; script.h:62,65@cce32b168
+  bip_cve: 342 §Resource limits
+  lean_target: BitcoinProofs.AF.PDW41.validationWeightInit_row
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
-  source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
+  source: 09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)
+  notes: ' R06: full count-prefixed witness size; empty witness budget51; append law includes stack-count prefix
+    growth. Exact encoder bridge in WitnessSerialization; live150byte200WUfour-signature boundary passes.'
 - id: TPR-023
   summary: "each passed non-empty sigop −50; negative ⇒ TAPSCRIPT_VALIDATION_WEIGHT"
   check: "Sigop budget decrement"
@@ -7659,16 +7666,18 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-071
-  summary: "annex included in witness serialization ⇒ weight & budget base"
-  check: "Annex counts toward weight"
-  core_ref: "interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168"
-  bip_cve: "341"
-  lean_target: "Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included"
+  summary: annex included in witness serialization ⇒ weight & budget base
+  check: Annex counts toward weight
+  core_ref: interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168
+  bip_cve: '341'
+  lean_target: Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
-  source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
+  source: 09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)
+  notes: ' R06: count-prefix defect fixed and full encoder/budget bridge proved. Signed annex paths pass. Transaction-weight
+    composition theorem remains an explicit residual; this growth target alone does not discharge that whole row.'
 - id: TPR-072
   summary: "ScriptExecutionData handed to the Schnorr checker entry reaches sighashSchnorr unchanged and its digest is passed verbatim to verify; interpreter-side population of tapleafHash/codesepPos/outputHash and script-path annex forwarding are residual (F-TS02-008)"
   check: "ScriptExecutionData plumbing"

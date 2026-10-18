@@ -5,6 +5,7 @@ import Bitcoin.Script.Parser.Defs
 import Bitcoin.Numeric.Interface
 import Bitcoin.Activation.Interface
 import Bitcoin.Crypto.Seam.Interface
+import Bitcoin.Crypto.Taproot.Verify
 import Bitcoin.Interpreter.Hashes
 
 /-!
@@ -44,11 +45,10 @@ Design notes:
   (`CheckLockTime`/`CheckSequence` are virtual `BaseSignatureChecker`
   members in Core; the frozen seam deliberately excludes them, so the interpreter
   carries them as pure defs — interface-change IC-2).
-* Taproot **script-path** spending stops at `VerifyTaprootCommitment`
-  (`XOnlyPubKey::CheckTapTweak` EC is outside the seam): the outcome is
-  `VerifyOutcome.unjudged`. Everything else — including P2WSH, P2WPKH,
-  pay-to-anchor, key-path-with-stub-checker and all hash-op scripts —
-  is fully judged.
+* Taproot key and script paths run the real output-key commitment and
+  interpreter. The optional typed Schnorr adapter distinguishes unavailable
+  transaction data from an invalid signature. Only unavailable data reaches
+  `VerifyOutcome.unjudged`; the production adapter supplies real BIP341/BIP340.
 -/
 
 namespace Bitcoin.Interpreter
@@ -153,6 +153,9 @@ inductive ExecError where
   | negativeLocktime       -- SCRIPT_ERR_NEGATIVE_LOCKTIME
   | unsatisfiedLocktime    -- SCRIPT_ERR_UNSATISFIED_LOCKTIME
   | schnorrSig             -- SCRIPT_ERR_SCHNORR_SIG
+  | schnorrSigSize         -- SCRIPT_ERR_SCHNORR_SIG_SIZE
+  | schnorrSigHashtype     -- SCRIPT_ERR_SCHNORR_SIG_HASHTYPE
+  | taprootDataUnavailable -- internal incomplete-adjudication signal, not a Core rejection
   | witnessProgramWrongLength -- SCRIPT_ERR_WITNESS_PROGRAM_WRONG_LENGTH
   | witnessProgramWitnessEmpty -- SCRIPT_ERR_WITNESS_PROGRAM_WITNESS_EMPTY
   | witnessProgramMismatch -- SCRIPT_ERR_WITNESS_PROGRAM_MISMATCH
@@ -243,10 +246,25 @@ deriving Repr, DecidableEq, BEq, Inhabited
 structure ScriptChecker where
   base : BaseSignatureChecker
   env : LocktimeEnv := default
+  /-- The real adapter can preserve exact Schnorr errors and unavailable
+  transaction context. `none` retains the abstract Boolean seam contract. -/
+  checkSchnorrTyped : Option (ByteArray → ByteArray → SigVersion →
+    ScriptExecutionData → Except ExecError Unit) := none
 
 /-- `ScriptChecker` holds function fields, so the derivable-instances
 story stops at `Inhabited` (via the seam's stub checker). -/
-instance : Inhabited ScriptChecker := ⟨⟨stubChecker, default⟩⟩
+instance : Inhabited ScriptChecker := ⟨⟨stubChecker, default, none⟩⟩
+
+/-- One Schnorr decision boundary shared by key-path and tapscript callers.
+Only an explicit typed adapter can signal unavailable transaction context;
+the legacy abstract Boolean checker retains its fail-closed interpretation. -/
+def checkSchnorrWithContext (chk : ScriptChecker) (sig pk : ByteArray)
+    (sv : SigVersion) (ed : ScriptExecutionData) : Except ExecError Unit :=
+  match chk.checkSchnorrTyped with
+  | some check => check sig pk sv ed
+  | none =>
+      if chk.base.checkSchnorrSignature sig pk sv ed then .ok ()
+      else .error .schnorrSig
 
 /-- `GenericTransactionSignatureChecker::CheckLockTime`
 (interpreter.cpp:1755-1788), as a pure function of the environment. -/
@@ -580,6 +598,8 @@ structure State where
   opCount : Nat
   codeSep : Nat
   vwLeft : Option Int
+  opcodeIndex : UInt32 := 0
+  codeSepPos : UInt32 := 0xffffffff
 deriving Repr, DecidableEq, BEq, Inhabited
 
 /-- Everything an opcode step reads except the state itself. -/
@@ -590,6 +610,13 @@ structure Ctx where
   sv : SigVersion
   bytes : ByteArray            -- the script being executed
   ed : ScriptExecutionData     -- passed through to the checker
+
+/-- BIP342 signs the last executed separator's opcode index, while the
+legacy scriptCode path keeps its independent byte offset. -/
+def signatureExecutionData (ctx : Ctx) (st : State) : ScriptExecutionData :=
+  if ctx.sv = .tapscript then
+    { ctx.ed with codesepPosInit := true, codesepPos := st.codeSepPos }
+  else ctx.ed
 
 /-- `stacktop(-k)` for k ≥ 1 (head-of-list = top-of-stack). -/
 def topAt (st : Stack) (k : Nat) : ByteArray := st[k-1]!
@@ -734,8 +761,9 @@ def evalChecksigTapscript (pol : PolicyFlags) (chk : ScriptChecker)
     if vw' < 0 then .error .tapscriptValidationWeight
     else if pk.size = 0 then .error .tapscriptEmptyPubkey
     else if pk.size = 32 then
-      if !chk.base.checkSchnorrSignature sig pk .tapscript ed then .error .schnorrSig
-      else .ok (true, some vw')
+      match checkSchnorrWithContext chk sig pk .tapscript ed with
+      | .error e => .error e
+      | .ok () => .ok (true, some vw')
     else if pol.discourageUpgradablePubkeyType then .error .discourageUpgradablePubkeyType
     else .ok (success, some vw')
   else
@@ -999,14 +1027,14 @@ where
       if st.stack.length < 1 then .error .stackUnderflow
       else .ok { st with stack := hashForOp w (topAt st.stack 1) :: st.stack.tail }
     else if w = 0xab then                                   -- OP_CODESEPARATOR
-      .ok { st with codeSep := op.next }
+      .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex }
     else if w = 0xac ∨ w = 0xad then                        -- OP_CHECKSIG / …VERIFY
       if st.stack.length < 2 then .error .stackUnderflow
       else
         let sig := topAt st.stack 2
         let pk := topAt st.stack 1
         -- the interpreter delta layer: EvalChecksig SigVersion mode dispatch (tapscript ≠ legacy)
-        match evalChecksigDispatch flags pol ctx.chk ctx.ed ctx.sv st.codeSep ctx.bytes
+        match evalChecksigDispatch flags pol ctx.chk (signatureExecutionData ctx st) ctx.sv st.codeSep ctx.bytes
             sig pk st.vwLeft with
         | .error e => .error e
         | .ok (fSuccess, vw') =>
@@ -1021,7 +1049,7 @@ where
       else if st.stack.length < 3 then .error .stackUnderflow
       else
         -- (sig num pubkey -- num+{0,1}); num decodes before EvalChecksig
-        match checksigAddStep ctx.pol ctx.chk ctx.ed
+        match checksigAddStep ctx.pol ctx.chk (signatureExecutionData ctx st)
             (topAt st.stack 3) (topAt st.stack 2) (topAt st.stack 1) st.vwLeft with
         | .error e => .error e
         | .ok (r, vw') =>
@@ -1116,7 +1144,7 @@ def evalFrom (ctx : Ctx) : Nat → List WireOp → State → Except ExecError St
   | _+1, [], st => if st.vf = [] then .ok st else .error .unbalancedConditional
   | f+1, op :: rest, st =>
       match stepChecked ctx op st with
-      | .ok st' => evalFrom ctx f rest st'
+      | .ok st' => evalFrom ctx f rest { st' with opcodeIndex := st.opcodeIndex + 1 }
       | .error e => .error e
 
 /-- Lift `evalFrom`'s final machine state to the exported stack
@@ -1155,10 +1183,17 @@ inductive VerifyOutcome where
   | unjudged
 deriving Repr, DecidableEq, BEq, Inhabited
 
-/-- Witness-serialized size of a stack (`::GetSerializeSize(witness.stack)`):
-per item, CompactSize(length) + bytes. -/
+/-- Missing signature context is incomplete adjudication, while every
+actual checker rejection retains its exact script error. -/
+def schnorrOutcome : Except ExecError Unit → VerifyOutcome
+  | .ok () => .ok
+  | .error .taprootDataUnavailable => .unjudged
+  | .error e => .fail e
+
+/-- Exact serialized witness-stack size, including stack-count CompactSize.
+Shared with the crypto/program layer so the live budget cannot drift. -/
 def witnessSerSize (items : List ByteArray) : Int :=
-  items.foldl (fun acc d => acc + Int.ofNat ((compactSizeEnc d.size).size + d.size)) 0
+  Bitcoin.Crypto.Taproot.Program.witnessSerSize items
 
 /-- `ExecuteWitnessScript` (interpreter.cpp:1854-1894). Returns the
 VerifyOutcome of the inner evaluation. SWT-010: the ≤520 per-item cap;
@@ -1170,7 +1205,7 @@ SCR-040 (validation-weight budget = serialized witness size + 50 WU,
 def executeWitnessScript (fuel : Nat) (items : List ByteArray) (vwSer : Int)
     (exec : ByteArray)
     (flags : ScriptFlags) (pol : PolicyFlags) (chk : ScriptChecker)
-    (sv : SigVersion) : VerifyOutcome :=
+    (sv : SigVersion) (edSeed : ScriptExecutionData := default) : VerifyOutcome :=
   if sv = .tapscript then
     -- OP_SUCCESSx scan overrides everything (incl. item size limits);
     -- ordered per-opcode with the decode step (opSuccessScan, the interpreter delta layer)
@@ -1184,7 +1219,7 @@ where
     -- item size limits (BIP141)
     if items.any (fun d => MAX_SCRIPT_ELEMENT_SIZE < d.size) then .fail .pushSize
     else
-      let edDflt : ScriptExecutionData := default
+      let edDflt : ScriptExecutionData := edSeed
       let ed : ScriptExecutionData :=
         if sv = .tapscript then
           { edDflt with
@@ -1194,6 +1229,7 @@ where
       -- `items` is in witness order (first pushed = bottom); the machine
       -- stack is head = TOP, so hand EvalScript the reversed list.
       match evalScriptBytes fuel flags pol exec items.reverse chk sv ed with
+      | .error .taprootDataUnavailable => .unjudged
       | .error e => .fail e
       | .ok st =>
         -- witness scripts implicitly require cleanstack
@@ -1207,8 +1243,8 @@ mandatory `0x50` tag byte. -/
 def annexHash (annex : ByteArray) : ByteArray :=
   hashSha256 (compactSizeEnc annex.size ++ annex)
 
-/-- `VerifyWitnessProgram` (interpreter.cpp:1827-2008). `unjudged` only
-for taproot script-path spending (CheckTapTweak is outside the seam). -/
+/-- `VerifyWitnessProgram`: real script-path commitment binding and typed
+key/script signature dispatch. Only missing signature context is unjudged. -/
 @[rule "SCR-133", rule "SCR-134", rule "SCR-135", rule "SCR-136", rule "SCR-137", rule "SCR-138", rule "SCR-143", rule "SCR-145", rule "SCR-150", rule "SCR-151",
   rule "SWT-005", rule "SWT-006", rule "SWT-007", rule "SWT-008", rule "SWT-009",
   rule "SWT-013", rule "SWT-014",
@@ -1257,8 +1293,7 @@ def verifyWitnessProgram (fuel : Nat) (witness : WitnessStack) (version : Nat)
             annexHash := (if annex then annexHash (witness.getLast!) else edDflt.annexHash) }
         if stack.length = 1 then
           -- key path spend
-          if chk.base.checkSchnorrSignature stack[0]! program .taproot ed then .ok
-          else .fail .schnorrSig
+          schnorrOutcome (checkSchnorrWithContext chk stack[0]! program .taproot ed)
         else
           -- script path: control = top = LAST item, script = second-to-last
           -- (Core `SpanPopBack`s control then script)
@@ -1267,7 +1302,18 @@ def verifyWitnessProgram (fuel : Nat) (witness : WitnessStack) (version : Nat)
               TAPROOT_CONTROL_MAX_SIZE < control.size ∨
               (control.size - TAPROOT_CONTROL_BASE_SIZE) % TAPROOT_CONTROL_NODE_SIZE ≠ 0 then
             .fail .taprootWrongControlSize
-          else .unjudged   -- tapleaf hash + CheckTapTweak EC
+          else
+            let script := (stack.dropLast).getLast!
+            let tapleaf := Bitcoin.Crypto.Taproot.Verify.scriptPathTapleaf control script
+            if !Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment control program tapleaf then
+              .fail .witnessProgramMismatch
+            else if ((byteOr control 0).toNat &&& 0xfe) = 0xc0 then
+              let ed := { ed with tapleafHashInit := true, tapleafHash := tapleaf }
+              executeWitnessScript fuel (stack.dropLast.dropLast) (witnessSerSize witness)
+                script flags pol chk .tapscript ed
+            else if pol.discourageUpgradableTaprootVersion then
+              .fail .discourageUpgradableTaprootVersion
+            else .ok
   else if !isP2SH ∧ isPayToAnchor version program then .ok
   else if pol.discourageUpgradableWitnessProgram then .fail .discourageUpgradableWitnessProgram
   else .ok
@@ -1443,7 +1489,7 @@ theorem evalFrom_ok_stack_bound (ctx : Ctx) :
       | ok s =>
         rw [hsc] at h
         have hb := stepChecked_ok_bound hsc
-        exact ih rest s st' (by omega) h
+        exact ih rest { s with opcodeIndex := st.opcodeIndex + 1 } st' (by change s.stack.length ≤ MAX_STACK_SIZE; omega) h
 
 /-- One more unit of fuel never breaks a succeeding run: the `[]` arm is
 fuel-independent and the cons arm just shifts the recursive fuel. -/
@@ -1458,7 +1504,7 @@ theorem evalFrom_succ_ok (ctx : Ctx) (f : Nat) (ops : List WireOp) (st : State)
       simp only [evalFrom, Except.isOk, Except.toBool] at h ⊢
       cases hsc : stepChecked ctx op st with
       | error e => rw [hsc] at h; simp [Except.isOk, Except.toBool] at h
-      | ok s => rw [hsc] at h; exact ih rest s h
+      | ok s => rw [hsc] at h; exact ih rest { s with opcodeIndex := st.opcodeIndex + 1 } h
 
 /-- Fuel monotonicity for the loop: `f₁ ≤ f₂`, success at `f₁` ⇒
 success at `f₂` (fuel only gates the empty-stream arm). -/
@@ -1636,11 +1682,10 @@ theorem verifyWitnessProgram_annex_keypath (fuel : Nat)
     (htap : flags.taproot = true) (h32 : program.size = 32)
     (hnonempty : annex.size ≠ 0) (htag : (byteOr annex 0).toNat = ANNEX_TAG) :
     verifyWitnessProgram fuel [sig, annex] 1 program flags pol chk false =
-      if chk.base.checkSchnorrSignature sig program SigVersion.taproot
+      schnorrOutcome (checkSchnorrWithContext chk sig program SigVersion.taproot
           { (default : ScriptExecutionData) with
             annexInit := true, annexPresent := true,
-            annexHash := annexHash annex }
-        then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
+            annexHash := annexHash annex }) := by
   simp [verifyWitnessProgram, htap, h32, hnonempty, htag]
 
 /-- TPR-002 (`interpreter.cpp:1959 @cce32b168`): without

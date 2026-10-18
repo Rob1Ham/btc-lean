@@ -267,7 +267,7 @@ end BitcoinProofs.AF.PDW67
 /-- info: 'BitcoinProofs.AF.PDW67.serWitness_empty_row' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.serWitness_empty_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_sequential_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_sequential_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_sequential_row
 
 /-- info: 'BitcoinProofs.AF.PDW67.signetBlockOk_gate_row' depends on axioms: [propext] -/
@@ -276,17 +276,19 @@ end BitcoinProofs.AF.PDW67
 /-- info: 'BitcoinProofs.AF.PDW67.pushSize_row' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.pushSize_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_evalFalse_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_evalFalse_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_evalFalse_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_fail_nil_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_fail_nil_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_fail_nil_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_fail_false_top_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_fail_false_top_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_fail_false_top_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_ok_truthy_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_ok_truthy_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_ok_truthy_row
 
-/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_ok_iff_truthy_base_row' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW67.verifyScriptFull_ok_iff_truthy_base_row' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms BitcoinProofs.AF.PDW67.verifyScriptFull_ok_iff_truthy_base_row

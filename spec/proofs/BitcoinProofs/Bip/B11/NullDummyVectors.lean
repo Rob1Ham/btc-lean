@@ -95,7 +95,7 @@ def stackFor (sig dummy : ByteArray) : List ByteArray :=
 /-- Context with the NULLDUMMY consensus flag on/off. -/
 def mkCtx (nd : Bool) (sv : SigVersion) : Ctx :=
   { flags := { nullDummy := nd }, pol := default,
-    chk := ⟨stubChecker, default⟩, sv := sv, bytes := .empty, ed := default }
+    chk := ⟨stubChecker, default, none⟩, sv := sv, bytes := .empty, ed := default }
 
 /-- Fresh machine state. -/
 def mkSt (stack : List ByteArray) : State :=

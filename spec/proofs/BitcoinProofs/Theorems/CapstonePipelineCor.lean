@@ -271,10 +271,10 @@ whose coin is missing from the view (`coinLookup = none`) contribute
 NOTHING — hence boundedness, not exactness (the corresponding modules own that
 error). -/
 theorem verifyTxInputs_loop_total (height : UInt32) (tx : Tx) (txIdx : Nat)
-    (u : List (OutPoint × Coin)) :
+    (u : List (OutPoint × Coin)) (spentOutputs : Option (List TxOut)) :
     ∀ (n i okN unjN a b : Nat), i + n = tx.vin.length →
       okN + unjN ≤ i →
-      verifyTxInputs.loop height tx txIdx u i okN unjN = .ok (a, b) →
+      verifyTxInputs.loop height tx txIdx u spentOutputs i okN unjN = .ok (a, b) →
       a + b ≤ tx.vin.length := by
   intro n
   induction n with
@@ -317,9 +317,9 @@ theorem verifyTxInputs_total (height : UInt32) (tx : Tx) (txIdx : Nat)
     (h : verifyTxInputs height tx txIdx u = .ok (a, b)) :
     a + b ≤ tx.vin.length := by
   have h0 : verifyTxInputs height tx txIdx u
-      = verifyTxInputs.loop height tx txIdx u 0 0 0 := rfl
+      = verifyTxInputs.loop height tx txIdx u (collectSpentOutputs u tx.vin) 0 0 0 := rfl
   rw [h0] at h
-  exact verifyTxInputs_loop_total height tx txIdx u tx.vin.length 0 0 0 a b
+  exact verifyTxInputs_loop_total height tx txIdx u (collectSpentOutputs u tx.vin) tx.vin.length 0 0 0 a b
     (by omega) (by omega) h
 
 /-! ## Counter bounds through one tx and the whole fold -/

@@ -366,11 +366,10 @@ theorem verifyWitnessProgram_keypath
     (htap : flags.taproot = true)
     (h32 : program.size = 32) (hp2 : isP2SH = false) :
     verifyWitnessProgram fuel [sig] 1 program flags pol chk isP2SH
-      = if chk.base.checkSchnorrSignature sig program SigVersion.taproot
+      = schnorrOutcome (checkSchnorrWithContext chk sig program SigVersion.taproot
               { (default : ScriptExecutionData) with
                 annexInit := true, annexPresent := false,
-                annexHash := (default : ScriptExecutionData).annexHash }
-        then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
+                annexHash := (default : ScriptExecutionData).annexHash }) := by
   simp [verifyWitnessProgram, htap, h32, hp2]
 
 /-- SCR-149: witness versions ≥ 2 are UPGRADABLE — success today,
@@ -427,7 +426,7 @@ theorem evalChecksigTapscript_decrements_50
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .ok ())
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw
       = .ok (true, some ((vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED)) := by
@@ -440,7 +439,7 @@ theorem evalChecksigTapscript_budget_exactly_zero
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .ok ())
     (hvw : (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED = 0) :
     evalChecksigTapscript pol chk ed sig pk vw = .ok (true, some 0) := by
   simp [evalChecksigTapscript, hsig, hpk, hok, hvw]
@@ -477,7 +476,7 @@ theorem evalChecksigTapscript_32_is_schnorr
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hbad : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = false)
+    (hbad : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .error .schnorrSig)
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw = .error .schnorrSig := by
   simp [evalChecksigTapscript, hsig, hpk, hbad,
@@ -639,7 +638,7 @@ theorem stepBody_codesep_records_next
     (hw : op.wire = 0xab)
     (hts : ctx.sv = SigVersion.tapscript)
     (hexec : st.vf.all id = true) :
-    stepBody ctx op st = .ok { st with codeSep := op.next } := by
+    stepBody ctx op st = .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   rcases op with ⟨ast, wire, next⟩
   subst hop; subst hw
   simp only [stepBody, stepBody.dispatchOp, hexec, hts]

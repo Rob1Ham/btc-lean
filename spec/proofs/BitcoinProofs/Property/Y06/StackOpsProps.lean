@@ -65,7 +65,7 @@ deriving instance DecidableEq for Except
 
 def noflags : ScriptFlags := { p2sh := false }
 
-def tchk : ScriptChecker := ⟨stubChecker, default⟩
+def tchk : ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- EvalScript from raw bytes, empty initial stack (base sv, no flags). -/
 def run (b : ByteArray) (fuel : Nat := 64) : Except ExecError Stack :=

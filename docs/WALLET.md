@@ -118,7 +118,7 @@ The first command gives the row and statement; the second returns the tag at
 `Desc/Checksum.lean:124`; the third returns
 `descriptorChecksum_eq_empty_iff`; the build checks that the tagged module compiles; and the
 axiom probe plus `spec/scripts/wallet_gates.sh` check for `sorry`, tag/row agreement, census anchors and
-digest, the 838-entry wallet axiom manifest, and consensus isolation. The discharge is the tag
+digest, the 836-entry wallet axiom manifest, and consensus isolation. The discharge is the tag
 plus the compiled theorem plus the axiom check, not the tag alone.
 
 For an **open** obligation take `MS-001` (type bitmap): the same tag search returns
@@ -150,15 +150,15 @@ reject them. No v2 claim is made, including for the developmental v2 code in tha
 `v32.99.0-cce32b16874e` and whose source sets major version 32 at `CMakeLists.txt:30`. This is
 not a release tag. Anchors are valid only at this commit, not for any shipped release.
 
-**Taproot program equality is a wallet bridge, not a consensus repair.** In the consensus model,
-`verifyTaprootCommitment` now binds its `program` argument
-(`Verify.checkTapTweak`: 32-byte length plus `program = x(Q)`), while v1 spends still route to
-`unjudgedTaproot` (`spec/core/Bitcoin/Capstone/Block.lean:242-244`). `Taproot/Commit.lean` supplies
-the wallet-side `programMatches`, `SpendCommitment`, and `commitmentOf`, and proves
-`spendCommitment_iff_verdict` and `commitmentOf_program_binding`; the latter makes the verifier's
-program binding explicit. `W1_taprootSpendJudged` (line 384) is a target, not a theorem, because
-the capstone still routes the v1 lane to `unjudgedTaproot`, so wallet taproot-spend claims remain
-conditional on `SpendCommitment`.
+**Taproot program equality is a conditional wallet bridge.** The live capstone now
+runs real key/script-path verification with complete current-view spent outputs;
+script adjudication is explicit on the report. `Taproot/Commit.lean` supplies
+`programMatches`, `SpendCommitment`, `commitmentOf` and the verifier's output-key
+binding. These wallet predicates alone do not prove a valid signed transaction.
+The standalone `W1_taprootSpendJudged` target still requires the relation between
+the independently supplied wallet program and the spent script. Two obsolete
+universal-unjudged bridge theorems were removed; the current wallet inventory
+contains 836 theorem declarations across the same 53 modules.
 
 The descriptor fragment has its own boundary: `pk`, `pkh`, `wpkh`, `sh(wpkh)`, `multi`,
 `sortedmulti`, and key-path-only `tr`; it omits `wsh`, `combo`, `sh(multi(...))`, taproot script
@@ -202,7 +202,7 @@ node, script, satisfaction, and sanity model for its fragment; the PSBT v0 typed
 encoder, lifecycle laws, and Core-derived vectors; fee/dust arithmetic, funding, two
 deterministic selection strategies, and their laws.
 
-Checked: the static wallet axiom manifest covers 838 theorem/lemma declarations in 53 wallet modules
+Checked: the static wallet axiom manifest covers 836 theorem/lemma declarations in 53 wallet modules
 and permits only `propext`, `Classical.choice`, and `Quot.sound`; 37 declarations carry 40 row tags across
 40 distinct row IDs (DESC 8, MS 19, PSBT 12, WSP 1, SGN2 0). Representative row targets are
 `Miniscript.TypeSound.calcType_hash_fragments`, `Miniscript.ScriptExact.toScript_pk_fragments`,
@@ -222,5 +222,5 @@ composition and `W1_taprootSpendJudged` are absent; the signer bridge
 (`Sign/Bridge.lean`) is stated conditionally, with its cryptographic target
 unproved. `bash spec/scripts/wallet_gates.sh` passes with 53
 files scanned, zero `sorry`/`admit`, 40 row tags across 40 IDs, 140 anchored `planned` rows, an
-838-entry axiom manifest with the three permitted axioms, and the consensus census unchanged at
+836-entry axiom manifest with the three permitted axioms, and the consensus census unchanged at
 726 rows (676 proven / 50 obsolete).

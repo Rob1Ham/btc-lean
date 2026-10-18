@@ -126,8 +126,12 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
       IO.println s!"GDIAG {idx}: {diag}"
       pure (none, false, false, t1 - t0)
   | .inr (rep, agree) =>
-      IO.println s!"GBLOCK {idx} ok=true reason= ms={t1 - t0} txs={rep.txs} scriptOk={rep.scriptOk} scriptUnjudged={rep.scriptUnjudged} foldAgrees={agree} height→{rep.state.height.toNat} utxo={rep.state.utxo.length}"
-      pure (some rep.state, true, agree, t1 - t0)
+      let complete := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0
+      let ok := complete && agree
+      let reason := if !complete then "script-data-unavailable"
+        else if !agree then "ledger-fold-mismatch" else ""
+      IO.println s!"GBLOCK {idx} ok={ok} reason={reason} ms={t1 - t0} txs={rep.txs} scriptOk={rep.scriptOk} scriptUnjudged={rep.scriptUnjudged} scriptAdjudication={rep.scriptAdjudication.label} foldAgrees={agree} height→{rep.state.height.toNat} utxo={rep.state.utxo.length}"
+      pure (if ok then some rep.state else none, ok, agree, t1 - t0)
 
 def driverMain : IO Unit := do
   let path ← match (← IO.getEnv "GENCHAIN_HEX") with

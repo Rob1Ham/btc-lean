@@ -16,7 +16,8 @@ package «core» where
 
 @[default_target]
 lean_lib Bitcoin where
-  -- Root module `Bitcoin.lean` transitively imports every submodule.
+  -- `Bitcoin.lean` imports the selected production closure. Other library
+  -- modules require the explicit module matrix.
 
 @[default_target, test_driver]
 lean_exe btclean where
@@ -25,3 +26,7 @@ lean_exe btclean where
 /-- Compiled partial anchor replay; ancestor/time context is not supplied. -/
 lean_exe capstone where
   root := `Test.Capstone.Run
+
+/-- Shared fixture decoding for public Taproot regressions. -/
+lean_lib CapstoneTestSupport where
+  roots := #[`Test.Capstone.TaprootFixture]

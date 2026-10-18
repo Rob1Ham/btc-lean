@@ -51,9 +51,9 @@ SET1 = {0, 74638, 91842, 91880, 481824, 709632}
 
 ANCHOR_RE = re.compile(
     r"ANCHOR (\d+) ok=(\w+) reason=(\S*) txs=(\d+) scriptOk=(\d+) "
-    r"scriptUnjudged=(\d+) foldAgrees=(\w+) ms=(\d+) hash=([0-9a-f]*)")
+    r"scriptUnjudged=(\d+)(?: scriptAdjudication=(complete|incomplete))? foldAgrees=(\w+) ms=(\d+) hash=([0-9a-f]*)")
 PROBE_RE = re.compile(r"PROBE (\d+): (.*)")
-SUMMARY_RE = re.compile(r"SUMMARY blocks=(\d+) allOk=(\w+) totalMs=(\d+)")
+SUMMARY_RE = re.compile(r"SUMMARY blocks=(\d+)(?: missing=(\d+))? allOk=(\w+) totalMs=(\d+)")
 
 
 def parse(text: str):
@@ -65,8 +65,9 @@ def parse(text: str):
             anchors[h] = dict(
                 ok=m.group(2).lower() == "true", reason=m.group(3), txs=int(m.group(4)),
                 scriptOk=int(m.group(5)), scriptUnjudged=int(m.group(6)),
-                foldAgrees=m.group(7).lower() == "true", ms=int(m.group(8)),
-                hash=m.group(9))
+                scriptAdjudication=m.group(7),
+                foldAgrees=m.group(8).lower() == "true", ms=int(m.group(9)),
+                hash=m.group(10))
             continue
         m = PROBE_RE.match(line)
         if m:
@@ -74,8 +75,8 @@ def parse(text: str):
             continue
         m = SUMMARY_RE.match(line)
         if m:
-            summary = dict(blocks=int(m.group(1)), allOk=m.group(2).lower() == "true",
-                           totalMs=int(m.group(3)))
+            summary = dict(blocks=int(m.group(1)), missing=int(m.group(2) or 0),
+                           allOk=m.group(3).lower() == "true", totalMs=int(m.group(4)))
     return anchors, probes, summary
 
 
@@ -90,9 +91,9 @@ def main() -> int:
     print("## Capstone run: real mainnet anchor blocks "
           f"({len(anchors)} across both corpora)")
     print()
-    print("End-to-end `validateBlock` (decode → block structure → PoW and")
-    print("chain link → merkle/witness commitment → per-tx input and script")
-    print("checks with ECDSA → ledger fold keyed by txid), compiled Lean runner.")
+    print("Partial anchor replay: supplied UTXOs and parent; ancestor, clock and")
+    print("contextual checks are not certified by this runner. Complete script")
+    print("adjudication covers the interpreter and real ECDSA/Schnorr checks only.")
     print()
     ok_n = sum(1 for a in anchors.values() if a["ok"])
     hash_n = sum(1 for h, a in anchors.items()
@@ -134,7 +135,10 @@ def main() -> int:
         print()
         for h in sorted(probes):
             print(f"- **{h}**: {probes[h]}")
-    if summary and not summary["allOk"]:
+    if (not summary or not summary["allOk"] or summary["missing"] != 0 or
+        summary["blocks"] != len(anchors) or
+        any(not a["ok"] or not a["foldAgrees"] or a["scriptUnjudged"] != 0 or
+            a["scriptAdjudication"] != "complete" for a in anchors.values())):
         print()
         print("**capstone-report: RUN FAILED — see probes above.**")
         return 2

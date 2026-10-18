@@ -1,9 +1,9 @@
 # Proof build scope and status
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
-proof tree. It builds the root module plus its 33 direct/transitive local
-imports: **34 modules**. The package contains **414
-Lean modules** (415 `.lean` files including `lakefile.lean`); **380 modules are
+proof tree. It builds the root module plus its 35 direct/transitive local
+imports: **36 modules**. The package contains **416
+Lean modules** (417 `.lean` files including `lakefile.lean`); **380 modules are
 outside the default closure**.
 
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
@@ -44,9 +44,24 @@ pinned in-file and in the dynamic manifest (299 total entries, 385 lines).
 Existing monetary, sequence, sigop and ledger contracts remain proved;
 the incorrect witness-error mapping and its consumers were corrected. The default root plus named affected consumers build (1741 Lake jobs),
 all 53 wallet probe imports build (3242 jobs), and both dynamic probes pass.
-The fresh complete 414-module matrix remains
+The fresh complete 416-module matrix remains
 pending. Commands and exact limits are in
 [validation-r05.json](reviews/2026-10-18/validation-r05.json).
+
+The R06 run adds `WitnessSerialization` and `CapstoneTaproot`: kernel proofs
+connect the actual witness encoder to the budget, the checked live-view input
+cache to exact ordered amounts/scripts, and public script status to unjudged
+counts. Real signed multi-input and same-block-spend regressions pass. Obsolete
+universal bypass claims were removed, and typed-checker/state contracts were
+corrected. The final scoped run builds all primary/wallet probe imports and every
+changed proof module except the explicit `S02Flip` reduction experiment
+(116 named targets, 3343 Lake jobs). The complete Z09 audit passes separately
+(26 jobs, 165.379 seconds); S02 fixture declarations typecheck with its twenty
+closed measurement experiments explicitly omitted. That partial interface
+check is not a full S02 build. All sixteen new footprints are guarded; dynamic
+probes cover 315 consensus and 836 wallet declarations. The complete
+416-module matrix remains outstanding. Commands and bounds are in
+[validation-r06.json](reviews/2026-10-18/validation-r06.json).
 
 The outside-closure results below are the upstream audit snapshot from before
 PR 18 merged and before the remediation changes. They remain historical
@@ -82,7 +97,7 @@ failures** over the 380 outside-closure modules.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
-| Default `BitcoinProofs` closure | 34 modules | scoped current run | 0 |
+| Default `BitcoinProofs` closure | 36 modules | scoped current run | 0 |
 | Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 365 | 15 |
 | — `AF` namespace | 249 | 249 | 0 |
 | — `Theorems` namespace | 24 | 21 | 3 |
@@ -100,7 +115,7 @@ failures** over the 380 outside-closure modules.
 | — `Interpreter` namespace | 1 | 1 | 0 |
 
 The historical 409-module snapshot included 29 in the default closure.
-The current 414-module snapshot adds default `CapstoneFunding`,
+The current 416-module snapshot adds default `CapstoneFunding`,
 `CapstoneContext`, `CapstoneSequence`, `CapstoneSigops` and `CapstoneWitness` modules. The outside-closure
 table has 381 entries because it includes the non-module `lakefile.lean`, which
 the static index excludes; `lakefile.lean` is the Lake build configuration, not
@@ -157,7 +172,7 @@ The snapshot reported individual passes for six repaired modules:
 
 `BitcoinProofs` building means that the 34 default-closure modules elaborate
 against the pinned Lean toolchain, mathlib revision, and core package. It does
-**not** mean that all 414 proof modules were rebuilt, that every cited row
+**not** mean that all 416 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
 Core. Statement fidelity is a separate review obligation, with the 26 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
@@ -166,3 +181,10 @@ proof-surface reductions in [`AUDIT-RESIDUALS.md`](AUDIT-RESIDUALS.md).
 The static hygiene gate (`spec/scripts/sorry_lint.sh`) scans both
 `spec/core` and `spec/proofs`, including modules outside the default closure.
 It is a source-text gate, not a build of every module.
+
+The core package also needs an explicit library matrix: its 131 tracked
+`Bitcoin*.lean` files have a 72-module `Bitcoin` root import closure, leaving
+59 outside that closure. The R19 compatibility-factory bug was exposed by
+explicitly building one of those modules. The remaining core matrix is part
+of R08 alongside the proof-package matrix. These counts describe static
+imports, not a full source-validation result.

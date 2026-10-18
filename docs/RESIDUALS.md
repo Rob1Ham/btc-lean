@@ -1,27 +1,27 @@
 # Consensus residuals
 
 The consensus census has 726 rows: 676 `proven`, 50 `obsolete`, 0
-`implemented`, and 0 `planned`. Twenty-six of the proven rows are **explicit
+`implemented`, and 0 `planned`. Twenty-five of the proven rows are **explicit
 model residuals**: the row's one-line claim is true of Bitcoin Core, but the
 current Lean model does not yet entail it. They are not counted as fully proved
 against Core.
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 33-module closure; a post-audit per-name run covers the
+`BitcoinProofs` target is a 36-module closure; a post-audit per-name run covers the
 380 outside-closure modules (381 `.lean` entries including the non-module
 `lakefile.lean`), for which upstream reports 372 individual passes and 8 failures at revision
 32e8463. The full remediation-head matrix is pending. Upstream reports no cited
 target in that failure set: `SCR-100`'s cited target,
 `Theorems.Ops.O07.step_codesep_const_dead`, now builds. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
-fidelity, and these 26 rows are where the review found a gap.
+fidelity, and these 25 rows are where the review found a gap.
 
 This document is generated from the latest per-row review action. The
 authoritative row records remain in `spec/db/rules.yaml`; this page exists so
 the gaps are visible without depending on unpublished review notes.
 
-**Residual rows: 26 / 726.**
+**Residual rows: 25 / 726.**
 
 The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
 The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
@@ -146,13 +146,6 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - target: `Bitcoin.Interpreter.Defs.evalScriptBytes_ok_stack_bound`
 - missing link: The summary (stack + altstack combined check) is true of Core: the guard is `if (stack.size() + altstack.size() > MAX_STACK_SIZE) return SCRIPT_ERR_STACK_SIZE` after every opcode (:1231-1233). The cited `evalScriptBytes_ok_stack_bound` (Defs.lean:1482-1500) concludes only `st'.length <= MAX_STACK_SIZE` on the main stack (:1486). The combined guard is present per step (`stepChecked`, Defs.lean:1098-1103; `stepChecked_ok_bound`, :1396-1408), and `evalFrom_ok_stack_bound` (:1411-1438) also bounds only `st'.length`. No eval-level theorem bounds `st'.length + st'.alt.length`. Missing piece: `evalFrom_ok_stack_alt_bound` / `evalScriptBytes_ok_stack_alt_bound` preserving the combined invariant. Open proof obligation; claim kept, not narrowed.
 
-### SCR-040
-
-- claim: budget = serialized witness size + 50 WU
-- core: `interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168`
-- target: `Bitcoin.Interpreter.Defs.executeWitnessScript`
-- missing link: The summary is true of Core: `execdata.m_validation_weight_left = ::GetSerializeSize(witness.stack) + VALIDATION_WEIGHT_OFFSET` (:1991-1992), and `GetSerializeSize` of a vector writes the CompactSize item count before the items. The local `witnessSerSize` (Defs.lean:1157-1158) sums only per-item `CompactSize(len) + bytes` and omits the witness vector's item-count CompactSize; the seed at Defs.lean:1189 and the v0 calls at :1222/:1230 are therefore too small by that count length (1 WU below 253 items). `witnessSerSize_cons` (PDW73b.lean:87-93) restates only the per-item sum while its doc comment claims Core equality; the L2 bridge documents the omission and a v >= 5 correction (L2TprBridge.lean:229-233, :283-290, F-L2TPR-001). The SCR-040-tagged theorem does not repair the definition. Missing piece: corrected `witnessSerSize` including `compactSizeEnc items.length`, plus a seed-equality theorem. Open proof obligation; claim kept, not narrowed.
-
 ### SCR-066
 
 - claim: BAD_OPCODE when executed; unexecuted OP_VER passes
@@ -211,7 +204,7 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - claim: annex included in witness serialization ⇒ weight & budget base
 - core: `interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168`
 - target: `Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included`
-- missing link: the summary is true of Core. Core computes the budget over the whole witness stack before the annex pop (interpreter.cpp:1991 vs :1961-1969), and the transaction weight adds `::GetSerializeSize(txin.scriptWitness.stack)` (consensus/validation.h:147-150), which includes the annex. The cited theorem proves only strict growth of the items-only size: `witnessSerSize (items ++ [annex]) > witnessSerSize ((items ++ [annex]).dropLast)` under `isAnnex ... = true` (Program.lean:519-522). Two links remain unmodeled: `witnessSerSize` omits the stack-count CompactSize prefix (F-Y15-001), and the transaction-weight composition is not stated. Missing piece: the count-prefix fix plus a theorem that the annex-bearing witness serialization is the budget/weight base (not merely strictly larger than the items-only fold). The summary is left unchanged because the Core claim is true; narrowing it would weaken a true Core claim merely because the model is incomplete.
+- missing link: The R06 repair includes the stack-count CompactSize and makes the interpreter use that canonical full size. `WitnessSerialization.witnessSerSize_eq_encoder`, `interpreter_size_eq_encoder`, `validationWeightInit_eq_encoder` and `executeWitnessScript_encoder_budget` prove the full encoder/size/budget connection. A real script-path transaction at the exact 150-byte / 200-WU / four-signature boundary now passes, and signed annex paths pass. The remaining obligation is transaction-weight composition: prove that adding the annex to the actual transaction witness changes the transaction-weight serialization by the corresponding bytes. The full weight-and-budget row remains residual until that theorem is supplied. The old item-only-size defect is fixed; it is no longer the missing link.
 
 ## TXV
 

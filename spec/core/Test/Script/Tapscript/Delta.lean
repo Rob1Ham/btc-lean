@@ -28,18 +28,18 @@ def sig64 : ByteArray := ByteArray.mk (Array.replicate 64 (0xab : UInt8))
 def pk1 : ByteArray := ByteArray.mk #[(0xd8:UInt8), (0x5a:UInt8), (0x95:UInt8), (0x9b:UInt8), (0x02:UInt8), (0x90:UInt8), (0xbf:UInt8), (0x19:UInt8), (0xbb:UInt8), (0x89:UInt8), (0xed:UInt8), (0x43:UInt8), (0xc9:UInt8), (0x16:UInt8), (0xbe:UInt8), (0x83:UInt8), (0x54:UInt8), (0x75:UInt8), (0xd0:UInt8), (0x13:UInt8), (0xda:UInt8), (0x4b:UInt8), (0x36:UInt8), (0x21:UInt8), (0x17:UInt8), (0x39:UInt8), (0x3e:UInt8), (0x25:UInt8), (0xa4:UInt8), (0x82:UInt8), (0x29:UInt8), (0xb8:UInt8)]
 
 /-- The stub checker (accepts nonempty sig+pk). -/
-def ckGood : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, default⟩
+def ckGood : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- Schnorr-rejecting checker (for the NULLFAIL-analogue cases). -/
 def ckBad : Bitcoin.Interpreter.ScriptChecker :=
   ⟨{ checkECDSASignature := fun _ _ _ _ _ => true
-     checkSchnorrSignature := fun _ _ _ _ => false }, default⟩
+     checkSchnorrSignature := fun _ _ _ _ => false }, default, none⟩
 
 /-- CLTV-passing environment (tx v2, locktime 5, non-final input). -/
-def ckCltv : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, ⟨2, 5, 0⟩⟩
+def ckCltv : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, ⟨2, 5, 0⟩, none⟩
 
 /-- CSV-passing environment (tx v2, locktime 5, sequence 5). -/
-def ckCsv : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, ⟨2, 5, 5⟩⟩
+def ckCsv : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, ⟨2, 5, 5⟩, none⟩
 
 /-- MINIMALIF policy bit on. -/
 def polIf : Bitcoin.Interpreter.PolicyFlags := { minimalIf := true }

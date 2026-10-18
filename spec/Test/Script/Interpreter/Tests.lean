@@ -67,11 +67,11 @@ def cflags : ScriptFlags := { cltv := true, csv := true }
 
 /-- The corpus checker: frozen stub EC/Schnorr seam + default
 transaction environment (version 1, nLockTime 0, nSequence FINAL). -/
-def tchk : ScriptChecker := ⟨stubChecker, default⟩
+def tchk : ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- Checker with spendable locktime gates: nVersion ≥ 2 and a
 non-FINAL input sequence (Core returns false for CLTV/CSV otherwise). -/
-def chk2 : ScriptChecker := ⟨stubChecker, { txSequence := 4, txVersion := 2 }⟩
+def chk2 : ScriptChecker := ⟨stubChecker, { txSequence := 4, txVersion := 2 }, none⟩
 
 /-- Run a script from empty stack, base sigversion, no flags. -/
 def run (b : ByteArray) (fuel : Nat := 64) : Except ExecError Stack :=

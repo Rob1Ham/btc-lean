@@ -1,67 +1,19 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneWiringCor — P10: the proved checker-wiring spec (sorry-free)
+# Capstone checker wiring
 
-Theorems about THE seam of the capstone pipeline (`Bitcoin.Capstone.Block`):
-where the real ECDSA verifier, sighash, checker adapters and
-interpreter meet, and where the Taproot unjudged lane is decided
-(`verifyInput`'s `isTaprootProgram` gate, decided BEFORE the checker —
-report §3's documented per-input assume-valid for v1 witness programs).
+Every input now passes through ordinary script/witness verification with the
+typed production checker. The three former universal bypass theorems
+`verifyInput_taproot_lane`, `verifyInput_taproot_not_pass` and
+`verifyInput_taproot_not_fail` were false after that repair and are removed.
+The historical witness recognizer facts remain mathematical facts only.
 
-Every statement below is proved from the interfaces alone (no `sorry`, no
-`native_decide`): the lane gate is a pure `Bool` test, the checker record is
-a pure structure of function fields, and the fuel budget is arithmetic.
-
-C4 portfolio linkage:
-
-| C4 ID | theorem here | statement (short) |
-|-------|--------------|-------------------|
-| (P15-slot cor) | `verifyInput_taproot_lane` | a v1-witness (Taproot) coin routes to `unjudgedTaproot` BEFORE the checker — no sorryAx-bearing Schnorr path can run, at input granularity |
-| (SCR-053 cor) | `isTaprootProgram_v0_false` | v0 witness programs are NOT Taproot: P2WPKH/P2WSH stay fully adjudicated |
-| (SCR-053 cor) | `isTaprootProgram_none_false` / `isTaprootProgram_ge1_true` | the lane gate is exactly "witness program with version ≥ 1" |
-| (BLK wiring) | `verifyInput_fail_shape` | an adjudicated failure is ALWAYS `CapError.scriptFail txIdx inputIdx e` with the caller's indices |
-| (BLK wiring) | `verifyInput_trichotomy` / `verifyInput_exclusive` | `verifyInput` is a decidable total function returning exactly one of the three constructors |
-| (BLK wiring) | `verifyInput_eq_unjudged` | away from the gate, `verifyInput` is literally the 3-way match on `verifyScriptFull` at the documented fuel |
-| (wiring) | `realCheckerOf_*` | the checker record is pure: env fields are projections of `(tx, nIn)`, the Schnorr slot is fail-closed, the ECDSA entry is execData-independent and pops the hashtype into `verifyImpl` over dispatch |
-| (fuel) | `fuel_bound` / `fuel_bound_witness_item` | `verifyInput`'s fuel = ss.size + spk.size + witness bytes + 10 ≥ ss.size + spk.size (each opcode consumes ≥ 1 wire byte) |
-
-Axiom footprints (audited with `#print axioms` in a scratch file):
-all theorems here are `sorryAx`-free. The `Classical.choice` in most
-footprints is inherited from the core layer below (a bare `rfl` about
-`realCheckerOf` already carries it — it enters through the seam/record
-definitions' kernel-unfolding, exactly like `InterpCor` theorems
-over the same interpreter layer); no theorem here USES choice beyond
-what the core unfolds to.
-
-| theorem | axiom footprint |
-|---------|-----------------|
-| `verifyInput_taproot_lane` | propext, Classical.choice, Quot.sound |
-| `isTaprootProgram_none_false` | — (none) |
-| `isTaprootProgram_v0_false` | — (none) |
-| `isTaprootProgram_ge1_true` | — (none) |
-| `verifyInput_taproot_not_pass` | propext, Classical.choice, Quot.sound |
-| `verifyInput_taproot_not_fail` | propext, Classical.choice, Quot.sound |
-| `verifyInput_fail_shape` | propext, Classical.choice, Quot.sound |
-| `verifyInput_trichotomy` | propext, Classical.choice, Quot.sound |
-| `verifyInput_exclusive` | propext, Classical.choice, Quot.sound |
-| `verifyInput_not_pass_unjudged_or_fail` | propext, Classical.choice, Quot.sound |
-| `verifyInput_eq_unjudged` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_congr` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_env_version` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_env_lockTime` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_env_sequence` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_env_sequence_inRange` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_schnorr_failclosed` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_ecdsa_execData_indep` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_ecdsa_def` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_ecdsa_pops_hashtype` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_ecdsa_empty_sig_false` | propext, Classical.choice, Quot.sound |
-| `realCheckerOf_ecdsa_witnessV0_hasAmount` | propext, Classical.choice, Quot.sound |
-| `sighashDispatch_witnessV0` | propext, Classical.choice, Quot.sound |
-| `sighashDispatch_legacy` | propext, Classical.choice, Quot.sound |
-| `fuel_bound` | propext, Classical.choice, Quot.sound |
-| `fuel_bound_witness_item` | propext, Quot.sound |
+The module proves error shape, totality, exact dispatch/fuel wiring and the
+legacy/ECDSA compatibility adapter contracts. The latter describe
+`realCheckerOf`; production extends that adapter with typed real Schnorr
+verification in `realCheckerWithTaproot`. Cache completeness and public
+script adjudication status are proved in CapstoneTaproot and Block.
 -/
 
 namespace BitcoinProofs.Theorems.CapstoneWiring
@@ -90,22 +42,8 @@ private theorem getD_eq_get {α : Type} {l : List α} {i : Nat} {d : α}
 
 /-! ## The Taproot lane gate (P15-slot leakage freedom, input granularity) -/
 
-/-- **The unjudged lane is decided BEFORE the checker**: whenever the spent
-coin's scriptPubKey is a v1-witness (Taproot) program, `verifyInput`
-returns `unjudgedTaproot` without ever running `verifyScriptFull` — and
-therefore without ever reaching fail-closed Schnorr entry. This is
-the per-input form of leakage-freedom statement: the only inputs
-not fully adjudicated are exactly the ones this gate catches. -/
-theorem verifyInput_taproot_lane (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
-    (txIdx inputIdx : Nat)
-    (h : isTaprootProgram coin.scriptPubKey.bytes = true) :
-    verifyInput height tx i coin txIdx inputIdx = InputVerdict.unjudgedTaproot := by
-  unfold verifyInput
-  exact if_pos h
-
 /-- The gate is exactly "witness program with version ≥ 1"; a non-witness
-scriptPubKey never takes the unjudged lane (bare/P2SH scripts are fully
-adjudicated). -/
+scriptPubKey is not recognized by this historical helper. -/
 theorem isTaprootProgram_none_false (spk : ByteArray)
     (h : isWitnessProgram spk = none) :
     isTaprootProgram spk = false := by
@@ -121,31 +59,13 @@ theorem isTaprootProgram_v0_false (spk prog : ByteArray)
   rw [h]; rfl
 
 /-- The positive direction of the gate: any witness version ≥ 1 (v1 =
-Taproot key/script path; higher = upgradable) routes to the unjudged lane. -/
+Taproot key/script path; higher = upgradable) satisfies this recognizer. -/
 theorem isTaprootProgram_ge1_true (spk prog : ByteArray) (v : Nat)
     (hv : 1 ≤ v) (h : isWitnessProgram spk = some (v, prog)) :
     isTaprootProgram spk = true := by
   unfold isTaprootProgram
   rw [h]
   exact decide_eq_true hv
-
-/-- The unjudged lane is NOT an adjudicated pass: a Taproot-lane input can
-never contribute to the `scriptOk` counter. -/
-theorem verifyInput_taproot_not_pass (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
-    (txIdx inputIdx : Nat)
-    (h : isTaprootProgram coin.scriptPubKey.bytes = true) :
-    verifyInput height tx i coin txIdx inputIdx ≠ InputVerdict.pass := by
-  rw [verifyInput_taproot_lane height tx i coin txIdx inputIdx h]
-  simp
-
-/-- The unjudged lane is NOT an adjudicated failure either: taking it can
-never throw `CapError.scriptFail` ("does not gate the block verdict"). -/
-theorem verifyInput_taproot_not_fail (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
-    (txIdx inputIdx : Nat) (e : CapError)
-    (h : isTaprootProgram coin.scriptPubKey.bytes = true) :
-    verifyInput height tx i coin txIdx inputIdx ≠ InputVerdict.fail e := by
-  rw [verifyInput_taproot_lane height tx i coin txIdx inputIdx h]
-  simp
 
 /-! ## Error shape and totality of the per-input verdict -/
 
@@ -160,11 +80,9 @@ theorem verifyInput_fail_shape (height : UInt32) (tx : Tx) (i : Nat) (coin : Coi
   simp only [verifyInput] at h
   split at h
   · simp at h
-  · split at h
-    · simp at h
-    · simp at h
-    · rename_i _ ee _
-      exact ⟨ee, by simpa using h.symm⟩
+  · simp at h
+  · rename_i _ ee _
+    exact ⟨ee, by simpa using h.symm⟩
 
 /-- **Totality / trichotomy**: `verifyInput` is a decidable total function
 returning EXACTLY one of the three `InputVerdict` constructors — pass
@@ -177,12 +95,10 @@ theorem verifyInput_trichotomy (height : UInt32) (tx : Tx) (i : Nat) (coin : Coi
     ∃ e, verifyInput height tx i coin txIdx inputIdx = InputVerdict.fail e := by
   simp only [verifyInput]
   split
+  · exact Or.inl rfl
   · exact Or.inr (Or.inl rfl)
-  · split
-    · exact Or.inl rfl
-    · exact Or.inr (Or.inl rfl)
-    · rename_i _ f _
-      exact Or.inr (Or.inr ⟨CapError.scriptFail txIdx inputIdx f, rfl⟩)
+  · rename_i _ f _
+    exact Or.inr (Or.inr ⟨CapError.scriptFail txIdx inputIdx f, rfl⟩)
 
 /-- The trichotomy is exclusive (the three constructors are pairwise
 distinct), so "exactly one" — not just "at least one" — holds. -/
@@ -209,7 +125,6 @@ SCRIPT-path spending inside a P2SH or non-standard wrapper) legitimately
 lands on the unjudged lane too — by construction of the interpreter. -/
 theorem verifyInput_not_pass_unjudged_or_fail (height : UInt32) (tx : Tx) (i : Nat)
     (coin : Coin) (txIdx inputIdx : Nat)
-    (hgate : isTaprootProgram coin.scriptPubKey.bytes = false)
     (h : verifyInput height tx i coin txIdx inputIdx ≠ InputVerdict.pass) :
     verifyInput height tx i coin txIdx inputIdx = InputVerdict.unjudgedTaproot ∨
     ∃ ee, verifyInput height tx i coin txIdx inputIdx
@@ -227,9 +142,8 @@ gate, `verifyInput` is literally a three-way match on `verifyScriptFull`
 at the documented fuel (`ss.size + spk.size + witness bytes + 10`),
 `getBlockScriptFlags`, default policy, and the REAL checker wiring
 (adapter × `verifyImpl` × dispatch). -/
-theorem verifyInput_eq_unjudged (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
+theorem verifyInput_dispatch (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
     (txIdx inputIdx : Nat)
-    (hgate : isTaprootProgram coin.scriptPubKey.bytes = false)
     (hlen : i < tx.vin.length) :
     verifyInput height tx i coin txIdx inputIdx =
       match verifyScriptFull
@@ -237,12 +151,12 @@ theorem verifyInput_eq_unjudged (height : UInt32) (tx : Tx) (i : Nat) (coin : Co
           + ((witnessAt tx i).map (·.size)).foldl Nat.add 0 + 10)
         (getBlockScriptFlags height) default
         ((tx.vin[i]'hlen).scriptSig.bytes) (coin.scriptPubKey.bytes)
-        (witnessAt tx i) (realCheckerOf tx i coin.value) with
+        (witnessAt tx i) (realCheckerWithTaproot tx i coin.value none) with
       | .ok => InputVerdict.pass
       | .unjudged => InputVerdict.unjudgedTaproot
       | .fail e => InputVerdict.fail (CapError.scriptFail txIdx inputIdx e) := by
   unfold verifyInput
-  rw [if_neg (by simp [hgate]), getD_eq_get hlen]
+  rw [getD_eq_get hlen]
   rfl
 
 /-! ## The checker wiring is pure and determinism-usable -/

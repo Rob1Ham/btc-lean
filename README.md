@@ -63,7 +63,7 @@ the theorem index lists the proven boundary rows separately from the proven
 consensus rows. `proven` means the row has a named Lean target and passes the
 traceability gates; it does not by itself assert byte-for-byte equivalence with
 Bitcoin Core (see
-[Scope and non-claims](#scope-and-non-claims)). The 26 explicit residuals are
+[Scope and non-claims](#scope-and-non-claims)). The 25 explicit residuals are
 counted in `proven` but are not claims of Core equivalence;
 `docs/RESIDUALS.md` is authoritative for that list.
 
@@ -81,7 +81,7 @@ proofs**, not 140 proved row contracts. Forty rows carry a
 `@[walletRule "<ID>"]` tag; 37 are recorded as entailed, and three tagged rows
 also have partial obligations. The obligation register covers 99 rows (30
 PARTIAL, 69 UNMODELLED; 75 model gaps and 24 proof gaps), and four further
-rows had contradicted text corrected without a proof. The 838 wallet
+rows had contradicted text corrected without a proof. The 836 wallet
 theorem/lemma declarations pass a dedicated
 axiom gate with only `propext`, `Classical.choice`, and `Quot.sound`. The full
 obligation register is [`docs/WALLET-OBLIGATIONS.md`](docs/WALLET-OBLIGATIONS.md).
@@ -111,11 +111,11 @@ lake test
 cd ../proofs
 lake build BitcoinProofs
 # Current scoped build receipts are in docs/PROOF-BUILD.md.
-# This is the 34-module default import closure, not all 414 proof modules.
+# This is the 36-module default import closure, not all 416 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-default closure is 34 of the current 414 proof modules. The remaining 380
+default closure is 36 of the current 416 proof modules. The remaining 380
 modules require the full build review; the previously reported 365 passes
 and 15 failures are historical upstream results. See
 [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for exact verification scope.
@@ -153,8 +153,8 @@ The candidate tracks a size-bounded corpus subset at `spec/data/`:
 
 | Property | Value |
 |---|---:|
-| Tracked files | 170 |
-| Tracked bytes | 5,035,774 |
+| Tracked files | 172 |
+| Tracked bytes | 5,045,836 |
 | Subset manifest | `spec/data/MANIFEST.sha256` |
 | Release archive | `btc-lean-data-2026.10.17.tar.gz` |
 | Archive bytes | 357,916,214 |
@@ -201,9 +201,9 @@ local checkout paths in tracked shell/Python files.
 
 The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
-the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 299 consensus
+the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 315 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
-838 wallet declarations.
+836 wallet declarations.
 
 Wallet gates also support the optional Core-source anchor census:
 

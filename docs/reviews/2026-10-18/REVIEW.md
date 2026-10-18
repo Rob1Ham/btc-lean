@@ -95,6 +95,8 @@ BLK-016's current summary explicitly acknowledges that distinction, but the live
 
 The general Taproot unjudged limitation is disclosed. This finding concerns the excess structural bypass and the `.ok` block result carrying unjudged inputs. Run adjudicable gates first and distinguish incomplete replay from a fully validated verdict. Real BIP340 verification is present, but [`RealChecker`](../../../spec/core/Bitcoin/Capstone/RealChecker.lean#L115) still supplies a `none` Schnorr sighash and script paths return `.unjudged`; repairing q-binding alone does not wire a complete Taproot spend path.
 
+R06 remediation now passes its scoped checks: real key-path and script-path validation, exact witness-budget and opcode-index dataflow, and ordered current-view prevout binding. The public signed fixture reports 12 judged inputs and zero unjudged. See [validation-r06.json](validation-r06.json) for 245 targeted runtime checks, affected proof builds and dynamic probes; full repository coverage remains R08.
+
 ### R07 P1 Historical exemptions rely on height without proving canonicality
 
 The live script path uses [`getBlockScriptFlags(height)`](../../../spec/core/Bitcoin/Activation/Interface.lean#L133), reducing flags for every candidate at heights 170060/692261. The BIP30 path uses [`bip30Enforced(height)`](../../../spec/core/Bitcoin/Ledger/Interface.lean#L351), exempting heights 91842/91880 and assuming canonical BIP34 ancestry in its skip window. Core's exceptions depend on actual hashes/ancestry. More faithful hash-aware helpers and conditional agreement theorems already exist in this repository.
@@ -230,3 +232,35 @@ axiom probes. Script verification still selects some flags by height (R07),
 and witness/adjudication repairs, full module coverage and the remaining
 census review stay open. Resource accounting's hash-aware flags do not close
 those separate gaps.
+
+### R18 P1 CSV uses a signed transaction-version comparison
+
+The current `Interpreter.Defs.checkSequenceDef` compares `env.txVersion < 2`
+as `Int32`. At both pinned Core revisions, `CTransaction.version` is
+`uint32_t`; `GenericTransactionSignatureChecker::CheckSequence` compares that
+unsigned value with 2. These differ for versions whose high bit is set.
+
+[The executable reproduction](CSV-VERSION-REPRO.lean) supplies a funded,
+non-coinbase input with `OP_1 OP_CHECKSEQUENCEVERIFY OP_DROP OP_1` and sequence
+1. The public `applyTx` engine at height 500000 rejects wire version
+`ffffffff` with `unsatisfiedLocktime`, while the otherwise identical version-2
+control passes. Both Core source bodies agree on the unsigned gate. This is
+a script CSV defect; the separately repaired contextual BIP68 path already
+uses the unsigned version bits. R18 remains open pending its own strict
+before/after regression, pinned-source execution and proof-consumer repairs.
+
+### R19 P2 A compatibility checker selects the wrong signature algorithm
+
+`realCheckerFullOf2` opened `Bitcoin.Crypto.Schnorr.Verify` and passed its
+unqualified `verifyImpl` to the ECDSA slot of `txCheckerOf`. The intended
+ECDSA-preservation proof consequently failed to compile. A strict runtime
+[reproduction](reproduce_schnorr_assembly.py) executes the old three factory
+definitions: both official ECDSA inputs fail, while both production controls
+pass. The compatibility factory is outside the production root import closure.
+
+The verified R06/R19 change explicitly binds `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`,
+restores the proof contracts and proves unconditional ECDSA slot preservation.
+All four regression checks pass. The core inventory also shows why the full
+R08 matrix must include core library modules: 59 of 131 tracked core model
+modules are outside the 72-module `Bitcoin` root import closure. Full default
+builds and static gates alone missed this factory.

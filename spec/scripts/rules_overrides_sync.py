@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'check': 1, 'consensus': 1, 'core_ref': 86, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 62, 'test_vector_ids': 26}.
+# 726 rows; field census {'check': 1, 'consensus': 1, 'core_ref': 86, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 219, 'notes_extra': 1, 'status': 642, 'summary': 62, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 768ed2f2441f5c2079a66975cbc4c51b45a7a88d6b4015360c4050dd6b1cf767
+#   726 rows, sha256 e6f4506f76e8b0ba17b33a0465a4cb17db0975e40ed1bbe3d16d95840426fbdb
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -1036,8 +1036,9 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-040': {
-        'lean_target': 'Bitcoin.Interpreter.Defs.executeWitnessScript',
+        'lean_target': 'BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed',
         'status': 'proven',
+        'notes': ' R06: live interpreter aliases the count-prefixed full witness size. Kernel encoder/seed bridge and exact150byte200WUfour-signature public regression pass; original count-prefix omission is fixed. Exact live-execution theorem shows EvalScript receives the full encoder length +50 while caller annex/tapleaf data is preserved, under the actual early size/success gates.',
     },
     'SCR-041': {
         'lean_target': 'Bitcoin.Interpreter.Defs.evalChecksigTapscript',
@@ -2908,6 +2909,7 @@ OVERRIDES_SYNC = {
         'summary': "budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)` additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)",
         'lean_target': 'BitcoinProofs.AF.PDW41.validationWeightInit_row',
         'status': 'proven',
+        'notes': ' R06: full count-prefixed witness size; empty witness budget51; append law includes stack-count prefix growth. Exact encoder bridge in WitnessSerialization; live150byte200WUfour-signature boundary passes.',
     },
     'TPR-023': {
         'notes': None,
@@ -3114,6 +3116,7 @@ OVERRIDES_SYNC = {
     'TPR-071': {
         'lean_target': 'Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included',
         'status': 'proven',
+        'notes': ' R06: count-prefix defect fixed and full encoder/budget bridge proved. Signed annex paths pass. Transaction-weight composition theorem remains an explicit residual; this growth target alone does not discharge that whole row.',
     },
     'TPR-072': {
         'summary': 'ScriptExecutionData handed to the Schnorr checker entry reaches sighashSchnorr unchanged and its digest is passed verbatim to verify; interpreter-side population of tapleafHash/codesepPos/outputHash and script-path annex forwarding are residual (F-TS02-008)',

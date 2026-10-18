@@ -147,7 +147,7 @@ theorem stepBody_codesep_records_next (ctx : Ctx) (op : WireOp) (st : State)
       = .ok { st with
           opCount := (if (ctx.sv = .base ∨ ctx.sv = .witnessV0) ∧ 0x60 < op.wire
             then st.opCount + 1 else st.opCount),
-          codeSep := op.next } := by
+          codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   cases op with
   | mk ast wire next =>
     simp only at hc hw ⊢
@@ -201,7 +201,9 @@ end BitcoinProofs.AF.PDW83
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW83.cmsLoop_sig_exceeds_keys
 /-- info: 'BitcoinProofs.AF.PDW83.taprootControl_lattice_mem' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW83.taprootControl_lattice_mem
-/-- info: 'BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad
 /-- info: 'BitcoinProofs.AF.PDW83.sighashTaproot_epoch_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW83.sighashTaproot_epoch_row

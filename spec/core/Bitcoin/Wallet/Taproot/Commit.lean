@@ -3,74 +3,19 @@ import Bitcoin.Interpreter.Defs
 import Bitcoin.Crypto.Taproot.Verify
 
 /-!
-# Wallet-local Taproot program equality
+# Wallet spent-program and Taproot commitment relations
 
-This module supplies the wallet-side predicates that connect a spent
-`scriptPubKey` to a Taproot control block.  It does not change any
-consensus definition: it imports the executable consensus tree read-only
-and states its facts over the existing types.
+`programOf` reuses the interpreter's witness-program decoder. The wallet
+predicates relate the claimed program to the spent script and to the real
+control/leaf commitment. The verifier's accepting commitment binds the exact
+32-byte program to the recomputed output key; conditional wallet theorems
+make that relation explicit.
 
-## The consensus check
-
-Bitcoin Core's script-path commitment check is
-
-    static bool VerifyTaprootCommitment(const std::vector<unsigned char>& control,
-                                        const std::vector<unsigned char>& program,
-                                        const uint256& tapleaf_hash)
-
-(`src/script/interpreter.cpp:1913-1925` at `cce32b168`).  It reads the
-output key from the spent program (`const XOnlyPubKey q{program};`,
-`:1920`) and compares it with the tweaked internal key (`q.CheckTapTweak`,
-`:1924`; `src/pubkey.cpp:257-263`).  The executable model's
-`verifyTaprootCommitment` now performs the same comparison through
-`checkTapTweak`:
-
-    outputKeyOk control root &&
-      decide (program.size = 32) &&
-      decide (natToBytesBE 32 x(Q) = program)
-
-(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean`).  `outputKeyOk`
-re-parses the control block's internal key, recomputes the tweak and
-checks the output-key parity (`spec/core/Bitcoin/Crypto/Taproot/OutputKey.lean`),
-and `checkTapTweak` adds Core's length-checked `q == x(Q)` byte
-equality.  Consequently an accepted commitment binds the `program`
-argument (`commitmentOf_program_binding` and
-`scriptPathSpend_program_binding` below).
-
-The capstone still routes every input whose prevout is a witness program
-of version at least one to `InputVerdict.unjudgedTaproot` *before*
-`verifyScriptFull` runs (`spec/core/Bitcoin/Capstone/Block.lean:218-221`
-for the gate, `:242-245` for the dispatch).  The interpreter's own
-script-path arm likewise ends in `.unjudged` once the control-block size
-gate passes (`spec/core/Bitcoin/Interpreter/Defs.lean:1258-1263`), so the
-v1 lane remains an explicit assume-valid at the capstone even though the
-crypto-side commitment verdict is now faithful.
-
-## The wallet bridge
-
-`programOf` decomposes a spent `scriptPubKey` through the consensus
-witness-program decoder.  `programMatches` is the Boolean programme
-equality used by the wallet, and `SpendCommitment` is the proposition
-that the spent script's v1 program is the program the control block
-commits to *and* that the consensus commitment verdict accepts the
-tapleaf.  The committed program is recomputed from the control block's
-internal key and the merkle root reconstructed from the same control
-block and leaf script.
-
-## What is not modeled
-
-* The secp256k1 tweak computation is the consensus model's
-  `outputKeyOk`/`tweakPoint` chain; this module adds no curve arithmetic
-  and no new cryptographic assumption.
-* The comparison that Core performs inside
-  `secp256k1_xonly_pubkey_tweak_add_check` is now performed by the
-  consensus verifier (`commitmentOf_program_binding` below) as well as
-  by the wallet-side equality `committedProgram ... = some program`.
-* No wallet spend is proved valid.  `W1_taprootSpendJudged` is a named
-  target proposition, not a theorem.  Its remaining gap is the capstone
-  routing to `unjudgedTaproot`, not the crypto-side program comparison.
-* Tapscript execution, sighash construction and signature production are
-  outside this module.
+`W1_taprootSpendJudged` is a standalone target with independently quantified
+script and program arguments. Control size alone cannot establish their
+relation. It remains a target, and wallet predicates alone do not establish
+signature correctness or valid script execution. The live capstone now
+performs real key/script-path adjudication with complete spent-output data.
 -/
 
 namespace Bitcoin.Wallet.Taproot
@@ -381,24 +326,11 @@ theorem taprootSpendJudged_iff_commitment
   rw [ite_eq_left hsize]
   simp
 
-/-- **Taproot spend judgement (target, not proven).**
-
-For every spent `scriptPubKey` that really is a Taproot output, every
-wallet-supplied program, every control block and every leaf script, if
-the control block passes the BIP341 size gate then the consensus
-script-path arm is judged exactly when the spent script's program equals
-the wallet's program *and* the commitment verdict accepts.
-
-The hypotheses are deliberately minimal: the size gate is the only
-premise, because `scriptPathSpend` fails closed below it.  The
-proposition is not a theorem of this tree.  The verifier now compares the
-recomputed output key with `program` (`Verify.checkTapTweak`), but `spk`
-is an arbitrary 34-byte v1 scriptPubKey: nothing connects its payload to
-the `program` argument of this definition, and the capstone still routes
-the whole v1 lane to `unjudgedTaproot`
-(`Capstone/Block.lean:242-245`).  The proven conditional form is
-`spendCommitment_iff_verdict`; every wallet Taproot spend claim remains
-conditional on `SpendCommitment`. -/
+/-- A standalone target with independently supplied spent script and wallet
+program. A valid control size alone cannot imply that those arguments match.
+`spendCommitment_iff_verdict` proves the conditional relation. The live
+capstone's actual-program dataflow does not prove this unrelated-arguments
+proposition, and this target does not assert a complete signed spend. -/
 def W1_taprootSpendJudged : Prop :=
   ∀ (spk : Script) (program control leafScript : ByteArray),
     controlBlockSizeOk control = true →

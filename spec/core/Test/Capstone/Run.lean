@@ -127,6 +127,7 @@ structure BlockResult where
   ms : Nat := 0
   foldAgrees : Bool := true
   probe : String := ""
+  scriptAdjudication : ScriptAdjudication := .incomplete
 deriving Repr
 
 /-- Validate anchor at `height`, from the files in `dir`. -/
@@ -144,9 +145,9 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   -- independent witness for the decode: count txs by walking the header
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
-  let res :=
+  let res : BlockResult :=
     match replayBlock raw st with
-    | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
+    | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
           match decodeBlock raw with
@@ -157,7 +158,12 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
           match folded with
           | .ok l' => bytesBEqList l' rep.state.utxo
           | .error _ => false
-        BlockResult.mk height "" true "" rep.txs rep.scriptOk rep.scriptUnjudged 0 agree "" 
+        { height := height, blockHash := "",
+          ok := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0 && agree,
+          reason := if rep.scriptAdjudication != .complete || rep.scriptUnjudged != 0 then
+            "script-data-unavailable" else if !agree then "ledger-fold-mismatch" else "",
+          txs := rep.txs, scriptOk := rep.scriptOk, scriptUnjudged := rep.scriptUnjudged,
+          foldAgrees := agree, scriptAdjudication := rep.scriptAdjudication }
   let t1 ← IO.monoMsNow
   let hashDisp := match decodeBlock raw with
     | .ok (h, _) => (bL (headerHash h)).reverse
@@ -200,7 +206,7 @@ def corpora : List (String × List Nat) :=
   [("../vectors/anchors", anchors), ("../vectors/anchors2", anchors2)]
 
 def main : IO Unit := do
-  IO.println "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated"
+  IO.println "mode: partial anchor replay; ancestor/clock/finality context unavailable; script adjudication is explicit"
   let which := (← IO.getEnv "CAPSTONE_SET").getD "all"
   -- CAPSTONE_ONLY=<comma-separated heights> restricts the run to those
   -- anchors (incremental re-runs while a corpus member's seeds land).
@@ -220,7 +226,7 @@ def main : IO Unit := do
         IO.println s!"UNAVAILABLE {h} (no {dir}/{h}.raw)"
         continue
       let r ← runAnchor dir h
-      IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+      IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
       if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
       results := results ++ [r]
   let allOk := !results.isEmpty && missing == 0 && results.all (·.ok)

@@ -111,7 +111,8 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         (txs.getD 0 dummyTx) = .ok () ∧
       applyBlockTransactionsWithSigops resolved st.height (candidateScriptFlags st.height header)
         txs st.utxo = .ok ((report.state.utxo, report.scriptOk, report.scriptUnjudged), report.sigOpCost) ∧
-      report.sigOpBudgetChecked = true := by
+      report.sigOpBudgetChecked = true ∧
+      report.scriptAdjudication = (if report.scriptUnjudged = 0 then .complete else .incomplete) := by
   rw [validateBlock.eq_1] at h
   cases hd : decodeBlock raw with
   | error e => simp [hd] at h
@@ -142,7 +143,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         obtain ⟨⟨out, a, b⟩, total⟩ := value
         simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
         subst report
-        exact ⟨header, txs, none, rfl, prelude, witness, hs, rfl⟩
+        exact ⟨header, txs, none, rfl, prelude, witness, hs, rfl, rfl⟩
     | some ctx =>
       cases hc : checkHeaderContext ctx st.height st.prevHash header with
       | error e => simp [hc] at h
@@ -164,7 +165,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
           obtain ⟨⟨out, a, b⟩, total⟩ := value
           simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
           subst report
-          exact ⟨header, txs, some (ctx, facts), rfl, prelude, witness, hs, rfl⟩
+          exact ⟨header, txs, some (ctx, facts), rfl, prelude, witness, hs, rfl, rfl⟩
 
 /-- The public entry also enforces CheckBlock's early legacy-only budget
 and checks every stateless transaction before reaching input validation. -/
@@ -191,7 +192,7 @@ theorem validateBlock_sigop_budget {raw : ByteArray} {st : CapState}
         report.state.utxo 0 report.sigOpCost := by
   obtain ⟨header, txs, resolved, hd, _, _, stage, covered⟩ := validateBlock_sigop_stage h
   obtain ⟨fees, fold, _⟩ := applyBlockTransactionsWithSigops_fold stage
-  exact ⟨covered, applyTxsWithSigops_bounded (by decide) fold,
+  exact ⟨covered.1, applyTxsWithSigops_bounded (by decide) fold,
     header, txs, hd, applyTxsWithSigops_trace fold⟩
 
 /-! Guard the exact footprints of the new public-stage proofs and their Core lemmas. -/

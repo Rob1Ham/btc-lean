@@ -117,50 +117,42 @@ def sig_msg(tx, spent, in_pos, hash_type, ext_flag=0, annex=None,
 def sighash(tx, spent, in_pos, hash_type, **kw):
     return tagged_hash('TapSighash', b'\x00' + sig_msg(tx, spent, in_pos, hash_type, **kw))
 
-# ---------- 1. official vectors ----------
 
-d = json.load(open(VECTORS))
-kp = d['keyPathSpending'][0]
-tx = decode_tx(bytes.fromhex(kp['given']['rawUnsignedTx']))
-spent = [(u['amountSats'], bytes.fromhex(u['scriptPubKey']))
-         for u in kp['given']['utxosSpent']]
+def main():
+    d = json.load(open(VECTORS))
+    kp = d['keyPathSpending'][0]
+    tx = decode_tx(bytes.fromhex(kp['given']['rawUnsignedTx']))
+    spent = [(u['amountSats'], bytes.fromhex(u['scriptPubKey'])) for u in kp['given']['utxosSpent']]
+    ok = 0
+    for c in kp['inputSpending']:
+        g, it = (c['given'], c['intermediary'])
+        ip, ht = (g['txinIndex'], g['hashType'])
+        got_msg = b'\x00' + sig_msg(tx, spent, ip, ht)
+        got_hash = sighash(tx, spent, ip, ht)
+        assert got_msg == bytes.fromhex(it['sigMsg']), f'sigMsg mismatch case ht={ht}'
+        assert got_hash == bytes.fromhex(it['sigHash']), f'sigHash mismatch case ht={ht}'
+        ok += 1
+    print(f'mirror: {ok}/7 official key-path sigMsg+sigHash re-derived: OK')
+    src = open(HARNESS).read()
+    pat = re.compile('\\("([a-z0-9-]+)",\\s*(\\d+),\\s*(\\d+),\\s*"([0-9a-f]*)",\\s*"([0-9a-f]*)",\\s*(\\d+),\\s*"([0-9a-f]+)",\\s*"([0-9a-f]+)"\\)', re.S)
+    ok2 = 0
+    for m in pat.finditer(src):
+        name, ip, ht, annex, leaf, cs, exp_msg, exp_hash = m.groups()
+        ip, ht, cs = (int(ip), int(ht), int(cs))
+        kw = {}
+        if annex:
+            kw['annex'] = bytes.fromhex(annex)
+        if leaf:
+            kw['ext_flag'] = 1
+            kw['tapleaf_hash'] = bytes.fromhex(leaf)
+            kw['codesep_pos'] = cs
+        got = b'\x00' + sig_msg(tx, spent, ip, ht, **kw)
+        assert got == bytes.fromhex(exp_msg), f'{name}: sigMsg {got.hex()} != {exp_msg}'
+        got_h = sighash(tx, spent, ip, ht, **kw)
+        assert got_h == bytes.fromhex(exp_hash), f'{name}: sigHash {got_h.hex()} != {exp_hash}'
+        ok2 += 1
+    assert ok2 >= 7, 'harness must embed at least the 7 official cases'
+    print(f'crosscheck: {ok2} harness sigMsg/sigHash literals re-derived (official + synthetic annex/tapscript): OK')
 
-ok = 0
-for c in kp['inputSpending']:
-    g, it = c['given'], c['intermediary']
-    ip, ht = g['txinIndex'], g['hashType']
-    got_msg = b'\x00' + sig_msg(tx, spent, ip, ht)     # vector sigMsg has the epoch
-    got_hash = sighash(tx, spent, ip, ht)
-    assert got_msg == bytes.fromhex(it['sigMsg']), f"sigMsg mismatch case ht={ht}"
-    assert got_hash == bytes.fromhex(it['sigHash']), f"sigHash mismatch case ht={ht}"
-    ok += 1
-print(f"mirror: {ok}/7 official key-path sigMsg+sigHash re-derived: OK")
-
-# ---------- 2. re-derive every harness literal ----------
-src = open(HARNESS).read()
-# Harness row shape (8 fields, one per line):
-#   ("name", inPos, hashType, annexHex ("" = none), tapleafHex ("" = key
-#    path), codesepPos, sigMsgHex (WITH epoch), sigHashHex)
-pat = re.compile(
-    r'\("([a-z0-9-]+)",\s*(\d+),\s*(\d+),\s*"([0-9a-f]*)",\s*"([0-9a-f]*)",'
-    r'\s*(\d+),\s*"([0-9a-f]+)",\s*"([0-9a-f]+)"\)', re.S)
-
-ok2 = 0
-for m in pat.finditer(src):
-    (name, ip, ht, annex, leaf, cs, exp_msg, exp_hash) = m.groups()
-    ip, ht, cs = int(ip), int(ht), int(cs)
-    kw = {}
-    if annex: kw['annex'] = bytes.fromhex(annex)
-    if leaf:
-        kw['ext_flag'] = 1
-        kw['tapleaf_hash'] = bytes.fromhex(leaf)
-        kw['codesep_pos'] = cs
-    got = b'\x00' + sig_msg(tx, spent, ip, ht, **kw)
-    assert got == bytes.fromhex(exp_msg), f"{name}: sigMsg {got.hex()} != {exp_msg}"
-    got_h = sighash(tx, spent, ip, ht, **kw)
-    assert got_h == bytes.fromhex(exp_hash), f"{name}: sigHash {got_h.hex()} != {exp_hash}"
-    ok2 += 1
-
-assert ok2 >= 7, "harness must embed at least the 7 official cases"
-print(f"crosscheck: {ok2} harness sigMsg/sigHash literals re-derived "
-      f"(official + synthetic annex/tapscript): OK")
+if __name__ == "__main__":
+    main()
