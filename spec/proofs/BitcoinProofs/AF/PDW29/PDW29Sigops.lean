@@ -181,8 +181,8 @@ theorem sigOpWeight_spec :
 /-! ## BLK-035 — full sigop cost -/
 
 /-- Cost decomposition (block model): `4 × (legacy + P2SH) + witness`
-(witness weight 1). The P2SH/witness terms are the model's flat scans;
-see the scope note and `p2sh_flat_vs_accurate_witness`. -/
+(witness weight 1). The P2SH/witness terms use the accurate count; the
+legacy term is the flat BLK-033 scan. -/
 @[rule "BLK-035"]
 theorem txSigOpCost_decompose_row (u : Bitcoin.Ledger.UtxoSet) (tx : Bitcoin.Data.Tx) :
     txSigOpCost u tx =
@@ -190,18 +190,15 @@ theorem txSigOpCost_decompose_row (u : Bitcoin.Ledger.UtxoSet) (tx : Bitcoin.Dat
   rw [txSigOpCost_decompose]
   simp [WITNESS_SCALE_FACTOR]
 
-/-- **BLK-035 residual witness**: the canonical P2SH redeem script
-`OP_1 OP_CHECKMULTISIG` counts 20 under the block model's flat scanner
-(`fAccurate = false`) but 1 under Core's accurate `GetSigOpCount(true)`,
-which decodes the preceding `OP_1`. This is the exact gap between
-`Bitcoin.Block.Sigops.p2shSigOpCount`/`witnessInputSigOps` and Core's
-P2SH/P2WSH terms. -/
+/-- **BLK-035 accuracy witness**: the canonical P2SH redeem script
+`OP_1 OP_CHECKMULTISIG` counts 20 under the flat legacy scan
+(`fAccurate = false`) and 1 under the block model's accurate
+P2SH/witness counter, which decodes the preceding `OP_1` exactly like
+Core's `GetSigOpCount(true)`. -/
 @[rule "BLK-035"]
-theorem p2sh_flat_vs_accurate_witness :
+theorem p2sh_accurate_vs_flat_witness :
     legacySigOpCountScript ⟨ByteArray.mk #[0x51, 0xae]⟩ = 20 ∧
-    Bitcoin.Interpreter.sigOpCount
-      ((Bitcoin.Interpreter.parseWire (ByteArray.mk #[0x51, 0xae])).getD [])
-      true = 1 := by
+    accurateSigOpCountBytes (ByteArray.mk #[0x51, 0xae]) = 1 := by
   decide
 
 /-- Coinbase: P2SH and witness terms are excluded ⇒ exactly 4×legacy. -/

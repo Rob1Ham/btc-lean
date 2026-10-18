@@ -2,6 +2,7 @@ import Bitcoin.RuleAttr
 import Bitcoin.Data.Tx
 import Bitcoin.Ledger.Utxo
 import Bitcoin.Interpreter.Defs
+import Bitcoin.Interpreter.SigOps
 
 /-!
 # Bitcoin.Block.Sigops — signature-operation accounting (the block-validation module)
@@ -20,9 +21,10 @@ The block-level sigop budget (`src/policy/policy.cpp` `GetLegacySigOpCount`
   sigops for future witness versions (v1+, taproot) are 0 — Core only
   counts those at script-execution time.
 * **BLK-035** — the full sigop cost of one transaction:
-  `cost = 4 × (legacy + P2SH) + witness`, where the P2SH and witness
-  terms exclude the coinbase (its prevout is not a real coin) and
-  witness sigops weight 1, not 4 (BIP141).
+  `cost = 4 × (legacy + P2SH) + witness`, where the P2SH redeem script
+  and the v0-32 witness script use Core's accurate `GetSigOpCount(true)`
+  count, the P2SH and witness terms exclude the coinbase (its prevout is
+  not a real coin), and witness sigops weight 1, not 4 (BIP141).
 * **BLK-036** — the cumulative budget during ConnectBlock:
   Σ `txSigOpCost` over `vtx ≤ 80000` (`bad-blk-sigops`).
 
@@ -294,6 +296,12 @@ where
             go b fuel (i + 5 + n) (some (b.extract (i+5) (i+5+n)))
           else go b fuel (i + 1) acc
 
+/-- Core `CScript::GetSigOpCount(true)` over raw script bytes: parse the
+wire and count CHECKSIG/CHECKMULTISIG with the OP_1..OP_16 lookback;
+an unparseable script counts 0 (the caller's under-counting rule). -/
+def accurateSigOpCountBytes (b : ByteArray) : Nat :=
+  Bitcoin.Interpreter.SigOps.witnessScriptSigOps b
+
 /-- `GetP2SHSigOpCount` (policy.cpp:132-160): for each **non-coinbase**
 input whose prevout coin's scriptPubKey is P2SH, count legacy sigops in
 the redeem script (the scriptSig's last data push). Missing coins count
@@ -308,7 +316,7 @@ def p2shSigOpCount (u : UtxoSet) (tx : Tx) : Nat :=
            if isP2SH c.scriptPubKey then
              match lastPush i.scriptSig with
              | none => 0
-             | some r => legacySigOpCountScript ⟨r⟩
+             | some r => accurateSigOpCountBytes r
            else 0)) 0
 
 /-- Witness sigops of one input (tx_verify.cpp:149-168): only if the
@@ -328,7 +336,7 @@ def witnessInputSigOps (u : UtxoSet) (i : TxIn) (w : WitnessStack) : Nat :=
       else if prog.size = 32 then
         match w.getLast? with
         | none => 0
-        | some ws => sigOpScan ws ws.size 0 0
+        | some ws => accurateSigOpCountBytes ws
       else if prog.size = 20 then 1
       else 0
 
