@@ -70,10 +70,20 @@ theorem liftX_x_preserved {x x' y' : Nat} (h : liftX x = some (x', y')) : x' = x
 theorem liftX_even_y {x x' y' : Nat} (h : liftX x = some (x', y')) : y' % 2 = 0 :=
   Bitcoin.Crypto.Curve.Secp.liftX_even h
 
-/-- TPR-054: a lifted point is a well-formed curve point. -/
+/-- TPR-054 (raw well-formedness): a lifted point has in-field
+coordinates and lies in the curve's affine domain (`RawOK` is the
+coordinate-bounds predicate, not the curve equation). -/
 @[rule "TPR-054"]
-theorem liftX_on_curve_face (x : Nat) : RawOK (liftX x) :=
+theorem liftX_rawOK_face (x : Nat) : RawOK (liftX x) :=
   Bitcoin.Crypto.Curve.Secp.liftX_ok x
+
+/-- TPR-054 (on-curve): a successfully lifted point satisfies the curve
+equation `y² = x³ + 7 (mod p)`. This is the real curve-membership face;
+the previous name on the `RawOK` theorem overstated it as "on curve". -/
+@[rule "TPR-054"]
+theorem liftX_onCurve_face {x x' y' : Nat} (h : liftX x = some (x', y')) :
+    OnCurve x' y' :=
+  Bitcoin.Crypto.Curve.Secp.liftX_onCurve h
 
 /-- TPR-054: out-of-field x (`p ≤ x`) fails exactly as Core's lift_x does. -/
 @[rule "TPR-054"]
@@ -161,7 +171,9 @@ end BitcoinProofs.AF.PDW42
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_x_preserved
 /-- info: 'BitcoinProofs.AF.PDW42.liftX_even_y' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_even_y
-/-- info: 'BitcoinProofs.AF.PDW42.liftX_on_curve_face' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_on_curve_face
+/-- info: 'BitcoinProofs.AF.PDW42.liftX_rawOK_face' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_rawOK_face
+/-- info: 'BitcoinProofs.AF.PDW42.liftX_onCurve_face' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_onCurve_face
 /-- info: 'BitcoinProofs.AF.PDW42.liftX_high_none' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW42.liftX_high_none

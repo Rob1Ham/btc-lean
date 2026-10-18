@@ -18,6 +18,12 @@ open BitcoinProofs.AF.PDW19
 /-- info: 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_keypath_fail_closed' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms verifyWitnessProgram_keypath_fail_closed
 
+/-- info: 'BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_ok_face' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms verifyTaprootLeafDispatch_upgradable_ok_face
+
+/-- info: 'BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_discourage_face' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms verifyTaprootLeafDispatch_upgradable_discourage_face
+
 /-- info: 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms verifyWitnessProgram_upgradable_leaf_ok
 

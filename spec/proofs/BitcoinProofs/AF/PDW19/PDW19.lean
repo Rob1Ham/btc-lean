@@ -1,12 +1,14 @@
 import Bitcoin.Interpreter.Rules
 import Bitcoin.Interpreter.SigOps
+import Bitcoin.Script.Tapscript.LeafVersion
 
 /-! # PDW19.lean — proof-promotion review, items TOP-91..95
 (PDW19, review RC21, 2026-10-17; claim f216df2; resumed post
 model-rotation from bank 522cd8d).
 
-Four row-facing theorems, one per claimed `implemented` rules.yaml
-row (tag-on-def / mismatch repair class, route B of PDW11/12/16):
+Four row-facing theorem groups, one per claimed `implemented`
+rules.yaml row (tag-on-def / mismatch repair class, route B of
+PDW11/12/16):
 
 * **SCR-142** `verifyWitnessProgram_taproot_gate_silent_ok`
   (Interpreter/Rules.lean:379, untagged there) — TAPROOT flag off ⇒
@@ -14,9 +16,15 @@ row (tag-on-def / mismatch repair class, route B of PDW11/12/16):
 * **SCR-144** `verifyWitnessProgram_keypath` (Rules.lean:393;
   core twin carries a foreign `INV-072` tag) — key-path verdict =
   the BIP340 checker's, fail-closed `.fail .schnorrSig`.
-* **SCR-149** `verifyWitnessProgram_upgradable_leaf_ok`
-  (Rules.lean:410, untagged there) — v ≥ 2 upgradable, success under
-  the DISCOURAGE policy hook off.
+* **SCR-149** `verifyTaprootLeafDispatch_upgradable_ok_face` /
+  `_discourage_face` (LeafVersion.lean:179/:165; `interpreter.cpp`
+  :1995-1998) — a non-0xc0 TAPROOT leaf version is upgradable: success
+  under `discourageUpgradableTaprootVersion = false`, the named policy
+  failure under `true`. (The earlier bug tagged the v ≥ 2 *witness
+  version* arm as SCR-149; that arm is SCR-151 below.)
+* **SCR-151** `verifyWitnessProgram_upgradable_leaf_ok` /
+  `_discourage` / `_ok_iff` (Rules.lean:410) — witness version ≥ 2
+  is upgradable under `discourageUpgradableWitnessProgram`.
 * **SWT-026** `witnessSigOps_p2wsh` (SigOps.lean:206, untagged
   there; core tags sit on :92/:102) — v0-32 witness sigops = the
   last witness item's accurate count.
@@ -74,8 +82,51 @@ theorem verifyWitnessProgram_keypath_fail_closed
       = VerifyOutcome.fail .schnorrSig := by
   simp [verifyWitnessProgram, htap, h32, hp2, hchk]
 
-/-- SCR-149: v ≥ 2 upgradable leaves succeed (Rules.lean:410 verbatim). -/
+/-! ## SCR-149 — the non-0xc0 TAPROOT leaf-version fall-through
+(Core `interpreter.cpp:1995-1998`)
+
+The script-path tail masks the control byte with `0xfe` and compares it
+to `0xc0`. Every other leaf version leaves the tapscript arm and reaches
+the upgradable `else`: `DISCOURAGE_UPGRADABLE_TAPROOT_VERSION` (policy)
+fails, otherwise the spend succeeds. The prior version of this file
+tagged the *witness version* ≥ 2 arm (SCR-151) as SCR-149; the row faces
+below are the genuine leaf-version statements, re-exported from
+`Bitcoin.Script.Tapscript.LeafVersion`. -/
+
+/-- SCR-149: a non-0xc0 (upgradable) TAPROOT leaf version succeeds when
+the DISCOURAGE policy hook is off. -/
 @[rule "SCR-149"]
+theorem verifyTaprootLeafDispatch_upgradable_ok_face
+    (fuel : Nat) (items : WitnessStack) (control script : ByteArray)
+    (witness : WitnessStack) (flags : ScriptFlags) (pol : PolicyFlags)
+    (chk : ScriptChecker)
+    (hnot : Bitcoin.Script.Tapscript.isTapscriptLeaf control = false)
+    (hnd : pol.discourageUpgradableTaprootVersion = false) :
+    Bitcoin.Script.Tapscript.verifyTaprootLeafDispatch fuel items control
+        script witness flags pol chk
+      = VerifyOutcome.ok :=
+  Bitcoin.Script.Tapscript.verifyTaprootLeafDispatch_upgradable_ok fuel
+    items control script witness flags pol chk hnot hnd
+
+/-- SCR-149 (policy-on face): a non-0xc0 TAPROOT leaf version fails with
+Core's exact `discourageUpgradableTaprootVersion` error when the policy
+hook is set. -/
+@[rule "SCR-149"]
+theorem verifyTaprootLeafDispatch_upgradable_discourage_face
+    (fuel : Nat) (items : WitnessStack) (control script : ByteArray)
+    (witness : WitnessStack) (flags : ScriptFlags) (pol : PolicyFlags)
+    (chk : ScriptChecker)
+    (hnot : Bitcoin.Script.Tapscript.isTapscriptLeaf control = false)
+    (hd : pol.discourageUpgradableTaprootVersion = true) :
+    Bitcoin.Script.Tapscript.verifyTaprootLeafDispatch fuel items control
+        script witness flags pol chk
+      = VerifyOutcome.fail ExecError.discourageUpgradableTaprootVersion :=
+  Bitcoin.Script.Tapscript.verifyTaprootLeafDispatch_upgradable_discourage
+    fuel items control script witness flags pol chk hnot hd
+
+/-- SCR-151: v ≥ 2 upgradable witness versions succeed
+(Rules.lean:410 verbatim; Core interpreter.cpp:2002-2008). -/
+@[rule "SCR-151"]
 theorem verifyWitnessProgram_upgradable_leaf_ok
     (fuel : Nat) (witness : WitnessStack) (program : ByteArray)
     (version : Nat) (flags : ScriptFlags) (pol : PolicyFlags)
@@ -96,10 +147,10 @@ theorem verifyWitnessProgram_upgradable_leaf_ok
   unfold verifyWitnessProgram
   rw [ite_eq_right hv0, ite_eq_right hv1, ite_eq_right hpa', ite_eq_right hnodisc']
 
-/-- SCR-149 (discourage-on face): with the DISCOURAGE policy hook set, a
-v ≥ 2 upgradable leaf fails with the exact Core error
-`discourageUpgradableWitnessProgram` (interpreter.cpp:1995-1998). -/
-@[rule "SCR-149"]
+/-- SCR-151 (discourage-on face): with the DISCOURAGE policy hook set, a
+v ≥ 2 upgradable witness version fails with the exact Core error
+`discourageUpgradableWitnessProgram` (interpreter.cpp:2002-2008). -/
+@[rule "SCR-151"]
 theorem verifyWitnessProgram_upgradable_leaf_discourage
     (fuel : Nat) (witness : WitnessStack) (program : ByteArray)
     (version : Nat) (flags : ScriptFlags) (pol : PolicyFlags)
@@ -118,10 +169,10 @@ theorem verifyWitnessProgram_upgradable_leaf_discourage
   unfold verifyWitnessProgram
   rw [ite_eq_right hv0, ite_eq_right hv1, ite_eq_right hpa', ite_eq_left hdisc]
 
-/-- SCR-149 (full row): for a v ≥ 2 non-P2A leaf the verdict is `ok`
-exactly when the DISCOURAGE policy flag is off — the flag *is* the policy,
-both directions. -/
-@[rule "SCR-149"]
+/-- SCR-151 (full row): for a v ≥ 2 non-P2A witness version the verdict
+is `ok` exactly when the DISCOURAGE policy flag is off — the flag *is*
+the policy, both directions. -/
+@[rule "SCR-151"]
 theorem verifyWitnessProgram_upgradable_leaf_ok_iff
     (fuel : Nat) (witness : WitnessStack) (program : ByteArray)
     (version : Nat) (flags : ScriptFlags) (pol : PolicyFlags)

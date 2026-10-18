@@ -54,9 +54,10 @@ lane = X03's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
 
 ## Layering / honesty notes
 
-* The composition sits on X03's `scriptPathSpend` (Verify.lean:96-102:
+* The composition sits on X03's `scriptPathSpend` (Verify.lean:
   size gate → tapleaf hash → `verifyTaprootCommitment` (X06's
-  `outputKeyOk`, TPR-018) → the `0xc0` dispatch bit, in Core's order).
+  `outputKeyOk` plus the 32-byte `program = x(Q)` binding, TPR-018) →
+  the `0xc0` dispatch bit, in Core's order).
   This module is the CALLER side of the bit: it turns the `if`-chain
   of Core :1988-1998 into a verdict. The tapscript-arm's EXECUTION
   (`ExecuteWitnessScript` at `SigVersion::TAPSCRIPT`) is W09's
@@ -67,16 +68,16 @@ lane = X03's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
   and TPR-019 pins the DISPATCH (leaf 0xc0 ⇒ the tapscript lane), not
   the execution verdict. This mirrors the Program.lean/Interpreter
   split (X06's "deliberate layering", Program.lean:32-40).
-* `scriptPathSpend`'s `verifyTaprootCommitment` = `outputKeyOk control
-  (some (scriptPathMerkleRoot ...))` (Verify.lean:89-90): X06/X03's
-  TPR-009/018/016/017/011 chain — internal-key parse → tweak
-  recomputation → parity. Its `program` argument is currently not
-  consumed by `outputKeyOk` (the final
+* `scriptPathSpend`'s `verifyTaprootCommitment` = `checkTapTweak
+  control program (some (scriptPathMerkleRoot ...))` (Verify.lean):
+  X06/X03's TPR-009/018/016/017/011 chain — internal-key parse → tweak
+  recomputation → parity — PLUS the final
   `xonly_pubkey_tweak_add_check` q-equality of Core
-  `pubkey.cpp:255-271` is carried as "the recomputation + parity
-  accept"): an X03-lane simplification, recorded as F-TPRA-002 in
-  findings-rc/TPR-A.md. The dispatch rows (TPR-019/020/021) sit
-  strictly AFTER this check, and the precedence order is exact.
+  `pubkey.cpp:255-271` as a 32-byte length check and
+  `program = x(Q)` byte comparison. The earlier program-blind
+  simplification (F-TPRA-002 / SCR-147 gap) is closed. The dispatch
+  rows (TPR-019/020/021) sit strictly AFTER this check, and the
+  precedence order is exact.
 * `verifyWitnessProgram` (W09's `Bitcoin.Interpreter.Defs:1196`) —
   the interpreter-side twin — currently returns `.unjudged` at the
   tapleaf/CheckTapTweak step (X07's SCR-146 honesty): THIS module is

@@ -261,13 +261,21 @@ def secC2 : String :=
     chk "c2.diag"         (tapBranch l0 l0 == taggedHash tagTapBranch (l0 ++ l0)) ++
     chk "c2.diag.value"   (tapBranch l0 l0 == diag4) ++
     chk "c2.treeRoot"     (treeMerkleRoot tree4 == some root4) ++
-    chk "c2.spend"        (scriptPathSpend control4 s0 program4
+    chk "c2.spend"        (scriptPathSpend control4 s0 xQ4
                              == some (l0, true, true)) ++
+    chk "c2.commitment.binds"
+      (verifyTaprootCommitment control4 xQ4 l0 == true) ++
+    chk "c2.wrongProgram" (scriptPathSpend control4 s0 xQ0
+                             == some (l0, false, true)) ++
+    chk "c2.wrongLength"  (scriptPathSpend control4 s0 program4
+                             == some (l0, false, true)) ++
+    chk "c2.wrongLength.verdict"
+      (verifyTaprootCommitment control4 program4 l0 == false) ++
     ""
-  if fails == "" then "C2: 10/10 OK"
+  if fails == "" then "C2: 14/14 OK"
   else "FAILURES: " ++ fails
 
-/-- info: "C2: 10/10 OK" -/
+/-- info: "C2: 14/14 OK" -/
 #guard_msgs in #eval secC2
 
 end Bitcoin.Proofs.Audit.Z29

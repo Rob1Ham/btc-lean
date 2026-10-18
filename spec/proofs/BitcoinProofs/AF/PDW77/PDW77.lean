@@ -1,6 +1,7 @@
 import Bitcoin.Interpreter.Defs
 import Bitcoin.Block.Sigops
 import Bitcoin.TxValidation.Interface
+import Bitcoin.Crypto.Taproot.Program
 
 /-! # PDW77 — row faces TOP-406..410 (RC30 endgame)
 
@@ -14,7 +15,7 @@ Route B promotion bank. Zero core writes; tags ride these restatements.
 
 namespace BitcoinProofs.AF.PDW77
 
-open Bitcoin.Data (WitnessStack)
+open Bitcoin.Data (WitnessStack compactSizeEnc)
 open Bitcoin.Numeric (castToBool)
 open Bitcoin.Crypto.Seam (ScriptExecutionData SigVersion)
 open Bitcoin.Interpreter
@@ -67,10 +68,27 @@ theorem p2shInner_redeem_false (fuel : Nat) (flags : Bitcoin.Activation.ScriptFl
 
 /-! ## INV-075 — BIP341 annex parse -/
 
+/-- INV-075 (CompactSize-correct companion): the `Taproot.Program` annex
+hash is `SHA256(CompactSize(len) ‖ annex)`, including the `0x50` tag byte.
+This is the same preimage the interpreter's `annexHash` uses. -/
+@[rule "INV-075"]
+theorem annexHash_compactSize_correct (annex : ByteArray) :
+    Bitcoin.Crypto.Taproot.Program.annexHash annex =
+      Bitcoin.Crypto.Seam.Hash.Sha256.sha256
+        (compactSizeEnc annex.size ++ annex) := rfl
+
+/-- INV-075 (interpreter preimage): the core interpreter's annex digest
+hashes exactly `CompactSize(len(annex)) ‖ annex`, including the `0x50`
+tag byte. -/
+theorem interpreter_annexHash_eq (annex : ByteArray) :
+    Bitcoin.Interpreter.annexHash annex =
+      Bitcoin.Interpreter.hashSha256 (compactSizeEnc annex.size ++ annex) := rfl
+
 /-- INV-075: witness `[sig, annex]` with a nonempty `0x50`-tagged last
-item is an annex spend: the annex is hashed into `ScriptExecutionData`,
-stripped from the stack, and the remaining single item is the key-path
-signature checked against the output key. -/
+item is an annex spend: the annex is hashed into `ScriptExecutionData`
+as `SHA256(CompactSize(len(annex)) ‖ annex)` (Core's `HashWriter` span
+serialization), stripped from the stack, and the remaining single item
+is the key-path signature checked against the output key. -/
 @[rule "INV-075"]
 theorem verifyWitnessProgram_annex_keypath (fuel : Nat) (sig annex program : ByteArray)
     (flags : Bitcoin.Activation.ScriptFlags) (pol : PolicyFlags) (chk : ScriptChecker)
@@ -80,7 +98,7 @@ theorem verifyWitnessProgram_annex_keypath (fuel : Nat) (sig annex program : Byt
       if chk.base.checkSchnorrSignature sig program SigVersion.taproot
           { (default : ScriptExecutionData) with
             annexInit := true, annexPresent := true,
-            annexHash := hashSha256 annex }
+            annexHash := Bitcoin.Interpreter.annexHash annex }
         then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
   simp [verifyWitnessProgram, htap, h32, hnonempty, htag]
 
@@ -173,6 +191,10 @@ end BitcoinProofs.AF.PDW77
 /-- info: 'BitcoinProofs.AF.PDW77.p2shInner_redeem_false' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in
 #print axioms BitcoinProofs.AF.PDW77.p2shInner_redeem_false
+
+/-- info: 'BitcoinProofs.AF.PDW77.annexHash_compactSize_correct' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
+#print axioms BitcoinProofs.AF.PDW77.annexHash_compactSize_correct
 
 /-- info: 'BitcoinProofs.AF.PDW77.verifyWitnessProgram_annex_keypath' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in

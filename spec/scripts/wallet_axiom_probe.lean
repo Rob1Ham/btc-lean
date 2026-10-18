@@ -191,8 +191,8 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms Bitcoin.Wallet.Taproot.spendCommitment_verdict
 #print axioms Bitcoin.Wallet.Taproot.spendCommitment_program_size
 #print axioms Bitcoin.Wallet.Taproot.spendCommitment_iff_verdict
-#print axioms Bitcoin.Wallet.Taproot.commitmentOf_program_irrelevant
-#print axioms Bitcoin.Wallet.Taproot.scriptPathSpend_program_irrelevant
+#print axioms Bitcoin.Wallet.Taproot.commitmentOf_program_binding
+#print axioms Bitcoin.Wallet.Taproot.scriptPathSpend_program_binding
 #print axioms Bitcoin.Wallet.Taproot.taprootSpendJudged_iff_commitment
 
 -- spec/proofs/BitcoinProofs/Wallet/Desc/Checksum.lean
@@ -942,8 +942,8 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms BitcoinProofs.Wallet.Taproot.v1SpendJudgedTarget_iff_commitmentForcesProgramMatch
 #print axioms BitcoinProofs.Wallet.Taproot.commitmentForcesProgramMatch_fails_of_program_mismatch
 #print axioms BitcoinProofs.Wallet.Taproot.v1SpendJudgedTarget_fails_of_program_mismatch
-#print axioms BitcoinProofs.Wallet.Taproot.verifyComparesProgram_false_of_witness
-#print axioms BitcoinProofs.Wallet.Taproot.verifyTaprootCommitment_program_irrelevant
+#print axioms BitcoinProofs.Wallet.Taproot.verifyComparesProgram_holds
+#print axioms BitcoinProofs.Wallet.Taproot.verifyTaprootCommitment_program_binding
 #print axioms BitcoinProofs.Wallet.Taproot.isTaprootProgram_of_programOf
 #print axioms BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_program
 #print axioms BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_34
@@ -952,5 +952,5 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms BitcoinProofs.Wallet.Taproot.programMatches_true_iff
 #print axioms BitcoinProofs.Wallet.Taproot.programOf_v1_34_payload
 #print axioms BitcoinProofs.Wallet.Taproot.programMatches_v1_34_true_iff
-#print axioms BitcoinProofs.Wallet.Taproot.commitmentOf_program_irrelevant
-#print axioms BitcoinProofs.Wallet.Taproot.scriptPathSpend_program_irrelevant
+#print axioms BitcoinProofs.Wallet.Taproot.commitmentOf_program_binding
+#print axioms BitcoinProofs.Wallet.Taproot.scriptPathSpend_program_binding

@@ -151,13 +151,14 @@ reject them. No v2 claim is made, including for the developmental v2 code in tha
 not a release tag. Anchors are valid only at this commit, not for any shipped release.
 
 **Taproot program equality is a wallet bridge, not a consensus repair.** In the consensus model,
-`verifyTaprootCommitment` ignores its `program` argument
-(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89`), and v1 spends route to `unjudgedTaproot`
-(`spec/core/Bitcoin/Capstone/Block.lean:242-244`). `Taproot/Commit.lean` supplies the wallet-side
-`programMatches`, `SpendCommitment`, and `commitmentOf`, and proves
-`spendCommitment_iff_verdict` and `commitmentOf_program_irrelevant`; the latter makes the
-consensus invariance explicit. `W1_taprootSpendJudged` (line 384) is a target, not a theorem, so
-wallet taproot-spend claims remain conditional on `SpendCommitment`.
+`verifyTaprootCommitment` now binds its `program` argument
+(`Verify.checkTapTweak`: 32-byte length plus `program = x(Q)`), while v1 spends still route to
+`unjudgedTaproot` (`spec/core/Bitcoin/Capstone/Block.lean:242-244`). `Taproot/Commit.lean` supplies
+the wallet-side `programMatches`, `SpendCommitment`, and `commitmentOf`, and proves
+`spendCommitment_iff_verdict` and `commitmentOf_program_binding`; the latter makes the verifier's
+program binding explicit. `W1_taprootSpendJudged` (line 384) is a target, not a theorem, because
+the capstone still routes the v1 lane to `unjudgedTaproot`, so wallet taproot-spend claims remain
+conditional on `SpendCommitment`.
 
 The descriptor fragment has its own boundary: `pk`, `pkh`, `wpkh`, `sh(wpkh)`, `multi`,
 `sortedmulti`, and key-path-only `tr`; it omits `wsh`, `combo`, `sh(multi(...))`, taproot script

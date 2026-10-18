@@ -21,6 +21,11 @@ runs:
 * **Composite reconstruction** — `outputKeyOk`: size gate (TPR-009
   base size) → parse (TPR-018) → tweak (X03 `tweakPoint`, TPR-016/017
   reject modes) → parity (TPR-011). `none` at any stage fails closed.
+  This is the control-block-facing half of Core's `CheckTapTweak`: the
+  separate output-key comparison `q == x(Q)` (the 32-byte witness
+  program) lives in `Verify.checkTapTweak` / `VerifyTaprootCommitment`,
+  which adds the length-checked byte equality on top of `outputKeyOk`.
+  `outputKeyOk` alone must not be read as the full commitment verdict.
 
 Ground truth @cce32b168: `pubkey.cpp:XOnlyPubKey::CheckTapTweak:255-271`,
 `interpreter.cpp:VerifyTaprootCommitment:1905-1930` (control[0]&1
