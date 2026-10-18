@@ -80,6 +80,17 @@ example : programMustFailCastToBool 0 (List.replicate 20 0) = true := by decide
 example : programMustFailCastToBool 16 (List.replicate 32 0) = true := by decide
 example : programMustFailCastToBool 1 (List.replicate 2 0 ++ [1]) = false := by decide
 
+-- CastToBool negative zero (Core interpreter.cpp:46-59): a lone 0x80 in
+-- the wire-last byte is false, while a 0x80 followed by another byte is
+-- true. The old `bytes.any (· != 0)` model got both wrong.
+example : castToBool [0x00, 0x80] = false := by decide
+example : castToBool [0x80] = false := by decide
+example : castToBool [0x00, 0x81] = true := by decide
+example : castToBool [0x80, 0x00] = true := by decide
+example : castToBool [0x00, 0x00] = false := by decide
+example : programMustFailCastToBool 1 [0x00, 0x80] = true := by decide
+example : programMustFailCastToBool 1 [0x00, 0x81] = false := by decide
+
 /-! ## C6 — P2WPKH witness stack shape -/
 
 example : p2wpkhWitnessOk [[1, 2], List.replicate 33 9] = true := by decide
@@ -209,7 +220,12 @@ example : segwitParams.threshold = 1916 := by decide                         -- 
 example : bip9Step segwitParams .defined 1479167999 0 = .defined := by decide
 example : bip9Step segwitParams .defined 1479168000 0 = .started := by decide
 example : bip9Step segwitParams .started 1510703999 1915 = .started := by decide
-example : bip9Step segwitParams .started 1510704000 5000 = .failed := by decide
+-- Core checks the signal count BEFORE the timeout: at/after the timeout a
+-- boundary with 5000 signals still locks in.
+example : bip9Step segwitParams .started 1510704000 5000 = .lockedIn := by decide
+-- Only a boundary at/after the timeout that is BELOW threshold fails.
+example : bip9Step segwitParams .started 1510704000 1915 = .failed := by decide
+example : bip9Step segwitParams .started 1510704000 1916 = .lockedIn := by decide
 example : bip9Step segwitParams .started 1500000000 1916 = .lockedIn := by decide
 example : bip9Step segwitParams .started 1500000000 1915 = .started := by decide -- mutation kill: threshold off-by-one
 example : bip9Step segwitParams .lockedIn 1500000000 0 = .active := by decide

@@ -9,7 +9,7 @@
 # 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 59, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 7fd7a294e0ad98897e3e13fba03340d273b738d1c0506ef262c11fe0e892e1c0
+#   726 rows, sha256 aee676918b2668ac01113cb4b0eb583c734e575dff142648e7fecf59895b0351
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -1550,7 +1550,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-149': {
-        'lean_target': 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok_iff, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_discourage',
+        'lean_target': 'BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_ok_face, BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_discourage_face',
         'status': 'proven',
     },
     'SCR-150': {
@@ -1559,7 +1559,7 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-151': {
-        'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_discourage',
+        'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_discourage, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok_iff, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_discourage',
         'status': 'proven',
         'notes': None,
     },

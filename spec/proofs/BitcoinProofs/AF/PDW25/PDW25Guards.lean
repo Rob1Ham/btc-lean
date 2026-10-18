@@ -8,8 +8,8 @@ Expected lines = the pD25.out pass-1 output verbatim (the
 `[propext, Classical.choice, Quot.sound]` (DECISIONS / RC-suite
 convention); ZERO `sorryAx` (guards fail on any axiom-list
 mismatch = sorry-freeness pinned). Three theorems depend on no
-axioms at all (the `rfl` def-mirrors + the `_pure` congruence
-lane); one (isPayToTaproot_p2trScript_iff, the P2 round-trip)
+axioms at all (the `rfl` def-mirrors); one (the `taprootLane_true_iff`
+characterization) on `[propext]`; one (isPayToTaproot_p2trScript_iff, the P2 round-trip)
 on the full trio (its core twin's own pin, Program.lean:553);
 six on [propext]; one (classifySpend_annex_pop_keyPath) on
 [propext, Quot.sound] (core pin :568). -/
@@ -23,8 +23,8 @@ six on [propext]; one (classifySpend_annex_pop_keyPath) on
 /-- info: 'BitcoinProofs.AF.PDW25.taprootLane_gate_off' depends on axioms: [propext] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW25.taprootLane_gate_off
 
-/-- info: 'BitcoinProofs.AF.PDW25.taprootLane_consensus_pure' does not depend on any axioms -/
-#guard_msgs in #print axioms BitcoinProofs.AF.PDW25.taprootLane_consensus_pure
+/-- info: 'BitcoinProofs.AF.PDW25.taprootLane_true_iff' depends on axioms: [propext] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW25.taprootLane_true_iff
 
 /-- info: 'BitcoinProofs.AF.PDW25.isAnnex_def' does not depend on any axioms -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW25.isAnnex_def

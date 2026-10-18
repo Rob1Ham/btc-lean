@@ -121,9 +121,12 @@ theorem verifyWitnessProgram_v1_upgradable (fuel : Nat) (witness : WitnessStack)
     verifyWitnessProgram fuel witness 1 program flags pol chk isP2SH = .ok := by
   simp [verifyWitnessProgram, h32, hanchor, hdis]
 
-/-- INV-077: a non-witness, non-P2SH spend that carries a witness fails
-closed with `SCRIPT_ERR_WITNESS_UNEXPECTED` (`interpreter.cpp:2104-2106`);
-`cleanstack` off isolates the witness gate. -/
+/-- INV-077: a non-witness spend that carries a witness fails closed with
+`SCRIPT_ERR_WITNESS_UNEXPECTED` (`interpreter.cpp:2104-2106`); `cleanstack`
+off isolates the witness gate. The hypothesis is the actual branch
+condition `¬(P2SH enabled ∧ spk is P2SH)`, so this covers both an
+ordinary non-P2SH scriptPubKey (P2SH enabled, `isPayToScriptHash spk =
+false`) and the P2SH-disabled flag word — not just the latter. -/
 @[rule "INV-077"]
 theorem witnessUnexpected_nonWitness
     (fuel : Nat) (flags : ScriptFlags) (pol : PolicyFlags)
@@ -134,11 +137,12 @@ theorem witnessUnexpected_nonWitness
     (hspk : evalScriptBytes fuel flags pol spk stack1 chk .base default = .ok stack)
     (hne : stack ≠ []) (htop : castToBool (stack[0]?.getD default) = true)
     (hwit : flags.witness = true) (hp : isWitnessProgram spk = none)
-    (hp2sh : flags.p2sh = false) (hcl : pol.cleanstack = false)
+    (hnotp2sh : ¬ (flags.p2sh = true ∧ isPayToScriptHash spk = true))
+    (hcl : pol.cleanstack = false)
     (hwne : witness ≠ []) :
     verifyScriptFull fuel flags pol ss spk witness chk = .fail .witnessUnexpected := by
   unfold verifyScriptFull
-  simp [hpush, hss, hspk, hne, htop, hwit, hp, hp2sh, hcl, hwne]
+  simp [hpush, hss, hspk, hne, htop, hwit, hp, hnotp2sh, hcl, hwne]
 
 /-! ## INV-077 — both halves: WITNESS ⇒ P2SH and both unexpected-witness tails -/
 

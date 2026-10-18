@@ -30,6 +30,12 @@ Every footprint ⊆ [propext, Classical.choice, Quot.sound]; zero sorryAx.
 /-- info: 'BitcoinProofs.AF.PDW41.annexHash_eq_shaAnnex' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW41.annexHash_eq_shaAnnex
 
+/-- info: 'BitcoinProofs.AF.PDW41.compactSizeEnc_253' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW41.compactSizeEnc_253
+
+/-- info: 'BitcoinProofs.AF.PDW41.annexHash_compactSize_253' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW41.annexHash_compactSize_253
+
 /-- info: 'BitcoinProofs.AF.PDW41.leafVersionOf_row' depends on axioms: [propext] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW41.leafVersionOf_row
 
