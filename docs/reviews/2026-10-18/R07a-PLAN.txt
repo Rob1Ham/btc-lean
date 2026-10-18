@@ -1,0 +1,58 @@
+R07a: candidate-hash script flags
+Parent eac345fa1b9a7b65f47b91007725b79b27cb18ea.
+
+Core's actual GetBlockScriptFlags body is identical at both exact pins
+(0414e8152ff579a8455e39ac8a30017e1bfcabe672bb9ac26e90bb1336f4217c).
+The old live engine selected candidate flags for sigop COST only, then
+verifyInput re-selected height-only flags for script EXECUTION. Public replay
+and contextual validation both accepted an invalid P2SH script at height170060
+when the actual hash was not Core's named exception.
+
+The shared test driver now has26 cases: six reproduced defects, six basic
+controls, and14 selectors from executing the exact pinned Core body. The first
+public repro had4failures/4controls; Taproot amount-binding/exception cases add
+two more failures and two controls. Durable reproduce_script_flags.py must
+confirm6failures/20controls and reject setup/compiler failures. Early driver
+syntax/path setup errors are not behavioral counterexamples.
+
+Real block170 (490bytes) and parent169 (80bytes) are supplied at conditional
+candidate height170060 with OP_TRUE acceptance and P2SH(hash160(signature))
+rejection coins. Full parent-tip hash/PoW/Merkle/decode gates run. Fake ancestor
+lookup/MTP and UTXO state are explicit conditional input, not reachable history.
+Both public APIs accept the control and reject the invalid P2SH spend. The
+existing real-signed Taproot fixture exercises amount binding at692261 and the
+actual named Taproot exception at709632 in the exact resource-stage engine.
+
+Implementation: flags parameter threads through every input and the canonical
+transaction engine; public calls pass candidateScriptFlags. Optional standalone
+adapters retain documented canonical-height defaults. Fee, finality, ledger and
+counter contracts generalize uniformly over flags. ScriptPass has an explicit
+single flags parameter for the whole trace. Three new kernel proofs connect
+resource folds and BOTH public entries to ScriptPass under the actual candidate
+hash's flags. No native substitutions, new axioms or heartbeat changes.
+
+Default proof root plus CapstoneComposePipeline and PDW61b pass1734jobs.
+Support library and26runtime flags checks pass. New footprint query: all3
+new declarations depend on [propext,Classical.choice,Quot.sound]. Exact guards
+and primary probe entries added; five flag rows have updated source refs and
+live dataflow targets. Four retained row-target footprints also added.
+
+Known remaining R08 debt: T3T4PipelineRealCor still describes the pre-R06 bypass
+and universal Schnorr blindness; T3T4RealCheckerCor still destructures the old
+two-field ScriptChecker. Their complete current build/contract repair belongs
+to the outstanding full module/cited-target matrix. Do not call them passed or
+claim the scoped run verifies all416proof modules.
+
+Next: stage3new fixture files and regenerate data manifest; finalize exact data
+counts; scoped build with all probe/wallet/changed imports plusPDW27/84; core
+build/test; full301runtime checks; strict6/20before wrapper; both exact Core
+references compared to14Lean selectors; both dynamic probes; all static/repro,
+scope/residual/checksum gates. Record attempts/limits/hashes in validation-r07a
+and update ledger/row progress/public scope docs; commit locally. R07 BIP30 and
+R07b genesis connection remain open.
+
+FINAL SCOPED DISPOSITION
+All14serial checks pass.129named targets/9276Lake jobs,301runtime checks,
+16core checks,333consensus/836wallet probes, scope/residual/checksums and
+allstatic gates pass. Strict wrapper confirms6failures/20controls; both Core
+references agree with14Lean selector cases. See validation-r07a.json.

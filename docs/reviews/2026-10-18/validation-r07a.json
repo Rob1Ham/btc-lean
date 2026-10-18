@@ -1,0 +1,924 @@
+{
+  "finding": "R07a actual candidate-hash flags reach script execution",
+  "status": "fixed_and_verified_with_scoped_evidence",
+  "implementation_parent": "eac345fa1b9a7b65f47b91007725b79b27cb18ea",
+  "updated_at_utc": "2026-10-18T19:06:04.884874+00:00",
+  "upstream_main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
+  "open_issues": [
+    4,
+    16
+  ],
+  "open_prs": [],
+  "goal_controller": "paused; user authorized resumed work in this chat; available tools cannot activate an existing goal",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "before": {
+    "wrapper": "reproduce_script_flags.py",
+    "expected_failures": 6,
+    "passing_controls": 20,
+    "scope": "The unchanged full pre-fix block validator is compiled in a renamed namespace with the same26-case driver, including real public replay/context failures. Compiler/setup errors and incomplete outputs are rejected.",
+    "first_valid_public_log": "/tmp/btc-lean-r07a-before3.log",
+    "first_valid_public_log_sha256": "c59d905741d307b1137f416128bf1f7672f38ce08cbb3cc510d4336e98bcceb0",
+    "first_valid_public_counts": "4 failures/4 controls before the additional Taproot and selector cases",
+    "strict_final_log": "/tmp/btc-lean-r07a-final-strict-before.log"
+  },
+  "implementation": {
+    "flow": "candidateScriptFlags -> resource fold -> canonical transaction engine -> ordered input loop -> verifyInput -> verifyScriptFull",
+    "standalone_defaults": "Optional flags retain canonical-height standalone adapter semantics; every public block call supplies actual candidate flags.",
+    "proofs": "Fee, ledger, finality and counter contracts generalize over the same flags; ScriptPass explicitly carries one flags parameter through the whole trace. Three new kernel proofs connect both public entries to actual-hash script traces.",
+    "remaining_historical_exceptions": "BIP30 ancestry/own-hash routing and genesis connection remain R07/R07b work."
+  },
+  "runtime": {
+    "new_checks": 26,
+    "targeted_checks": 301,
+    "core_tests": 16,
+    "new_cases": "Six repaired failure cases, six pipeline/stage controls and14 independently extracted Core selector cases."
+  },
+  "fixture": {
+    "kind": "Real block170 bytes and real parent169 header, supplied at conditional candidate height170060 to test alternate-hash exception routing. Not reachable historical-chain or actual historical UTXO claims.",
+    "original_height": 170,
+    "candidate_height": 170060,
+    "block_hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+    "parent_hash": "000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55",
+    "block_sha256": "32b4d091e14125788d35a2dfd2ed559994262e8f34c0edfdb510f605900c661e",
+    "parent_header_sha256": "fa0df05fd474bc94059985d4bec7369b9f73553f07cb887b2c4826c5887adc0b",
+    "sources": [
+      "https://blockstream.info/api/block/00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee/raw",
+      "https://blockstream.info/api/block/000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55/header"
+    ],
+    "utxo": "One funded non-coinbase input with value equal to the actual spending transaction outputs. Acceptance control uses OP_TRUE; reject case substitutes P2SH(hash160(signature push)), whose redeem script is the signature bytes and fails script execution.",
+    "context": "Supplied parent index170059 contains real header169. Other required MTP entries have time0 and complete lookups; nodeTime2000000000. This is conditional caller state, not validated historical ancestry.",
+    "expected": "Both public entries accept the control and reject the invalid P2SH case: actual header hash is not Core\u2019s named exception, even at exception height170060.",
+    "flagCases": [
+      {
+        "name": "P2SH alternate",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 170060,
+        "flags": "true:true:true:false:false:false:false"
+      },
+      {
+        "name": "P2SH named",
+        "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+        "height": 170060,
+        "flags": "false:false:false:false:false:false:false"
+      },
+      {
+        "name": "Taproot alternate",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 692261,
+        "flags": "true:true:true:true:true:true:true"
+      },
+      {
+        "name": "Taproot named",
+        "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+        "height": 692261,
+        "flags": "true:true:false:true:true:true:true"
+      },
+      {
+        "name": "buried flags survive P2SH replacement",
+        "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+        "height": 692261,
+        "flags": "false:false:false:true:true:true:true"
+      },
+      {
+        "name": "Taproot replacement before buried gates",
+        "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+        "height": 0,
+        "flags": "true:true:false:false:false:false:false"
+      },
+      {
+        "name": "DERSIG before",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 363724,
+        "flags": "true:true:true:false:false:false:false"
+      },
+      {
+        "name": "DERSIG at",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 363725,
+        "flags": "true:true:true:true:false:false:false"
+      },
+      {
+        "name": "CLTV before",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 388380,
+        "flags": "true:true:true:true:false:false:false"
+      },
+      {
+        "name": "CLTV at",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 388381,
+        "flags": "true:true:true:true:true:false:false"
+      },
+      {
+        "name": "CSV before",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 419327,
+        "flags": "true:true:true:true:true:false:false"
+      },
+      {
+        "name": "CSV at",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 419328,
+        "flags": "true:true:true:true:true:true:false"
+      },
+      {
+        "name": "NULLDUMMY before",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 481823,
+        "flags": "true:true:true:true:true:true:false"
+      },
+      {
+        "name": "NULLDUMMY at",
+        "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+        "height": 481824,
+        "flags": "true:true:true:true:true:true:true"
+      }
+    ],
+    "flagReference": {
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "validation_sha256": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416",
+      "chainparams_sha256": "cfadf1478377c32625280520655b598674e6d487f08d7f7a80ac69252104b5e1",
+      "function_sha256": "0414e8152ff579a8455e39ac8a30017e1bfcabe672bb9ac26e90bb1336f4217c",
+      "scope": "Execute pinned Core GetBlockScriptFlags and mainnet exception parameters.\n\nMinimal flag-word, index/hash-map and buried-deployment seams are supplied.\nThe actual function body and pinned mainnet hashes/heights are used. This\ntests flag selection/ordering, not script execution or whole-Core validation."
+    }
+  },
+  "core_reference": [
+    {
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "validation_sha256": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416",
+      "chainparams_sha256": "cfadf1478377c32625280520655b598674e6d487f08d7f7a80ac69252104b5e1",
+      "function_sha256": "0414e8152ff579a8455e39ac8a30017e1bfcabe672bb9ac26e90bb1336f4217c",
+      "exceptions": [
+        [
+          "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "SCRIPT_VERIFY_NONE"
+        ],
+        [
+          "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS"
+        ]
+      ],
+      "buried_heights": {
+        "BIP66Height": 363725,
+        "BIP65Height": 388381,
+        "CSVHeight": 419328,
+        "SegwitHeight": 481824
+      },
+      "checks": {
+        "P2SH alternate": "true:true:true:false:false:false:false",
+        "P2SH named": "false:false:false:false:false:false:false",
+        "Taproot alternate": "true:true:true:true:true:true:true",
+        "Taproot named": "true:true:false:true:true:true:true",
+        "buried flags survive P2SH replacement": "false:false:false:true:true:true:true",
+        "Taproot replacement before buried gates": "true:true:false:false:false:false:false",
+        "DERSIG before": "true:true:true:false:false:false:false",
+        "DERSIG at": "true:true:true:true:false:false:false",
+        "CLTV before": "true:true:true:true:false:false:false",
+        "CLTV at": "true:true:true:true:true:false:false",
+        "CSV before": "true:true:true:true:true:false:false",
+        "CSV at": "true:true:true:true:true:true:false",
+        "NULLDUMMY before": "true:true:true:true:true:true:false",
+        "NULLDUMMY at": "true:true:true:true:true:true:true"
+      },
+      "cases": [
+        {
+          "name": "P2SH alternate",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 170060,
+          "flags": "true:true:true:false:false:false:false"
+        },
+        {
+          "name": "P2SH named",
+          "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "height": 170060,
+          "flags": "false:false:false:false:false:false:false"
+        },
+        {
+          "name": "Taproot alternate",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 692261,
+          "flags": "true:true:true:true:true:true:true"
+        },
+        {
+          "name": "Taproot named",
+          "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "height": 692261,
+          "flags": "true:true:false:true:true:true:true"
+        },
+        {
+          "name": "buried flags survive P2SH replacement",
+          "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "height": 692261,
+          "flags": "false:false:false:true:true:true:true"
+        },
+        {
+          "name": "Taproot replacement before buried gates",
+          "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "height": 0,
+          "flags": "true:true:false:false:false:false:false"
+        },
+        {
+          "name": "DERSIG before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 363724,
+          "flags": "true:true:true:false:false:false:false"
+        },
+        {
+          "name": "DERSIG at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 363725,
+          "flags": "true:true:true:true:false:false:false"
+        },
+        {
+          "name": "CLTV before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 388380,
+          "flags": "true:true:true:true:false:false:false"
+        },
+        {
+          "name": "CLTV at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 388381,
+          "flags": "true:true:true:true:true:false:false"
+        },
+        {
+          "name": "CSV before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 419327,
+          "flags": "true:true:true:true:true:false:false"
+        },
+        {
+          "name": "CSV at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 419328,
+          "flags": "true:true:true:true:true:true:false"
+        },
+        {
+          "name": "NULLDUMMY before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 481823,
+          "flags": "true:true:true:true:true:true:false"
+        },
+        {
+          "name": "NULLDUMMY at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 481824,
+          "flags": "true:true:true:true:true:true:true"
+        }
+      ],
+      "scope": "Execute pinned Core GetBlockScriptFlags and mainnet exception parameters.\n\nMinimal flag-word, index/hash-map and buried-deployment seams are supplied.\nThe actual function body and pinned mainnet hashes/heights are used. This\ntests flag selection/ordering, not script execution or whole-Core validation.",
+      "compile_timeout_seconds": 60,
+      "run_timeout_seconds": 30
+    },
+    {
+      "core_commit": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+      "validation_sha256": "b315005125a410a8ac1b920ae4a500eaf830c5aa8ddbcc16fd4b10c97bd49901",
+      "chainparams_sha256": "839bbbe05d6981d2f37cb8cedb319dd16657b60f6223bb2c21e6b9a9c70d4b8f",
+      "function_sha256": "0414e8152ff579a8455e39ac8a30017e1bfcabe672bb9ac26e90bb1336f4217c",
+      "exceptions": [
+        [
+          "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "SCRIPT_VERIFY_NONE"
+        ],
+        [
+          "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS"
+        ]
+      ],
+      "buried_heights": {
+        "BIP66Height": 363725,
+        "BIP65Height": 388381,
+        "CSVHeight": 419328,
+        "SegwitHeight": 481824
+      },
+      "checks": {
+        "P2SH alternate": "true:true:true:false:false:false:false",
+        "P2SH named": "false:false:false:false:false:false:false",
+        "Taproot alternate": "true:true:true:true:true:true:true",
+        "Taproot named": "true:true:false:true:true:true:true",
+        "buried flags survive P2SH replacement": "false:false:false:true:true:true:true",
+        "Taproot replacement before buried gates": "true:true:false:false:false:false:false",
+        "DERSIG before": "true:true:true:false:false:false:false",
+        "DERSIG at": "true:true:true:true:false:false:false",
+        "CLTV before": "true:true:true:true:false:false:false",
+        "CLTV at": "true:true:true:true:true:false:false",
+        "CSV before": "true:true:true:true:true:false:false",
+        "CSV at": "true:true:true:true:true:true:false",
+        "NULLDUMMY before": "true:true:true:true:true:true:false",
+        "NULLDUMMY at": "true:true:true:true:true:true:true"
+      },
+      "cases": [
+        {
+          "name": "P2SH alternate",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 170060,
+          "flags": "true:true:true:false:false:false:false"
+        },
+        {
+          "name": "P2SH named",
+          "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "height": 170060,
+          "flags": "false:false:false:false:false:false:false"
+        },
+        {
+          "name": "Taproot alternate",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 692261,
+          "flags": "true:true:true:true:true:true:true"
+        },
+        {
+          "name": "Taproot named",
+          "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "height": 692261,
+          "flags": "true:true:false:true:true:true:true"
+        },
+        {
+          "name": "buried flags survive P2SH replacement",
+          "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+          "height": 692261,
+          "flags": "false:false:false:true:true:true:true"
+        },
+        {
+          "name": "Taproot replacement before buried gates",
+          "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+          "height": 0,
+          "flags": "true:true:false:false:false:false:false"
+        },
+        {
+          "name": "DERSIG before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 363724,
+          "flags": "true:true:true:false:false:false:false"
+        },
+        {
+          "name": "DERSIG at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 363725,
+          "flags": "true:true:true:true:false:false:false"
+        },
+        {
+          "name": "CLTV before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 388380,
+          "flags": "true:true:true:true:false:false:false"
+        },
+        {
+          "name": "CLTV at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 388381,
+          "flags": "true:true:true:true:true:false:false"
+        },
+        {
+          "name": "CSV before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 419327,
+          "flags": "true:true:true:true:true:false:false"
+        },
+        {
+          "name": "CSV at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 419328,
+          "flags": "true:true:true:true:true:true:false"
+        },
+        {
+          "name": "NULLDUMMY before",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 481823,
+          "flags": "true:true:true:true:true:true:false"
+        },
+        {
+          "name": "NULLDUMMY at",
+          "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+          "height": 481824,
+          "flags": "true:true:true:true:true:true:true"
+        }
+      ],
+      "scope": "Execute pinned Core GetBlockScriptFlags and mainnet exception parameters.\n\nMinimal flag-word, index/hash-map and buried-deployment seams are supplied.\nThe actual function body and pinned mainnet hashes/heights are used. This\ntests flag selection/ordering, not script execution or whole-Core validation.",
+      "compile_timeout_seconds": 60,
+      "run_timeout_seconds": 30
+    }
+  ],
+  "pin_comparison": "GetBlockScriptFlags bodies, mainnet exception hashes and buried activation heights agree at both exact pins. Fourteen actual Core outputs match Lean selectors; abstract index/flag/deployment seams are explicit. No whole-Core block execution is claimed.",
+  "proofs": {
+    "named_targets": 129,
+    "lake_jobs": 9276,
+    "default_proof_closure": 36,
+    "all_proof_modules": 416,
+    "outside_default": 380,
+    "core_modules": 131,
+    "consensus_entries": 333,
+    "consensus_manifest_lines": 434,
+    "wallet_entries": 836,
+    "wallet_modules": 53,
+    "new_guarded_kernel_declarations": 3,
+    "additional_existing_row_targets_probed": 4,
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ]
+  },
+  "tracked_dataset": {
+    "files": 175,
+    "bytes": 5051865,
+    "payload_manifest_entries": 174
+  },
+  "resource_limits": {
+    "serial_checks": true,
+    "max_build_seconds": 900,
+    "whole_process_group_cleanup_on_timeout": true,
+    "heartbeat_increases": false,
+    "os_memory_cap": null,
+    "cpp_compile_seconds": 60,
+    "cpp_run_seconds": 30
+  },
+  "environment": {
+    "lean_bin": "/tmp/btc-lean-toolchain/lean-4.35.0-darwin_aarch64/bin",
+    "gate_python": "/tmp/btc-lean-review-py312/bin/python3 (3.12.11)",
+    "orchestration_python": "Host Python 3.15.0; subprocess gate/reference scripts use PATH-pinned Python 3.12.11",
+    "cpp": "Apple clang17; C++20; SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk"
+  },
+  "proof_repair_attempts": [
+    {
+      "name": "proofs",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 1,
+      "seconds": 13.791,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r07a-proofs-attempt1.log",
+      "log_sha256": "763e8f625306364a2c2da012380ba7188aa0e4ae49a598165c83f3dfda6a02f2"
+    },
+    {
+      "name": "proofs",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 1,
+      "seconds": 10.551,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r07a-proofs-attempt2.log",
+      "log_sha256": "02d50daf64f69b2df1b32f599947b992d89de4d16ba39f03e0a3992f4b73bdd1"
+    },
+    {
+      "name": "proofs",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 1,
+      "seconds": 17.202,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r07a-proofs-attempt3.log",
+      "log_sha256": "188e38dc3e5d9ab8ef096c2976ba8ed4031de0878b854ebc0edcd8f334a53281"
+    }
+  ],
+  "successful_scoped_attempts": [
+    {
+      "name": "proofs",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs",
+        "BitcoinProofs.Theorems.CapstoneComposePipeline",
+        "BitcoinProofs.AF.PDW61.PDW61b"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 27.217,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r07a-more-proofs.log",
+      "log_sha256": "22334a4dc0a39125e45c7e178fcc52fc7905144edd9a56466913a0bf6fc98310"
+    },
+    {
+      "name": "support",
+      "argv": [
+        "lake",
+        "build",
+        "CapstoneTestSupport"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.267,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-more-support.log",
+      "log_sha256": "b1a46b18e84d1b9ab0e3d3d88130c6386fae089a8239391fe8599965b73e6665"
+    },
+    {
+      "name": "flags",
+      "argv": [
+        "lake",
+        "env",
+        "lean",
+        "--run",
+        "Test/Capstone/ScriptFlags.lean"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 5.266,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r07a-more-flags.log",
+      "log_sha256": "bdff370790ca1c8d771b78c7a8ca80bbfaf901fea5af1cb4446587bd6b1e4a4f"
+    }
+  ],
+  "final_attempts": [
+    {
+      "name": "scoped-build",
+      "argv": [
+        "lake",
+        "build",
+        "BitcoinProofs",
+        "BitcoinProofs.AF.PDW19.PDW19",
+        "BitcoinProofs.AF.PDW19.PDW19Guards",
+        "BitcoinProofs.AF.PDW41.TPR022",
+        "BitcoinProofs.AF.PDW47.PDW47",
+        "BitcoinProofs.AF.PDW67.PDW67",
+        "BitcoinProofs.AF.PDW73.PDW73b",
+        "BitcoinProofs.AF.PDW83.PDW83",
+        "BitcoinProofs.AF.PDW90.PDW90b",
+        "BitcoinProofs.AF.PDW91.PDW91",
+        "BitcoinProofs.Audit.Z07.Audit",
+        "BitcoinProofs.Audit.Z09.Corners",
+        "BitcoinProofs.Bip.B06.Bip112CSV",
+        "BitcoinProofs.Bip.B11.NullDummyVectors",
+        "BitcoinProofs.Bip.B14.Tests",
+        "BitcoinProofs.EcdsaDeep.EndToEndChecksig",
+        "BitcoinProofs.Property.Y06.StackOpsProps",
+        "BitcoinProofs.Property.Y07.Arith",
+        "BitcoinProofs.Property.Y15.WitnessProps",
+        "BitcoinProofs.Theorems.CapstonePipelineCor",
+        "BitcoinProofs.Theorems.CapstoneSigops",
+        "BitcoinProofs.Theorems.CapstoneTaproot",
+        "BitcoinProofs.Theorems.CapstoneWiringCor",
+        "BitcoinProofs.Theorems.Ops.O02",
+        "BitcoinProofs.Theorems.Ops.O04",
+        "BitcoinProofs.Theorems.Ops.O07",
+        "BitcoinProofs.Theorems.WitnessRulesCor",
+        "BitcoinProofs.Theorems.WitnessSerialization",
+        "BitcoinProofs.Wallet.Miniscript.Interp",
+        "BitcoinProofs.Wallet.Taproot.Bridge",
+        "Bitcoin.Data.Basic",
+        "Bitcoin.Chain.Basic",
+        "Bitcoin.Crypto.Seam.Interface",
+        "Bitcoin.Crypto.Seam.Der",
+        "Bitcoin.Crypto.Seam.Entry",
+        "Bitcoin.Crypto.Seam.Mock",
+        "Bitcoin.Crypto.Curve.Mod",
+        "Bitcoin.Crypto.Curve.Secp",
+        "Bitcoin.Crypto.Curve.Interface",
+        "Bitcoin.Crypto.Ecdsa.Der",
+        "Bitcoin.Crypto.Ecdsa.Verify",
+        "Bitcoin.Conservation.Interface",
+        "Bitcoin.TxValidation.Interface",
+        "Bitcoin.DataLaws.Interface",
+        "Bitcoin.Numeric.Amount",
+        "Bitcoin.Script.Parser.Interface",
+        "Bitcoin.Interpreter.Interface",
+        "Bitcoin.Serialization.Interface",
+        "BitcoinProofs.Theorems.ParserCor",
+        "BitcoinProofs.Theorems.FlagsCor",
+        "BitcoinProofs.Theorems.NumericCor",
+        "BitcoinProofs.Theorems.LedgerCor",
+        "BitcoinProofs.Theorems.InterpCor",
+        "BitcoinProofs.Crypto.CurveZMod",
+        "BitcoinProofs.Theorems.CapstoneFunding",
+        "BitcoinProofs.Theorems.CapstoneContext",
+        "BitcoinProofs.Theorems.CapstoneSequence",
+        "BitcoinProofs.Theorems.CapstoneWitness",
+        "BitcoinProofs.AF.PDW29.PDW29Sigops",
+        "BitcoinProofs.AF.PDW36.PDW36Guards",
+        "BitcoinProofs.AF.PDW21.PDW21",
+        "Bitcoin.TxValidation.LocktimeSigOps",
+        "Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2",
+        "Bitcoin.Wallet.Crypto.Hmac",
+        "Bitcoin.Wallet.Crypto.Sha512",
+        "Bitcoin.Wallet.Descriptor",
+        "Bitcoin.Wallet.Descriptor.Ast",
+        "Bitcoin.Wallet.Descriptor.Checksum",
+        "Bitcoin.Wallet.Descriptor.Expand",
+        "Bitcoin.Wallet.Descriptor.Parse",
+        "Bitcoin.Wallet.Encoding",
+        "Bitcoin.Wallet.Encoding.Base58",
+        "Bitcoin.Wallet.Encoding.Bech32",
+        "Bitcoin.Wallet.Key.Bip32",
+        "Bitcoin.Wallet.Key.Origin",
+        "Bitcoin.Wallet.Miniscript",
+        "Bitcoin.Wallet.Miniscript.Node",
+        "Bitcoin.Wallet.Miniscript.Satisfy",
+        "Bitcoin.Wallet.Miniscript.Script",
+        "Bitcoin.Wallet.Miniscript.Tests",
+        "Bitcoin.Wallet.Miniscript.Type",
+        "Bitcoin.Wallet.Psbt.Decode",
+        "Bitcoin.Wallet.Psbt.Encode",
+        "Bitcoin.Wallet.Psbt.Laws",
+        "Bitcoin.Wallet.Psbt.Model",
+        "Bitcoin.Wallet.Psbt.Psbt",
+        "Bitcoin.Wallet.Psbt.Tests",
+        "Bitcoin.Wallet.RuleAttr",
+        "Bitcoin.Wallet.Spend",
+        "Bitcoin.Wallet.Spend.Fee",
+        "Bitcoin.Wallet.Spend.Funding",
+        "Bitcoin.Wallet.Spend.Laws",
+        "Bitcoin.Wallet.Spend.Selection",
+        "Bitcoin.Wallet.Taproot.Commit",
+        "BitcoinProofs.Wallet.Desc.Checksum",
+        "BitcoinProofs.Wallet.Desc.Expand",
+        "BitcoinProofs.Wallet.Desc.Parse",
+        "BitcoinProofs.Wallet.Encoding.Base58Props",
+        "BitcoinProofs.Wallet.Encoding.Bech32Props",
+        "BitcoinProofs.Wallet.Encoding.Laws",
+        "BitcoinProofs.Wallet.Key.Laws",
+        "BitcoinProofs.Wallet.Key.Serialize",
+        "BitcoinProofs.Wallet.Miniscript.SatShape",
+        "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+        "BitcoinProofs.Wallet.Miniscript.TypeSound",
+        "BitcoinProofs.Wallet.Obligations",
+        "BitcoinProofs.Wallet.Psbt.Canonical",
+        "BitcoinProofs.Wallet.Psbt.Invariants",
+        "BitcoinProofs.Wallet.Psbt.Lifecycle",
+        "BitcoinProofs.Wallet.Psbt.RoundTrip",
+        "BitcoinProofs.Wallet.Sign.Bridge",
+        "BitcoinProofs.Wallet.Sign.Spec",
+        "BitcoinProofs.Wallet.Spend.Selection",
+        "BitcoinProofs.Wallet.Taproot.Program",
+        "BitcoinProofs.AF.PDW41.PDW41Guards",
+        "BitcoinProofs.AF.PDW47.PDW47Guards",
+        "Bitcoin.Interpreter.Rules",
+        "BitcoinProofs.AF.PDW46b.PDW46bB",
+        "BitcoinProofs.AF.PDW68x.PDW68x",
+        "BitcoinProofs.Interpreter.PDW6SCR128",
+        "BitcoinProofs.AF.PDW16.PDW16Guards",
+        "BitcoinProofs.AF.PDW28.PDW28Guards",
+        "BitcoinProofs.AF.PDW31.PDW31",
+        "BitcoinProofs.Bip.B15.Bip94Tests",
+        "BitcoinProofs.Property.Y11.PowBits",
+        "BitcoinProofs.Theorems.CapstoneComposePipeline",
+        "BitcoinProofs.AF.PDW61.PDW61b",
+        "BitcoinProofs.AF.PDW27.SCR015INV133",
+        "BitcoinProofs.AF.PDW84.PDW84e"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "seconds": 16.839,
+      "timeout_seconds": 900,
+      "log": "/tmp/btc-lean-r07a-final-scoped-build.log",
+      "log_sha256": "ed1c4ffe75e597c96a4dc0ec0d839c62c895708e5249858082f522b9fdc9a424"
+    },
+    {
+      "name": "core-build",
+      "argv": [
+        "lake",
+        "build"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 4.626,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r07a-final-core-build.log",
+      "log_sha256": "63f1622421417d9541711cd92c447d217b98c3ed6e0b265990caa3cf4656a502"
+    },
+    {
+      "name": "core-test",
+      "argv": [
+        "lake",
+        "test"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "seconds": 1.581,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-final-core-test.log",
+      "log_sha256": "fd591b2fc65b499a96e6368401e137ba41819a80fdae65ef4205e1afca444b56"
+    },
+    {
+      "name": "runtime-301",
+      "argv": [
+        "make",
+        "test-capstone-values",
+        "test-capstone-funding",
+        "test-capstone-context",
+        "test-capstone-finality",
+        "test-capstone-csv",
+        "test-capstone-pow-limit",
+        "test-capstone-script-flags",
+        "test-capstone-sigops",
+        "test-capstone-sigop-budget",
+        "test-capstone-witness",
+        "test-capstone-taproot"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 44.003,
+      "timeout_seconds": 600,
+      "log": "/tmp/btc-lean-r07a-final-runtime-301.log",
+      "log_sha256": "cfbbbe6bcd7a4dfb9aa9951888dde63c7238413404164a4b650fbff71bb840d9"
+    },
+    {
+      "name": "strict-before",
+      "argv": [
+        "python3",
+        "docs/reviews/2026-10-18/reproduce_script_flags.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 3.397,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-final-strict-before.log",
+      "log_sha256": "5d6741e084698b97a2a7186f88083cc144e0c305d98c5c1ec542cc562d1a51db"
+    },
+    {
+      "name": "core-reference-norm",
+      "argv": [
+        "python3",
+        "spec/scripts/check_script_flags_core.py",
+        "--validation",
+        "/tmp/btc-lean-core-validation.cpp",
+        "--chainparams",
+        "/tmp/btc-lean-core-chainparams.cpp",
+        "--lean-log",
+        "/tmp/btc-lean-r07a-final-runtime-301.log",
+        "--output",
+        "/tmp/btc-lean-r07a-core-norm.json"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.927,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r07a-final-core-reference-norm.log",
+      "log_sha256": "c1c3e8e26dcd0d26ba74de4446c610dd403de9dd60cde60d51fbd7f17ca57d1e"
+    },
+    {
+      "name": "core-reference-alternative",
+      "argv": [
+        "python3",
+        "spec/scripts/check_script_flags_core.py",
+        "--validation",
+        "/tmp/btc-lean-core-audit16-validation.cpp",
+        "--chainparams",
+        "/tmp/btc-lean-core-audit16-chainparams.cpp",
+        "--lean-log",
+        "/tmp/btc-lean-r07a-final-runtime-301.log",
+        "--output",
+        "/tmp/btc-lean-r07a-core-alternative.json"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.515,
+      "timeout_seconds": 120,
+      "log": "/tmp/btc-lean-r07a-final-core-reference-alternative.log",
+      "log_sha256": "ef9410c7cf266719b137cea58fb1a68244a447403d1d96a212d9ab033ac178f2"
+    },
+    {
+      "name": "consensus-update",
+      "argv": [
+        "bash",
+        "spec/scripts/axiom_manifest.sh",
+        "--update"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 8.942,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-final-consensus-update.log",
+      "log_sha256": "7a3afdfe59ba5b5a155b2253e2fd6543cefec296ec85ab13875b6d20ad12ec3b"
+    },
+    {
+      "name": "consensus-check",
+      "argv": [
+        "bash",
+        "spec/scripts/axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 3.206,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-final-consensus-check.log",
+      "log_sha256": "8e91b5aedba2da0c02cd4d6e782856aa6c1e1e0bdeb754a4524bb6bc5bc781fa"
+    },
+    {
+      "name": "wallet-check",
+      "argv": [
+        "bash",
+        "spec/scripts/wallet_axiom_manifest.sh"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 10.073,
+      "timeout_seconds": 300,
+      "log": "/tmp/btc-lean-r07a-final-wallet-check.log",
+      "log_sha256": "6a0cb812089b50d35ea71f201b0fabfc79e83899b286ffdbc1d484c6c15f1edd"
+    },
+    {
+      "name": "static-gates",
+      "argv": [
+        "make",
+        "gates"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 9.78,
+      "timeout_seconds": 180,
+      "log": "/tmp/btc-lean-r07a-final-static-gates.log",
+      "log_sha256": "156a3aa04fee442126f302b2015e2f85de2a808ad6c9ea4e8330315e7a2b941f"
+    },
+    {
+      "name": "scope",
+      "argv": [
+        "python3",
+        "spec/scripts/proof_scope.py",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.125,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r07a-final-scope.log",
+      "log_sha256": "9d7311552584f0b2c99a1b74f7b7ed787b6a3ea945867f94cd23c5b7dc3b3e3a"
+    },
+    {
+      "name": "residuals",
+      "argv": [
+        "python3",
+        "spec/scripts/residuals_index.py",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.054,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r07a-final-residuals.log",
+      "log_sha256": "cd2d8c3702bd07a6f9e2ea2a47f57f53bbda6db3f3479774630ebd8a5dc99d8e"
+    },
+    {
+      "name": "checksums",
+      "argv": [
+        "shasum",
+        "-a",
+        "256",
+        "-c",
+        "spec/data/MANIFEST.sha256"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "seconds": 0.088,
+      "timeout_seconds": 60,
+      "log": "/tmp/btc-lean-r07a-final-checksums.log",
+      "log_sha256": "eab3f93e8a52e452ad5cfd80fed85dfcd7116bf70a00ad72cbcbaa2bfa054c2d"
+    }
+  ],
+  "scope_limits": [
+    "Full131-core/416-proof/cited-target matrix and complete726-row classification remain R08 work.",
+    "Source inspection finds stale T3T4PipelineRealCor pre-R06 bypass/Schnorr-blindness contracts and T3T4RealCheckerCor two-field checker patterns outside the default closure. No current passing build is claimed for those consumers; fresh build/contract repair remains R08.",
+    "Real block170 bytes are used at conditional height170060 with supplied UTXO/ancestor input. This is not reachable historical chain state.",
+    "No released historical anchor corpus replay or whole-bitcoind validation is claimed.",
+    "BIP30/genesis connection defects and remaining issue/review work remain open."
+  ],
+  "source_fingerprints": {
+    "Makefile": "d0f0a712cd966e91871d4d768a4ccc4999a8b84e7c361f60d458170a97b9972d",
+    "spec/core/Bitcoin/Capstone/Block.lean": "ba0fa5311d46dd72d8cf9a7c13d661d95d1df760c43c4c861e5f250b58b12828",
+    "spec/core/Test/Capstone/ScriptFlags.lean": "93bc29d7ccdcc7ec8b142918c126fd11091d6479472b697a02be597119daceac",
+    "spec/core/lake-manifest.json": "1597b2e1c43b2be1ea9e95786b56e1faab738d48d5bea4bded945dcd13e94067",
+    "spec/core/lean-toolchain": "ead308ab4fc749eb2389819903fd7baa11bf06e490827f6896a8cbfe622fa703",
+    "spec/data/MANIFEST.sha256": "59bc499b1fb1df060239956413e29becdde1a9889ce69fa1e102bcf13a313830",
+    "spec/data/review/script-flags/block170.raw": "32b4d091e14125788d35a2dfd2ed559994262e8f34c0edfdb510f605900c661e",
+    "spec/data/review/script-flags/parent169.header": "fa0df05fd474bc94059985d4bec7369b9f73553f07cb887b2c4826c5887adc0b",
+    "spec/data/review/script-flags/provenance.json": "1975dd7d0ef2ae9fbb5a316e4b75bae5b339e8fb83e884c79c31f91d6ad306b2",
+    "spec/db/axiom-manifest.txt": "be8fa12c5f9e12ee8f097a38a49ae657253ba1109d9f17486ce35a2c24ea1501",
+    "spec/db/rules.yaml": "4b85a7ce55b10658ac721748e20660c5e39fa2bb67cece7b99d76e6d3ed20b80",
+    "spec/proofs/BitcoinProofs/AF/PDW61/PDW61b.lean": "05c92481f1ec58bfe148d11f8fcbdf6c70d36a670ba45e1703956c02b5842b1f",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposePipeline.lean": "41a0eb0e15f3b8bc7b9bc8616f0307f4f62ce26628e2f72b883657840f45a09c",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "ee42b16f53d9dfcd2836068dbd12988312b8866c3cf6360cae3f5a1f770b168b",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "6d562bebe2ed9b6cd0ea06c04de9c9a244548f693a734a2e8a91c19647031241",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean": "bebb09177810c07fad1f8614f6641a8db12142a3efa1b1c59f166b9df0fbcde1",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFunding.lean": "d32cda4a346407d6e6e627a694769921d43f675e7c34481ef980d65eff505aa9",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "98921496f8b9634e8481a3c20deef6bb462ac620a66578fef853894e28ba9710",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean": "154d4acec9aa7f2b645eb882da2a92595b38915dea084e9cca0435877b362a00",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSigops.lean": "e5158ad357fb7acbb6ee0f4929e7806adee5e2bf2f6cdd179d5f6ba5dbda7acb",
+    "spec/proofs/lake-manifest.json": "e53a2c4d4fe1e22ebcbcf5bdca92376fa04518785d267ff4981af09e599ae5a0",
+    "spec/proofs/lean-toolchain": "ead308ab4fc749eb2389819903fd7baa11bf06e490827f6896a8cbfe622fa703",
+    "spec/scripts/axiom_probe.lean": "293541661dac8fe05bb7dcb2c12f42540e01b27765743e6265277f99b917e9e4",
+    "spec/scripts/check_script_flags_core.py": "7ea6ebec5e0ede1488ca99c43a4c63430bb66f38c72e6bf8e045efcdf529c472",
+    "spec/scripts/rules_overrides_sync.py": "c35639a10a1408338f92a8a8163c9c2a8f5bbcb4d599f2563519a02d9f7e9a27"
+  },
+  "proof_repair_disposition": "Generic flags required explicit inductive trace parameters and polymorphic rewrite lemmas. Layout/qualification issues and stateless-projection unification timeouts were repaired without increasing budgets or changing proof trust. All final named builds/guards pass. Early driver syntax/path setup failures are not counted as behavioral counterexamples.",
+  "staged_reproducibility": {
+    "argv": [
+      "make",
+      "gate-repro"
+    ],
+    "exit_code": 0,
+    "log": "/tmp/btc-lean-r07a-final-repro.log",
+    "log_sha256": "d56f52309ad024102da16065e14b19ff8f855cdae27736149336223b136d9195",
+    "scope": "Reference input/local-path checks, fixture regeneration and capstone-report tests pass after staging all new fixtures/helpers."
+  }
+}

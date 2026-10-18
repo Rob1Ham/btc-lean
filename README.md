@@ -153,8 +153,8 @@ The candidate tracks a size-bounded corpus subset at `spec/data/`:
 
 | Property | Value |
 |---|---:|
-| Tracked files | 172 |
-| Tracked bytes | 5,045,836 |
+| Tracked files | 175 |
+| Tracked bytes | 5,051,865 |
 | Subset manifest | `spec/data/MANIFEST.sha256` |
 | Release archive | `btc-lean-data-2026.10.17.tar.gz` |
 | Archive bytes | 357,916,214 |
@@ -201,7 +201,7 @@ local checkout paths in tracked shell/Python files.
 
 The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
-the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 326 consensus
+the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 333 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
 836 wallet declarations.
 

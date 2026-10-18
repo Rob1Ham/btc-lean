@@ -39,6 +39,9 @@ NOT claimed here.
 
 namespace BitcoinProofs.Theorems.CapstoneComposeStateless
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 open Bitcoin.Capstone.Block Bitcoin.Capstone.Merkle Bitcoin.Capstone.Pow
 open Bitcoin.Data Bitcoin.Chain Bitcoin.Consensus Bitcoin.Serialization Bitcoin.Activation
 open Bitcoin.Ledger BitcoinProofs.Theorems.CapstonePipeline
@@ -198,7 +201,7 @@ theorem capstone_stateless_composition (raw : ByteArray) (height : UInt32) :
 private theorem applyTxs_checkTx_all (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin))
       (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = .ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = .ok (l', okN', unjN') →
       ∀ t ∈ txs, checkTransaction t = none := by
   intro txs
   induction txs with
@@ -206,7 +209,7 @@ private theorem applyTxs_checkTx_all (height : UInt32) :
   | cons u rest ih =>
       intro i okN unjN l l' okN' unjN' h t ht
       simp only [applyTxs] at h
-      cases hu : applyTx height u i l with
+      cases hu : applyTx height u i l flags with
       | error e => rw [hu] at h; simp at h
       | ok q =>
           obtain ⟨l₁, a, b⟩ := q

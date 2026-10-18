@@ -103,11 +103,26 @@ The live script path uses [`getBlockScriptFlags(height)`](../../../spec/core/Bit
 
 These are documented canonical-chain abstractions, but `validateBlock` neither takes nor establishes their canonicality hypotheses. An alternate block at an exception height inherits exemptions it should not have. Thread candidate hash and ancestor evidence through the contextual path; test canonical and alternate hashes at every exception and the BIP30 re-enable boundary.
 
+R07a script-flag remediation now uses the actual candidate hash for both cost
+accounting and every script check. Both public entries reproduce and repair
+the alternate-hash P2SH bypass; Taproot amount-binding/exception cases and
+fourteen pinned-Core selector controls pass. Three guarded kernel proofs bind
+the public script trace to the same flags. See
+[validation-r07a.json](validation-r07a.json). BIP30/genesis exceptions remain
+open under R07/R07b.
+
 ### R08 P1 Green CI does not elaborate or execute the Lean deliverable
 
 The push/PR workflows [`gates.yml`](../../../.github/workflows/gates.yml), [`indexes.yml`](../../../.github/workflows/indexes.yml) and [`proof-scope.yml`](../../../.github/workflows/proof-scope.yml) perform static checks. [`release-verify.yml`](../../../.github/workflows/release-verify.yml) is manual and checks data assets, not Lean. There is no workflow building the model/proofs or running dynamic axiom checks. Main's three returned workflow results are green despite 15 documented failing proof modules.
 
 The default proof closure covers 29 of 409 modules, so adding only `lake build BitcoinProofs` would leave the same broad blind spot. Add pinned builds for deliverable/cited modules, explicit tests/negative probes, core and wallet surfaces, and dynamic evidence checks. Capture resource failures separately from false propositions and do not silently omit failed modules.
+
+The R07a dependency review also found stale T3/T4 proof consumers outside the
+default root: `T3T4PipelineRealCor` still describes universal Schnorr blindness
+and the old Taproot bypass, while `T3T4RealCheckerCor` destructures a two-field
+`ScriptChecker`. Their source contracts predate the real typed checker. They
+are queued for fresh build/contract repair in the full R08 matrix, and are not
+current production verification evidence.
 
 ### R09 P1 The consensus static axiom check accepts arbitrary custom axioms
 

@@ -44,7 +44,7 @@ theorem applyTxsWithSigops_bounded {context height flags txs i l a b fees start}
   | cons tx rest ih =>
     simp only [applyTxsWithSigops] at h
     cases hs : applyTxWithChecks height tx i l
-        (fun fee => checkSigopTotal context height flags tx l fees fee start) with
+        (fun fee => checkSigopTotal context height flags tx l fees fee start) flags with
     | error e => simp [hs] at h
     | ok value =>
       obtain ⟨⟨⟨next, x, y⟩, checkedFee⟩, nextTotal⟩ := value
@@ -65,7 +65,7 @@ theorem applyTxsWithSigops_trace {context height flags txs i l a b fees start}
   | cons tx rest ih =>
     simp only [applyTxsWithSigops] at h
     cases hs : applyTxWithChecks height tx i l
-        (fun fee => checkSigopTotal context height flags tx l fees fee start) with
+        (fun fee => checkSigopTotal context height flags tx l fees fee start) flags with
     | error e => simp [hs] at h
     | ok value =>
       obtain ⟨⟨⟨next, p, q⟩, checkedFee⟩, nextTotal⟩ := value
@@ -195,6 +195,48 @@ theorem validateBlock_sigop_budget {raw : ByteArray} {st : CapState}
   exact ⟨covered.1, applyTxsWithSigops_bounded (by decide) fold,
     header, txs, hd, applyTxsWithSigops_trace fold⟩
 
+/-- Every actual script check in the successful resource fold used the same
+caller-supplied flags as its cost calculation, at the evolving input view. -/
+theorem applyTxsWithSigops_script_flags {context height flags txs i l a b fees start}
+    {out : List (OutPoint × Coin)} {x y total : Nat} {totalFees : Amount}
+    (h : applyTxsWithSigops context height flags txs i l a b fees start =
+      .ok (((out, x, y), totalFees), total)) :
+    CapstoneFold.ScriptPass (flags := flags) height txs i l out (x-a) (y-b) := by
+  have projected := applyTxsWithSigops_projection h
+  have feeFold : applyTxsWithFees height txs i l a b fees flags =
+      .ok ((out, x, y), totalFees) := by
+    cases context with
+    | none => exact projected
+    | some pair =>
+      obtain ⟨ctx, facts⟩ := pair
+      exact CapstoneSequence.applyTxsInContext_fee_projection projected
+  have run := applyTxsWithFees_ok feeFold
+  have ledger := CapstoneFold.applyTxs_ledgerFold_agrees height txs i l a b out x y run
+  have counts := CapstoneFold.applyTxs_counters_ge height txs i l a b out x y run
+  exact CapstoneFold.scriptPass_of_agree height txs i l out a b x y ledger run counts.1 counts.2
+
+/-- The full resource stage retains exact script flags and output counters. -/
+theorem applyBlockTransactionsWithSigops_script_flags {context height flags txs l}
+    {out : List (OutPoint × Coin)} {okN unjN total : Nat}
+    (h : applyBlockTransactionsWithSigops context height flags txs l =
+      .ok ((out, okN, unjN), total)) :
+    CapstoneFold.ScriptPass (flags := flags) height txs 0 l out okN unjN := by
+  obtain ⟨fees, fold, _⟩ := applyBlockTransactionsWithSigops_fold h
+  simpa only [Nat.sub_zero] using applyTxsWithSigops_script_flags fold
+
+/-- Both public entries use flags selected from the actual candidate hash
+for every script in their successful transaction trace. Unjudged counts
+remain explicit in the trace and report. -/
+@[rule "SCR-015", rule "TXV-055", rule "TXV-056", rule "BLK-083", rule "BLK-084"]
+theorem validateBlock_script_flags {raw : ByteArray} {st : CapState}
+    {context : Option ChainContext} {report : CapReport}
+    (h : validateBlock raw st context = .ok report) :
+    ∃ header txs, decodeBlock raw = .ok (header, txs) ∧
+      CapstoneFold.ScriptPass (flags := candidateScriptFlags st.height header)
+        st.height txs 0 st.utxo report.state.utxo report.scriptOk report.scriptUnjudged := by
+  obtain ⟨header, txs, resolved, hd, _, _, stage, _⟩ := validateBlock_sigop_stage h
+  exact ⟨header, txs, hd, applyBlockTransactionsWithSigops_script_flags stage⟩
+
 /-! Guard the exact footprints of the new public-stage proofs and their Core lemmas. -/
 
 /-- info: 'Bitcoin.Capstone.Block.checkBlockStateless_error' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -286,3 +328,19 @@ theorem validateBlock_sigop_budget {raw : ByteArray} {st : CapState}
 #print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose
 
 end BitcoinProofs.Theorems.CapstoneSigops
+
+-- R07a: actual candidate flags reach the full script trace.
+/-- info: 'BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_script_flags
+
+/-- info: 'BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_script_flags
+
+/-- info: 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags

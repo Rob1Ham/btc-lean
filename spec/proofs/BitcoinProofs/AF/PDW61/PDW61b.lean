@@ -12,12 +12,15 @@ open Bitcoin.Data Bitcoin.Ledger
 
 namespace BitcoinProofs.AF.PDW61
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 /-! ## BLK-030 — the stateless gate inside the pipeline -/
 
 /-- One successful pipeline step passed `CheckTransaction`. -/
 theorem applyTx_ok_stateless (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
-    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = .ok (l', a, b)) :
+    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l flags = .ok (l', a, b)) :
     Bitcoin.Consensus.checkTransaction tx = none := by
   rw [Bitcoin.Capstone.Block.applyTx_unfold] at h
   simp only [] at h
@@ -32,7 +35,7 @@ stateless `checkTransaction` gate (validateBlock's step 5). -/
 theorem applyTxs_ok_stateless (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat)
       (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
-      Bitcoin.Capstone.Block.applyTxs height txs i l okN unjN =
+      Bitcoin.Capstone.Block.applyTxs height txs i l okN unjN flags =
         .ok (l', okN', unjN') →
       ∀ tx ∈ txs, Bitcoin.Consensus.checkTransaction tx = none := by
   intro txs
@@ -41,7 +44,7 @@ theorem applyTxs_ok_stateless (height : UInt32) :
   | cons u rest ih =>
       intro i okN unjN l l' okN' unjN' h tx ht
       unfold Bitcoin.Capstone.Block.applyTxs at h
-      cases hap : Bitcoin.Capstone.Block.applyTx height u i l with
+      cases hap : Bitcoin.Capstone.Block.applyTx height u i l flags with
       | error e => rw [hap] at h; simp at h
       | ok p =>
           obtain ⟨l₁, a, b⟩ := p

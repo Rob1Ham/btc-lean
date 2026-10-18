@@ -8,6 +8,9 @@ core/Test/Capstone/BlockFunding.lean.
 
 namespace BitcoinProofs.Theorems.CapstoneFunding
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 open Bitcoin.Data Bitcoin.Ledger Bitcoin.Conservation Bitcoin.TxValidation
 open Bitcoin.Capstone.Block Bitcoin.Serialization
 
@@ -19,7 +22,7 @@ against this transaction's current view, accepted by the budget callback. -/
 theorem applyTxWithFeeCheck_fee {height : UInt32} {tx : Tx} {i : Nat}
     {l : List (OutPoint × Coin)} {checkFee : Amount → Except CapError Unit}
     {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount}
-    (h : applyTxWithFeeCheck height tx i l checkFee = .ok (result, fee)) :
+    (h : applyTxWithFeeCheck height tx i l checkFee flags = .ok (result, fee)) :
     (tx.isCoinBase = true ∧ fee = 0) ∨
       (tx.isCoinBase = false ∧ checkTxInputs tx (viewOf l) height = .ok fee ∧
         checkFee fee = .ok ()) := by
@@ -38,7 +41,7 @@ theorem applyTxWithFeeCheck_fee {height : UInt32} {tx : Tx} {i : Nat}
         | error e => simp [hc, hb, hm, hf] at h
         | ok unit =>
           cases unit
-          cases hv : verifyTxInputs height tx i l with
+          cases hv : verifyTxInputs height tx i l flags with
           | error e => simp [hc, hb, hm, hf, hv] at h
           | ok counts =>
             obtain ⟨a, b⟩ := counts
@@ -50,7 +53,7 @@ theorem applyTxsWithFees_range {height : UInt32} {txs : List Tx} {i : Nat}
     {l : List (OutPoint × Coin)} {a b : Nat} {fees total : Amount}
     {result : List (OutPoint × Coin) × Nat × Nat}
     (hinit : MoneyRange fees = true)
-    (h : applyTxsWithFees height txs i l a b fees = .ok (result, total)) :
+    (h : applyTxsWithFees height txs i l a b fees flags = .ok (result, total)) :
     MoneyRange total = true := by
   induction txs generalizing i l a b fees with
   | nil =>
@@ -58,7 +61,7 @@ theorem applyTxsWithFees_range {height : UInt32} {txs : List Tx} {i : Nat}
     simpa [← h.2] using hinit
   | cons tx rest ih =>
     simp only [applyTxsWithFees] at h
-    cases hs : applyTxWithFeeCheck height tx i l (checkFeeTotal fees) with
+    cases hs : applyTxWithFeeCheck height tx i l (checkFeeTotal fees) flags with
     | error e => simp [hs] at h
     | ok p =>
       obtain ⟨⟨l', x, y⟩, fee⟩ := p
@@ -74,12 +77,12 @@ theorem applyTxsWithFees_range {height : UInt32} {txs : List Tx} {i : Nat}
 it also preserves exactly the reported UTXO and script counters. -/
 theorem applyBlockTransactions_funding {height : UInt32} {txs : List Tx}
     {l : List (OutPoint × Coin)} {result : List (OutPoint × Coin) × Nat × Nat}
-    (h : applyBlockTransactions height txs l = .ok result) :
-    ∃ fees, applyTxsWithFees height txs 0 l 0 0 0 = .ok (result, fees) ∧
+    (h : applyBlockTransactions height txs l flags = .ok result) :
+    ∃ fees, applyTxsWithFees height txs 0 l 0 0 0 flags = .ok (result, fees) ∧
       MoneyRange fees = true ∧
       (txs.getD 0 dummyTx).getValueOut ≤ fees + blockSubsidy height := by
   unfold applyBlockTransactions at h
-  cases hf : applyTxsWithFees height txs 0 l 0 0 0 with
+  cases hf : applyTxsWithFees height txs 0 l 0 0 0 flags with
   | error e => simp [hf] at h
   | ok p =>
     obtain ⟨r, fees⟩ := p
@@ -99,7 +102,7 @@ theorem validateBlock_funding (raw : ByteArray) (st : CapState) (report : CapRep
     (h : validateBlock raw st = .ok report) :
     ∃ header txs fees,
       decodeBlock raw = .ok (header, txs) ∧
-      applyTxsWithFees st.height txs 0 st.utxo 0 0 0 =
+      applyTxsWithFees st.height txs 0 st.utxo 0 0 0 (candidateScriptFlags st.height header) =
         .ok ((report.state.utxo, report.scriptOk, report.scriptUnjudged), fees) ∧
       MoneyRange fees = true ∧
       (txs.getD 0 dummyTx).getValueOut ≤ fees + blockSubsidy st.height := by

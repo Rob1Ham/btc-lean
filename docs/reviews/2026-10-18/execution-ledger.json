@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T18:44:45.897909+00:00",
+  "updated_at_utc": "2026-10-18T19:06:04.884874+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -673,9 +673,10 @@
       "id": "R07",
       "priority": "P1",
       "title": "Height-only exception predicates lack canonicality at caller",
-      "evidence": "source-confirmed; abstraction disclosed, caller preconditions absent",
-      "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "evidence": "R07a fixes actual candidate flags reaching scripts as well as cost accounting; six failures reproduced with20controls. All301runtime checks and129-target/9276-job scoped build/probes/gates pass. BIP30 own-hash/ancestor composition and genesis connection remain open.",
+      "status": "partially_fixed_actual_script_flags_verified_bip30_genesis_open",
+      "next_action": "Wire BIP30 exact repeat hashes and BIP34 ancestor evidence into pristine pre-loop gate, then exact genesis connection skip with honest report/proof contracts.",
+      "verification_artifact": "validation-r07a.json"
     },
     {
       "id": "R08",
@@ -1646,12 +1647,13 @@
     "R05 repaired: nonzero commitment amounts accepted under ordinary value/reward bounds; nonce shape precedes hashing; exact Core witness reasons restored. All 188 targeted checks, 16 core checks, scoped 1741-job proof build, 53 wallet imports, 299 consensus/838 wallet probes and static/generated gates pass. Full repository matrix remains pending.",
     "R06/R19: removed native witness bypass, wired real typed Taproot signatures and commitment/execution data, exact serialization budget and evolving-view cache, corrected compatibility ECDSA algorithm binding. 245 targeted runtime checks, 16 core checks, 116-target/3343-job scoped build, 315 consensus/836 wallet probes and all gates pass. Twenty S02 measurement examples and complete 131-core/416-proof/cited-target matrix remain explicitly pending.",
     "R18: corrected CSV unsigned wire-version gate and affected proof statements. Shared public before/after driver verifies six fixes and twelve controls; both exact Core pins agree on15 comparable cases. 263 runtime checks,16 core checks,120-target/3347-job scoped build,318 consensus/836 wallet probes and all gates pass. Full matrix/census and R07 remain open.",
-    "I4-43/R07c: single full mainnet powLimit shared by retarget, target validation and chain-work bounds; exact genesis/strict-bound contracts restored.275 targeted runtime checks,16 core checks,125-target/9271-job scoped build,326 consensus/836 wallet probes and all gates pass.137 Y11 kernel cases regenerate identically;57 encoder cases+3network controls agree at both pinned Core revisions. BLK-040 live linkage and row targets/source references repaired; broader goal remains open."
+    "I4-43/R07c: single full mainnet powLimit shared by retarget, target validation and chain-work bounds; exact genesis/strict-bound contracts restored.275 targeted runtime checks,16 core checks,125-target/9271-job scoped build,326 consensus/836 wallet probes and all gates pass.137 Y11 kernel cases regenerate identically;57 encoder cases+3network controls agree at both pinned Core revisions. BLK-040 live linkage and row targets/source references repaired; broader goal remains open.",
+    "R07a: actual candidate-hash flags reach every input script, with uniform fee/ledger/finality/counter projections and3guarded public trace proofs.301targeted runtime checks,16core checks,129-target/9276-job scoped build,333consensus/836wallet probes and all gates pass. Six old failures reproduce with20controls;14selector cases match identical Core functions at both exact pins.175tracked data files total5,051,865bytes. BIP30/genesis and complete matrix/census remain open."
   ],
   "external_blockers": [],
   "next_actions": [
-    "Wire actual-hash script-verification flags and BIP30 exceptions, and the exact genesis connection skip (R07/R07b).",
-    "Complete R08 full core/proof/cited-target builds and CI coverage, every remaining issue/census disposition, wallet review, archive/evidence reproducibility."
+    "Wire BIP30 exact own-hash and BIP34 ancestor checks, plus exact genesis connection skip with explicit report/proof scope (R07/R07b).",
+    "Complete R08 full core/proof/cited-target builds and CI coverage, including stale T3/T4 contracts; finish every remaining issue/census disposition, wallet review, archive/evidence reproducibility."
   ],
   "verification": [
     {
@@ -1699,6 +1701,10 @@
     {
       "artifact": "validation-r07c.json",
       "status": "I4-43/R07c scoped repair passes; broader goal incomplete"
+    },
+    {
+      "artifact": "validation-r07a.json",
+      "status": "R07a scoped repair passes; parent R07 and broader goal incomplete"
     }
   ],
   "sessions": {},
@@ -1761,6 +1767,22 @@
       "duplicate_of_issue_item": "I4-43",
       "verification_artifact": "validation-r07c.json",
       "scope": "Parameter/encoding defect; independent workOf sign/overflow and actual-hash/genesis composition gaps remain open."
+    },
+    {
+      "id": "R07a",
+      "priority": "P1",
+      "title": "Candidate flags were used for sigop cost but discarded before script execution",
+      "status": "fixed_and_verified_with_scoped_evidence",
+      "verification_artifact": "validation-r07a.json",
+      "remaining_scope": "Parent R07 remains open for BIP30/genesis."
+    },
+    {
+      "id": "R08c",
+      "priority": "P2",
+      "title": "Legacy T3/T4 proof consumers retain pre-R06 checker/bypass contracts",
+      "status": "requires_current_build_and_contract_review",
+      "evidence": "Source inspection: T3T4PipelineRealCor describes universal Schnorr blindness and old unjudged Taproot dispatch. T3T4RealCheckerCor destructures ScriptChecker with two fields although the current type has three. They are outside the default closure; no current passing build claimed.",
+      "next_action": "Include both exact modules in complete R08 matrix and restore truthful compatibility/production contracts after remaining live semantic fixes."
     }
   ],
   "latest_resume": "User requested Resume goal; R06/R19 and R18 scoped fixes verified, continuing historical parameter/exception gaps.",

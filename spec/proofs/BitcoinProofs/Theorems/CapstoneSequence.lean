@@ -7,6 +7,9 @@ are in core/Test/Capstone/Finality.lean. -/
 
 namespace BitcoinProofs.Theorems.CapstoneSequence
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 open Bitcoin.Data Bitcoin.Ledger Bitcoin.TxValidation Bitcoin.Serialization
 open Bitcoin.Capstone.Block Bitcoin.Capstone.Context
 open BitcoinProofs.Theorems.CapstonePipeline
@@ -28,7 +31,7 @@ pre-script callback, using the fee returned by input validation. -/
 theorem applyTxWithChecks_checked {α : Type} {height : UInt32} {tx : Tx} {i : Nat}
     {l : List (OutPoint × Coin)} {checks : Amount → Except CapError α}
     {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount} {checkedData : α}
-    (h : applyTxWithChecks height tx i l checks = .ok ((result, fee), checkedData)) :
+    (h : applyTxWithChecks height tx i l checks flags = .ok ((result, fee), checkedData)) :
     checks fee = .ok checkedData := by
   unfold applyTxWithChecks at h
   cases hc : Bitcoin.Consensus.checkTransaction tx with
@@ -47,7 +50,7 @@ theorem applyTxWithChecks_checked {α : Type} {height : UInt32} {tx : Tx} {i : N
         cases hf : checks actualFee with
         | error e => simp [hc, hb, hm, hf] at h
         | ok value =>
-          cases hv : verifyTxInputs height tx i l with
+          cases hv : verifyTxInputs height tx i l flags with
           | error e => simp [hc, hb, hm, hf, hv] at h
           | ok counts =>
             obtain ⟨a, b⟩ := counts
@@ -60,8 +63,8 @@ theorem applyTxWithChecks_fee_projection {α : Type} {height : UInt32} {tx : Tx}
     {checkFee : Amount → Except CapError Unit}
     {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount} {checkedData : α}
     (budget : tx.isCoinBase = true ∨ checkFee fee = .ok ())
-    (h : applyTxWithChecks height tx i l checks = .ok ((result, fee), checkedData)) :
-    applyTxWithFeeCheck height tx i l checkFee = .ok (result, fee) := by
+    (h : applyTxWithChecks height tx i l checks flags = .ok ((result, fee), checkedData)) :
+    applyTxWithFeeCheck height tx i l checkFee flags = .ok (result, fee) := by
   rw [applyTxWithFeeCheck_unfold]
   unfold applyTxWithChecks at h
   cases hc : Bitcoin.Consensus.checkTransaction tx with
@@ -80,7 +83,7 @@ theorem applyTxWithChecks_fee_projection {α : Type} {height : UInt32} {tx : Tx}
         cases hf : checks actualFee with
         | error e => simp [hc, hb, hm, hf] at h
         | ok value =>
-          cases hv : verifyTxInputs height tx i l with
+          cases hv : verifyTxInputs height tx i l flags with
           | error e => simp [hc, hb, hm, hf, hv] at h
           | ok counts =>
             obtain ⟨a, b⟩ := counts
@@ -167,13 +170,13 @@ theorem checkContextualTx_ok {ctx : ChainContext} {facts : HeaderFacts}
 theorem applyTxsInContext_fee_projection {ctx : ChainContext} {facts : HeaderFacts}
     {height : UInt32} {txs : List Tx} {i : Nat} {l : List (OutPoint × Coin)}
     {a b : Nat} {fees total : Amount} {result : List (OutPoint × Coin) × Nat × Nat}
-    (h : applyTxsInContext ctx facts height txs i l a b fees = .ok (result, total)) :
-    applyTxsWithFees height txs i l a b fees = .ok (result, total) := by
+    (h : applyTxsInContext ctx facts height txs i l a b fees flags = .ok (result, total)) :
+    applyTxsWithFees height txs i l a b fees flags = .ok (result, total) := by
   induction txs generalizing i l a b fees with
   | nil => simpa [applyTxsInContext, applyTxsWithFees] using h
   | cons tx rest ih =>
     simp only [applyTxsInContext] at h
-    cases hs : applyTxWithChecks height tx i l (checkContextualTx ctx facts height tx l fees) with
+    cases hs : applyTxWithChecks height tx i l (checkContextualTx ctx facts height tx l fees) flags with
     | error e => simp [hs] at h
     | ok p =>
       obtain ⟨⟨⟨l', x, y⟩, fee⟩, unit⟩ := p
@@ -199,7 +202,7 @@ def SequenceTrace (ctx : ChainContext) (facts : HeaderFacts) (height : UInt32) :
 theorem applyTxsInContext_trace {ctx : ChainContext} {facts : HeaderFacts}
     {height : UInt32} {txs : List Tx} {i : Nat} {l last : List (OutPoint × Coin)}
     {a b okN unjN : Nat} {fees total : Amount}
-    (h : applyTxsInContext ctx facts height txs i l a b fees = .ok ((last, okN, unjN), total)) :
+    (h : applyTxsInContext ctx facts height txs i l a b fees flags = .ok ((last, okN, unjN), total)) :
     SequenceTrace ctx facts height txs l fees last total := by
   induction txs generalizing i l a b fees with
   | nil =>
@@ -207,7 +210,7 @@ theorem applyTxsInContext_trace {ctx : ChainContext} {facts : HeaderFacts}
     exact ⟨h.1.1, h.2⟩
   | cons tx rest ih =>
     simp only [applyTxsInContext] at h
-    cases hs : applyTxWithChecks height tx i l (checkContextualTx ctx facts height tx l fees) with
+    cases hs : applyTxWithChecks height tx i l (checkContextualTx ctx facts height tx l fees) flags with
     | error e => simp [hs] at h
     | ok p =>
       obtain ⟨⟨⟨next, x, y⟩, fee⟩, unit⟩ := p
@@ -226,12 +229,12 @@ theorem applyTxsInContext_trace {ctx : ChainContext} {facts : HeaderFacts}
 theorem applyContextualBlockTransactions_funding {ctx : ChainContext} {facts : HeaderFacts}
     {height : UInt32} {txs : List Tx} {l : List (OutPoint × Coin)}
     {result : List (OutPoint × Coin) × Nat × Nat}
-    (h : applyContextualBlockTransactions ctx facts height txs l = .ok result) :
-    ∃ fees, applyTxsInContext ctx facts height txs 0 l 0 0 0 = .ok (result, fees) ∧
+    (h : applyContextualBlockTransactions ctx facts height txs l flags = .ok result) :
+    ∃ fees, applyTxsInContext ctx facts height txs 0 l 0 0 0 flags = .ok (result, fees) ∧
       MoneyRange fees = true ∧
       (txs.getD 0 dummyTx).getValueOut ≤ fees + Bitcoin.Conservation.blockSubsidy height := by
   unfold applyContextualBlockTransactions at h
-  cases hf : applyTxsInContext ctx facts height txs 0 l 0 0 0 with
+  cases hf : applyTxsInContext ctx facts height txs 0 l 0 0 0 flags with
   | error e => simp [hf] at h
   | ok p =>
     obtain ⟨r, fees⟩ := p
@@ -254,7 +257,8 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
       decodeBlock raw = .ok (header, txs) ∧
       checkHeaderContext ctx st.height st.prevHash header = .ok facts ∧
       blockFinalityAtHeight txs st.height facts.parentMtp header.time = true ∧
-      applyContextualBlockTransactions ctx facts st.height txs st.utxo =
+      applyContextualBlockTransactions ctx facts st.height txs st.utxo
+        (candidateScriptFlags st.height header) =
         .ok (report.state.utxo, report.scriptOk, report.scriptUnjudged) ∧
       report.absoluteFinalityChecked = true ∧ report.sequenceLocksChecked = true := by
   unfold validateBlockInContext at h
@@ -288,7 +292,8 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
       | error e => simp [ht] at h
       | ok result =>
         obtain ⟨⟨u, a, b⟩, sigops⟩ := result
-        have stage : applyContextualBlockTransactions ctx facts st.height txs st.utxo = .ok (u, a, b) :=
+        have stage : applyContextualBlockTransactions ctx facts st.height txs st.utxo
+            (candidateScriptFlags st.height header) = .ok (u, a, b) :=
           applyBlockTransactionsWithSigops_projection ht
         simp only [ht, ebind_ok, epure_ok, Except.ok.injEq] at h
         subst report

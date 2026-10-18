@@ -2123,11 +2123,11 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript"
 - id: SCR-015
-  summary: "P2SH+WITNESS+TAPROOT always; DERSIG/CLTV/CSV/NULLDUMMY by activation"
+  summary: "Away from named hash exceptions, P2SH/WITNESS/TAPROOT are enabled; DERSIG/CLTV/CSV/NULLDUMMY are added at buried heights. Scripts and costs use actual candidate flags."
   check: "Consensus flag selection"
-  core_ref: "validation.cpp:GetBlockScriptFlags:2249-2286@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP16/66/65/112/141/341"
-  lean_target: "BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq"
+  lean_target: "BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -4484,22 +4484,22 @@ rules:
   consensus: true
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-055
-  summary: "`flags(blk) = base ∪ active-deployment flags`"
+  summary: "Flags are the hash-selected base plus buried-deployment flags; the selected flags reach every script in public validation."
   check: "per-epoch script flags"
-  core_ref: "validation.cpp:GetBlockScriptFlags:2249–2286@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP66/65/112/141/341"
-  lean_target: "BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row"
+  lean_target: "BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 4
   consensus: true
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-056
-  summary: "2 historical blocks use reduced flag sets (P2SH/Taproot)"
+  summary: "The two named hashes select reduced base flag sets; public script checks use those flags and retain subsequent buried flags."
   check: "flag exception blocks"
-  core_ref: "validation.cpp:2260–2265; consensus/params (script_flag_exceptions)@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "Bitcoin.Activation.exception_replaces_base"
+  lean_target: "Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -5617,22 +5617,22 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-083
-  summary: "P2SH"
+  summary: "Outside named hash exceptions, P2SH/WITNESS/TAPROOT remain enabled at every height and reach live script execution."
   check: "Base script flags"
-  core_ref: "V:GetBlockScriptFlags:2256-2260@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "WITNESS"
-  lean_target: "Bitcoin.Activation.base_flags_p2sh_witness_taproot"
+  lean_target: "Bitcoin.Activation.base_flags_p2sh_witness_taproot, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: null
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-084
-  summary: "exception blocks: BIP16-exempt 0000…02dc…(NONE), taproot-exempt 0000…0f14…(P2SH"
+  summary: "Named hashes replace base flags (BIP16: NONE; Taproot: P2SH|WITNESS); buried-deployment flags are then ORed in."
   check: "Script-flag exceptions"
-  core_ref: "CP:113-116 + V:2261-2264@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "WITNESS)"
-  lean_target: "Bitcoin.Activation.exception_replaces_base"
+  lean_target: "Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: null

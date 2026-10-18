@@ -1,3 +1,5 @@
+import BitcoinProofs.AF.PDW27.SCR015INV133
+import BitcoinProofs.AF.PDW84.PDW84e
 import BitcoinProofs.AF.PDW28.PDW28Guards
 import Bitcoin.Block.Pow
 import Bitcoin.Block.Index
@@ -454,3 +456,14 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit
 
 #print axioms BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full
+
+-- R07a: actual-hash flags used by scripts and cost accounting.
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_script_flags
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_script_flags
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags
+
+-- R07a: retained selector/exception targets cited by the five repaired rows.
+#print axioms BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq
+#print axioms BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row
+#print axioms Bitcoin.Activation.exception_replaces_base
+#print axioms Bitcoin.Activation.base_flags_p2sh_witness_taproot

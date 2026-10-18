@@ -83,6 +83,21 @@ included in the 326-entry consensus probe. Full matrix coverage and the
 independent chain-work decode-sign/overflow residual remain open. See
 [validation-r07c.json](reviews/2026-10-18/validation-r07c.json).
 
+R07a threads actual candidate-hash flags through every script check and the
+same fee/ledger/finality projections used by the public validator. Three new
+kernel proofs establish the complete script trace under those flags. The
+129-target scoped build passes 9276 Lake jobs, including the default root,
+probe/wallet imports, `CapstoneComposePipeline`, PDW61b and both retained
+selector targets. The 301-case runtime suite, 333-entry consensus probe and
+836-entry wallet probe pass. Commands and exact bounds are in
+[validation-r07a.json](reviews/2026-10-18/validation-r07a.json).
+
+The full matrix also needs current contracts in `T3T4PipelineRealCor` and
+`T3T4RealCheckerCor`: source inspection finds pre-R06 Taproot-bypass/Schnorr-
+blindness claims and an old two-field `ScriptChecker` pattern. They are outside
+the default closure and are not claimed as current passing production proofs.
+Their fresh builds and contract repairs remain part of R08.
+
 The outside-closure results below are the upstream audit snapshot from before
 PR 18 merged and before the remediation changes. They remain historical
 results until the full module matrix is rerun under R08; the counts and failure

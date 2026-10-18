@@ -58,6 +58,9 @@ NOT in this file; `T := [propext, Classical.choice, Quot.sound]`,
 
 namespace BitcoinProofs.Theorems.CapstonePipeline
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 open Bitcoin.Capstone.Block Bitcoin.Capstone.Pow Bitcoin.Capstone.Merkle
 open Bitcoin.Data Bitcoin.Ledger Bitcoin.Consensus Bitcoin.Serialization
 
@@ -165,7 +168,7 @@ real txid, whose error is wrapped as `CapError.block` and whose success
 threads the final utxo together with the script counters. -/
 theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) :
-    applyTx height tx txIdx l =
+    applyTx height tx txIdx l flags =
       match checkTransaction tx with
       | some e =>
           (throw (CapError.txCheck e) :
@@ -173,12 +176,12 @@ theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
             if tx.isCoinBase = true then (Except.ok (0, 0)) >>= applyTxCont height tx txIdx l
             else (match Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
               | .error e => Except.error (CapError.tx e)
-              | .ok _ => verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l
+              | .ok _ => verifyTxInputs height tx txIdx l flags) >>= applyTxCont height tx txIdx l
       | none =>
           if tx.isCoinBase = true then (Except.ok (0, 0)) >>= applyTxCont height tx txIdx l
           else (match Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
               | .error e => Except.error (CapError.tx e)
-              | .ok _ => verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l := by
+              | .ok _ => verifyTxInputs height tx txIdx l flags) >>= applyTxCont height tx txIdx l := by
   cases hc : checkTransaction tx with
   | some e => simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, ethrow]
   | none =>
@@ -188,7 +191,7 @@ theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
       | error e =>
         simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, hm, applyTxCont, ethrow]
       | ok fee =>
-        cases hv : verifyTxInputs height tx txIdx l with
+        cases hv : verifyTxInputs height tx txIdx l flags with
         | error e =>
           simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, hm, hv, applyTxCont] <;> rfl
         | ok c =>
@@ -201,7 +204,7 @@ coinbase never touches the script layer. -/
 theorem applyTx_coinbase_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin))
     (hcb : tx.isCoinBase = true) (hchk : checkTransaction tx = none) :
-    applyTx height tx txIdx l =
+    applyTx height tx txIdx l flags =
       match applyTxStepL l tx (txidKey tx) height with
       | .error e => .error (CapError.block e)
       | .ok l' => .ok (l', 0, 0) := by
@@ -213,7 +216,7 @@ the returned script counters are exactly `(0, 0)`. -/
 theorem applyTx_coinbase_counters (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
     (hcb : tx.isCoinBase = true)
-    (h : applyTx height tx txIdx l = .ok (l', a, b)) :
+    (h : applyTx height tx txIdx l flags = .ok (l', a, b)) :
     a = 0 ∧ b = 0 := by
   revert h
   simp only [Bitcoin.Capstone.Block.applyTx_unfold]
@@ -233,7 +236,7 @@ theorem applyTx_ledger_first (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) (e : Bitcoin.TxValidation.TxError)
     (hcb : tx.isCoinBase = false) (hchk : checkTransaction tx = none)
     (hm : Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height = .error e) :
-    applyTx height tx txIdx l = .error (CapError.tx e) := by
+    applyTx height tx txIdx l flags = .error (CapError.tx e) := by
   simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hcb, hm, ethrow]
 
 /-- **P16-3 (ledger-first, coinbase)**: same for the coinbase lane — the
@@ -243,7 +246,7 @@ theorem applyTx_ledger_first_coinbase (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) (e : BlockError)
     (hcb : tx.isCoinBase = true) (hchk : checkTransaction tx = none)
     (hl : applyTxStepL l tx (txidKey tx) height = .error e) :
-    applyTx height tx txIdx l = .error (CapError.block e) := by
+    applyTx height tx txIdx l flags = .error (CapError.block e) := by
   simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hcb, ethrow, hl]
 
 /-- **P16-3 (script-first, non-coinbase)**: dually, an adjudicated script
@@ -255,8 +258,8 @@ theorem applyTx_script_first (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) (e : CapError)
     (hcb : tx.isCoinBase = false) (hchk : checkTransaction tx = none)
     (hm : ∃ fee, Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height = .ok fee)
-    (hs : verifyTxInputs height tx txIdx l = .error e) :
-    applyTx height tx txIdx l = .error e := by
+    (hs : verifyTxInputs height tx txIdx l flags = .error e) :
+    applyTx height tx txIdx l flags = .error e := by
   have hnc : ¬ (tx.isCoinBase = true) := by rw [hcb]; decide
   obtain ⟨fee, hm⟩ := hm
   simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hnc, hm, ethrow, hs]
@@ -274,7 +277,7 @@ theorem verifyTxInputs_loop_total (height : UInt32) (tx : Tx) (txIdx : Nat)
     (u : List (OutPoint × Coin)) (spentOutputs : Option (List TxOut)) :
     ∀ (n i okN unjN a b : Nat), i + n = tx.vin.length →
       okN + unjN ≤ i →
-      verifyTxInputs.loop height tx txIdx u spentOutputs i okN unjN = .ok (a, b) →
+      verifyTxInputs.loop height tx txIdx u flags spentOutputs i okN unjN = .ok (a, b) →
       a + b ≤ tx.vin.length := by
   intro n
   induction n with
@@ -314,10 +317,10 @@ theorem verifyTxInputs_loop_total (height : UInt32) (tx : Tx) (txIdx : Nat)
 input — the counters cannot overcount. -/
 theorem verifyTxInputs_total (height : UInt32) (tx : Tx) (txIdx : Nat)
     (u : List (OutPoint × Coin)) (a b : Nat)
-    (h : verifyTxInputs height tx txIdx u = .ok (a, b)) :
+    (h : verifyTxInputs height tx txIdx u flags = .ok (a, b)) :
     a + b ≤ tx.vin.length := by
-  have h0 : verifyTxInputs height tx txIdx u
-      = verifyTxInputs.loop height tx txIdx u (collectSpentOutputs u tx.vin) 0 0 0 := rfl
+  have h0 : verifyTxInputs height tx txIdx u flags
+      = verifyTxInputs.loop height tx txIdx u flags (collectSpentOutputs u tx.vin) 0 0 0 := rfl
   rw [h0] at h
   exact verifyTxInputs_loop_total height tx txIdx u (collectSpentOutputs u tx.vin) tx.vin.length 0 0 0 a b
     (by omega) (by omega) h
@@ -329,7 +332,7 @@ never exceed that tx's input count (coinbase: counters are `(0, 0)`;
 otherwise P16-4's `verifyTxInputs_total` bounds them). -/
 theorem applyTx_counters_bound (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
-    (h : applyTx height tx txIdx l = .ok (l', a, b)) :
+    (h : applyTx height tx txIdx l flags = .ok (l', a, b)) :
     a + b ≤ tx.vin.length := by
   rcases (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.1 with
     ⟨_, ha, hb⟩ | ⟨_, _, hv⟩
@@ -342,7 +345,7 @@ script layer can manufacture at most one verdict per input. -/
 theorem applyTxs_counters_bound (height : UInt32) :
     ∀ (txs : List Tx) (i : Nat) (l : List (OutPoint × Coin)) (okN unjN : Nat)
         (l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = .ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = .ok (l', okN', unjN') →
       okN' + unjN' ≤ okN + unjN + totalVins txs := by
   intro txs
   induction txs with
@@ -355,7 +358,7 @@ theorem applyTxs_counters_bound (height : UInt32) :
   | cons tx rest ih =>
       intro i l okN unjN l' okN' unjN'
       simp only [applyTxs]
-      cases hax : applyTx height tx i l with
+      cases hax : applyTx height tx i l flags with
       | error e => intro h; simp at h
       | ok p =>
         obtain ⟨l'', a, b⟩ := p
@@ -373,7 +376,7 @@ accumulate `+ a` and `+ b` per tx). -/
 theorem applyTxs_counters_sum (height : UInt32) :
     ∀ (txs : List Tx) (i : Nat) (l : List (OutPoint × Coin)) (okN unjN : Nat)
         (l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = .ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = .ok (l', okN', unjN') →
       okN ≤ okN' ∧ unjN ≤ unjN' := by
   intro txs
   induction txs with
@@ -385,7 +388,7 @@ theorem applyTxs_counters_sum (height : UInt32) :
   | cons tx rest ih =>
       intro i l okN unjN l' okN' unjN'
       simp only [applyTxs]
-      cases hax : applyTx height tx i l with
+      cases hax : applyTx height tx i l flags with
       | error e => intro h; simp at h
       | ok p =>
         obtain ⟨l'', a, b⟩ := p
@@ -403,7 +406,7 @@ fold result `(u', k, j)` such that:
 * `decodeBlock raw = .ok (bh, txs)` (the block really decoded),
 * every nameable gate passed (`vtxNonempty`, `cbPositionOk`, `weightOk`,
   `versionOk`, `targetOk`, `powOk`, chain link `bytesBEq`, `merkleOk`),
-* the funded stage ran: `applyBlockTransactions st.height txs st.utxo = .ok (u', k, j)`,
+* the funded stage ran: `applyBlockTransactions st.height txs st.utxo (candidateScriptFlags st.height bh) = .ok (u', k, j)`,
 * and the report is EXACTLY the dataflow:
   `r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' }`,
   `r.txs = txs.length`, `r.scriptOk = k`, `r.scriptUnjudged = j`.
@@ -428,7 +431,7 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       powOk bh = true ∧
       bytesBEq bh.hashPrevBlock st.prevHash = true ∧
       merkleOk bh txs = true ∧
-      applyBlockTransactions st.height txs st.utxo = .ok (u', k, j) ∧
+      applyBlockTransactions st.height txs st.utxo (candidateScriptFlags st.height bh) = .ok (u', k, j) ∧
       r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' } ∧
       r.txs = txs.length ∧
       r.scriptOk = k ∧
@@ -481,7 +484,7 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
           simp at hval
       | ok q' =>
           obtain ⟨⟨u', k, j⟩, sigops⟩ := q'
-          have hfund : applyBlockTransactions st.height txs st.utxo = .ok (u', k, j) :=
+          have hfund : applyBlockTransactions st.height txs st.utxo (candidateScriptFlags st.height bh) = .ok (u', k, j) :=
             applyBlockTransactionsWithSigops_projection hbudget
           rw [ebind_ok] at hval
           simp only [Except.ok.injEq] at hval
@@ -506,7 +509,7 @@ theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
       powOk bh = true ∧
       bytesBEq bh.hashPrevBlock st.prevHash = true ∧
       merkleOk bh txs = true ∧
-      applyTxs st.height txs 0 st.utxo 0 0 = .ok (u', k, j) ∧
+      applyTxs st.height txs 0 st.utxo 0 0 (candidateScriptFlags st.height bh) = .ok (u', k, j) ∧
       r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' } ∧
       r.txs = txs.length ∧
       r.scriptOk = k ∧

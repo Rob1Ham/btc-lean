@@ -18,6 +18,9 @@ stated at `applyBlockL`, the ledger tier both sides share.
 
 namespace BitcoinProofs.Theorems.CapstoneComposePipeline
 
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
+
 open Bitcoin.Data Bitcoin.Ledger Bitcoin.Capstone.Block
 open BitcoinProofs.Theorems.CapstonePipeline
 open Bitcoin.Consensus (checkTransaction)
@@ -139,20 +142,20 @@ theorem applyBlockFoldL_ok_iff_pred (l l' : List (OutPoint × Coin)) (kf : Tx �
 threaded is exactly one `applyTxStepL` success. -/
 theorem applyTx_ok_stepL (height : UInt32) (tx : Tx) (i : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
-    (h : Bitcoin.Capstone.Block.applyTx height tx i l = Except.ok (l', a, b)) :
+    (h : Bitcoin.Capstone.Block.applyTx height tx i l flags = Except.ok (l', a, b)) :
     applyTxStepL l tx (txidKey tx) height = Except.ok l' := by
   exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.2
 
 /-- Peel one `applyTx` off an `applyTxs` success. -/
 theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
     (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat)
-    (h : applyTxs height (tx :: rest) i l okN unjN = Except.ok (l', okN', unjN')) :
+    (h : applyTxs height (tx :: rest) i l okN unjN flags = Except.ok (l', okN', unjN')) :
     ∃ (l₁ : List (OutPoint × Coin)) (a b : Nat),
-      Bitcoin.Capstone.Block.applyTx height tx i l = Except.ok (l₁, a, b) ∧
-      applyTxs height rest (i + 1) l₁ (okN + a) (unjN + b) =
+      Bitcoin.Capstone.Block.applyTx height tx i l flags = Except.ok (l₁, a, b) ∧
+      applyTxs height rest (i + 1) l₁ (okN + a) (unjN + b) flags =
         Except.ok (l', okN', unjN') := by
   simp only [applyTxs] at h
-  cases ha : Bitcoin.Capstone.Block.applyTx height tx i l with
+  cases ha : Bitcoin.Capstone.Block.applyTx height tx i l flags with
   | error e => rw [ha] at h; cases h
   | ok p =>
       obtain ⟨l₁, a, b⟩ := p
@@ -164,7 +167,7 @@ successful `applyBlockFoldL` at the real `txidKey` with the same list. -/
 theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin))
       (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       applyBlockFoldL l txidKey txs height = Except.ok l' := by
   intro txs
   induction txs with
