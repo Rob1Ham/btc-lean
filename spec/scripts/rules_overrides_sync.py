@@ -9,7 +9,7 @@
 # 726 rows; field census {'check': 11, 'consensus': 101, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 622, 'notes': 231, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 ff2fd5de7a4cecd5bc9881a5d3443457e0b236d614a106975a49d8f3daf6afce
+#   726 rows, sha256 1e4753ac48593ceef5e9ce1d111bbdbfda06d375de35f3fd8a2d136eee2c7faa
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -2948,11 +2948,11 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SWT-064': {
-        'lean_target': 'Bitcoin.Interpreter.Defs.stepBody.checkMultiSig',
+        'lean_target': 'BitcoinProofs.AF.PDW66b.cms_nulldummy_nonempty',
         'status': 'proven',
     },
     'SWT-065': {
-        'lean_target': 'Bitcoin.Interpreter.Defs.stepBody.checkMultiSig',
+        'lean_target': 'BitcoinProofs.AF.PDW66b.cms_dummy_consumed_unchecked',
         'status': 'proven',
     },
     'SWT-066': {

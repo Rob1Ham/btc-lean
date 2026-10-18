@@ -43,6 +43,7 @@ Mathlib is large and is downloaded on the first build:
 cd spec/proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
+# validated on 2026-10-18: 1,731 jobs.
 # 36-module default import closure, not all 416 proof modules.
 ```
 
