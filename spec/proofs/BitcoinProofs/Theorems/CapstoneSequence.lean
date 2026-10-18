@@ -279,18 +279,22 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
       obtain ⟨_, h⟩ := gate_step _ _ h -- BIP34
       obtain ⟨_, h⟩ := gate_step _ _ h -- merkle root
       obtain ⟨_, h⟩ := gate_step _ _ h -- mutation
+      obtain ⟨_, h⟩ := unit_precheck_ok _ _ h
       obtain ⟨_, h⟩ := gate_step2 _ _ _ h -- commitment
       obtain ⟨_, h⟩ := gate_step _ _ h -- commitment value
       obtain ⟨_, h⟩ := gate_step _ _ h -- nonce
       obtain ⟨_, h⟩ := gate_step _ _ h -- weight
       obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
-      cases ht : applyContextualBlockTransactions ctx facts st.height txs st.utxo with
+      cases ht : applyBlockTransactionsWithSigops (some (ctx, facts)) st.height
+          (candidateScriptFlags st.height header) txs st.utxo with
       | error e => simp [ht] at h
       | ok result =>
-        obtain ⟨u, a, b⟩ := result
+        obtain ⟨⟨u, a, b⟩, sigops⟩ := result
+        have stage : applyContextualBlockTransactions ctx facts st.height txs st.utxo = .ok (u, a, b) :=
+          applyBlockTransactionsWithSigops_projection ht
         simp only [ht, ebind_ok, epure_ok, Except.ok.injEq] at h
         subst report
-        exact ⟨header, txs, facts, rfl, hc, bool_not_false finality, ht, rfl, rfl⟩
+        exact ⟨header, txs, facts, rfl, hc, bool_not_false finality, stage, rfl, rfl⟩
 
 /-- Actual public acceptance implies all absolute locks and every relative
 lock in the evolving UTXO trace, plus the same checked-fee/subsidy bound. -/

@@ -28,6 +28,33 @@ reproduction command is
 Commands, hashes and proof scope are recorded in
 `docs/reviews/2026-10-18/validation-sigops.json`.
 
+The live block budget has 32 further checks in
+`spec/core/Test/Capstone/SigopBudget.lean`
+(`make test-capstone-sigop-budget`). They cover CheckBlock's early legacy
+budget, the evolving UTXO view, coinbase costs, cumulative P2SH/witness
+costs, input/fee/BIP68 error ordering and budget-before-script ordering.
+The two serialized files in `spec/data/review/sigop-budget` are synthetic
+height-one forks of the real mainnet genesis header, mined at its actual
+`0x1d00ffff` target. Both public entry paths accept 80,000 and reject
+80,004. They are not canonical blocks or whole-bitcoind validation results.
+Regenerate their exact bytes with
+`python3 spec/scripts/generate_sigop_blocks.py --check`.
+
+`spec/scripts/check_sigop_budget_core.py` takes `--script`, `--interpreter`,
+`--tx-verify` and `--validation` paths from either exact Core pin and
+`--fixtures spec/data/review/sigop-budget`. It verifies all four source
+hashes, then compiles thirteen unchanged extracted functions/sites with
+container/state shims. Nine reference cases agree at both pins; the
+ConnectBlock fee/sequence/cost/script order and CheckBlock's earlier
+transaction/legacy order are checked against the pinned source. This does
+not execute Core's parser, script checks or full block-validation pipeline.
+`python3 docs/reviews/2026-10-18/reproduce_sigop_budget.py` reproduces exactly
+two public-path over-budget acceptances at `732efdf`, with two at-limit
+controls. The new public success theorem proves the reported budget and
+an exact cost trace over each intermediate ledger. See
+`docs/reviews/2026-10-18/validation-sigop-budget.json` for scoped receipts
+and the remaining whole-repository verification work.
+
 The proof-surface repairs are already exercised in-file:
 
 * `SmallCurve/TweakCorSmall.lean`: `mulP' (2^16) G = none` and

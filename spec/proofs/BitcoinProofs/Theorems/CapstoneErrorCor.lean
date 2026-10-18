@@ -81,6 +81,7 @@ theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
   | badCbPosition => simp only [CapError.reason]; decide
   | badCbLength => simp only [CapError.reason]; decide
   | badBlkWeight => simp only [CapError.reason]; decide
+  | badBlkSigops => simp only [CapError.reason]; decide
   | badFeeAccum => simp only [CapError.reason]; decide
   | badCbAmount => simp only [CapError.reason]; decide
   | badPow => simp only [CapError.reason]; decide

@@ -1,0 +1,450 @@
+{
+  "finding": "R17 / I4-20 / BLK-034/035/036 / INV-039/040 / SWT-021",
+  "status": "live_sigop_budget_fixed_and_verified_with_scoped_checks",
+  "verified_at_utc": "2026-10-18T16:29:46.542018+00:00",
+  "implementation_parent": "732efdf7c0d1da54304e07e237409df470c08b43",
+  "upstream_main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "environment": {
+    "lean_bin": "/tmp/btc-lean-toolchain/lean-4.35.0-darwin_aarch64/bin",
+    "python_bin": "/tmp/btc-lean-review-py312/bin",
+    "cpp_sdkroot": "/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk",
+    "cpp_flags": [
+      "-std=c++17",
+      "-O2"
+    ]
+  },
+  "resource_limits": {
+    "build_scheduler": "default Lake scheduler",
+    "additional_OS_memory_cap": null,
+    "new_proof_heartbeat_overrides": false,
+    "before_reproduction_timeout_seconds": 120,
+    "tool_observation_timeouts": "ongoing process handles were resumed; observation yields are not test failures"
+  },
+  "behavior_changes": [
+    "CheckBlock stateless loop and early legacy-only bound precede witness/weight and input lookup.",
+    "ConnectBlock cost reads each evolving UTXO before spending; one canonical input/fee/script execution per transaction.",
+    "Checked input values, fee accumulation and BIP68 precede cost; cost rejection precedes scripts.",
+    "All costs, including coinbase legacy costs, accumulate with inclusive 80000 limit.",
+    "Resource accounting selects flags from actual candidate hash and height; script verification hash-aware exception work remains R07.",
+    "Public reports carry checked flag and exact total; success implies an exact ledger/cost trace and the bound."
+  ],
+  "theorem_contracts": {
+    "new_guarded_footprints": 18,
+    "new_proof_module": "BitcoinProofs.Theorems.CapstoneSigops",
+    "permitted_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "existing_positive_contracts": "Funding, sequence, stateless, ledger and parent-hash statements remain proved through successful-stage projections.",
+    "earlier_error_precedence": "Three negative-verdict conclusions now expose the exact (do checkBlockPrelude txs; throw originalVerdict) equation under their existing assumptions, because the new earlier checks can legitimately reject first. No assumed successful prelude was added. PDW53 commitment-failure-ne-weight statement is preserved unchanged."
+  },
+  "before_regression": {
+    "command": "python3 docs/reviews/2026-10-18/reproduce_sigop_budget.py",
+    "exit_code": 0,
+    "old_lean_exit": 1,
+    "baseline_commit": "732efdf7c0d1da54304e07e237409df470c08b43",
+    "named_failures": [
+      "contextual above limit",
+      "replay above limit"
+    ],
+    "passing_controls": [
+      "contextual exact limit",
+      "replay exact limit"
+    ],
+    "log": "/tmp/btc-lean-budget-before2.log",
+    "log_sha256": "a5a54b7a30a0911e48842931dc71eb081a1f8c4d16be341583c0f806aadeeb7a",
+    "scope": "Namespaced old block validator with unchanged mined bytes and current dependencies; two exact named false accepts, not a full clean historical build."
+  },
+  "core_reference": {
+    "method": "Thirteen unchanged functions/sites extracted after verification of all four source-file hashes; container/type/coin-view/state shims.",
+    "normative": {
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "reference_class": "extracted functions and budget site with container/state shims",
+      "checks": {
+        "mined exact limit": [
+          80000,
+          "ok"
+        ],
+        "mined above limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "coinbase legacy ignores optional flags": [
+          80000,
+          "ok"
+        ],
+        "P2SH exact cumulative limit": [
+          80000,
+          "ok"
+        ],
+        "P2SH above cumulative limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "P2SH disabled": [
+          80000,
+          "ok"
+        ],
+        "witness exact cumulative limit": [
+          80000,
+          "ok"
+        ],
+        "witness above cumulative limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "witness disabled": [
+          80000,
+          "ok"
+        ]
+      },
+      "source_sha256": {
+        "/tmp/btc-lean-core-script.cpp": "210b1720acce295de54c6a08c76b97fa4cfe835f64e0ff7e0730c57ebebb8c55",
+        "/tmp/btc-lean-core-interpreter.cpp": "57a6f328c7e6202f499e48366a86eb26e09c8ebb78e92eef7e839207230be333",
+        "/tmp/btc-lean-core-tx-verify.cpp": "45de31c846d87b202b46f1e314cbd07869c0b3e598cdc7b18342e2fe24de3fc0",
+        "/tmp/btc-lean-core-validation.cpp": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416"
+      },
+      "functions_sha256": {
+        "bool GetScriptOp(": "3a889176e8822845a154498458fa2d3f92aaa95a233a1ab8e54ce310d73073f7",
+        "unsigned int CScript::GetSigOpCount(bool": "afb06ed1fbacd431a357a7bf0194da92feff0f61a09cb579256db0d39676bc09",
+        "unsigned int CScript::GetSigOpCount(const CScript&": "6ed1afe6722f30d12e2e2ae0bb1e19e8ebc94efd10774644d2770f6c142264d9",
+        "bool CScript::IsPayToScriptHash()": "6e6e58d8f141c7d95b87fd197c78d0668767160edc7b4acdfb118cc4fdb29d78",
+        "bool CScript::IsWitnessProgram(": "598094a054cf35e55b52ad8a0d56c2b178393010b30c9a3f66cd1db5c4ea2310",
+        "bool CScript::IsPushOnly(const_iterator": "91a57b3dab8d00722109f93ae23b233bd25465c1e78fdee806452c5579b8b71a",
+        "bool CScript::IsPushOnly()": "65ac8df6de241cdfefcb04a017a522e47b9c2e2fe6d1b4d2550c0f54e137b534",
+        "size_t static WitnessSigOps(": "1a49bf3fa1d2908a0f62c29fd92b8a125a3479394960e16cd3c65df27faf6412",
+        "size_t CountWitnessSigOps(": "0e36e8000d104b390929df888a4e0117118b47a768f8ffc450679052ead1059a",
+        "unsigned int GetLegacySigOpCount(": "d4275d47aaca767d5d4d4c08344c6519b51b5418c02f7b2ae9a85a94b09d4196",
+        "unsigned int GetP2SHSigOpCount(": "808cd915cae5075c564a95c71a1ad7cf88fc895f0fa81260d1df0ddeb19206f4",
+        "int64_t GetTransactionSigOpCost(": "e7789f0cfee08246e8966d11212d3784bbc0e5b9a6f98471fbe3b2c3eff0bd6b",
+        "ConnectBlock sigop budget site": "366a2f36b593739ab6a9a43ba41a375350d598e7837071d840516e984a80bf42"
+      },
+      "connect_order_offsets": {
+        "Consensus::CheckTxInputs(": 14161,
+        "MoneyRange(nFees)": 14648,
+        "SequenceLocks(tx,": 15297,
+        "nSigOpsCost += GetTransactionSigOpCost(": 15837,
+        "CheckInputScripts(": 16721
+      },
+      "checkblock_function_sha256": "17c8cb64ede827b771248bea072617263b6f0b475d17139550f60b6385aa403f",
+      "fixture_sha256": {
+        "at-limit": "50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+        "over-limit": "2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e"
+      },
+      "scope": "Counter/budget behavior with supplied coin views; no Core parser, scripts, fees, BIP68 or whole-block verdict executed."
+    },
+    "audit16": {
+      "core_commit": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+      "reference_class": "extracted functions and budget site with container/state shims",
+      "checks": {
+        "mined exact limit": [
+          80000,
+          "ok"
+        ],
+        "mined above limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "coinbase legacy ignores optional flags": [
+          80000,
+          "ok"
+        ],
+        "P2SH exact cumulative limit": [
+          80000,
+          "ok"
+        ],
+        "P2SH above cumulative limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "P2SH disabled": [
+          80000,
+          "ok"
+        ],
+        "witness exact cumulative limit": [
+          80000,
+          "ok"
+        ],
+        "witness above cumulative limit": [
+          80004,
+          "bad-blk-sigops"
+        ],
+        "witness disabled": [
+          80000,
+          "ok"
+        ]
+      },
+      "source_sha256": {
+        "/tmp/btc-lean-core-audit16-script.cpp": "6f71c729ce7bb49706d394a0c25d112dbb24703f6b571419f2859af5cc0c8fe3",
+        "/tmp/btc-lean-core-audit16-interpreter.cpp": "858d409164ac071eb1ec038330b8c1dca43f5e9edd9f6092e49895258c7edb56",
+        "/tmp/btc-lean-core-audit16-tx-verify.cpp": "60470d6b8b19b82ca15e1e32dcb71cd8b3c55690c17ec2e7c2b279cf06b7c7bf",
+        "/tmp/btc-lean-core-audit16-validation.cpp": "b315005125a410a8ac1b920ae4a500eaf830c5aa8ddbcc16fd4b10c97bd49901"
+      },
+      "functions_sha256": {
+        "bool GetScriptOp(": "3a889176e8822845a154498458fa2d3f92aaa95a233a1ab8e54ce310d73073f7",
+        "unsigned int CScript::GetSigOpCount(bool": "afb06ed1fbacd431a357a7bf0194da92feff0f61a09cb579256db0d39676bc09",
+        "unsigned int CScript::GetSigOpCount(const CScript&": "6ed1afe6722f30d12e2e2ae0bb1e19e8ebc94efd10774644d2770f6c142264d9",
+        "bool CScript::IsPayToScriptHash()": "6e6e58d8f141c7d95b87fd197c78d0668767160edc7b4acdfb118cc4fdb29d78",
+        "bool CScript::IsWitnessProgram(": "598094a054cf35e55b52ad8a0d56c2b178393010b30c9a3f66cd1db5c4ea2310",
+        "bool CScript::IsPushOnly(const_iterator": "91a57b3dab8d00722109f93ae23b233bd25465c1e78fdee806452c5579b8b71a",
+        "bool CScript::IsPushOnly()": "65ac8df6de241cdfefcb04a017a522e47b9c2e2fe6d1b4d2550c0f54e137b534",
+        "size_t static WitnessSigOps(": "1a49bf3fa1d2908a0f62c29fd92b8a125a3479394960e16cd3c65df27faf6412",
+        "size_t CountWitnessSigOps(": "0e36e8000d104b390929df888a4e0117118b47a768f8ffc450679052ead1059a",
+        "unsigned int GetLegacySigOpCount(": "d4275d47aaca767d5d4d4c08344c6519b51b5418c02f7b2ae9a85a94b09d4196",
+        "unsigned int GetP2SHSigOpCount(": "808cd915cae5075c564a95c71a1ad7cf88fc895f0fa81260d1df0ddeb19206f4",
+        "int64_t GetTransactionSigOpCost(": "e7789f0cfee08246e8966d11212d3784bbc0e5b9a6f98471fbe3b2c3eff0bd6b",
+        "ConnectBlock sigop budget site": "366a2f36b593739ab6a9a43ba41a375350d598e7837071d840516e984a80bf42"
+      },
+      "connect_order_offsets": {
+        "Consensus::CheckTxInputs(": 14161,
+        "MoneyRange(nFees)": 14648,
+        "SequenceLocks(tx,": 15297,
+        "nSigOpsCost += GetTransactionSigOpCost(": 15837,
+        "CheckInputScripts(": 16721
+      },
+      "checkblock_function_sha256": "17c8cb64ede827b771248bea072617263b6f0b475d17139550f60b6385aa403f",
+      "fixture_sha256": {
+        "at-limit": "50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+        "over-limit": "2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e"
+      },
+      "scope": "Counter/budget behavior with supplied coin views; no Core parser, scripts, fees, BIP68 or whole-block verdict executed."
+    },
+    "identical_13_extracted_pieces": true,
+    "command_template": "SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk python3 spec/scripts/check_sigop_budget_core.py --script SCRIPT_CPP --interpreter INTERPRETER_CPP --tx-verify TX_VERIFY_CPP --validation VALIDATION_CPP --fixtures spec/data/review/sigop-budget --output RESULT_JSON",
+    "both_exit_codes": [
+      0,
+      0
+    ]
+  },
+  "corpus": {
+    "new_fixtures": {
+      "kind": "locally generated synthetic mainnet difficulty-one height-one forks; not canonical-chain blocks",
+      "parent": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      "candidate_height": 1,
+      "bits": "1d00ffff",
+      "time": 1231006506,
+      "coinbase": "version1, null prevout, scriptSig0101, zero-valued output, locktime0",
+      "output_scripts": "1000 OP_CHECKMULTISIG opcodes; over-limit appends one OP_CHECKSIG. Legacy counting costs 4 per CHECKSIG and 80 per CHECKMULTISIG. Outputs are not executed.",
+      "generation": "python3 spec/scripts/generate_sigop_blocks.py; --check compares byte-for-byte and verifies actual SHA256d target",
+      "mining": "Local eight-worker CommonCrypto SHA256d nonce search. No consensus parameter override, PoW bypass or cryptographic assumption added. Recorded search elapsed 96.1368s and 35.154s; regeneration uses the found nonces.",
+      "independent_checks": "Python hashlib header/Merkle serialization, Lean public decoder/PoW/validation, and exact extracted Core sigop functions/budget site at both pins. The Core reference harness covers resource accounting, not a whole bitcoind validation run.",
+      "fixtures": [
+        {
+          "file": "at-limit.raw",
+          "bytes": 1145,
+          "sigop_cost": 80000,
+          "nonce": 2773634077,
+          "sha256": "50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+          "block_hash": "00000000f090606b7d57ed39f925aeba573ab276f2a194c84f89d47c7c8ada21",
+          "expected_consensus_result": "accept"
+        },
+        {
+          "file": "over-limit.raw",
+          "bytes": 1146,
+          "sigop_cost": 80004,
+          "nonce": 955046782,
+          "sha256": "2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e",
+          "block_hash": "0000000024828824b85c8b87fa1765cedb43a73977e75b83cdaea80aeee29f35",
+          "expected_consensus_result": "bad-blk-sigops"
+        }
+      ]
+    },
+    "files_plus_manifest": 168,
+    "payload_manifest_entries": 167,
+    "bytes": 5033780,
+    "sha256_coverage": "exact unique regular-file set; all 167 hashes match",
+    "regeneration": "python3 spec/scripts/generate_sigop_blocks.py --check"
+  },
+  "checks": [
+    {
+      "command": "lake build Bitcoin",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "scope": "75 Lake jobs; core default root",
+      "log": "/tmp/btc-lean-budget-core-final.log",
+      "log_sha256": "4a45dfc67565d3a5de1c72741940db3a9e0debf611932f20b63574f65de466ab",
+      "output_tail": [
+        "info: Bitcoin/Block/Connect.lean:454:0: 'Bitcoin.Block.Connect.connectBlock_genesis_utxo_bestBlock' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "info: Bitcoin/Block/Connect.lean:455:0: 'Bitcoin.Block.Connect.connectBlock_genesis_ignores_txs' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "info: Bitcoin/Block/Connect.lean:456:0: 'Bitcoin.Block.Connect.connectBlock_genesis_coinbase_output_absent' depends on axioms: [propext,",
+        " Classical.choice,",
+        " Quot.sound]",
+        "info: Bitcoin/Block/Connect.lean:457:0: 'Bitcoin.Block.Connect.connectBlock_nonGenesis' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "\u2714 [74/75] Built Bitcoin (736ms)",
+        "Build completed successfully (75 jobs)."
+      ]
+    },
+    {
+      "command": "lake test",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "scope": "16 executable core checks",
+      "log": "/tmp/btc-lean-budget-core-test.log",
+      "log_sha256": "7f146ea5ce39b0f7c6abaf96b9b18a6ddceb5b6affb4f21ffc90b767b75d05a0",
+      "output_tail": [
+        "[PASS] short coinbase rejected",
+        "[PASS] valid coinbase accepted",
+        "[PASS] getValueOut == 50 BTC",
+        "[PASS] compactTarget(0x1d00ffff) is difficulty-1",
+        "[PASS] UTXO: spent coin removed",
+        "[PASS] compactSizeDec \u2218 compactSizeEnc 300 roundtrip",
+        "[PASS] MoneyRange boundary: 0 and MAX_MONEY in range, MAX_MONEY+1 out",
+        "[PASS] CompactSize 0xfd marker canonicality: 0xfc encodes short, 0xfd needs marker"
+      ]
+    },
+    {
+      "command": "make test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops test-capstone-sigop-budget",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "157 runtime checks; 32 new budget checks",
+      "log": "/tmp/btc-lean-budget-regressions.log",
+      "log_sha256": "89621e739f5061011536feab1aabc666557196e7771769b550cbaaf49a3326e3",
+      "output_tail": [
+        "[PASS] one-unit exact boundary: expected=ok:80000, actual=ok:80000",
+        "[PASS] one-unit above boundary: expected=bad-blk-sigops, actual=bad-blk-sigops",
+        "[PASS] public contextual exact limit: expected=ok:80000:true, actual=ok:80000:true",
+        "[PASS] public contextual above limit: expected=bad-blk-sigops, actual=bad-blk-sigops",
+        "[PASS] public replay exact limit: expected=ok:80000:true, actual=ok:80000:true",
+        "[PASS] public replay above limit: expected=bad-blk-sigops, actual=bad-blk-sigops",
+        "[PASS] alternative hashes do not inherit height exceptions: expected=true:true, actual=true:true",
+        "sigop-budget checks=32 failures=0"
+      ]
+    },
+    {
+      "command": "lake build BitcoinProofs.Theorems.CapstoneSigops BitcoinProofs",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "scope": "1728 Lake jobs, default root plus new module, all eighteen in-file guards",
+      "log": "/tmp/btc-lean-budget-guards-build.log",
+      "log_sha256": "b7fc8375b7c288280fcb95eb458162e06aec50eee9cd1afdf411ff911cfa51dc",
+      "output_tail": [
+        "  epure_ok",
+        "",
+        "Hint: Omit it from the simp argument list.",
+        "  [apply] simp only [hs, ebind_ok, Except.ok.injEq] at h",
+        "",
+        "Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+        "\u2714 [1727/1728] Built BitcoinProofs (8.4s)",
+        "Build completed successfully (1728 jobs)."
+      ]
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "288 entries, 360 physical lines; exact non-update comparison",
+      "log": "/tmp/btc-lean-budget-axiom-check.log",
+      "log_sha256": "9841c79150abc34bd38eb30bdde6f0ca3ee0d844a878426403f7f422fc053691",
+      "output_tail": [
+        "axiom-manifest[validate]: OK (288 entries; only Classical.choice, Quot.sound, propext)",
+        "axiom-manifest: OK (360 lines)"
+      ]
+    },
+    {
+      "command": "bash spec/scripts/wallet_axiom_manifest.sh",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "838 wallet theorem/lemma footprints",
+      "log": "/tmp/btc-lean-budget-wallet-axiom.log",
+      "log_sha256": "473ea4b99c6943db7446ce74cda7afd482476e7d76ee2ad38c032f476e13719b",
+      "output_tail": [
+        "wallet-axiom[probe]: OK (838 declaration(s), permitted ['propext', 'Classical.choice', 'Quot.sound'])"
+      ]
+    },
+    {
+      "command": "make gates gate-repro && python3 spec/scripts/theorem_index.py --check && python3 spec/scripts/residuals_index.py --check && python3 spec/scripts/proof_scope.py --check",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "all nine static gates, proof-gate negative fixtures, exact generator bytes, generated indexes",
+      "log": "/tmp/btc-lean-budget-gates-final.log",
+      "log_sha256": "139ef7df1b3c2fd3b95af2ca637c56cb08d34f6336c2b5990246ecb8460f3caf",
+      "output_tail": [
+        "gates: all nine static gates passed",
+        "== reproducibility: reference scripts and local-path scan ==",
+        "reproducibility: 23 inputs present; 68 shell/Python files clean",
+        "at-limit: bytes=1145 hash=00000000f090606b7d57ed39f925aeba573ab276f2a194c84f89d47c7c8ada21 sha256=50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+        "over-limit: bytes=1146 hash=0000000024828824b85c8b87fa1765cedb43a73977e75b83cdaea80aeee29f35 sha256=2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e",
+        "theorem-index: 726 census rows, 140 wallet rows",
+        "residuals-index: 26 residuals",
+        "proof-scope: docs/PROOF-SCOPE.md and docs/PROOF-BUILD.md counts are current"
+      ]
+    },
+    {
+      "command": "lake build Bitcoin.Wallet.Crypto.Hmac Bitcoin.Wallet.Crypto.Sha512 Bitcoin.Wallet.Descriptor Bitcoin.Wallet.Descriptor.Ast Bitcoin.Wallet.Descriptor.Checksum Bitcoin.Wallet.Descriptor.Expand Bitcoin.Wallet.Descriptor.Parse Bitcoin.Wallet.Encoding Bitcoin.Wallet.Encoding.Base58 Bitcoin.Wallet.Encoding.Bech32 Bitcoin.Wallet.Key.Bip32 Bitcoin.Wallet.Key.Origin Bitcoin.Wallet.Miniscript Bitcoin.Wallet.Miniscript.Node Bitcoin.Wallet.Miniscript.Satisfy Bitcoin.Wallet.Miniscript.Script Bitcoin.Wallet.Miniscript.Tests Bitcoin.Wallet.Miniscript.Type Bitcoin.Wallet.Psbt.Decode Bitcoin.Wallet.Psbt.Encode Bitcoin.Wallet.Psbt.Laws Bitcoin.Wallet.Psbt.Model Bitcoin.Wallet.Psbt.Psbt Bitcoin.Wallet.Psbt.Tests Bitcoin.Wallet.RuleAttr Bitcoin.Wallet.Spend Bitcoin.Wallet.Spend.Fee Bitcoin.Wallet.Spend.Funding Bitcoin.Wallet.Spend.Laws Bitcoin.Wallet.Spend.Selection Bitcoin.Wallet.Taproot.Commit BitcoinProofs.Wallet.Desc.Checksum BitcoinProofs.Wallet.Desc.Expand BitcoinProofs.Wallet.Desc.Parse BitcoinProofs.Wallet.Encoding.Base58Props BitcoinProofs.Wallet.Encoding.Bech32Props BitcoinProofs.Wallet.Encoding.Laws BitcoinProofs.Wallet.Key.Laws BitcoinProofs.Wallet.Key.Serialize BitcoinProofs.Wallet.Miniscript.Interp BitcoinProofs.Wallet.Miniscript.SatShape BitcoinProofs.Wallet.Miniscript.ScriptExact BitcoinProofs.Wallet.Miniscript.TypeSound BitcoinProofs.Wallet.Obligations BitcoinProofs.Wallet.Psbt.Canonical BitcoinProofs.Wallet.Psbt.Invariants BitcoinProofs.Wallet.Psbt.Lifecycle BitcoinProofs.Wallet.Psbt.RoundTrip BitcoinProofs.Wallet.Sign.Bridge BitcoinProofs.Wallet.Sign.Spec BitcoinProofs.Wallet.Spend.Selection BitcoinProofs.Wallet.Taproot.Bridge BitcoinProofs.Wallet.Taproot.Program",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "scope": "all 53 wallet probe imports, 3242 Lake jobs",
+      "log": "/tmp/btc-lean-budget-wallet-build.log",
+      "log_sha256": "43345f0ca24bbbd66985a6da1ae2d870bbff2745b610e8e68c62d0a70076c216",
+      "output_tail": [
+        "info: BitcoinProofs/Wallet/Taproot/Bridge.lean:468:0: 'BitcoinProofs.Wallet.Taproot.verifyTaprootCommitment_program_binding' depends on axioms: [propext,",
+        " Classical.choice,",
+        " Quot.sound]",
+        "info: BitcoinProofs/Wallet/Taproot/Bridge.lean:469:0: 'BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_program' depends on axioms: [propext,",
+        " Classical.choice,",
+        " Quot.sound]",
+        "info: BitcoinProofs/Wallet/Taproot/Bridge.lean:470:0: 'BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_34' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "Build completed successfully (3242 jobs)."
+      ]
+    }
+  ],
+  "other_scoped_build": {
+    "log": "/tmp/btc-lean-budget-proof-final2.log",
+    "log_sha256": "13019b5c998bfa1b357a88bc77b22d88a3bf6d35485d8a48adc694e8f7bfeed1",
+    "exit_code": 0,
+    "lake_jobs": 1735,
+    "scope": "default root plus affected consumers, before adding only the footprint guards; final guard/root rebuild recorded separately"
+  },
+  "proof_scope": {
+    "modules": 413,
+    "default_closure": 33,
+    "outside_default": 380,
+    "fresh_complete_matrix": "pending R08"
+  },
+  "source_sha256": {
+    "Makefile": "28bd04b7409ac1e0b4741274bc8ac3214edbfcc89ccd7191c208b7fc13802c96",
+    "README.md": "5bf1aaa36f7d6003f212e4d8c1aab6afa66e69580395e8233ebba10ee4a430d5",
+    "docs/CLAIMS.md": "917b7a4b79ea082e71f9149d624c36aca649c8766ece182f57d5092c1ee98260",
+    "docs/DATA.md": "592835914a7121dd34ccfc317e1685e3016e20188640423b519f8457ca50bc70",
+    "docs/PROOF-BUILD.md": "c7d266d9981750135e552456a11afca6bf065b035753080987f08168d2d52133",
+    "docs/PROOF-SCOPE.md": "e30b4352aae341c44b8613e1e8999842707e79bd320d91e83b31ad8040e91469",
+    "docs/QUICKSTART.md": "000d61f393af8f3c26ee065bd25b5c9fe5960db35161ac4d5ad5cf26c5ba1cc1",
+    "docs/REGRESSION-VECTORS.md": "911b3bc1e31d11344ce8a41e9fd98169b572cd9e7aca0d9ffc4e49daa09b4158",
+    "docs/REPRODUCIBILITY.md": "e53b78bdb3fad3efe5a8edd9fb905e6ca8d7a4bb7c63b0d0bd04a2760d8b046c",
+    "docs/RESIDUALS.md": "58f0c019343ecd3a950dc43a205170265ca4c3dad751ff73b63b5e69db6d3077",
+    "docs/TCB.md": "36910200921c2040246fb6aa1fe196548dea914b255dfc68b7d4c9c0c6e7b02f",
+    "docs/THEOREMS.md": "3da83b58fcfef292bde8ff674c922863b6a7ac9450a7386b69e429cf9b35c29d",
+    "spec/core/Bitcoin/Block/Sigops.lean": "250115fd55a61a959377bb396d5a5f04abce982098386aba8eb57c95c34c5811",
+    "spec/core/Bitcoin/Capstone/Block.lean": "909cd45bc3d0414e6ce60536e6e1b33dbdbb13aac1e7e28db41b396606c49e8e",
+    "spec/core/Test/Capstone/SigopBudget.lean": "f0d09363d86c71babb60557d83a5c63bf1e69e0ad27fd3caec8699f9cd965b81",
+    "spec/data/MANIFEST.sha256": "848252544d50d18d29867b531516baebcb51b674ea92d13e44ca3d2385465aa3",
+    "spec/data/review/sigop-budget/at-limit.raw": "50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+    "spec/data/review/sigop-budget/over-limit.raw": "2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e",
+    "spec/data/review/sigop-budget/provenance.json": "2e4449c0d69f31ee6dc2a0e2027f8a5d54051d6397d037812cee7f17430de45c",
+    "spec/db/axiom-manifest.txt": "ce47050358306b7047195c6f20601a7cc68ede4a94f430bc8644c8d08ea11166",
+    "spec/db/rules.yaml": "08f5d5534252d64d01bf86a025ff782083a6022482a4cb5461a2b45ec1543d70",
+    "spec/proofs/BitcoinProofs.lean": "28a0e6c49b1941a3291a699d5810cd48500efbb1fddd35aafa09bd9e40fd906c",
+    "spec/proofs/BitcoinProofs/AF/PDW53/PDW53.lean": "1dfc58b9ed24066bd3f520aebd9573fc991b3e5f2cd04186faac53ebe368a344",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "1bc4ff9611a868eebd7dc433245c896ddba9e9610b760a686fd0536d14a0a698",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneDecodeCor.lean": "4c2c12982603ce2dc404975be98bfd9d1829ac3ea4056358e084b8acde448885",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean": "db75494637eed9dacfe18f04f70270d9a8fa2a86eecccce6071524801e949e38",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean": "e619b70351397059b5d48edcf8bcd21707c9ac4f134db12b4bab28256b6bc473",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "9f4d7401584c6bc49d8710dc644e7c40e4e7cf166698e81f12ff844041c1d709",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean": "fa9f757ad617de99dc3235967615617811bb0a5008ad9c7ee0bb1d3247edbc80",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSigops.lean": "19e716c2e12c5fe74fe3d0005cf61764beb4f1bc274c8b57abc39f5a33fad763",
+    "spec/scripts/axiom_probe.lean": "7c047edd7e8f9340f5682d29f24c80c6189e8fa91cd8c4b968964c77650a7509",
+    "spec/scripts/check_sigop_budget_core.py": "aac8b54d9cc59d67c342f55e110f319fec5553574f5a533a98978fca472976a8",
+    "spec/scripts/generate_sigop_blocks.py": "6b9f91ba410ee14cca3efc47c857c3dffd5264b918595489a3bc689e90d209ca",
+    "spec/scripts/rules_overrides_sync.py": "8d8bac1d027dba8edc4642097ee1d39548d319804ec0cfb18e41955971f2b23d"
+  },
+  "limitations": [
+    "Extracted Core harness is not a whole-bitcoind verdict, parser check or C++/Lean equivalence proof.",
+    "Synthetic mined forks are valid-PoW fixtures, not canonical mainnet blocks. Conditional stage tests do not prove mainnet reachability of every synthetic ledger/history.",
+    "Witness/adjudication, script flag exceptions, genesis/BIP30 and full powLimit wiring remain separate open findings.",
+    "Full 413-module/cited-declaration matrix, all 726 census rows, current row-target axiom audit, release archive/anchor replay and broader remaining goal verification are pending.",
+    "Pinned CheckBlock also has an earlier stripped-size bound (bad-blk-length); current model has a later weight bound. Exact competing-error precedence remains to be tested under R05/R07; no extra acceptance counterexample is claimed."
+  ]
+}

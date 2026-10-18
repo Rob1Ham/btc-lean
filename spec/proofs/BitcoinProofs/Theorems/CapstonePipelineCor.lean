@@ -465,6 +465,7 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       obtain ⟨hg8, hval⟩ := gate_step _ _ hval
       -- gate: merkleMutationOk (BLK-011)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- gate: commitmentGate (private dummy stand-in), inner anyWitness lane
       obtain ⟨_, hval⟩ := gate_step2 _ _ _ hval
       -- gate: commitmentValueZero (private dummy stand-in)
@@ -476,13 +477,16 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       -- gate: BIP30 pre-block overlap loop (BLK-096/097/098, TXV-063)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- The funded transaction stage; the projection theorem below exposes applyTxs.
-      generalize hfund : applyBlockTransactions st.height txs st.utxo = q at hval
+      generalize hbudget : applyBlockTransactionsWithSigops none st.height
+        (candidateScriptFlags st.height bh) txs st.utxo = q at hval
       cases q with
       | error e =>
           rw [ebind_err] at hval
           simp at hval
       | ok q' =>
-          obtain ⟨u', k, j⟩ := q'
+          obtain ⟨⟨u', k, j⟩, sigops⟩ := q'
+          have hfund : applyBlockTransactions st.height txs st.utxo = .ok (u', k, j) :=
+            applyBlockTransactionsWithSigops_projection hbudget
           rw [ebind_ok] at hval
           simp only [Except.ok.injEq] at hval
           subst hval
@@ -591,6 +595,7 @@ theorem validateBlock_ok_bip30_quiet (raw : ByteArray) (st : CapState) (r : CapR
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- merkleMutationOk
       obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- commitmentGate, commitmentValueZero, commitmentNonceOk
       obtain ⟨_, hval⟩ := gate_step2 _ _ _ hval
       obtain ⟨_, hval⟩ := gate_step _ _ hval

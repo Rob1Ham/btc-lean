@@ -12,8 +12,8 @@ carries `spec/data/MANIFEST.sha256`.
 
 | Property | Value |
 |---|---|
-| Files (including the manifest) | 161 |
-| Tracked bytes | 4,852,246 |
+| Files (including the manifest) | 168 |
+| Tracked bytes | 5,033,780 |
 | Budget | 2,097,152–5,242,880 bytes (2–5 MiB) |
 | Manifest | `spec/data/MANIFEST.sha256`, one SHA-256 per file, C-locale path order |
 | Release archive | `btc-lean-data-2026.10.17.tar.gz`, 357,916,214 bytes |

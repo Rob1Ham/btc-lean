@@ -455,7 +455,7 @@ rules:
   check: "block sigop cost ≤ 80,000 (exact, ConnectBlock)"
   core_ref: "validation.cpp:ConnectBlock:2566–2570@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "Bitcoin.Interpreter.SigOps.blockSigOpCost_eq_sum, Bitcoin.Interpreter.SigOps.blockSigOpCost_gate"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -466,7 +466,7 @@ rules:
   check: "block legacy sigops × 4 ≤ 80,000 (coarse, CheckBlock)"
   core_ref: "validation.cpp:CheckBlock:3979–3985@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW74.legacySigOpBudgetOk_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -5074,22 +5074,22 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-034
-  summary: "Σ legacy sigops ×4 ≤ 80,000 (`bad-blk-sigops`), under-counting by design"
+  summary: "legacy sigops ×4 ≤ 80000 in CheckBlock; input-dependent costs are added in ConnectBlock"
   check: "Legacy sigop block budget"
   core_ref: "V:3979-3986@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_eq_false_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpCountScript_le_20_per_byte, BitcoinProofs.Theorems.BlockCor.witnessInputSigOps_future_version_zero"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-035
-  summary: "cost = 4×(legacy + P2SH) + witness sigops; P2SH/witness exclude coinbase"
+  summary: "under block flags: 4×(legacy + enabled P2SH) + enabled witness; coinbase contributes legacy only"
   check: "Full sigop cost"
   core_ref: "TV:GetTransactionSigOpCost:149-168@cce32b168"
   bip_cve: "BIP16/141"
-  lean_target: "BitcoinProofs.AF.PDW29.txSigOpCost_decompose_row, BitcoinProofs.AF.PDW29.txSigOpCost_coinbase_legacy"
+  lean_target: "Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose, Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled, Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -5100,7 +5100,7 @@ rules:
   check: "Full sigop budget in connect"
   core_ref: "V:2560-2568@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.Theorems.BlockCor.blockSigOpCost_fold_eq_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_eq_false_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -6365,7 +6365,7 @@ rules:
   check: "Block sigop cost limit"
   core_ref: "src/consensus/consensus.h:17; src/consensus/tx_verify.cpp:149-168; src/validation.cpp:2567@cce32b168"
   bip_cve: "141 §Sigops"
-  lean_target: "Bitcoin.Interpreter.SigOps.blockSigOpCostOk"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2

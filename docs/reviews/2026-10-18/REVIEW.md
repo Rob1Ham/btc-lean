@@ -199,25 +199,29 @@ and sequence-lock evidence; unreconciled census fields remain explicitly open.
 
 ### R17 — Static sigop accounting and the missing live resource budget
 
-**P1, counters repaired; public block budget still open.** The additional
-review found that `Rules.sigOpCount` charged one per multisig and added a
-trailing OP_N, P2SH rule counting re-serialized the redeem script as pushed
-data, malformed witness/redeem scripts lost valid-prefix counts, and the
-block's witness fold truncated at an absent witness stack. Several helper
-theorems certified these incorrect behaviors. A neighboring rule-layer
-P2SH loop also reused input zero's prevout script for every input.
+**P1, fixed with scoped evidence.** The additional review found inaccurate
+multisig costs, malformed-prefix losses, broken P2SH parsing/input indexing
+and witness-fold truncation. The shared counter repair is recorded in
+[validation-sigops.json](validation-sigops.json).
 
-The repaired code shares one accurate/inaccurate raw-script counter,
-requires push-only P2SH scriptSigs, counts native and wrapped witness
-programs for every input, and provides a flag-aware transaction-cost API.
-The affected symbolic bounds and weighted-count proofs build, with only
-the permitted standard axioms. The reference harness verifies exact
-source-file hashes before extracting Core functions; its C++ execution is
-runtime evidence, separate from the Lean kernel proofs.
+The public validator now checks every stateless transaction and its early
+legacy-only budget, then accumulates complete costs against each evolving
+UTXO view before scripts. Resource flags use the actual candidate hash.
+The inclusive 80,000-unit bound includes coinbase legacy costs. Reported
+costs and the checked flag are derived from that same executable stage;
+new kernel proofs connect public success to an exact ledger/cost trace and
+the budget bound. Existing funding and BIP68 contracts remain proved.
 
-The next required change is to accumulate those costs against the evolving
-UTXO view in the actual validator, using the real candidate hash's script
-flags, and reject totals above 80,000 before script execution. Tests must
-cover the exact boundary, coinbase legacy sigops, same-block spends and
-error ordering. None of the current counter/helper evidence establishes
-that missing public-path check.
+Thirty-two new regressions pass, including real-PoW serialized height-one
+forks accepted at 80,000 and rejected at 80,004 on both entry paths. The
+pre-fix validator accepts both over-budget cases, while its two positive
+controls pass. Thirteen extracted Core functions/sites are identical at
+both pins; nine runtime reference cases agree. This reference harness uses
+type/state shims and does not validate whole blocks through bitcoind.
+
+[validation-sigop-budget.json](validation-sigop-budget.json) records commands,
+source and fixture hashes, 157 runtime checks, scoped builds and both dynamic
+axiom probes. Script verification still selects some flags by height (R07),
+and witness/adjudication repairs, full module coverage and the remaining
+census review stay open. Resource accounting's hash-aware flags do not close
+those separate gaps.

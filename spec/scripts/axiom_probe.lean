@@ -29,6 +29,7 @@ import BitcoinProofs.Crypto.CurveZMod
 import BitcoinProofs.Theorems.CapstoneFunding
 import BitcoinProofs.Theorems.CapstoneContext
 import BitcoinProofs.Theorems.CapstoneSequence
+import BitcoinProofs.Theorems.CapstoneSigops
 import BitcoinProofs.AF.PDW29.PDW29Sigops
 import BitcoinProofs.AF.PDW36.PDW36Guards
 import BitcoinProofs.AF.PDW21.PDW21
@@ -371,3 +372,24 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase
 
 #print axioms Bitcoin.Interpreter.txP2shSigOps_coinbase
+
+-- Actual block resource budgets: early stateless/legacy and evolving contextual cost.
+#print axioms Bitcoin.Capstone.Block.checkBlockStateless_error
+#print axioms Bitcoin.Capstone.Block.checkBlockPrelude_error
+#print axioms Bitcoin.Capstone.Block.checkBlockStateless_ok
+#print axioms Bitcoin.Capstone.Block.checkBlockPrelude_ok
+#print axioms Bitcoin.Capstone.Block.unit_precheck_ok
+#print axioms Bitcoin.Capstone.Block.applyTxWithChecks_checks_ok
+#print axioms Bitcoin.Capstone.Block.applyTxWithChecks_replace
+#print axioms Bitcoin.Capstone.Block.checkSigopTotal_ok
+#print axioms Bitcoin.Capstone.Block.applyTxsWithSigops_projection
+#print axioms Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.SigopTrace_nondecreasing
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_bounded
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_trace
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_fold
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_stage
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget
+
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose

@@ -199,10 +199,11 @@ theorem validateBlock_commitment_preempts_weight_row
       (Bitcoin.Activation.SEGWIT_HEIGHT ≤ st.height) txs
       (txs.getD 0 Bitcoin.Capstone.Block.dummyTx) = false)
     (hweight : Bitcoin.Capstone.Block.weightOk txs raw.size = false) :
-    Bitcoin.Capstone.Block.validateBlock raw st =
-      .error (if Bitcoin.Capstone.Merkle.anyWitness txs then
+    Bitcoin.Capstone.Block.validateBlock raw st = (do
+      Bitcoin.Capstone.Block.checkBlockPrelude txs
+      throw (if Bitcoin.Capstone.Merkle.anyWitness txs then
                 Bitcoin.Capstone.Block.CapError.badWitnessCommitment
-              else Bitcoin.Capstone.Block.CapError.unexpectedWitness) :=
+              else Bitcoin.Capstone.Block.CapError.unexpectedWitness)) :=
   Bitcoin.Capstone.Block.validateBlock_commitment_preempts_weight
     raw st h txs hdec hstruct hcbpos hcblen hver hbip34 htarget hpow hlink
     hmerkle hmut hcg hweight
@@ -234,7 +235,14 @@ theorem validateBlock_commitment_failure_ne_badBlkWeight
       .error Bitcoin.Capstone.Block.CapError.badBlkWeight := by
   rw [validateBlock_commitment_preempts_weight_row raw st h txs hdec hstruct
     hcbpos hcblen hver hbip34 htarget hpow hlink hmerkle hmut hcg hweight]
-  split <;> intro hbad <;> cases hbad
+  cases hp : Bitcoin.Capstone.Block.checkBlockPrelude txs with
+  | error e =>
+    rcases Bitcoin.Capstone.Block.checkBlockPrelude_error hp with ⟨txError, rfl⟩ | rfl <;>
+      simp [hp, Bind.bind, Except.bind]
+  | ok value =>
+    cases value
+    simp only [hp, Bind.bind, Except.bind, Bitcoin.Capstone.Block.throw_except_error]
+    split <;> intro hbad <;> cases hbad
 
 @[rule "BLK-109"]
 theorem connectGenesis_utxo_row (utxo : List (Bitcoin.Data.OutPoint × Bitcoin.Ledger.Coin))

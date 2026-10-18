@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops test-capstone-sigop-budget help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -32,6 +32,7 @@ help:
 	@echo "make test-capstone-context # contextual header regressions (needs Lean)"
 	@echo "make test-capstone-finality # absolute/BIP68 contextual regressions (needs Lean)"
 	@echo "make test-capstone-sigops # static sigop counter regressions (needs Lean)"
+	@echo "make test-capstone-sigop-budget # live block resource-boundary regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -84,6 +85,7 @@ gate-subset:
 gate-repro:
 	@echo "== reproducibility: reference scripts and local-path scan =="
 	@$(PYTHON) $(SCRIPTS)/check_reproducibility.py
+	@$(PYTHON) $(SCRIPTS)/generate_sigop_blocks.py --check
 
 wallet-gates:
 	@bash $(SCRIPTS)/wallet_gates.sh
@@ -103,3 +105,6 @@ test-capstone-finality:
 # Static counting includes malformed scripts, independent of execution validity.
 test-capstone-sigops:
 	cd spec/core && lake env lean --run Test/Capstone/Sigops.lean
+
+test-capstone-sigop-budget:
+	cd spec/core && lake env lean --run Test/Capstone/SigopBudget.lean

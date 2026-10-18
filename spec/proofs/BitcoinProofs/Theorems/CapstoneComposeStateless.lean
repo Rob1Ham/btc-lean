@@ -242,13 +242,16 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   obtain ⟨hg6, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-069
   obtain ⟨hg9, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-010 merkle
   obtain ⟨_, hJP⟩ := guard_inv _ _ _ _ hJP        -- BLK-011 mutation
+  obtain ⟨_, hJP⟩ := unit_precheck_ok _ _ hJP       -- CheckBlock stateless/legacy
   obtain ⟨hgc, hJP⟩ := guard2_inv _ _ _ _ _ _ hJP -- BLK-019/020
   obtain ⟨hgv, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-016 value
   obtain ⟨hgn, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-018 nonce
   obtain ⟨hg4, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-023..026
   obtain ⟨_, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BIP30 (contextual, outside model)
-  obtain ⟨q, hap, _⟩ := bind_ok_inv (applyBlockTransactions st.height txs st.utxo) _ r hJP
-  obtain ⟨u', k, j⟩ := q
+  obtain ⟨q, hbudget, _⟩ := bind_ok_inv
+    (applyBlockTransactionsWithSigops none st.height (candidateScriptFlags st.height bh) txs st.utxo) _ r hJP
+  obtain ⟨⟨u', k, j⟩, sigops⟩ := q
+  have hap := applyBlockTransactionsWithSigops_projection hbudget
   have hap := applyBlockTransactions_ok hap
   refine ⟨bh, txs, hdec, ?_⟩
   exact ⟨hg1, hg2, hg3, hg4, hg5, hg6, hg7, hg8, hg9, hgc,

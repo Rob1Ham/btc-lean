@@ -7,6 +7,8 @@ import Bitcoin.Consensus.TxCheck
 import Bitcoin.TxValidation.Interface
 import Bitcoin.Activation.Interface
 import Bitcoin.Interpreter.Interface
+import Bitcoin.Block.Sigops
+import Bitcoin.Activation.Flags
 
 /-!
 # Bitcoin.Capstone.Block — serialized replay and contextual header checks (S2b)
@@ -14,7 +16,8 @@ import Bitcoin.Interpreter.Interface
 `validateBlock : SerializedBlock → CapState → Except CapError CapReport`
 composes the modeled gates on real serialized bytes. The default call is
 partial replay (`replayBlock`); an explicit `ChainContext` adds header,
-absolute-finality and both BIP68-domain checks. Remaining sigop, witness/Taproot and historical
+absolute-finality and both BIP68-domain checks. Both entries enforce
+legacy and contextual sigop budgets. Remaining witness/Taproot and historical
 exception defects are actionable work in the remediation ledger, not assumed
 consensus validity. The gates currently composed are:
 
@@ -35,7 +38,8 @@ consensus validity. The gates currently composed are:
 5. **Per tx, in order** (Core ConnectBlock's UTXO-side order):
    `checkTransaction` (BLK-030) → for non-coinbase
    `checkTxInputs` (TXV) against the CURRENT fold state → running fee
-   MoneyRange (BLK-091) → per-input
+   MoneyRange (BLK-091) → BIP68 when context is supplied → cumulative
+   sigop cost (BLK-036), including coinbase → per-input
    `verifyScriptFull` with the real checker (ECDSA wiring,
    `RealChecker.realCheckerOf`) → `applyTxStepL` (fold step,
    BIP30/inputs/maturity/UpdateCoins keyed by the REAL txid
@@ -97,6 +101,7 @@ inductive CapError where
   | badBlkWeight                    -- BLK-024/BLK-026
   | badFeeAccum                     -- BLK-091
   | badCbAmount                     -- BLK-089
+  | badBlkSigops                    -- BLK-036
   | badPow                          -- BLK-039 (high-hash) / BLK-038
   | badChainLink                    -- hashPrevBlock ≠ expected parent
   | badMerkleRoot                   -- BLK-010
@@ -127,6 +132,7 @@ def CapError.reason : CapError → String
   | .badBlkWeight => "bad-blk-weight"
   | .badFeeAccum => "bad-txns-accumulated-fee-outofrange"
   | .badCbAmount => "bad-cb-amount"
+  | .badBlkSigops => "bad-blk-sigops"
   | .badPow => "high-hash"
   | .badChainLink => "bad-prevblk"
   | .badMerkleRoot => "bad-txnmrklroot"
@@ -435,6 +441,91 @@ validation and before scripts. -/
 def checkFeeTotal (fees fee : Amount) : Except CapError Unit :=
   if MoneyRange (fees + fee) then .ok () else .error .badFeeAccum
 
+/-- CheckBlock checks every stateless transaction before its legacy budget
+and before any ConnectBlock input lookup. Standalone transaction validation
+retains its own guard; neither pass performs contextual amount lookup. -/
+def checkBlockStateless : List Tx → Except CapError Unit
+  | [] => .ok ()
+  | tx :: rest =>
+    match checkTransaction tx with
+    | some e => .error (.txCheck e)
+    | none => checkBlockStateless rest
+
+/-- CheckBlock's transaction loop and early legacy-only resource bound.
+This precedes witness/weight checks and contextual UTXO input access. -/
+def checkBlockPrelude (txs : List Tx) : Except CapError Unit := do
+  checkBlockStateless txs
+  if !Bitcoin.Block.Sigops.legacySigOpBudgetOk txs then throw CapError.badBlkSigops
+
+theorem checkBlockStateless_error {txs : List Tx} {e : CapError}
+    (h : checkBlockStateless txs = .error e) : ∃ txError, e = .txCheck txError := by
+  induction txs with
+  | nil => simp [checkBlockStateless] at h
+  | cons tx rest ih =>
+    cases hc : checkTransaction tx with
+    | none => exact ih (by simpa [checkBlockStateless, hc] using h)
+    | some err =>
+      simp [checkBlockStateless, hc] at h
+      exact ⟨err, h.symm⟩
+
+/-- The early prelude can reject only stateless transaction errors or the
+legacy sigop limit. In particular it cannot manufacture a weight verdict. -/
+theorem checkBlockPrelude_error {txs : List Tx} {e : CapError}
+    (h : checkBlockPrelude txs = .error e) :
+    (∃ txError, e = .txCheck txError) ∨ e = .badBlkSigops := by
+  unfold checkBlockPrelude at h
+  cases hs : checkBlockStateless txs with
+  | error err =>
+    simp only [hs, Bind.bind, Except.bind, Except.error.injEq] at h
+    exact Or.inl (h ▸ checkBlockStateless_error hs)
+  | ok value =>
+    cases value
+    simp only [hs, Bind.bind, Except.bind] at h
+    split at h
+    · simp only [throw_except_error, Except.error.injEq] at h
+      exact Or.inr h.symm
+    · simp [pure, Except.pure] at h
+
+theorem checkBlockStateless_ok {txs : List Tx}
+    (h : checkBlockStateless txs = .ok ()) :
+    ∀ tx ∈ txs, checkTransaction tx = none := by
+  induction txs with
+  | nil => simp
+  | cons tx rest ih =>
+    cases hc : checkTransaction tx with
+    | some e => simp [checkBlockStateless, hc] at h
+    | none =>
+      have tail : checkBlockStateless rest = .ok () := by
+        simpa [checkBlockStateless, hc] using h
+      intro t ht
+      rcases List.mem_cons.mp ht with rfl | ht
+      · exact hc
+      · exact ih tail t ht
+
+theorem checkBlockPrelude_ok {txs : List Tx}
+    (h : checkBlockPrelude txs = .ok ()) :
+    checkBlockStateless txs = .ok () ∧ Bitcoin.Block.Sigops.legacySigOpBudgetOk txs = true := by
+  unfold checkBlockPrelude at h
+  cases hs : checkBlockStateless txs with
+  | error e => simp [hs] at h
+  | ok value =>
+    cases value
+    simp only [hs, Bind.bind, Except.bind] at h
+    split at h
+    · simp at h
+    · simp_all
+
+/-- Successful Unit-valued prechecks expose their continuation. -/
+theorem unit_precheck_ok {α : Type} (check : Except CapError Unit)
+    (next : Unit → Except CapError α) {result : α}
+    (h : (check >>= next) = .ok result) :
+    check = .ok () ∧ next () = .ok result := by
+  cases hc : check with
+  | error e => simp [hc, Bind.bind, Except.bind] at h
+  | ok value =>
+    cases value
+    exact ⟨rfl, by simpa [hc, Bind.bind, Except.bind] using h⟩
+
 /-- Sequential transaction fold with checked running fees. Every non-coinbase
 fee comes from `checkTxInputs` against that transaction's evolving UTXO view. -/
 def applyTxsWithFees (height : UInt32) :
@@ -503,6 +594,206 @@ def applyContextualBlockTransactions (ctx : Bitcoin.Capstone.Context.ChainContex
   let (result, fees) ← applyTxsInContext ctx facts height txs 0 l 0 0 0
   if !coinbaseRewardOk (txs.getD 0 dummyTx) fees height then throw CapError.badCbAmount
   pure result
+
+/-- The candidate's actual hash selects Core's script-flag exceptions.
+The numeric interpretation is the same uint256 little-endian value used
+by proof-of-work, rather than a height or a digest byte-order guess. -/
+def candidateScriptFlags (height : UInt32) (header : Bitcoin.Chain.BlockHeader) : ScriptFlags :=
+  getBlockScriptFlagsP Bitcoin.Activation.mainnetParams
+    (hashNatLE (headerHash header)) height
+
+/-- Checks preceding the ConnectBlock sigop budget. Replay omits BIP68;
+the contextual entry uses exactly its resolved parent-chain facts. -/
+def checkBeforeSigops (context : Option (Bitcoin.Capstone.Context.ChainContext ×
+      Bitcoin.Capstone.Context.HeaderFacts)) (height : UInt32) (tx : Tx)
+    (l : List (OutPoint × Coin)) (fees fee : Amount) : Except CapError Unit :=
+  match context with
+  | none => if tx.isCoinBase then .ok () else checkFeeTotal fees fee
+  | some (ctx, facts) => checkContextualTx ctx facts height tx l fees fee
+
+/-- Exact ConnectBlock ordering: checked input amounts (in the canonical
+engine), accumulated fees, BIP68, then the running sigop total, then scripts.
+Coinbase skips fees/BIP68/scripts but its legacy sigops still count. -/
+def checkSigopTotal (context : Option (Bitcoin.Capstone.Context.ChainContext ×
+      Bitcoin.Capstone.Context.HeaderFacts)) (height : UInt32) (flags : ScriptFlags)
+    (tx : Tx) (l : List (OutPoint × Coin)) (fees fee : Amount)
+    (sigops : Nat) : Except CapError Nat := do
+  checkBeforeSigops context height tx l fees fee
+  let total := sigops + Bitcoin.Block.Sigops.txSigOpCostWithFlags (viewOf l) tx flags
+  if total > Bitcoin.Block.Sigops.MAX_BLOCK_SIGOPS_COST then throw CapError.badBlkSigops
+  pure total
+
+/-- The actual block fold. Each cost reads the same evolving view as
+CheckTxInputs and BIP68, before the input coins are spent. The callback
+carries the checked total without a second CheckTxInputs or script run. -/
+def applyTxsWithSigops (context : Option (Bitcoin.Capstone.Context.ChainContext ×
+      Bitcoin.Capstone.Context.HeaderFacts)) (height : UInt32) (flags : ScriptFlags) :
+    List Tx → Nat → List (OutPoint × Coin) → Nat → Nat → Amount → Nat →
+    Except CapError (((List (OutPoint × Coin) × Nat × Nat) × Amount) × Nat)
+  | [], _, l, a, b, fees, sigops => .ok (((l, a, b), fees), sigops)
+  | tx :: rest, i, l, a, b, fees, sigops => do
+    let (((l', x, y), fee), checkedTotal) ← applyTxWithChecks height tx i l
+      (fun fee => checkSigopTotal context height flags tx l fees fee sigops)
+    applyTxsWithSigops context height flags rest (i+1) l' (a+x) (b+y) (fees+fee) checkedTotal
+
+/-- Resource-checked transaction stage used by both public entries. -/
+def applyBlockTransactionsWithSigops (context : Option (Bitcoin.Capstone.Context.ChainContext ×
+      Bitcoin.Capstone.Context.HeaderFacts)) (height : UInt32) (flags : ScriptFlags)
+    (txs : List Tx) (l : List (OutPoint × Coin)) :
+    Except CapError ((List (OutPoint × Coin) × Nat × Nat) × Nat) := do
+  let ((result, fees), sigops) ← applyTxsWithSigops context height flags txs 0 l 0 0 0 0
+  if !coinbaseRewardOk (txs.getD 0 dummyTx) fees height then throw CapError.badCbAmount
+  pure (result, sigops)
+
+/-- Recover the exact successful caller check from the canonical engine. -/
+theorem applyTxWithChecks_checks_ok {α : Type} {height : UInt32} {tx : Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {checks : Amount → Except CapError α}
+    {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount} {checkedData : α}
+    (h : applyTxWithChecks height tx i l checks = .ok ((result, fee), checkedData)) :
+    checks fee = .ok checkedData := by
+  unfold applyTxWithChecks at h
+  cases hc : Bitcoin.Consensus.checkTransaction tx with
+  | some e => simp [hc] at h
+  | none =>
+    cases hb : tx.isCoinBase with
+    | true =>
+      cases hf : checks 0 with
+      | error e => simp [hc, hb, hf] at h
+      | ok value =>
+        cases hs : applyTxStepL l tx (txidKey tx) height <;> simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+    | false =>
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => simp [hc, hb, hm] at h
+      | ok actualFee =>
+        cases hf : checks actualFee with
+        | error e => simp [hc, hb, hm, hf] at h
+        | ok value =>
+          cases hv : verifyTxInputs height tx i l with
+          | error e => simp [hc, hb, hm, hf, hv] at h
+          | ok counts =>
+            obtain ⟨a, b⟩ := counts
+            cases hs : applyTxStepL l tx (txidKey tx) height <;> simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+
+/-- Replacing a successful additional check preserves the exact checked
+fee, scripts, ledger transition and counters. This is a proof refinement;
+the executable pipeline still runs the canonical engine only once. -/
+theorem applyTxWithChecks_replace {α β : Type} {height : UInt32} {tx : Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {checks : Amount → Except CapError α}
+    {checks' : Amount → Except CapError β}
+    {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount}
+    {metadata : α} {metadata' : β}
+    (h : applyTxWithChecks height tx i l checks = .ok ((result, fee), metadata))
+    (hc' : checks' fee = .ok metadata') :
+    applyTxWithChecks height tx i l checks' = .ok ((result, fee), metadata') := by
+  unfold applyTxWithChecks at h ⊢
+  cases hc : checkTransaction tx with
+  | some e => simp [hc] at h
+  | none =>
+    cases hb : tx.isCoinBase with
+    | true =>
+      cases hf : checks 0 with
+      | error e => simp [hc, hb, hf] at h
+      | ok value =>
+        cases hs : applyTxStepL l tx (txidKey tx) height <;>
+          simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+    | false =>
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => simp [hc, hb, hm] at h
+      | ok actualFee =>
+        cases hf : checks actualFee with
+        | error e => simp [hc, hb, hm, hf] at h
+        | ok value =>
+          cases hv : verifyTxInputs height tx i l with
+          | error e => simp [hc, hb, hm, hf, hv] at h
+          | ok counts =>
+            obtain ⟨a, b⟩ := counts
+            cases hs : applyTxStepL l tx (txidKey tx) height <;>
+              simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+
+/-- Successful sigop checking includes the earlier fee/sequence checks
+and the exact running sum, with the inclusive 80,000-unit bound. -/
+theorem checkSigopTotal_ok {context height flags tx l fees fee sigops total}
+    (h : checkSigopTotal context height flags tx l fees fee sigops = .ok total) :
+    checkBeforeSigops context height tx l fees fee = .ok () ∧
+    total = sigops + Bitcoin.Block.Sigops.txSigOpCostWithFlags (viewOf l) tx flags ∧
+    total ≤ Bitcoin.Block.Sigops.MAX_BLOCK_SIGOPS_COST := by
+  unfold checkSigopTotal at h
+  cases hc : checkBeforeSigops context height tx l fees fee with
+  | error e => simp [hc] at h
+  | ok unit =>
+    cases unit
+    simp only [hc, Bind.bind, Except.bind] at h
+    split at h
+    · simp at h
+    · simp only [pure, Except.pure, Except.ok.injEq] at h
+      simp_all
+
+/-- Forgetting the resource budget recovers the exact earlier fee/BIP68
+fold, not a second execution or an assumption about the returned state. -/
+theorem applyTxsWithSigops_projection {context height flags txs i l a b fees sigops}
+    {result : List (OutPoint × Coin) × Nat × Nat} {totalFees : Amount} {totalSigops : Nat}
+    (h : applyTxsWithSigops context height flags txs i l a b fees sigops =
+      .ok ((result, totalFees), totalSigops)) :
+    (match context with
+     | none => applyTxsWithFees height txs i l a b fees
+     | some (ctx, facts) => applyTxsInContext ctx facts height txs i l a b fees) =
+      .ok (result, totalFees) := by
+  induction txs generalizing i l a b fees sigops with
+  | nil =>
+    simp only [applyTxsWithSigops, Except.ok.injEq, Prod.mk.injEq] at h
+    rcases h with ⟨⟨hr, hf⟩, _⟩
+    cases context <;> simp_all [applyTxsWithFees, applyTxsInContext]
+  | cons tx rest ih =>
+    simp only [applyTxsWithSigops] at h
+    cases hs : applyTxWithChecks height tx i l
+        (fun fee => checkSigopTotal context height flags tx l fees fee sigops) with
+    | error e => simp [hs] at h
+    | ok value =>
+      obtain ⟨⟨⟨l', x, y⟩, checkedFee⟩, nextTotal⟩ := value
+      simp only [hs, Bind.bind, Except.bind] at h
+      have checked := (checkSigopTotal_ok (applyTxWithChecks_checks_ok hs)).1
+      have step := applyTxWithChecks_replace hs checked
+      have tail := ih h
+      cases context with
+      | none =>
+        have feeStep : applyTxWithFeeCheck height tx i l (checkFeeTotal fees) =
+            .ok ((l', x, y), checkedFee) := by
+          unfold applyTxWithFeeCheck
+          change (do
+            let (r, _) ← applyTxWithChecks height tx i l
+              (checkBeforeSigops none height tx l fees)
+            pure r) = _
+          rw [step]
+          rfl
+        simpa [applyTxsWithFees, feeStep] using tail
+      | some pair =>
+        obtain ⟨ctx, facts⟩ := pair
+        change applyTxWithChecks height tx i l
+          (checkContextualTx ctx facts height tx l fees) =
+            .ok (((l', x, y), checkedFee), ()) at step
+        simpa [applyTxsInContext, step] using tail
+
+/-- Public resource-stage success preserves the exact previously proved
+funding/sequence stage, so those contracts survive the stronger validator. -/
+theorem applyBlockTransactionsWithSigops_projection {context height flags txs l result sigops}
+    (h : applyBlockTransactionsWithSigops context height flags txs l = .ok (result, sigops)) :
+    (match context with
+     | none => applyBlockTransactions height txs l
+     | some (ctx, facts) => applyContextualBlockTransactions ctx facts height txs l) = .ok result := by
+  unfold applyBlockTransactionsWithSigops at h
+  cases hf : applyTxsWithSigops context height flags txs 0 l 0 0 0 0 with
+  | error e => simp [hf] at h
+  | ok value =>
+    obtain ⟨⟨r, fees⟩, total⟩ := value
+    simp only [hf, Bind.bind, Except.bind] at h
+    split at h
+    · simp at h
+    · simp only [pure, Except.pure, Except.ok.injEq, Prod.mk.injEq] at h
+      rcases h with ⟨hr, ht⟩
+      have projected := applyTxsWithSigops_projection hf
+      cases context <;>
+        simp_all [applyBlockTransactions, applyContextualBlockTransactions,
+          Bind.bind, Except.bind, pure, Except.pure]
 
 /-- A successful budgeted step refines standalone transaction validation. -/
 theorem applyTxWithFeeCheck_ok {height : UInt32} {tx : Tx} {i : Nat}
@@ -579,6 +870,8 @@ structure CapReport where
   headerContextChecked : Bool := false -- expected nBits, parent MTP, node-clock bound
   absoluteFinalityChecked : Bool := false
   sequenceLocksChecked : Bool := false
+  sigOpBudgetChecked : Bool := false
+  sigOpCost : Nat := 0
   deriving Repr
 
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
@@ -626,6 +919,9 @@ def validateBlock (raw : ByteArray) (st : CapState)
   -- (BLK-012).
   if !merkleOk h txs then throw CapError.badMerkleRoot
   if !merkleMutationOk txs then throw CapError.blockMutated
+  -- CheckBlock's stateless loop precedes its early legacy-only sigop gate.
+  -- ConnectBlock later adds the input-dependent P2SH/witness terms.
+  checkBlockPrelude txs
   let cb := txs.getD 0 dummyTx
   -- Core's `expect_witness_commitment` = DeploymentActiveAfter(pindexPrev,
   -- DEPLOYMENT_SEGWIT): pprev->nHeight + 1 ≥ SegwitHeight, i.e. the
@@ -655,13 +951,13 @@ def validateBlock (raw : ByteArray) (st : CapState)
         && bip30Enforced st.height then
     throw (CapError.block BlockError.badTxnsBIP30)
   -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
-  let (utxo', okN, unjN) ← match resolved with
-    | none => applyBlockTransactions st.height txs st.utxo
-    | some (ctx, facts) => applyContextualBlockTransactions ctx facts st.height txs st.utxo
+  let ((utxo', okN, unjN), sigops) ← applyBlockTransactionsWithSigops resolved st.height
+    (candidateScriptFlags st.height h) txs st.utxo
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
          headerContextChecked := context.isSome
-         absoluteFinalityChecked := context.isSome, sequenceLocksChecked := context.isSome }
+         absoluteFinalityChecked := context.isSome, sequenceLocksChecked := context.isSome
+         sigOpBudgetChecked := true, sigOpCost := sigops }
 
 /-- Explicit partial anchor-replay adapter. No ancestor/clock checks are
 claimed; script adjudication may also be incomplete as the report records. -/
@@ -670,8 +966,9 @@ def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
 
 /-- Header-context entry point. Checks expected nBits, parent MTP and node
 time, absolute finality and both BIP68 domains as well as the funded replay
-gates. The live sigop budget and remaining witness/historical-exception defects
-remain open; success is not yet a full consensus-validation claim. -/
+gates and both sigop budgets. Witness adjudication, height-based script
+flag selection and other historical-exception work remain open; success
+is not yet a full consensus-validation claim. -/
 def validateBlockInContext (raw : ByteArray) (st : CapState)
     (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=
   validateBlock raw st (some ctx)
@@ -746,8 +1043,9 @@ the source comment gives the hash-invariance reason). The real
 the actual pipeline, not on the `contextualChecksOrdered` helper. -/
 
 /-- **BLK-021 (pre-emption)**: at the real prelude, a commitment-gate
-failure returns the commitment verdict even when `weightOk` is also
-false — the weight result is never reached. -/
+failure pre-empts weight after CheckBlock succeeds. The exact equation
+also propagates CheckBlock's earlier stateless/legacy-budget rejection,
+without assuming those checks succeeded. -/
 @[rule "BLK-021"]
 theorem validateBlock_commitment_preempts_weight
     (raw : ByteArray) (st : CapState) (h : Bitcoin.Chain.BlockHeader) (txs : List Tx)
@@ -765,9 +1063,10 @@ theorem validateBlock_commitment_preempts_weight
     (hcg : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
              (txs.getD 0 dummyTx) = false)
     (hweight : weightOk txs raw.size = false) :
-    validateBlock raw st =
-      .error (if anyWitness txs then CapError.badWitnessCommitment
-              else CapError.unexpectedWitness) := by
+    validateBlock raw st = (do
+      checkBlockPrelude txs
+      throw (if anyWitness txs then CapError.badWitnessCommitment
+              else CapError.unexpectedWitness)) := by
   unfold validateBlock
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
@@ -775,11 +1074,17 @@ theorem validateBlock_commitment_preempts_weight
       (txs[0]?.getD dummyTx) = false := by simpa using hcg
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
     hmerkle, hmut, hcg', throw_except_error]
-  split <;> rfl
+  cases hp : checkBlockPrelude txs with
+  | error e => simp [hp, Bind.bind, Except.bind]
+  | ok value =>
+    cases value
+    simp only [hp, Bind.bind, Except.bind]
+    split <;> rfl
 
 /-- **BLK-021 (weight reached only after commitment)**: once the
 commitment gate and its value/nonce arms pass, a failed weight check
-returns exactly `badBlkWeight`. Together with the pre-emption theorem
+returns `badBlkWeight` after CheckBlock, whose errors propagate first.
+Together with the pre-emption theorem
 this pins the real prelude's order. -/
 @[rule "BLK-021"]
 theorem validateBlock_badBlkWeight_after_commitment
@@ -804,7 +1109,9 @@ theorem validateBlock_badBlkWeight_after_commitment
         (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
         commitmentNonceOk (txs.getD 0 dummyTx) = false))
     (hweight : weightOk txs raw.size = false) :
-    validateBlock raw st = .error CapError.badBlkWeight := by
+    validateBlock raw st = (do
+      checkBlockPrelude txs
+      throw CapError.badBlkWeight) := by
   unfold validateBlock
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
@@ -831,7 +1138,8 @@ with `bad-txns-BIP30` instead of being admitted by `applyTxs`. -/
 
 /-- **BIP30 (pipeline face)**: when every earlier gate passes, BIP30 is
 enforced, and some tx output recreates an outpoint live in the pristine
-pre-block view, `validateBlock` returns exactly `badTxnsBIP30`. -/
+pre-block view, the exact equation returns `badTxnsBIP30` after
+CheckBlock, propagating any earlier stateless/legacy-budget error. -/
 @[rule "BLK-096", rule "BLK-097", rule "BLK-098", rule "INV-104"]
 theorem validateBlock_badBip30
     (raw : ByteArray) (st : CapState) (h : Bitcoin.Chain.BlockHeader) (txs : List Tx)
@@ -857,7 +1165,9 @@ theorem validateBlock_badBip30
     (hweight : weightOk txs raw.size = true)
     (hcol : bip30BlockCollision (viewOf st.utxo) txidKey txs st.height = true)
     (henf : bip30Enforced st.height = true) :
-    validateBlock raw st = .error (CapError.block BlockError.badTxnsBIP30) := by
+    validateBlock raw st = (do
+      checkBlockPrelude txs
+      throw (CapError.block BlockError.badTxnsBIP30)) := by
   unfold validateBlock
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34

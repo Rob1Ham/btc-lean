@@ -805,7 +805,8 @@ theorem validateBlock_fold_agrees (raw : ByteArray) (st : CapState)
                   · cases hval
                   · split at hval
                     · cases hval
-                    · split at hval
+                    · have hval := (Bitcoin.Capstone.Block.unit_precheck_ok _ _ hval).2
+                      split at hval
                       · -- commitmentGate hit: one more if (anyWitness)
                         split at hval
                         · cases hval
@@ -819,14 +820,18 @@ theorem validateBlock_fold_agrees (raw : ByteArray) (st : CapState)
                             · split at hval
                               · cases hval
                               · -- per-tx stage: extract the applyTxs result
-                                cases hfund : Bitcoin.Capstone.Block.applyBlockTransactions st.height txs st.utxo with
+                                cases hbudget : Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops none st.height
+                                    (Bitcoin.Capstone.Block.candidateScriptFlags st.height hd) txs st.utxo with
                                 | error e =>
-                                  rw [hfund] at hval
+                                  rw [hbudget] at hval
                                   exceptSimp at hval
                                   cases hval
                                 | ok r =>
-                                  obtain ⟨u', okN, unjN⟩ := r
-                                  rw [hfund] at hval
+                                  obtain ⟨⟨u', okN, unjN⟩, sigops⟩ := r
+                                  have hfund : Bitcoin.Capstone.Block.applyBlockTransactions st.height txs st.utxo =
+                                      .ok (u', okN, unjN) :=
+                                    Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection hbudget
+                                  rw [hbudget] at hval
                                   exceptSimp at hval
                                   injection hval with hrep
                                   have hap := Bitcoin.Capstone.Block.applyBlockTransactions_ok hfund

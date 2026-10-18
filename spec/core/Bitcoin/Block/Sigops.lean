@@ -311,12 +311,21 @@ def txSigOpCostWithFlags (u : UtxoSet) (tx : Tx)
     (legacySigOpCountTx tx + if flags.p2sh then p2shSigOpCount u tx else 0) +
     if flags.witness then witnessSigOps u tx else 0
 
+@[rule "BLK-035"]
+theorem txSigOpCostWithFlags_decompose (u : UtxoSet) (tx : Tx)
+    (flags : Bitcoin.Activation.ScriptFlags) :
+    txSigOpCostWithFlags u tx flags =
+      4 * (legacySigOpCountTx tx + if flags.p2sh then p2shSigOpCount u tx else 0) +
+      if flags.witness then witnessSigOps u tx else 0 := rfl
+
+@[rule "BLK-035"]
 theorem txSigOpCostWithFlags_enabled (u : UtxoSet) (tx : Tx)
     (flags : Bitcoin.Activation.ScriptFlags)
     (hp : flags.p2sh = true) (hw : flags.witness = true) :
     txSigOpCostWithFlags u tx flags = txSigOpCost u tx := by
   simp [txSigOpCostWithFlags, txSigOpCost, hp, hw]
 
+@[rule "BLK-035"]
 theorem txSigOpCostWithFlags_coinbase (u : UtxoSet) (tx : Tx)
     (flags : Bitcoin.Activation.ScriptFlags) (hc : tx.isCoinBase = true) :
     txSigOpCostWithFlags u tx flags = 4 * legacySigOpCountTx tx := by

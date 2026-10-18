@@ -143,7 +143,7 @@ lake test
 | Build | Target | Jobs | Result |
 |---|---|---:|---|
 | Lean core | `Bitcoin` | 72 | success |
-| Proof root | `BitcoinProofs` | see scoped receipt | success (32-module closure); see `docs/PROOF-BUILD.md` |
+| Proof root | `BitcoinProofs` | see scoped receipt | success (33-module closure); see `docs/PROOF-BUILD.md` |
 | Proof modules outside default closure | exact module names | — | upstream snapshot: 372 pass / 8 fail (380 modules); current-head matrix pending; see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
@@ -173,14 +173,14 @@ wallet static battery, and the tracked-data subset. `make gate-repro` is a
 separate reproducibility check: it verifies the reference/generator scripts
 cited by the test runners and scans tracked shell/Python files for absolute
 checkout paths. The consensus dynamic probe
-re-elaborates 270 consensus axiom entries; the wallet probe covers 838
+re-elaborates 288 consensus axiom entries; the wallet probe covers 838
 theorem/lemma declarations. The wallet script also covers the 140-anchor census when
 `CORE_SRC` is supplied, and runs the dynamic wallet axiom probe unless
 `WALLET_SKIP_PROBE=1`. Neither dynamic probe is part of CI.
 
 ## 5. Data
 
-The repository tracks a 165-file, 5,029,306-byte curated subset under
+The repository tracks a 168-file, 5,033,780-byte curated subset under
 `spec/data/` with a `sha256` manifest. The data-only corpus and anchor blocks
 are release assets, not git objects: the archive is
 `btc-lean-data-2026.10.17.tar.gz` (357,916,214 bytes; SHA-256
