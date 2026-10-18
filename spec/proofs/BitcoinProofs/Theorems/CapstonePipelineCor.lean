@@ -180,20 +180,20 @@ theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
               | .error e => Except.error (CapError.tx e)
               | .ok _ => verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l := by
   cases hc : checkTransaction tx with
-  | some e => simp [Bitcoin.Capstone.Block.applyTx, hc, ethrow]
+  | some e => simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, ethrow]
   | none =>
     by_cases hcb : tx.isCoinBase = true
-    · simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, applyTxCont] <;> rfl
+    · simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, applyTxCont] <;> rfl
     · cases hm : Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
       | error e =>
-        simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, applyTxCont, ethrow]
+        simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, hm, applyTxCont, ethrow]
       | ok fee =>
         cases hv : verifyTxInputs height tx txIdx l with
         | error e =>
-          simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, hv, applyTxCont] <;> rfl
+          simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, hm, hv, applyTxCont] <;> rfl
         | ok c =>
           obtain ⟨a, b⟩ := c
-          simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, hv, applyTxCont] <;> rfl
+          simp [Bitcoin.Capstone.Block.applyTx_unfold, hc, hcb, hm, hv, applyTxCont] <;> rfl
 
 /-- **P16-2 (equation form)**: for the coinbase (stateless check passing),
 `applyTx` IS the ledger step with counters pinned to `(0, 0)` — the
@@ -205,7 +205,7 @@ theorem applyTx_coinbase_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
       match applyTxStepL l tx (txidKey tx) height with
       | .error e => .error (CapError.block e)
       | .ok l' => .ok (l', 0, 0) := by
-  simp only [Bitcoin.Capstone.Block.applyTx, hchk, hcb, ethrow, epure_ok, ebind_ok]
+  simp only [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hcb, ethrow, epure_ok, ebind_ok]
   rfl
 
 /-- **P16-2 (counter form)**: whenever the coinbase's `applyTx` succeeds,
@@ -216,7 +216,7 @@ theorem applyTx_coinbase_counters (height : UInt32) (tx : Tx) (txIdx : Nat)
     (h : applyTx height tx txIdx l = .ok (l', a, b)) :
     a = 0 ∧ b = 0 := by
   revert h
-  simp only [Bitcoin.Capstone.Block.applyTx]
+  simp only [Bitcoin.Capstone.Block.applyTx_unfold]
   split
   · intro h; simp at h
   · simp [hcb, ethrow]
@@ -234,7 +234,7 @@ theorem applyTx_ledger_first (height : UInt32) (tx : Tx) (txIdx : Nat)
     (hcb : tx.isCoinBase = false) (hchk : checkTransaction tx = none)
     (hm : Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height = .error e) :
     applyTx height tx txIdx l = .error (CapError.tx e) := by
-  simp [Bitcoin.Capstone.Block.applyTx, hchk, hcb, hm, ethrow]
+  simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hcb, hm, ethrow]
 
 /-- **P16-3 (ledger-first, coinbase)**: same for the coinbase lane — the
 script layer is skipped, but the ledger gate still runs and its error
@@ -244,7 +244,7 @@ theorem applyTx_ledger_first_coinbase (height : UInt32) (tx : Tx) (txIdx : Nat)
     (hcb : tx.isCoinBase = true) (hchk : checkTransaction tx = none)
     (hl : applyTxStepL l tx (txidKey tx) height = .error e) :
     applyTx height tx txIdx l = .error (CapError.block e) := by
-  simp [Bitcoin.Capstone.Block.applyTx, hchk, hcb, ethrow, hl]
+  simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hcb, ethrow, hl]
 
 /-- **P16-3 (script-first, non-coinbase)**: dually, an adjudicated script
 failure of `verifyTxInputs` propagates VERBATIM (it is already a
@@ -259,7 +259,7 @@ theorem applyTx_script_first (height : UInt32) (tx : Tx) (txIdx : Nat)
     applyTx height tx txIdx l = .error e := by
   have hnc : ¬ (tx.isCoinBase = true) := by rw [hcb]; decide
   obtain ⟨fee, hm⟩ := hm
-  simp [Bitcoin.Capstone.Block.applyTx, hchk, hnc, hm, ethrow, hs]
+  simp [Bitcoin.Capstone.Block.applyTx_unfold, hchk, hnc, hm, ethrow, hs]
 
 /-! ## The per-input loop: bounded counters -/
 
@@ -403,7 +403,7 @@ fold result `(u', k, j)` such that:
 * `decodeBlock raw = .ok (bh, txs)` (the block really decoded),
 * every nameable gate passed (`vtxNonempty`, `cbPositionOk`, `weightOk`,
   `versionOk`, `targetOk`, `powOk`, chain link `bytesBEq`, `merkleOk`),
-* the fold ran: `applyTxs st.height txs 0 st.utxo 0 0 = .ok (u', k, j)`,
+* the funded stage ran: `applyBlockTransactions st.height txs st.utxo = .ok (u', k, j)`,
 * and the report is EXACTLY the dataflow:
   `r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' }`,
   `r.txs = txs.length`, `r.scriptOk = k`, `r.scriptUnjudged = j`.
@@ -415,7 +415,7 @@ runtime `PASS` into: the reported poststate height is the connection
 height `+ 1`, the reported parent hash is the hash of the DECODED header
 (and hence of the real bytes), and the reported UTXO set is the fold's
 output. -/
-theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
+theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : CapReport)
     (hval : validateBlock raw st = .ok r) :
     ∃ (bh : Bitcoin.Chain.BlockHeader) (txs : List Tx)
         (u' : List (OutPoint × Coin)) (k j : Nat),
@@ -428,7 +428,7 @@ theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
       powOk bh = true ∧
       bytesBEq bh.hashPrevBlock st.prevHash = true ∧
       merkleOk bh txs = true ∧
-      applyTxs st.height txs 0 st.utxo 0 0 = .ok (u', k, j) ∧
+      applyBlockTransactions st.height txs st.utxo = .ok (u', k, j) ∧
       r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' } ∧
       r.txs = txs.length ∧
       r.scriptOk = k ∧
@@ -475,8 +475,8 @@ theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
       obtain ⟨hg3, hval⟩ := gate_step _ _ hval
       -- gate: BIP30 pre-block overlap loop (BLK-096/097/098, TXV-063)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
-      -- the fold: applyTxs st.height txs 0 st.utxo 0 0
-      generalize hax : applyTxs st.height txs 0 st.utxo 0 0 = q at hval
+      -- The funded transaction stage; the projection theorem below exposes applyTxs.
+      generalize hfund : applyBlockTransactions st.height txs st.utxo = q at hval
       cases q with
       | error e =>
           rw [ebind_err] at hval
@@ -490,7 +490,31 @@ theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
             bool_not_false hg1, bool_not_false hg2, bool_not_false hg3,
             bool_not_false hg4, bool_not_false hg5, bool_not_false hg6,
             bool_not_false hg7, bool_not_false hg8,
-            hax, rfl, rfl, rfl, rfl⟩
+            hfund, rfl, rfl, rfl, rfl⟩
+
+/-- The funded public pipeline refines the earlier standalone-fold shape. -/
+theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
+    (hval : validateBlock raw st = .ok r) :
+    ∃ (bh : Bitcoin.Chain.BlockHeader) (txs : List Tx)
+        (u' : List (OutPoint × Coin)) (k j : Nat),
+      decodeBlock raw = .ok (bh, txs) ∧
+      vtxNonempty txs = true ∧
+      cbPositionOk txs = true ∧
+      weightOk txs raw.size = true ∧
+      versionOk st.height bh.version = true ∧
+      targetOk bh.bits = true ∧
+      powOk bh = true ∧
+      bytesBEq bh.hashPrevBlock st.prevHash = true ∧
+      merkleOk bh txs = true ∧
+      applyTxs st.height txs 0 st.utxo 0 0 = .ok (u', k, j) ∧
+      r.state = { st with height := st.height + 1, prevHash := headerHash bh, utxo := u' } ∧
+      r.txs = txs.length ∧
+      r.scriptOk = k ∧
+      r.scriptUnjudged = j := by
+  obtain ⟨bh, txs, u', k, j, hdec, h1, h2, h3, h4, h5, h6, h7, h8,
+    hfund, hst, htxs, hok, hunj⟩ := validateBlock_ok_funded_shape raw st r hval
+  exact ⟨bh, txs, u', k, j, hdec, h1, h2, h3, h4, h5, h6, h7, h8,
+    applyBlockTransactions_ok hfund, hst, htxs, hok, hunj⟩
 
 /-- **P16-5 (BLK-011 mutation corollary)**: `validateBlock` success
 implies the decoded leaf vector passed `merkleMutationOk`, i.e. the

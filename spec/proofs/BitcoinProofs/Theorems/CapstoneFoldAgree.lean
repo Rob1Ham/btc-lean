@@ -109,7 +109,7 @@ theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
         (∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee) ∧
         verifyTxInputs height tx txIdx l = Except.ok (a, b))) ∧
     applyTxStepL l tx (txidKey tx) height = Except.ok l' := by
-  unfold applyTx at h
+  rw [Bitcoin.Capstone.Block.applyTx_unfold] at h
   cases hchk : checkTransaction tx with
   | some e' =>
     rw [hchk] at h
@@ -171,7 +171,7 @@ theorem applyTx_error_cases {height : UInt32} {tx : Tx} {txIdx : Nat}
     (tx.isCoinBase = false ∧ verifyTxInputs height tx txIdx l = Except.error e) ∨
     (∃ e', e = CapError.block e' ∧
       applyTxStepL l tx (txidKey tx) height = Except.error e') := by
-  unfold applyTx at h
+  rw [Bitcoin.Capstone.Block.applyTx_unfold] at h
   cases hchk : checkTransaction tx with
   | some e' =>
     rw [hchk] at h
@@ -226,7 +226,7 @@ theorem applyTx_ok_coinbase {height : UInt32} {tx : Tx} {txIdx : Nat}
     (hc : checkTransaction tx = none) (hcb : tx.isCoinBase = true)
     (hs : applyTxStepL l tx (txidKey tx) height = Except.ok l₁) :
     applyTx height tx txIdx l = Except.ok (l₁, 0, 0) := by
-  unfold applyTx
+  rw [Bitcoin.Capstone.Block.applyTx_unfold]
   rw [hc, hcb, hs]
   exceptSimp
   rfl
@@ -240,7 +240,7 @@ theorem applyTx_ok_script {height : UInt32} {tx : Tx} {txIdx : Nat}
     (hv : verifyTxInputs height tx txIdx l = Except.ok (a, b))
     (hs : applyTxStepL l tx (txidKey tx) height = Except.ok l₁) :
     applyTx height tx txIdx l = Except.ok (l₁, a, b) := by
-  unfold applyTx
+  rw [Bitcoin.Capstone.Block.applyTx_unfold]
   obtain ⟨fee, hm⟩ := hm
   rw [hc, hcb, hm, hv, hs]
   exceptSimp
@@ -289,7 +289,7 @@ theorem applyTx_coinbase_shape {height : UInt32} {tx : Tx} {txIdx : Nat}
         match applyTxStepL l tx (txidKey tx) height with
         | Except.error e => Except.error (CapError.block e)
         | Except.ok w => Except.ok (w, 0, 0) := by
-  unfold applyTx
+  rw [Bitcoin.Capstone.Block.applyTx_unfold]
   rw [hcb]
   exceptSimp
   cases hchk : checkTransaction tx with
@@ -819,16 +819,17 @@ theorem validateBlock_fold_agrees (raw : ByteArray) (st : CapState)
                             · split at hval
                               · cases hval
                               · -- per-tx stage: extract the applyTxs result
-                                cases hap : applyTxs st.height txs 0 st.utxo 0 0 with
+                                cases hfund : Bitcoin.Capstone.Block.applyBlockTransactions st.height txs st.utxo with
                                 | error e =>
-                                  rw [hap] at hval
+                                  rw [hfund] at hval
                                   exceptSimp at hval
                                   cases hval
                                 | ok r =>
                                   obtain ⟨u', okN, unjN⟩ := r
-                                  rw [hap] at hval
+                                  rw [hfund] at hval
                                   exceptSimp at hval
                                   injection hval with hrep
+                                  have hap := Bitcoin.Capstone.Block.applyBlockTransactions_ok hfund
                                   -- the report's utxo IS the applyTxs result
                                   have hu : u' = rep.state.utxo := by
                                     rw [← hrep]

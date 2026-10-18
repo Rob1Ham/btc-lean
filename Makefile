@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -28,6 +28,7 @@ help:
 	@echo "make gate-repro          # reproducibility scripts + local-path scan"
 	@echo "make wallet-gates        # wallet gates (set CORE_SRC for anchors)"
 	@echo "make test-capstone-values # live capstone monetary regressions (needs Lean)"
+	@echo "make test-capstone-funding # block reward and fee regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -86,3 +87,6 @@ wallet-gates:
 
 test-capstone-values:
 	@cd $(SPEC)/core && lake env lean --run Test/Capstone/ValueChecks.lean
+
+test-capstone-funding:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/BlockFunding.lean

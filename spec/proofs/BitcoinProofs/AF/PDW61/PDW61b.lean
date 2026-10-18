@@ -19,7 +19,7 @@ theorem applyTx_ok_stateless (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
     (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = .ok (l', a, b)) :
     Bitcoin.Consensus.checkTransaction tx = none := by
-  unfold Bitcoin.Capstone.Block.applyTx at h
+  rw [Bitcoin.Capstone.Block.applyTx_unfold] at h
   simp only [] at h
   split at h
   · nomatch h

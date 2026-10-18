@@ -26,6 +26,8 @@ import BitcoinProofs.Theorems.InterpCor
 -- W14b: curve group law + ECDSA-lax (ZMod Pratt certificate lives proofs-side).
 import BitcoinProofs.Crypto.CurveZMod
 
+import BitcoinProofs.Theorems.CapstoneFunding
+
 /-!
 # Axiom probe — the input of the axiom-manifest gate
 
@@ -306,3 +308,14 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms Bitcoin.Interpreter.finalStack_ok
 #print axioms Bitcoin.Interpreter.evalScriptBytes_ok_stack_bound
 #print axioms Bitcoin.Interpreter.evalScriptBytes_fuel_mono
+
+-- R02: checked fees and subsidy bounds on the live serialized-block path.
+#print axioms Bitcoin.Capstone.Block.applyTx_unfold
+#print axioms Bitcoin.Capstone.Block.applyTxWithFeeCheck_ok
+#print axioms Bitcoin.Capstone.Block.applyTxsWithFees_ok
+#print axioms Bitcoin.Capstone.Block.applyBlockTransactions_ok
+#print axioms BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_funded_shape
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyTxWithFeeCheck_fee
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyTxsWithFees_range
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyBlockTransactions_funding
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.validateBlock_funding

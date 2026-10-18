@@ -10,7 +10,7 @@ import Bitcoin.Interpreter.Interface
 /-!
 # Bitcoin.Capstone.Block — validateBlock: the end-to-end pipeline (S2b)
 
-`validateBlock : SerializedBlock → CapState → Except CapError CapState`
+`validateBlock : SerializedBlock → CapState → Except CapError CapReport`
 composes every layer on real serialized bytes:
 
 1. **Decode**: `decodeBlock` — header, tx count, txs (BIP144
@@ -26,11 +26,14 @@ composes every layer on real serialized bytes:
    commitment gate (BLK-015..020).
 5. **Per tx, in order** (Core ConnectBlock's UTXO-side order):
    `checkTransaction` (BLK-030) → for non-coinbase
-   `checkTxInputs` (TXV) against the CURRENT fold state → per-input
+   `checkTxInputs` (TXV) against the CURRENT fold state → running fee
+   MoneyRange (BLK-091) → per-input
    `verifyScriptFull` with the real checker (ECDSA wiring,
    `RealChecker.realCheckerOf`) → `applyTxStepL` (fold step,
    BIP30/inputs/maturity/UpdateCoins keyed by the REAL txid
    — `txidKey`, not test placeholder `txidPreimageKey`).
+6. **Reward**: coinbase outputs ≤ accumulated checked fees + the
+   subsidy at the supplied height (BLK-089/090).
 
 ## Depth semantics (HONEST reporting — see report §3)
 
@@ -83,6 +86,8 @@ inductive CapError where
   | badCbPosition                   -- BLK-027/BLK-028
   | badCbLength                     -- BLK-029
   | badBlkWeight                    -- BLK-024/BLK-026
+  | badFeeAccum                     -- BLK-091
+  | badCbAmount                     -- BLK-089
   | badPow                          -- BLK-039 (high-hash) / BLK-038
   | badChainLink                    -- hashPrevBlock ≠ expected parent
   | badMerkleRoot                   -- BLK-010
@@ -110,6 +115,8 @@ def CapError.reason : CapError → String
   | .badCbPosition => "bad-cb-missing/multiple"
   | .badCbLength => "bad-cb-length"
   | .badBlkWeight => "bad-blk-weight"
+  | .badFeeAccum => "bad-txns-accumulated-fee-outofrange"
+  | .badCbAmount => "bad-cb-amount"
   | .badPow => "high-hash"
   | .badChainLink => "bad-prevblk"
   | .badMerkleRoot => "bad-txnmrklroot"
@@ -289,32 +296,72 @@ def verifyTxInputs (height : UInt32) (tx : Tx) (txIdx : Nat)
 
 /-! ## The pipeline -/
 
-/-- Per-tx validation + ledger step. `cbIdx` counts txs seen (Core's
-ConnectBlock loop index). -/
-def applyTx (height : UInt32) (tx : Tx) (txIdx : Nat)
-    (l : List (OutPoint × Coin)) :
-    Except CapError (List (OutPoint × Coin) × Nat × Nat) := do
-  -- stateless gate (BLK-030).
+/-- The canonical transaction step returns the fee from the same input
+check that gates scripts. The caller can check its block-level budget
+before any script runs; no second input scan or unchecked fee estimate
+is used by the live block fold. Coinbase fees are always zero. -/
+def applyTxWithFeeCheck (height : UInt32) (tx : Tx) (txIdx : Nat)
+    (l : List (OutPoint × Coin)) (checkFee : Amount → Except CapError Unit) :
+    Except CapError ((List (OutPoint × Coin) × Nat × Nat) × Amount) := do
   match checkTransaction tx with
   | some e => throw (CapError.txCheck e)
   | none => pure ()
-  -- Core checks the current input values, maturity and fee before scripts.
-  -- The coinbase has no real inputs and bypasses both checks.
-  let (okN, unjN) ←
-    if tx.isCoinBase then pure (0, 0)
+  let (okN, unjN, fee) ←
+    if tx.isCoinBase then pure (0, 0, 0)
     else
       match checkTxInputs tx (viewOf l) height with
       | .error e => throw (CapError.tx e)
-      | .ok _ => verifyTxInputs height tx txIdx l
-  -- UpdateCoins after input and script checks. BIP30 is a pre-block gate.
+      | .ok fee => do
+          checkFee fee
+          let (a, b) ← verifyTxInputs height tx txIdx l
+          pure (a, b, fee)
   match applyTxStepL l tx (txidKey tx) height with
   | .error e => throw (CapError.block e)
-  | .ok l' => pure (l', okN, unjN)
+  | .ok l' => pure ((l', okN, unjN), fee)
+
+/-- Standalone transaction validation. Block-level fee and subsidy
+budgets belong to `applyBlockTransactions`, not to this partial helper. -/
+def applyTx (height : UInt32) (tx : Tx) (txIdx : Nat)
+    (l : List (OutPoint × Coin)) :
+    Except CapError (List (OutPoint × Coin) × Nat × Nat) := do
+  let (result, _) ← applyTxWithFeeCheck height tx txIdx l (fun _ => .ok ())
+  pure result
+
+/-- Stable equation for the standalone projection of the canonical step. -/
+theorem applyTx_unfold (height : UInt32) (tx : Tx) (txIdx : Nat)
+    (l : List (OutPoint × Coin)) :
+    applyTx height tx txIdx l = (do
+      match checkTransaction tx with
+      | some e => throw (CapError.txCheck e)
+      | none => pure ()
+      let (okN, unjN) ←
+        if tx.isCoinBase then pure (0, 0)
+        else match checkTxInputs tx (viewOf l) height with
+          | .error e => throw (CapError.tx e)
+          | .ok _ => verifyTxInputs height tx txIdx l
+      match applyTxStepL l tx (txidKey tx) height with
+      | .error e => throw (CapError.block e)
+      | .ok l' => pure (l', okN, unjN)) := by
+  unfold applyTx applyTxWithFeeCheck
+  cases hc : checkTransaction tx with
+  | some e => simp [Except.map] <;> rfl
+  | none =>
+    cases hb : tx.isCoinBase <;> simp only [hb, Bool.false_eq_true, ↓reduceIte]
+    · cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => simp [Except.map] <;> rfl
+      | ok fee =>
+        cases hv : verifyTxInputs height tx txIdx l with
+        | error e => simp [Except.map] <;> rfl
+        | ok counts =>
+          obtain ⟨a, b⟩ := counts
+          cases hs : applyTxStepL l tx (txidKey tx) height <;> simp [Except.map] <;> rfl
+    · cases hs : applyTxStepL l tx (txidKey tx) height <;> simp [Except.map] <;> rfl
 
 /-- The sequential per-tx fold (tx i+1 sees the UTXO set after tx i,
 B3's same-block spend ordering — `applyBlockL` order, threaded
 through the script layer). Returns the final UTXO list plus the
-script-layer counters. -/
+script-layer counters. This standalone helper has no block funding
+budget; `applyBlockTransactions` is the funded stage used by `validateBlock`. -/
 def applyTxs (height : UInt32) :
     List Tx → Nat → List (OutPoint × Coin) → Nat → Nat →
     Except CapError (List (OutPoint × Coin) × Nat × Nat)
@@ -322,6 +369,101 @@ def applyTxs (height : UInt32) :
   | tx :: rest, i, l, okN, unjN => do
       let (l', a, b) ← applyTx height tx i l
       applyTxs height rest (i+1) l' (okN + a) (unjN + b)
+
+/-- Fee budget at the exact Core ConnectBlock call site: after input
+validation and before scripts. -/
+def checkFeeTotal (fees fee : Amount) : Except CapError Unit :=
+  if MoneyRange (fees + fee) then .ok () else .error .badFeeAccum
+
+/-- Sequential transaction fold with checked running fees. Every non-coinbase
+fee comes from `checkTxInputs` against that transaction's evolving UTXO view. -/
+def applyTxsWithFees (height : UInt32) :
+    List Tx → Nat → List (OutPoint × Coin) → Nat → Nat → Amount →
+    Except CapError ((List (OutPoint × Coin) × Nat × Nat) × Amount)
+  | [], _, l, okN, unjN, fees => .ok ((l, okN, unjN), fees)
+  | tx :: rest, i, l, okN, unjN, fees => do
+      let ((l', a, b), fee) ← applyTxWithFeeCheck height tx i l (checkFeeTotal fees)
+      applyTxsWithFees height rest (i+1) l' (okN + a) (unjN + b) (fees + fee)
+
+/-- BLK-089: a coinbase may claim less than its budget, but never more.
+The public validator already establishes a nonempty, unique coinbase. -/
+def coinbaseRewardOk (cb : Tx) (fees : Amount) (height : UInt32) : Bool :=
+  cb.getValueOut ≤ fees + Bitcoin.Conservation.blockSubsidy height
+
+/-- Funded block transaction stage. All fees are checked before scripts;
+the final coinbase check uses precisely the accumulated checked fees. -/
+def applyBlockTransactions (height : UInt32) (txs : List Tx)
+    (l : List (OutPoint × Coin)) :
+    Except CapError (List (OutPoint × Coin) × Nat × Nat) := do
+  let (result, fees) ← applyTxsWithFees height txs 0 l 0 0 0
+  if !coinbaseRewardOk (txs.getD 0 dummyTx) fees height then throw CapError.badCbAmount
+  pure result
+
+/-- A successful budgeted step refines standalone transaction validation. -/
+theorem applyTxWithFeeCheck_ok {height : UInt32} {tx : Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {checkFee : Amount → Except CapError Unit}
+    {result : List (OutPoint × Coin) × Nat × Nat} {fee : Amount}
+    (h : applyTxWithFeeCheck height tx i l checkFee = .ok (result, fee)) :
+    applyTx height tx i l = .ok result := by
+  rw [applyTx_unfold]
+  unfold applyTxWithFeeCheck at h
+  cases hc : checkTransaction tx with
+  | some e => simp [hc] at h
+  | none =>
+    cases hb : tx.isCoinBase with
+    | true =>
+      cases hs : applyTxStepL l tx (txidKey tx) height <;>
+        simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+    | false =>
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => simp [hc, hb, hm] at h
+      | ok checkedFee =>
+        cases hf : checkFee checkedFee with
+        | error e => simp [hc, hb, hm, hf] at h
+        | ok unit =>
+          cases hv : verifyTxInputs height tx i l with
+          | error e => simp [hc, hb, hm, hf, hv] at h
+          | ok counts =>
+            obtain ⟨a, b⟩ := counts
+            cases hs : applyTxStepL l tx (txidKey tx) height <;>
+              simp_all [Bind.bind, Except.bind, Functor.map, Except.map, pure, Except.pure]
+
+/-- The funded fold preserves the standalone fold's UTXO and counters. -/
+theorem applyTxsWithFees_ok {height : UInt32} {txs : List Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {a b : Nat} {fees total : Amount}
+    {result : List (OutPoint × Coin) × Nat × Nat}
+    (h : applyTxsWithFees height txs i l a b fees = .ok (result, total)) :
+    applyTxs height txs i l a b = .ok result := by
+  induction txs generalizing i l a b fees with
+  | nil =>
+    simp only [applyTxsWithFees, Except.ok.injEq, Prod.mk.injEq] at h
+    simpa [applyTxs] using congrArg (Except.ok (ε := CapError)) h.1
+  | cons tx rest ih =>
+    simp only [applyTxsWithFees] at h
+    cases hs : applyTxWithFeeCheck height tx i l (checkFeeTotal fees) with
+    | error e => simp [hs] at h
+    | ok p =>
+      obtain ⟨⟨l', x, y⟩, fee⟩ := p
+      simp only [hs, Bind.bind, Except.bind] at h
+      have step := applyTxWithFeeCheck_ok hs
+      simpa [applyTxs, step] using ih h
+
+/-- The public funding stage refines the previously exposed partial fold. -/
+theorem applyBlockTransactions_ok {height : UInt32} {txs : List Tx}
+    {l : List (OutPoint × Coin)} {result : List (OutPoint × Coin) × Nat × Nat}
+    (h : applyBlockTransactions height txs l = .ok result) :
+    applyTxs height txs 0 l 0 0 = .ok result := by
+  unfold applyBlockTransactions at h
+  cases hf : applyTxsWithFees height txs 0 l 0 0 0 with
+  | error e => simp [hf] at h
+  | ok p =>
+    obtain ⟨r, fees⟩ := p
+    simp only [hf, Bind.bind, Except.bind] at h
+    split at h
+    · simp at h
+    · simp only [pure, Except.pure, Except.ok.injEq] at h
+      subst r
+      exact applyTxsWithFees_ok hf
 
 /-- Run report: the new state plus the honest per-layer counters. -/
 structure CapReport where
@@ -391,8 +533,8 @@ def validateBlock (raw : ByteArray) (st : CapState) :
   if bip30BlockCollision (viewOf st.utxo) txidKey txs st.height
         && bip30Enforced st.height then
     throw (CapError.block BlockError.badTxnsBIP30)
-  -- 5. Per-tx: W10 stateless + script (real ECDSA) + W12 fold.
-  let (utxo', okN, unjN) ← applyTxs st.height txs 0 st.utxo 0 0
+  -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
+  let (utxo', okN, unjN) ← applyBlockTransactions st.height txs st.utxo
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN }
 

@@ -22,8 +22,8 @@ relative to `spec/proofs`, with the `.lean` suffix removed and `/` replaced by
   spec/proofs/BitcoinProofs/AF/PDW10/PDW10Guards.lean
       -> BitcoinProofs.AF.PDW10.PDW10Guards
 
-Thus `spec/proofs` contains 409 modules in 410 tracked `.lean` files: the one
-non-module file is `lakefile.lean`.
+The module count is derived from tracked sources. The one non-module
+configuration file is `lakefile.lean`.
 
 DEFAULT CLOSURE
 ---------------

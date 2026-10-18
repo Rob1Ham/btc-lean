@@ -1,20 +1,28 @@
 # Proof build scope and status
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
-proof tree. It builds the root module plus its 28 direct/transitive local
-imports: **29 modules**, recorded at **1722 jobs**. The package contains **409
-Lean modules** (410 `.lean` files including `lakefile.lean`); **380 modules are
+proof tree. It builds the root module plus its 29 direct/transitive local
+imports: **30 modules**. The package contains **410
+Lean modules** (411 `.lean` files including `lakefile.lean`); **380 modules are
 outside the default closure**.
 
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
 
-This page records what was checked so that a default-root build is not mistaken
-for a package-wide build. It also replaces the earlier per-name census numbers
-with a fresh exact re-run of every outside-closure module.
+The R02 remediation run on 2026-10-18 built the default root plus the named
+block-pipeline, generated-chain, PDW14, PDW29 and PDW61 consumers successfully
+(1731 Lake jobs including dependencies). `CapstoneFunding` is a new default
+import; it proves checked-fee range and the public coinbase subsidy bound.
+See [validation-r02.json](reviews/2026-10-18/validation-r02.json) for exact
+commands and evidence. This run does not verify the 380 outside modules.
 
-## Fresh exact per-module results
+The outside-closure results below are the upstream audit snapshot from before
+PR 18 merged and before the remediation changes. They remain historical
+results until the full module matrix is rerun under R08; the counts and failure
+list must not be read as current-head verification.
 
-On 2026-10-18 every outside-closure module was built individually by exact
+## Recorded upstream per-module results
+
+The upstream 2026-10-18 audit reported every outside-closure module built by exact
 name against the pinned Lean toolchain and mathlib revision:
 
 ```sh
@@ -28,7 +36,7 @@ failures** over the 380 outside-closure modules.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
-| Default `BitcoinProofs` closure | 29 modules | 29 | 0 |
+| Default `BitcoinProofs` closure | 30 modules | 30 (R02 run) | 0 |
 | Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 365 | 15 |
 | — `AF` namespace | 249 | 249 | 0 |
 | — `Theorems` namespace | 24 | 21 | 3 |
@@ -45,7 +53,8 @@ failures** over the 380 outside-closure modules.
 | — `Activation` namespace | 1 | 1 | 0 |
 | — `Interpreter` namespace | 1 | 1 | 0 |
 
-The 409 modules include the 29 in the default closure. The outside-closure
+The historical 409-module snapshot included 29 in the default closure.
+The current 410-module snapshot adds the default `CapstoneFunding` module. The outside-closure
 table has 381 entries because it includes the non-module `lakefile.lean`, which
 the static index excludes; `lakefile.lean` is the Lake build configuration, not
 a module, so it is not built by name and the builds-plus-failures total is the
@@ -54,9 +63,9 @@ not a re-use of the earlier five-way census categories.
 
 ## Failing modules
 
-All 15 failures are outside the default closure. None is cited by `spec/db`,
-the docs, or the wallet record, and none imports a module changed in this
-pass. The failure list is:
+The upstream snapshot listed 15 failures outside the default closure and
+reported no cited failures at that revision. Several were subsequently changed
+by PR 18; this is a historical list awaiting current-head verification:
 
 | Module | Observed failure |
 |---|---|

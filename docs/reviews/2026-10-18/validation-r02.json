@@ -1,0 +1,124 @@
+{
+  "finding": "R02",
+  "status": "fixed_and_verified",
+  "source_parent_commit": "bec44c4ac439f62c6b2fefae2f85480fcc59c422",
+  "upstream_main": "08208274bcdcab2a5baa1426c0057472e5c0de07",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "core_pin": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+  "audit16_core_pin": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+  "reference_comparison": {
+    "subsidy": {
+      "equal_at_both_pins": true,
+      "snippet_sha256": "b84836936eab586b425fc53ec317f37cdd64c96b870ece68651da6aec82f1c8a"
+    },
+    "checked_fee_accumulation": {
+      "equal_at_both_pins": true,
+      "snippet_sha256": "27b05f851d5285d604014e447efbf8afede9623733f218dbba634683e66ae9e9"
+    },
+    "coinbase_bound": {
+      "equal_at_both_pins": true,
+      "snippet_sha256": "445219e7cdfba383c2063ddf60bbeff0ce53cac8f7c59113cfa72a019519d114"
+    }
+  },
+  "pre_fix_public_regression": {
+    "exit_code": 1,
+    "output": "[PASS] public validator accepts the subsidy boundary: expected=ok, actual=ok\n[FAIL] public validator rejects coinbase above the halved subsidy: expected=bad-cb-amount, actual=ok\n"
+  },
+  "funding_regressions": {
+    "exit_code": 0,
+    "checks": 20,
+    "output": "[PASS] public validator accepts the subsidy boundary: expected=ok, actual=ok\n[PASS] public validator rejects coinbase above the halved subsidy: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] exact zero-fee reward: expected=ok, actual=ok\n[PASS] reward over subsidy by one satoshi: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] unclaimed subsidy is allowed: expected=ok, actual=ok\n[PASS] exact subsidy plus fee: expected=ok, actual=ok\n[PASS] reward over subsidy plus fee by one: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] same-block fees use evolving coins: expected=ok, actual=ok\n[PASS] same-block fees cannot fund an extra satoshi: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] checked fee total excludes coinbase and includes child: expected=2, actual=2\n[PASS] accumulated fees at MAX_MONEY: expected=ok, actual=ok\n[PASS] accumulated fees above MAX_MONEY: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] fee accumulation failure precedes script failure: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] script failure precedes final reward failure: expected=script-verify-error, actual=script-verify-error\n[PASS] last block before halving: expected=ok, actual=ok\n[PASS] first block after halving: expected=ok, actual=ok\n[PASS] halved reward plus one: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 32 last satoshi: expected=ok, actual=ok\n[PASS] epoch 33 no subsidy: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 33 fee-only reward: expected=ok, actual=ok\n"
+  },
+  "verification": [
+    {
+      "kind": "core_build",
+      "command": "lake build Bitcoin",
+      "exit_code": 0,
+      "count": 72,
+      "count_unit": "Lake jobs",
+      "log": "/tmp/btc-lean-r02-core-full.log",
+      "summary": "k.Connect.connectBlock_genesis_utxo_bestBlock' depends on axioms: [propext, Classical.choice, Quot.sound]\ninfo: Bitcoin/Block/Connect.lean:455:0: 'Bitcoin.Block.Connect.connectBlock_genesis_ignores_txs' depends on axioms: [propext, Classical.choice, Quot.sound]\ninfo: Bitcoin/Block/Connect.lean:456:0: 'Bitcoin.Block.Connect.connectBlock_genesis_coinbase_output_absent' depends on axioms: [propext,\n Classical.choice,\n Quot.sound]\ninfo: Bitcoin/Block/Connect.lean:457:0: 'Bitcoin.Block.Connect.connectBlock_nonGenesis' depends on axioms: [propext, Classical.choice, Quot.sound]\n\u2714 [71/72] Built Bitcoin (738ms)\nBuild completed successfully (72 jobs).\n"
+    },
+    {
+      "kind": "core_test",
+      "command": "lake test",
+      "exit_code": 0,
+      "count": 16,
+      "count_unit": "checks",
+      "log": "/tmp/btc-lean-r02-core-test.log",
+      "summary": "025152ffffffff0100f2052a01000000015100000000\ndone.\n[PASS] serTx conformance vector\n[PASS] compactSize 300 == fd2c01\n[PASS] script 2+3==5\n[PASS] script 2+3!=6\n[PASS] checksig stub accepts\n[PASS] dup inputs rejected\n[PASS] negative output rejected\n[PASS] empty vin rejected\n[PASS] short coinbase rejected\n[PASS] valid coinbase accepted\n[PASS] getValueOut == 50 BTC\n[PASS] compactTarget(0x1d00ffff) is difficulty-1\n[PASS] UTXO: spent coin removed\n[PASS] compactSizeDec \u2218 compactSizeEnc 300 roundtrip\n[PASS] MoneyRange boundary: 0 and MAX_MONEY in range, MAX_MONEY+1 out\n[PASS] CompactSize 0xfd marker canonicality: 0xfc encodes short, 0xfd needs marker\n"
+    },
+    {
+      "kind": "runtime_regressions",
+      "command": "make test-capstone-values test-capstone-funding",
+      "exit_code": 0,
+      "count": 33,
+      "count_unit": "checks",
+      "log": "/tmp/btc-lean-r02-regressions.log",
+      "summary": "ulated-fee-outofrange\n[PASS] fee accumulation failure precedes script failure: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] script failure precedes final reward failure: expected=script-verify-error, actual=script-verify-error\n[PASS] last block before halving: expected=ok, actual=ok\n[PASS] first block after halving: expected=ok, actual=ok\n[PASS] halved reward plus one: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 32 last satoshi: expected=ok, actual=ok\n[PASS] epoch 33 no subsidy: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 33 fee-only reward: expected=ok, actual=ok\n"
+    },
+    {
+      "kind": "proof_build",
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.Theorems.GenchainCor BitcoinProofs.AF.PDW14.B089B104 BitcoinProofs.AF.PDW29.PDW29Sigops",
+      "exit_code": 0,
+      "count": 1731,
+      "count_unit": "Lake jobs",
+      "log": "/tmp/btc-lean-r02-default-proof.log",
+      "summary": "`if_pos` has been deprecated: Use `ite_eq_left` instead\n\nHint: Replace the deprecated name:\n  i\u0335f\u0335_\u0335p\u0335o\u0335s\u0335i\u0332t\u0332e\u0332_\u0332e\u0332q\u0332_\u0332l\u0332e\u0332f\u0332t\u0332\nwarning: BitcoinProofs/Theorems/GenchainCor.lean:453:8: `if_pos` has been deprecated: Use `ite_eq_left` instead\n\nHint: Replace the deprecated name:\n  i\u0335f\u0335_\u0335p\u0335o\u0335s\u0335i\u0332t\u0332e\u0332_\u0332e\u0332q\u0332_\u0332l\u0332e\u0332f\u0332t\u0332\nwarning: BitcoinProofs/Theorems/GenchainCor.lean:487:19: `if_pos` has been deprecated: Use `ite_eq_left` instead\n\nHint: Replace the deprecated name:\n  i\u0335f\u0335_\u0335p\u0335o\u0335s\u0335i\u0332t\u0332e\u0332_\u0332e\u0332q\u0332_\u0332l\u0332e\u0332f\u0332t\u0332\n\u2714 [1729/1731] Built BitcoinProofs.Theorems.CapstoneErrorCor (5.0s)\n\u2714 [1730/1731] Built BitcoinProofs (8.0s)\nBuild completed successfully (1731 jobs).\n"
+    },
+    {
+      "kind": "generated_indexes",
+      "commands": [
+        "python spec/scripts/theorem_index.py --check",
+        "python spec/scripts/residuals_index.py --check",
+        "python spec/scripts/proof_scope.py --check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "kind": "static_gates",
+      "command": "make gates gate-repro",
+      "exit_code": 0,
+      "scope": "all nine static gates, 10 proof-gate regression tests, reproducibility checks",
+      "log": "/tmp/btc-lean-r02-gates-final.log"
+    },
+    {
+      "kind": "dynamic_axioms",
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "exit_code": 0,
+      "entries": 232,
+      "new_entries": 9,
+      "scope": "Reviewed manifest diff only adds the nine R02 core/proof declarations; all have propext, Classical.choice, Quot.sound. Four funding theorems also have in-module guarded footprints.",
+      "log": "/tmp/btc-lean-r02-axiom-final.log"
+    }
+  ],
+  "source_sha256": {
+    "Makefile": "6b3c10f55e2b5953b67a57258fe062ec94658220799c7b0d7d07ae2196654734",
+    "spec/core/Bitcoin/Block/Connect.lean": "14ad604578567c64b33c4595e45b88561960d6020eb5541957858857cad1a013",
+    "spec/core/Bitcoin/Capstone/Block.lean": "ab6f25e0d532d63a2d2a2dd16303d3d43147fcaa6f47c4398e5fa32f719fb75f",
+    "spec/core/Test/Capstone/BlockFunding.lean": "5adc6b4978c768b20dc26b86b636b318b6a376c0fb2be74ff0af2f914dd14712",
+    "spec/db/axiom-manifest.txt": "f1727e780c33386c096d65fd172656b86e95c27a3d747a10a765b8515c74fa5e",
+    "spec/proofs/BitcoinProofs.lean": "955f87851b32783dc360f7aa4d35b4e3c91b3936161e0e4361ee2f2128998005",
+    "spec/proofs/BitcoinProofs/AF/PDW14/B089B104.lean": "a746ebd76a0dc3637b43b738d95a5a0079068164f711100db0e26448ca433509",
+    "spec/proofs/BitcoinProofs/AF/PDW61/PDW61b.lean": "82875f6ae2c85a5157207bf68d6d3ca865ac7fa402e5611c9d0f7041d234dc27",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "f266d5722f421e1d7e7da00c899dc5936f8ee0e6bb95e7172ba4b83eaff5f743",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "243d74606547b4c4438648191c5ded1f8e290d37bc6e2932ff9adc6017fe2372",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean": "37421f1d96d834e63d113405eeafa0a52d2cb4b140af0666853c7e24efb0c23d",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean": "615e847296c77a7e5d066a740f2aadb5b416a129d15ccfe3634b6dbc65b46de0",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFunding.lean": "d60b87d1ce35a38c4ad09c90b90e4d2cf8ec2ae0dcc874f99f07e211143af0eb",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "d2fc22460e911cf85ecc6b1ac718bb1ce337899e6342da7c289827c05d2aaf6b",
+    "spec/proofs/BitcoinProofs/Theorems/GenchainCor.lean": "8dba9a7c28cfe8d775efda595bd47e58cbdfbc2146dcb1f7612e59f273aa0c3e",
+    "spec/scripts/axiom_probe.lean": "a155106338ca1008b1ee1ab0871f30138a18f9b269fb7740dbc017ae9c727956",
+    "spec/scripts/proof_scope.py": "4ca5d2712d0cff9be1be520b7d23bf5e3234ea48b7dfc57a6f36603098148fcf"
+  },
+  "scope_limits": [
+    "CapState supplies replay height/parent/UTXO; expected difficulty, chain-time context, finality and BIP68 remain R03/R04.",
+    "Genesis at supplied height 210000 is an unreachable-context replay fixture, not a Core chain-acceptance oracle.",
+    "Scripts run synchronously in this adapter; Core may delay queued script errors.",
+    "Default closure plus named consumers verified; remaining 380 proof modules not yet verified.",
+    "No int64 wrapping equivalence claimed for input/fee arithmetic; TXV-069 remains in the existing residual register.",
+    "No full block UTXO issuance-conservation theorem inferred from the funding bound alone."
+  ],
+  "verified_at_utc": "2026-10-18T14:59:49.673330+00:00"
+}

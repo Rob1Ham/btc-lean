@@ -51,14 +51,13 @@ in the P15 scratch area; results recorded below)
 | (bridge) | `validateBlock_ok_utxo_total_le` | … and its total value is `≤ initial + blockDrawn` | propext, Classical.choice, Quot.sound |
 | THM-037↑ | `validateBlock_ok_fees_le` | the fee bound for the DECODED txs of a validated block, per-tx hypotheses derived from the pipeline's own gates | propext, Classical.choice, Quot.sound |
 
-Honest scope note (what is deliberately NOT claimed): the coinbase
-"mints exactly fee + subsidy" half of THM-037. The capstone fold
-(`applyTxStepL`/`updateCoinsL`, hence `chainFeesL`) carries no subsidy
-term, so no upstream theorem provides a subsidy-bearing statement; the
-strongest honest mint law at this tier is the per-tx fee identity
-(`tx_conservation_at_view`) plus the sandwich
-(`capstone_fees_sandwich_txidKey`). A subsidy-in-fold extension is a
-missing upstream DEFINITION, not a missing proof.
+The standalone ledger fold (`applyTxStepL`/`updateCoinsL`, hence
+`chainFeesL`) has no subsidy gate. The funded public pipeline now uses
+`applyBlockTransactions`: `CapstoneFunding.validateBlock_funding` proves
+its checked-fee range and coinbase ≤ fees + subsidy bound on the actual
+reported state. Equality is not required: miners may leave reward unclaimed.
+The algebraic `chainFeesL`/THM-037 results below remain separate from that
+live checked accumulator and do not establish full int64 arithmetic fidelity.
 
 Axiom footprints are checked by `#print axioms` in the scratch area
 (NOT pinned in this file, per the P15 work order); the table above
@@ -562,7 +561,7 @@ private theorem validateBlock_ok_inv (raw : ByteArray) (st : CapState) (r : CapR
                                   obtain ⟨utxo', okN, unjN⟩ := q
                                   simp only [] at hfin
                                   obtain ⟨rfl⟩ := Except.ok.inj hfin
-                                  exact ⟨hd, txs, utxo', okN, unjN, heq, hap, rfl⟩
+                                  exact ⟨hd, txs, utxo', okN, unjN, heq, Bitcoin.Capstone.Block.applyBlockTransactions_ok hap, rfl⟩
 
 /-- **Bridge at the full pipeline (P15 item 4)**: a block that
 `validateBlock` accepts has its report UTXO list produced by the
