@@ -8,17 +8,19 @@ open Bitcoin.Interpreter Bitcoin.Numeric
 
 /-- INV-043 (gate half): a non-push opcode (wire > 0x60) on the
 BASE/WITNESS_V0 budget path is rejected with OP_COUNT when the charged
-`nOpCount` would exceed 201 (interpreter.cpp:461-463). -/
+`nOpCount` would exceed 201 (interpreter.cpp:461-463). Both counting
+sigversions are covered; TAPSCRIPT has no op-count budget. -/
 @[rule "INV-043"]
 theorem stepBody_opCount_gate (ctx : Ctx) (op : WireOp) (st : State)
     (hsize : (match op.ast with
       | .pushBytes d => d.size ≤ MAX_SCRIPT_ELEMENT_SIZE
       | _ => true) = true)
-    (hsv : ctx.sv = .base) (hw : 0x60 < op.wire)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hw : 0x60 < op.wire)
     (hcnt : MAX_OPS_PER_SCRIPT < st.opCount + 1) :
     stepBody ctx op st = .error .opCount := by
-  simp [stepBody, hsv, hw, hcnt]
-  exact hsize
+  rcases hsv with hsv | hsv <;>
+    (simp [stepBody, hsv, hw, hcnt]
+     exact hsize)
 
 /-- INV-043 (CHECKMULTISIG half): the key count is charged wholesale —
 `opCount + nKeys > 201` ⇒ OP_COUNT (interpreter.cpp:1126-1131). -/
@@ -47,20 +49,22 @@ theorem stepBody_tapscript_minimalif_reject {ctx : Ctx} {op : WireOp} {st : Stat
     Bitcoin.Interpreter.stepBody.dispatchOp, hbad]
 
 /-- SCR-067: an executed IF counts one opcode toward the 201 budget — a
-successful step increments `opCount` by exactly 1 (interpreter.cpp:460-464). -/
+successful step increments `opCount` by exactly 1 in both counting
+sigversions, BASE and WITNESS_V0 (interpreter.cpp:460-464). -/
 @[rule "SCR-067"]
 theorem stepBody_if_counts_opcode {ctx : Ctx} {op : WireOp} {st : State}
     {o : Fin 256} (ha : op.ast = .op o) (hw : op.wire = 0x63)
-    (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hfe : st.vf.all id = true)
     (hb : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (hs : 0 < st.stack.length)
     (hempty : topAt st.stack 1 = ByteArray.empty) :
     stepBody ctx op st = .ok { st with opCount := st.opCount + 1, vf := castToBool (topAt st.stack 1) :: st.vf, stack := st.stack.tail } := by
   have hb' : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by omega
   have hs' : ¬ (st.stack.length < 1) := by omega
-  rw [stepBody]
-  simp [ha, hw, hsv, hfe, hb', hs', disabledWire,
-    Bitcoin.Interpreter.stepBody.dispatchOp, hempty]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hfe, hb', hs', disabledWire,
+       Bitcoin.Interpreter.stepBody.dispatchOp, hempty])
 
 end BitcoinProofs.AF.PDW88
 

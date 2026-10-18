@@ -8,15 +8,14 @@ INV-056: legacy FindAndDelete identity law — an empty needle and a
 no-boundary-match scan both leave the script byte-for-byte unchanged
 (interpreter.cpp:239-265).
 
-INV-056 (re-audit): the *deletion* face is not claimed. In the core model
-`fdLastPc2` returns the pre-match `pc2` at both terminal branches, so
-`findAndDelete` re-appends `script.extract pc2 script.size`; a match that
-reaches the end of the script is counted but the needle is put back
-(whole-tail case). Core's `FindAndDelete` advances `pc2` past the match
-before the final copy, so it removes the push. The divergence is pinned
-below by `findAndDelete_self_whole_tail_not_removed` and its
-`pushBytesWire` instance. Fixing it requires a core `fdLastPc2` change,
-which is outside this file's write scope (F-PDW84-001). -/
+INV-056 (re-audit, fixed): the deletion face is now claimed. `fdLastPc2`
+returns the post-match `pc'` at both terminal branches, so the final
+`script.extract pc' script.size` copies only the unmatched tail — Core's
+`pc2 = pc` assignment after the greedy match loop. The whole-tail case
+(deleting the script's only push) is pinned below; the head/middle-match
+suffix regressions live in `Test/Script/Interpreter/FindAndDeleteTest.lean`
+as Test-scoped executable checks (the concrete ByteArray reduction is not
+kernel-friendly). Both would have failed under the old pre-match return. -/
 
 namespace BitcoinProofs.AF.PDW59
 
@@ -45,15 +44,14 @@ theorem findAndDelete_none_unchanged (script b : ByteArray)
       · next hpos => omega
       · next hneg => simp [hneg]
 
-/-! ### INV-056: the matching-push deletion law is false (whole-tail case)
+/-! ### INV-056: the matching-push deletion law
 
-The core model cannot prove that a found matching push is removed. When
-the greedy scan reaches the end of the script, `fdLastPc2` returns the
-pre-match `pc2` (core `Interpreter/Defs.lean:548-557`) and `findAndDelete`
-appends `script.extract pc2 script.size` (core `Defs.lean:564`), restoring
-the bytes just counted as deleted. Core instead advances `pc2` to `pc`
-before the loop test (`interpreter.cpp:239-265`), so `FindAndDelete(b, b)`
-returns `(1, ∅)`, not `(1, b)`. -/
+The greedy scan advances `pc` past each match and `pc2` is the post-match
+position, exactly as Core does (`pc2 = pc` after the match loop,
+`interpreter.cpp:239-265`). The final tail copy therefore starts after
+the last match. The whole-tail theorem below pins the end-of-script case;
+head/middle suffix cases are executable checks in
+`Test/Script/Interpreter/FindAndDeleteTest.lean`. -/
 
 /-- ByteArray's `BEq` is `data.isEqv data`, which has no `ReflBEq`
 instance in this toolchain; reflexivity is proved here. -/
@@ -81,13 +79,12 @@ private theorem findAndDeleteMatches_self (b : ByteArray) (hb : b.size ≠ 0) :
   rw [if_neg hb]
   rw [if_pos (by omega : b.size < b.size + b.size)]
 
-/-- **INV-056 (whole-tail non-removal)**: when the script is exactly the
-nonempty needle, `findAndDelete` reports one match but returns the script
-unchanged. This is the byte-level matching-push deletion law failing:
-Core's `FindAndDelete` deletes the push and returns the empty script. -/
+/-- **INV-056 (whole-tail removal)**: when the script is exactly the
+nonempty needle, `findAndDelete` reports one match and returns the empty
+script, matching Core's `FindAndDelete(b, b) = (1, ∅)`. -/
 @[rule "INV-056"]
-theorem findAndDelete_self_whole_tail_not_removed (b : ByteArray)
-    (hb : b.size ≠ 0) : findAndDelete b b = (1, b) := by
+theorem findAndDelete_self_removed (b : ByteArray)
+    (hb : b.size ≠ 0) : findAndDelete b b = (1, ByteArray.empty) := by
   rw [findAndDelete]
   simp only [hb, ite_false]
   have haux : findAndDeleteAux b b (b.size + 1) 0 0 ByteArray.empty 0
@@ -98,7 +95,7 @@ theorem findAndDelete_self_whole_tail_not_removed (b : ByteArray)
     simp
   rw [haux]
   simp only [Nat.zero_lt_one, ite_true]
-  have hlast : fdLastPc2 b b (b.size + 1) 0 0 = 0 := by
+  have hlast : fdLastPc2 b b (b.size + 1) 0 0 = b.size := by
     rw [fdLastPc2]
     rw [findAndDeleteMatches_self b hb]
     simp
@@ -113,14 +110,14 @@ private theorem pushBytesWire_size_ne_zero (sig : ByteArray) :
   have h1 : 1 ≤ (pushBytesWire sig).size := by simpa [serializeOpcode] using h
   omega
 
-/-- **INV-056 (matching signature push not removed)**: the exact needle
-used by the legacy checksig path, `pushBytesWire sig`, is not removed when
-it is the whole scriptCode. Core deletes it. -/
+/-- **INV-056 (matching signature push removed)**: the exact needle used
+by the legacy checksig path, `pushBytesWire sig`, is deleted when it is
+the whole scriptCode, leaving the empty script. -/
 @[rule "INV-056"]
-theorem findAndDelete_pushBytesWire_self_not_removed (sig : ByteArray) :
+theorem findAndDelete_pushBytesWire_self_removed (sig : ByteArray) :
     findAndDelete (pushBytesWire sig) (pushBytesWire sig)
-      = (1, pushBytesWire sig) :=
-  findAndDelete_self_whole_tail_not_removed (pushBytesWire sig)
+      = (1, ByteArray.empty) :=
+  findAndDelete_self_removed (pushBytesWire sig)
     (pushBytesWire_size_ne_zero sig)
 
 /-- INV-063: membership characterisation of the canonical disabled set. -/
@@ -241,15 +238,12 @@ theorem verifyScriptFull_sequential_row
   simp only [hpol, Bool.false_eq_true, if_false, reduceIte]
   rfl
 
-/-- INV-056 (legacy checksig quirk, **conditional row face only**): in a
-BASE spend, *if* the model's FindAndDelete scan reports a positive match
-count and `constScriptCode = false`, the ECDSA checker is invoked on
-`(findAndDelete …).2`. This is the call-site wiring, not a deletion law:
-the model does not establish that the matching signature push was removed
-(and indeed it is not removed in the whole-tail case — see
-`findAndDelete_self_whole_tail_not_removed` /
-`findAndDelete_pushBytesWire_self_not_removed`; Core deletes it at
-interpreter.cpp:239-265, tracked as F-PDW84-001). -/
+/-- INV-056 (legacy checksig wiring): in a BASE spend, *if* the model's
+FindAndDelete scan reports a positive match count and
+`constScriptCode = false`, the ECDSA checker is invoked on
+`(findAndDelete …).2`. The deletion law itself is pinned by
+`findAndDelete_self_removed` / `findAndDelete_pushBytesWire_self_removed`;
+head/middle suffix checks live in the Test file. -/
 @[rule "INV-056"]
 theorem evalChecksigPreTapscript_base_findAndDelete_sig
     (flags : Bitcoin.Activation.ScriptFlags) (pol : PolicyFlags)
@@ -271,13 +265,13 @@ theorem evalChecksigPreTapscript_base_findAndDelete_sig
   subst hsv
   simp [evalChecksigPreTapscript, hfound, hconst, henc, hpk]
 
-/-- **INV-056 (checksig path, whole-tail divergence)**: if the BASE
-scriptCode is exactly the serialized signature push, the model still hands
-that push to the ECDSA checker. A correct FindAndDelete would hand it the
-empty script; this corollary makes the residual reachable from the
-checksig path rather than only from the bare `findAndDelete` definition. -/
+/-- **INV-056 (checksig path, whole-tail deletion)**: if the BASE
+scriptCode is exactly the serialized signature push, the model hands the
+empty script to the ECDSA checker — Core's FindAndDelete behavior. This
+corollary makes the corrected deletion visible from the checksig path,
+not only from the bare `findAndDelete` definition. -/
 @[rule "INV-056"]
-theorem evalChecksigPreTapscript_base_findAndDelete_whole_tail_retained
+theorem evalChecksigPreTapscript_base_findAndDelete_whole_tail_deleted
     (flags : Bitcoin.Activation.ScriptFlags) (pol : PolicyFlags)
     (chk : ScriptChecker) (ed : Bitcoin.Crypto.Seam.ScriptExecutionData)
     (sv : Bitcoin.Crypto.Seam.SigVersion)
@@ -289,17 +283,17 @@ theorem evalChecksigPreTapscript_base_findAndDelete_whole_tail_retained
     (hpk : checkPubKeyEncoding flags pol sv pk = none) :
     evalChecksigPreTapscript flags pol chk ed sv codeSep bytes sig pk =
       (let fSuccess := chk.base.checkECDSASignature sig pk
-         (pushBytesWire sig) sv ed
+         ByteArray.empty sv ed
        if !fSuccess ∧ pol.nullFail ∧ sig.size ≠ 0 then .error .sigNullFail
        else .ok fSuccess) := by
   subst hsv
-  have hf := findAndDelete_pushBytesWire_self_not_removed sig
+  have hf := findAndDelete_pushBytesWire_self_removed sig
   have hfound : 0 < (findAndDelete (bytes.extract codeSep bytes.size)
       (pushBytesWire sig)).1 := by
     rw [hcode, hf]
     simp
   have hres : (findAndDelete (bytes.extract codeSep bytes.size)
-      (pushBytesWire sig)).2 = pushBytesWire sig := by
+      (pushBytesWire sig)).2 = ByteArray.empty := by
     rw [hcode, hf]
   simp [evalChecksigPreTapscript, hfound, hconst, henc, hpk, hres]
 

@@ -6,7 +6,9 @@ namespace BitcoinProofs.AF.PDW85b
 open Bitcoin.Interpreter Bitcoin.Numeric
 
 /-- SCR-060: an unexecuted IF/NOTIF adds a `false` to the condition
-stack and pops nothing (interpreter.cpp:660-664). -/
+stack (`vf`) and pops nothing (interpreter.cpp:660-664). The full
+post-state is pinned: stack and alternate stack are untouched, the
+opcode counter is charged, and the new condition is prepended to `vf`. -/
 @[rule "SCR-060"]
 theorem stepBody_unexecuted_if_stack {ctx : Ctx} {op : WireOp} {st st' : State}
     {o : Fin 256}
@@ -14,14 +16,14 @@ theorem stepBody_unexecuted_if_stack {ctx : Ctx} {op : WireOp} {st st' : State}
     (hsv : ctx.sv = .base) (hfe : st.vf.all id = false)
     (hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (h : stepBody ctx op st = .ok st') :
-    st'.stack = st.stack ∧ st'.alt = st.alt := by
+    st' = { st with opCount := st.opCount + 1, vf := false :: st.vf } := by
   have hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by omega
   rcases hw with hw | hw <;>
     (rw [stepBody] at h
      simp [ha, hw, hsv, hfe, hb, disabledWire,
        Bitcoin.Interpreter.stepBody.dispatchOp] at h
      cases h
-     exact ⟨rfl, rfl⟩)
+     rfl)
 
 /-- SCR-096: an executed OP_CODESEPARATOR sets `codeSep` to the current
 opcode's end offset (interpreter.cpp:1067). -/
