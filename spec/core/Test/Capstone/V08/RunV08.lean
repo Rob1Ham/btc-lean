@@ -136,7 +136,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res :=
-    match validateBlock raw st with
+    match replayBlock raw st with
     | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
     | .ok rep =>
         let txsL : List Tx :=

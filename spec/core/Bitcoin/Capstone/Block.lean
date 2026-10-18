@@ -1,4 +1,5 @@
 import Bitcoin.Capstone.Pow
+import Bitcoin.Capstone.Context
 import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 import Bitcoin.Ledger.Interface
@@ -8,10 +9,14 @@ import Bitcoin.Activation.Interface
 import Bitcoin.Interpreter.Interface
 
 /-!
-# Bitcoin.Capstone.Block — validateBlock: the end-to-end pipeline (S2b)
+# Bitcoin.Capstone.Block — serialized replay and contextual header checks (S2b)
 
 `validateBlock : SerializedBlock → CapState → Except CapError CapReport`
-composes every layer on real serialized bytes:
+composes the modeled gates on real serialized bytes. The default call is
+partial replay (`replayBlock`); an explicit `ChainContext` adds header
+context checks. Remaining finality/BIP68, sigop, witness/Taproot and historical
+exception defects are actionable work in the remediation ledger, not assumed
+consensus validity. The gates currently composed are:
 
 1. **Decode**: `decodeBlock` — header, tx count, txs (BIP144
    witness framing per tx).
@@ -21,7 +26,10 @@ composes every layer on real serialized bytes:
 3. **Header** (this module): PoW (BLK-037/038/039) + chain link
    (`hashPrevBlock` vs the state's `prevHash` — for the anchor run the
    link target is the REAL parent block hash supplied per anchor, since
-   the anchors skip intermediate blocks).
+   the anchors skip intermediate blocks). With `ChainContext`, also
+   require the parent-bound ancestor lookup, expected mainnet nBits, the
+   complete parent MTP window and the explicit node-clock future bound.
+   Without it, this is partial replay (`replayBlock`), not full validation.
 4. **Merkle** (this module): txid tree vs header (BLK-010) + the witness
    commitment gate (BLK-015..020).
 5. **Per tx, in order** (Core ConnectBlock's UTXO-side order):
@@ -78,6 +86,7 @@ without the specialised equation. -/
 /-- Capstone-level failure taxonomy: every Core layer's error embedded,
 plus the header/merkle checks this module owns. -/
 inductive CapError where
+  | context (e : Bitcoin.Capstone.Context.ContextError)
   | ser (e : SerError)
   | txCheck (e : TxCheckError)      -- the transaction-validation layer stateless (BLK-030)
   | tx (e : TxError)                -- transaction-validation and ledger context
@@ -103,6 +112,7 @@ deriving Repr, DecidableEq
 
 /-- Core's exact reject strings for the Capstone taxonomy (report use). -/
 def CapError.reason : CapError → String
+  | .context e => e.reason
   | .ser _ => "decode-error"
   | .txCheck e => txCheckReason e
   | .tx e => Bitcoin.TxValidation.rejectReason e
@@ -128,6 +138,12 @@ def CapError.reason : CapError → String
   | .badCbHeight => "bad-cb-height"
   | .scriptFail _ _ _ => "script-verify-error"
   | .scriptFalse _ _ => "script-eval-false"
+
+/-- Context acquisition failures mean validation is unavailable. The three
+contextual header consensus failures remain ordinary rejection verdicts. -/
+def CapError.isUnavailable : CapError → Bool
+  | .context e => e.isUnavailable
+  | _ => false
 
 /-! ## State -/
 
@@ -471,6 +487,7 @@ structure CapReport where
   txs : Nat
   scriptOk : Nat          -- inputs adjudicated PASS (real ECDSA + the interpreter layer + the sig-hash layer)
   scriptUnjudged : Nat    -- inputs on the Taproot unjudged lane
+  headerContextChecked : Bool := false -- expected nBits, parent MTP, node-clock bound
   deriving Repr
 
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
@@ -478,7 +495,8 @@ ChainState`, composed of decode → structure checks → header PoW +
 chain link → merkle + witness commitment → per-tx validation →
 fold. -/
 @[rule "BLK-030", rule "BLK-102"]
-def validateBlock (raw : ByteArray) (st : CapState) :
+def validateBlock (raw : ByteArray) (st : CapState)
+    (context : Option Bitcoin.Capstone.Context.ChainContext := none) :
     Except CapError CapReport := do
   -- 1. Decode.
   let (h, txs) ← match decodeBlock raw with
@@ -488,16 +506,23 @@ def validateBlock (raw : ByteArray) (st : CapState) :
   if !vtxNonempty txs then throw CapError.emptyBlock
   if !cbPositionOk txs then throw CapError.badCbPosition
   if !cbLengthOk (txs.getD 0 dummyTx) then throw CapError.badCbLength
-  -- 2b. Contextual gates: buried version gates (BLK-060/061/062) and
-  -- BIP34 coinbase height push (BLK-069) — Core ContextualCheck order.
-  if !versionOk st.height h.version then throw CapError.badVersion
-  if !bip34Ok st.height (txs.getD 0 dummyTx) then throw CapError.badCbHeight
   -- 3. Header: PoW + chain link.
   -- BLK-037/038: targetOk is the full `SetCompact` gate — fNegative,
   -- fOverflow, target ≠ 0, target ≤ powLimit (pow.cpp:146-159 @cce32b168).
   if !targetOk h.bits then throw CapError.badPow
   if !powOk h then throw CapError.badPow
   if !bytesBEq h.hashPrevBlock st.prevHash then throw CapError.badChainLink
+  -- Missing header history is an unavailable-context error, never an assumed pass.
+  match context with
+  | none => pure ()
+  | some ctx =>
+    match Bitcoin.Capstone.Context.checkHeaderContext ctx st.height st.prevHash h with
+    | .error e => throw (CapError.context e)
+    | .ok _ => pure ()
+  -- 3b. Contextual gates: buried version gates (BLK-060/061/062) and
+  -- BIP34 coinbase height push (BLK-069) — Core ContextualCheck order.
+  if !versionOk st.height h.version then throw CapError.badVersion
+  if !bip34Ok st.height (txs.getD 0 dummyTx) then throw CapError.badCbHeight
   -- 4. Merkle root (BLK-010), then the CVE-2012-2459 mutation scan
   -- (BLK-011) at the same CheckMerkleRoot call site. A mutated tree is
   -- `BLOCK_MUTATED` / `bad-txns-duplicate`, distinct from the root
@@ -536,7 +561,20 @@ def validateBlock (raw : ByteArray) (st : CapState) :
   -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
   let (utxo', okN, unjN) ← applyBlockTransactions st.height txs st.utxo
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
-         txs := txs.length, scriptOk := okN, scriptUnjudged := unjN }
+         txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
+         headerContextChecked := context.isSome }
+
+/-- Explicit partial anchor-replay adapter. No ancestor/clock checks are
+claimed; script adjudication may also be incomplete as the report records. -/
+def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
+  validateBlock raw st none
+
+/-- Header-context entry point. Checks expected nBits, parent MTP and node
+time as well as the replay gates. Absolute/BIP68 finality and the live sigop
+budget are still tracked as missing until their transaction-loop wiring lands. -/
+def validateBlockInContext (raw : ByteArray) (st : CapState)
+    (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=
+  validateBlock raw st (some ctx)
 
 /-! ## BLK-010 — the merkle gate rejects a mismatched header root
 

@@ -15,7 +15,7 @@ with an explicit LEAN_PATH (shared `.lake` build dir and global build lock
 untouched; no existing runner file edited).
 
 Validates THREE real mainnet blocks (2011–2012 sweep, all pre-BIP34,
-pre-segwit) through the exact capstone pipeline `validateBlock`:
+pre-segwit) through the exact capstone pipeline `replayBlock`:
 
   123456 · 150000 · 200000
 
@@ -139,7 +139,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res :=
-    match validateBlock raw st with
+    match replayBlock raw st with
     | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
     | .ok rep =>
         let txsL : List Tx :=
@@ -176,7 +176,7 @@ where
 def anchorsV302 : List Nat := [123456, 150000, 200000]
 
 /-- Per-tx adjudication trace (recorded even on PASS). Sequential fold: each
-tx is probed against the state after txs 0..i-1 — the state `validateBlock`
+tx is probed against the state after txs 0..i-1 — the state `replayBlock`
 actually sees (RunV01 semantics, avoids the raw-seed probe artifact of
 Run.lean). -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do

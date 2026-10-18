@@ -8,7 +8,7 @@ import Bitcoin.Capstone.RealChecker
 /-!
 # Test.Capstone.Run — the end-to-end anchor capstone run
 
-Validates the 6 mainnet anchor blocks through `validateBlock` (`decodeBlock`
+Replays the 6 mainnet anchor blocks through `replayBlock` (`decodeBlock`
 → structure → PoW/chain-link → merkle/witness-commitment → per-tx
 stateless + `checkTxInputs` + `verifyScriptFull` with the REAL
 crypto checker + ledger fold), reading:
@@ -145,7 +145,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   -- independent witness for the decode: count txs by walking the header
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res :=
-    match validateBlock raw st with
+    match replayBlock raw st with
     | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
     | .ok rep =>
         let txsL : List Tx :=
@@ -200,6 +200,7 @@ def corpora : List (String × List Nat) :=
   [("../vectors/anchors", anchors), ("../vectors/anchors2", anchors2)]
 
 def main : IO Unit := do
+  IO.println "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated"
   let which := (← IO.getEnv "CAPSTONE_SET").getD "all"
   -- CAPSTONE_ONLY=<comma-separated heights> restricts the run to those
   -- anchors (incremental re-runs while a corpus member's seeds land).
@@ -208,22 +209,24 @@ def main : IO Unit := do
     let t := trimStr s
     if t.isEmpty then none else some t.toNat!)
   let mut results := []
+  let mut missing := 0
   for (dir, hs) in corpora do
     if which == "1" && dir != "../vectors/anchors" then continue
     if which == "2" && dir != "../vectors/anchors2" then continue
     for h in hs do
       if onlySet.length > 0 && !(onlySet.contains h) then continue
       if !(← System.FilePath.pathExists s!"{dir}/{h}.raw") then
-        IO.println s!"SKIP {h} (no {dir}/{h}.raw)"
+        missing := missing + 1
+        IO.println s!"UNAVAILABLE {h} (no {dir}/{h}.raw)"
         continue
       let r ← runAnchor dir h
       IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
       if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
       results := results ++ [r]
-  let allOk := results.all (·.ok)
+  let allOk := !results.isEmpty && missing == 0 && results.all (·.ok)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone: an anchor block FAILED validation")
+  IO.println s!"SUMMARY blocks={results.length} missing={missing} allOk={allOk} totalMs={totalMs}"
+  if !allOk then throw (IO.userError "capstone: replay checks failed or the selected input corpus is incomplete")
 
 end Test.Capstone.Run
 

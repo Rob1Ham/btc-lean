@@ -27,6 +27,7 @@ import BitcoinProofs.Theorems.InterpCor
 import BitcoinProofs.Crypto.CurveZMod
 
 import BitcoinProofs.Theorems.CapstoneFunding
+import BitcoinProofs.Theorems.CapstoneContext
 
 /-!
 # Axiom probe — the input of the axiom-manifest gate
@@ -319,3 +320,11 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstoneFunding.applyTxsWithFees_range
 #print axioms BitcoinProofs.Theorems.CapstoneFunding.applyBlockTransactions_funding
 #print axioms BitcoinProofs.Theorems.CapstoneFunding.validateBlock_funding
+
+-- R04: public contextual header rules and complete MTP ancestor windows.
+#print axioms Bitcoin.Capstone.Context.ContextError.reason_nonempty
+#print axioms BitcoinProofs.Theorems.CapstoneContext.requireMtpWindow_complete
+#print axioms BitcoinProofs.Theorems.CapstoneContext.medianTimePastStrict_complete
+#print axioms BitcoinProofs.Theorems.CapstoneContext.checkHeaderContext_ok
+#print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header
+#print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header_rules

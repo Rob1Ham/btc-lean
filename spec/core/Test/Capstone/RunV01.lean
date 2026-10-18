@@ -16,7 +16,7 @@ untouched; the anchor list is pinned inside the existing Run.lean, which
 the runner doctrine forbids editing).
 
 Validates THREE additional real mainnet blocks (2010 era) through the exact
-capstone pipeline `validateBlock`:
+capstone pipeline `replayBlock`:
 
   70000 · 70863 · 72000
 
@@ -140,7 +140,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res :=
-    match validateBlock raw st with
+    match replayBlock raw st with
     | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
     | .ok rep =>
         let txsL : List Tx :=
@@ -179,7 +179,7 @@ def anchorsV01 : List Nat := [70000, 70863, 72000]
 /-- Per-tx adjudication trace (recorded even on PASS). V01 note: unlike
 Run.lean's failure-only probe (which probes against the RAW seed view),
 each tx here is probed against the fold state after txs 0..i-1 — the
-state `validateBlock` actually sees — so same-block spends report `ok`
+state `replayBlock` actually sees — so same-block spends report `ok`
 rather than a spurious `bad-txns-inputs-missingorspent`. -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do
   let raw ← IO.FS.readBinFile s!"{dir}/{height}.raw"

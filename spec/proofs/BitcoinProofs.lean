@@ -21,6 +21,7 @@ import BitcoinProofs.Theorems.CapstoneCoinCor
 import BitcoinProofs.Theorems.CapstoneConservationCor
 import BitcoinProofs.Theorems.CapstonePipelineCor
 import BitcoinProofs.Theorems.CapstoneFunding
+import BitcoinProofs.Theorems.CapstoneContext
 import BitcoinProofs.Theorems.CapstoneComposeStateless
 import BitcoinProofs.Theorems.BlockCor
 import BitcoinProofs.Theorems.WitnessRulesCor

@@ -1,0 +1,172 @@
+{
+  "finding": "R04",
+  "status": "fixed_and_verified_for_contextual_header_entry",
+  "verified_at_utc": "2026-10-18T15:12:06.220381+00:00",
+  "source_parent_commit": "140e8efd4877dea9510832cb04cc6fb38ddd49a8",
+  "upstream_main": "08208274bcdcab2a5baa1426c0057472e5c0de07",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "resource_limits": {
+    "baseline_reproduction_timeout_seconds": 60,
+    "changed_runner_elaboration_timeout_seconds": 60,
+    "build_memory_limit": "no additional OS memory cap; default Lake scheduler",
+    "proof_heartbeats": "default 200000 unless inherited module settings; no new override"
+  },
+  "fixture": {
+    "mainnet_height": 1,
+    "block_hash": "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048",
+    "raw_bytes": 215,
+    "raw_sha256": "9c192c128fac3ded236ffed725ae19b3ecef7828e09ed9e633d2e5370550dae0",
+    "source": "https://blockstream.info/api/block/00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048/raw",
+    "verification": "independent Python SHA256d(header), complete-raw SHA256, Lean real PoW, merkle/transaction validation with the actual genesis parent"
+  },
+  "core_comparison": {
+    "normative_pin": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+    "audit16_pin": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+    "pow_cpp_identical": true,
+    "pow_cpp_sha256": "cad89cf4d7b99f3f6d3e93393febe523133320a5f4e92a61c8179bb5ac526a8a",
+    "contextual_header_difference": "Only the older/audit16 signature adds BlockManager& blockman; the function bodies are byte-identical. Mainnet expected nBits, strict parent MTP, node-clock future bound and buried version behavior are unchanged.",
+    "normative_contextual_header_sha256": "52c0bafc96509a47b9be5b0c648b131ec3fc539bbdb84112adb7d60eaf65b949"
+  },
+  "verification": [
+    {
+      "command": "lake build Bitcoin",
+      "exit_code": 0,
+      "jobs": 73,
+      "log": "/tmp/btc-lean-r04-core-full.log"
+    },
+    {
+      "command": "lake test",
+      "exit_code": 0,
+      "checks": 16,
+      "log": "/tmp/btc-lean-r04-core-test.log"
+    },
+    {
+      "command": "make test-capstone-values test-capstone-funding test-capstone-context",
+      "exit_code": 0,
+      "checks": 56,
+      "new_context_checks": 23,
+      "log": "/tmp/btc-lean-r04-regressions.log"
+    },
+    {
+      "command": "python3 docs/reviews/2026-10-18/reproduce_header_context.py",
+      "exit_code": 0,
+      "baseline_runtime_exit_code": 1,
+      "scope": "Five public-path behavioral failures at 140e8ef; two passing real-block/future-bound controls. Reproducer validates exact case names/counts and rejects setup/compiler failures.",
+      "log": "/tmp/btc-lean-r04-baseline-reproduced.log"
+    },
+    {
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.AF.PDW53.PDW53",
+      "exit_code": 0,
+      "jobs": 1731,
+      "scope": "31-module default closure plus named consumers; not the 380 outside modules",
+      "log": "/tmp/btc-lean-r04-proofs-final.log"
+    },
+    {
+      "command": "lake build capstone",
+      "exit_code": 0,
+      "jobs": 88,
+      "log": "/tmp/btc-lean-r04-capstone-build.log"
+    },
+    {
+      "command": "make gates gate-repro",
+      "exit_code": 0,
+      "scope": "all nine static gates, 10 proof-gate tests, reproducibility check",
+      "log": "/tmp/btc-lean-r04-gates.log"
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "exit_code": 0,
+      "entries": 238,
+      "new_entries": 6,
+      "scope": "Reviewed diff adds five standard-trio kernel proofs and one axiom-free context-error lemma; no old footprint drift. Five new proof theorems have guarded local footprints.",
+      "log": "/tmp/btc-lean-r04-axiom-final.log"
+    },
+    {
+      "commands": [
+        "python spec/scripts/theorem_index.py --check",
+        "python spec/scripts/residuals_index.py --check",
+        "python spec/scripts/proof_scope.py --check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "changed_runner_elaboration": [
+    {
+      "file": "Test/Capstone/GenchainRun.lean",
+      "command": "lake env lean Test/Capstone/GenchainRun.lean",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "file": "Test/Capstone/RunV01.lean",
+      "command": "lake env lean Test/Capstone/RunV01.lean",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "file": "Test/Capstone/RunV302.lean",
+      "command": "lake env lean Test/Capstone/RunV302.lean",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "file": "Test/Capstone/V04Run.lean",
+      "command": "lake env lean Test/Capstone/V04Run.lean",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "file": "Test/Capstone/V08/RunV08.lean",
+      "command": "lake env lean Test/Capstone/V08/RunV08.lean",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "baseline_output": "baseline=140e8efd4877dea9510832cb04cc6fb38ddd49a8 source_sha256=ab6f25e0d532d63a2d2a2dd16303d3d43147fcaa6f47c4398e5fa32f719fb75f\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:349:20: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:351:44: warning: This simp argument is unused:\n  hb\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Bool.false_eq_true, \u2193reduceIte]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:353:25: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:356:27: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:359:69: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:360:65: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:425:13: warning: Local variable 'unit' resembles constructor 'PUnit.unit' - write '.unit' (with a dot) or 'PUnit.unit' to use the constructor.\n\nNote: This linter can be disabled with `set_option linter.constructorNameAsVariable false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:418:42: warning: This simp argument is unused:\n  Functor.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Except.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:418:55: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Functor.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:431:48: warning: This simp argument is unused:\n  Functor.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Except.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:431:61: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Functor.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:558:5: warning: Variable name `hweight` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _hweight\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:569:40: warning: This simp argument is unused:\n  hweight\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink, hmerkle]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r04-before-wcabb7xp/Baseline.lean:631:5: warning: Variable name `hweight` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _hweight\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n[PASS] public valid block with its real genesis parent: expected=ok, actual=ok\n[PASS] public node-clock plus 7200 boundary: expected=ok, actual=ok\n[FAIL] public node-clock plus 7201 rejects: expected=time-too-new, actual=ok\n[FAIL] public expected retarget bits reject a difficulty-1 candidate: expected=bad-diffbits, actual=ok\n[FAIL] public sparse MTP history is unavailable: expected=context-missing-ancestor, actual=ok\n[FAIL] public parent height must match candidate: expected=context-height-mismatch, actual=ok\n[FAIL] public missing parent is unavailable: expected=context-missing-ancestor, actual=ok\nR04 baseline reproduction: five public-path defects confirmed; two valid controls pass\n",
+  "new_context_output": "[PASS] public valid block with its real genesis parent: expected=ok, actual=ok\n[PASS] public node-clock plus 7200 boundary: expected=ok, actual=ok\n[PASS] public node-clock plus 7201 rejects: expected=time-too-new, actual=time-too-new\n[PASS] public expected retarget bits reject a difficulty-1 candidate: expected=bad-diffbits, actual=bad-diffbits\n[PASS] public sparse MTP history is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] public parent height must match candidate: expected=context-height-mismatch, actual=context-height-mismatch\n[PASS] public missing parent is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] timestamp equals parent MTP rejects: expected=time-too-old, actual=time-too-old\n[PASS] timestamp one above parent MTP: expected=ok, actual=ok\n[PASS] wrong non-boundary bits: expected=bad-diffbits, actual=bad-diffbits\n[PASS] wrong index parent hash: expected=context-parent-mismatch, actual=context-parent-mismatch\n[PASS] retarget exact quarter-timespan clamp: expected=ok, actual=ok\n[PASS] missing retarget anchor is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] wrong bits precede unresolved MTP: expected=bad-diffbits, actual=bad-diffbits\n[PASS] strict MTP has upper median for an even genesis window: expected=20, actual=20\n[PASS] strict MTP requires an internal missing height: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] strict MTP stops at genesis without requiring negative heights: expected=1231006505, actual=1231006505\n[PASS] signed node time does not wrap to a large UInt32: expected=time-too-new, actual=time-too-new\n[PASS] Core height range does not wrap: expected=context-height-mismatch, actual=context-height-mismatch\n[PASS] contextual report records header coverage: expected=true, actual=true\n[PASS] replay report records absent header coverage: expected=false, actual=false\n[PASS] missing context is unavailable, not a consensus rejection: expected=true, actual=true\n[PASS] bad difficulty is a rejection, not unavailable context: expected=false, actual=false\n",
+  "source_sha256": {
+    "Makefile": "c0f7f201c60a1369fa89a35d22a6834ca65c53e29aa9b8d6acda9745145b86b8",
+    "spec/core/Bitcoin.lean": "ec530610e621193f0e306c990ca66def2213e4d3e9fa849704e1ca7eab981b70",
+    "spec/core/Bitcoin/Capstone/Block.lean": "b9d091299d19c2fee834af1f68aff101a5fd3f5f07428c8471ad717d5d99d47e",
+    "spec/core/Bitcoin/Capstone/Context.lean": "12181a6fc39e526cee106c272fbb4a226d4adde97f65f7c7ea9599fcf0c7c20d",
+    "spec/core/Test/Capstone/GenchainRun.lean": "a77f65be0ae18472e65be1383488bf05ca3cb3f738d25e0e7c88d0dc9b3802e6",
+    "spec/core/Test/Capstone/HeaderContext.lean": "f3fef59bba3a0754aa8fba95929f15ca53b2e88dc461be5961f3cf3852d6f9c7",
+    "spec/core/Test/Capstone/Run.lean": "d8592478c7a9b897cfc31ad00b2fe33b8f57159bb5f60dc492266ecc4a78d16d",
+    "spec/core/Test/Capstone/RunV01.lean": "9e36149db241f212c3e6f5bf8697b275294823cdb958482f079a743c5fd34df1",
+    "spec/core/Test/Capstone/RunV302.lean": "5cc48bc231f6738eaeee39b0ad95939d3626241be22ec531efbd900ce692a1f2",
+    "spec/core/Test/Capstone/V04Run.lean": "5d28f3a44a5d6e843b8c19d939c7eaeea90a11162134cfb9acaeea9c0bee983a",
+    "spec/core/Test/Capstone/V08/RunV08.lean": "63345752b8a665a547b1af97a3c55f4696f64a3ae41e5cc633ad35a3a44f0324",
+    "spec/core/lakefile.lean": "e1757f529d46ba45829cbd25af7d5abb6e0e15788f5ec6abac38e8c873933f79",
+    "spec/db/axiom-manifest.txt": "d426dab8236df59973accff9d4ea8446c5745d2a145ad8594e6be44e2ffaea84",
+    "spec/proofs/BitcoinProofs.lean": "b9a1c5a6941137b661ab21ab65d1ea2c9d09a004b96ff9de11aeaaa95085f663",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "05c9ed6a14ee38ff655194bf3886abac2d13733277179bb9755c10c27ba27d04",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneContext.lean": "a46e1bc00e7380e783144c5e2f8bcb8603520a96b133a5af90bd1fb9acb7f09e",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean": "597a5336358912f0ba65eb63452e9da11a0dc338b76d48f60275e27a720af3de",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "5222d4991c1eea30a59985f1b8212e9bc88380b115fba4f32e14bd2f921d4326",
+    "spec/scripts/axiom_probe.lean": "8c89e8e5da069734a2a033dfc5202400e738f31f16a1a01bdd119cda52d7cf41",
+    "spec/scripts/proof_scope.py": "8807190b8b56f86f42d1e11740c87f02a7631d321be30cf36455e8a399ca0dd8"
+  },
+  "new_subfinding": {
+    "id": "R08b",
+    "title": "Empty or missing anchor input can produce a false-green primary replay summary",
+    "status": "fixed_and_verified",
+    "before_exit_code": 0,
+    "before_output": "SUMMARY blocks=0 allOk=true totalMs=0\n",
+    "after_exit_code": 1,
+    "after_output": "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated\nSUMMARY blocks=0 missing=0 allOk=false totalMs=0\nuncaught exception: capstone: replay checks failed or the selected input corpus is incomplete\n",
+    "test_command": "CAPSTONE_ONLY=1 capstone (new compiled binary); old Run.lean at 140e8ef via lake env lean --run in a distinct namespace",
+    "scope": "Primary capstone runner now requires nonempty selected results and zero missing files; fixed-list variants already attempt every input and throw on missing files; GenchainRun already rejects empty input."
+  },
+  "remaining_scope": [
+    "The default validateBlock call and replayBlock are explicitly partial adapters; headerContextChecked=false.",
+    "validateBlockInContext requires caller-provided validated parent-chain ancestor lookup and UTXO state; it binds the index tip hash but does not revalidate prior-chain consensus or authenticate an arbitrary user-supplied index.",
+    "The contextual header entry is mainnet-specific and assumes a parent (non-genesis); genesis connection and other network schedules remain separate work.",
+    "Absolute finality, both BIP68 domains, live block sigop budget and R05-R07 defects remain open; contextual success is not full consensus validation.",
+    "Retarget-height index fixtures are controlled conditional model tests, not reachable-chain claims.",
+    "No full released anchor corpus was replayed in this turn; the empty-selection run is an expected unavailable-input regression, not successful chain verification.",
+    "Full 380-module outside-closure matrix, census and wallet verification remain required by the active goal."
+  ],
+  "baseline_reproducer_sha256": "11ea24974d518b13489048da82f050fdee05fe7d794c8771c98d54f3607e99d1"
+}

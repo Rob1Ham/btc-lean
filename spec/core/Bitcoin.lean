@@ -41,6 +41,7 @@ import Bitcoin.Crypto.Taproot.Verify
 import Bitcoin.Interpreter.Rules
 import Bitcoin.SigHash.Theorems
 import Bitcoin.Capstone.Pow
+import Bitcoin.Capstone.Context
 import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 import Bitcoin.Capstone.Block

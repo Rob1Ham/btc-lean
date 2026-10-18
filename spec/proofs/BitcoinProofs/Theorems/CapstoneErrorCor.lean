@@ -67,6 +67,7 @@ nonempty reject string — `CapError.reason` is total over the taxonomy in
 the strong sense that its output is never the empty string. -/
 theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
   cases e with
+  | context e => exact e.reason_nonempty
   | ser _ => simp only [CapError.reason]; decide
   | txCheck e => exact txCheckReason_nonempty e
   | tx e => exact rejectReason_nonempty e

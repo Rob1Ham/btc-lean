@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T14:59:49.673330+00:00",
+  "updated_at_utc": "2026-10-18T15:12:06.220381+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -252,7 +252,8 @@
         "spec/proofs/BitcoinProofs/Theorems/GenchainCor.lean": "8dba9a7c28cfe8d775efda595bd47e58cbdfbc2146dcb1f7612e59f273aa0c3e",
         "spec/scripts/axiom_probe.lean": "a155106338ca1008b1ee1ab0871f30138a18f9b269fb7740dbc017ae9c727956",
         "spec/scripts/proof_scope.py": "4ca5d2712d0cff9be1be520b7d23bf5e3234ea48b7dfc57a6f36603098148fcf"
-      }
+      },
+      "implementation_commit": "140e8efd4877dea9510832cb04cc6fb38ddd49a8"
     },
     {
       "id": "R03",
@@ -260,15 +261,130 @@
       "title": "Block finality and BIP68 omitted",
       "evidence": "source-confirmed; Lean execution pending",
       "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "next_action": "Compose absolute finality and both BIP68 domains using the new ChainContext. Coin-parent MTP must come from max(coin.height-1,0) in the evolving view, including same-block spends; no dummy zero times or truncated input data."
     },
     {
       "id": "R04",
       "priority": "P1",
       "title": "Header lacks expected difficulty and time context",
-      "evidence": "source-confirmed; Lean execution pending",
-      "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "evidence": "Five public-path failures reproduced against committed old validator; 23 contextual checks pass; five symbolic kernel theorems prove live header enforcement and no skipped MTP ancestors.",
+      "status": "fixed_and_verified_for_contextual_header_entry",
+      "next_action": "Use this resolved parent context to compose absolute finality, both BIP68 domains and sigop accumulation in the live transaction loop (R03); preserve explicit partial status until all required gates are wired.",
+      "changes": [
+        "Explicit parent-chain ancestor lookup and signed node time.",
+        "Mainnet expected nBits/retarget and complete MTP window, strict timestamp and future bound on validateBlockInContext.",
+        "Missing context classified separately from consensus rejection.",
+        "Partial replay adapter used by anchor runners; report marks header-context coverage.",
+        "Default and dependent proof consumers repaired after header gate order change."
+      ],
+      "changed_files": [
+        "Makefile",
+        "spec/core/Bitcoin.lean",
+        "spec/core/Bitcoin/Capstone/Block.lean",
+        "spec/core/Bitcoin/Capstone/Context.lean",
+        "spec/core/Test/Capstone/GenchainRun.lean",
+        "spec/core/Test/Capstone/HeaderContext.lean",
+        "spec/core/Test/Capstone/Run.lean",
+        "spec/core/Test/Capstone/RunV01.lean",
+        "spec/core/Test/Capstone/RunV302.lean",
+        "spec/core/Test/Capstone/V04Run.lean",
+        "spec/core/Test/Capstone/V08/RunV08.lean",
+        "spec/core/lakefile.lean",
+        "spec/db/axiom-manifest.txt",
+        "spec/proofs/BitcoinProofs.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneContext.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean",
+        "spec/scripts/axiom_probe.lean",
+        "spec/scripts/proof_scope.py"
+      ],
+      "verification_artifact": "validation-r04.json",
+      "verification_after": [
+        {
+          "command": "lake build Bitcoin",
+          "exit_code": 0,
+          "jobs": 73,
+          "log": "/tmp/btc-lean-r04-core-full.log"
+        },
+        {
+          "command": "lake test",
+          "exit_code": 0,
+          "checks": 16,
+          "log": "/tmp/btc-lean-r04-core-test.log"
+        },
+        {
+          "command": "make test-capstone-values test-capstone-funding test-capstone-context",
+          "exit_code": 0,
+          "checks": 56,
+          "new_context_checks": 23,
+          "log": "/tmp/btc-lean-r04-regressions.log"
+        },
+        {
+          "command": "python3 docs/reviews/2026-10-18/reproduce_header_context.py",
+          "exit_code": 0,
+          "baseline_runtime_exit_code": 1,
+          "scope": "Five public-path behavioral failures at 140e8ef; two passing real-block/future-bound controls. Reproducer validates exact case names/counts and rejects setup/compiler failures.",
+          "log": "/tmp/btc-lean-r04-baseline-reproduced.log"
+        },
+        {
+          "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.AF.PDW53.PDW53",
+          "exit_code": 0,
+          "jobs": 1731,
+          "scope": "31-module default closure plus named consumers; not the 380 outside modules",
+          "log": "/tmp/btc-lean-r04-proofs-final.log"
+        },
+        {
+          "command": "lake build capstone",
+          "exit_code": 0,
+          "jobs": 88,
+          "log": "/tmp/btc-lean-r04-capstone-build.log"
+        },
+        {
+          "command": "make gates gate-repro",
+          "exit_code": 0,
+          "scope": "all nine static gates, 10 proof-gate tests, reproducibility check",
+          "log": "/tmp/btc-lean-r04-gates.log"
+        },
+        {
+          "command": "bash spec/scripts/axiom_manifest.sh",
+          "exit_code": 0,
+          "entries": 238,
+          "new_entries": 6,
+          "scope": "Reviewed diff adds five standard-trio kernel proofs and one axiom-free context-error lemma; no old footprint drift. Five new proof theorems have guarded local footprints.",
+          "log": "/tmp/btc-lean-r04-axiom-final.log"
+        },
+        {
+          "commands": [
+            "python spec/scripts/theorem_index.py --check",
+            "python spec/scripts/residuals_index.py --check",
+            "python spec/scripts/proof_scope.py --check"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "source_sha256": {
+        "Makefile": "c0f7f201c60a1369fa89a35d22a6834ca65c53e29aa9b8d6acda9745145b86b8",
+        "spec/core/Bitcoin.lean": "ec530610e621193f0e306c990ca66def2213e4d3e9fa849704e1ca7eab981b70",
+        "spec/core/Bitcoin/Capstone/Block.lean": "b9d091299d19c2fee834af1f68aff101a5fd3f5f07428c8471ad717d5d99d47e",
+        "spec/core/Bitcoin/Capstone/Context.lean": "12181a6fc39e526cee106c272fbb4a226d4adde97f65f7c7ea9599fcf0c7c20d",
+        "spec/core/Test/Capstone/GenchainRun.lean": "a77f65be0ae18472e65be1383488bf05ca3cb3f738d25e0e7c88d0dc9b3802e6",
+        "spec/core/Test/Capstone/HeaderContext.lean": "f3fef59bba3a0754aa8fba95929f15ca53b2e88dc461be5961f3cf3852d6f9c7",
+        "spec/core/Test/Capstone/Run.lean": "d8592478c7a9b897cfc31ad00b2fe33b8f57159bb5f60dc492266ecc4a78d16d",
+        "spec/core/Test/Capstone/RunV01.lean": "9e36149db241f212c3e6f5bf8697b275294823cdb958482f079a743c5fd34df1",
+        "spec/core/Test/Capstone/RunV302.lean": "5cc48bc231f6738eaeee39b0ad95939d3626241be22ec531efbd900ce692a1f2",
+        "spec/core/Test/Capstone/V04Run.lean": "5d28f3a44a5d6e843b8c19d939c7eaeea90a11162134cfb9acaeea9c0bee983a",
+        "spec/core/Test/Capstone/V08/RunV08.lean": "63345752b8a665a547b1af97a3c55f4696f64a3ae41e5cc633ad35a3a44f0324",
+        "spec/core/lakefile.lean": "e1757f529d46ba45829cbd25af7d5abb6e0e15788f5ec6abac38e8c873933f79",
+        "spec/db/axiom-manifest.txt": "d426dab8236df59973accff9d4ea8446c5745d2a145ad8594e6be44e2ffaea84",
+        "spec/proofs/BitcoinProofs.lean": "b9a1c5a6941137b661ab21ab65d1ea2c9d09a004b96ff9de11aeaaa95085f663",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "05c9ed6a14ee38ff655194bf3886abac2d13733277179bb9755c10c27ba27d04",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneContext.lean": "a46e1bc00e7380e783144c5e2f8bcb8603520a96b133a5af90bd1fb9acb7f09e",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean": "597a5336358912f0ba65eb63452e9da11a0dc338b76d48f60275e27a720af3de",
+        "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "5222d4991c1eea30a59985f1b8212e9bc88380b115fba4f32e14bd2f921d4326",
+        "spec/scripts/axiom_probe.lean": "8c89e8e5da069734a2a033dfc5202400e738f31f16a1a01bdd119cda52d7cf41",
+        "spec/scripts/proof_scope.py": "8807190b8b56f86f42d1e11740c87f02a7631d321be30cf36455e8a399ca0dd8"
+      }
     },
     {
       "id": "R05",
@@ -1161,13 +1277,15 @@
     "All directly affected proof consumers build; core Bitcoin build (72 jobs) and lake test pass",
     "Closed tagged-hole and arbitrary-axiom bypasses with tests in the CI-equivalent gates; fixed portable concurrent probe temporaries",
     "Reviewed and integrated upstream PR19 sigop accuracy changes; PDW29 target verified with the R02 build.",
-    "R02 live checked-fee accumulation and coinbase funding verified: 20 funding tests, 13 retained value tests, core build/test, default proof root plus affected consumers, 232-entry dynamic axiom check, all static/generated gates."
+    "R02 live checked-fee accumulation and coinbase funding verified: 20 funding tests, 13 retained value tests, core build/test, default proof root plus affected consumers, 232-entry dynamic axiom check, all static/generated gates.",
+    "R04 contextual-header composition verified with real block 1, five baseline failures, 23 new checks, five guarded kernel proofs and 238-entry dynamic axiom manifest.",
+    "Primary replay false-green on empty/missing input fixed; current default proof closure 31 of 411 modules; outside matrix remains pending."
   ],
   "external_blockers": [],
   "next_actions": [
-    "Continue explicit chain/time context and finality/BIP68/block-sigop composition (R03/R04 and issue4)",
-    "Continue witness/Taproot and historical-exception fixes (R05-R07)",
-    "Complete declaration/build coverage, census and remaining issue checklist under full goal"
+    "Compose absolute finality, both BIP68 domains and live sigop budget (R03/issue4) using explicit ChainContext",
+    "Repair commitment semantics, Taproot adjudication and hash-aware historical exceptions (R05-R07)",
+    "Complete declaration/build coverage, census revalidation, archive/evidence work and remaining issue checklist"
   ],
   "verification": [
     {
@@ -1200,6 +1318,17 @@
       "title": "BSD mktemp suffix creates a literal filename and collides across probes",
       "status": "fixed_and_verified",
       "evidence": "Two old.XXXXXX.txt mktemp calls returned a literal name then File exists; trailing-XXXXXX generated two unique names. Static mode no longer allocates a temp; dynamic uses portable trailing X template; eight concurrent mocked probes pass and clean up."
+    },
+    {
+      "id": "R08b",
+      "title": "Empty or missing anchor input can produce a false-green primary replay summary",
+      "status": "fixed_and_verified",
+      "before_exit_code": 0,
+      "before_output": "SUMMARY blocks=0 allOk=true totalMs=0\n",
+      "after_exit_code": 1,
+      "after_output": "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated\nSUMMARY blocks=0 missing=0 allOk=false totalMs=0\nuncaught exception: capstone: replay checks failed or the selected input corpus is incomplete\n",
+      "test_command": "CAPSTONE_ONLY=1 capstone (new compiled binary); old Run.lean at 140e8ef via lake env lean --run in a distinct namespace",
+      "scope": "Primary capstone runner now requires nonempty selected results and zero missing files; fixed-list variants already attempt every input and throw on missing files; GenchainRun already rejects empty input."
     }
   ]
 }

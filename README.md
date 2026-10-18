@@ -111,15 +111,15 @@ lake test
 cd ../proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
-# This is the 29-module default import closure, not all 409 proof modules.
+# This is the 31-module default import closure, not all 411 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-default closure is 29 modules. A fresh per-name run covers the 380
-outside-closure modules (381 `.lean` entries when the non-module
-`lakefile.lean` is counted): 365 build and 15 do not. None of the failures is
-a cited target. See [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for the exact
-scope and failure list. The
+default closure is 31 of the current 411 proof modules. The remaining 380
+modules require the full build review; the previously reported 365 passes
+and 15 failures are historical upstream results. See
+[`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for exact verification scope.
+The
 optional capstone runner replays serialized mainnet anchor blocks through the
 model. Extract the data bundle at the repository root so its `spec/vectors`
 tree is at the path the runner reads:
@@ -133,6 +133,17 @@ lake exe capstone
 The anchor blocks are supplied by the release bundle, not tracked in git (see
 [Data and release assets](#data-and-release-assets)). The run is offline. It
 is not a live-network node.
+
+The runner calls `Bitcoin.Capstone.Block.replayBlock`, an explicit partial
+adapter with supplied height, parent hash and UTXOs. It has no ancestor or
+node-clock context. `validateBlockInContext` additionally requires the caller's
+validated parent-chain index, checks expected mainnet nBits and retargeting,
+requires the complete parent MTP window, and enforces the node-clock future
+bound. Missing history returns an unavailable-context error; it is never
+replaced by zeros. Reports expose `headerContextChecked`. Both paths still
+have the separately tracked finality/BIP68, sigop-budget, Taproot and historical
+exception gaps, so success is not a claim of full consensus validation.
+
 
 ## Data and release assets
 

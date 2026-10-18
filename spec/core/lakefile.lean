@@ -22,6 +22,6 @@ lean_lib Bitcoin where
 lean_exe btclean where
   root := `Main
 
-/-- the capstone runner (compiled): the end-to-end anchor validation. -/
+/-- Compiled partial anchor replay; ancestor/time context is not supplied. -/
 lean_exe capstone where
   root := `Test.Capstone.Run

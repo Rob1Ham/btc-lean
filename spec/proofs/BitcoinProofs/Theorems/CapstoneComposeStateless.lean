@@ -235,11 +235,11 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   obtain ⟨hg1, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-022
   obtain ⟨hg2, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-027/028
   obtain ⟨hg3, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-029
-  obtain ⟨hg5, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-060..062
-  obtain ⟨hg6, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-069
   obtain ⟨hg7, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-038 target
   obtain ⟨hg8, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-039 pow
   obtain ⟨_, hJP⟩ := guard_inv _ _ _ _ hJP        -- chain link (contextual)
+  obtain ⟨hg5, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-060..062
+  obtain ⟨hg6, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-069
   obtain ⟨hg9, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-010 merkle
   obtain ⟨_, hJP⟩ := guard_inv _ _ _ _ hJP        -- BLK-011 mutation
   obtain ⟨hgc, hJP⟩ := guard2_inv _ _ _ _ _ _ hJP -- BLK-019/020

@@ -451,16 +451,16 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       obtain ⟨hg2, hval⟩ := gate_step _ _ hval
       -- gate: cbLengthOk (BLK-029; private dummy stand-in)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
-      -- gate: versionOk (BLK-060/061/062)
-      obtain ⟨hg4, hval⟩ := gate_step _ _ hval
-      -- gate: bip34Ok (BLK-069; private dummy stand-in)
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- gate: targetOk (BLK-038)
       obtain ⟨hg5, hval⟩ := gate_step _ _ hval
       -- gate: powOk (BLK-039)
       obtain ⟨hg6, hval⟩ := gate_step _ _ hval
       -- gate: chain link
       obtain ⟨hg7, hval⟩ := gate_step _ _ hval
+      -- gate: versionOk (BLK-060/061/062)
+      obtain ⟨hg4, hval⟩ := gate_step _ _ hval
+      -- gate: bip34Ok (BLK-069; private dummy stand-in)
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- gate: merkleOk (BLK-010)
       obtain ⟨hg8, hval⟩ := gate_step _ _ hval
       -- gate: merkleMutationOk (BLK-011)
