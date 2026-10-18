@@ -301,22 +301,33 @@ theorem applyBlockL_ok_no_bip30 (l l' : List (OutPoint × Coin)) (kf : Tx → Ke
   rw [htrue] at hc; cases hc
 
 /-- **Sound direction at the FULL pipeline**: a `validateBlock` success
-decodes to a header/tx list whose capstone fold is `applyBlockFoldL`
-at `txidKey`, satisfies every per-tx state predicate on the threaded view,
-and whose report UTXO list is the reference update fold. -/
+decodes to a header/tx list whose pre-block BIP30 overlap gate is quiet,
+whose capstone fold is W12's `applyBlockFoldL` at `txidKey`, satisfies
+every per-tx state predicate on the threaded view, and whose report UTXO
+list is the reference update fold. -/
 theorem validateBlock_ok_fold (raw : ByteArray) (st : CapState) (r : CapReport)
     (h : validateBlock raw st = Except.ok r) :
     ∃ (bh : Bitcoin.Chain.BlockHeader) (txs : List Tx),
       decodeBlock raw = Except.ok (bh, txs) ∧
+      (bip30BlockCollision (viewOf st.utxo) txidKey txs st.height
+        && bip30Enforced st.height) = false ∧
       applyBlockFoldL st.utxo txidKey txs st.height = Except.ok r.state.utxo ∧
       FoldPred st.utxo txidKey txs st.height ∧
       r.state.utxo = updateFoldL st.utxo txidKey txs st.height := by
-  obtain ⟨bh, txs, u', k, j, hdec, _, _, _, _, _, _, _, _, hfold, hst, _, _, _⟩ :=
+  obtain ⟨bh, txs, hdec, hbip30⟩ :=
+    BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_bip30_quiet raw st r h
+  obtain ⟨bh', txs', u', k, j, hdec', _, _, _, _, _, _, _, _, hfold, hst, _, _, _⟩ :=
     BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_shape raw st r h
+  have hbt : bh = bh' ∧ txs = txs' := by
+    rw [hdec] at hdec'
+    injection hdec' with hp
+    injection hp with h1 h2
+    exact ⟨h1, h2⟩
+  obtain ⟨rfl, rfl⟩ := hbt
   have hb : applyBlockFoldL st.utxo txidKey txs st.height = Except.ok u' :=
     applyTxs_ok_applyBlockFoldL st.height txs 0 0 0 st.utxo u' k j hfold
   have hp := (applyBlockFoldL_ok_iff_pred st.utxo u' txidKey txs st.height).mp hb
-  exact ⟨bh, txs, hdec, by rw [hst]; exact hb, hp.1, by rw [hst]; exact hp.2⟩
+  exact ⟨bh, txs, hdec, hbip30, by rw [hst]; exact hb, hp.1, by rw [hst]; exact hp.2⟩
 
 /-- **Undo-data consistency (per step)**: on a successful ledger step, the
 disconnect payload (`spentUndo`, Core's `CTxUndo` layout) restores the

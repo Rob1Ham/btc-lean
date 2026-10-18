@@ -27,9 +27,13 @@ per level, BEFORE odd-duplication) contains an equal adjacent pair;
   is definitional (the base's odd-level duplication folds `e‖f` exactly
   like the mutant's duplicate tail), so NO hash computation is needed;
 * the mutant is proven `mutatedDuplicate` / the base `plainMismatch`
-  (concrete leaves, real sha256d seam, `decide`);
-* the `[a,b,b]` over-check nuance (Lean flags the odd-tail pair Core's
-  even-position loop misses) is pinned — fidelity note F-Z03-004.
+  (concrete leaves, real sha256d seam; the mutant verdict is a kernel
+  proof, the concrete hash/root vectors are executed `#guard` pins
+  because this toolchain's kernel cannot reduce `ByteArray.get!` inside
+  the vendored SHA-256 compression loop);
+* the old `[a,b,b]` over-check is GONE: `levelHasAdjacentDup` now uses
+  Core's even-position pair scan (`a::b::rest`), so `[LA,LB,LB]` is not
+  flagged — fidelity note F-Z03-004 is resolved.
 
 ## C1 — CVE-2010-5139 class (2010 window)
 
@@ -91,7 +95,8 @@ private def b32 (v : UInt8) : ByteArray :=
 `Array`'s BEq is `isEqv … BEq.beq` — reflexivity is a one-simp fact,
 pinned here because the tree has no `LawfulBEq ByteArray` instance. -/
 private theorem byteq_self (c : ByteArray) : (c == c) = true := by
-  simp [ByteArray.beq, beq_self_eq_true]
+  rw [show (c == c) = (c.data == c.data) from rfl]
+  exact beq_self_eq_true c.data
 
 /-! ## C2: CVE-2012-2459 -/
 
@@ -124,34 +129,30 @@ hash of the upper levels is needed. -/
 theorem cve2459_mutant_kind (a b c : ByteArray) (fuel : Nat) :
     merkleFailureKind [a, b, c, c] (fuel + 1) = MerkleFailure.mutatedDuplicate := by
   have hd : levelHasAdjacentDup [a, b, c, c] = true := by
-    unfold levelHasAdjacentDup
-    simp [byteq_self]
+    simp [levelHasAdjacentDup, byteq_self]
   have hm : merkleMutationFree [a, b, c, c] (fuel + 1) = false := by
     simp [merkleMutationFree, hd]
   simp [merkleFailureKind, hm]
 
-/-- The un-mutated 3-tx base classifies `plainMismatch` (concrete leaves,
-real sha256d seam: the level-1 pair `pairHash a b ≠ pairHash c c` must be
-actually decided). -/
-example : merkleFailureKind [LA, LB, LC] 4 = MerkleFailure.plainMismatch := by
-  decide
+-- The un-mutated 3-tx base classifies `plainMismatch` (concrete leaves,
+-- real sha256d seam). Executed pin: kernel `decide` cannot reduce the
+-- vendored SHA-256 `get!` in this toolchain.
+#guard merkleFailureKind [LA, LB, LC] 4 = MerkleFailure.plainMismatch
 
-/-- Concrete roots pinned against python3 (scratch z03_c2_merkle_probe.py):
-both twins' root = `223e023f…47bdac`. -/
-example : bytesBEq (merkleRootOf [LA, LB, LC])
-                   (merkleRootOf [LA, LB, LC, LC]) = true := by
-  decide
+-- Concrete roots pinned against python3 (scratch z03_c2_merkle_probe.py):
+-- both twins' root = `223e023f…47bdac`. Executed pins for the same reason.
+#guard bytesBEq (merkleRootOf [LA, LB, LC])
+                   (merkleRootOf [LA, LB, LC, LC]) = true
 
-example : merkleRootOf [LA, LB, LC] =
-    fromHex "223e023fadf1f053df26988871f893c821c28edf77d64a955e6c2a02d547bdac" := by
-  decide
+#guard merkleRootOf [LA, LB, LC] =
+    fromHex "223e023fadf1f053df26988871f893c821c28edf77d64a955e6c2a02d547bdac"
 
-/-- **F-Z03-004 nuance**: Lean's `levelHasAdjacentDup` scans ALL
-consecutive pairs; Core's loop (merkle.cpp:56-60) checks even-position
-pairs only, so an odd level ending `[.., b, b]` is flagged by Lean but
-not by Core. Accept/reject verdicts still coincide (roots differ from
-any smaller tree); only the error code differs. -/
-example : levelHasAdjacentDup [LA, LB, LB] = true := by
+/-- **F-Z03-004 resolved**: `levelHasAdjacentDup` now uses Core's
+even-position pair scan (merkle.cpp:56-60: `a::b::rest`, recurse on
+`rest`), so an odd level ending `[.., b, b]` is no longer flagged.
+This is exactly the audit repair: the old all-consecutive-pairs scan
+over-rejected `[LA,LB,LB]` relative to Core. -/
+example : levelHasAdjacentDup [LA, LB, LB] = false := by
   decide
 
 end C2

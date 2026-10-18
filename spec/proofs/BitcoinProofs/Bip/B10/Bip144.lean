@@ -39,6 +39,10 @@ carries no consensus force and is out of scope):
   `encodeTx144 tx = serTx tx` when the witness is empty — hence an
   empty witness gives wtxid = txid. The hash functions themselves are
   the core-side seam (TXV-017/018), not re-implemented here.
+* K6 values: a txout value is a raw `int64_t`; the codec decodes it with
+  `u64ToAmt`, so a high bit set is a two's-complement NEGATIVE amount
+  (later rejected by `bad-txns-vout-negative`), not a huge unsigned
+  amount.
 -/
 
 namespace BitcoinProofs.Bip.B10
@@ -102,11 +106,14 @@ def rdVin (b : ByteArray) (i : Nat) : Except Err (TxIn × Nat) := do
   let sq ← rdBytes b sb.2 4
   .ok (⟨⟨h.1, le32 n.1⟩, ⟨sb.1⟩, le32 sq.1⟩, sq.2)
 
+/-- 8-byte little-endian → signed `CAmount` (two's complement). Core
+serializes `int64_t`, so a high bit set is a NEGATIVE output value (the
+`bad-txns-vout-negative` class), not a huge unsigned amount. -/
 def rdVout (b : ByteArray) (i : Nat) : Except Err (TxOut × Nat) := do
   let v ← rdBytes b i 8
   let sl ← rdCs b v.2
   let sb ← rdBytes b sl.2 sl.1
-  .ok (⟨(rdU64 v.1 : Amount), ⟨sb.1⟩⟩, sb.2)
+  .ok (⟨u64ToAmt (rdU64 v.1), ⟨sb.1⟩⟩, sb.2)
 
 def rdList {α : Type} (rd : ByteArray → Nat → Except Err (α × Nat))
     (b : ByteArray) (i : Nat) : Nat → Except Err (List α × Nat)
@@ -337,5 +344,53 @@ theorem enc_empty_witness_base (tx : Tx) (h : ¬ txHasWitness tx) :
   simp only [encodeTx144]
   simp only [if_neg hc]
   simp [serTx, encVins, encVouts, ByteArray.append_assoc, ByteArray.empty_append]
+
+/-! ## V9 regression — int64 output signedness (BIP144 K6 / TXV-018)
+
+A wire value of `0xffffffffffffffff` is `-1`, not `2^64−1`: Core
+serializes `CAmount` as `int64_t` and `checkTransaction` rejects the
+negative amount (`bad-txns-vout-negative`). These are the regressions
+for the audit's BIP144 signed-decoding finding. -/
+
+def v9NegOneWire : ByteArray :=
+  bytesOf [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+
+theorem v9_leaf_v :
+    rdBytes (v9NegOneWire ++ bytesOf [0x01, 0x51]) 0 8 =
+      .ok (v9NegOneWire, 8) := by rfl
+
+theorem v9_leaf_sl :
+    rdCs (v9NegOneWire ++ bytesOf [0x01, 0x51]) 8 = .ok (1, 9) := by rfl
+
+theorem v9_leaf_sb :
+    rdBytes (v9NegOneWire ++ bytesOf [0x01, 0x51]) 9 1 =
+      .ok (bytesOf [0x51], 10) := by rfl
+
+theorem v9_u64_neg_one : u64ToAmt (rdU64 v9NegOneWire) = (-1 : Amount) := by
+  have h : rdU64 v9NegOneWire = 18446744073709551615 := by
+    unfold rdU64
+    rfl
+  rw [h]
+  rfl
+
+/-- V9 positive face: the codec decodes the high-bit wire value as the
+signed amount `-1`. -/
+theorem v9_value_is_negative_one :
+    rdVout (v9NegOneWire ++ bytesOf [0x01, 0x51]) 0 =
+      .ok (⟨(-1 : Amount), ⟨bytesOf [0x51]⟩⟩, 10) := by
+  unfold rdVout
+  simp only [Bind.bind, Except.bind.eq_2, v9_leaf_v, v9_leaf_sl, v9_leaf_sb,
+    v9_u64_neg_one]
+
+/-- V9 negative face: the raw unsigned reading `2^64−1` is not produced. -/
+theorem v9_value_not_unsigned :
+    rdVout (v9NegOneWire ++ bytesOf [0x01, 0x51]) 0 ≠
+      .ok (⟨((2 ^ 64 - 1 : Nat) : Amount), ⟨bytesOf [0x51]⟩⟩, 10) := by
+  rw [v9_value_is_negative_one]
+  intro h
+  injection h with hp
+  have hv : (-1 : Amount) = ((2 ^ 64 - 1 : Nat) : Amount) :=
+    congrArg TxOut.value (congrArg Prod.fst hp)
+  exact absurd hv (by decide)
 
 end BitcoinProofs.Bip.B10

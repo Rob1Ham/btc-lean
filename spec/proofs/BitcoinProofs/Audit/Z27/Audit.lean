@@ -29,23 +29,22 @@ Core semantics, exactly:
    32-byte element (`bad-witness-nonce-size`) with **unconstrained
    content**.
 
-shipped def `Bitcoin.Capstone.Merkle.witnessCommitmentOk` (**BLK-017**)
-captures (1) via `witnessLeaves` but hardcodes the zero reserved value in
-(2) — it compares against `SHA256D(witness_root ‖ 0x00…00)` only. Core
-accepts a block with nonce `0x01…01` and matching commitment; the shipped
-def rejects it. The faithful def IS in the tree:
-`Bitcoin.Invariants.RC08.witnessCommitmentMatch` (**INV-090**,
-validation.cpp:3898-3906), with the zero-nonce reduction theorem
-`witnessCommitmentMatch_zeroNonce` — but the Capstone pipeline
-(`Bitcoin.Capstone.Block`, Block.lean:341-349) runs the zero-hardcoded
-`witnessCommitmentOk`/`commitmentGate`, so the divergence is LIVE there
-(latent in practice: all pinned anchors use the zero nonce — 481824/709632
-coinbase nonces are 32 zero bytes, python-parsed).
+The shipped def `Bitcoin.Capstone.Merkle.witnessCommitmentOk` (**BLK-017**)
+originally captured (1) via `witnessLeaves` but hardcoded the zero reserved
+value in (2) — it compared against `SHA256D(witness_root ‖ 0x00…00)` only.
+Core accepts a block with nonce `0x01…01` and matching commitment; the old
+shipped def rejected it. **Repair:** `witnessCommitmentOk` now hashes the
+actual 32-byte `witnessReservedValue` (validation.cpp:3884-3906), exactly
+like `Bitcoin.Invariants.RC08.witnessCommitmentMatch` (**INV-090**) and the
+Capstone `commitmentGate`. The old zero-reserved reading is retained only
+as the reference def `witnessCommitmentOkZero`; the zero-nonce reduction
+theorem `witnessCommitmentMatch_zeroNonce` still pins that special case.
 
-Below: the nonce never enters `witnessMerkleRoot` / `witnessCommitmentOk`
-(abstract theorems), plus concrete `rfl` (kernel-computed) pins of the decisive
-nonce=0x01…01 block (Core VALID / shipped def false) and the zero-nonce
-agreement case.
+Below: the nonce never enters `witnessMerkleRoot` (abstract theorem), the
+repaired def consults the actual reserved value, and concrete executed pins
+separate the zero nonce from `0x01…01` — including the former divergence
+(`N1/COM1` now accepted) and the former unsoundness (`N1/COM0` now
+rejected).
 
 ## C2 — merkle odd-case: duplicate-last hash THEN pair (merkle.cpp:53-73)
 
@@ -160,18 +159,18 @@ theorem witnessMerkleRoot_ignores_cb_witness (cb : Tx) :
 
 /-! ## C1 — witness commitment: leaf-0 zero vs the UNCONSTRAINED nonce -/
 
-/-- The shipped BLK-017 def never consults the coinbase witness: two
-coinbases with identical vout get identical verdicts even when their
-reserved values differ. This is the formal statement of the divergence
-(F-Z27-001): the def models the zero-reserved special case only. -/
-theorem witnessCommitmentOk_ignores_coinbase_witness (txs : List Tx) (tx₁ tx₂ : Tx)
-    (h : tx₁.vout = tx₂.vout) :
-    witnessCommitmentOk txs tx₁ = witnessCommitmentOk txs tx₂ := by
-  have hcongr : witnessCommitmentOutput tx₁ = witnessCommitmentOutput tx₂ := by
-    unfold witnessCommitmentOutput
-    rw [h]
-  unfold witnessCommitmentOk
-  rw [hcongr]
+/-- **F-Z27-001 repaired**: the shipped BLK-017 def now hashes the actual
+reserved value. On a selected commitment output, its verdict is exactly
+`SHA256D(witness_root ‖ reserved) = script[6..38]` for the coinbase's
+32-byte witness item — not a fixed zero. -/
+theorem witnessCommitmentOk_uses_reserved (txs : List Tx) (cb : Tx)
+    (script reserved : ByteArray)
+    (ho : witnessCommitmentOutput cb = some script)
+    (hr : witnessReservedValue cb = some reserved) :
+    witnessCommitmentOk txs cb =
+      bytesBEq (sha256d (witnessMerkleRoot txs ++ reserved))
+        (script.extract 6 38) := by
+  simp [witnessCommitmentOk, ho, hr]
 
 /-- Concrete nonce vectors: `N0 = 0x00…00`, `N1 = 0x01…01` (content
 unconstrained in Core — `bad-witness-nonce-size` fixes only SIZE, 32). -/
@@ -212,38 +211,34 @@ is ALSO VALID — the reserved value's content is unconstrained
 #eval pin "Core: 0x01…01-nonce commitment VALID"
   (witnessCommitmentMatch [cbTx N1 COM1] (cbTx N1 COM1))
 
-/- The shipped BLK-017 def agrees with Core on the zero-nonce block… -/
-#eval pin "shipped def agrees on zero-nonce block"
+/- The repaired BLK-017 def agrees with Core on the zero-nonce block… -/
+#eval pin "repaired def agrees on zero-nonce block"
   (witnessCommitmentOk [cbTx N0 COM0] (cbTx N0 COM0))
 
-/- …but DIVERGES on the `0x01…01`-nonce block: the shipped def returns
-`false` (it only ever compares against `SHA256D(witroot ‖ 0^32)`), while
-Core accepts. Decisive F-Z27-001 witness, python-mirrored. -/
-#eval pin "shipped def DIVERGES on 0x01…01 nonce"
-  (!(witnessCommitmentOk [cbTx N1 COM1] (cbTx N1 COM1)))
+/- …and no longer diverges on the `0x01…01`-nonce block: it hashes the
+actual reserved value, so `N1/COM1` is accepted exactly as Core does.
+Decisive F-Z27-001 witness (post-repair), python-mirrored. -/
+#eval pin "repaired def accepts 0x01…01 nonce with matching commitment"
+  (witnessCommitmentOk [cbTx N1 COM1] (cbTx N1 COM1))
 
-/- The divergence is two-sided, and stronger than mere incompleteness: on a
-block whose commitment is bound to the WRONG nonce (`witness = N1`,
-`commitment = COM0`) Core rejects, while the shipped nonce-blind def
-ACCEPTS it because it recomputes against the all-zero nonce and finds
-`COM0`. So the shipped def is INCOMPLETE (rejects the valid `N1/COM1` block)
-AND UNSOUND (accepts the invalid `N1/COM0` block) for non-zero reserved
-values; it is exact only in the zero-nonce special case. This is the
-content of `witnessCommitmentOk_ignores_coinbase_witness` above. -/
-#eval pin "wrong-nonce block ACCEPTED by nonce-blind shipped def"
-  (witnessCommitmentOk [cbTx N1 COM0] (cbTx N1 COM0))
+/- The former unsoundness is gone too: a block whose commitment is bound
+to the WRONG nonce (`witness = N1`, `commitment = COM0`) is now rejected,
+because the gate hashes `N1` rather than the old hard-coded zero. -/
+#eval pin "wrong-nonce block rejected by repaired def"
+  (!(witnessCommitmentOk [cbTx N1 COM0] (cbTx N1 COM0)))
 #eval pin "wrong-nonce block rejected (Core-faithful)"
   (!(witnessCommitmentMatch [cbTx N1 COM0] (cbTx N1 COM0)))
 
 /-! Cross-references (already in-tree, sorry-free):
 * `Bitcoin.Invariants.RC08.witnessCommitmentMatch` — the Core-faithful
   def (INV-090), validation.cpp:3898-3906.
-* `Bitcoin.Invariants.RC08.witnessCommitmentMatch_zeroNonce` — the shipped
-  BLK-017 def is exactly the zero-reserved special case.
+* `Bitcoin.Invariants.RC08.witnessCommitmentMatch_zeroNonce` — the retained
+  `witnessCommitmentOkZero` reference is exactly the zero-reserved special
+  case of the repaired BLK-017 def.
 * `Bitcoin.Proofs.Theorems.CapstoneCommitmentCor.witnessMerkleRoot_single_cb`
   — the leaf-0 zero rule (BLK-014 corollary).
 * `Bitcoin.Capstone.Block` (acceptBlock) wires `commitmentGate` →
-  `witnessCommitmentOk`, i.e. the zero-hardcoded variant, live in the
+  `witnessCommitmentOk`, now with the actual reserved value, live in the
   pipeline (Block.lean:341-349).
 -/
 

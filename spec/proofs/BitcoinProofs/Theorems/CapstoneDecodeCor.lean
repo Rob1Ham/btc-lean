@@ -536,11 +536,13 @@ theorem validateBlock_ok_decode (raw : ByteArray) (st : Bitcoin.Capstone.Block.C
   obtain ⟨h, txs, hdec, hJP⟩ := decodeMatch_inv raw _ _ hv
   refine ⟨h, txs, hdec, ?_⟩
   -- Collapse every guard's throw-branch to `Except.error` (definitional),
-  -- then peel the 15 guard levels of the pipeline (BLK-022/027/028/029,
+  -- then peel the 16 guard levels of the pipeline (BLK-022/027/028/029,
   -- 060..062/069, 037..039, chain-link, BLK-010/011, 015..020, 023..026): each
   -- `ite` either threw (contradiction with `hv : … = .ok rep`) or the run
   -- continued along the else-branch.
   simp only [bind_throw] at hJP
+  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
+    first | exact absurd hJP (errNeOk _ _) | skip
   rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
     first | exact absurd hJP (errNeOk _ _) | skip
   rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>

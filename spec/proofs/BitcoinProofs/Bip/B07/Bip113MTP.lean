@@ -14,7 +14,8 @@ BIP113 "Median time-past as endpoint for lock-time calculations"
 (bip-0113.mediawiki, License: PD — public domain). Consensus clauses:
 
 * C1  `GetMedianTimePast`: median of the last ≤11 block times INCLUDING the
-  queried index, ascending sort, middle element `(n-1)/2` (chain.h:233-244).
+  queried index, ascending sort, middle element `n/2` — the UPPER median
+  for an even count (chain.h:233-244, `pbegin[(pend - pbegin)/2]`).
 * C2  Consensus `IsFinalTx` calls use `GetMedianTimePast(pindexPrev)` — the
   PREVIOUS block's MTP, not the block's own (lie-able) timestamp.
 * C3  The rule applies to ALL transactions, including the coinbase; a
@@ -28,9 +29,9 @@ defs, so drift from Core semantics fails the build.
 
 Mutation kills (mutation-thinking, each verified in ref_bip113.py):
 * span 12 → MTP(1000011) changes if block h-11 changes (tested: it doesn't)
-* span 10 → MTP(1000011) = 1470001800 ≠ golden 1470002100
+* span 10 → MTP(1000011) = 1470002400 ≠ golden 1470002100
 * self-excluded → MTP(1000010) = 1470001500 ≠ golden 1470001800
-* ceil-median n/2 → MTP(1) of 2 blocks = 600000000 ≠ golden 500000000
+* lower-median (n−1)/2 → MTP(1) of 2 blocks = 500000000 ≠ golden 600000000
 * cutoff `≤` instead of `<` → lt == MTP flips final
 * block-time cutoff (pre-BIP113) → lt = 1.55e9 flips final
 * domain-swap at LOCKTIME_THRESHOLD → boundary tests flip
@@ -47,12 +48,14 @@ open Bitcoin.TxValidation Bitcoin.TxValidation.Mempool Bitcoin.Ledger
 
 /-! ## Chain fixture (heights 1,000,000..1,000,011; non-monotone times) -/
 
-/-- Non-monotone times, all distinct. The outlier 1470099999 sits at
-h=1,000,001, which keeps the chain BIP113-valid (`T[h] > MTP(h-1)`,
-asserted below). -/
+/-- Strictly increasing chain fixture (heights 1,000,000..1,000,011).
+The previous fixture placed an outlier at h=1,000,001; with Core's upper
+median that outlier becomes the MTP for the next block, so no subsequent
+sub-1470099999 time could satisfy `time-too-old`. A monotone chain is
+the smallest fixture that is BIP113-valid under the correct median. -/
 def ts : List UInt32 :=
-  [1470000250, 1470099999, 1470000300, 1470001200, 1470000900, 1470001500,
-   1470002100, 1470001800, 1470002400, 1470002700, 1470003000, 1470003300]
+  [1470000250, 1470000300, 1470000900, 1470001200, 1470001500, 1470001800,
+   1470002100, 1470002400, 1470002700, 1470003000, 1470003300, 1470003600]
 
 /-- Map-model accessor: `chain h = nTime(h)`, holes → none. The `1000000 ≤ h`
 guard keeps `Nat`-subtraction from aliasing pre-chain heights onto index 0. -/
@@ -61,8 +64,8 @@ def chain (h : Nat) : Option UInt32 :=
 
 /-- Same chain except height 1,000,000 (the h-11 block for h=1,000,011). -/
 def ts2 : List UInt32 :=
-  [1479999999, 1470099999, 1470000300, 1470001200, 1470000900, 1470001500,
-   1470002100, 1470001800, 1470002400, 1470002700, 1470003000, 1470003300]
+  [1479999999, 1470000300, 1470000900, 1470001200, 1470001500, 1470001800,
+   1470002100, 1470002400, 1470002700, 1470003000, 1470003300, 1470003600]
 
 def chain2 (h : Nat) : Option UInt32 :=
   if 1000000 ≤ h then ts2[h - 1000000]? else none
@@ -83,7 +86,7 @@ theorem mtp_golden_next :
     medianTimePast chain 1000011 = some (1470002100 : UInt32) := by decide
 
 theorem mtp_golden_ten_elem_window :
-    medianTimePast chain 1000009 = some (1470001500 : UInt32) := by decide
+    medianTimePast chain 1000009 = some (1470001800 : UInt32) := by decide
 
 /-- **Span killer (span ≥ 12)**: changing block h-11 does NOT move MTP(h). -/
 theorem mtp_ignores_h_minus_11 :
@@ -91,12 +94,13 @@ theorem mtp_ignores_h_minus_11 :
   decide
 
 /-- Span killer (span ≤ 10): a span-10 implementation at h=1,000,011 takes
-the window T[1,000,002..1,000,011] (dropping the max outlier at h-10) whose
-median — per ref_bip113.py — is 1470001800, NOT the golden 1470002100.
-So `mtp_golden_next` above already fails any span-10 build; stated here as
-documentation rather than a duplicate implementation of the mutation. -/
+the window T[1,000,002..1,000,011] (dropping the oldest time at h-10) whose
+upper median — per the same fixture — is 1470002400, NOT the golden
+1470002100. So `mtp_golden_next` above already fails any span-10 build;
+stated here as documentation rather than a duplicate implementation of the
+mutation. -/
 theorem mtp_ten_window_mutation_value :
-    mtpD 1000011 ≠ 1470001800 := by decide
+    mtpD 1000011 ≠ 1470002400 := by decide
 
 /-! ## C1': monotonicity of MTP along the (time-too-old-valid) chain -/
 
@@ -128,11 +132,18 @@ theorem mtp_mono_concrete :
 
 /-! ## C1 edge cases: even counts, n=1, holes -/
 
-/-- Two-block chain: even count ⇒ LOWER median, index `(n-1)/2 = 0`. -/
-theorem mtp_even_count_lower_median :
+/-- Two-block chain: even count ⇒ Core's UPPER median, index `n/2 = 1`. -/
+theorem mtp_even_count_upper_median :
     let small : Nat → Option UInt32 := fun h => if h = 0 then some 500000000
       else if h = 1 then some 600000000 else none
-    medianTimePast small 1 = some (500000000 : UInt32) := by decide
+    medianTimePast small 1 = some (600000000 : UInt32) := by decide
+
+/-- The lower-median mutation (`(n−1)/2`) is a different verdict on the
+same two-block chain, so this pair is a regression check for the fix. -/
+theorem mtp_even_count_not_lower_median :
+    let small : Nat → Option UInt32 := fun h => if h = 0 then some 500000000
+      else if h = 1 then some 600000000 else none
+    medianTimePast small 1 ≠ some (500000000 : UInt32) := by decide
 
 /-- Genesis: single block, median = its own time. -/
 theorem mtp_single_block :

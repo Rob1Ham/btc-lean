@@ -26,14 +26,16 @@ Direct ports of Core `consensus/merkle.cpp @cce32b168`:
   coinbase output ≥ 38 bytes whose script starts `6a24aa21a9ed`; the last
   one counts. **BLK-016**: its value is 0.
 * `witnessCommitmentOk` — **BLK-017**:
-  `SHA256d(witnessRoot ‖ reserved) = scriptPubKey[6..38]`.
+  `SHA256d(witnessRoot ‖ reserved) = scriptPubKey[6..38]`, where the
+  32-byte item is the coinbase witness reserved value (the
+  zero-reserved shape is the `witnessCommitmentOkZero` reference).
 * `commitmentNonceOk` — **BLK-018**: the coinbase scriptWitness is
   exactly one 32-byte element (`bad-witness-nonce-size`).
 * `commitmentGate` — **BLK-019/BLK-020**: witness txs exist iff a valid
   commitment does (`unexpected-witness` otherwise).
 
-BLK-011 (adjacent-duplicate rejection) is enforced by the pipeline through
-`merkleMutationOk`: the fold below is the import-cycle bridge to
+BLK-011 (pair-aligned-duplicate rejection) is enforced by the pipeline
+through `merkleMutationOk`: the fold below is the import-cycle bridge to
 `Bitcoin.Block.Connect.merkleMutationFree` (Connect imports this module and
 `Capstone/Block.lean`, so the pipeline cannot import Connect directly).
 `PDW12.merkleMutationFreeCap_eq` proves the bridge is exactly Connect's
@@ -104,8 +106,8 @@ def merkleOk (h : BlockHeader) (txs : List Tx) : Bool :=
 
 Core's `CheckMerkleRoot` (merkle.cpp:55-73, validation.cpp:3853-3864)
 runs the root comparison and the CVE-2012-2459 `mutated` scan in the same
-place and returns `bad-txns-duplicate` for a tree with an adjacent-equal
-level. The executable detector is
+place and returns `bad-txns-duplicate` for a tree with an equal pair at
+an EVEN offset in some level. The executable detector is
 `Bitcoin.Block.Connect.merkleMutationFree`; because `Block/Connect.lean`
 imports both this module and `Capstone/Block.lean`, the real pipeline
 cannot import it without a module cycle. The definitions below are the
@@ -114,15 +116,15 @@ module `PDW12.lean` proves `merkleMutationFreeCap = merkleMutationFree`
 (using Connect's `levelHasAdjacentDup` characterization), so the pipeline
 gate has exactly the existing detector's semantics. -/
 
-/-- BLK-011 bridge: adjacent-equal pair scan over one merkle level.
+/-- BLK-011 bridge: pair-aligned equal-pair scan over one merkle level.
 Identical body to `Bitcoin.Block.Connect.levelHasAdjacentDup`. -/
 def levelHasAdjacentDupCap : List ByteArray → Bool
   | [] => false
   | [_] => false
-  | a :: b :: rest => (a == b) || levelHasAdjacentDupCap (b :: rest)
+  | a :: b :: rest => (a == b) || levelHasAdjacentDupCap rest
 
 /-- BLK-011 bridge: every level of the `merkleLevel` fold is
-adjacent-dup-free. Identical body to
+pair-aligned-dup-free. Identical body to
 `Bitcoin.Block.Connect.merkleMutationFree`. -/
 def merkleMutationFreeCap : List ByteArray → Nat → Bool
   | _, 0 => true
@@ -178,13 +180,38 @@ def commitmentValueZero (tx : Tx) : Bool :=
       38 ≤ o.scriptPubKey.bytes.size &&
       bytesBEq (o.scriptPubKey.bytes.extract 0 6) wcm)).all (fun o => o.value = 0)
 
-/-- **BLK-017**: `SHA256d(witnessRoot ‖ reserved) = script[6..38]`, where
-`reserved` is the 32-byte zero `uint256` (merkle.cpp:105 — `uint256()`);
-`script[6..38]` is the 32-byte commitment the coinbase carries.
+/-- The coinbase witness reserved value, exactly Core's
+`witness_stack.size() == 1 && witness_stack[0].size() == 32` shape
+(validation.cpp:3886-3893): the head witness stack must be the singleton
+`[nonce]` with `nonce.size = 32`; every other shape is `none` (the
+`bad-witness-nonce-size` reject is the caller's BLK-018 check). -/
+@[rule "BLK-017", rule "BLK-018", rule "SWT-030"]
+def witnessReservedValue (cb : Tx) : Option ByteArray :=
+  match cb.witness.getD 0 [] with
+  | [nonce] => if nonce.size = 32 then some nonce else none
+  | _ => none
+
+/-- **BLK-017**: `SHA256d(witnessRoot ‖ reserved) = script[6..38]`,
+where `reserved` is the ACTUAL coinbase witness reserved value (Core
+`CheckWitnessMalleation`, validation.cpp:3884-3906: the 32-byte item is
+hashed, not a hard-coded zero); `script[6..38]` is the 32-byte
+commitment the coinbase carries. The gate fails closed when no
+commitment output is selected or the reserved value is not exactly one
+32-byte item.
 SWT-030: the committed value = SHA256d(witness_merkle_root ‖
 reserved_value) compared to scriptPubKey[6..38]. -/
 @[rule "BLK-017", rule "SWT-030"]
 def witnessCommitmentOk (txs : List Tx) (cb : Tx) : Bool :=
+  match witnessCommitmentOutput cb, witnessReservedValue cb with
+  | some script, some reserved =>
+      bytesBEq (sha256d (witnessMerkleRoot txs ++ reserved))
+        (script.extract 6 38)
+  | _, _ => false
+
+/-- The pre-fix zero-reserved equation, retained as a reference so the
+compatibility proof (`WitnessCommitmentReserved.lean`) can state exactly
+what the old constant-only gate accepted. -/
+def witnessCommitmentOkZero (txs : List Tx) (cb : Tx) : Bool :=
   match witnessCommitmentOutput cb with
   | none => false
   | some script =>

@@ -105,20 +105,26 @@ theorem badMerkleRoot_reason :
 /-! ## BLK-011 — `levelHasAdjacentDup` fold-accept
 (ComputeMerkleRoot:55-63 + V:3853-3864, CVE-2012-2459).
 
-The 2+-element level scan is `a == b || recurse` (Connect.lean:
-205-208). Detect-lane (CVE-2012-2459 shape): two ADJACENT EQUAL
-hashes at a 2+-element head ⇒ the scan fires (`(a == b) = true →
-= true`, short-circuit `||`; hypothesis in the def's own exec
-`==` form; honest weaker form than the too-strong
-`= true → a = b` converse, which the right-recursion arm defeats:
-`lHad [x;y;y] = true` with `x ≠ y`). No-false-positive base pins:
-empty / single-hash levels never fire. -/
+Core's loop steps `i += 2` and compares `tree[i]` with `tree[i+1]`, so
+the mutation scan is over PAIR-ALIGNED adjacent entries only. The
+`[x,y,y]` odd-tail shape is NOT a mutation (the pre-2012 over-check is
+the audit finding). The detector name is kept for API stability; its
+body recurses on `rest` after consuming a pair, i.e. on even offsets.
+
+`AlignedDup` is the propositional rendering of that scan: a level has an
+equal pair starting at an even offset. -/
+
+/-- Pair-aligned duplicate predicate (Core's `i += 2` loop). -/
+def AlignedDup : List ByteArray → Prop
+  | [] => False
+  | [_] => False
+  | a :: b :: rest => a = b ∨ AlignedDup rest
 
 @[rule "BLK-011"]
 theorem levelHasAdjacentDup_cons2_of_beq (a b : ByteArray)
     (rest : List ByteArray) (h : (a == b) = true) :
     Bitcoin.Block.Connect.levelHasAdjacentDup (a :: b :: rest) = true := by
-  show ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup (b :: rest)) = true
+  show ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup rest) = true
   rw [h]
   simp
 
@@ -132,9 +138,9 @@ theorem levelHasAdjacentDup_singleton (a : ByteArray) :
 
 /-! ### REM-10: the converse / exact characterization
 
-The audit's missing direction: the detector fires **iff** some adjacent
-pair of equal hashes occurs. `pre`/`post` span every level shape, so
-this is not tied to a head-position or 2-element instance. -/
+The audit's missing direction, corrected to Core's even-offset loop: the
+detector fires **iff** some pair-aligned adjacent pair of equal hashes
+occurs. In particular `[a,b,b]` with `a ≠ b` does not fire. -/
 
 theorem beq_true_of_eq (a b : ByteArray) (h : a = b) : (a == b) = true := by
   subst h
@@ -143,56 +149,76 @@ theorem beq_true_of_eq (a b : ByteArray) (h : a = b) : (a == b) = true := by
 
 @[rule "BLK-011"]
 theorem levelHasAdjacentDup_eq_true_iff (l : List ByteArray) :
-    Bitcoin.Block.Connect.levelHasAdjacentDup l = true ↔
-      ∃ (pre : List ByteArray) (a b : ByteArray) (post : List ByteArray),
-        l = pre ++ a :: b :: post ∧ a = b := by
-  induction l using List.rec with
-  | nil => simp [Bitcoin.Block.Connect.levelHasAdjacentDup]
-  | cons x xs ih =>
-    cases xs with
-    | nil =>
-      simp only [Bitcoin.Block.Connect.levelHasAdjacentDup]
-      constructor
-      · intro h; cases h
-      · rintro ⟨pre, a, b, post, heq, _⟩
-        cases pre <;> simp at heq
-    | cons y rest =>
-      rw [show Bitcoin.Block.Connect.levelHasAdjacentDup (x :: y :: rest) =
-            ((x == y) || Bitcoin.Block.Connect.levelHasAdjacentDup (y :: rest)) from rfl]
-      rw [Bool.or_eq_true]
-      constructor
-      · rintro (hxy | hrec)
-        · exact ⟨[], x, y, rest, rfl, bytes_eq_of_beq_eq_true x y hxy⟩
-        · obtain ⟨pre, a, b, post, heq, hab⟩ := ih.mp hrec
-          exact ⟨x :: pre, a, b, post, by rw [heq]; rfl, hab⟩
-      · rintro ⟨pre, a, b, post, heq, hab⟩
-        cases pre with
-        | nil =>
-          simp only [List.nil_append, List.cons.injEq] at heq
-          obtain ⟨hx, hy, -⟩ := heq
-          subst hx
-          subst hy
-          exact Or.inl (beq_true_of_eq x y hab)
-        | cons z pre' =>
-          apply Or.inr
-          apply ih.mpr
-          refine ⟨pre', a, b, post, ?_, hab⟩
-          injection heq with _ htail
+    Bitcoin.Block.Connect.levelHasAdjacentDup l = true ↔ AlignedDup l := by
+  let P : Nat → Prop := fun n =>
+    ∀ l : List ByteArray, l.length = n →
+      (Bitcoin.Block.Connect.levelHasAdjacentDup l = true ↔ AlignedDup l)
+  have hP : ∀ n, P n := by
+    intro n
+    refine Nat.strongRecOn n ?_
+    intro n ih l hl
+    cases l with
+    | nil => simp [Bitcoin.Block.Connect.levelHasAdjacentDup, AlignedDup]
+    | cons x xs =>
+      cases xs with
+      | nil => simp [Bitcoin.Block.Connect.levelHasAdjacentDup, AlignedDup]
+      | cons y rest =>
+        have hrest : rest.length < n := by
+          simp only [List.length_cons] at hl
+          omega
+        have hrec := ih rest.length hrest rest rfl
+        show ((x == y) || Bitcoin.Block.Connect.levelHasAdjacentDup rest) = true ↔
+          (x = y ∨ AlignedDup rest)
+        rw [Bool.or_eq_true, hrec]
+        constructor
+        · rintro (h | h)
+          · exact Or.inl (bytes_eq_of_beq_eq_true x y h)
+          · exact Or.inr h
+        · rintro (h | h)
+          · exact Or.inl (beq_true_of_eq x y h)
+          · exact Or.inr h
+  exact hP l.length l rfl
 
 @[rule "BLK-011"]
 theorem levelHasAdjacentDup_eq_false_iff (l : List ByteArray) :
-    Bitcoin.Block.Connect.levelHasAdjacentDup l = false ↔
-      ¬ ∃ (pre : List ByteArray) (a b : ByteArray) (post : List ByteArray),
-        l = pre ++ a :: b :: post ∧ a = b := by
+    Bitcoin.Block.Connect.levelHasAdjacentDup l = false ↔ ¬ AlignedDup l := by
   constructor
-  · intro hf hex
-    have ht := (levelHasAdjacentDup_eq_true_iff l).mpr hex
+  · intro hf hd
+    have ht := (levelHasAdjacentDup_eq_true_iff l).mpr hd
     rw [ht] at hf
     cases hf
   · intro hno
     cases hb : Bitcoin.Block.Connect.levelHasAdjacentDup l with
     | false => rfl
     | true => exact absurd ((levelHasAdjacentDup_eq_true_iff l).mp hb) hno
+
+/-- Regression (CVE-2012-2459 over-rejection): `[a,b,b]` with `a ≠ b`
+is pair-unaligned at both positions, so Core does NOT flag it. The
+pre-fix detector did, because it compared every adjacent pair. -/
+@[rule "BLK-011"]
+theorem levelHasAdjacentDup_unaligned_tail (a b : ByteArray)
+    (hab : (a == b) = false) :
+    Bitcoin.Block.Connect.levelHasAdjacentDup [a, b, b] = false := by
+  show ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup [b]) = false
+  rw [hab]
+  rfl
+
+/-- Regression (the CVE proper): an aligned duplicate pair IS flagged. -/
+@[rule "BLK-011"]
+theorem levelHasAdjacentDup_aligned (a b rest : ByteArray)
+    (h : (a == b) = true) :
+    Bitcoin.Block.Connect.levelHasAdjacentDup [a, b, rest] = true :=
+  levelHasAdjacentDup_cons2_of_beq a b [rest] h
+
+/-- Regression: the aligned duplicate at offset 2 is flagged even when
+the leading pair differs. -/
+@[rule "BLK-011"]
+theorem levelHasAdjacentDup_aligned_offset_two (a b c : ByteArray)
+    (hab : (a == b) = false) :
+    Bitcoin.Block.Connect.levelHasAdjacentDup [a, b, c, c] = true := by
+  show ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup [c, c]) = true
+  rw [hab]
+  exact levelHasAdjacentDup_cons2_of_beq c c [] (beq_true_of_eq c c rfl)
 
 /-- The BLK-011 reject verdict: a 2+-element level with an adjacent
 equal pair forces the `BLOCK_MUTATED` classification (`bad-txns-duplicate`,
@@ -235,15 +261,28 @@ exactly `Bitcoin.Block.Connect.levelHasAdjacentDup`. -/
 theorem levelHasAdjacentDupCap_eq (l : List ByteArray) :
     Bitcoin.Capstone.Merkle.levelHasAdjacentDupCap l =
       Bitcoin.Block.Connect.levelHasAdjacentDup l := by
-  induction l using List.rec with
-  | nil => rfl
-  | cons a xs ih =>
-    cases xs with
+  let P : Nat → Prop := fun n =>
+    ∀ l : List ByteArray, l.length = n →
+      Bitcoin.Capstone.Merkle.levelHasAdjacentDupCap l =
+        Bitcoin.Block.Connect.levelHasAdjacentDup l
+  have hP : ∀ n, P n := by
+    intro n
+    refine Nat.strongRecOn n ?_
+    intro n ih l hl
+    cases l with
     | nil => rfl
-    | cons b rest =>
-      show ((a == b) || Bitcoin.Capstone.Merkle.levelHasAdjacentDupCap (b :: rest)) =
-        ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup (b :: rest))
-      rw [ih]
+    | cons a xs =>
+      cases xs with
+      | nil => rfl
+      | cons b rest =>
+        have hrest : rest.length < n := by
+          simp only [List.length_cons] at hl
+          omega
+        have hrec := ih rest.length hrest rest rfl
+        show ((a == b) || Bitcoin.Capstone.Merkle.levelHasAdjacentDupCap rest) =
+          ((a == b) || Bitcoin.Block.Connect.levelHasAdjacentDup rest)
+        rw [hrec]
+  exact hP l.length l rfl
 
 /-- BLK-011 bridge equality: the upstream mutation fold is exactly
 `Bitcoin.Block.Connect.merkleMutationFree`, at every fuel value. -/

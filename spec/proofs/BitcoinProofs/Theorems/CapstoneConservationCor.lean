@@ -585,11 +585,13 @@ private theorem validateBlock_ok_inv (raw : ByteArray) (st : CapState) (r : CapR
                             · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
                             · split at hcont
                               · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                              · obtain ⟨q, hap, hfin⟩ := peelOk _ _ _ hcont
-                                obtain ⟨utxo', okN, unjN⟩ := q
-                                simp only [] at hfin
-                                obtain ⟨rfl⟩ := Except.ok.inj hfin
-                                exact ⟨hd, txs, utxo', okN, unjN, heq, hap, rfl⟩
+                              · split at hcont
+                                · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
+                                · obtain ⟨q, hap, hfin⟩ := peelOk _ _ _ hcont
+                                  obtain ⟨utxo', okN, unjN⟩ := q
+                                  simp only [] at hfin
+                                  obtain ⟨rfl⟩ := Except.ok.inj hfin
+                                  exact ⟨hd, txs, utxo', okN, unjN, heq, hap, rfl⟩
 
 /-- **Bridge at the full pipeline (P15 item 4)**: a block that
 `validateBlock` accepts has its report UTXO list produced by the

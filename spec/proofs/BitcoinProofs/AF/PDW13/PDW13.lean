@@ -34,25 +34,25 @@ here (F-PDW13 hand-off, PDW11/PDW12 non-goal discipline). -/
 
 namespace BitcoinProofs.AF.PDW13
 
-/-! ## BLK-017 — `witnessCommitmentOk` (V:3898-3904):
-`SHA256d(witnessRoot ‖ reserved=0x00…00) = script[6..38]`.
+/-! ## BLK-017 — `witnessCommitmentOk` (V:3898-3906):
+`SHA256d(witnessRoot ‖ reserved) = script[6..38]`, where `reserved` is
+the coinbase witness reserved value (exactly one 32-byte item).
 
-The equation lane (some-output): the gate IS the row equation —
-no `bytesBEq`-folding (the binding soundness itself = the
-real-SHA seam, out of tier P5). The none-lane: no commitment
-output ⇒ the gate fails CLOSED (the `none` branch of
-`witnessCommitmentOutput` is `false` unconditionally =
-Cor `witnessCommitmentOk_needs_output`'s contrapositive). -/
+The equation lane (some-output + some-reserved): the gate IS the row
+equation — no `bytesBEq`-folding (the binding soundness itself = the
+real-SHA seam, out of tier P5). The none-lane: no commitment output or
+no valid reserved value ⇒ the gate fails CLOSED. -/
 
 @[rule "BLK-017"]
 theorem witnessCommitmentOk_eq_true (txs : List Bitcoin.Data.Tx)
-    (cb : Bitcoin.Data.Tx) (script : ByteArray)
-    (h : Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb = some script) :
+    (cb : Bitcoin.Data.Tx) (script reserved : ByteArray)
+    (h : Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb = some script)
+    (hr : Bitcoin.Capstone.Merkle.witnessReservedValue cb = some reserved) :
     Bitcoin.Capstone.Merkle.witnessCommitmentOk txs cb
       = Bitcoin.Data.bytesBEq (Bitcoin.Crypto.Seam.Hash.sha256d
           (Bitcoin.Capstone.Merkle.witnessMerkleRoot txs
-            ++ Bitcoin.Data.zeroBytes 32)) (script.extract 6 38) := by
-  rw [Bitcoin.Capstone.Merkle.witnessCommitmentOk, h]
+            ++ reserved)) (script.extract 6 38) := by
+  rw [Bitcoin.Capstone.Merkle.witnessCommitmentOk, h, hr]
 
 @[rule "BLK-017"]
 theorem witnessCommitmentOk_none (txs : List Bitcoin.Data.Tx)

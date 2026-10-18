@@ -15,12 +15,13 @@ python 3-way mirror sweeps). Per shape, three rows:
     rootEq = true is the CVE condition: BLK-010 (merkleOk) alone ACCEPTS.
   * `02` `merkleFailureKind mut (mut.length+1)` (BLK-011/BLK-012)
     — mutatedDuplicate = levelHasAdjacentDup fires somewhere
-    (overlap-pair scan, Core's non-overlapping-pair scan's superset).
+    (pair-aligned even-offset scan, Core merkle.cpp:60-62: compare
+    `tree[i] == tree[i+1]` in the `i += 2` loop, then push the odd tail).
   * `03` `merkleFailureKind base (base.length+1)` — the un-mutated base
     across all honest shapes (odd, even, 2^k): plainMismatch everywhere =
     BLK-008's odd-level duplication NEVER trips BLK-011 (no false
-    positive; the pushed self-pair is a single level-1 element, Core
-    merkle.cpp:60-62 order preserved: check pairs, then push).
+    positive; the pushed self-pair sits at an odd offset, so the
+    even-offset scan does not see it).
 
 Crosscheck: crosscheck.py parses this file's #eval output (lean_run.log)
 against shapes.json (python mirror) — rootEq/kind rows must agree with

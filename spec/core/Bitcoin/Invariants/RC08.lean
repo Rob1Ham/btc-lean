@@ -204,14 +204,19 @@ theorem witnessCommitmentMatch_digest_false (txs : List Tx) (cb : Tx)
   exact hne
 
 /-- Agreement with the shipped BLK-017 def: a 32-byte-zero reserved value
-is exactly the special case `witnessCommitmentOk` models. -/
+is exactly the special case captured by `witnessCommitmentOk` (which
+hashes the actual reserved item and therefore agrees here). -/
 @[rule "INV-090"]
 theorem witnessCommitmentMatch_zeroNonce (txs : List Tx) (cb : Tx)
     (h : cb.witness.getD 0 [] = [zeroBytes 32]) :
     witnessCommitmentMatch txs cb = witnessCommitmentOk txs cb := by
   have h32 : (zeroBytes 32).size = 32 := by decide
+  have hres : witnessReservedValue cb = some (zeroBytes 32) := by
+    unfold witnessReservedValue
+    rw [h]
+    simp [h32]
   unfold witnessCommitmentMatch witnessCommitmentOk
-  rw [h]
+  rw [h, hres]
   cases ho : witnessCommitmentOutput cb <;> simp [ho, h32]
 
 /-- A wrong-size reserved value fails the malleation check outright

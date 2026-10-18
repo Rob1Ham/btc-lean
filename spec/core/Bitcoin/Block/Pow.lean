@@ -224,16 +224,17 @@ private def sortBy (le : α → α → Bool) : List α → List α
 /-- **BLK-056**: `CBlockIndex::GetMedianTimePast` (chain.h:233-244) —
 the median of the last ≤11 block times **including** the index itself
 (= the block's own time; "self excluded" refers to the validation-side
-convention `MTP(prev)`), sorted, middle element `(n−1)/2`. Missing
-heights are skipped (Core walks a connected chain; the map model may
-have holes). -/
+convention `MTP(prev)`), sorted, middle element `n/2` (Core's
+`pbegin[(pend - pbegin) / 2]`, i.e. the UPPER median for an even count).
+Missing heights are skipped (Core walks a connected chain; the map model
+may have holes). -/
 @[rule "BLK-056"]
 def medianTimePast (get : Nat → Option UInt32) (h : Nat) : Option UInt32 :=
   let times : List UInt32 :=
     (List.range 11).filterMap (fun i => if h ≥ i then get (h - i) else none)
   match times with
   | [] => none
-  | _ => some ((sortBy (fun a b => a.toNat ≤ b.toNat) times).getD ((times.length - 1) / 2) 0)
+  | _ => some ((sortBy (fun a b => a.toNat ≤ b.toNat) times).getD (times.length / 2) 0)
 
 /-- **BLK-057** (`time-too-old`): a block's time must be STRICTLY above
 the parent's MTP (`block.GetBlockTime() <= pindexPrev->GetMedianTimePast()`
