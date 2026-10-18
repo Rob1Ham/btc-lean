@@ -42,13 +42,13 @@ Mathlib is large and is downloaded on the first build:
 ```sh
 cd spec/proofs
 lake build BitcoinProofs
-# recorded: Build completed successfully (1722 jobs).
+# recorded: Build completed successfully (1730 jobs).
 # 29-module default import closure, not all 409 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. A
 fresh per-name run covers the 380 outside-closure modules (381 `.lean` entries
-when the non-module `lakefile.lean` is counted): 365 build and 15 do not; none
+when the non-module `lakefile.lean` is counted): 372 build and 8 do not; none
 of the failures is a cited target. See [`PROOF-BUILD.md`](PROOF-BUILD.md).
 
 ## 4. Wallet layer

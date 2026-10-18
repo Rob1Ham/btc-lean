@@ -110,14 +110,14 @@ lake test
 # Proofs: theorem package, mathlib leaf dependency
 cd ../proofs
 lake build BitcoinProofs
-# recorded: Build completed successfully (1722 jobs).
+# recorded: Build completed successfully (1730 jobs).
 # This is the 29-module default import closure, not all 409 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
 default closure is 29 modules. A fresh per-name run covers the 380
 outside-closure modules (381 `.lean` entries when the non-module
-`lakefile.lean` is counted): 365 build and 15 do not. None of the failures is
+`lakefile.lean` is counted): 372 build and 8 do not. None of the failures is
 a cited target. See [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for the exact
 scope and failure list. The
 optional capstone runner replays serialized mainnet anchor blocks through the

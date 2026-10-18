@@ -8,9 +8,9 @@ against Core.
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 29-module closure; a fresh per-name run covers the
+`BitcoinProofs` target is a 29-module closure; a post-audit per-name run covers the
 380 outside-closure modules (381 `.lean` entries including the non-module
-`lakefile.lean`), of which 365 build individually and 15 do not. No cited
+`lakefile.lean`), of which 372 build individually and 8 do not. No cited
 target is in the failing set: `SCR-100`'s cited target,
 `Theorems.Ops.O07.step_codesep_const_dead`, now builds. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
