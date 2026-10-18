@@ -101,12 +101,12 @@ passed.
 - A `proven` row means its cited Lean target exists, is in the proof surface,
   and carries the row tag. It does not by itself mean the target paraphrases
   the whole row summary. Statement fidelity is reviewed separately.
-- The 27 accepted residuals remain explicit until the replacement target
+- The 25 accepted residuals remain explicit until the replacement target
   covers the Core claim. A repaired code path is not by itself grounds to
   delete a residual. The ledger and its generated evidence page are updated
   together.
-- Candidate status is provisional. No issue checkbox is checked until the
-  change is on `main` and the closeout validation passes.
+- Remediation status is recorded at the top of this page. No closeout claim
+  is made before a change is on `main` and its validation passes.
 - `validateBlock` without a supplied `ChainContext` is partial replay, not a
   full historical mainnet validation. Ancestor history and supplied UTXOs are
   conditional inputs, and a report with incomplete script adjudication is not
