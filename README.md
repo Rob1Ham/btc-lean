@@ -58,7 +58,7 @@ the repository does not publish a theorem-declaration count.
 The 50 `obsolete` rows are retired duplicates, policy-only boundaries, or
 out-of-scope entries. They remain rows rather than being deleted, which is
 why the denominator stays 726. Some proven rows are also boundary evidence:
-the database marks 70 rows `consensus: false` (43 proven and 27 obsolete), and
+the database marks 71 rows `consensus: false` (44 proven and 27 obsolete), and
 the theorem index lists the proven boundary rows separately from the proven
 consensus rows. `proven` means the row has a named Lean target and passes the
 traceability gates; it does not by itself assert byte-for-byte equivalence with

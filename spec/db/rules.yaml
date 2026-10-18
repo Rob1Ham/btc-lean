@@ -638,11 +638,11 @@ rules:
   consensus: true
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-056
-  summary: "Legacy BASE checksig FindAndDelete step, conditional only: if the model's `findAndDelete scriptCode (pushBytesWire sig)` reports a positive match count and `constScriptCode = false`, the ECDSA checker is invoked on `(findAndDelete ...).2`. No claim is made that the matching signature push is deleted; in the core model a whole-tail match is counted but re-appended (`findAndDelete b b = (1, b)`), whereas Core's FindAndDelete returns `(1, empty)`."
+  summary: "Legacy BASE checksig FindAndDelete step: when the model's `findAndDelete scriptCode (pushBytesWire sig)` reports a positive match count and `constScriptCode = false`, the ECDSA checker is invoked on the result. The matching push is deleted, including the whole-tail case (`findAndDelete b b = (1, empty)`); head/middle suffix behavior is covered by Test/Script/Interpreter/FindAndDeleteTest.lean."
   check: "FindAndDelete of matching sig in scriptCode"
   core_ref: "interpreter.cpp:FindAndDelete:239,340,1156@cce32b168"
   bip_cve: "Satoshi"
-  lean_target: "BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_sig, BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_whole_tail_retained, BitcoinProofs.AF.PDW59.findAndDelete_self_whole_tail_not_removed, BitcoinProofs.AF.PDW59.findAndDelete_pushBytesWire_self_not_removed, BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged, BitcoinProofs.AF.PDW59.findAndDelete_empty"
+  lean_target: "BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_sig, BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_whole_tail_deleted, BitcoinProofs.AF.PDW59.findAndDelete_self_removed, BitcoinProofs.AF.PDW59.findAndDelete_pushBytesWire_self_removed, BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged, BitcoinProofs.AF.PDW59.findAndDelete_empty"
   test_vector_ids: []
   status: proven
   difficulty: 4
@@ -2519,15 +2519,16 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.3 Push & encoding rules"
 - id: SCR-051
-  summary: "numeric operands always minimal"
-  check: "fRequireMinimal always for CLTV/CSV/CMS-counts/CHECKSIGADD-num"
+  summary: "minimal numeric operands under MINIMALDATA (policy, not consensus)"
+  check: "fRequireMinimal under MINIMALDATA for CLTV/CSV/CMS-counts/CHECKSIGADD-num"
   core_ref: "interpreter.cpp:556,584,1126,1140,1103@cce32b168"
   bip_cve: "BIP342/CLTV/CSV"
   lean_target: "BitcoinProofs.AF.PDW98.decodeNum_nonminimal, BitcoinProofs.AF.PDW98.stepBody_cltv_nonminimal, BitcoinProofs.AF.PDW98.stepBody_csv_nonminimal, BitcoinProofs.AF.PDW98.checkMultiSig_keycount_nonminimal, BitcoinProofs.AF.PDW98.checkMultiSig_sigcount_nonminimal, BitcoinProofs.AF.PDW98.stepBody_checksigadd_nonminimal"
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
+  notes: "BIP342/CLTV/CSV; MINIMALDATA is a policy flag. PDW95/PDW98 prove non-minimal rejection only when pol.minimalData=true; the consensus path accepts non-minimal encodings."
   source: "06-script-interpreter.md:AppendixB §B.3 Push & encoding rules"
 - id: SCR-052
   summary: "opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push"

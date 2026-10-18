@@ -543,15 +543,19 @@ def findAndDeleteAux (script b : ByteArray) :
         | none => (found', acc1)   -- truncated tail: loop exits (Core GetOp failure)
         | some (_, next) => findAndDeleteAux script b fuel next pc' acc1 found'
 
-/-- the `pc2` left by the final loop iteration — recomputed by a second
-walk (kept simple; FindAndDelete only runs on small scripts). -/
+/-- The `pc2` left by the final loop iteration — recomputed by a second
+walk (kept simple; FindAndDelete only runs on small scripts). This is the
+**post-match** position: Core assigns `pc2 = pc` after the greedy match
+loop and before the `GetOp` loop test (interpreter.cpp:239-265), so the
+final tail copy starts there. The base case returns the last post-match
+position, matching the value `pc2` had when the walk stopped. -/
 def fdLastPc2 (script b : ByteArray) : Nat → Nat → Nat → Nat
   | 0, _, pc2 => pc2
   | fuel+1, pc, pc2 =>
       let (pc', _) := findAndDeleteMatches script b pc 0 (script.size + 1)
-      if script.size ≤ pc' then pc2
+      if script.size ≤ pc' then pc'
       else match getOp script pc' with
-        | none => pc2
+        | none => pc'
         | some (_, next) => fdLastPc2 script b fuel next pc'
 
 /-- `FindAndDelete(script, b)` — deletes every opcode-boundary
@@ -1697,10 +1701,17 @@ theorem verifyWitnessProgram_other_pass (fuel : Nat)
       simp [verifyWitnessProgram, h32, hp2sh, hd]
     · simp [verifyWitnessProgram, h32, hd]
 
-/-- SCR-078 (`interpreter.cpp:67-72,65 @cce32b168`): every executed
-stack-pop opcode with an empty stack is pre-checked and returns
-`SCRIPT_ERR_INVALID_STACK_OPERATION`; the evaluator never reaches a
-throwing `popstack`, so `UNKNOWN_ERROR` is unreachable on this lane. -/
+/-- SCR-078 (`interpreter.cpp:67-72,65 @cce32b168`), **stack-shuffling
+subset**: the 19 opcodes listed in `hw` pre-check depth on an empty stack
+and return `SCRIPT_ERR_INVALID_STACK_OPERATION`, so the evaluator never
+reaches a throwing `popstack` on this lane.
+
+This theorem does **not** cover every consuming opcode: the flow ops
+(`OP_IF`/`OP_NOTIF`/`OP_VERIFY`/`OP_TOALTSTACK`), unary/binary numeric
+ops, `OP_WITHIN`, the hash ops, and the checksig family have their own
+underflow paths (and `OP_CHECKMULTISIG`/`OP_CHECKSIGADD` additionally
+depend on the sigversion). The blanket "all ops pre-check" reading is a
+model observation, not this theorem's statement. -/
 @[rule "SCR-078"]
 theorem stepBody_stackop_empty_underflow (ctx : Ctx) (op : WireOp) (st : State)
     (c : Fin 256) (ha : op.ast = .op c)

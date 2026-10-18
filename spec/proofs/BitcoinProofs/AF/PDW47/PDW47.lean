@@ -300,22 +300,30 @@ the same script. -/
 def CODESEP_POS_INIT : UInt32 := 0xFFFFFFFF
 
 /-- Fold `opcode_pos` over the `GetOp` walk: `idx` increments once per
-instruction, and an executed `OP_CODESEPARATOR` records the *current*
-index (`interpreter.cpp:1065`). -/
-def codesepPosFoldAux : List Bitcoin.Interpreter.WireOp → UInt32 → UInt32 → UInt32
+instruction (executed or not), and an **executed** `OP_CODESEPARATOR`
+records the *current* index (`interpreter.cpp:1065`, inside `if (fExec)`).
+
+`mask.getD idx false` is the `fExec` bit for the instruction at index
+`idx` — i.e. `st.vf.all id` after applying the surrounding IF/ELSE/ENDIF
+condition stack. An unexecuted `OP_CODESEPARATOR` leaves the position
+unchanged. -/
+def codesepPosFoldAux (mask : List Bool) :
+    List Bitcoin.Interpreter.WireOp → UInt32 → UInt32 → UInt32
   | [], _, pos => pos
   | op :: rest, idx, pos =>
-      codesepPosFoldAux rest (idx + 1)
-        (if op.wire = 0xab then idx else pos)
+      codesepPosFoldAux mask rest (idx + 1)
+        (if mask.getD idx.toNat false && op.wire = 0xab then idx else pos)
 
 /-- The Core `ScriptExecutionData.m_codeseparator_pos` after executing a
-whole `GetOp` walk, starting from `0xFFFFFFFF`. -/
-def codesepPosFold (ops : List Bitcoin.Interpreter.WireOp) : UInt32 :=
-  codesepPosFoldAux ops 0 CODESEP_POS_INIT
+whole `GetOp` walk under the per-instruction `fExec` mask, starting from
+`0xFFFFFFFF`. -/
+def codesepPosFold (mask : List Bool) (ops : List Bitcoin.Interpreter.WireOp) : UInt32 :=
+  codesepPosFoldAux mask ops 0 CODESEP_POS_INIT
 
 /-- SCR-167 (init): no instruction means the `0xFFFFFFFF` sentinel. -/
 @[rule "SCR-167"]
-theorem codesepPosFold_nil : codesepPosFold [] = CODESEP_POS_INIT := rfl
+theorem codesepPosFold_nil (mask : List Bool) :
+    codesepPosFold mask [] = CODESEP_POS_INIT := rfl
 
 /-- The Lean state slot starts at `0`, not `0xFFFFFFFF` — the init half
 of the divergence. -/
@@ -337,10 +345,28 @@ too (`0xFFFFFFFF` vs `0`). This is the precise model divergence the row
 must state, not the false claim that the two agree. -/
 @[rule "SCR-167"]
 theorem codesep_index_vs_byteoffset_witness :
-    codesepPosFold [pushTwoBytes, codesepAfterPush] = 1 ∧
+    codesepPosFold [true, true] [pushTwoBytes, codesepAfterPush] = 1 ∧
     codesepAfterPush.next = 4 ∧
-    codesepPosFold [pushTwoBytes, codesepAfterPush] ≠ (4 : UInt32) ∧
+    codesepPosFold [true, true] [pushTwoBytes, codesepAfterPush] ≠ (4 : UInt32) ∧
     CODESEP_POS_INIT.toNat ≠ 0 := by
+  decide
+
+/-- SCR-167 (execution mask, regression): an unexecuted
+`OP_CODESEPARATOR` in a dead branch is not recorded; the position remains
+the `0xFFFFFFFF` sentinel. The instruction index still advances, so the
+mask is the only execution input the fold needs. -/
+@[rule "SCR-167"]
+theorem codesepPosFold_unexecuted_ignored :
+    codesepPosFold [true, false] [pushTwoBytes, codesepAfterPush]
+      = CODESEP_POS_INIT := by
+  decide
+
+/-- SCR-167 (execution mask, positive control): the same walk with the
+separator executed records instruction index `1`, independent of whether
+the preceding push executed. -/
+@[rule "SCR-167"]
+theorem codesepPosFold_executed_recorded :
+    codesepPosFold [false, true] [pushTwoBytes, codesepAfterPush] = 1 := by
   decide
 
 /-- SCR-167: the byte-offset value the tree records for the witness
