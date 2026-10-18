@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T14:44:43.792031+00:00",
+  "updated_at_utc": "2026-10-18T14:49:32.237333+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -123,7 +123,8 @@
         "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "c38dcdbbf65febbce7ecbe783a1d300aed6a5021d592179c1190de07927405a5",
         "spec/proofs/BitcoinProofs/Theorems/T3T4PipelineRealCor.lean": "0982154a6cfad8794759989e1bbe68a6698c278d32d374c78fc1e241ae5e5886"
       },
-      "remaining_scope": "Coinbase reward/fee accumulation and contextual block checks remain tracked separately as R02-R07."
+      "remaining_scope": "Coinbase reward/fee accumulation and contextual block checks remain tracked separately as R02-R07.",
+      "implementation_commit": "b4e8be43bd730ffedd9f597c16e6e25b0ce5ae1a"
     },
     {
       "id": "R02",
@@ -186,16 +187,170 @@
       "priority": "P1",
       "title": "Consensus static manifest accepts unapproved axioms",
       "evidence": "reproduced in isolated fixture",
-      "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "status": "footprint_policy_fixed; coverage tracked under R08/R11",
+      "next_action": "Implement and verify against the goal contract; retain per-item evidence.",
+      "resolution": "One strict standard-trio validator now checks static manifests, live probe output and --update before writing; arbitrary custom and compiler-trust footprints are rejected even if probe output matches a committed bad manifest.",
+      "remaining_scope": "Build/declaration coverage and target binding remain open under R08/R11; allowlist checking alone is not a full freshness proof.",
+      "verification_after": {
+        "base_commit": "b4e8be43bd730ffedd9f597c16e6e25b0ce5ae1a",
+        "gate_test_command": "python3 -m unittest discover -s spec/scripts/tests -p test_proof_gates.py",
+        "gate_tests": 10,
+        "gate_test_output": "..........\n----------------------------------------------------------------------\nRan 10 tests in 1.248s\n\nOK\n",
+        "static_commands": [
+          "make gates gate-repro",
+          "python spec/scripts/theorem_index.py --check",
+          "python spec/scripts/residuals_index.py --check",
+          "python spec/scripts/proof_scope.py --check"
+        ],
+        "static_exit_code": 0,
+        "dynamic_command": "bash spec/scripts/axiom_manifest.sh",
+        "dynamic_exit_code": 0,
+        "dynamic_output": "axiom-manifest[validate]: OK (223 entries; only Classical.choice, Quot.sound, propext)\naxiom-manifest: OK (237 lines)\n",
+        "pre_fix": "Original six-test suite had three failures: custom axiom accepted, tagged sorry accepted, tagged admit accepted.",
+        "current_reproductions": {
+          "R09_unapproved_axiom_accepted": {
+            "observed": false,
+            "exit_code": 1,
+            "output": "axiom-manifest: /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/spec/db/axiom-manifest.txt:1: unapproved axiom(s): ArbitraryFalseAxiom\n"
+          },
+          "R11_comment_only_tag_and_missing_target_accepted": {
+            "observed": true,
+            "exit_code": 0,
+            "output": "rule DB: 1 rows; Lean @[rule] attributes: 1 ids / 1 attributes\n  SCR: 1 rows | implemented 1 | tagged 1\n  coverage of implemented rows by Lean attributes: 1/1 total rows implemented\nrule-crosscheck: OK\n"
+          },
+          "R10_tagged_sorry_accepted": {
+            "observed": false,
+            "exit_code": 1,
+            "output": "FORBIDDEN SORRY: core/Tagged.lean:2: theorem unsound : False := by sorry\nsorry-lint: 1 sorry occurrences, 1 tagged, 0 untagged; 0 admit occurrences\nsorry-lint: native_decide violations: 0; unsafe/partial/FFI hazards: 0\nsorry-lint: FAIL\n"
+          },
+          "R12_unlisted_member_and_fifo_accepted": {
+            "observed": true,
+            "exit_code": 0,
+            "unlisted_file_extracted": true,
+            "fifo_extracted": true,
+            "output": "fetch_data: version 2026.10.17 (release tag data-2026.10.17)\nfetch_data: transport https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: manifest  https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: archive   https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\nfetch_data: dest      /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/downloads\nfetch_data: extract   /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/extract\nfetch_data: assets.sha256 matches the out-of-band pin\nfetch_data: archive verified: /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: verifying every extracted file against manifest.sha256\nspec/data/fixture.txt: OK\nfetch_data: all checks passed; no downloaded code was executed\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\n"
+          },
+          "R13_existing_newer_payload_conflict": {
+            "observed": true,
+            "exit_code": 1,
+            "output": "fetch_data: version 2026.10.17 (release tag data-2026.10.17)\nfetch_data: transport https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: manifest  https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: archive   https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\nfetch_data: dest      /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/downloads\nfetch_data: extract   /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/extract\nfetch_data: assets.sha256 matches the out-of-band pin\nfetch_data: reusing verified archive /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: archive verified: /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-g289pj7t/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: verifying every extracted file against manifest.sha256\nspec/data/fixture.txt: FAILED\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nsha256sum: WARNING: 1 computed checksum did NOT match\nfetch_data: ERROR: content verification failed for manifest.sha256\n"
+          },
+          "R13_release_metadata": [
+            {
+              "path": "spec/db/axiom-manifest-wallet.txt",
+              "matches_current_checkout": false
+            },
+            {
+              "path": "spec/db/axiom-manifest.txt",
+              "matches_current_checkout": true
+            },
+            {
+              "path": "spec/db/rules-wallet.lock",
+              "matches_current_checkout": true
+            },
+            {
+              "path": "spec/db/rules-wallet.obligations.tsv",
+              "matches_current_checkout": true
+            },
+            {
+              "path": "spec/db/rules-wallet.yaml",
+              "matches_current_checkout": true
+            },
+            {
+              "path": "spec/db/rules.yaml",
+              "matches_current_checkout": false
+            },
+            {
+              "path": "spec/db/vector_ids.yaml",
+              "matches_current_checkout": true
+            }
+          ],
+          "R16_interface_hashes": [
+            {
+              "path": "spec/core/Bitcoin/Activation/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Conservation/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/DataLaws/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Interpreter/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Ledger/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Numeric/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Serialization/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/SigHash/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/TxValidation/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Crypto/Curve/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Crypto/Ecdsa/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Crypto/Field/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Crypto/Schnorr/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Crypto/Seam/Interface.lean",
+              "matches": false
+            },
+            {
+              "path": "spec/core/Bitcoin/Script/Parser/Interface.lean",
+              "matches": false
+            }
+          ]
+        },
+        "source_sha256": {
+          "Makefile": "7c30cb85a5c869f143507055c35f214cc55045900fff6e38f8b79eb6bdbf7790",
+          "spec/scripts/axiom_manifest.sh": "994b1298058a5b6bec397c095d13d0f8df02ea155478d23eaba4dac5da6e4c51",
+          "spec/scripts/axiom_manifest_check.py": "af360a1d66cb5dcc5353f3376d0d35c32933eef5257aa1edf13e66c972fc9fa3",
+          "spec/scripts/sorry_lint.py": "897de7c1ad867046759db80f9a03057c15539666e6d5fcf7986a66fd2a58cf35",
+          "spec/scripts/tests/test_proof_gates.py": "02ed87d949eeb1f4ba62293f4882f0785622590b8ef6cb1b3f58cefd2dae6498"
+        }
+      }
     },
     {
       "id": "R10",
       "priority": "P1",
       "title": "Tagged sorry passes deliverable lint",
       "evidence": "reproduced in isolated fixture",
-      "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "status": "fixed_and_verified",
+      "next_action": "Implement and verify against the goal contract; retain per-item evidence.",
+      "resolution": "Every code sorry/admit is forbidden, including tagged holes. Comments and string contents remain ignored. Ten end-to-end gate tests run inside make gates.",
+      "verification_after": {
+        "gate_tests": 10,
+        "exit_code": 0,
+        "static_gates": 0,
+        "reproduction": "FORBIDDEN SORRY diagnostic and exit 1; tagged admit also rejected by dedicated test"
+      }
     },
     {
       "id": "R11",
@@ -883,13 +1038,14 @@
     "Built unchanged Bitcoin.Capstone.Block at current main with Lean 4.35.0 (41 jobs)",
     "R01 implemented with input-value checks before script validation",
     "13 monetary regressions pass, including evolving-view and error-order boundaries",
-    "All directly affected proof consumers build; core Bitcoin build (72 jobs) and lake test pass"
+    "All directly affected proof consumers build; core Bitcoin build (72 jobs) and lake test pass",
+    "Closed tagged-hole and arbitrary-axiom bypasses with tests in the CI-equivalent gates; fixed portable concurrent probe temporaries"
   ],
   "external_blockers": [],
   "next_actions": [
-    "Reject custom axioms and tagged proof holes with end-to-end negative gate regressions",
-    "Compose block fee accumulation and coinbase reward bounds (R02)",
-    "Continue full issue/census and module/axiom verification from the goal contract"
+    "Compose checked fee accumulation and coinbase reward bounds in live block validation (R02)",
+    "Continue contextual block/Taproot wiring (R03-R07)",
+    "Complete declaration/build coverage and census revalidation under the full goal"
   ],
   "verification": [
     {
@@ -907,7 +1063,21 @@
       "test_file": "spec/core/Test/Capstone/ValueChecks.lean",
       "exit_code": 1,
       "result": "Expected red regression: four monetary bypasses reproduced; four valid/missing/maturity controls pass."
+    },
+    {
+      "phase": "R09/R10 gate enforcement",
+      "tests": 10,
+      "static_gates": 0,
+      "dynamic_consensus_axioms": 0
     }
   ],
-  "sessions": {}
+  "sessions": {},
+  "new_subfindings": [
+    {
+      "id": "R09a",
+      "title": "BSD mktemp suffix creates a literal filename and collides across probes",
+      "status": "fixed_and_verified",
+      "evidence": "Two old.XXXXXX.txt mktemp calls returned a literal name then File exists; trailing-XXXXXX generated two unique names. Static mode no longer allocates a temp; dynamic uses portable trailing X template; eight concurrent mocked probes pass and clean up."
+    }
+  ]
 }

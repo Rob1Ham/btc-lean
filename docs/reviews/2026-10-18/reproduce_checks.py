@@ -37,8 +37,10 @@ def main() -> None:
         for part in ("scripts", "db", "core", "proofs"):
             (spec / part).mkdir(parents=True, exist_ok=True)
 
-        for name in ("axiom_manifest.sh", "rule_crosscheck.py", "sorry_lint.py"):
-            shutil.copyfile(REPO / "spec/scripts" / name, spec / "scripts" / name)
+        for name in ("axiom_manifest.sh", "axiom_manifest_check.py", "rule_crosscheck.py", "sorry_lint.py"):
+            source = REPO / "spec/scripts" / name
+            if source.exists():
+                shutil.copyfile(source, spec / "scripts" / name)
 
         (spec / "db/axiom-manifest.txt").write_text(
             "'Test.unsound' depends on axioms: [ArbitraryFalseAxiom]\n"

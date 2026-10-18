@@ -36,6 +36,7 @@ gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
 gate-sorry:
 	@echo "== gate 1: sorry lint =="
 	@bash $(SCRIPTS)/sorry_lint.sh
+	@$(PYTHON) -m unittest discover -s $(SCRIPTS)/tests -p 'test_proof_gates.py'
 
 gate-cross:
 	@echo "== gate 2: rule cross-check =="

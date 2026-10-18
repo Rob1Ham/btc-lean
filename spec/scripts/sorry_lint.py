@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """sorry_lint.py — hygiene gate for the public Lean tree.
 
-  * every `sorry` or `admit` occurrence in `spec/core` and `spec/proofs` must
-    carry a machine-greppable tag `SORRY[ID]:` on the same line or within the
-    5 preceding lines;
-  * `native_decide` is confined to test drivers (only under `Test/` paths or
-    the root test harnesses);
+  * every code `sorry` or `admit` occurrence in `spec/core` and `spec/proofs`
+    is rejected; a `SORRY[ID]` annotation never grants an exemption;
+  * core `native_decide` is confined to test drivers (only under `Test/`
+    paths or the root test harnesses);
   * `unsafe`/`partial`/`@[implemented_by]`/`@[extern]`/`unsafeIO` are
     inventoried (must stay zero in core).
 
@@ -169,9 +168,8 @@ for f in files:
             if any(TAG_RE.search(t) for t in recent + [raw]):
                 if counter == "sorry":
                     n_tagged += 1
-            else:
-                print(f"UNTAGGED {label}: {rel}:{ln}: {raw.strip()}")
-                fail = 1
+            print(f"FORBIDDEN {label}: {rel}:{ln}: {raw.strip()}")
+            fail = 1
         if is_core and "native_decide" in code:
             if not TEST_ALLOW.search(str(rel)):
                 print(f"NATIVE_DECIDE OUTSIDE TEST: {rel}:{ln}: {raw.strip()}")
