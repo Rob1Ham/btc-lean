@@ -157,7 +157,7 @@ def main() -> int:
     args = parser.parse_args()
 
     records = parse_residuals(SOURCE.read_text())
-    expected = 24
+    expected = 18
     if len(records) != expected:
         print(f"residuals-index: expected {expected} rows, found {len(records)}", file=sys.stderr)
         return 1

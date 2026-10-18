@@ -201,6 +201,6 @@ git-lfs is used.
 * The forty tagged wallet rows include three with partial obligations; 99 rows
   are in the obligation register. See `docs/WALLET.md` and
   `docs/WALLET-OBLIGATIONS.md`.
-* Twenty-four consensus rows are explicit model residuals. See
+* Eighteen consensus rows are explicit model residuals. See
   `docs/RESIDUALS.md`.
 * No external security audit or certification is claimed.

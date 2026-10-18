@@ -1,10 +1,14 @@
 # Consensus residuals
 
 The consensus census has 726 rows: 676 `proven`, 50 `obsolete`, 0
-`implemented`, and 0 `planned`. Twenty-four of the proven rows are **explicit
+`implemented`, and 0 `planned`. Eighteen of the proven rows are **explicit
 model residuals**: the row's one-line claim is true of Bitcoin Core, but the
 current Lean model does not yet entail it. They are not counted as fully proved
-against Core.
+against Core. A further six former residual rows are **out-of-ledger
+obligations** (see the section below): two policy rows that were never
+consensus, and four node/API rows retagged `consensus: false` by the issue 22
+residual-ledger triage. The database now marks 115 rows `consensus: false`
+(65 proven and 50 obsolete).
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
@@ -14,17 +18,76 @@ is in the proof surface and carries the row's tag. The default
 `BitcoinProofs.AF.PDW62b.PDW62b` has since been repaired and now builds.
 No cited target remains in the failing set. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
-fidelity, and these 24 rows are where the current targets fall short.
+fidelity, and these 18 rows are where the current targets fall short.
 
 This document records the current per-row statement-fidelity record. The
 authoritative row records remain in `spec/db/rules.yaml`; this page exists so
 the gaps are visible without depending on unpublished notes.
 
-**Residual rows: 24 / 726.**
+**Residual rows: 18 / 726.**
 
 The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
 The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
 both are rebuilt by `python3 spec/scripts/residuals_index.py`.
+
+## Out-of-ledger obligations
+
+Six rows were removed from the residual ledger by the issue 22 triage. None
+was deleted from the census: every row keeps its `spec/db/rules.yaml` record,
+its `lean_target`, and its proofs, and no underlying residual statement is
+claimed proved. The six IDs are excluded from the residual count (18, down
+from 24) because none is a block-acceptance consensus obligation; the census
+rows remain as evidence, and the Lean obligations stay open as row-tagged
+work, not as proof claims.
+
+- **INV-046** (`BIP62 rule 3/4`, minimal push / `MINIMALDATA`) — already
+  catalogued `consensus: false`. `CheckMinimalPush` / minimal push is the
+  `SCRIPT_VERIFY_MINIMALDATA` policy flag (standardness), not a block-accept
+  rule; Core enforces it only with the flag set. The policy face rows are
+  SCR-048/SCR-049/SCR-050/SCR-051, and the consensus operand-width cap is
+  INV-058. The open missing-link record (an all-size
+  `checkMinimalPush` iff) is an obligation on the policy face.
+- **SCR-008** (CLEANSTACK as a flag) — already catalogued
+  `consensus: false`. The explicit `stack.size() != 1` gate at
+  `VerifyScript:2110-2118` is a script-verify flag; base/P2SH clean-stack is
+  policy. The block-accept content (a witness v0 / tapscript spend must leave
+  exactly one truthy stack element) is carried by the consensus rows SWT-012
+  and SCR-183; the flag-combination constraint is SCR-009.
+- **INV-114** (`data model`, Coin = (out, coinbase?, height), spent ⇔ null
+  out) — retagged `consensus: false` (issue 22). The `Coin` representation
+  and the `IsSpent() = out.IsNull()` spent-encoding are the node's
+  in-memory/on-disk coins-DB data model (`coins.h`), a node/API obligation,
+  not a block-acceptance check. The UTXO-set consensus content
+  (nonexistent-spend rejects, insertion, unspendable outputs never added,
+  pre-BIP30 coinbase overwrite) is carried by the block rules
+  INV-110/INV-111/INV-112/INV-113. The statement-fidelity gap (no model of
+  `Coin::IsSpent`; the cited PDW18 theorem is a definitional restatement)
+  remains open; nothing was proved.
+- **INV-115** (serialization invariant, 31-bit height + 1-bit coinbase
+  metadata word) — retagged `consensus: false` (issue 22). The
+  `(nHeight << 1) | fCoinBase` metadata word is the node's on-disk coins
+  serialization (`coins.h:77-89`), a node/API obligation, not a
+  block-acceptance check. Its consensus-relevant effect (BIP30 coinbase
+  spend-by-height, disconnect consistency) is carried by the block rules
+  INV-113 and BLK-099/BLK-106. The gap (no enforced 31-bit domain or
+  all-stored-coins serialization theorem) remains open; nothing was proved.
+- **INV-119** (UTXO snapshot hash, MuHash3072, assumeutxo) — retagged
+  `consensus: false` (issue 22). `MuHash3072`/coinstats is the assumeutxo
+  snapshot-equality machinery — a node snapshot load/verify feature, a
+  node/API obligation, not a block-acceptance check. The UTXO-transition
+  consensus content (insert/spend/undo/reverse) is carried by the block rules
+  INV-110/INV-111/INV-116/INV-117. The gap (the model's `muhashSet` is an
+  additive-Nat abstraction; the 3072-bit class-group digest is unmodelled)
+  remains open; nothing was proved.
+- **INV-138** (API surface, DeploymentEnabled/ActiveAt helpers) — retagged
+  `consensus: false` (issue 22). The `deploymentstatus.h`
+  `DeploymentEnabled`/`DeploymentActiveAfter`/`DeploymentActiveAt` helper
+  surface is the node's activation API, a node/API obligation, not itself a
+  block-acceptance check. Which rules a block is actually validated under is
+  carried by the activation block rules INV-122..INV-126, the flag gates
+  INV-128/INV-130/INV-131, the actual-hash flag selection SCR-015, and
+  BLK-086/BLK-087. The gap (no `DeploymentEnabled` model; the cited PDW88
+  theorem is a definitional restatement) remains open; nothing was proved.
 
 ## BLK
 
@@ -65,33 +128,12 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - target: `BitcoinProofs.AF.PDW68x.csv_accept_iff`
 - missing link: The summary is true of Core: OP_CHECKSEQUENCEVERIFY reads a 5-byte CScriptNum, rejects negatives, treats a disabled-flag operand as a NOP, then calls CheckSequence (version >= 2, clear disable bit, masked type agreement, masked n <= masked tx sequence) (interpreter.cpp:584-600,1792-1836). The cited target csv_accept_iff (PDW68x.lean:49-57) is transaction-side only, assumes non-negativity, and defers the disable-bit NOP to the opcode. Local subclaims are real but do not form the full path: operand width PDW93.stepBody_csv_operand_width_five (PDW93b.lean:186-216); negative reject PDW58.csv_negative_errors (PDW58F.lean:38-47); disable-flag NOP PDW60.csv_disable_flag_nop (RowsD.lean:85-99) with base/v0 arm `_base_v0` (:103-119) and CSV-off NOP3 arm csv_flag_off_nop3 (:142-158). Still missing: a single CSA opcode-path iff tying decode, negative, disable-flag NOP, checker comparison, and the stack-underflow arm together. Open proof obligation.
 
-### INV-046
-
-- claim: BIP62 rule 3/4
-- core: `interpreter.cpp:489–491 + CheckMinimalPush@cce32b168`
-- target: `BitcoinProofs.AF.PDW81.checkMinimalPush_iff`
-- missing link: The summary is true of Core's CheckMinimalPush (BIP62 rules 3/4, script.cpp:373-396): empty must use OP_0; a 1..16 byte must use OP_1..16; 0x81 must use OP_1NEGATE; otherwise direct/PUSHDATA1/PUSHDATA2 bands. The cited target checkMinimalPush_iff (PDW81.lean:78-100) carries `h2 : 2 <= data.size` and characterizes only the two-byte-and-up bands. The empty case is checkMinimalPush_empty (PDW81.lean:51-53) and the two one-byte rejection cases are checkMinimalPush_one_small (:58-63) and checkMinimalPush_one_neg (:66-71). Still missing: the positive OP_1..16 / OP_1NEGATE acceptance direction (the primitive opcodes are excluded by definition in Core) and one total all-size iff. The local collection is a partition of reject cases, not a full characterization. Open proof obligation.
-
 ### INV-057
 
 - claim: codeseparator-pos commit
 - core: `interpreter.cpp:1281–1290,1058–1061@cce32b168`
 - target: `Bitcoin.SigHash.findAndDeleteL_codeSep_eq`
 - missing link: The summary is true of Core: OP_CODESEPARATOR records `pbegincodehash = pc` (interpreter.cpp:1058-1064), scriptCode is the slice from that position (1281-1290), and the tapscript sighash commits `codeseparator_pos` (1570-1575). The cited target findAndDeleteL_codeSep_eq (spec/core/Bitcoin/SigHash/Ops.lean:696) proves only the deletion algebra `findAndDeleteL b codeSepL = dropCsFrom b 0`. Local pieces are real but not an end-to-end commit: O07.opCodeSep_dispatch (O07.lean:348-353) records `codeSep := op.next`; O07.step_codesep_base (:355-369) proves the executed BASE step with budget increment; Defs.evalChecksigPreTapscript (Defs.lean:683-693) hands `bytes.extract codeSep bytes.size` to the checker; TPR043.extSlice_tapscript_row (PDW41/TPR043.lean:27-35) commits `codesep_pos` in the extension slice. Still missing: one theorem tying the running position through the executed separator, the extracted scriptCode, and the sighash commit. Open proof obligation.
-
-### INV-114
-
-- claim: data model
-- core: `coins.h:45–101@cce32b168`
-- target: `BitcoinProofs.AF.PDW18.isSpent_true_iff_none`
-- missing link: The summary is true of Core: `Coin` is `(out, fCoinBase:1, nHeight:31)` and `IsSpent() = out.IsNull()` (coins.h:48-55,94-96). The cited target isSpent_true_iff_none (PDW18.lean:72-73) is the definitional restatement `isSpent u o = true <-> u o = none` over `UtxoSet := OutPoint -> Option Coin`, unfolding `isSpent u o := (u o).isNone`; the core twin isSpent_iff (RC10.lean:49-55) is the same restatement. `Coin` (Utxo.lean:22-27) has fields `value`, `height`, `isCoinbase`, `scriptPubKey` and no `out` field. No local declaration models `Coin::IsSpent() = out.IsNull()` or the tuple `(out, coinbase?, height)`. The claim is not narrowed; the data model itself is the missing piece. Open proof obligation.
-
-### INV-115
-
-- claim: serialization invariant
-- core: `coins.h:77–89@cce32b168`
-- target: `BitcoinProofs.AF.PDW20.coinMeta_roundtrip`
-- missing link: The summary is true of Core: the on-disk metadata word is `(nHeight << 1) | fCoinBase` with `nHeight : 31` and `fCoinBase : 1` (coins.h:55,77,86-87). The cited target coinMeta_roundtrip (PDW20.lean:50-53) is the unbounded-Nat inverse `coinMetaDecode (coinMetaEncode height coinbase) = (height, coinbase)`; coinMeta_lt_two_pow_32 (:66-68) is conditional on `height < 2^31`. A partial 31-bit bank now exists: CoinWellFormed c := c.height.toNat < 2^31 (PDW18.lean:243), CoinWellFormed_meta_lt (:255-261), coinMetaDecode_wellFormed (:263-274), addedCoins_wellFormed (:290-300), updateCoins_preserves_wellFormed (:302-325), and Coin_not_all_wellFormed (:327-332) shows the residual is real because `Coin.height : UInt32` does not enforce the domain. Still missing: an enforced subtype/UtxoSet invariant and a serialization theorem for all stored coins. Open proof obligation.
 
 ### INV-117
 
@@ -100,14 +142,6 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - target: `BitcoinProofs.AF.PDW58.undoCoins_restore_wins`
 - missing link: The summary is true of Core: DisconnectBlock unwinds transactions in reverse order, checks each output against the spent coin (value/script, height, coinbase), restores inputs from undo data, and exempts the two historical BIP30 duplicate-coinbase blocks (validation.cpp:2194-2247). The cited target undoCoins_restore_wins (PDW58C.lean:48-53) proves only restore-priority for a spent coin (`coinLookup spent o = some c => undoCoins ... = some c`). Local pieces are real but not the full row: undoCoins_restore (:14-21), undoCoins_blank_added (:24-32), undoCoins_keep (:35-45), undoCoins_roundtrip (:69-74); the block layer has reverse-order replay replayUndos (Block/Params.lean:159-164), disconnectBlock zipping txs.reverse with undos.reverse (:238-244), and disconnectBlock_three (:271-284). The BIP30 disconnect pair is carried separately by BLK-099/BLK-106. Still missing: one INV-117 theorem covering output/height/coinbase match plus the BIP30 case. Open proof obligation.
 
-### INV-119
-
-- claim: UTXO snapshot hash (MuHash3072)
-- core: `coinstats.cpp:59–112@cce32b168`
-- target: `BitcoinProofs.AF.PDW21.muhashSet_split`
-- missing link: The summary names MuHash3072, Core's commutative multiset hash over a 3072-bit class group (`MuHash3072::Insert/Remove` multiply/divide, coinstats.cpp:59-112). The model's `muhashSet` (spec/core/Bitcoin/Invariants/RC10.lean:230) is a plain `Nat` sum of a per-coin `cf` datum, and the PDW21 theorems (`muhashSet_split`, `muhashSet_comm`, `snapshotEq_eq_true_iff`) prove only the partition/order-invariance laws of that additive monoid. The 3072-bit modular arithmetic, the class-group quotient, and the actual digest are not modelled, so the target does not entail Core's MuHash3072. Accepted residual: the algebraic abstraction is kept and tagged, but the row is not a claim that the model implements MuHash3072; implementing the group (or an FFI-free bigint model) is the missing piece.
-
-
 ### INV-130
 
 - claim: CSV flag gate
@@ -115,21 +149,7 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - target: `Bitcoin.Activation.csv_flag_flow`
 - missing link: The summary is true of Core: the CSV script flag is ORed in exactly when DEPLOYMENT_CSV is active at the block (validation.cpp:2277-2280, with the hash-keyed exception branch in GetBlockScriptFlags). The cited target csv_flag_flow (Flags.lean:289-294) proves only the on direction, and only under `P.scriptFlagExceptions hash = none` plus `P.csvHeight <= height`: it concludes `(getBlockScriptFlagsP P hash height).csv = true`. No `csv_flag_off` or `csv_flag_iff` exists for the hash-keyed `getBlockScriptFlagsP`. The local iff theorems are for the frozen height-only selector: FlagsCor.flags_csv_iff (FlagsCor.lean:86-90) and Interface.csv_flag_iff_deployment (TxValidation/Interface.lean:971-974) both speak about `getBlockScriptFlags height`, not `getBlockScriptFlagsP P hash height`, so they do not cover the exception-hash branch. The off half remains unproved; the Core claim is not narrowed. Open proof obligation.
 
-### INV-138
-
-- claim: API surface
-- core: `validation.h:1399–1416; deploymentstatus.h@cce32b168`
-- target: `BitcoinProofs.AF.PDW88.deploymentActiveAt_iff`
-- missing link: The summary is true of Core: the API surface is `DeploymentActiveAfter` (buried height and BIP9 state), `DeploymentActiveAt` (delegates to ActiveAfter(pprev)), and `DeploymentEnabled` (buried `DeploymentHeight != INT_MAX`; BIP9 `nStartTime != NEVER_ACTIVE`) (deploymentstatus.h:14-50). The cited target deploymentActiveAt_iff (PDW88Act.lean:12-15) is the definitional restatement `deploymentActiveAt d height = true <-> d.minActivation <= height`, where the underlying def is literally that inequality (Taproot.lean:137-138); the sibling deploymentActiveAt_pprev_row (:17-22) only adds the previous-block composition. No `DeploymentEnabled` / `deploymentEnabled` declaration exists under the local tree, and no theorem states Core's `nStartTime != NEVER_ACTIVE` / `DeploymentHeight != INT_MAX` half or the BIP9 state-based `DeploymentActiveAfter` arm. The named API surface is still unmodelled; the claim is not narrowed. Open proof obligation.
-
 ## SCR
-
-### SCR-008
-
-- claim: Exactly 1 element after all evaluation (flag; pol.; implicit in witness)
-- core: `interpreter.cpp:VerifyScript:2110-2118@cce32b168`
-- target: `BitcoinProofs.AF.PDW90.verifyScriptFull_cleanstack_fails`
-- missing link: The summary (CLEANSTACK final size one; flag/policy; implicit in witness) is true of Core: the explicit CLEANSTACK gate at :2110-2118 rejects `stack.size() != 1`, witness v0 enforces the same implicitly at :1876-1877, and both witness paths resize the stack to one (`stack.resize(1)`, :2057 and :2102). The cited `verifyScriptFull_cleanstack_fails` (PDW90.lean:55-66) fixes a bare, non-P2SH, witness-off spend (`isWitnessProgram spk = none`, `isPayToScriptHash spk = false`, `flags.witness = false`) and proves only the reject direction. The P2SH `finalLen` gate (Defs.lean:1354-1373), the witness `afterBare` resize (Defs.lean:1340-1343, :1385) and the accept direction (`length = 1 => .ok`) have no local theorem. Missing piece: a general VerifyScript CLEANSTACK theorem covering both the P2SH finalLen arm and the witness-resize arm plus the accept side. Open proof obligation; claim kept, not narrowed.
 
 ### SCR-030
 

@@ -4,7 +4,7 @@
 
 Every row in the `spec/db/rules.yaml` rule census, with its cited Lean target. Rows marked `consensus: false` are boundary evidence about policy, availability, trust, or anti-DoS surfaces; they are not consensus claims. The target is an index into the proof surface; it is not a claim that the target paraphrases every word of the row summary. Residual rows are listed separately in [RESIDUALS.md](RESIDUALS.md) and [RESIDUALS-EVIDENCE.md](RESIDUALS-EVIDENCE.md).
 
-Rows: **726** total, **676** proven (**615** consensus, **61** boundary), **50** obsolete, **0** other; **111** rows are marked `consensus: false`.
+Rows: **726** total, **676** proven (**611** consensus, **65** boundary), **50** obsolete, **0** other; **115** rows are marked `consensus: false`.
 
 ## Proven consensus rows
 
@@ -232,11 +232,8 @@ Rows: **726** total, **676** proven (**615** consensus, **61** boundary), **50**
 | `INV-111` | insertion | validation.cpp:2010 → coins.cpp:AddCoins:133–141@cce32b168 | `Bitcoin.Ledger.updateCoins_insert_isSome` | `Bitcoin.Ledger` |
 | `INV-112` | unspendable (OP_RETURN / >10k script) outputs never added | coins.cpp:AddCoin:83–84; script.h:IsUnspendable:566@cce32b168 | `Bitcoin.Ledger.addedCoins_lookup_none_of_unspendable` | `Bitcoin.Ledger` |
 | `INV-113` | coinbase overwrite allowed (pre-BIP30 duplicates) | coins.cpp:AddCoins:136–137@cce32b168 | `Bitcoin.Ledger.inv113_coinbase_overwrite_pre_bip30` | `Bitcoin.Ledger` |
-| `INV-114` | data model | coins.h:45–101@cce32b168 | `BitcoinProofs.AF.PDW18.isSpent_true_iff_none` | `BitcoinProofs.AF.PDW18` |
-| `INV-115` | serialization invariant | coins.h:77–89@cce32b168 | `BitcoinProofs.AF.PDW20.coinMeta_roundtrip` | `BitcoinProofs.AF.PDW20` |
 | `INV-116` | reorg correctness | validation.cpp:ApplyTxInUndo:2148–2174@cce32b168 | `Bitcoin.Ledger.updateCoins_undo` | `Bitcoin.Ledger` |
 | `INV-117` | reverse transition | validation.cpp:DisconnectBlock:2178–2247@cce32b168 | `BitcoinProofs.AF.PDW58.undoCoins_restore_wins` | `BitcoinProofs.AF.PDW58` |
-| `INV-119` | snapshot equality predicate | kernel/coinstats.cpp:59–112@cce32b168 | `BitcoinProofs.AF.PDW21.muhashSet_split` | `BitcoinProofs.AF.PDW21` |
 | `INV-120` | statefulness | coins.cpp:SetBestBlock:196; ConnectBlock:2652@cce32b168 | `BitcoinProofs.AF.PDW21.setBestBlock_coins'` | `BitcoinProofs.AF.PDW21` |
 | `INV-121` | DEFINED→STARTED→LOCKED_IN→ACTIVE / FAILED | versionbits_impl.h:17–23; versionbits.cpp:GetStateFor:26–117@cce32b168 | `BitcoinProofs.AF.PDW21.defined_started` | `BitcoinProofs.AF.PDW21` |
 | `INV-122` | signalling condition: top bits = 001 & bit set | versionbits_impl.h:79–82; versionbits.h:21–25@cce32b168 | `BitcoinProofs.AF.PDW27.versionBitsSignals_iff` | `BitcoinProofs.AF.PDW27` |
@@ -254,7 +251,6 @@ Rows: **726** total, **676** proven (**615** consensus, **61** boundary), **50**
 | `INV-134` | BIP113 MTP gate on CSV deployment | validation.cpp:4141–4150@cce32b168 | `BitcoinProofs.AF.PDW58.bip113Cutoff_mtp_of_active` | `BitcoinProofs.AF.PDW58` |
 | `INV-135` | BIP34 gate via DEPLOYMENT_HEIGHTINCB | validation.cpp:4159–4167@cce32b168 | `BitcoinProofs.AF.PDW57b.bip34Ok_pre` | `BitcoinProofs.AF.PDW57b` |
 | `INV-136` | segwit commitment validation gate | validation.cpp:4177@cce32b168 | `BitcoinProofs.AF.PDW43b.commitmentGate_eq_if` | `BitcoinProofs.AF.PDW43b` |
-| `INV-138` | API surface | validation.h:1399–1416; deploymentstatus.h@cce32b168 | `BitcoinProofs.AF.PDW88.deploymentActiveAt_iff` | `BitcoinProofs.AF.PDW88` |
 | `INV-140` | work comparison | validation.cpp:ActivateBestChainStep:3199; chain.h:GetBlockProof:305@cce32b168 | `BitcoinProofs.AF.PDW24.mostWork?_pair_maximality` | `BitcoinProofs.AF.PDW24` |
 | `INV-141` | GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 for a nonzero decode; it returns 0 only when SetCompact flags the compact as negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. It does not clamp targets above powLimit; target <= powLimit is a separate header-validity rule (BLK-038/BLK-040). | chain.h:305–308 → chain.cpp:GetBitsProof@cce32b168 | `BitcoinProofs.AF.PDW24.workOf_pos_of_inRange` | `BitcoinProofs.AF.PDW24` |
 | `INV-142` | GetBlockProofEquivalentTime (for assumevalid 2wk check) | chain.h:311; validation.cpp:2363@cce32b168 | `Bitcoin.Invariants.RC12.proofEquivalentTime`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_eq_abs`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_of_gt`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_of_lt`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_eq_zero`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_saturate_gt`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_saturate_lt`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_le_twoWeeks_iff`<br>`Bitcoin.Invariants.RC12.proofEquivalentTime_row_vector`<br>`BitcoinProofs.AF.PDW29.proofEquivalentTime_row`<br>`BitcoinProofs.AF.PDW29.proofEquivalentTime_assumevalid_guard`<br>`BitcoinProofs.AF.PDW29.proofEquivalentTime_row_vector` | `Bitcoin.Invariants.RC12`<br>`BitcoinProofs.AF.PDW29` |
@@ -645,7 +641,11 @@ Rows marked `consensus: false`; their targets are boundary evidence, not consens
 | `INV-065` | SIGPUSHONLY (policy-flag) scriptSig pushes only | interpreter.cpp:2021–2023@cce32b168 | `BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail` | `BitcoinProofs.AF.PDW62b` |
 | `INV-086` | signet solution check (param-gated) | validation.cpp:3939 → signet.cpp@cce32b168 | `BitcoinProofs.AF.PDW70.signetBlockOk_param_gate_row`<br>`BitcoinProofs.AF.PDW70.signetBlockOk_skip_row`<br>`BitcoinProofs.AF.PDW70.signetBlockOk_gate_row` | `BitcoinProofs.AF.PDW70` |
 | `INV-100` | testnet4/regtest (mainnet off) | validation.cpp:4105–4113; consensus.h:35@cce32b168 | `BitcoinProofs.AF.PDW3.timewarpOk_reject` | `BitcoinProofs.AF.PDW3` |
+| `INV-114` | data model | coins.h:45–101@cce32b168 | `BitcoinProofs.AF.PDW18.isSpent_true_iff_none` | `BitcoinProofs.AF.PDW18` |
+| `INV-115` | serialization invariant | coins.h:77–89@cce32b168 | `BitcoinProofs.AF.PDW20.coinMeta_roundtrip` | `BitcoinProofs.AF.PDW20` |
 | `INV-118` | impl sentinel | txmempool.h:51; validation.cpp:198–200@cce32b168 | `BitcoinProofs.AF.PDW21.sentinel_ne_real_height` | `BitcoinProofs.AF.PDW21` |
+| `INV-119` | snapshot equality predicate | kernel/coinstats.cpp:59–112@cce32b168 | `BitcoinProofs.AF.PDW21.muhashSet_split` | `BitcoinProofs.AF.PDW21` |
+| `INV-138` | API surface | validation.h:1399–1416; deploymentstatus.h@cce32b168 | `BitcoinProofs.AF.PDW88.deploymentActiveAt_iff` | `BitcoinProofs.AF.PDW88` |
 | `INV-139` | testnet4 | pow.cpp:67–76@cce32b168 | `BitcoinProofs.AF.PDW66.calculateNextWorkRequired_noRetarget`<br>`BitcoinProofs.AF.PDW66.calculateNextWorkRequired_bip94_lastBits_irrel` | `BitcoinProofs.AF.PDW66` |
 | `INV-147` | anti-DoS, NOT consensus | validation.cpp:4237–4240@cce32b168 | `BitcoinProofs.AF.PDW49.minChainWorkOk_iff` | `BitcoinProofs.AF.PDW49` |
 | `INV-148` | trust option; other checks still enforced | validation.cpp:ConnectBlock:2345–2393@cce32b168 | `BitcoinProofs.AF.PDW63.assumevalidSkipped_iff_row` | `BitcoinProofs.AF.PDW63` |

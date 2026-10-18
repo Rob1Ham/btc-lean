@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 719 entries over
-# 726 rows; field census {'check': 11, 'consensus': 101, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 622, 'notes': 231, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
+# 726 rows; field census {'check': 11, 'consensus': 105, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 622, 'notes': 235, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 1e4753ac48593ceef5e9ce1d111bbdbfda06d375de35f3fd8a2d136eee2c7faa
+#   726 rows, sha256 640d834bde9b5654d4fc1268fc37e86d4cd7dbe6f8fca530f9aeb98421be123e
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -247,8 +247,8 @@ OVERRIDES_SYNC = {
         'lean_target': 'BitcoinProofs.AF.PDW81.checkMinimalPush_iff',
         'status': 'proven',
         'consensus': False,
+        'notes': 'Issue 22 (residual-ledger triage): removed from the consensus residual ledger; already a catalogued policy row. MINIMALDATA is the SCRIPT_VERIFY_MINIMALDATA policy flag (policy faces on SCR-048/SCR-049/SCR-050/SCR-051); the consensus operand-width cap is carried by INV-058. The row stays with its target/proofs as policy evidence; the open missing-link record (the all-size checkMinimalPush iff) was an obligation on the policy face, not a block-accept residual, and is not claimed proved.',
         'lean_note': None,
-        'notes': None,
     },
     'INV-047': {
         'lean_target': 'BitcoinProofs.AF.PDW39b.evalFrom_ok_vf_nil',
@@ -614,11 +614,15 @@ OVERRIDES_SYNC = {
     'INV-114': {
         'lean_target': 'BitcoinProofs.AF.PDW18.isSpent_true_iff_none',
         'status': 'proven',
+        'consensus': False,
+        'notes': "Issue 22 (residual-ledger triage): retagged non-consensus. The Coin = (out, coinbase?, height) / IsSpent() = out.IsNull() spent-encoding is the node's in-memory/on-disk coins-DB data model (coins.h), a node/API obligation, not a block-acceptance check; the UTXO-set consensus content (nonexistent-spend rejects, insertion, unspendable outputs never added, pre-BIP30 coinbase overwrite) is carried by the block rules INV-110/INV-111/INV-112/INV-113. The residual record (no model of Coin::IsSpent; the cited PDW18 theorem is a definitional restatement) moves out of the consensus residual ledger; nothing was proved.",
         'lean_note': None,
     },
     'INV-115': {
         'lean_target': 'BitcoinProofs.AF.PDW20.coinMeta_roundtrip',
         'status': 'proven',
+        'consensus': False,
+        'notes': "Issue 22 (residual-ledger triage): retagged non-consensus. The (nHeight << 1) | fCoinBase metadata word with nHeight:31/fCoinBase:1 is the node's on-disk coins serialization (coins.h:77–89), a node/API obligation, not a block-acceptance check; its consensus-relevant effect (BIP30 coinbase spend-by-height and disconnect consistency) is carried by the block rules INV-113, BLK-099/BLK-106. The residual record (no enforced 31-bit domain or all-stored-coins serialization theorem) moves out of the consensus residual ledger; nothing was proved.",
         'lean_note': None,
     },
     'INV-116': {
@@ -640,6 +644,8 @@ OVERRIDES_SYNC = {
     'INV-119': {
         'lean_target': 'BitcoinProofs.AF.PDW21.muhashSet_split',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'Issue 22 (residual-ledger triage): retagged non-consensus. MuHash3072/coinstats is the assumeutxo snapshot-equality machinery — a node load/verify feature, a node/API obligation, not a block-acceptance check; the UTXO-transition consensus content (insert/spend/undo/reverse) is carried by the block rules INV-110/INV-111/INV-116/INV-117. The residual record (muhashSet is an additive-Nat abstraction; the 3072-bit class-group digest is unmodelled) moves out of the consensus residual ledger; nothing was proved.',
         'lean_note': None,
     },
     'INV-120': {
@@ -734,6 +740,8 @@ OVERRIDES_SYNC = {
     'INV-138': {
         'lean_target': 'BitcoinProofs.AF.PDW88.deploymentActiveAt_iff',
         'status': 'proven',
+        'consensus': False,
+        'notes': "Issue 22 (residual-ledger triage): retagged non-consensus. The deploymentstatus.h DeploymentEnabled/ActiveAfter/ActiveAt helper surface is the node's activation API, a node/API obligation, not itself a block-acceptance check; which rules a block is validated under is carried by the activation block rules INV-122..INV-126, the flag gates INV-128/INV-130/INV-131, the actual-hash flag selection SCR-015, and BLK-086/BLK-087. The residual record (no DeploymentEnabled model; the cited PDW88 theorem is a definitional restatement) moves out of the consensus residual ledger; nothing was proved.",
         'lean_note': None,
     },
     'INV-139': {
@@ -925,7 +933,7 @@ OVERRIDES_SYNC = {
         'lean_target': 'BitcoinProofs.AF.PDW90.verifyScriptFull_cleanstack_fails',
         'status': 'proven',
         'consensus': False,
-        'notes': None,
+        'notes': 'Issue 22 (residual-ledger triage): removed from the consensus residual ledger; already a catalogued policy row. CLEANSTACK as an explicit VerifyScript flag is policy (base/P2SH clean-stack); the block-accept content (witness v0 / tapscript spend must leave exactly one truthy element) is carried by the consensus rows SWT-012 and SCR-183, and the flag-combination constraint by SCR-009. The row stays with its target/proofs as policy evidence; the open missing-link record (a general P2SH finalLen / witness-resize plus accept-side theorem) was an obligation on the policy face, not a block-accept residual, and is not claimed proved.',
     },
     'SCR-009': {
         'lean_target': 'BitcoinProofs.AF.PDW33.flagsComboOk_consensus_row',

@@ -9,7 +9,7 @@ a proof of the model.
 
 | Claim | Evidence file | How to reproduce | What it does *not* mean |
 |---|---|---|---|
-| The consensus census has 726 rows: 676 proven, 50 obsolete, 0 implemented, 0 planned. Twenty-four of the proven rows are explicit model residuals. | `spec/db/rules.yaml`; contract and constants in `spec/scripts/gate_census.py`; `docs/RESIDUALS.md`. | `python3 spec/scripts/gate_census.py` | It is not a count of Lean theorems, and it does not assert that every possible consensus behaviour is modelled. The 50 obsolete rows remain in the denominator; the 24 residuals are counted in `proven` but are not claims of Core equivalence. |
+| The consensus census has 726 rows: 676 proven, 50 obsolete, 0 implemented, 0 planned. Eighteen of the proven rows are explicit model residuals; six further former residual rows are out-of-ledger (node/API or policy) obligations. | `spec/db/rules.yaml`; contract and constants in `spec/scripts/gate_census.py`; `docs/RESIDUALS.md`. | `python3 spec/scripts/gate_census.py` | It is not a count of Lean theorems, and it does not assert that every possible consensus behaviour is modelled. The 50 obsolete rows remain in the denominator; the 18 residuals are counted in `proven` but are not claims of Core equivalence. The six out-of-ledger rows (INV-046, SCR-008, INV-114, INV-115, INV-119, INV-138; issue 22 triage) keep their census rows, targets, and open obligations; nothing was proved by moving them. |
 | Every proven row names a Lean declaration carrying that row's `@[rule "<ID>"]` tag, and every tag names a census row. | `spec/db/rules.yaml`; `@[rule]` attributes under `spec/core` and `spec/proofs`; `spec/scripts/rule_crosscheck.py`. | `python3 spec/scripts/rule_crosscheck.py` | Tag presence and target existence do not independently prove the row statement, and this gate does not re-elaborate Lean. Statement fidelity and build status are separate obligations. |
 | The gate-scanned `spec/core` and `spec/proofs` trees contain no `sorry`, and the lint rejects core `native_decide`/`unsafe`/`partial`/FFI hazards. | `spec/scripts/sorry_lint.sh`; `spec/scripts/sorry_lint.py`. | `bash spec/scripts/sorry_lint.sh` | The static lint scans `spec/core` and `spec/proofs`; it is comment-aware. A clean lint is not a proof of correctness, and it does not cover prose, generated data, or untracked files. It also does not establish statement fidelity. |
 | The committed axiom manifest contains no `sorryAx` or native/compiler-trust marker and stays within the permitted axiom set. | `spec/db/axiom-manifest.txt`; `spec/scripts/axiom_manifest.sh`. | `bash spec/scripts/axiom_manifest.sh --check-static` | The static check does not run Lean and does not re-derive every theorem's `#print axioms`. It also does not prove the statements are the right ones. |
@@ -42,7 +42,8 @@ separately in the README.
 ## Metric boundaries
 
 - **Rule rows** (`spec/db/rules.yaml`): 726 dispositions, 676 proven and 50
-  obsolete. Twenty-four proven rows are explicit model residuals.
+  obsolete. Eighteen proven rows are explicit model residuals; six further
+  former residual rows are out-of-ledger (node/API or policy) obligations.
 - **Wallet rows** (`spec/db/rules-wallet.yaml`): 140 separate wallet-level
   propositions, never merged. Forty are tagged; 99 are explicit obligations
   (30 PARTIAL, 69 UNMODELLED; 75 model gaps, 24 proof gaps); four are
