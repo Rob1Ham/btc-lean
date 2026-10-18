@@ -162,13 +162,17 @@ minimum and 16 GiB recommended. The release data bundle is additional disk.
 
 ```sh
 make gates                         # all nine static gates; no Lean; 9/9 pass
+make gate-repro                    # reference scripts + local-path hygiene; no Lean
 CORE_SRC=/path/to/bitcoin/src bash spec/scripts/wallet_gates.sh
 bash spec/scripts/axiom_manifest.sh # full #print axioms probe; needs Lean
 ```
 
 `make gates` covers sorry lint, rule/tag cross-check, static axiom manifests,
 the census fixed point, the 726-row census, overrides sync, the anchor pin, the
-wallet static battery, and the tracked-data subset. The consensus dynamic probe
+wallet static battery, and the tracked-data subset. `make gate-repro` is a
+separate reproducibility check: it verifies the reference/generator scripts
+cited by the test runners and scans tracked shell/Python files for absolute
+checkout paths. The consensus dynamic probe
 re-elaborates 223 consensus axiom entries; the wallet probe covers 844
 theorem/lemma declarations. The wallet script also covers the 140-anchor census when
 `CORE_SRC` is supplied, and runs the dynamic wallet axiom probe unless

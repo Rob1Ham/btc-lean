@@ -52,8 +52,9 @@ appears there as `spec/vectors/core/tx_valid.json`.
 
 | File | Origin | License | Compat |
 |---|---|---|---|
-| `core/Test/Script/Parser/Conformance.lean`, `core/Test/Script/Parser/run.sh` | Parser conformance checks against the pinned Core behaviour; the independent Python reference parser used during development is not tracked | Core = MIT | ✓ (checks consume outputs, not Core code) |
-| `Test/Sighash/SighashTest.lean`, `Test/Sighash/run.sh`, `Test/Crypto/EcdsaTest.lean`, `Test/Crypto/run_ecdsa.sh` | project originals (use `hashlib`/`ecdsa` at test time only) | own code | ✓ |
+| `core/Test/Script/Parser/Conformance.lean`, `core/Test/Script/Parser/run.sh`, `core/Test/Script/Parser/ref.py` | Parser conformance checks against the pinned Core behaviour; `ref.py` is the independent Python reference parser (MIT notice in the file) | Core = MIT for the derived parser; test harness = own code | ✓ (checks consume outputs, not Core code) |
+| `Test/Sighash/SighashTest.lean`, `Test/Sighash/run.sh`, `Test/Sighash/crosscheck.py`, `Test/Sighash/mirror.py`, `Test/Crypto/EcdsaTest.lean`, `Test/Crypto/run_ecdsa.sh` | project originals (use `hashlib` at test time only) | own code | ✓ |
+| `Test/Crypto/gen_ecdsa_vectors.py`, `gen_schnorr_vectors.py`, `gen_schnorr_random.py`, `taproot_sighash_crosscheck.py`, `taproot_verify_crosscheck.py`; `proofs/BitcoinProofs/{Conservation,EcdsaDeep,SmallCurve,Bip/B14,Property/Y11}` reference and generator scripts | project originals; independent Python references for the generated Lean tables and cross-checks | own code | ✓ |
 | `spec/scripts/fetch_anchors.sh`, `spec/scripts/fetch_anchors2.sh` | own code (call public APIs; clone pinned upstreams to a temporary directory, never into the repository) | own code | ✓ |
 
 ## 2. License recommendation

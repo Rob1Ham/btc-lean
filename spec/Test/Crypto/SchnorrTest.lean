@@ -2,17 +2,17 @@ import Bitcoin.Crypto.Schnorr.Verify
 import Bitcoin.Data.Basic
 
 /-!
-# W3-X02 BIP340 conformance harness (GENERATED — do not hand-edit)
+# BIP340 conformance harness (GENERATED — do not hand-edit)
 
 Run: `bash spec/Test/Crypto/run_schnorr.sh`.
 Generator : spec/Test/Crypto/gen_schnorr_vectors.py
-Corpus    : spec/vectors/bips/bip-0340_test-vectors.csv — ALL 19 official
+Corpus    : spec/data/bips/bip-0340_test-vectors.csv — ALL 19 official
             BIP340 vectors (9 accept / 10 reject), each with its official
             `comment` preserved as the docstring stating what it exercises.
 Semantics : Bitcoin.Crypto.Schnorr.Verify.verifyImpl — BIP340 verification
-            over the W14b raw-Nat curve layer (Curve.Secp liftX/addP/mulP).
+            over the ECDSA-lax raw-Nat curve layer (Curve.Secp liftX/addP/mulP).
 Checked by: compiled runtime execution (`main` below) — deliberately NOT
-            kernel/native_decide through the WF-recursive mulP/expM (W14
+            kernel/native_decide through the WF-recursive mulP/expM (ECDSA
             §5 finding: decide cannot reduce WF-recursive defs).
 
 Vector → property map (from the official comments):

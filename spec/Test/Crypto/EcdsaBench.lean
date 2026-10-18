@@ -1,16 +1,16 @@
 import Bitcoin.Crypto.Ecdsa.Interface
 
 /-!
-# W14b benchmark — verifyLax wall clock (GENERATED — do not hand-edit)
+# ECDSA-lax benchmark — verifyLax wall clock (GENERATED — do not hand-edit)
 
 Run: `bash spec/Test/Crypto/run_ecdsa.sh --bench` (or
 `cd spec/core && lake env lean --run ../Test/Crypto/EcdsaBench.lean`).
 
 50 valid conformance vectors x 20 rounds = 1000 verifyLax calls,
 compiled native execution; reports µs per full verify (DER parse +
-pubkey parse + mod-n reduce + 2 scalar muls). Compare W14 field-layer
+pubkey parse + mod-n reduce + 2 scalar muls). Compare ECDSA field-layer
 numbers (mulMod 275-281 ns, invMod 38 µs) — a full verify costs ~2.5k
-field muls incl. one inversion per W14 §2.6 estimate.
+field muls incl. one inversion per ECDSA §2.6 estimate.
 -/
 
 namespace Bitcoin.Test.Crypto.EcdsaBench
