@@ -1,3 +1,4 @@
+import BitcoinProofs.Theorems.CapstoneFoldAgree
 import Bitcoin.Capstone.Block
 import Bitcoin.Ledger.Interface
 import BitcoinProofs.Theorems.LedgerCor
@@ -254,32 +255,7 @@ private theorem applyTx_ok_step (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l₁ : List (OutPoint × Coin)) (a b : Nat)
     (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = Except.ok (l₁, a, b)) :
     applyTxStepL l tx (txidKey tx) height = Except.ok l₁ := by
-  unfold Bitcoin.Capstone.Block.applyTx at h
-  simp only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-  · split at h
-    · split at h
-      · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-      · rename_i l'' heqO
-        have hinj : l'' = l₁ ∧ (0 : Nat) = a ∧ (0 : Nat) = b := by
-          have h2 : Except.ok (l'', (0, 0)) = Except.ok (l₁, a, b) := h
-          simp only [Except.ok.injEq, Prod.mk.injEq] at h2
-          exact h2
-        rw [heqO, hinj.1]
-    · cases hv : Bitcoin.Capstone.Block.verifyTxInputs height tx txIdx l with
-      | error ea => rw [hv] at h; have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-      | ok p =>
-          obtain ⟨a', b'⟩ := p
-          rw [hv] at h
-          split at h
-          · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-          · rename_i l'' heqO
-            have hinj : l'' = l₁ ∧ a' = a ∧ b' = b := by
-              have h2 : Except.ok (l'', a', b') = Except.ok (l₁, a, b) := h
-              simp only [Except.ok.injEq, Prod.mk.injEq] at h2
-              exact h2
-            rw [heqO, hinj.1]
+  exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.2
 
 /-- Step inversion: `applyTx` success ⇒ the new state is exactly
 `updateCoinsL`'s (both `applyTxStepL` success branches return it). -/
@@ -304,12 +280,7 @@ private theorem applyTx_ok_checkTx' (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l₁ : List (OutPoint × Coin)) (a b : Nat)
     (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = Except.ok (l₁, a, b)) :
     checkTransaction tx = none := by
-  unfold Bitcoin.Capstone.Block.applyTx at h
-  simp only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-  · rename_i heqN
-    exact heqN
+  exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).1
 
 /-- The workhorse inversion: one successful `applyTxs` cons step
 decouples into the stateless gate, the ledger step (`applyTxStepL` at

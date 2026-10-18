@@ -298,11 +298,15 @@ def applyTx (height : UInt32) (tx : Tx) (txIdx : Nat)
   match checkTransaction tx with
   | some e => throw (CapError.txCheck e)
   | none => pure ()
-  -- Script layer (non-coinbase only; the coinbase has no real inputs).
+  -- Core checks the current input values, maturity and fee before scripts.
+  -- The coinbase has no real inputs and bypasses both checks.
   let (okN, unjN) ←
     if tx.isCoinBase then pure (0, 0)
-    else verifyTxInputs height tx txIdx l
-  -- ledger step: BIP30 → coinbase → inputs → maturity → UpdateCoins.
+    else
+      match checkTxInputs tx (viewOf l) height with
+      | .error e => throw (CapError.tx e)
+      | .ok _ => verifyTxInputs height tx txIdx l
+  -- UpdateCoins after input and script checks. BIP30 is a pre-block gate.
   match applyTxStepL l tx (txidKey tx) height with
   | .error e => throw (CapError.block e)
   | .ok l' => pure (l', okN, unjN)

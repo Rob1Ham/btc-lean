@@ -1,4 +1,5 @@
 import Bitcoin.Capstone.Block
+import BitcoinProofs.Theorems.CapstoneFoldAgree
 
 /-!
 # BitcoinProofs.Theorems.CapstonePipelineCor — P16: the proved pipeline-shape spec (sorry-free)
@@ -14,10 +15,10 @@ C4 portfolio linkage:
 
 | C4 ID | theorem here | statement (short) | axioms |
 |-------|--------------|-------------------|--------|
-| (P16-3) | `applyTx_eq` | the EXACT `Except`-bind equation: stateless gate, then script layer (coinbase skipped), then ledger step | T |
+| (P16-3) | `applyTx_eq` | the exact equation: stateless gate, checked input values/fees, scripts (coinbase skipped), then ledger update | T |
 | (P16-2) | `applyTx_coinbase_eq` / `applyTx_coinbase_counters` | the coinbase skips the script layer: counters exactly (0, 0) | T |
-| (P16-3 cor) | `applyTx_ledger_first` / `applyTx_ledger_first_coinbase` | when the script layer passes, the ledger gate still runs: `applyTxStepL` error implies `applyTx = .error (CapError.block e)` | T |
-| (P16-3 cor) | `applyTx_script_first` | the script layer's adjudicated failure propagates verbatim | T |
+| (P16-3 cor) | `applyTx_ledger_first` / `applyTx_ledger_first_coinbase` | non-coinbase input errors precede scripts; the coinbase branch skips input/script validation | T |
+| (P16-3 cor) | `applyTx_script_first` | after input validation succeeds, the script layer's failure propagates verbatim | T |
 | (P16-1) | `applyTxs_counters_sum` | `applyTxs` threads counters monotonically: `okN ≤ okN'` and `unjN ≤ unjN'` | T |
 | (P16-1 cor) | `applyTxs_counters_bound` | `okN' + unjN' ≤ okN + unjN + totalVins txs` | T |
 | (P16-4) | `verifyTxInputs_loop_total` / `verifyTxInputs_total` | `verifyTxInputs = .ok (okN, unjN)` implies `okN + unjN ≤ tx.vin.length` (induction on the input loop, invariant `okN + unjN ≤ i`) | T |
@@ -157,8 +158,8 @@ theorem totalVins_cons (tx : Tx) (rest : List Tx) :
 
 /-- **P16-3 — the exact `Except`-bind equation for `applyTx`**. Unfolds the
 do-block honestly: the stateless gate (`checkTransaction`) runs first
-and short-circuits with `CapError.txCheck`; then the script layer —
-skipped entirely for the coinbase, else `verifyTxInputs` against the
+and short-circuits with `CapError.txCheck`; non-coinbases next run
+`checkTxInputs` against the current view, then `verifyTxInputs` against the
 CURRENT utxo `l`; then the ledger step `applyTxStepL` keyed by the
 real txid, whose error is wrapped as `CapError.block` and whose success
 threads the final utxo together with the script counters. -/
@@ -170,13 +171,29 @@ theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
           (throw (CapError.txCheck e) :
               Except CapError (List (OutPoint × Coin) × Nat × Nat)) >>= fun _ =>
             if tx.isCoinBase = true then (Except.ok (0, 0)) >>= applyTxCont height tx txIdx l
-            else (verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l
+            else (match Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
+              | .error e => Except.error (CapError.tx e)
+              | .ok _ => verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l
       | none =>
           if tx.isCoinBase = true then (Except.ok (0, 0)) >>= applyTxCont height tx txIdx l
-          else (verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l := by
-  first
-    | rfl
-    | simp only [Bitcoin.Capstone.Block.applyTx, ethrow, epure_ok, ebind_ok, ebind_err]
+          else (match Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
+              | .error e => Except.error (CapError.tx e)
+              | .ok _ => verifyTxInputs height tx txIdx l) >>= applyTxCont height tx txIdx l := by
+  cases hc : checkTransaction tx with
+  | some e => simp [Bitcoin.Capstone.Block.applyTx, hc, ethrow]
+  | none =>
+    by_cases hcb : tx.isCoinBase = true
+    · simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, applyTxCont] <;> rfl
+    · cases hm : Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height with
+      | error e =>
+        simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, applyTxCont, ethrow]
+      | ok fee =>
+        cases hv : verifyTxInputs height tx txIdx l with
+        | error e =>
+          simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, hv, applyTxCont] <;> rfl
+        | ok c =>
+          obtain ⟨a, b⟩ := c
+          simp [Bitcoin.Capstone.Block.applyTx, hc, hcb, hm, hv, applyTxCont] <;> rfl
 
 /-- **P16-2 (equation form)**: for the coinbase (stateless check passing),
 `applyTx` IS the ledger step with counters pinned to `(0, 0)` — the
@@ -209,18 +226,15 @@ theorem applyTx_coinbase_counters (height : UInt32) (tx : Tx) (txIdx : Nat)
       simp only [Except.ok.injEq, Prod.mk.injEq] at h
       omega
 
-/-- **P16-3 (ledger-first, non-coinbase)**: the ledger gate runs even when
-the script layer PASSES — if `verifyTxInputs` returns ok and the fold
-step fails with `e`, then `applyTx` fails with exactly
-`CapError.block e` (the ledger error is never swallowed, never reshaped). -/
+/-- Input availability, maturity and value failures precede script execution.
+The name retains the ledger-before-script ordering of this contract, but
+Core's `CheckTxInputs` error is now returned directly as `CapError.tx`. -/
 theorem applyTx_ledger_first (height : UInt32) (tx : Tx) (txIdx : Nat)
-    (l : List (OutPoint × Coin)) (e : BlockError) (a b : Nat)
+    (l : List (OutPoint × Coin)) (e : Bitcoin.TxValidation.TxError)
     (hcb : tx.isCoinBase = false) (hchk : checkTransaction tx = none)
-    (hs : verifyTxInputs height tx txIdx l = .ok (a, b))
-    (hl : applyTxStepL l tx (txidKey tx) height = .error e) :
-    applyTx height tx txIdx l = .error (CapError.block e) := by
-  have hnc : ¬ (tx.isCoinBase = true) := by rw [hcb]; decide
-  simp [Bitcoin.Capstone.Block.applyTx, hchk, hnc, ethrow, hs, hl]
+    (hm : Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height = .error e) :
+    applyTx height tx txIdx l = .error (CapError.tx e) := by
+  simp [Bitcoin.Capstone.Block.applyTx, hchk, hcb, hm, ethrow]
 
 /-- **P16-3 (ledger-first, coinbase)**: same for the coinbase lane — the
 script layer is skipped, but the ledger gate still runs and its error
@@ -240,10 +254,12 @@ ledger success. -/
 theorem applyTx_script_first (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) (e : CapError)
     (hcb : tx.isCoinBase = false) (hchk : checkTransaction tx = none)
+    (hm : ∃ fee, Bitcoin.TxValidation.checkTxInputs tx (viewOf l) height = .ok fee)
     (hs : verifyTxInputs height tx txIdx l = .error e) :
     applyTx height tx txIdx l = .error e := by
   have hnc : ¬ (tx.isCoinBase = true) := by rw [hcb]; decide
-  simp [Bitcoin.Capstone.Block.applyTx, hchk, hnc, ethrow, hs]
+  obtain ⟨fee, hm⟩ := hm
+  simp [Bitcoin.Capstone.Block.applyTx, hchk, hnc, hm, ethrow, hs]
 
 /-! ## The per-input loop: bounded counters -/
 
@@ -315,31 +331,10 @@ theorem applyTx_counters_bound (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
     (h : applyTx height tx txIdx l = .ok (l', a, b)) :
     a + b ≤ tx.vin.length := by
-  revert h
-  simp only [Bitcoin.Capstone.Block.applyTx]
-  split
-  · intro h; simp at h
-  · split
-    · -- coinbase: counters are (0, 0)
-      simp only [epure_ok, ebind_ok]
-      split
-      · intro h; simp at h
-      · intro h
-        simp only [Except.ok.injEq, Prod.mk.injEq] at h
-        omega
-    · -- non-coinbase: the counters come from verifyTxInputs
-      cases hsv : verifyTxInputs height tx txIdx l with
-      | error e' => intro h; simp at h
-      | ok c =>
-        obtain ⟨x, y⟩ := c
-        intro h
-        simp only [ebind_ok, ethrow, epure_ok] at h
-        split at h
-        · simp at h
-        · simp only [Except.ok.injEq, Prod.mk.injEq] at h
-          have hvy : x + y ≤ tx.vin.length :=
-            verifyTxInputs_total height tx txIdx l x y hsv
-          omega
+  rcases (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.1 with
+    ⟨_, ha, hb⟩ | ⟨_, _, hv⟩
+  · omega
+  · exact verifyTxInputs_total height tx txIdx l a b hv
 
 /-- **P16-1 (bounded form)**: the counters `applyTxs` returns never exceed
 the incoming counters plus the total input supply of the tx list — the

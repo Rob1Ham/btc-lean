@@ -13,11 +13,11 @@ All 6 anchors printed `foldAgrees=true` on REAL mainnet data.
 This module turns that runtime boolean into proved statements about the
 two folds, for arbitrary inputs. The honest shape of the agreement:
 
-* `applyTxs` = `applyBlockL` + a script/stateless gate layer that can
-  abort the fold EARLY (`CapError.txCheck`, `CapError.scriptFail`,
+* `applyTxs` = `applyBlockL` + stateless, input-value and script gates that can
+  abort the fold EARLY (`CapError.txCheck`, `CapError.tx`, `CapError.scriptFail`,
   `CapError.scriptFalse`). Whenever `applyTxs` runs to completion
   (`.ok`), its UTXO list is exactly `applyBlockL`'s — and conversely,
-  when the pure ledger fold succeeds and the script layer passes at
+  when the pure ledger fold succeeds and the input-value/script gates pass at
   every step (the `ScriptPass` relation), `applyTxs` succeeds with the
   same UTXO list and explicit counter sums.
 * The counters thread additively: the final `(okN, unjN)` dominates the
@@ -79,6 +79,7 @@ namespace BitcoinProofs.Theorems.CapstoneFold
 open Bitcoin.Data
 open Bitcoin.Ledger (Coin Key applyBlockL applyBlockFoldL applyTxStepL bip30BlockCollision bip30Enforced viewOf)
 open Bitcoin.Consensus (checkTransaction)
+open Bitcoin.TxValidation (checkTxInputs)
 open Bitcoin.Serialization (decodeBlock)
 open Bitcoin.Capstone.Block (applyTxs applyTx txidKey verifyTxInputs CapError CapState CapReport validateBlock)
 
@@ -95,7 +96,8 @@ local macro "exceptSimp" : tactic =>
 /-! ## One `applyTx` step: inversion and construction -/
 
 /-- Inversion of one successful `applyTx` step: the stateless gate
-passed, the script layer either was skipped (coinbase: counters
+passed, input values and fees were checked for non-coinbases, the script layer
+either was skipped (coinbase: counters
 hardwired `(0, 0)`) or returned its counters, and the ledger step
 produced exactly the returned UTXO list. -/
 theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
@@ -103,7 +105,9 @@ theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
     (h : applyTx height tx txIdx l = Except.ok (l', a, b)) :
     checkTransaction tx = none ∧
     ((tx.isCoinBase = true ∧ a = 0 ∧ b = 0) ∨
-      (tx.isCoinBase = false ∧ verifyTxInputs height tx txIdx l = Except.ok (a, b))) ∧
+      (tx.isCoinBase = false ∧
+        (∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee) ∧
+        verifyTxInputs height tx txIdx l = Except.ok (a, b))) ∧
     applyTxStepL l tx (txidKey tx) height = Except.ok l' := by
   unfold applyTx at h
   cases hchk : checkTransaction tx with
@@ -132,31 +136,38 @@ theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
     | false =>
       rw [hcb] at h
       exceptSimp at h
-      cases hv : verifyTxInputs height tx txIdx l with
-      | error e => rw [hv] at h; simp at h
-      | ok q =>
-        obtain ⟨c1, c2⟩ := q
-        rw [hv] at h
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => rw [hm] at h; exceptSimp at h; simp at h
+      | ok fee =>
+        rw [hm] at h
         exceptSimp at h
-        cases hs : applyTxStepL l tx (txidKey tx) height with
-        | error e => rw [hs] at h; simp at h
-        | ok w =>
-          rw [hs] at h
+        cases hv : verifyTxInputs height tx txIdx l with
+        | error e => rw [hv] at h; simp at h
+        | ok q =>
+          obtain ⟨c1, c2⟩ := q
+          rw [hv] at h
           exceptSimp at h
-          simp at h
-          obtain ⟨e1, e2, e3⟩ := h
-          subst e1
-          subst e2
-          subst e3
-          exact ⟨rfl, Or.inr ⟨rfl, rfl⟩, rfl⟩
+          cases hs : applyTxStepL l tx (txidKey tx) height with
+          | error e => rw [hs] at h; simp at h
+          | ok w =>
+            rw [hs] at h
+            exceptSimp at h
+            simp at h
+            obtain ⟨e1, e2, e3⟩ := h
+            subst e1
+            subst e2
+            subst e3
+            exact ⟨rfl, Or.inr ⟨rfl, ⟨fee, rfl⟩, rfl⟩, rfl⟩
 
 /-- Inversion of one failing `applyTx` step: the error is exactly one
-of the stateless gate (`txCheck`), the script layer (non-coinbase
-only), or the ledger step (wrapped in `CapError.block`). -/
+of the stateless gate (`txCheck`), input-value validation (`tx`), the
+script layer (non-coinbase only), or the ledger step (`block`). -/
 theorem applyTx_error_cases {height : UInt32} {tx : Tx} {txIdx : Nat}
     {l : List (OutPoint × Coin)} {e : CapError}
     (h : applyTx height tx txIdx l = Except.error e) :
     (∃ te, e = CapError.txCheck te ∧ checkTransaction tx = some te) ∨
+    (tx.isCoinBase = false ∧ ∃ te, e = CapError.tx te ∧
+      checkTxInputs tx (viewOf l) height = Except.error te) ∨
     (tx.isCoinBase = false ∧ verifyTxInputs height tx txIdx l = Except.error e) ∨
     (∃ e', e = CapError.block e' ∧
       applyTxStepL l tx (txidKey tx) height = Except.error e') := by
@@ -178,25 +189,34 @@ theorem applyTx_error_cases {height : UInt32} {tx : Tx} {txIdx : Nat}
       | error e2 =>
         rw [hs] at h
         simp at h
-        exact Or.inr (Or.inr ⟨e2, h.symm, rfl⟩)
+        exact Or.inr (Or.inr (Or.inr ⟨e2, h.symm, rfl⟩))
       | ok w => rw [hs] at h; simp at h
     | false =>
       rw [hcb] at h
       exceptSimp at h
-      cases hv : verifyTxInputs height tx txIdx l with
-      | error e2 =>
-        rw [hv] at h
-        simp at h
-        exact Or.inr (Or.inl ⟨rfl, by rw [h]⟩)
-      | ok q =>
-        rw [hv] at h
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error te =>
+        rw [hm] at h
         exceptSimp at h
-        cases hs : applyTxStepL l tx (txidKey tx) height with
+        simp at h
+        exact Or.inr (Or.inl ⟨rfl, te, h.symm, rfl⟩)
+      | ok fee =>
+        rw [hm] at h
+        exceptSimp at h
+        cases hv : verifyTxInputs height tx txIdx l with
         | error e2 =>
-          rw [hs] at h
+          rw [hv] at h
           simp at h
-          exact Or.inr (Or.inr ⟨e2, h.symm, rfl⟩)
-        | ok w => rw [hs] at h; simp at h
+          exact Or.inr (Or.inr (Or.inl ⟨rfl, by rw [h]⟩))
+        | ok q =>
+          rw [hv] at h
+          exceptSimp at h
+          cases hs : applyTxStepL l tx (txidKey tx) height with
+          | error e2 =>
+            rw [hs] at h
+            simp at h
+            exact Or.inr (Or.inr (Or.inr ⟨e2, h.symm, rfl⟩))
+          | ok w => rw [hs] at h; simp at h
 
 /-- Forward construction, coinbase case: a coinbase tx that passes the
 stateless gate and whose ledger step succeeds produces counters
@@ -216,13 +236,43 @@ theorem applyTx_ok_coinbase {height : UInt32} {tx : Tx} {txIdx : Nat}
 theorem applyTx_ok_script {height : UInt32} {tx : Tx} {txIdx : Nat}
     {l l₁ : List (OutPoint × Coin)} {a b : Nat}
     (hc : checkTransaction tx = none) (hcb : tx.isCoinBase = false)
+    (hm : ∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee)
     (hv : verifyTxInputs height tx txIdx l = Except.ok (a, b))
     (hs : applyTxStepL l tx (txidKey tx) height = Except.ok l₁) :
     applyTx height tx txIdx l = Except.ok (l₁, a, b) := by
   unfold applyTx
-  rw [hc, hcb, hv, hs]
+  obtain ⟨fee, hm⟩ := hm
+  rw [hc, hcb, hm, hv, hs]
   exceptSimp
   rfl
+
+/-- Every successful non-coinbase step ran Core's input-value, maturity
+and fee checks against the actual pre-step UTXO view. -/
+theorem applyTx_inputs_checked {height : UInt32} {tx : Tx} {txIdx : Nat}
+    {l l' : List (OutPoint × Coin)} {a b : Nat}
+    (hcb : tx.isCoinBase = false)
+    (h : applyTx height tx txIdx l = Except.ok (l', a, b)) :
+    ∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee := by
+  rcases (applyTx_ok_inv h).2.1 with ⟨hc, _, _⟩ | ⟨_, hm, _⟩
+  · simp [hcb] at hc
+  · exact hm
+
+/-- A successful non-coinbase transaction in the live fold conserves
+value and pays a nonnegative fee; input checking is obtained from the
+pipeline's success, not assumed separately. -/
+theorem applyTx_value_conserved {height : UInt32} {tx : Tx} {txIdx : Nat}
+    {l l' : List (OutPoint × Coin)} {a b : Nat}
+    (hcb : tx.isCoinBase = false)
+    (h : applyTx height tx txIdx l = Except.ok (l', a, b)) :
+    ∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee ∧
+      Bitcoin.Conservation.totalIn (viewOf l) tx = tx.getValueOut + fee ∧ 0 ≤ fee := by
+  obtain ⟨fee, hm⟩ := applyTx_inputs_checked hcb h
+  exact ⟨fee, hm, Bitcoin.TxValidation.checkTxInputs_ok_conservation tx (viewOf l) height fee hm⟩
+
+/-- info: 'BitcoinProofs.Theorems.CapstoneFold.applyTx_inputs_checked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms applyTx_inputs_checked
+/-- info: 'BitcoinProofs.Theorems.CapstoneFold.applyTx_value_conserved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms applyTx_value_conserved
 
 /-! ## The coinbase never runs the script layer -/
 
@@ -486,10 +536,10 @@ theorem applyBlockL_ok_inv {l : List (OutPoint × Coin)} {kf : Tx → Key}
 
 /-- `ScriptPass height txs i l l' a b`: starting from UTXO list `l` at
 tx index `i`, every tx of `txs` passes the stateless gate (BLK-030),
-its ledger step succeeds, and its script layer either is skipped
+its ledger step succeeds, and its input-value/script gates either are skipped
 (coinbase: counters `(0, 0)`) or returns counters `(a, b)` without
 error; the fold ends at `l'` having accumulated script counters
-`a, b`. This is exactly "no script gate fails along the fold", with
+`a, b`. This is exactly "no additional validation gate fails along the fold", with
 the TRUE intermediate UTXO views (each tx's script layer sees the view
 produced by the preceding txs of the same block). -/
 inductive ScriptPass (height : UInt32) :
@@ -508,6 +558,7 @@ inductive ScriptPass (height : UInt32) :
       (hc : checkTransaction tx = none)
       (hs : applyTxStepL l tx (txidKey tx) height = Except.ok l₁)
       (hcb : tx.isCoinBase = false)
+      (hm : ∃ fee, checkTxInputs tx (viewOf l) height = Except.ok fee)
       (hv : verifyTxInputs height tx i l = Except.ok (a, b))
       (hrest : ScriptPass height rest (i + 1) l₁ l' a' b') :
       ScriptPass height (tx :: rest) i l l' (a + a') (b + b')
@@ -525,7 +576,7 @@ theorem scriptPass_ledger_ok (height : UInt32) :
     rw [applyBlockFoldL, hs]
     exceptSimp
     exact ih
-  | step tx rest i l l₁ l' a b a' b' hc hs hcb hv hrest ih =>
+  | step tx rest i l l₁ l' a b a' b' hc hs hcb hm hv hrest ih =>
     rw [applyBlockFoldL, hs]
     exceptSimp
     exact ih
@@ -547,10 +598,10 @@ theorem scriptPass_applyTxs (height : UInt32) :
     exceptSimp
     rw [Nat.add_zero, Nat.add_zero]
     exact ih (okN + 0) (unjN + 0)
-  | step tx rest i l l₁ l' a b a' b' hc hs hcb hv hrest ih =>
+  | step tx rest i l l₁ l' a b a' b' hc hs hcb hm hv hrest ih =>
     intro okN unjN
     simp only [applyTxs]
-    rw [applyTx_ok_script hc hcb hv hs]
+    rw [applyTx_ok_script hc hcb hm hv hs]
     exceptSimp
     rw [← Nat.add_assoc, ← Nat.add_assoc]
     exact ih (okN + a) (unjN + b)
@@ -611,7 +662,7 @@ theorem scriptPass_of_agree (height : UInt32) :
           applyTxs_counters_ge height rest (i + 1) l₁ (okN + a₁) (unjN + b₁) l' a b hT
         have hrec := ih (i + 1) l₁ l' (okN + a₁) (unjN + b₁) a b
           hrestA hT hge₁ hge₂
-        rcases (applyTx_ok_inv hres).2.1 with ⟨hcb, ha0, hb0⟩ | ⟨hcb, hv⟩
+        rcases (applyTx_ok_inv hres).2.1 with ⟨hcb, ha0, hb0⟩ | ⟨hcb, hm, hv⟩
         · -- coinbase: this tx contributes counters (0, 0)
           rw [ha0, hb0] at hrec
           refine ScriptPass.base tx rest i l l₁ l' (a - okN) (b - unjN)
@@ -621,11 +672,11 @@ theorem scriptPass_of_agree (height : UInt32) :
           have hkey₂ : b₁ + (b - (unjN + b₁)) = b - unjN := by omega
           rw [← hkey₁, ← hkey₂]
           exact ScriptPass.step tx rest i l l₁ l' a₁ b₁ (a - (okN + a₁)) (b - (unjN + b₁))
-            (applyTx_ok_inv hres).1 hstepA hcb hv hrec
+            (applyTx_ok_inv hres).1 hstepA hcb hm hv hrec
 
 /-- **THE CHARACTERIZATION**: `applyTxs` succeeds with UTXO list `l'`
 and counters `(a, b)` if and only if the pure ledger fold succeeds
-with the SAME `l'` and the script layer passes at every step
+with the SAME `l'` and the input-value/script gates pass at every step
 (`ScriptPass`), the counters decomposing additively. -/
 theorem applyTxs_ok_iff (height : UInt32) (txs : List Tx) (i : Nat)
     (l l' : List (OutPoint × Coin)) (okN unjN a b : Nat)
@@ -652,8 +703,8 @@ theorem applyTxs_ok_iff (height : UInt32) (txs : List Tx) (i : Nat)
 then it fails at a specific tx — the head of the suffix after a prefix
 `pre` that the pure ledger fold processed successfully (its view there
 is `lPre`) — and the error is exactly one of: the stateless gate
-(`txCheck`), the script layer on a non-coinbase tx (a `verifyTxInputs`
-error — the only errors the script layer can ADD on top of
+(`txCheck`), the input-value gate (`tx`), the script layer on a non-coinbase
+tx (a `verifyTxInputs` error — an additional failure on top of
 `applyBlockL`), or the ledger step's own error (wrapped as
 `CapError.block`). The script layer never changes the UTXO
 computation — it can only stop the fold earlier. -/
@@ -665,6 +716,8 @@ theorem applyTxs_error_refines (height : UInt32) :
         txs = pre ++ tx :: rest ∧
         applyBlockFoldL l txidKey pre height = Except.ok lPre ∧
         ((∃ te, e = CapError.txCheck te ∧ checkTransaction tx = some te) ∨
+          (tx.isCoinBase = false ∧ ∃ te, e = CapError.tx te ∧
+            checkTxInputs tx (viewOf lPre) height = Except.error te) ∨
           (tx.isCoinBase = false ∧
             verifyTxInputs height tx (i + pre.length) lPre = Except.error e) ∨
           (∃ e', e = CapError.block e' ∧
@@ -685,11 +738,14 @@ theorem applyTxs_error_refines (height : UInt32) :
       have he : e' = e := by simp at h; exact h
       rw [he] at hres
       rcases applyTx_error_cases hres with
-        ⟨te, hte, hchk⟩ | ⟨hcb, hv⟩ | ⟨e'', heq, hstep⟩
+        ⟨te, hte, hchk⟩ | ⟨hcb, te, heq, hm⟩ | ⟨hcb, hv⟩ | ⟨e'', heq, hstep⟩
       · exact ⟨[], tx, rest, l, rfl, rfl, Or.inl ⟨te, hte, hchk⟩⟩
       · exact ⟨[], tx, rest, l, rfl, rfl,
-          Or.inr (Or.inl ⟨hcb, by simpa using hv⟩)⟩
-      · exact ⟨[], tx, rest, l, rfl, rfl, Or.inr (Or.inr ⟨e'', heq, hstep⟩)⟩
+          Or.inr (Or.inl ⟨hcb, te, heq, hm⟩)⟩
+      · exact ⟨[], tx, rest, l, rfl, rfl,
+          Or.inr (Or.inr (Or.inl ⟨hcb, by simpa using hv⟩))⟩
+      · exact ⟨[], tx, rest, l, rfl, rfl,
+          Or.inr (Or.inr (Or.inr ⟨e'', heq, hstep⟩))⟩
     | ok q =>
       obtain ⟨l₁, a₁, b₁⟩ := q
       rw [hres] at h

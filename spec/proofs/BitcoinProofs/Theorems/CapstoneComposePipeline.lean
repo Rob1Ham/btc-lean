@@ -141,47 +141,7 @@ theorem applyTx_ok_stepL (height : UInt32) (tx : Tx) (i : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
     (h : Bitcoin.Capstone.Block.applyTx height tx i l = Except.ok (l', a, b)) :
     applyTxStepL l tx (txidKey tx) height = Except.ok l' := by
-  by_cases hchk : checkTransaction tx = none
-  · by_cases hcb : tx.isCoinBase = true
-    · cases hs : applyTxStepL l tx (txidKey tx) height with
-      | ok l₁ =>
-          have heq : Bitcoin.Capstone.Block.applyTx height tx i l
-              = Except.ok (l₁, 0, 0) := by
-            unfold Bitcoin.Capstone.Block.applyTx
-            simp [hchk, hcb, hs]
-          rw [heq] at h
-          simp only [Except.ok.injEq, Prod.mk.injEq] at h
-          obtain ⟨rfl, _, _⟩ := h
-          rfl
-      | error e =>
-          rw [applyTx_ledger_first_coinbase height tx i l e hcb hchk hs] at h
-          cases h
-    · have hcb' : tx.isCoinBase = false := by
-        cases hx : tx.isCoinBase <;> simp_all
-      cases hv : verifyTxInputs height tx i l with
-      | error e =>
-          rw [applyTx_script_first height tx i l e hcb' hchk hv] at h
-          cases h
-      | ok c =>
-          obtain ⟨x, y⟩ := c
-          cases hs : applyTxStepL l tx (txidKey tx) height with
-          | ok l₁ =>
-              have heq : Bitcoin.Capstone.Block.applyTx height tx i l
-                  = Except.ok (l₁, x, y) := by
-                unfold Bitcoin.Capstone.Block.applyTx
-                simp [hchk, hcb', hv, hs]
-              rw [heq] at h
-              simp only [Except.ok.injEq, Prod.mk.injEq] at h
-              obtain ⟨rfl, _, _⟩ := h
-              rfl
-          | error e =>
-              rw [applyTx_ledger_first height tx i l e x y hcb' hchk hv hs] at h
-              cases h
-  · cases hc : checkTransaction tx with
-    | none => exact absurd hc hchk
-    | some e =>
-        rw [applyTx_eq, hc] at h
-        simp at h
+  exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.2
 
 /-- Peel one `applyTx` off an `applyTxs` success. -/
 theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
