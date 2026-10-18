@@ -56,4 +56,12 @@ theorem checkTransaction_ok_vout_ne_nil (tx : Tx)
   · exact absurd h (by simp)
   · next _ => exact absurd h (by simp)
 
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_voutEmpty_reject' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_voutEmpty_reject
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_vout_ne_nil' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_vout_ne_nil
+
 end BitcoinProofs.AF.PDW4

@@ -14,7 +14,7 @@ W14b dual-route measurement: see research/w2-14b-curve-ecdsa.md §4).
 `a^(m−1) = 1` and `a^((m−1)/q) ≠ 1` for every prime `q ∣ m−1`. The chain
 (sympy-verified, regenerate via research/w2-14b-curve-ecdsa.md §4.2):
 
-    P−1    = 2 · 3 · 7 · 13441 · Cbig                (Cbig prime, 77 digits)
+    P−1    = 2 · 3 · 7 · 13441 · Cbig                (Cbig prime, 72 digits)
     Cbig−1 = 2 · 3 · 5 · 29² · 31 · 7723 · Rbig · Qtwo
     Rbig−1 = 2 · 3 · Qbig                            (Qbig prime, 23 digits)
     Qbig−1 = 8 · 3 · 5323 · Sbig                     (Sbig prime, 18 digits)

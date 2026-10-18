@@ -101,7 +101,7 @@ theorem INV033_totalIssuance_exact :
   BitcoinProofs.Conservation.totalIssuance_exact
 
 /-- INV-033 (THM-039): the total supply is under the 21M cap with
-231,000 sats to spare — the "Σ < MAX_MONEY" lean-note. -/
+2,310,000 sats to spare — the "Σ < MAX_MONEY" lean-note. -/
 @[rule "INV-033"]
 theorem INV033_totalIssuance_le_cap :
     BitcoinProofs.Conservation.totalIssuance ≤ 21000000 * 100000000 :=

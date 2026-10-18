@@ -68,3 +68,10 @@ theorem checkTransaction_ok_cbLength (tx : Tx)
       have hlt : MIN_CB_LENGTH > i.scriptSig.bytes.size := by omega
       have := hcc.1
       omega))
+
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_cbLength' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_cbLength
+
+end BitcoinProofs.AF.PDW4
