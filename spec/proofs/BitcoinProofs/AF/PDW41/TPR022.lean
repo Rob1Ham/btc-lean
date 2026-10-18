@@ -25,30 +25,22 @@ theorem validationWeightInit_row (witness : List ByteArray) :
 /-- TPR-022 (offset pin): the constant is 50 weight units. -/
 theorem validationWeightInit_offset : VALIDATION_WEIGHT_OFFSET = 50 := rfl
 
-/-- TPR-022 (empty witness): an empty stack starts at exactly 50 WU. -/
-theorem validationWeightInit_nil : validationWeightInit [] = 50 := by
+/-- TPR-022 (empty witness): an empty stack starts at 51 WU (one count byte plus 50). -/
+theorem validationWeightInit_nil : validationWeightInit [] = 51 := by
   unfold validationWeightInit witnessSerSize VALIDATION_WEIGHT_OFFSET
   rfl
 
-/-- TPR-022 (append law): appending one witness element adds its
-CompactSize length prefix plus its bytes. -/
+/-- Appending an item also accounts for growth of the stack-count prefix. -/
 theorem witnessSerSize_append_single (items : List ByteArray) (a : ByteArray) :
-    witnessSerSize (items ++ [a]) =
-      witnessSerSize items + Int.ofNat ((compactSizeEnc a.size).size + a.size) := by
-  unfold witnessSerSize
-  rw [List.foldl_append]
-  simp
+    witnessSerSize (items ++ [a]) = witnessSerSize items +
+      (Int.ofNat (compactSizeEnc (items.length+1)).size -
+        Int.ofNat (compactSizeEnc items.length).size) +
+      Int.ofNat ((compactSizeEnc a.size).size + a.size) :=
+  Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_single items a
 
-/-- TPR-022 (strict growth): every appended element (even the empty
-byte string) strictly increases the budget base — the initial budget
-is monotone in the witness. -/
+/-- Every appended item strictly increases the full serialized witness size. -/
 theorem validationWeightInit_strict_growth (items : List ByteArray)
-    (a : ByteArray) : witnessSerSize items < witnessSerSize (items ++ [a]) := by
-  rw [witnessSerSize_append_single]
-  have hpos : 0 < (compactSizeEnc a.size).size + a.size := by
-    have := compactSizeEnc_size_pos a.size; omega
-  have hb : (0 : Int) < Int.ofNat ((compactSizeEnc a.size).size + a.size) :=
-    Int.ofNat_lt.mpr hpos
-  omega
+    (a : ByteArray) : witnessSerSize items < witnessSerSize (items ++ [a]) :=
+  Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_strict items a
 
 end BitcoinProofs.AF.PDW41

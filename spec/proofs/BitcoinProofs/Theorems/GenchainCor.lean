@@ -518,7 +518,7 @@ height: it pays at most the (full-epoch) subsidy with zero fees. -/
 theorem genCoinbase_ok (interval : Nat) (h : UInt32) (hh : h.toNat < 210000) :
     cbAmountOk (genCoinbase (genSubsidy interval h.toNat)) 0 h = true := by
   have hsub : blockSubsidy h = 5000000000 := subsidy_full_epoch h hh
-  unfold cbAmountOk
+  unfold cbAmountOk Bitcoin.Capstone.Block.coinbaseRewardOk
   rw [genCoinbase_getValueOut, hsub, Int.zero_add, decide_eq_true_eq, genSubsidy]
   exact Int.ofNat_le.mpr (Nat.div_le_self _ _)
 

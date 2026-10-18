@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-from pathlib import Path
 """
 Y11 reference — PoW/bits compact-encoding codec (nBits).
 
-Ground truth: Bitcoin Core @ c50817febede99c8... (v32.99 master pin used by
-W3/W4), src/arith_uint256.cpp:
+Ground truth: Bitcoin Core @ cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66,
+src/arith_uint256.cpp:
   * arith_uint256::SetCompact(nCompact, pfNegative, pfOverflow)  (:176-194)
   * base_uint<BITS>::bits()                                      (:155-168)
   * arith_uint256::GetCompact(fNegative)                         (:196-215)
@@ -12,13 +11,14 @@ W3/W4), src/arith_uint256.cpp:
     high bits) and GetLow64() takes the low 64 bits.
 Consensus consumers: src/pow.cpp (CheckProofOfWork rejects fNegative ||
 fOverflow || target==0 || target > powLimit), consensus/params.h powLimit
-(0xffff * 2^208).
+(2^224 - 1).
 
 This file is INDEPENDENT of the Lean tree: it is the generator of both the
 case corpus and the Lean file spec/proofs/BitcoinProofs/Property/Y11/PowBits.lean
 (deterministic; seed 20261016). Run: python3 powbits_reference.py
 """
 
+from pathlib import Path
 import json
 import random
 
@@ -72,7 +72,7 @@ def get_compact(t: int, f_negative: bool = False) -> int:
     return ncompact
 
 
-POW_LIMIT = 0xFFFF * 256 ** 26          # mainnet/testnet3/testnet4 (BLK-040)
+POW_LIMIT = (1 << 224) - 1             # full mainnet/testnet3/testnet4 parameter (BLK-040)
 DIFFICULTY_ONE = 0xFFFF * 256 ** 29     # compactTarget 0x1d00ffff
 
 # Real mainnet nBits, byte-extracted from the validated anchor blocks
@@ -164,25 +164,25 @@ def main():
     # ---- Section D: encode, systematic edges -------------------------------
     D = [
         0,                       # -> 0x00000000 (nSize 0)
-        1,                       # -> 0x01000000
-        0xFF,                    # -> 0x01ff0000
-        0x100,                   # -> 0x02000100
-        0xFFFF,                  # -> 0x02ffff00
-        0x10000,                 # -> 0x03000100
+        1,                       # -> 0x01010000
+        0xFF,                    # -> 0x0200ff00 (sign bump)
+        0x100,                   # -> 0x02010000
+        0xFFFF,                  # -> 0x0300ffff (sign bump)
+        0x10000,                 # -> 0x03010000
         0x7FFFFF,                # -> 0x037fffff
         0x800000,                # bit 23 set -> sign-bump -> 0x04008000
         0xFFFFFF,                # -> 0x0400ffff
-        0x1000000,               # -> 0x05010000
-        0x123456789ABCDEF0,      # 65 bits
+        0x1000000,               # -> 0x04010000
+        0x123456789ABCDEF0,      # 61 bits
         0xFF00000000000000,      # 64-bit top
         DIFFICULTY_ONE // 256,   # target one mantissa shrunk
         DIFFICULTY_ONE,          # -> 0x1d00ffff round trip
-        DIFFICULTY_ONE * 2,      # -> 0x1d01ffff
+        DIFFICULTY_ONE * 2,      # -> 0x1d01fffe
         POW_LIMIT,               # -> 0x1d00ffff
-        POW_LIMIT + 1,           # mantissa rounding at the top
-        2 ** 240,                # -> 0x21010000
+        POW_LIMIT + 1,           # first integer above the full 224-bit limit
+        2 ** 240,                # -> 0x1f010000
         2 ** 248 - 1,            # 31 bytes of 0xff
-        2 ** 255,                # -> 0x22008000 -> sign-bump 0x220080 -> 0x22008000? (compute)
+        2 ** 255,                # -> 0x21008000 (sign bump)
         2 ** 256 - 1,            # all-ones
     ]
     for i, t in enumerate(D):
@@ -262,8 +262,9 @@ import Bitcoin.Block.Pow
 
 Independent reference implementation generated from the cited Bitcoin Core semantics.
 
-Ground truth: Bitcoin Core `arith_uint256.cpp` @ `c50817f` (v32.99 master
-pin; fetched from github.com/bitcoin/bitcoin at that commit):
+Ground truth: Bitcoin Core `arith_uint256.cpp` @ `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`:
+Encoding cases also run against the unchanged Core bodies at the alternative
+issue-16 pin via `spec/scripts/check_pow_limit_core.py`.
 `arith_uint256::SetCompact` (arith_uint256.cpp:176-194 — exponent byte,
 0x007fffff mantissa, `nSize <= 3` right-shift arm, sign/overflow flags),
 `base_uint::bits()` (:155-168), `arith_uint256::GetCompact` (:196-215 —
@@ -399,7 +400,7 @@ theorem anchor_roundtrip_genesis :
 
 /-- Encode edge: mainnet powLimit re-encodes to difficulty-1 nBits (case D15). -/
 theorem encode_powLimit :
-    getCompact (0xffff * 256 ^ 26) = (0x1d00ffff : UInt32) := by
+    getCompact powLimitMainnet = (0x1d00ffff : UInt32) := by
   decide
 
 /-- Negative space: the 0x23000001 overflow divergence, Lean side pinned as a

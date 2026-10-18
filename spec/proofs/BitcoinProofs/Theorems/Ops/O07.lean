@@ -62,7 +62,7 @@ theorems carry their own `op`. -/
 def opw (n : Nat) : WireOp := ⟨.op ⟨n % 256, by omega⟩, n, 1⟩
 
 /-- The empty machine state. -/
-def st0 : State := ⟨[], [], [], 0, 0, none⟩
+def st0 : State := ⟨[], [], [], 0, 0, none, 0, 0xffffffff⟩
 
 /-- `"abc"` as a stack element (the cross-check input). -/
 def abc : ByteArray := "abc".toUTF8
@@ -346,7 +346,7 @@ TOTAL transition — any stack, any fExec — that only records
 `pbegincodehash = pc`, i.e. `codeSep := op.next` (the byte offset
 just past the opcode). -/
 theorem opCodeSep_dispatch (ctx : Ctx) (op : WireOp) (fExec : Bool) (st : State) :
-    stepBody.dispatchOp ctx op 0xab fExec st = .ok { st with codeSep := op.next } := by
+    stepBody.dispatchOp ctx op 0xab fExec st = .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   simp [stepBody.dispatchOp]
 
 /-- SCR-167, executed under BASE: budget +1 (0xab > OP_16) and
@@ -358,7 +358,7 @@ theorem step_codesep_base (ctx : Ctx) (op : WireOp) (st : State)
     (hvf : st.vf.all id = true)
     (hbud : st.opCount < MAX_OPS_PER_SCRIPT) :
     stepBody ctx op st =
-      .ok { st with opCount := st.opCount + 1, codeSep := op.next } := by
+      .ok { st with opCount := st.opCount + 1, codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   have hd := disabledWire_hashblock 0xab (by omega)
   have hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by
     have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
@@ -403,7 +403,7 @@ no budget burn, and the CONST_SCRIPTCODE gate cannot fire (BASE-only). -/
 theorem step_codesep_tapscript (ctx : Ctx) (op : WireOp) (st : State)
     (hw : op.wire = 0xab) (hast : op.ast = .op ⟨0xab, by decide⟩)
     (hsv : ctx.sv = .tapscript) (hvf : st.vf.all id = true) :
-    stepBody ctx op st = .ok { st with codeSep := op.next } := by
+    stepBody ctx op st = .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   have hd := disabledWire_hashblock 0xab (by omega)
   simp [stepBody, stepBody.dispatchOp, hw, hast, hsv, hvf, hd]
 
@@ -462,11 +462,11 @@ example : stepBody.dispatchOp (octx .base {}) (opw 0xa9) 0xa9 true st0 =
     .error .stackUnderflow := by
   simp [stepBody.dispatchOp, opw, st0, octx]
 
--- OP_CODESEPARATOR verdict: third opcode in `<1> OP_CODESEPARATOR <1>`
--- has `pc = 3` (1-byte push + 1-byte codesep), so codeSep := 3.
+-- Direct step with supplied byte offset3 and opcode index0.
+-- Full parser/execution indexing is covered by the signed Taproot fixture.
 example : stepBody (octx .base {})
     ⟨.op ⟨0xab, by decide⟩, 0xab, 3⟩ { st0 with stack := [vchFalse, vchTrue] } =
-    .ok { st0 with opCount := 1, codeSep := 3,
+    .ok { st0 with opCount := 1, codeSep := 3, codeSepPos := 0,
                    stack := [vchFalse, vchTrue] } := by
   have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
   simp [stepBody, stepBody.dispatchOp, st0, octx, disabledWire, topAt, h201]

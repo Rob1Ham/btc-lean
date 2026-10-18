@@ -17,7 +17,7 @@ C4 portfolio linkage:
 | (BLK-003 cor) | `hashNatLE_empty`        | LE-interpretation of the empty digest is 0 |
 | (BLK-003 cor) | `hashNatLE_zero_prefix`  | LE-interpretation of 32 zero bytes is 0 (leading-zero high-hash form) |
 | (BLK-003 cor) | `hashNatLE_le_byte_bound`| `hashNatLE b < 256 ^ b.size` — a 32-byte digest is always a < 2^256 integer (bytes are ≤ 255 by construction of `UInt8`, so no hypothesis is needed) |
-| (BLK-037+038) | `compactTarget_genesis`  | `compactTarget 0x1d00ffff = powLimit` EXACTLY: the difficulty-1 target IS the mainnet `powLimit` (chainparams.cpp:109) |
+| (BLK-037+038) | `compactTarget_genesis`  | exact decoded difficulty-one target, with a separate strict bound below the full mainnet limit |
 | (BLK-037+038) | `targetOk_genesis`       | the REAL mainnet genesis/early-anchor nBits `0x1d00ffff` passes the decode gate |
 | (BLK-039)     | `powOk_iff_conj`         | `powOk h = true` ⟺ target gate holds ∧ LE-integer of the header hash ≤ target (Bool-and characterization of the "high-hash" adjudication) |
 | (BLK-038 cor) | `targetOk_pos_of_ok` / `targetOk_le_powLimit_of_ok` | a passing nBits decodes to a nonzero target ≤ `powLimit` (the `fNegative ‖ fOverflow ‖ target == 0 ‖ target > powLimit` reject arms of Core `CheckProofOfWork`, pow.cpp:95-116) |
@@ -77,15 +77,15 @@ theorem hashNatLE_le_byte_bound (b : ByteArray) :
     hashNatLE b < 256 ^ b.size :=
   hashNatLE_foldl_lt b b.size
 
-/-! ## The difficulty-1 target IS the mainnet powLimit (BLK-037+BLK-038) -/
+/-! ## The difficulty-one target and full mainnet limit (BLK-037+BLK-038) -/
 
-/-- **Computed value pin** (scratch `#eval`:
-`compactTarget 0x1d00ffff = 26959535291011309493156476344723991336010898738574164086137773096960`),
-consistent with core's `compactTarget_difficulty_one`
-(`0xffff * 256 ^ (0x1d - 3)`): the difficulty-1 expansion equals the mainnet
-`powLimit` of chainparams.cpp:109 EXACTLY (axiom footprint: [propext,
-Quot.sound], from `UInt32` instance unfolding in the `rfl`). -/
-theorem compactTarget_genesis : compactTarget 0x1d00ffff = powLimit := rfl
+/-- Exact decoded difficulty-one target. Core's full powLimit is larger. -/
+theorem compactTarget_genesis :
+    compactTarget 0x1d00ffff = 0xffff * 256 ^ 26 := rfl
+
+/-- The decoded difficulty-one target is strictly below the full live limit. -/
+theorem compactTarget_genesis_lt_limit : compactTarget 0x1d00ffff < powLimit :=
+  Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet
 
 /-- The REAL mainnet genesis / early-anchor nBits `0x1d00ffff` passes the
 `CheckProofOfWork` decode gate (BLK-037+BLK-038): nonzero target, ≤ powLimit
@@ -122,3 +122,7 @@ theorem targetOk_le_powLimit_of_ok (bits : UInt32) (h : targetOk bits = true) :
   exact h.2
 
 end BitcoinProofs.Theorems.CapstonePow
+
+-- R07c exact footprint guards.
+/-- info: 'BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit

@@ -27,7 +27,7 @@ theorem csv_mixed_type_false (env : LocktimeEnv) (n : ScriptNum)
     (h : ¬ csvSameType env n) : checkSequenceDef env n = false := by
   unfold checkSequenceDef
   dsimp only
-  by_cases hv : env.txVersion < 2
+  by_cases hv : env.txVersion.toUInt32 < 2
   · rw [ite_eq_left hv]
   · rw [ite_eq_right (by simp [hv])]
     by_cases hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0
@@ -48,7 +48,7 @@ theorem cltv_accept_iff (env : LocktimeEnv) (n : ScriptNum) :
 @[rule "INV-023"]
 theorem csv_accept_iff (env : LocktimeEnv) (n : ScriptNum) :
     checkSequenceDef env n = true ↔
-      ¬ env.txVersion < 2 ∧
+      ¬ env.txVersion.toUInt32 < 2 ∧
       (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0 ∧
       csvSameType env n ∧
       (n.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) ≤

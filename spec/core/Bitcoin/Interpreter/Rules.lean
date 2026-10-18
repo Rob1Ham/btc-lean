@@ -1,4 +1,5 @@
 import Bitcoin.Interpreter.Interface
+import Bitcoin.Interpreter.SigOps
 import Bitcoin.Activation.Flags
 import Bitcoin.Crypto.Seam.Entry
 import Bitcoin.Crypto.Schnorr.TaggedHash
@@ -25,7 +26,7 @@ Row families landed in this module (the interpreter rule layer):
    `txTo->vin[nIn].nSequence`, `txTo->nVersion` (:1755, 1792-1796);
    proved input-local by a congruence theorem.
 3. **CSV tx-version gate** (SCR-128): `CheckSequence` fails when
-   `txTo->nVersion < 2` (:1800-1801) — already the first branch of
+   `txTo->version < 2` (uint32_t) (:1800-1801) — already the first branch of
    `checkSequenceDef`; theorem-pinned here.
 4. **OP_1NEGATE encoding** (SCR-047): the `pushNum 0` arm of
    `stepBody` pushes `encodeScriptNum (-1)`; the wire form is exactly
@@ -129,19 +130,44 @@ theorem checkSequence_perInput (tx tx' : Bitcoin.Data.Tx) (nIn : Nat) (n : Scrip
       = checkSequenceDef (locktimeEnvOf tx' nIn) n := by
   rw [locktimeEnvOf_congr tx tx' nIn hver hlt hvin]
 
-/-! ## 3. CSV requires tx version ≥ 2 (SCR-128) -/
+/-! ## 3. CSV requires unsigned wire version ≥ 2 (SCR-128) -/
 
 /-- `CheckSequence` (interpreter.cpp:1800-1801): BIP68/112 semantics are
-undefined for transaction version 1, and Core FAILS the check (not
-NOPs it) — the first branch of `checkSequenceDef`. -/
+undefined for unsigned wire versions 0 and 1, and Core fails the check — the first branch of `checkSequenceDef`. -/
 @[rule "SCR-128"]
 theorem checkSequenceDef_version_gate (env : LocktimeEnv) (n : ScriptNum)
-    (hv : env.txVersion < 2) : checkSequenceDef env n = false := by
+    (hv : env.txVersion.toUInt32 < 2) : checkSequenceDef env n = false := by
   unfold checkSequenceDef
   split
   · rfl
   · rename_i hneg
     exact absurd hv hneg
+
+/-- CSV reads the version's unsigned wire bits and the current input's
+sequence; the transaction locktime is irrelevant to CheckSequence. -/
+theorem checkSequenceDef_wire_congr (env env' : LocktimeEnv) (n : ScriptNum)
+    (hv : env.txVersion.toUInt32 = env'.txVersion.toUInt32)
+    (hs : env.txSequence = env'.txSequence) :
+    checkSequenceDef env n = checkSequenceDef env' n := by
+  simp only [checkSequenceDef, hv, hs]
+
+/-- High-bit wire versions pass the version gate; ordinary sequence and
+operand checks still apply. These closed examples use kernel reduction. -/
+theorem checkSequenceDef_high_bit_versions :
+    checkSequenceDef { txVersion := -1, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2147483648, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2147483647, txSequence := 1 } 1 = true := by
+  decide
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_version_gate' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_version_gate
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_wire_congr' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_wire_congr
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_high_bit_versions' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_high_bit_versions
 
 /-! ## 4. OP_1NEGATE pushes 0x81 (SCR-047) -/
 
@@ -167,47 +193,16 @@ OP_CHECKMULTISIGVERIFY) — each counts as 1 sigop in `GetSigOpCount`. -/
 def isSigOpWire (w : Nat) : Bool :=
   w = 0xac ∨ w = 0xad ∨ w = 0xae ∨ w = 0xaf
 
-/-- The DecodeOP_N tail contribution: when the LAST opcode is OP_N
-(wire 0x50+N, N ∈ 1..16), the accurate count adds N — BIP16's
-`<N> <keys…> N CHECKMULTISIG` redeem shape. -/
-def decodeOpN (last : Option WireOp) : Nat :=
-  match last with
-  | some o => if 0x51 ≤ o.wire ∧ o.wire ≤ 0x60 then o.wire - 0x50 else 0
-  | none => 0
-
-/-- `CScript::GetSigOpCount(fAccurate)` (script.cpp:173-177): one sigop
-per signature-checking opcode; in ACCURATE mode (the P2SH/witness
-subscript convention) the DecodeOP_N tail adds its N. -/
+/-- Core's static counter over parsed opcodes: CHECKSIG costs one;
+CHECKMULTISIG costs the preceding OP_1..OP_16 value in accurate mode,
+and twenty otherwise. A trailing OP_N has no independent cost. -/
 @[rule "SCR-033"]
 def sigOpCount (ops : List WireOp) (accurate : Bool) : Nat :=
-  (ops.filter (fun o => isSigOpWire o.wire)).length +
-    (if accurate then decodeOpN ops.getLast? else 0)
+  SigOps.sigOpCount ops accurate
 
-/-- Accurate counting never under-counts: the DecodeOP_N tail only adds. -/
-theorem sigOpCount_accurate_ge (ops : List WireOp) :
-    sigOpCount ops false ≤ sigOpCount ops true := by
-  unfold sigOpCount
-  rw [ite_eq_right (by decide : ¬((false : Bool) = true)),
-    ite_eq_left (by decide : (true : Bool) = true)]
-  omega
-
-/-- The DecodeOP_N value of a present OP_N tail is exactly N. -/
-theorem decodeOpN_some (o : WireOp) (n : Nat) (hn : o.wire = 0x50 + n)
-    (h1 : 1 ≤ n) (h16 : n ≤ 16) : decodeOpN (some o) = n := by
-  have hcond' : (0x51 ≤ 0x50 + n ∧ 0x50 + n ≤ 0x60) := by omega
-  simp only [decodeOpN, hn, hcond', true_and, ite_true]
-  omega
-
-/-- The DecodeOP_N law itself: when the last opcode is OP_N, the
-accurate count is the plain count plus N. -/
-theorem sigOpCount_last_decodeOPN (ops : List WireOp) (o : WireOp) (n : Nat)
-    (hlast : ops.getLast? = some o) (hn : o.wire = 0x50 + n) (h1 : 1 ≤ n) (h16 : n ≤ 16) :
-    sigOpCount ops true = sigOpCount ops false + n := by
-  unfold sigOpCount
-  rw [ite_eq_left (by decide : (true : Bool) = true),
-      ite_eq_right (by decide : ¬((false : Bool) = true)),
-      hlast, decodeOpN_some o n hn h1 h16]
-  omega
+/-- A single opcode has no preceding OP_N, so both modes agree. -/
+theorem sigOpCount_single (op : WireOp) :
+    sigOpCount [op] true = sigOpCount [op] false := rfl
 
 /-- `CScript::GetSigOpCount(scriptSig)` (script.cpp:183-205): the P2SH
 side — the subscript is the LAST PUSH of scriptSig (Core's `GetOp`
@@ -217,15 +212,7 @@ with the ACCURATE convention. The caller gates on
 `scriptPubKey.IsPayToScriptHash()` (tx_verify.cpp:132-146). -/
 @[rule "SCR-034"]
 def p2shSigOpCount (scriptSig : ByteArray) : Nat :=
-  match parseWire scriptSig with
-  | none => 0
-  | some ops =>
-    match ops.getLast? with
-    | none => 0
-    | some last =>
-      match last.ast with
-      | .pushBytes d => sigOpCount ((parseWire (Bitcoin.Script.Parser.pushBytesWire d)).getD []) true
-      | _ => 0   -- non-push tail: Core's cleared vchRet ⇒ empty subscript
+  SigOps.p2shScriptSigOps scriptSig
 
 /-- `WitnessSigOps` (interpreter.cpp:2133-2147): witness v0 — program 20
 (P2WPKH) = 1 sigop; program 32 (P2WSH) = the ACCURATE sigop count of
@@ -238,9 +225,7 @@ def witnessSigOps (version : Nat) (program : ByteArray) (witness : WitnessStack)
       match witness.getLast? with
       | none => 0
       | some script =>
-        match parseWire script with
-        | none => 0
-        | some ops => sigOpCount ops true
+        SigOps.witnessScriptSigOps script
     else 0
   else 0
 
@@ -300,16 +285,25 @@ sigop count of every scriptSig and scriptPubKey (no P2SH subscripting,
 no witness extension). -/
 def txLegacySigOps (tx : Bitcoin.Data.Tx) : Nat :=
   tx.vin.foldl (fun acc i =>
-    acc + sigOpCount ((parseWire i.scriptSig.bytes).getD []) false) 0 +
+    acc + SigOps.scriptSigOpCount i.scriptSig.bytes false) 0 +
   tx.vout.foldl (fun acc o =>
-    acc + sigOpCount ((parseWire o.scriptPubKey.bytes).getD []) false) 0
+    acc + SigOps.scriptSigOpCount o.scriptPubKey.bytes false) 0
 
 /-- `GetP2SHSigOpCount` (tx_verify.cpp:132-146): for every input whose
 prevout scriptPubKey is a P2SH script, the accurate sigop count of the
 redeem script (the last scriptSig push). -/
+def txP2shSigOpsFrom (spkOf : Nat → ByteArray) : List Bitcoin.Data.TxIn → Nat → Nat
+  | [], _ => 0
+  | input :: rest, n =>
+    (if isPayToScriptHash (spkOf n) then p2shSigOpCount input.scriptSig.bytes else 0) +
+      txP2shSigOpsFrom spkOf rest (n+1)
+
 def txP2shSigOps (tx : Bitcoin.Data.Tx) (spkOf : Nat → ByteArray) : Nat :=
-  tx.vin.foldl (fun acc i =>
-    acc + (if isPayToScriptHash (spkOf 0) then p2shSigOpCount i.scriptSig.bytes else 0)) 0
+  if tx.isCoinBase then 0 else txP2shSigOpsFrom spkOf tx.vin 0
+
+theorem txP2shSigOps_coinbase (tx : Bitcoin.Data.Tx) (spkOf : Nat → ByteArray)
+    (h : tx.isCoinBase = true) : txP2shSigOps tx spkOf = 0 := by
+  simp [txP2shSigOps, h]
 
 /-- `GetTransactionSigOpCost` (tx_verify.cpp:149-168): legacy and P2SH
 sigops each weigh `WITNESS_SCALE_FACTOR` (4) cost units; the
@@ -397,11 +391,10 @@ theorem verifyWitnessProgram_keypath
     (htap : flags.taproot = true)
     (h32 : program.size = 32) (hp2 : isP2SH = false) :
     verifyWitnessProgram fuel [sig] 1 program flags pol chk isP2SH
-      = if chk.base.checkSchnorrSignature sig program SigVersion.taproot
+      = schnorrOutcome (checkSchnorrWithContext chk sig program SigVersion.taproot
               { (default : ScriptExecutionData) with
                 annexInit := true, annexPresent := false,
-                annexHash := (default : ScriptExecutionData).annexHash }
-        then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
+                annexHash := (default : ScriptExecutionData).annexHash }) := by
   simp [verifyWitnessProgram, htap, h32, hp2]
 
 /-- SCR-149: witness versions ≥ 2 are UPGRADABLE — success today,
@@ -458,7 +451,7 @@ theorem evalChecksigTapscript_decrements_50
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .ok ())
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw
       = .ok (true, some ((vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED)) := by
@@ -471,7 +464,7 @@ theorem evalChecksigTapscript_budget_exactly_zero
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .ok ())
     (hvw : (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED = 0) :
     evalChecksigTapscript pol chk ed sig pk vw = .ok (true, some 0) := by
   simp [evalChecksigTapscript, hsig, hpk, hok, hvw]
@@ -508,7 +501,7 @@ theorem evalChecksigTapscript_32_is_schnorr
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hbad : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = false)
+    (hbad : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .error .schnorrSig)
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw = .error .schnorrSig := by
   simp [evalChecksigTapscript, hsig, hpk, hbad,
@@ -670,7 +663,7 @@ theorem stepBody_codesep_records_next
     (hw : op.wire = 0xab)
     (hts : ctx.sv = SigVersion.tapscript)
     (hexec : st.vf.all id = true) :
-    stepBody ctx op st = .ok { st with codeSep := op.next } := by
+    stepBody ctx op st = .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex } := by
   rcases op with ⟨ast, wire, next⟩
   subst hop; subst hw
   simp only [stepBody, stepBody.dispatchOp, hexec, hts]

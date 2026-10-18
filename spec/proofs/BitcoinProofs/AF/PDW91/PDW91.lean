@@ -63,7 +63,7 @@ theorem evalChecksigTapscript_32_is_schnorr
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
     (hvw : VALIDATION_WEIGHT_PER_SIGOP_PASSED ≤ vw.getD 0)
-    (hchk : chk.base.checkSchnorrSignature sig pk .tapscript ed = true) :
+    (hchk : checkSchnorrWithContext chk sig pk .tapscript ed = .ok ()) :
     evalChecksigTapscript pol chk ed sig pk vw =
       .ok (true, some (vw.getD 0 - VALIDATION_WEIGHT_PER_SIGOP_PASSED)) := by
   simp [evalChecksigTapscript, hsig, hpk, hvw, hchk]
@@ -107,7 +107,7 @@ theorem evalChecksigTapscript_pubkey_size_rules
     (hvw : VALIDATION_WEIGHT_PER_SIGOP_PASSED ≤ vw.getD 0) :
     (pk.size = 0 →
         evalChecksigTapscript pol chk ed sig pk vw = .error .tapscriptEmptyPubkey) ∧
-    (pk.size = 32 → chk.base.checkSchnorrSignature sig pk .tapscript ed = true →
+    (pk.size = 32 → checkSchnorrWithContext chk sig pk .tapscript ed = .ok () →
         evalChecksigTapscript pol chk ed sig pk vw =
           .ok (true, some (vw.getD 0 - VALIDATION_WEIGHT_PER_SIGOP_PASSED))) ∧
     (pk.size ≠ 0 → pk.size ≠ 32 → pol.discourageUpgradablePubkeyType = false →

@@ -3,6 +3,7 @@ import Bitcoin.Data.Tx
 import Bitcoin.Ledger.Utxo
 import Bitcoin.Interpreter.Defs
 import Bitcoin.Interpreter.SigOps
+import Bitcoin.TxValidation.SigOpsCost
 
 /-!
 # Bitcoin.Block.Sigops — signature-operation accounting (the block-validation module)
@@ -16,7 +17,7 @@ The block-level sigop budget (`src/policy/policy.cpp` `GetLegacySigOpCount`
   scriptSigs **and** scriptPubKeys of every tx.
 * **BLK-034** — the legacy block budget: Σ legacy sigops ×
   `WITNESS_SCALE_FACTOR ≤ MAX_BLOCK_SIGOPS_COST = 80000`
-  (`bad-blk-sigops`). Under-counting **by design**: a truncated push
+  (`bad-blk-sigops`). Static counting: a truncated push
   terminates the scan with the count accumulated so far, and witness
   sigops for future witness versions (v1+, taproot) are 0 — Core only
   counts those at script-execution time.
@@ -92,83 +93,12 @@ theorem foldl_add_split {α : Type} (xs : List α) (f : α → Nat) :
     rw [List.foldl_cons, List.foldl_cons, ih (acc + f y), ih (0 + f y)]
     omega
 
-/-! ## The `GetOp`-style scanner -/
-
-/-- Payload length for `OP_PUSHDATA1/2/4` (little-endian length bytes at
-`i+1..`). Out-of-range length bytes read as 0. -/
-def pushDataLen (b : ByteArray) (kind : Nat) (i : Nat) : Nat :=
-  if kind = 1 then
-    (b.get! (i + 1)).toNat
-  else if kind = 2 then
-    (b.get! (i + 1)).toNat + 256 * (b.get! (i + 2)).toNat
-  else
-    (b.get! (i + 1)).toNat + 256 * (b.get! (i + 2)).toNat +
-      65536 * (b.get! (i + 3)).toNat + 16777216 * (b.get! (i + 4)).toNat
-
-/-- Accumulator update for one opcode (`CountSigOps`, policy.cpp:83-93):
-`OP_CHECKSIG/OP_CHECKSIGVERIFY` cost 1, `OP_CHECKMULTISIG(VERIFY)` cost
-`MAX_PUBKEYS_PER_MULTISIG`, everything else 0. -/
-def scanAcc (op acc : Nat) : Nat :=
-  if op = 0xac ∨ op = 0xad then acc + 1
-  else if op = 0xae ∨ op = 0xaf then acc + MAX_PUBKEYS_PER_MULTISIG
-  else acc
-
-/-- Total index advance for one `GetOp` step: the opcode byte plus the
-push payload (`policy.cpp:96-105`). A truncated push jumps past the end
-of the script — `sigOpScan` clamps via `min`, so the count accumulated
-so far stands (BLK-034: under-counting by design). -/
-def scanAdv (b : ByteArray) (op i : Nat) : Nat :=
-  if op ≤ 0x4b then 1 + op                  -- direct push (OP_0 pushes 0)
-  else if op = 0x4c then 2 + pushDataLen b 1 i   -- OP_PUSHDATA1
-  else if op = 0x4d then 3 + pushDataLen b 2 i   -- OP_PUSHDATA2
-  else if op = 0x4e then 5 + pushDataLen b 4 i   -- OP_PUSHDATA4
-  else 1
-
-/-- `CountSigOps` as a terminating byte-scan (fuel = script size; every
-step advances by ≥ 1 byte). -/
-def sigOpScan (b : ByteArray) : Nat → Nat → Nat → Nat
-  | 0, _, acc => acc
-  | fuel+1, i, acc =>
-      if b.size ≤ i then acc
-      else
-        let op := (b.get! i).toNat
-        sigOpScan b fuel
-          (i + min (scanAdv b op i) (b.size - i))
-          (scanAcc op acc)
-
-theorem scanAcc_le (op acc : Nat) :
-    scanAcc op acc ≤ acc + MAX_PUBKEYS_PER_MULTISIG := by
-  unfold scanAcc
-  simp only [MAX_PUBKEYS_PER_MULTISIG]
-  by_cases h1 : op = 0xac ∨ op = 0xad
-  · simp [h1]
-  · by_cases h2 : op = 0xae ∨ op = 0xaf
-    · simp [h1, h2]
-    · simp [h1, h2]
-
-/-- The scan never counts more than `20` per consumed step of fuel. -/
-theorem sigOpScan_le (b : ByteArray) :
-    ∀ fuel i acc, sigOpScan b fuel i acc ≤ acc + MAX_PUBKEYS_PER_MULTISIG * fuel := by
-  intro fuel
-  induction fuel with
-  | zero => intro i acc; exact Nat.le_refl acc
-  | succ fuel ih =>
-    intro i acc
-    simp only [MAX_PUBKEYS_PER_MULTISIG] at ih ⊢
-    simp only [sigOpScan]
-    split
-    · omega
-    · refine Nat.le_trans (ih _ _) ?_
-      have hacc := scanAcc_le ((b.get! i).toNat) acc
-      simp only [MAX_PUBKEYS_PER_MULTISIG] at hacc
-      omega
-
 /-! ## BLK-033: legacy sigop counting -/
 
 /-- `GetLegacySigOpCount` over one script. -/
 @[rule "BLK-033"]
 def legacySigOpCountScript (s : Script) : Nat :=
-  sigOpScan s.bytes s.bytes.size 0 0
+  Bitcoin.Interpreter.SigOps.scriptSigOpCount s.bytes false
 
 /-- Legacy sigop count of one transaction: scriptSigs + scriptPubKeys
 (policy.cpp:107-130). -/
@@ -250,12 +180,11 @@ theorem legacySigOpCountScript_opcode_run :
     legacySigOpCountScript ⟨ByteArray.mk #[0xac, 0xac, 0xae]⟩ = 22 := by
   decide
 
-/-- Under-counting by design: the legacy count of a script never exceeds
+/-- The legacy count of a script never exceeds
 `20` per script byte (truncated pushes terminate the scan early). -/
 theorem legacySigOpCountScript_le (s : Script) :
     legacySigOpCountScript s ≤ MAX_PUBKEYS_PER_MULTISIG * s.bytes.size := by
-  have h := sigOpScan_le s.bytes s.bytes.size 0 0
-  simpa [legacySigOpCountScript] using h
+  exact Bitcoin.Interpreter.SigOps.scriptSigOpCount_inaccurate_le s.bytes
 
 theorem legacySigOpCountBlock_append (a b : List Tx) :
     legacySigOpCountBlock (a ++ b) =
@@ -271,34 +200,14 @@ def isP2SH (s : Script) : Bool :=
   s.bytes.size = 23 ∧ (s.bytes.get! 0).toNat = 0xa9 ∧
     (s.bytes.get! 1).toNat = 0x14 ∧ (s.bytes.get! 22).toNat = 0x87
 
-/-- The last data push of a script — the redeem script carried in a
-P2SH scriptSig (`stack.back()` after `EvalScript`). Unparseable ⇒
-`none` ⇒ counted as 0 sigops (BLK-034 under-counting by design). -/
+/-- The last GetOp data register of a fully parsed push-only scriptSig.
+Malformed pushes and any opcode above OP_16 return none. -/
 def lastPush (s : Script) : Option ByteArray :=
-  go s.bytes s.bytes.size 0 none
-where
-  go (b : ByteArray) : Nat → Nat → Option ByteArray → Option ByteArray
-    | 0, _, acc => acc
-    | fuel+1, i, acc =>
-        if b.size ≤ i then acc
-        else
-          let op := (b.get! i).toNat
-          if op ≤ 0x4b then
-            go b fuel (i + 1 + op) (some (b.extract (i+1) (i+1+op)))
-          else if op = 0x4c then
-            let n := pushDataLen b 1 i
-            go b fuel (i + 2 + n) (some (b.extract (i+2) (i+2+n)))
-          else if op = 0x4d then
-            let n := pushDataLen b 2 i
-            go b fuel (i + 3 + n) (some (b.extract (i+3) (i+3+n)))
-          else if op = 0x4e then
-            let n := pushDataLen b 4 i
-            go b fuel (i + 5 + n) (some (b.extract (i+5) (i+5+n)))
-          else go b fuel (i + 1) acc
+  Bitcoin.Interpreter.SigOps.pushOnlyLastData s.bytes
 
 /-- Core `CScript::GetSigOpCount(true)` over raw script bytes: parse the
 wire and count CHECKSIG/CHECKMULTISIG with the OP_1..OP_16 lookback;
-an unparseable script counts 0 (the caller's under-counting rule). -/
+a malformed push stops counting and retains the valid prefix. -/
 def accurateSigOpCountBytes (b : ByteArray) : Nat :=
   Bitcoin.Interpreter.SigOps.witnessScriptSigOps b
 
@@ -319,32 +228,20 @@ def p2shSigOpCount (u : UtxoSet) (tx : Tx) : Nat :=
              | some r => accurateSigOpCountBytes r
            else 0)) 0
 
-/-- Witness sigops of one input (tx_verify.cpp:149-168): only if the
-prevout coin's scriptPubKey is a witness program. **v0 only** — a v0
-program of 32 bytes costs the legacy count of the witness's last
-element (the P2WSH witness script), a v0 program of 20 bytes costs
-exactly 1 (P2WPKH); future versions (v1+ taproot & beyond) cost 0 here,
-being counted at execution time. -/
+/-- Native and P2SH-wrapped witness programs share Core's counting arms.
+Missing coins count zero here; transaction input checks precede this stage. -/
 def witnessInputSigOps (u : UtxoSet) (i : TxIn) (w : WitnessStack) : Nat :=
   match u i.prevout with
   | none => 0
-  | some c =>
-    match isWitnessProgram c.scriptPubKey.bytes with
-    | none => 0
-    | some (v, prog) =>
-      if v ≠ 0 then 0
-      else if prog.size = 32 then
-        match w.getLast? with
-        | none => 0
-        | some ws => accurateSigOpCountBytes ws
-      else if prog.size = 20 then 1
-      else 0
+  | some c => Bitcoin.TxValidation.SigOpsCost.countWitnessSigOps
+      i.scriptSig.bytes c.scriptPubKey.bytes w
 
-/-- `GetTransactionSigOpCost`'s witness term: pairwise over `vin` and
-the witness stacks, coinbase excluded. -/
+/-- Every input is counted, including P2WPKH with an absent witness stack.
+Coinbase transactions contribute only their legacy count. -/
 def witnessSigOps (u : UtxoSet) (tx : Tx) : Nat :=
   if tx.isCoinBase then 0
-  else (tx.vin.zip tx.witness).foldl (fun a p => a + witnessInputSigOps u p.1 p.2) 0
+  else Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTx tx
+    (fun o => (u o).map (fun c => c.scriptPubKey.bytes))
 
 theorem p2shSigOpCount_coinbase_zero (u : UtxoSet) (tx : Tx)
     (h : tx.isCoinBase = true) : p2shSigOpCount u tx = 0 := by
@@ -373,9 +270,14 @@ theorem witnessSigOps_none (tx : Tx) :
   unfold witnessSigOps
   split
   · rfl
-  · apply foldl_add_zero
-    intro p
-    rfl
+  · unfold Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTx
+    have hz : ∀ n l, Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTxFrom tx
+        (fun _ => none) l n = 0 := by
+      intro n l
+      induction l generalizing n with
+      | nil => rfl
+      | cons i rest ih => exact ih (n+1)
+    exact hz 0 tx.vin
 
 /-- Future witness versions (v1+ — taproot & beyond) contribute 0 to the
 block-level sigop budget; Core counts their sigops only at script
@@ -384,19 +286,51 @@ theorem witnessInputSigOps_v1_zero (u : UtxoSet) (i : TxIn) (w : WitnessStack)
     (c : Coin) (hc : u i.prevout = some c) (v : Nat) (prog : ByteArray)
     (hp : isWitnessProgram c.scriptPubKey.bytes = some (v, prog)) (hv : v ≠ 0) :
     witnessInputSigOps u i w = 0 := by
-  unfold witnessInputSigOps
-  simp only [hc, hp]
-  rw [if_pos hv]
+  simp only [witnessInputSigOps, hc, Bitcoin.TxValidation.SigOpsCost.countWitnessSigOps, hp]
+  exact Bitcoin.Interpreter.SigOps.witnessSigOps_future_zero v prog w (by omega)
 
 /-! ## The full cost (BLK-035) and the connect-time budget (BLK-036) -/
 
-/-- Full sigop cost of one transaction (tx_verify.cpp:149-168):
+/-- Cost with both optional lanes enabled. The block connector must use
+`txSigOpCostWithFlags` with the actual block flags. This compatibility
+helper also supports proofs of the all-enabled arithmetic decomposition.
 `4 × (legacy + P2SH) + witness`. Witness sigops weight 1, not 4
 (BIP141 §"sigop cost"). -/
 @[rule "BLK-035"]
 def txSigOpCost (u : UtxoSet) (tx : Tx) : Nat :=
   WITNESS_SCALE_FACTOR * (legacySigOpCountTx tx + p2shSigOpCount u tx) +
     witnessSigOps u tx
+
+/-- Core GetTransactionSigOpCost: legacy always contributes; the P2SH
+and witness terms require their respective script-verification flags.
+Their counters are already zero for coinbase. Core's WITNESS ⇒ P2SH
+flag invariant is supplied by the caller's GetBlockScriptFlags result. -/
+def txSigOpCostWithFlags (u : UtxoSet) (tx : Tx)
+    (flags : Bitcoin.Activation.ScriptFlags) : Nat :=
+  WITNESS_SCALE_FACTOR *
+    (legacySigOpCountTx tx + if flags.p2sh then p2shSigOpCount u tx else 0) +
+    if flags.witness then witnessSigOps u tx else 0
+
+@[rule "BLK-035"]
+theorem txSigOpCostWithFlags_decompose (u : UtxoSet) (tx : Tx)
+    (flags : Bitcoin.Activation.ScriptFlags) :
+    txSigOpCostWithFlags u tx flags =
+      4 * (legacySigOpCountTx tx + if flags.p2sh then p2shSigOpCount u tx else 0) +
+      if flags.witness then witnessSigOps u tx else 0 := rfl
+
+@[rule "BLK-035"]
+theorem txSigOpCostWithFlags_enabled (u : UtxoSet) (tx : Tx)
+    (flags : Bitcoin.Activation.ScriptFlags)
+    (hp : flags.p2sh = true) (hw : flags.witness = true) :
+    txSigOpCostWithFlags u tx flags = txSigOpCost u tx := by
+  simp [txSigOpCostWithFlags, txSigOpCost, hp, hw]
+
+@[rule "BLK-035"]
+theorem txSigOpCostWithFlags_coinbase (u : UtxoSet) (tx : Tx)
+    (flags : Bitcoin.Activation.ScriptFlags) (hc : tx.isCoinBase = true) :
+    txSigOpCostWithFlags u tx flags = 4 * legacySigOpCountTx tx := by
+  simp [txSigOpCostWithFlags, p2shSigOpCount_coinbase_zero u tx hc,
+    witnessSigOps_coinbase_zero u tx hc, WITNESS_SCALE_FACTOR]
 
 /-- Cost decomposition pin (BLK-035). -/
 theorem txSigOpCost_decompose (u : UtxoSet) (tx : Tx) :

@@ -88,7 +88,7 @@ theorem stepBody_codesep_records_next
     (hw : op.wire = 0xab)
     (hts : ctx.sv = SigVersion.tapscript)
     (hexec : st.vf.all id = true) :
-    Bitcoin.Interpreter.stepBody ctx op st = .ok { st with codeSep := op.next } :=
+    Bitcoin.Interpreter.stepBody ctx op st = .ok { st with codeSep := op.next, codeSepPos := st.opcodeIndex } :=
   Bitcoin.Interpreter.stepBody_codesep_records_next ctx op st hop hw hts hexec
 
 /-! ## SCR-161 / SCR-166 / SCR-165 — faithful `CheckSchnorrSignature`
@@ -378,7 +378,7 @@ theorem codesep_byteoffset_witness
     (hts : ctx.sv = SigVersion.tapscript)
     (hexec : st.vf.all id = true) :
     Bitcoin.Interpreter.stepBody ctx codesepAfterPush st =
-      .ok { st with codeSep := 4 } := by
+      .ok { st with codeSep := 4, codeSepPos := st.opcodeIndex } := by
   have h := Bitcoin.Interpreter.stepBody_codesep_records_next ctx codesepAfterPush st
     rfl rfl hts hexec
   simpa [codesepAfterPush] using h

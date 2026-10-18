@@ -15,7 +15,7 @@ with an explicit LEAN_PATH (shared `.lake` build dir and global build lock
 untouched; no existing runner file edited).
 
 Validates THREE real mainnet blocks (2011–2012 sweep, all pre-BIP34,
-pre-segwit) through the exact capstone pipeline `validateBlock`:
+pre-segwit) through the exact capstone pipeline `replayBlock`:
 
   123456 · 150000 · 200000
 
@@ -123,6 +123,7 @@ structure BlockResult where
   ms : Nat := 0
   foldAgrees : Bool := true
   probe : String := ""
+  scriptAdjudication : ScriptAdjudication := .incomplete
 deriving Repr
 
 def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
@@ -138,9 +139,9 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
     | txt => pure ((txt.splitOn "\n").filter (fun l => !(trimStr l).isEmpty))
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
-  let res :=
-    match validateBlock raw st with
-    | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
+  let res : BlockResult :=
+    match replayBlock raw st with
+    | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
           match decodeBlock raw with
@@ -151,7 +152,12 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
           match folded with
           | .ok l' => bytesBEqList l' rep.state.utxo
           | .error _ => false
-        BlockResult.mk height "" true "" rep.txs rep.scriptOk rep.scriptUnjudged 0 agree ""
+        { height := height, blockHash := "",
+          ok := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0 && agree,
+          reason := if rep.scriptAdjudication != .complete || rep.scriptUnjudged != 0 then
+            "script-data-unavailable" else if !agree then "ledger-fold-mismatch" else "",
+          txs := rep.txs, scriptOk := rep.scriptOk, scriptUnjudged := rep.scriptUnjudged,
+          foldAgrees := agree, scriptAdjudication := rep.scriptAdjudication }
   let t1 ← IO.monoMsNow
   let hashDisp := match decodeBlock raw with
     | .ok (h, _) => (bL (headerHash h)).reverse
@@ -176,7 +182,7 @@ where
 def anchorsV302 : List Nat := [123456, 150000, 200000]
 
 /-- Per-tx adjudication trace (recorded even on PASS). Sequential fold: each
-tx is probed against the state after txs 0..i-1 — the state `validateBlock`
+tx is probed against the state after txs 0..i-1 — the state `replayBlock`
 actually sees (RunV01 semantics, avoids the raw-seed probe artifact of
 Run.lean). -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do
@@ -211,7 +217,7 @@ def main : IO Unit := do
   let mut results := []
   for h in anchorsV302 do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
     perTxTrace dir h

@@ -1,0 +1,109 @@
+{
+  "kind": "Real block170 bytes and real parent169 header, supplied at conditional candidate height170060 to test alternate-hash exception routing. Not reachable historical-chain or actual historical UTXO claims.",
+  "original_height": 170,
+  "candidate_height": 170060,
+  "block_hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+  "parent_hash": "000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55",
+  "block_sha256": "32b4d091e14125788d35a2dfd2ed559994262e8f34c0edfdb510f605900c661e",
+  "parent_header_sha256": "fa0df05fd474bc94059985d4bec7369b9f73553f07cb887b2c4826c5887adc0b",
+  "sources": [
+    "https://blockstream.info/api/block/00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee/raw",
+    "https://blockstream.info/api/block/000000002a22cfee1f2c846adbd12b3e183d4f97683f85dad08a79780a84bd55/header"
+  ],
+  "utxo": "One funded non-coinbase input with value equal to the actual spending transaction outputs. Acceptance control uses OP_TRUE; reject case substitutes P2SH(hash160(signature push)), whose redeem script is the signature bytes and fails script execution.",
+  "context": "Supplied parent index170059 contains real header169. Other required MTP entries have time0 and complete lookups; nodeTime2000000000. This is conditional caller state, not validated historical ancestry.",
+  "expected": "Both public entries accept the control and reject the invalid P2SH case: actual header hash is not Core\u2019s named exception, even at exception height170060.",
+  "flagCases": [
+    {
+      "name": "P2SH alternate",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 170060,
+      "flags": "true:true:true:false:false:false:false"
+    },
+    {
+      "name": "P2SH named",
+      "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+      "height": 170060,
+      "flags": "false:false:false:false:false:false:false"
+    },
+    {
+      "name": "Taproot alternate",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 692261,
+      "flags": "true:true:true:true:true:true:true"
+    },
+    {
+      "name": "Taproot named",
+      "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+      "height": 692261,
+      "flags": "true:true:false:true:true:true:true"
+    },
+    {
+      "name": "buried flags survive P2SH replacement",
+      "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+      "height": 692261,
+      "flags": "false:false:false:true:true:true:true"
+    },
+    {
+      "name": "Taproot replacement before buried gates",
+      "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+      "height": 0,
+      "flags": "true:true:false:false:false:false:false"
+    },
+    {
+      "name": "DERSIG before",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 363724,
+      "flags": "true:true:true:false:false:false:false"
+    },
+    {
+      "name": "DERSIG at",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 363725,
+      "flags": "true:true:true:true:false:false:false"
+    },
+    {
+      "name": "CLTV before",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 388380,
+      "flags": "true:true:true:true:false:false:false"
+    },
+    {
+      "name": "CLTV at",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 388381,
+      "flags": "true:true:true:true:true:false:false"
+    },
+    {
+      "name": "CSV before",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 419327,
+      "flags": "true:true:true:true:true:false:false"
+    },
+    {
+      "name": "CSV at",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 419328,
+      "flags": "true:true:true:true:true:true:false"
+    },
+    {
+      "name": "NULLDUMMY before",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 481823,
+      "flags": "true:true:true:true:true:true:false"
+    },
+    {
+      "name": "NULLDUMMY at",
+      "hash": "00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee",
+      "height": 481824,
+      "flags": "true:true:true:true:true:true:true"
+    }
+  ],
+  "flagReference": {
+    "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+    "validation_sha256": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416",
+    "chainparams_sha256": "cfadf1478377c32625280520655b598674e6d487f08d7f7a80ac69252104b5e1",
+    "function_sha256": "0414e8152ff579a8455e39ac8a30017e1bfcabe672bb9ac26e90bb1336f4217c",
+    "scope": "Execute pinned Core GetBlockScriptFlags and mainnet exception parameters.\n\nMinimal flag-word, index/hash-map and buried-deployment seams are supplied.\nThe actual function body and pinned mainnet hashes/heights are used. This\ntests flag selection/ordering, not script execution or whole-Core validation."
+  }
+}

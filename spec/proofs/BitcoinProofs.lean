@@ -20,9 +20,18 @@ import BitcoinProofs.Theorems.CapstoneDecodeCor
 import BitcoinProofs.Theorems.CapstoneCoinCor
 import BitcoinProofs.Theorems.CapstoneConservationCor
 import BitcoinProofs.Theorems.CapstonePipelineCor
+import BitcoinProofs.Theorems.CapstoneFunding
+import BitcoinProofs.Theorems.CapstoneContext
+import BitcoinProofs.Theorems.CapstoneSequence
+import BitcoinProofs.Theorems.CapstoneSigops
 import BitcoinProofs.Theorems.CapstoneComposeStateless
 import BitcoinProofs.Theorems.BlockCor
 import BitcoinProofs.Theorems.WitnessRulesCor
 import BitcoinProofs.Theorems.Test
 import BitcoinProofs.Crypto.CurveZMod
 import BitcoinProofs.Crypto.Schnorr
+
+import BitcoinProofs.Theorems.CapstoneWitness
+
+import BitcoinProofs.Theorems.WitnessSerialization
+import BitcoinProofs.Theorems.CapstoneTaproot

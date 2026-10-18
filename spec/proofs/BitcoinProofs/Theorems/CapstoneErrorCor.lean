@@ -67,6 +67,7 @@ nonempty reject string — `CapError.reason` is total over the taxonomy in
 the strong sense that its output is never the empty string. -/
 theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
   cases e with
+  | context e => exact e.reason_nonempty
   | ser _ => simp only [CapError.reason]; decide
   | txCheck e => exact txCheckReason_nonempty e
   | tx e => exact rejectReason_nonempty e
@@ -80,6 +81,9 @@ theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
   | badCbPosition => simp only [CapError.reason]; decide
   | badCbLength => simp only [CapError.reason]; decide
   | badBlkWeight => simp only [CapError.reason]; decide
+  | badBlkSigops => simp only [CapError.reason]; decide
+  | badFeeAccum => simp only [CapError.reason]; decide
+  | badCbAmount => simp only [CapError.reason]; decide
   | badPow => simp only [CapError.reason]; decide
   | badChainLink => simp only [CapError.reason]; decide
   | badMerkleRoot => simp only [CapError.reason]; decide
@@ -133,7 +137,7 @@ theorem reason_unexpectedWitness :
 
 /-- BLK-017/BLK-020: witness commitment mismatch/missing. -/
 theorem reason_badWitnessCommitment :
-    CapError.reason .badWitnessCommitment = "bad-witness-missing" := rfl
+    CapError.reason .badWitnessCommitment = "bad-witness-merkle-match" := rfl
 
 /-- BLK-018: witness nonce size. -/
 theorem reason_badWitnessNonce :

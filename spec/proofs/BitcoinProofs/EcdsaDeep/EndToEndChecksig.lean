@@ -147,7 +147,7 @@ theorem evalFrom_p2pk_ok
   simp (config := { decide := true }) [finalStack, evalFrom, stepChecked, stepBody,
     stepBody.dispatchOp, hmin, MAX_SCRIPT_ELEMENT_SIZE, MAX_STACK_SIZE, MAX_OPS_PER_SCRIPT,
     hsig, hpk, hw1', hw2', hd1, hd2, hne1, hne2, hw3, henc, hpkenc,
-    topAt, evalChecksigDispatch, evalChecksigPreTapscript, hsc, hV]
+    topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript, hsc, hV]
 
 
 /-! ## Unit 3 — lifting to `evalScriptBytes` (byte-string entry)
@@ -207,7 +207,7 @@ theorem evalScriptBytes_p2pk_ok
   simp [finalStack, evalScriptBytes, MAX_SCRIPT_SIZE, hparse, evalFrom, stepChecked,
     stepBody, stepBody.dispatchOp, hmin, MAX_SCRIPT_ELEMENT_SIZE, MAX_STACK_SIZE,
     MAX_OPS_PER_SCRIPT, hsz, hpk, hw2', hd2, hne2, hw3, hd3,
-    henc, hpkenc, topAt, evalChecksigDispatch, evalChecksigPreTapscript, hsc, hV]
+    henc, hpkenc, topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript, hsc, hV]
 
 
 /-! ## Unit 4 — the input-verdict envelope
@@ -254,10 +254,10 @@ theorem p2pk_verifyScriptFull_crown
     (hasAmount : Bool)
     (hSigPush : pol.sigPushOnly = false)
     (hss : evalScriptBytes (fuel+3) flags pol ss [] ⟨ecdsaEntry
-        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default⟩ .base default
+        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default, none⟩ .base default
       = .ok [sig])
     (hspk : evalScriptBytes (fuel+3) flags pol spk [sig] ⟨ecdsaEntry
-        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default⟩ .base default
+        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default, none⟩ .base default
       = .ok [pushBoolV ((ecdsaEntry Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount).checkECDSASignature
           sig pk spk .base default)])
     (hprog : isWitnessProgram spk = none) (hp2sh : isPayToScriptHash spk = false)
@@ -266,11 +266,11 @@ theorem p2pk_verifyScriptFull_crown
     (ham : Bitcoin.Crypto.Seam.SigVersion.base = Bitcoin.Crypto.Seam.SigVersion.witnessV0 →
       hasAmount = true) :
     verifyScriptFull (fuel+3) flags pol ss spk witness ⟨ecdsaEntry
-        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default⟩ = .ok
+        Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default, none⟩ = .ok
       ↔ VerifyEqRaw (sig.extract 0 (sig.size - 1)) pk
           (sighash spk sig[sig.size - 1]! .base) := by
   rw [p2pk_verifyScriptFull_iff (chk := ⟨ecdsaEntry
-      Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default⟩)
+      Bitcoin.Crypto.Ecdsa.Verify.verifyImpl sighash hasAmount, default, none⟩)
     fuel flags pol witness ss spk sig _ hSigPush hss hspk hprog hp2sh hwit hclean]
   exact ecdsaEntry_checksig_iff sighash hasAmount sig pk spk .base default hpk hne ham
 

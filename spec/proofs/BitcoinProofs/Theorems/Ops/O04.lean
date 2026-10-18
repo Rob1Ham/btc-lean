@@ -390,7 +390,7 @@ def bn1 : ByteArray := ByteArray.mk #[0x81]            -- minimal -1
 def bnonmin : ByteArray := ByteArray.mk #[0x01, 0x00]  -- non-minimal 1
 
 /-- The empty machine state. -/
-def st0 : State := ⟨[], [], [], 0, 0, none⟩
+def st0 : State := ⟨[], [], [], 0, 0, none, 0, 0xffffffff⟩
 
 /-- Oracle row `nip_ok`: `[01, 02] --NIP--> [01]`. -/
 example : stepBody.dispatchOp ctxD (opw 0x77) 0x77 true

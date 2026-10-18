@@ -455,7 +455,7 @@ rules:
   check: "block sigop cost ≤ 80,000 (exact, ConnectBlock)"
   core_ref: "validation.cpp:ConnectBlock:2566–2570@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "Bitcoin.Interpreter.SigOps.blockSigOpCost_eq_sum, Bitcoin.Interpreter.SigOps.blockSigOpCost_gate"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -466,7 +466,7 @@ rules:
   check: "block legacy sigops × 4 ≤ 80,000 (coarse, CheckBlock)"
   core_ref: "validation.cpp:CheckBlock:3979–3985@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW74.legacySigOpBudgetOk_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2123,11 +2123,11 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript"
 - id: SCR-015
-  summary: "P2SH+WITNESS+TAPROOT always; DERSIG/CLTV/CSV/NULLDUMMY by activation"
+  summary: "Away from named hash exceptions, P2SH/WITNESS/TAPROOT are enabled; DERSIG/CLTV/CSV/NULLDUMMY are added at buried heights. Scripts and costs use actual candidate flags."
   check: "Consensus flag selection"
-  core_ref: "validation.cpp:GetBlockScriptFlags:2249-2286@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP16/66/65/112/141/341"
-  lean_target: "BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq"
+  lean_target: "BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2321,22 +2321,22 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-033
-  summary: "last opcode OP_1..OP_16 ⇒ DecodeOP_N"
+  summary: "accurate CHECKMULTISIG uses the immediately preceding OP_1..OP_16 value at each site"
   check: "Accurate CMS sigop count"
   core_ref: "script.cpp:GetSigOpCount(true):173-177@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "BitcoinProofs.AF.PDW36.sigOpCount_eq"
+  lean_target: "BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig"
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-034
-  summary: "for a push-only scriptSig (every opcode ≤ OP_16), the last push is the redeem script and its accurate sigops are counted; a non-push scriptSig needs Core's all-ops `> OP_16 ⇒ 0` guard, which the current `p2shSigOpCount` model does not implement (explicit residual)"
+  summary: "malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately"
   check: "P2SH sigop count"
   core_ref: "script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly"
+  lean_target: "BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -2398,16 +2398,20 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-040
-  summary: "budget = serialized witness size + 50 WU"
-  check: "Tapscript validation weight budget"
-  core_ref: "interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168"
-  bip_cve: "BIP342"
-  lean_target: "Bitcoin.Interpreter.Defs.executeWitnessScript"
+  summary: budget = serialized witness size + 50 WU
+  check: Tapscript validation weight budget
+  core_ref: interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168
+  bip_cve: BIP342
+  lean_target: BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed
   test_vector_ids: []
   status: proven
   difficulty: 3
   consensus: true
-  source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
+  source: 06-script-interpreter.md:AppendixB §B.2 Limits & accounting
+  notes: ' R06: live interpreter aliases the count-prefixed full witness size. Kernel encoder/seed bridge and exact150byte200WUfour-signature
+    public regression pass; original count-prefix omission is fixed. Exact live-execution theorem shows EvalScript
+    receives the full encoder length +50 while caller annex/tapleaf data is preserved, under the actual early size/success
+    gates.'
 - id: SCR-041
   summary: "decrement on non-empty sig regardless of validity; <0 ⇒ TAPSCRIPT_VALIDATION_WEIGHT"
   check: "50 WU per non-empty sig"
@@ -4480,22 +4484,22 @@ rules:
   consensus: true
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-055
-  summary: "`flags(blk) = base ∪ active-deployment flags`"
+  summary: "Flags are the hash-selected base plus buried-deployment flags; the selected flags reach every script in public validation."
   check: "per-epoch script flags"
-  core_ref: "validation.cpp:GetBlockScriptFlags:2249–2286@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP66/65/112/141/341"
-  lean_target: "BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row"
+  lean_target: "BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 4
   consensus: true
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-056
-  summary: "2 historical blocks use reduced flag sets (P2SH/Taproot)"
+  summary: "The two named hashes select reduced base flag sets; public script checks use those flags and retain subsequent buried flags."
   check: "flag exception blocks"
-  core_ref: "validation.cpp:2260–2265; consensus/params (script_flag_exceptions)@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "Bitcoin.Activation.exception_replaces_base"
+  lean_target: "Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -4876,11 +4880,11 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-016
-  summary: "GenerateCoinbaseCommitment creates the commitment output with nValue = 0 (generation only); block validation does not require nValue = 0 on an existing commitment output, and the model's `commitmentValueZero` checks every 38-byte `6a24aa21a9ed`-matching output, not only the last selected one"
-  check: "Witness commitment value"
-  core_ref: "src/validation.cpp:4013@cce32b168"
+  summary: "Witness commitment validation is independent of output amounts; ordinary amount and coinbase reward checks still apply"
+  check: "Commitment output amount independence"
+  core_ref: "src/validation.cpp:3878-3924@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.AF.PDW41b.commitmentValueZero_eq_true_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values"
   test_vector_ids: []
   status: proven
   difficulty: 1
@@ -4889,9 +4893,9 @@ rules:
 - id: BLK-017
   summary: "SHA256d(witness_root ‖ reserved_value) == scriptPubKey[6..38]"
   check: "Witness commitment equation"
-  core_ref: "V:3898-3904@cce32b168"
+  core_ref: "src/validation.cpp:3898-3907@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_eq_true, BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -4900,9 +4904,9 @@ rules:
 - id: BLK-018
   summary: "coinbase scriptWitness must be exactly one 32-byte element (`bad-witness-nonce-size`), content unconstrained"
   check: "Witness reserved value shape"
-  core_ref: "V:3884-3892@cce32b168"
+  core_ref: "src/validation.cpp:3885-3893@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.AF.PDW13.commitmentNonceOk_eq_true"
+  lean_target: "BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -4911,9 +4915,9 @@ rules:
 - id: BLK-019
   summary: "if no commitment output exists, no tx in the block may have witness data (`unexpected-witness`)"
   check: "No commitment ⇒ no witness"
-  core_ref: "V:3908-3916@cce32b168"
+  core_ref: "src/validation.cpp:3913-3921@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.AF.PDW13.commitmentGate_unexpected_witness"
+  lean_target: "BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -4922,9 +4926,9 @@ rules:
 - id: BLK-020
   summary: "any tx with witness ⇒ a valid commitment must exist (when segwit active)"
   check: "Commitment required iff witness used"
-  core_ref: "src/validation.cpp:3913-3920@cce32b168"
+  core_ref: "src/validation.cpp:3878-3924@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.AF.PDW14.commitmentGate_forces_binding"
+  lean_target: "BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -5074,22 +5078,22 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-034
-  summary: "Σ legacy sigops ×4 ≤ 80,000 (`bad-blk-sigops`), under-counting by design"
+  summary: "legacy sigops ×4 ≤ 80000 in CheckBlock; input-dependent costs are added in ConnectBlock"
   check: "Legacy sigop block budget"
   core_ref: "V:3979-3986@cce32b168"
   bip_cve: "BIP141"
-  lean_target: "BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_eq_false_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpCountScript_le_20_per_byte, BitcoinProofs.Theorems.BlockCor.witnessInputSigOps_future_version_zero"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-035
-  summary: "cost = 4×(legacy + P2SH) + witness sigops; P2SH/witness exclude coinbase"
+  summary: "under block flags: 4×(legacy + enabled P2SH) + enabled witness; coinbase contributes legacy only"
   check: "Full sigop cost"
   core_ref: "TV:GetTransactionSigOpCost:149-168@cce32b168"
   bip_cve: "BIP16/141"
-  lean_target: "BitcoinProofs.AF.PDW29.txSigOpCost_decompose_row, BitcoinProofs.AF.PDW29.txSigOpCost_coinbase_legacy"
+  lean_target: "Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose, Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled, Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -5100,7 +5104,7 @@ rules:
   check: "Full sigop budget in connect"
   core_ref: "V:2560-2568@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.Theorems.BlockCor.blockSigOpCost_fold_eq_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_eq_false_iff"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -5140,11 +5144,11 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-040
-  summary: "0x00000000ffffffff…ff"
+  summary: "Mainnet/testnet3/testnet4 powLimit is 2^224 - 1 (0x00000000ffffffff…ff). Live retarget, target-validity and chain-work bounds share this value."
   check: "powLimit mainnet/testnet"
-  core_ref: "src/kernel/chainparams.cpp:126@cce32b168"
+  core_ref: "src/kernel/chainparams.cpp:126,257,364@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW28.powLimitMainnetFull_pin"
+  lean_target: "Bitcoin.Block.Pow.powLimitMainnet_eq, BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full, Bitcoin.Capstone.Pow.powLimit_eq_mainnet, Bitcoin.Block.Index.powLimit_eq_mainnet, Bitcoin.Block.Pow.powLimitMainnet_compact, Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet"
   test_vector_ids: []
   status: proven
   difficulty: 1
@@ -5613,22 +5617,22 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-083
-  summary: "P2SH"
+  summary: "Outside named hash exceptions, P2SH/WITNESS/TAPROOT remain enabled at every height and reach live script execution."
   check: "Base script flags"
-  core_ref: "V:GetBlockScriptFlags:2256-2260@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "WITNESS"
-  lean_target: "Bitcoin.Activation.base_flags_p2sh_witness_taproot"
+  lean_target: "Bitcoin.Activation.base_flags_p2sh_witness_taproot, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: null
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-084
-  summary: "exception blocks: BIP16-exempt 0000…02dc…(NONE), taproot-exempt 0000…0f14…(P2SH"
+  summary: "Named hashes replace base flags (BIP16: NONE; Taproot: P2SH|WITNESS); buried-deployment flags are then ORed in."
   check: "Script-flag exceptions"
-  core_ref: "CP:113-116 + V:2261-2264@cce32b168"
+  core_ref: "src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168"
   bip_cve: "WITNESS)"
-  lean_target: "Bitcoin.Activation.exception_replaces_base"
+  lean_target: "Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags"
   test_vector_ids: []
   status: proven
   difficulty: null
@@ -6365,7 +6369,7 @@ rules:
   check: "Block sigop cost limit"
   core_ref: "src/consensus/consensus.h:17; src/consensus/tx_verify.cpp:149-168; src/validation.cpp:2567@cce32b168"
   bip_cve: "141 §Sigops"
-  lean_target: "Bitcoin.Interpreter.SigOps.blockSigOpCostOk"
+  lean_target: "BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -7120,16 +7124,19 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-022
-  summary: "budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)` additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)"
-  check: "Validation-weight init"
-  core_ref: "interpreter.cpp:1991; script.h:62,65@cce32b168"
-  bip_cve: "342 §Resource limits"
-  lean_target: "BitcoinProofs.AF.PDW41.validationWeightInit_row"
+  summary: budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)`
+    additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)
+  check: Validation-weight init
+  core_ref: interpreter.cpp:1991; script.h:62,65@cce32b168
+  bip_cve: 342 §Resource limits
+  lean_target: BitcoinProofs.AF.PDW41.validationWeightInit_row
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
-  source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
+  source: 09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)
+  notes: ' R06: full count-prefixed witness size; empty witness budget51; append law includes stack-count prefix
+    growth. Exact encoder bridge in WitnessSerialization; live150byte200WUfour-signature boundary passes.'
 - id: TPR-023
   summary: "each passed non-empty sigop −50; negative ⇒ TAPSCRIPT_VALIDATION_WEIGHT"
   check: "Sigop budget decrement"
@@ -7659,16 +7666,18 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-071
-  summary: "annex included in witness serialization ⇒ weight & budget base"
-  check: "Annex counts toward weight"
-  core_ref: "interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168"
-  bip_cve: "341"
-  lean_target: "Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included"
+  summary: annex included in witness serialization ⇒ weight & budget base
+  check: Annex counts toward weight
+  core_ref: interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168
+  bip_cve: '341'
+  lean_target: Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
-  source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
+  source: 09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)
+  notes: ' R06: count-prefix defect fixed and full encoder/budget bridge proved. Signed annex paths pass. Transaction-weight
+    composition theorem remains an explicit residual; this growth target alone does not discharge that whole row.'
 - id: TPR-072
   summary: "ScriptExecutionData handed to the Schnorr checker entry reaches sighashSchnorr unchanged and its digest is passed verbatim to verify; interpreter-side population of tapleafHash/codesepPos/outputHash and script-path annex forwarding are residual (F-TS02-008)"
   check: "ScriptExecutionData plumbing"

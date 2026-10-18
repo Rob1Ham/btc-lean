@@ -267,7 +267,7 @@ open Bitcoin.Crypto.Seam (SigVersion ScriptExecutionData stubChecker)
 
 private def polIf : Bitcoin.Interpreter.PolicyFlags := { minimalIf := true }
 
-private def ckGood : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, default⟩
+private def ckGood : Bitcoin.Interpreter.ScriptChecker := ⟨stubChecker, default, none⟩
 
 -- Delta.lean:60-61 (success_prepass), FLIP-ATTEMPT E1:
 example : executeWitnessScript 100 [] 0 (ByteArray.mk #[(0x50:UInt8)]) default default ckGood SigVersion.tapscript
@@ -367,7 +367,7 @@ private def stackFor (sig dummy : ByteArray) : List ByteArray :=
 
 private def mkCtx (nd : Bool) (sv : SigVersion) : Bitcoin.Interpreter.Ctx :=
   { flags := { nullDummy := nd }, pol := default,
-    chk := ⟨stubChecker, default⟩, sv := sv, bytes := .empty, ed := default }
+    chk := ⟨stubChecker, default, none⟩, sv := sv, bytes := .empty, ed := default }
 
 private def mkSt (stack : List ByteArray) : Bitcoin.Interpreter.State :=
   { stack := stack, alt := [], vf := [], opCount := 0, codeSep := 0, vwLeft := none }

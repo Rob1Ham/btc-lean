@@ -1,4 +1,5 @@
 import Bitcoin.Capstone.Block
+import BitcoinProofs.Theorems.CapstonePipelineCor
 
 /-!
 # BitcoinProofs.Theorems.CapstoneDecodeCor — P13: decode-layer corollaries feeding the capstone
@@ -532,59 +533,6 @@ theorem validateBlock_ok_decode (raw : ByteArray) (st : Bitcoin.Capstone.Block.C
     (hv : Bitcoin.Capstone.Block.validateBlock raw st = .ok rep) :
     ∃ h : BlockHeader, ∃ txs : List Tx,
       decodeBlock raw = .ok (h, txs) ∧ rep.state.prevHash = headerHash h := by
-  unfold Bitcoin.Capstone.Block.validateBlock at hv
-  obtain ⟨h, txs, hdec, hJP⟩ := decodeMatch_inv raw _ _ hv
-  refine ⟨h, txs, hdec, ?_⟩
-  -- Collapse every guard's throw-branch to `Except.error` (definitional),
-  -- then peel the 16 guard levels of the pipeline (BLK-022/027/028/029,
-  -- 060..062/069, 037..039, chain-link, BLK-010/011, 015..020, 023..026): each
-  -- `ite` either threw (contradiction with `hv : … = .ok rep`) or the run
-  -- continued along the else-branch.
-  simp only [bind_throw] at hJP
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  rcases ite_ok_inv _ _ _ _ hJP with hJP | hJP <;>
-    first | exact absurd hJP (errNeOk _ _) | skip
-  -- All guards passed: the report came from the final `pure`, so the
-  -- tail-bind's `applyTxs` result was `.ok (utxo', okN, unjN)` and
-  -- `rep` is exactly the state-literal built from the decoded header.
-  obtain ⟨y, hy, hgy⟩ := bind_ok_inv _ _ _ hJP
-  obtain ⟨utxo', okn, unjn⟩ := y
-  have hv2 : Except.ok ({ state := { height := st.height + 1
-                                        , prevHash := headerHash h
-                                        , utxo := utxo' }
-                        , txs := txs.length, scriptOk := okn
-                        , scriptUnjudged := unjn } :
-      Bitcoin.Capstone.Block.CapReport) = Except.ok rep := hgy
-  simp only [Except.ok.injEq] at hv2
-  rw [← hv2]
+  exact BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_prevHash raw st rep hv
 
 end BitcoinProofs.Theorems.CapstoneDecode

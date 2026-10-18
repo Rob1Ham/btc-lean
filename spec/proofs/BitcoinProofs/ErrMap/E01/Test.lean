@@ -176,6 +176,6 @@ example : CapError.reason .badMerkleRoot = "bad-txnmrklroot" := rfl
 example : CapError.reason .badBlkWeight  = "bad-blk-weight" := rfl
 example : CapError.reason .badVersion    = "bad-version" := rfl
 example : CapError.reason .badCbHeight   = "bad-cb-height" := rfl
-example : CapError.reason .badWitnessCommitment = "bad-witness-missing" := rfl
+example : CapError.reason .badWitnessCommitment = "bad-witness-merkle-match" := rfl
 
 end BitcoinProofs.ErrMap.E01

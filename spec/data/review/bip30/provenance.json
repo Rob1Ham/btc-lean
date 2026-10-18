@@ -1,0 +1,43 @@
+{
+  "kind": "Real BIP30 exception blocks and actual parent/BIP34 headers with explicit conditional UTXO/ancestor test state; not historical spendability or reachable-chain claims.",
+  "fixtures": [
+    {
+      "height": 91842,
+      "block": "block91842.raw",
+      "parent": "parent91841.header",
+      "block_hash": "00000000000a4d0a398161ffc163c503763b1f4360639393e0e4c8e300e0caec",
+      "parent_hash": "00000000000a1e92acbcbdf594cac25d1095544d5fbf5113bfec85a9eb4b1120",
+      "raw_sha256": "95434eb656dd8feb2611648dc54f4d85d5fad64eaa6a892c89b09888c60fcd93",
+      "parent_sha256": "ad23abc192f9e0ea76a7be6ca1428981619118829d92b1879532f44aa3f9240b",
+      "bytes": 214,
+      "source": "https://blockstream.info/api/block/00000000000a4d0a398161ffc163c503763b1f4360639393e0e4c8e300e0caec/raw",
+      "parent_source": "https://blockstream.info/api/block/00000000000a1e92acbcbdf594cac25d1095544d5fbf5113bfec85a9eb4b1120/header"
+    },
+    {
+      "height": 91880,
+      "block": "block91880.raw",
+      "parent": "parent91879.header",
+      "block_hash": "00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721",
+      "parent_hash": "000000000004099656bf4a3fda4db1b25630634afa2a201e975e4df9772df3f3",
+      "raw_sha256": "f93f123ca5a9fb01cef7cf5b9caec38619b3c9a6d13eaa8dc65c1753c253f4a2",
+      "parent_sha256": "c49fcf5627a700d421d03c7f252ad2cfc4a58a43dd88726b7a52687ba38cd81c",
+      "bytes": 472,
+      "source": "https://blockstream.info/api/block/00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721/raw",
+      "parent_source": "https://blockstream.info/api/block/000000000004099656bf4a3fda4db1b25630634afa2a201e975e4df9772df3f3/header"
+    }
+  ],
+  "bip34_header": {
+    "height": 227931,
+    "file": "bip34-227931.header",
+    "hash": "000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8",
+    "sha256": "a2abb2748ed6da003cb875a9b6df469a0d865891c5818a6eb77f8c0a473ad5e7",
+    "source": "https://blockstream.info/api/block/000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8/header"
+  },
+  "conditional_state": "Non-coinbase external input coins use OP_TRUE scripts and sufficient bounded value derived from actual outputs plus the block coinbase. An extra1-satoshi coin at an actual block output triggers pristine overlap. Parent-tip headers are real; earlier test MTP entries have time0. Alternate/crossed heights are conditional supplied state.",
+  "additional_corpora": [
+    "../script-flags/block170.raw",
+    "../script-flags/parent169.header",
+    "../taproot-validation/valid.raw",
+    "../taproot-validation/provenance.json"
+  ]
+}

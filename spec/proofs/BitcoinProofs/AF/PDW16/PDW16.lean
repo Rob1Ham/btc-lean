@@ -178,7 +178,7 @@ through `targetOkFull` and link it to the live predicate. -/
 
 /-- `powLimit` = 0x00000000FFFF0000…FF = 0xffff·256²⁶
 (chainparams.cpp:109, the 268-... 2¹⁰·... difficulty-1 target). -/
-theorem powLimit_eq : powLimit = 0xffff * 256 ^ 26 := by decide
+theorem powLimit_eq : powLimit = 2 ^ 224 - 1 := by decide
 
 @[rule "BLK-038"]
 theorem targetOk_eq (bits : UInt32) : targetOk bits = true ↔

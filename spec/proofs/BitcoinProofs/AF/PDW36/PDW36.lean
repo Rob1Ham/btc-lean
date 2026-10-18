@@ -45,27 +45,26 @@ theorem flagsComboOk_witness_requires_p2sh (flags : Bitcoin.Activation.ScriptFla
 
 /-! ## SCR-033: `sigOpCount` (GetSigOpCount) -/
 
-/-- **SCR-033**: the count is exactly the sigop-opcode tally plus the
-DecodeOP_N tail (only in ACCURATE mode). -/
+/-- **SCR-033**: the rule layer delegates to the shared two-mode counter. -/
 @[rule "SCR-033"]
 theorem sigOpCount_eq (ops : List WireOp) (accurate : Bool) :
     sigOpCount ops accurate =
-      (ops.filter (fun o => isSigOpWire o.wire)).length +
-        (if accurate then decodeOpN ops.getLast? else 0) := rfl
+      if accurate then SigOps.accurateSigOpCount ops else SigOps.inaccurateSigOpCount ops := rfl
 
-/-- A tail opcode outside OP_1..OP_16 contributes no DecodeOP_N value. -/
-theorem decodeOpN_eq_zero_of_out_of_range (o : WireOp)
-    (h : o.wire < 0x51 ∨ 0x60 < o.wire) : decodeOpN (some o) = 0 := by
-  have hc : ¬ (0x51 ≤ o.wire ∧ o.wire ≤ 0x60) := by omega
-  simp [decodeOpN, hc]
+/-- A lone opcode has no preceding OP_N; trailing numbers are not charged. -/
+theorem sigOpCount_single (op : WireOp) :
+    sigOpCount [op] true = sigOpCount [op] false :=
+  Bitcoin.Interpreter.sigOpCount_single op
 
-/-- **SCR-033** corollary: a non-OP_N tail makes accurate = plain. -/
-theorem sigOpCount_no_tail (ops : List WireOp) (o : WireOp)
-    (hlast : ops.getLast? = some o) (h : o.wire < 0x51 ∨ 0x60 < o.wire) :
-    sigOpCount ops true = sigOpCount ops false := by
-  unfold sigOpCount
-  rw [hlast, decodeOpN_eq_zero_of_out_of_range o h]
-  simp
+/-- Each CHECKMULTISIG uses its own immediately preceding OP_N. -/
+@[rule "SCR-033"]
+theorem sigOpCount_accurate_multisig (op : WireOp) (rest : List WireOp) (n : Nat)
+    (hm : SigOps.isCheckMultiSigWire op.wire = true)
+    (hn : SigOps.isCheckSigWire op.wire = false) (h1 : 1 ≤ n) (h16 : n ≤ 16) :
+    SigOps.accurateSigOpCountFrom (some (.pushNum n)) (op :: rest) =
+      n + SigOps.accurateSigOpCountFrom (some op.ast) rest := by
+  simp [SigOps.accurateSigOpCountFrom, SigOps.sigOpStep, hn, hm,
+    SigOps.opNumberOf, h1, h16]
 
 /-! ## SCR-034: `p2shSigOpCount` (GetSigOpCount(scriptSig)) -/
 
@@ -74,48 +73,39 @@ theorem sigOpCount_no_tail (ops : List WireOp) (o : WireOp)
 @[rule "SCR-034"]
 theorem p2shSigOpCount_malformed (ss : ByteArray) (h : parseWire ss = none) :
     p2shSigOpCount ss = 0 := by
-  simp [p2shSigOpCount, h]
+  simp [p2shSigOpCount, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData, h]
 
 /-- **SCR-034** empty lane: no last push ⇒ 0 (cleared `vchRet`). -/
 @[rule "SCR-034"]
 theorem p2shSigOpCount_empty (ss : ByteArray) (h : parseWire ss = some []) :
     p2shSigOpCount ss = 0 := by
-  simp [p2shSigOpCount, h]
+  simp [p2shSigOpCount, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData, h]
 
-/-- **SCR-034** push lane: a pushBytes tail is the redeem script and is
-counted with the ACCURATE convention. (This is the model's push-tail
-rule; for Core fidelity it needs the all-ops guard below.) -/
+/-- **SCR-034**: require every scriptSig opcode to be at most OP_16,
+then count the redeem script bytes directly (including a valid prefix). -/
 @[rule "SCR-034"]
 theorem p2shSigOpCount_push (ss : ByteArray) (ops : List WireOp)
     (last : WireOp) (d : ByteArray) (hparse : parseWire ss = some ops)
+    (hpush : isPushOnlyWire ops = true)
     (hlast : ops.getLast? = some last) (hast : last.ast = .pushBytes d) :
-    p2shSigOpCount ss = sigOpCount ((parseWire (pushBytesWire d)).getD []) true := by
-  simp [p2shSigOpCount, hparse, hlast, hast]
+    p2shSigOpCount ss = SigOps.witnessScriptSigOps d := by
+  simp [p2shSigOpCount, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData,
+    hparse, hpush, hlast, hast]
 
-/-- **SCR-034** push-only lane (Core's all-ops guard): Core walks the
-whole scriptSig and returns 0 as soon as it decodes an opcode
-`> OP_16` (`script.cpp:183-205`). `isPushOnlyWire ops` is exactly
-`every wire ≤ 0x60 = OP_16`, so under it the last push is the redeem
-script and the accurate count is returned. -/
 @[rule "SCR-034"]
 theorem p2shSigOpCount_pushOnly (ss : ByteArray) (ops : List WireOp)
     (last : WireOp) (d : ByteArray) (hparse : parseWire ss = some ops)
     (hpush : isPushOnlyWire ops = true)
     (hlast : ops.getLast? = some last) (hast : last.ast = .pushBytes d) :
-    p2shSigOpCount ss = sigOpCount ((parseWire (pushBytesWire d)).getD []) true := by
-  simp [p2shSigOpCount, hparse, hlast, hast]
+    p2shSigOpCount ss = SigOps.witnessScriptSigOps d :=
+  p2shSigOpCount_push ss ops last d hparse hpush hlast hast
 
-/-! ### SCR-034 residual (FIX-P-DROWS re-audit)
-
-`p2shSigOpCount` itself does NOT implement Core's early `opcode > OP_16`
-return: it only inspects the last parsed op. Thus `OP_DUP <push redeem>`
-is counted here and returns 0 in Core. The definition lives in
-`Bitcoin/Interpreter/Rules.lean`, which is outside this module; the row is
-narrowed to the push-only (all ops ≤ OP_16) case proved by
-`p2shSigOpCount_pushOnly`, and the non-push over-count is an explicit
-residual, not claimed.
-
--/
+/-- A non-push opcode anywhere in the scriptSig prevents P2SH counting. -/
+@[rule "SCR-034"]
+theorem p2shSigOpCount_nonpush (ss : ByteArray) (ops : List WireOp)
+    (hp : parseWire ss = some ops) (hn : isPushOnlyWire ops = false) :
+    p2shSigOpCount ss = 0 := by
+  simp [p2shSigOpCount, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData, hp, hn]
 
 /-! ## SCR-035: `witnessSigOps` (WitnessSigOps) -/
 
@@ -127,7 +117,7 @@ theorem witnessSigOps_v0_32 (prog script : ByteArray) (witness : WitnessStack)
     witnessSigOps 0 prog witness = sigOpCount ops true := by
   unfold witnessSigOps
   rw [ite_eq_left rfl, ite_eq_right (by omega : ¬ prog.size = 20), ite_eq_left h32]
-  simp [hlast, hparse]
+  simp [hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse, sigOpCount, SigOps.sigOpCount]
 
 /-- **SCR-035** other-size lane: neither 20 nor 32 ⇒ 0. -/
 theorem witnessSigOps_v0_other (prog : ByteArray) (witness : WitnessStack)

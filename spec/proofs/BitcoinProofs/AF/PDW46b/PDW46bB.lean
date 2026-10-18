@@ -17,7 +17,7 @@ theorem csv_tx_disable_flag_false (env : LocktimeEnv) (n : ScriptNum)
     checkSequenceDef env n = false := by
   unfold checkSequenceDef
   dsimp only
-  by_cases hv : env.txVersion < 2
+  by_cases hv : env.txVersion.toUInt32 < 2
   · rw [ite_eq_left hv]
   · rw [ite_eq_right (by simp [hv]), ite_eq_left h]
 
@@ -26,7 +26,7 @@ gates were both clear. -/
 @[rule "SCR-129"]
 theorem csv_pass_gates (env : LocktimeEnv) (n : ScriptNum)
     (h : checkSequenceDef env n = true) :
-    ¬ env.txVersion < 2 ∧ (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0 := by
+    ¬ env.txVersion.toUInt32 < 2 ∧ (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0 := by
   constructor
   · intro hv
     unfold checkSequenceDef at h
@@ -36,7 +36,7 @@ theorem csv_pass_gates (env : LocktimeEnv) (n : ScriptNum)
   · by_cases hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0
     · unfold checkSequenceDef at h
       dsimp only at h
-      by_cases hv : env.txVersion < 2
+      by_cases hv : env.txVersion.toUInt32 < 2
       · rw [ite_eq_left hv] at h
         exact absurd h (by decide)
       · rw [ite_eq_right (by simp [hv]), ite_eq_left hd] at h
@@ -57,7 +57,7 @@ theorem csv_masked_above_false (env : LocktimeEnv) (n : ScriptNum)
     checkSequenceDef env n = false := by
   unfold checkSequenceDef
   dsimp only
-  by_cases hv : env.txVersion < 2
+  by_cases hv : env.txVersion.toUInt32 < 2
   · rw [ite_eq_left hv]
   · rw [ite_eq_right (by simp [hv])]
     by_cases hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0
@@ -86,7 +86,7 @@ theorem csv_masked_above_false_literal (env : LocktimeEnv) (n : ScriptNum)
 under-run (`nMasked ≤ txMasked`) accepts — the mask-&-compare face. -/
 @[rule "SCR-130"]
 theorem csv_masked_under_true (env : LocktimeEnv) (n : ScriptNum)
-    (hv : ¬ env.txVersion < 2)
+    (hv : ¬ env.txVersion.toUInt32 < 2)
     (hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0)
     (ht : (((env.txSequence.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) < SEQUENCE_LOCKTIME_TYPE_FLAG ∧
             (n.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) < SEQUENCE_LOCKTIME_TYPE_FLAG) ∨

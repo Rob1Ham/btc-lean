@@ -945,8 +945,6 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms BitcoinProofs.Wallet.Taproot.verifyComparesProgram_holds
 #print axioms BitcoinProofs.Wallet.Taproot.verifyTaprootCommitment_program_binding
 #print axioms BitcoinProofs.Wallet.Taproot.isTaprootProgram_of_programOf
-#print axioms BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_program
-#print axioms BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_34
 
 -- spec/proofs/BitcoinProofs/Wallet/Taproot/Program.lean
 #print axioms BitcoinProofs.Wallet.Taproot.programMatches_true_iff

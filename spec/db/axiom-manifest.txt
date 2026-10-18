@@ -235,3 +235,200 @@
 'Bitcoin.Interpreter.finalStack_ok' depends on axioms: [propext]
 'Bitcoin.Interpreter.evalScriptBytes_ok_stack_bound' depends on axioms: [propext, Quot.sound]
 'Bitcoin.Interpreter.evalScriptBytes_fuel_mono' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Capstone.Block.applyTx_unfold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyTxWithFeeCheck_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyTxsWithFees_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyBlockTransactions_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_funded_shape' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneFunding.applyTxWithFeeCheck_fee' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneFunding.applyTxsWithFees_range' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneFunding.applyBlockTransactions_funding' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneFunding.validateBlock_funding' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Capstone.Context.ContextError.reason_nonempty' does not depend on any axioms
+'BitcoinProofs.Theorems.CapstoneContext.requireMtpWindow_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneContext.medianTimePastStrict_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneContext.checkHeaderContext_ok' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header_rules' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Capstone.Block.applyTxWithFeeCheck_unfold' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.contextualFinality_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_checked' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_fee_projection' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.sequenceInputData_length' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.checkSequenceContext_ok' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.checkContextualTx_ok' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_fee_projection' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_trace' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.applyContextualBlockTransactions_funding' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_stages' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_locks' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_length_le' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_of_parse' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Interpreter.SigOps.parseWirePrefix_of_parse' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Interpreter.SigOps.inaccurateSigOpCount_le' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Interpreter.SigOps.scriptSigOpCount_inaccurate_le' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Interpreter.SigOps.witnessScriptSigOps_of_parse' depends on axioms: [propext, Quot.sound]
+'Bitcoin.TxValidation.LocktimeSigOps.sigOpCount_inaccurate_checkmultisig' depends on axioms: [propext]
+'Bitcoin.TxValidation.LocktimeSigOps.txLegacySigOps_eq_sum' depends on axioms: [propext, Quot.sound]
+'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_nonpush' depends on axioms: [propext, Quot.sound]
+'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_push_redeem' depends on axioms: [propext, Quot.sound]
+'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_redeem_parsed' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Block.Sigops.witnessSigOps_none' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BitcoinProofs.AF.PDW29.legacySigOpCountScript_eq_counts' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig' depends on axioms: [propext]
+'BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.AF.PDW21.sentinel_ne_height_below_sentinel' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Interpreter.txP2shSigOps_coinbase' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkBlockStateless_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkBlockPrelude_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkBlockStateless_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkBlockPrelude_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.unit_precheck_ok' depends on axioms: [propext]
+'Bitcoin.Capstone.Block.applyTxWithChecks_checks_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyTxWithChecks_replace' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkSigopTotal_ok' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyTxsWithSigops_projection' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.SigopTrace_nondecreasing' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_bounded' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_trace' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_fold' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_stage' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Merkle.witnessReservedValue_nonce' depends on axioms: [propext]
+'Bitcoin.Capstone.Merkle.witnessCommitmentOk_nonce' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkWitnessCommitment_ok_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkWitnessCommitment_error' depends on axioms: [propext, Classical.choice, Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.witnessCommitmentOutput_values' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_values' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Capstone.Block.collectSpentOutputs_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.collectSpentOutputs_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Capstone.Block.checkTxInputs_spentOutputs' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size_mono' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_single' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_strict' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.Theorems.WitnessSerialization.witnessSerSize_eq_encoder' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.Theorems.WitnessSerialization.interpreter_size_eq_encoder' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_script_status' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_complete_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_incomplete_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.WitnessSerialization.validationWeightInit_eq_encoder' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_encoder_budget' depends on axioms: [propext,
+ Quot.sound]
+'BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'Bitcoin.Interpreter.checkSequenceDef_version_gate' depends on axioms: [propext]
+'Bitcoin.Interpreter.checkSequenceDef_wire_congr' depends on axioms: [propext]
+'Bitcoin.Interpreter.checkSequenceDef_high_bit_versions' depends on axioms: [propext]
+'Bitcoin.Block.Pow.powLimitMainnet_eq' does not depend on any axioms
+'Bitcoin.Block.Pow.powLimitMainnet_compact' depends on axioms: [propext]
+'Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet' depends on axioms: [propext, Quot.sound]
+'Bitcoin.Capstone.Pow.powLimit_eq_mainnet' does not depend on any axioms
+'Bitcoin.Block.Index.powLimit_eq_mainnet' does not depend on any axioms
+'BitcoinProofs.Theorems.BlockCor.genesis_pow_target_exact' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit' depends on axioms: [propext, Quot.sound]
+'BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full' does not depend on any axioms
+'BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq' depends on axioms: [propext]
+'BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row' depends on axioms: [propext]
+'Bitcoin.Activation.exception_replaces_base' depends on axioms: [propext]
+'Bitcoin.Activation.base_flags_p2sh_witness_taproot' depends on axioms: [propext]

@@ -90,7 +90,7 @@ def octx : Ctx :=
   ⟨noflags, default, default, SigVersion.base, ByteArray.empty, default⟩
 
 /-- The empty machine state. -/
-def st0 : State := ⟨[], [], [], 0, 0, none⟩
+def st0 : State := ⟨[], [], [], 0, 0, none, 0, 0xffffffff⟩
 
 /-- A dead innermost branch (`OP_0 OP_IF` consumed, branch skipped). -/
 def deadSt : State := { st0 with vf := [false] }
@@ -254,14 +254,13 @@ theorem evalFrom_nop_cons (ctx : Ctx) (st : State) (rest : List WireOp) (f : Nat
     (hlt : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (hsz : st.stack.length + st.alt.length ≤ MAX_STACK_SIZE) :
     evalFrom ctx (f + 1) (opw 0x61 :: rest) st =
-      evalFrom ctx f rest { st with opCount := st.opCount + 1 } := by
+      evalFrom ctx f rest { st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } := by
   simp only [evalFrom, stepChecked_nop_burn ctx st hsv hvf hlt hsz]
-  simp
 
 /-- `({st with opCount := c+1}).opCount` is `c+1` by projection (feeds
 `omega`, which otherwise treats the projection as an unrelated atom). -/
 theorem stateOpCount_update (st : State) :
-    ({ st with opCount := st.opCount + 1 } : State).opCount = st.opCount + 1 := rfl
+    ({ st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } : State).opCount = st.opCount + 1 := rfl
 
 /-! ## Dead-branch fold theorems (the corner, end-to-end at the
 `evalFrom` level). All take a dead innermost state `vf = [false]` and a
@@ -279,7 +278,10 @@ theorem deadNops_endif_ok (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
       st.stack.length + st.alt.length ≤ MAX_STACK_SIZE →
       st.opCount + ops.length + 1 ≤ MAX_OPS_PER_SCRIPT →
       evalFrom ctx f (ops ++ [opw 0x68]) st =
-        .ok { st with vf := [], opCount := st.opCount + ops.length + 1 } := by
+        .ok { st with
+          vf := []
+          opCount := st.opCount + ops.length + 1
+          opcodeIndex := st.opcodeIndex + UInt32.ofNat (ops.length + 1) } := by
   intro f
   induction f with
   | zero =>
@@ -302,18 +304,24 @@ theorem deadNops_endif_ok (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
               simp [evalFrom, stepChecked, stepBody, stepBody.dispatchOp, opw, hsv, hvf,
                 hd68, hbud', hng]
       | cons op rest =>
+          have hop : op = opw 0x61 := hall op (by simp)
+          subst op
           have hrest : ∀ op' ∈ rest, op' = opw 0x61 := fun op' h' =>
             hall op' (List.mem_cons_of_mem _ h')
-          have hlen : rest.length + 1 = (op :: rest).length := by simp
-          have hpc : ({ st with opCount := st.opCount + 1 } : State).opCount
+          have hlen : rest.length + 1 = (opw 0x61 :: rest).length := by simp
+          have hpc : ({ st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } : State).opCount
               = st.opCount + 1 := rfl
           have hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT := by
             have := maxOps_201; omega
-          rw [show (op :: rest) ++ [opw 0x68] = op :: (rest ++ [opw 0x68]) from rfl,
+          rw [show (opw 0x61 :: rest) ++ [opw 0x68] = opw 0x61 :: (rest ++ [opw 0x68]) from rfl,
             evalFrom_nop_cons ctx st (rest ++ [opw 0x68]) f hsv hvf hbudget hsz,
-            ih rest { st with opCount := st.opCount + 1 }
+            ih rest { st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 }
               (by omega) hrest hvf hsz (by omega)]
-          simp [stateOpCount_update]
+          simp [stateOpCount_update, UInt32.ofNat_add, UInt32.add_assoc, UInt32.add_comm, Nat.add_assoc]
+          constructor
+          · omega
+          · rw [← UInt32.add_assoc]
+            rfl
 
 /-- **C1 fold, exhausted**: same dead-branch run, but the 202nd counting
 opcode (a dead NOP or the ENDIF) trips `.error .opCount` — the failure
@@ -340,16 +348,18 @@ theorem deadNops_endif_opCount (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
             have := maxOps_201; simpa using hover
           simp [evalFrom, stepChecked, stepBody, opw, hsv, hover']
       | cons op rest =>
+          have hop : op = opw 0x61 := hall op (by simp)
+          subst op
           have hrest : ∀ op' ∈ rest, op' = opw 0x61 := fun op' h' =>
             hall op' (List.mem_cons_of_mem _ h')
-          have hlen : rest.length + 1 = (op :: rest).length := by simp
-          have hpc : ({ st with opCount := st.opCount + 1 } : State).opCount
+          have hlen : rest.length + 1 = (opw 0x61 :: rest).length := by simp
+          have hpc : ({ st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } : State).opCount
               = st.opCount + 1 := rfl
-          rw [show (op :: rest) ++ [opw 0x68] = op :: (rest ++ [opw 0x68]) from rfl]
+          rw [show (opw 0x61 :: rest) ++ [opw 0x68] = opw 0x61 :: (rest ++ [opw 0x68]) from rfl]
           by_cases hlt : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT
           · -- burn and recurse: (c+1) + rest.length + 1 > 201
             rw [evalFrom_nop_cons ctx st (rest ++ [opw 0x68]) f hsv hvf hlt hsz,
-              ih rest { st with opCount := st.opCount + 1 }
+              ih rest { st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 }
                 (by omega) hrest hvf hsz (by omega)]
           · -- this very (unexecuted) NOP trips OP_COUNT
             have hover' : MAX_OPS_PER_SCRIPT < st.opCount + 1 := by
@@ -380,17 +390,19 @@ theorem deadNops_cat_disabled (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
             have := maxOps_201; simpa using hbud
           simp [evalFrom, stepChecked_cat_disabled ctx st hsv hbud']
       | cons op rest =>
+          have hop : op = opw 0x61 := hall op (by simp)
+          subst op
           have hrest : ∀ op' ∈ rest, op' = opw 0x61 := fun op' h' =>
             hall op' (List.mem_cons_of_mem _ h')
-          have hlen : rest.length + 1 = (op :: rest).length := by simp
-          have hpc : ({ st with opCount := st.opCount + 1 } : State).opCount
+          have hlen : rest.length + 1 = (opw 0x61 :: rest).length := by simp
+          have hpc : ({ st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } : State).opCount
               = st.opCount + 1 := rfl
           have hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT := by
             have := maxOps_201; omega
-          rw [show (op :: rest) ++ [opw 0x7e, opw 0x68]
-                = op :: (rest ++ [opw 0x7e, opw 0x68]) from rfl,
+          rw [show (opw 0x61 :: rest) ++ [opw 0x7e, opw 0x68]
+                = opw 0x61 :: (rest ++ [opw 0x7e, opw 0x68]) from rfl,
             evalFrom_nop_cons ctx st (rest ++ [opw 0x7e, opw 0x68]) f hsv hvf hbudget hsz,
-            ih rest { st with opCount := st.opCount + 1 }
+            ih rest { st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 }
               (by omega) hrest hvf hsz (by omega)]
 
 /-- **C2×C1 fold, exhausted (SCR-025 decisive)**: when the dead OP_CAT
@@ -419,16 +431,18 @@ theorem deadNops_cat_opCount (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
             have := maxOps_201; simpa using hover
           simp [evalFrom, stepChecked_cat_opCount ctx st hsv hover']
       | cons op rest =>
+          have hop : op = opw 0x61 := hall op (by simp)
+          subst op
           have hrest : ∀ op' ∈ rest, op' = opw 0x61 := fun op' h' =>
             hall op' (List.mem_cons_of_mem _ h')
-          have hlen : rest.length + 1 = (op :: rest).length := by simp
-          have hpc : ({ st with opCount := st.opCount + 1 } : State).opCount
+          have hlen : rest.length + 1 = (opw 0x61 :: rest).length := by simp
+          have hpc : ({ st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 } : State).opCount
               = st.opCount + 1 := rfl
-          rw [show (op :: rest) ++ [opw 0x7e, opw 0x68]
-                = op :: (rest ++ [opw 0x7e, opw 0x68]) from rfl]
+          rw [show (opw 0x61 :: rest) ++ [opw 0x7e, opw 0x68]
+                = opw 0x61 :: (rest ++ [opw 0x7e, opw 0x68]) from rfl]
           by_cases hlt : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT
           · rw [evalFrom_nop_cons ctx st (rest ++ [opw 0x7e, opw 0x68]) f hsv hvf hlt hsz,
-              ih rest { st with opCount := st.opCount + 1 }
+              ih rest { st with opCount := st.opCount + 1, opcodeIndex := st.opcodeIndex + 1 }
                 (by omega) hrest hvf hsz (by omega)]
           · have hover' : MAX_OPS_PER_SCRIPT < st.opCount + 1 := by
               have := maxOps_201; simp only [this] at hlt ⊢; omega

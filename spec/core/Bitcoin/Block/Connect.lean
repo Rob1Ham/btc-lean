@@ -157,11 +157,11 @@ composition point of the THM-037 lane with the issuance schedule
 (BLK-090). -/
 @[rule "BLK-089"]
 def cbAmountOk (cb : Tx) (fees : Amount) (height : UInt32) : Bool :=
-  cb.getValueOut ≤ fees + blockSubsidy height
+  Bitcoin.Capstone.Block.coinbaseRewardOk cb fees height
 
 theorem cbAmountOk_iff (cb : Tx) (fees : Amount) (height : UInt32) :
     cbAmountOk cb fees height = true ↔ cb.getValueOut ≤ fees + blockSubsidy height := by
-  simp [cbAmountOk, decide_eq_true_iff]
+  simp [cbAmountOk, Bitcoin.Capstone.Block.coinbaseRewardOk, decide_eq_true_iff]
 
 /-- The subsidy never jeopardizes the gate: it is bounded by MAX_MONEY
 (50·COIN at most), so any MoneyRange-legal fee keeps the RHS sane. -/
