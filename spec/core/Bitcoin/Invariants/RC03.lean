@@ -236,7 +236,7 @@ private theorem p2shFold_zero (u : UtxoSet) :
                if isP2SH c.scriptPubKey then
                  match lastPush i.scriptSig with
                  | none => 0
-                 | some r => legacySigOpCountScript ⟨r⟩
+                 | some r => accurateSigOpCountBytes r
                else 0)) acc = acc := by
   intro vin
   induction vin with
@@ -257,7 +257,7 @@ private theorem p2shFold_zero (u : UtxoSet) :
       show List.foldl _ (acc + (if isP2SH tc.scriptPubKey = true then
               match lastPush t.scriptSig with
               | none => 0
-              | some r => legacySigOpCountScript ⟨r⟩
+              | some r => accurateSigOpCountBytes r
             else 0)) rest = acc
       rw [h0, ite_eq_right (by simp), Nat.add_zero]
       exact ih acc hmem'
@@ -316,7 +316,7 @@ theorem p2shSigOpCount_single_p2sh (u : UtxoSet) (tx : Tx) (i : TxIn)
     (hcb : tx.isCoinBase = false) (hv : tx.vin = [i])
     (hc : u i.prevout = some c) (hp : isP2SH c.scriptPubKey = true)
     (hr : lastPush i.scriptSig = some r) :
-    p2shSigOpCount u tx = legacySigOpCountScript ⟨r⟩ := by
+    p2shSigOpCount u tx = accurateSigOpCountBytes r := by
   unfold p2shSigOpCount
   rw [hcb, hv]
   simp [hc, hp, hr]
