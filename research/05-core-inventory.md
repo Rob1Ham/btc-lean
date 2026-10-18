@@ -1,4 +1,4 @@
-# 05 — Bitcoin Core consensus-critical source inventory (B1, report ID 05)
+# 05 — Bitcoin Core consensus-critical source inventory
 
 > Pinned ground-truth commit: **`cce32b1686874e85e8a00cfa1a2190f0b6f4dcaf66`**
 > (merge bitcoin/bitcoin#36379, "fuzz: fix stale comments in http_request").
@@ -164,7 +164,7 @@ Mempool path (policy interleaving, for the boundary map):
 | `BIP34_IMPLIES_BIP30_LIMIT` | 1,983,702 | validation.cpp:2429 | BIP30 optimization horizon (see (e)) |
 | `MAX_BLOCK_COINSDB_USAGE_BYTES` | 10 MiB | validation.cpp:520 (inline in `LargeCoinsCacheThreshold`) | Flush heuristics — NOT consensus |
 
-**21M cap structure**: no single constant caps supply. The cap = Σ_h (50·COIN >> ⌊h/210000⌋) with the `halvings ≥ 64 ⇒ 0` rule; `MAX_MONEY` is an independent sanity clamp. A Lean spec should define the subsidy function and prove `Σ < MAX_MONEY` (a nice first theorem; see C4 liaison).
+**21M cap structure**: no single constant caps supply. The cap = Σ_h (50·COIN >> ⌊h/210000⌋) with the `halvings ≥ 64 ⇒ 0` rule; `MAX_MONEY` is an independent sanity clamp. A Lean spec should define the subsidy function and prove `Σ < MAX_MONEY` (a natural first theorem).
 
 ### (c) Consensus vs policy boundary
 
@@ -234,7 +234,7 @@ Mempool path (policy interleaving, for the boundary map):
 
 ## Implications for btc-lean
 
-1. **The consensus core is small.** ~6,400 lines of validation.cpp contain everything consensus-relevant in <2,500 of those lines; consensus/{consensus,amount,params,tx_check,tx_verify,merkle}.h/.cpp ≈ 900 lines total. A Lean `Consensus` namespace mirroring these files is feasible with a 1:1 file mapping (C1 liaison).
+1. **The consensus core is small.** ~6,400 lines of validation.cpp contain everything consensus-relevant in <2,500 of those lines; consensus/{consensus,amount,params,tx_check,tx_verify,merkle}.h/.cpp ≈ 900 lines total. A Lean `Consensus` namespace mirroring these files is feasible with a 1:1 file mapping.
 2. **The right Lean decomposition**: (i) pure check functions (`CheckTransaction`, `CheckTxInputs`, `IsFinalTx`, `SequenceLocks`, `EvalScript` as a pure `State → Script → Option State` step function, `CheckProofOfWork`, `BlockMerkleRoot`); (ii) a context record (`Consensus::Params`, block index as a pure `Nat → BlockHeader` map + MTP function); (iii) the UTXO transition as a pure `Map OutPoint Coin → Block → Result (Map OutPoint Coin)` — the DIRTY/FRESH machinery is pure optimization and can be *proved* semantically equivalent.
 3. **Clocks and MTP** are consensus inputs (`GetMedianTimePast` over 11 blocks, `MAX_FUTURE_BLOCK_TIME` vs wall clock). Wall-clock comparisons (`time-too-new`) make validation non-deterministic in the strict sense; the spec should model `now` as an explicit environment parameter and note that the check is advisory-persisting (blocks in the future become valid later — there is no permanence).
 4. **Carve-outs are part of consensus**: BIP30 exceptions, the two script-flag exception blocks, BIP16 activation-before-segwit subtleties, `BIP34_IMPLIES_BIP30_LIMIT`. These are exactly the "dark corners" a faithfulness theorem must cover.
@@ -246,17 +246,17 @@ Mempool path (policy interleaving, for the boundary map):
 - **R1 — BIP9 deployment erosion**: `DeploymentPos` now contains only TESTDUMMY; Taproot's BIP9 entry was deleted (INFERRED from code). If we model BIP9 generically we must decide whether historical deployments live in the spec's params or as frozen height constants. Recommend: model both (`BuriedDeployment` heights + a BIP9 engine proven correct on TESTDUMMY).
 - **R2 — non-determinism seams**: `NodeClock::now()` (time-too-new), `FastRandomContext` in flush logic, threading in `CheckQueue`. All excludable from the pure core; flag in spec as environment.
 - **R3 — BIP50 / pre-BIP34 historical exceptions**: exact byte-level faithfulness for blocks < 481,824 requires the exception tables; we have them (script_flag_exceptions, IsBIP30Repeat/Unspendable) but must sweep for others (e.g., the 64-byte-tx issue and BIP16 exception handling interact).
-- **R4 — `Assume(...)` vs `Assert(...)`**: several comments in ConnectBlock assert unreachability of `bad-txns-fee-outofrange` (tx_verify.cpp:207–216). A Lean spec can *prove* these unreachability lemmas — cheap wins for the theorem portfolio (C4).
+- **R4 — `Assume(...)` vs `Assert(...)`**: several comments in ConnectBlock assert unreachability of `bad-txns-fee-outofrange` (tx_verify.cpp:207–216). A Lean spec can *prove* these unreachability lemmas — cheap wins for the theorem portfolio.
 - **R5 — version string**: 32.99.0 means master is post-31; line numbers will drift. All row records must cite `@cce32b16868`; the pin is frozen repository-wide.
 - **R6 — TestBlockValidity vs AcceptBlock divergence**: `TestBlockValidity` (validation.cpp:4478–4549) intentionally skips `AcceptBlockHeader`; mining RPC path. Ensure the spec's entry-point semantics match `ProcessNewBlock`, not TestBlockValidity.
 
 ## Recommendations
 
-1. Adopt **INV-xxx IDs from Appendix B verbatim** as the traceability DB seed (D1); columns already match charter §1.3.
-2. Formalization order by ROI: money/amount invariants + subsidy (INV-020–024, 100–102) → tx-level stateless checks (INV-001–010) → merkle+PoW (INV-066–075, 108–117) → locktime/BIP68 (INV-011–019) → UTXO transition + BIP30 (INV-043–058) → script interpreter (INV-060–095; B2 owns) → activation FSM (INV-118–126).
+1. Adopt **INV-xxx IDs from Appendix B verbatim** as the traceability DB seed; its columns already match the rule-database schema.
+2. Formalization order by ROI: money/amount invariants + subsidy (INV-020–024, 100–102) → tx-level stateless checks (INV-001–010) → merkle+PoW (INV-066–075, 108–117) → locktime/BIP68 (INV-011–019) → UTXO transition + BIP30 (INV-043–058) → script interpreter (INV-060–095) → activation FSM (INV-118–126).
 3. Encode **CVE reproducers** as `example` test cases in Lean (block 74638-style overflow, duplicate-coinbase, merkle dup pairs, CVE-2018-17144 tx) — each CVE becomes both a rule row and a negative conformance test.
-4. Write the **"NOT consensus" list (§c + INV-160…176) into the charter appendix** so policy never sneaks into the spec.
-5. Ask B3 to re-derive rows INV-001–058 independently (cross-check), B2 to own/extend INV-060–095, B4 to own INV-096–147, B5 the witness rows — dedupe at merge time.
+4. Write the **"NOT consensus" list (§c + INV-160…176) into the traceability appendix** so policy never sneaks into the spec.
+5. Re-derive rows INV-001–058 independently as a cross-check; extend INV-060–095, INV-096–147, and the witness rows; dedupe before merging.
 6. Pin the BTC repo at `cce32b168` in every machine-readable anchor (CI can grep-verify anchors against a vendored shallow clone).
 
 ---

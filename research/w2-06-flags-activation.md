@@ -1,4 +1,4 @@
-# W06 — Consensus flags & activation
+# Consensus flags & activation
 
 Date: 2026-10-16 · Status: **COMPLETE**
 
@@ -6,7 +6,7 @@ Date: 2026-10-16 · Status: **COMPLETE**
 
 ## 1. Executive summary
 
-1. **`getBlockScriptFlags` is real.** The W01-frozen `opaque … := sorry` stub in
+1. **`getBlockScriptFlags` is real.** The previously frozen `opaque … := sorry` stub in
    `Bitcoin/Activation/Interface.lean` is now a compiled `def` that transliterates
    Core's `GetBlockScriptFlags` (validation.cpp:2249-2288 @ master, fetched
    2026-10-16) for mainnet: base = P2SH|WITNESS|TAPROOT, two named exception
@@ -23,7 +23,7 @@ Date: 2026-10-16 · Status: **COMPLETE**
    as `PolicyFlag`/`FullFlags` with `policy_absent_from_consensus`, and the
    load-bearing **BIP342 re-import** ("tapscript makes MINIMALIF and CLEANSTACK
    consensus regardless of the policy bits") is captured as
-   `tapscript_reimports_policy` (brief item b).
+   `tapscript_reimports_policy` (item b).
 3. **Dormant BIP9 machine** ported: `ThresholdState` (unchanged inductive),
    `bip9StateByPeriod`/`bip9State` (period-aligned structural recursion),
    `bip9Transition` with Core's **count test before timeout test** ordering
@@ -34,27 +34,26 @@ Date: 2026-10-16 · Status: **COMPLETE**
    NO_TIMEOUT, 1815/2016, BLK-081) with a dormancy theorem
    (`mainnet_2026_exactly_one_dormant`).
 4. **All 17 consensus rows implemented/proven + tagged:** SCR-015/016,
-   BLK-070..081 (minus 082, other nets — W07/W12 territory), BLK-083..088 now
-   carry `@[rule]` attributes with `lean_target`s, cross-checked by G5. The
+   BLK-070..081 (minus 082, other networks), BLK-083..088 now
+   carry `@[rule]` attributes with `lean_target`s, cross-checked against the rule database. The
    8 policy rows SCR-175..182 and SCR-183 are NEW rows introduced by this
    report (Appendix B, extracted via a new SOURCES entry in `extract_rules.py`).
 5. **17 checks PASS** in two new harnesses (`spec/Test/Activation/FlagsTest.lean`
    9 checks, `Bip9Test.lean` 8 checks) run by `spec/Test/Activation/run.sh`;
    every vector is also a build-time `decide`-verified `example`; 16 headline
-   theorems carry `#guard_msgs in #print axioms` fingerprints (D2 L3) —
+   theorems carry `#guard_msgs in #print axioms` fingerprints —
    **no `sorryAx`, no `Classical.choice` anywhere** (max fingerprint:
    `[propext, Quot.sound]`).
-6. **One interface-change** vs the W01 freeze (7 corrections, all documented in
+6. **One interface change** against the earlier freeze (7 corrections, all documented in
    the Interface header and §3): BIP147 rides SEGWIT at 481824; the exception
-   blocks are 170060/692261 (hash-keyed in Core; W01's [173805, 176360] are not
+   blocks are 170060/692261 (hash-keyed in Core; the earlier [173805, 176360] are not
    Core exception blocks); `flags_after_burial` needs an exception hypothesis;
    `flags_exception_blocks`/`flags_monotone` restated; `lockin_survives_timeout`
-   gains a no-overflow hypothesis. `spec/db/interface-hashes.txt` updated —
-   **this PR needs the `interface-change` label**.
-7. Gates: G0 build+tests green for all Activation modules (the one remaining
-   full-repo build failure is in `Serialization/Interface.lean` — another
-   workstream's in-flight edit, untouched here); G1 sorry-lint, G2
-   axiom-manifest, G5 rule-crosscheck all green (Appendix B.15).
+   gains a no-overflow hypothesis. `spec/db/interface-hashes.txt` updated.
+7. Gates: build and tests green for all Activation modules (the one remaining
+   full-repo build failure is in `Serialization/Interface.lean` — an unrelated
+   in-flight edit, untouched here); sorry-lint, axiom-manifest, and
+   rule-crosscheck all green (Appendix B.15).
 
 ## 2. Key findings
 
@@ -67,7 +66,7 @@ Date: 2026-10-16 · Status: **COMPLETE**
   the base BEFORE the buried ORs — order is load-bearing (BLK-084) and is
   encoded in `getBlockScriptFlagsP`.
 - **F2 (VERIFIED, §2.2).** The exception map is keyed by BLOCK HASH, not height
-  (kernel/chainparams.cpp:115-118). W01's frozen `BIP16_EXCEPTION_BLOCKS =
+  (kernel/chainparams.cpp:115-118). The earlier frozen `BIP16_EXCEPTION_BLOCKS =
   [173805, 176360]` matches no Core data — those are the BIP16 *voting*
   window boundaries, not exception blocks. The real entries are height 170060
   (BIP16-violating block, SCRIPT_VERIFY_NONE) and height 692261 (taproot-
@@ -75,7 +74,7 @@ Date: 2026-10-16 · Status: **COMPLETE**
   bidirectionally against a public block explorer API on 2026-10-16 (§2.2).
 - **F3 (VERIFIED).** NULLDUMMY is NOT a buried deployment of its own — it rides
   segwit (`DeploymentActiveAt(DEPLOYMENT_SEGWIT)` at validation.cpp:2280-2283).
-  W01's `BIP147_HEIGHT := 419328` was Core's CSVHeight. Interface now has
+  The earlier `BIP147_HEIGHT := 419328` was Core's CSVHeight. Interface now has
   `CSV_HEIGHT := 419328`, `SEGWIT_HEIGHT := BIP147_HEIGHT := 481824`.
 - **F4 (VERIFIED).** The count test precedes the timeout test in `GetStateFor`'s
   STARTED branch (versionbits.cpp:93 vs :95 @ master; the pinned report cited
@@ -107,7 +106,7 @@ Date: 2026-10-16 · Status: **COMPLETE**
   module target even though `lean_lib Bitcoin`'s glob is root-only, and
   `lake env lean --run ../Test/Activation/X.lean` runs files outside the
   package from `spec/core` — so new modules need no edits to shared files
-  (`Bitcoin.lean` import closure untouched; W09 will add the imports).
+  (`Bitcoin.lean` import closure untouched; a later import-closure update will add them).
 - **F10 (VERIFIED).** `#guard_msgs in #print axioms` needs the EXACT expected
   message as the preceding docstring (`info: '…' depends on axioms: […]` /
   `'…' does not depend on any axioms`); theorem fingerprints are `[propext,
@@ -129,7 +128,7 @@ chain: one block per height); the hash-keyed ground truth is
 `Flags.mainnetExceptionMap`, and `mainnet_height_hash_agree` proves the two
 models coincide given the height↔hash correspondence for the two named blocks.
 
-## 3. Interface changes vs the W01 freeze (interface-change label required)
+## 3. Interface changes against the earlier freeze
 
 All changes are in `Bitcoin/Activation/Interface.lean` (header documents them
 inline); `spec/db/interface-hashes.txt` line for `core/Bitcoin/Activation/
@@ -152,8 +151,8 @@ Interface.lean` updated to sha256 `5094815c…e4b35b4`.
    endpoints off the exception list): the frozen `∀ f : ScriptFlags → Bool`
    form is equivalent to flag-set equality (take `f := (· = flags h₁)`),
    which is false across activation heights.
-6. **`getBlockScriptFlags` is a real `def`** (was `opaque … := sorry` — per W01
-   F3, a sorry-stubbed non-function constant panics at module init).
+6. **`getBlockScriptFlags` is a real `def`** (was `opaque … := sorry` — per the
+   earlier finding F3, a sorry-stubbed non-function constant panics at module init).
 7. **`lockin_survives_timeout` + no-overflow hypothesis `hno`** (`h.toNat +
    period.toNat + period.toNat < 2³²`) — needed for the UInt32→Nat casts in
    the proof; `hto` deliberately unused (F5).
@@ -162,11 +161,11 @@ Interface.lean` updated to sha256 `5094815c…e4b35b4`.
 consumers: `Bitcoin.Interpreter.Interface`, `Bitcoin.TxValidation.Interface`).
 No shared file (`Bitcoin.lean`, other interfaces) was touched; new modules
 `Flags.lean`/`Bip9.lean` are reachable via module-target builds + the test
-runner until W09 wires them into the import closure.
+runner until they are wired into the import closure.
 
 ## 4. Handoff notes
 
-### For W09 (script interpreter — flags drive EvalScript/VerifyScript)
+### Script interpreter (flags drive EvalScript/VerifyScript)
 - Consume `Activation.ScriptFlags` (unchanged) or `Flags.FullFlags` if you want
   policy checks in the same pass: `FullFlags.consensus` = block-validation set,
   `FullFlags.policy` = the 8 policy bits, defaults off
@@ -181,17 +180,17 @@ runner until W09 wires them into the import closure.
 - DERSIG/LOW_S/STRICTENC interplay: DERSIG is consensus (BLK-085);
   LOW_S/STRICTENC stay policy — `PolicyFlag` is the catalogue to diff against.
 
-### For W12 (BIP34 height gate & activation context)
+### BIP34 height gate & activation context
 - `buried_heights_mainnet` gives all five buried heights + the BIP34 hash
   (`Flags.bip34ActivationHash`, BLK-070); the coinbase-height↔BIP34Hash
   comparison should use `BlockHash := Nat` hex-literal equality (see
   `Flags.lean` for the idiom).
 - `buriedActive` is the sanctioned height-compare (inclusive, BLK-072).
-- If W12 needs testnet4/regtest deployment rows (BLK-082), the
+- If the height-gate work needs testnet4/regtest deployment rows (BLK-082), the
   `Bip9Deployment` record + `Bip9Params` machinery are ready; only the
   per-network tables are missing.
 
-### For W16 (audit)
+### Audit notes
 - Vector table: Appendix B.17 (12 heights × flagBits, all runtime-checked).
 - Axiom fingerprints: 16 pins across the two test files; max
   `[propext, Quot.sound]`.
@@ -202,34 +201,34 @@ runner until W09 wires them into the import closure.
 ## 5. Open questions & risks
 
 - **OPEN-1 (routing):** BLK-082 (testnet4/regtest deployment tables) is NOT
-  done here — owner by charter should be W07/W12; tables only, machinery done.
+  done here — the per-network tables remain; the machinery is done.
 - **OPEN-2 (frozen-surface scope):** the height-keyed `getBlockScriptFlags`
-  hardcodes mainnet params. Fine for frozen consumers; W09 should call
+  hardcodes mainnet params. Fine for frozen consumers; consumers should call
   `Flags.getBlockScriptFlagsP` (or `mainnet_height_hash_agree` justifies either).
 - **OPEN-3 (deprecation noise):** core Lean 4.34.1 deprecates `if_pos`/`if_neg`
   in favor of `ite_eq_left/right`; this report's proofs use the deprecated
   forms (warnings, not errors). Sweep opportunistically.
 - **RISK-1:** the full-repo `lake build` and the global sorry-lint currently
   fail in `Serialization/Interface.lean` (:721 build, :727/:729 untagged
-  sorries — another workstream's uncommitted in-flight edit, untouched here);
-  all Activation modules + their dependents build green and lint clean. G0/G1
-  for W06 are judged on `lake build Bitcoin.Activation.{Interface,Flags,Bip9}`
-  + both harnesses + zero Activation sorries.
+  sorries — an unrelated uncommitted in-flight edit, untouched here);
+  all Activation modules + their dependents build green and lint clean. The
+  build and sorry-lint gates for this module are judged on
+  `lake build Bitcoin.Activation.{Interface,Flags,Bip9}` + both harnesses +
+  zero Activation sorries.
 - **RISK-2:** `count` in `Bip9Params` is an opaque function `Nat → Nat`
   (period-indexed); the MTP-monotonicity argument that makes the
   time→height abstraction faithful is cited (validation.cpp counts MTP), not
-  mechanized — a proof gap for the D3 audit trail, low priority (dormant
+  mechanized — a proof gap for the audit trail, low priority (dormant
   machine).
 
 ## 6. Recommendations
 
-1. Orchestrator: apply the `interface-change` label to this PR (G4).
-2. W09: adopt `FullFlags` + `minimalIfRequired`/`cleanStackRequired` for
+1. Script interpreter: adopt `FullFlags` + `minimalIfRequired`/`cleanStackRequired` for
    tapscript; otherwise flags need no new modeling.
-3. Keep new-module development off `Bitcoin.lean` (F9 pattern: module-target
+2. Keep new-module development off `Bitcoin.lean` (F9 pattern: module-target
    builds + `Test/**/run.sh`) until the change lands, then a single import-closure
    commit.
-4. When Core's deployment table grows, BLK-081's dormancy theorem is the
+3. When Core's deployment table grows, BLK-081's dormancy theorem is the
    regression: a new ACTIVE mainnet deployment must update
    `mainnetDeployments` AND retire `mainnet_2026_exactly_one_dormant`.
 
@@ -258,11 +257,11 @@ where they drifted from the pinned cce32b168 reports):
   BIP141, BIP146 (never activated), BIP342 §5/§8 (MINIMALIF/CLEANSTACK
   re-import)
 - Block explorer API `blockstream.info/api` (height↔hash, §2.2, 2026-10-16)
-- Prior art: `research/w2-01-scaffold.md` (frozen interface + gotchas),
+- Prior art: the frozen-interface notes,
   `research/06-script-interpreter.md` / `08-block-pow-utxo.md` / 
   `09-segwit-taproot.md` Appendix B (rule row definitions)
 - Lean 4.34.1 toolchain sources (UInt32 bit lemmas, `Nat.div_pos`, omega
-  support) at `~/.elan/toolchains/leanprover--lean4---v4.34.1/src/lean/Init/`
+  support)
 
 ---
 
@@ -327,14 +326,14 @@ $ cd spec && bash Test/Activation/run.sh
 
 $ bash spec/scripts/sorry_lint.sh
 sorry-lint: 52 sorry occurrences, 50 tagged, 2 untagged
-  # untagged: Serialization/Interface.lean:727/729 — another workstream's
-  # in-flight uncommitted edit; not W06's scope (RISK-1). Activation/**: 0 sorries.
+  # untagged: Serialization/Interface.lean:727/729 — an unrelated
+  # in-flight uncommitted edit; not this module's scope (RISK-1). Activation/**: 0 sorries.
 sorry-lint: native_decide violations: 0; unsafe/partial/FFI hazards: 0
 sorry-lint: OK
 
 $ bash spec/scripts/axiom_manifest.sh
-axiom-manifest: OK (22 lines)                 # probe unchanged; W06 pins its own
-                                              # 16 fingerprints via #guard_msgs (D2 L3)
+axiom-manifest: OK (22 lines)                 # probe unchanged; this module pins its own
+                                              # 16 fingerprints via #guard_msgs
 
 $ python3 spec/scripts/rule_crosscheck.py
 rule DB: 715 rows; Lean @[rule] attributes: 70 ids / 70 attributes
@@ -347,16 +346,7 @@ rule DB: 715 rows; Lean @[rule] attributes: 70 ids / 70 attributes
 rule-crosscheck: OK
 ```
 (Exact counts re-printed in the commit; the `--check-only` regeneration diff
-covers the new w2-06 SOURCES entry + OVERRIDES.)
-
-### B.16 Git state
-
-```
-$ git -C . log --oneline | head -4
-<W06 commit> [W06] consensus flags & activation: getBlockScriptFlags + dormant BIP9 (interface-change)
-bf4f076 [W03] data-type laws: weight/txid/wtxid/finality/BIP68 field laws over the W01 types
-70d770e [W08] conservation: workstream report (research/w2-08-conservation.md)
-```
+covers the new flags/activation SOURCES entry + OVERRIDES.)
 
 ### B.17 Flag-vector table (runtime-evaluated; see §B.15 harness)
 
@@ -364,7 +354,7 @@ bf4f076 [W03] data-type laws: weight/txid/wtxid/finality/BIP68 field laws over t
 |---|---|---|---|
 | 0 | genesis | P2SH·WITNESS·TAPROOT | 0x20801 |
 | 170060 | **BIP16 exception block** | none | 0x0 |
-| 173805 | (W01's stale "exception" — actually normal) | base | 0x20801 |
+| 173805 | (stale "exception" from the earlier freeze — actually normal) | base | 0x20801 |
 | 227931 | BIP34 buried (no script-flag effect) | base | 0x20801 |
 | 363724 | last pre-BIP66 | base | 0x20801 |
 | 363725 | BIP66 boundary (inclusive) | +DERSIG | 0x20805 |
@@ -395,7 +385,7 @@ lockin_survives_timeout   [propext, Quot.sound]     bip9State_next_period     [p
 ```
 No `sorryAx`, no `Classical.choice`, no native axioms. All proofs are honest
 `decide`/`omega`/`simp`/explicit-term proofs; zero `sorry` in
-`Activation/**` (the 79 pre-existing tagged sorries are other workstreams').
+`Activation/**` (the 79 pre-existing tagged sorries are elsewhere).
 
 ---
 

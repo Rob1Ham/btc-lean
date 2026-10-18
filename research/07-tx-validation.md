@@ -1,4 +1,4 @@
-# 07 — Transaction-Validation Pipeline (Track B3)
+# 07 — Transaction-Validation Pipeline
 
 **Commit verified against:** Bitcoin Core `master`, commit `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66` (2026-10-16), version 32.99 (pre-33 master).
 All `file:line` citations below are against the canonical pin `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`.
@@ -11,7 +11,7 @@ All `file:line` citations below are against the canonical pin `cce32b16874e85e8a
 2. **Good news for Lean:** nearly every consensus tx rule is a pure function of `(tx, coins-for-inputs, spend-height, MTP/prev-block-time)`. No mutation leaks into the *checks*; mutation (`SpendCoin`/`AddCoin`/`UpdateCoins`) is only the *effect application* after checks pass, and it is sequential in block tx order.
 3. Serialization **is** consensus (txid = double-SHA256 of the stripped serialization; the SegWit marker/flag/witness framing; "Superfluous witness record" is a consensus-relevant decode failure). The spec must define the byte format and both hash functions as first-class objects.
 4. The error taxonomy (`TxValidationResult` + reject-reason strings) cleanly separates consensus (`TX_CONSENSUS`, `TX_MISSING_INPUTS`, `TX_PREMATURE_SPEND`) from policy (`TX_NOT_STANDARD`, `TX_MEMPOOL_POLICY`, …) — the consensus/policy boundary is visible in code, not a vibe.
-5. The project brief "negative-height marker" **does not exist in current master**: coinbase-ness is a `fCoinBase : 1` bitfield packed into the height's LSB on disk, and mempool coins carry the sentinel `MEMPOOL_HEIGHT = 0x7FFFFFFF` (txmempool.h:51). Historic `int`-height negative tricks are gone.
+5. The "negative-height marker" **does not exist in current master**: coinbase-ness is a `fCoinBase : 1` bitfield packed into the height's LSB on disk, and mempool coins carry the sentinel `MEMPOOL_HEIGHT = 0x7FFFFFFF` (txmempool.h:51). Historic `int`-height negative tricks are gone.
 6. Money arithmetic is deliberately trivial to formalize: `CAmount = int64`, `MAX_MONEY = 21e6·COIN` inclusive bound, `MoneyRange` = `0 ≤ x ≤ MAX_MONEY`, checked **incrementally** at every addition (this incremental pattern is the direct descendant of the CVE-2010-5137/5139 184-billion-BTC overflow family).
 7. Coinbase maturity is a strict inequality: spendable when `spend_height − coin_height ≥ COINBASE_MATURITY(100)`; i.e. a coinbase from block N is spendable in block N+100.
 8. Consensus applies **no fee floor**: fee ≥ 0 is implied by `in ≥ out`; positive-fee rules are pure policy.
@@ -67,7 +67,7 @@ INFERRED (not from this clone, flagged): CVE-2010-5137 historical attribution de
 
 **Hashes:** `txid = dsha256(TX_NO_WITNESS serialization)`, `wtxid = dsha256(TX_WITH_WITNESS serialization)`, `wtxid = txid` when `!HasWitness()` (transaction.cpp:81–93; typed as `Txid`/`Wtxid` newtype wrappers in primitives/transaction_identifier.h:23+).
 
-**Weight:** `GetTransactionWeight(tx) = stripped_size·(WITNESS_SCALE_FACTOR−1) + total_size = stripped·3 + total` (validation.h:139–142), `WITNESS_SCALE_FACTOR = 4` (consensus/consensus.h:21). This is BIP141's `base·3 + total` exactly; B2/B5 own the block-weight side.
+**Weight:** `GetTransactionWeight(tx) = stripped_size·(WITNESS_SCALE_FACTOR−1) + total_size = stripped·3 + total` (validation.h:139–142), `WITNESS_SCALE_FACTOR = 4` (consensus/consensus.h:21). This is BIP141's `base·3 + total` exactly; the block-weight side is covered in the block-level notes.
 
 **Lean mapping:** a `Tx` structure with `version : Fin`-ish Nat, `vin : List TxIn`, `vout : List TxOut`, `locktime : Nat`; serialization as total functions `encode : Tx → Bytes`, `decode : Bytes → Option Tx` (decode must reproduce every failure mode above); `txid = sha256∘sha256 ∘ encodeNoWitness`.
 
@@ -87,7 +87,7 @@ Complete list (all verified, tx_check.cpp:19–68), all returning `TX_CONSENSUS`
 | coinbase `scriptSig.size() ∉ [2,100]` | `bad-cb-length` | 55–58 |
 | non-coinbase null prevout | `bad-txns-prevout-null` | 60–64 |
 
-What "remains" relative to the old Satoshi-era `CheckTransaction`: the version check, the size-in-bytes check, and `MoneyRange` on inputs moved out (inputs are contextual now); there is **no consensus check on `tx.version`** (any version accepted; v3-TRUC is policy-only). The oversize check deliberately uses the **stripped** serialization "as that hasn't been checked for malleability" (tx_check.cpp:26) — full-weight tx-size consensus limits only exist at block level (B4/B5).
+What "remains" relative to the old Satoshi-era `CheckTransaction`: the version check, the size-in-bytes check, and `MoneyRange` on inputs moved out (inputs are contextual now); there is **no consensus check on `tx.version`** (any version accepted; v3-TRUC is policy-only). The oversize check deliberately uses the **stripped** serialization "as that hasn't been checked for malleability" (tx_check.cpp:26) — full-weight tx-size consensus limits only exist at block level.
 
 ### (c) Contextual checks — given a CCoinsView
 
@@ -111,17 +111,17 @@ What "remains" relative to the old Satoshi-era `CheckTransaction`: the version c
 4. `nValueIn < tx.GetValueOut()` → `bad-txns-in-belowout` (202–205). Note `GetValueOut()` **throws** on range violation — the code comment (tx_verify.cpp:197–200) documents why that cannot fire in validation paths (CheckTransaction ran first). For Lean this is a lemma, not an assumption.
 5. `fee = nValueIn − value_out`, `MoneyRange(fee)` → `bad-txns-fee-outofrange`; comment proves `0 ≤ fee ≤ MAX_MONEY` unreachable (208–216). **Consensus fee floor is exactly 0.**
 
-**Maturity mechanism:** `Coin = {CTxOut out; bool fCoinBase:1; uint32 nHeight:31}` (coins.h:52–55); disk serialization packs `code = (nHeight << 1) | fCoinBase` (coins.h:77–87). Mempool-coins view injects `nHeight = MEMPOOL_HEIGHT = 0x7FFFFFFF` (txmempool.h:51, txmempool.cpp:804,816), which `CalculatePrevHeights` maps to `tip+1` (validation.cpp:193–199). **There is no negative-height marker in current master** — the brief's memory refers either to this sentinel or to pre-0.15 encodings; VERIFIED-corrected.
+**Maturity mechanism:** `Coin = {CTxOut out; bool fCoinBase:1; uint32 nHeight:31}` (coins.h:52–55); disk serialization packs `code = (nHeight << 1) | fCoinBase` (coins.h:77–87). Mempool-coins view injects `nHeight = MEMPOOL_HEIGHT = 0x7FFFFFFF` (txmempool.h:51, txmempool.cpp:804,816), which `CalculatePrevHeights` maps to `tip+1` (validation.cpp:193–199). **There is no negative-height marker in current master** — the earlier claim likely refers either to this sentinel or to pre-0.15 encodings; VERIFIED-corrected.
 
 **Error taxonomy** (consensus/validation.h:30–57): `TX_CONSENSUS` / `TX_INPUTS_NOT_STANDARD` / `TX_NOT_STANDARD` / `TX_MISSING_INPUTS` / `TX_PREMATURE_SPEND` / `TX_WITNESS_MUTATED` / `TX_WITNESS_STRIPPED` / `TX_CONFLICT` / `TX_MEMPOOL_POLICY` / `TX_NO_MEMPOOL` / `TX_RECONSIDERABLE` / `TX_UNKNOWN`. Only the first four (+ PREMATURE_SPEND, WITNESS_*) can arise from consensus failure; in `ConnectBlock` any tx failure becomes `BlockValidationResult::BLOCK_CONSENSUS` with the tx reason preserved (validation.cpp:2545–2549, 2591–2596). `ValidationState` itself (validation.h:81–130) is a mode+result+strings triple — trivially an `Except`/`Sum` type in Lean.
 
-**Per-input script invocation:** `CheckInputScripts` (validation.cpp:2060–2134) skips coinbases (2069), checks the `(wtxid, flags)` execution cache (2086–2093), builds `PrecomputedTransactionData` with spent outputs (2095–2108), and creates one `CScriptCheck` per input (2116–2126); `CScriptCheck::operator()` (validation.cpp:2013–2026) calls `VerifyScript(scriptSig, prevout.scriptPubKey, witness, flags, CachingTransactionSignatureChecker(...))`. Flags come from `GetBlockScriptFlags` (block path) or STANDARD (mempool policy path) — see K10. The interpreter itself is B2's.
+**Per-input script invocation:** `CheckInputScripts` (validation.cpp:2060–2134) skips coinbases (2069), checks the `(wtxid, flags)` execution cache (2086–2093), builds `PrecomputedTransactionData` with spent outputs (2095–2108), and creates one `CScriptCheck` per input (2116–2126); `CScriptCheck::operator()` (validation.cpp:2013–2026) calls `VerifyScript(scriptSig, prevout.scriptPubKey, witness, flags, CachingTransactionSignatureChecker(...))`. Flags come from `GetBlockScriptFlags` (block path) or STANDARD (mempool policy path) — see K10. The interpreter itself is covered in the script-interpreter note.
 
 ### (d) Sequence & locktime semantics
 
 **`IsFinalTx(tx, height, time)`** (tx_verify.cpp:23–43):
 - `nLockTime == 0` → final.
-- `nLockTime < LOCKTIME_THRESHOLD(=500_000_000)` (script/script.h:48) → compare against **height**; else against **time**. The threshold is the 500k boundary the brief names (values < 500M are block numbers; ≥ 500M are Unix timestamps).
+- `nLockTime < LOCKTIME_THRESHOLD(=500_000_000)` (script/script.h:48) → compare against **height**; else against **time**. The threshold is the 500k boundary (values < 500M are block numbers; ≥ 500M are Unix timestamps).
 - Even if unsatisfied: all inputs `nSequence == SEQUENCE_FINAL` → final.
 
 **BIP113:** not in `IsFinalTx`; the *caller* chooses the time. Block context: `ContextualCheckBlock` uses MTP of `pindexPrev` once CSV is active, else `block.GetBlockTime()` (validation.cpp:4143–4151), then enforces finality for every tx → `bad-txns-nonfinal` (validation.cpp:4153–4156). Mempool context: `CheckFinalTxAtTip` uses `tip.nHeight + 1` and `tip.GetMedianTimePast()` (validation.cpp:156–176). So the same `IsFinalTx` is evaluated at three (height, time) pairs depending on context — in Lean, keep `IsFinalTx : Tx → Height → Time → Bool` pure and make the context the *caller's* problem (exactly like Core does).
@@ -133,7 +133,7 @@ What "remains" relative to the old Satoshi-era `CheckTransaction`: the version c
 - Otherwise height-based: `nMinHeight = max(nMinHeight, coinHeight + (seq & 0xffff) − 1)` (96).
 - `EvaluateSequenceLocks`: invalid iff `min_height ≥ block.nHeight ∨ min_time ≥ MTP(block.pprev)` (103–111). Granularity constant `SEQUENCE_LOCKTIME_GRANULARITY = 9` (=512=2⁹) (transaction.h:115); mask `0x0000ffff` (transaction.h:105).
 
-**BIP65 CLTV** (`GenericTransactionSignatureChecker::CheckLockTime`, script/interpreter.cpp:1755–1786): (1) tx nLockTime and the stack operand must be the *same kind* (both < or both ≥ 500M); (2) `nLockTime_operand > tx.nLockTime` fails; (3) this input's `nSequence == SEQUENCE_FINAL` fails (prevents the finality override from silently bypassing CLTV). That's the whole rule — a clean cast to three boolean conditions. (B2 owns the opcode plumbing at interpreter.cpp:565.)
+**BIP65 CLTV** (`GenericTransactionSignatureChecker::CheckLockTime`, script/interpreter.cpp:1755–1786): (1) tx nLockTime and the stack operand must be the *same kind* (both < or both ≥ 500M); (2) `nLockTime_operand > tx.nLockTime` fails; (3) this input's `nSequence == SEQUENCE_FINAL` fails (prevents the finality override from silently bypassing CLTV). That's the whole rule — a clean cast to three boolean conditions. (Opcode plumbing: interpreter.cpp:565.)
 
 **BIP112 CSV** (`CheckSequence`, interpreter.cpp:1792–1826): version ≥ 2 required; disable-flag on the *tx's* sequence fails; mask both sides with `TYPE_FLAG|0xffff`; type match; `operand_masked > tx_sequence_masked` fails. (Opcode site: interpreter.cpp:599.)
 
@@ -164,7 +164,7 @@ What "remains" relative to the old Satoshi-era `CheckTransaction`: the version c
 
 ### (g) Weird cases
 
-1. **OP_RETURN outputs**: zero consensus rules. Any scriptPubKey is serializable into a vout; `nValue ≥ 0` suffices. An OP_RETURN output is only "unspendable" because `OP_RETURN` always fails at spend time (B2 turf); the coins sit in the UTXO set forever. The 80-byte datacarrier cap and "dust" classification are policy (policy/policy.h:84, kernel/mempool_options.h:47–53).
+1. **OP_RETURN outputs**: zero consensus rules. Any scriptPubKey is serializable into a vout; `nValue ≥ 0` suffices. An OP_RETURN output is only "unspendable" because `OP_RETURN` always fails at spend time (script-interpreter territory); the coins sit in the UTXO set forever. The 80-byte datacarrier cap and "dust" classification are policy (policy/policy.h:84, kernel/mempool_options.h:47–53).
 2. **0-value outputs**: fully valid (only bounds are `≥ 0`, `≤ MAX_MONEY`); they create real UTXO entries (AddCoins iterates all vouts, coins.cpp:133–142). A 0-value output is *not* `IsNull()` (`IsNull` is the `-1` sentinel that never appears on the wire).
 3. **MAX_MONEY boundary**: a single output of exactly `21e6·COIN` passes (`> MAX_MONEY` fails, tx_check.cpp:37); a *sum* exactly at MAX_MONEY passes (`MoneyRange` inclusive); `MAX_MONEY + 1` total fails.
 4. **Coinbase at the maturity boundary**: coinbase of block N; `CheckTxInputs` at height H fails iff `H − N < 100`. So the earliest valid spend is in block **N+100** (e.g. coinbase at height 900_000, first spendable at 900_100). Mempool path: uses `H+1`, so a coinbase needs 100 confs *including* the hypothetical next block — subtle off-by-one difference between mempool acceptance and block insertion (validation.cpp:888–890 vs 2545).
@@ -213,13 +213,13 @@ Everything composes into: **`validateTx : Tx → CoinView → Height → Time �
 
 ## Open questions & risks
 
-1. **Version skew**: this report is pinned to `cce32b168…`; the project lead pin (`cce32b168…`) was unavailable at clone time. Before the build phase, re-diff `consensus/{tx_check,tx_verify,validation,amount}.h/.cpp` and `primitives/transaction.*` against whatever commit D1 freezes. Risk: low (tx-validation code is historically stable; the biggest recent churn is mempool cluster-based limits).
-2. **BIP94 timewarp** (`MAX_TIMEWARP`, consensus.h:35) now lives in consensus/consensus.h — block-time territory (B4), but it interacts with MTP-based locks; boundary ownership should be settled with B4.
-3. **`CheckTransaction` oversize check uses stripped size only** — confirm with B5 that the *full*-weight per-tx limit is genuinely absent from consensus (it is in this tree) so we don't over-constrain.
+1. **Version skew**: this report is pinned to `cce32b168…`; the originally requested pin (`cce32b168…`) was unavailable at clone time. Before the build phase, re-diff `consensus/{tx_check,tx_verify,validation,amount}.h/.cpp` and `primitives/transaction.*` against whatever commit the project freezes. Risk: low (tx-validation code is historically stable; the biggest recent churn is mempool cluster-based limits).
+2. **BIP94 timewarp** (`MAX_TIMEWARP`, consensus.h:35) now lives in consensus/consensus.h — block-time territory, but it interacts with MTP-based locks; the boundary should be settled with the block-level analysis.
+3. **`CheckTransaction` oversize check uses stripped size only** — confirm in the SegWit/Taproot analysis that the *full*-weight per-tx limit is genuinely absent from consensus (it is in this tree) so we don't over-constrain.
 4. **The unreachable-fee-check invariant** (tx_verify.cpp:208–216) relies on call-order (`CheckTransaction` before `CheckTxInputs`). In Lean we should *prove* the invariant rather than preserve the dead check, but keep the reject string for conformance.
 5. **CVE-2010-5137 vs -5139 attribution** needs a primary-source check (bitcointalk/Satoshi-era commit 0.3.11/0.3.13) before it enters the rule-ID database — flagged INFERRED here.
-6. **Negative-height marker** from the brief: VERIFIED absent in master (replaced by `fCoinBase:1` bit + `MEMPOOL_HEIGHT` sentinel). If the project lead meant pre-0.15 `CCoins`, B1's CVE/history workstream should confirm; don't spec it.
-7. **Sigop-counting details** (`GetSigOpCount(fAccurate)`, `CountWitnessSigOps`, tapscript sigop counting) are shared with B2 — this report claims only the *accounting aggregation* (tx_verify.cpp:118–168) and the 80k block cap; B2 should own the per-opcode semantics rows to avoid double-bookkeeping.
+6. **Negative-height marker**: VERIFIED absent in master (replaced by `fCoinBase:1` bit + `MEMPOOL_HEIGHT` sentinel). If the historical claim meant pre-0.15 `CCoins`, the CVE/history analysis should confirm; don't spec it.
+7. **Sigop-counting details** (`GetSigOpCount(fAccurate)`, `CountWitnessSigOps`, tapscript sigop counting) are shared with the script-interpreter analysis — this note claims only the *accounting aggregation* (tx_verify.cpp:118–168) and the 80k block cap; the per-opcode semantics rows belong there, to avoid double-bookkeeping.
 
 ---
 
@@ -230,7 +230,7 @@ Everything composes into: **`validateTx : Tx → CoinView → Height → Time �
 3. Make **first-spender-wins-in-a-block** an explicit early theorem (fold over vtx), since it's the only place block tx order is consensus-visible from the tx layer.
 4. Adopt Core's reject strings as literals in the Lean error type; the differential harness then matches on `(valid?, rejectCode)` pairs from `test/functional/mempool_accept.py` and the JSON tx fixtures.
 5. Prove the money-safety lemma family early (incremental MoneyRange ⇒ no overflow; fee ∈ [0, MAX_MONEY]) — small, satisfying, and directly tied to the CVE lineage for the traceability matrix.
-6. Coordinate with B4 on `ConnectBlock`'s fold structure (they own block-level composition) and B2 on `VerifyScript`'s interface; B3's deliverable should freeze the *interface* `VerifyScript : ScriptSig → ScriptPubKey → Witness → Flags → Ctx → Bool` so workstreams compose.
+6. Coordinate with the block-level analysis on `ConnectBlock`'s fold structure and with the script-interpreter analysis on `VerifyScript`'s interface; freeze the *interface* `VerifyScript : ScriptSig → ScriptPubKey → Witness → Flags → Ctx → Bool` so the layers compose.
 
 ---
 
@@ -330,8 +330,8 @@ All locations @ commit `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`. Difficulty: 1
 | TXV-074 | GetValueOut totality precondition | transaction.cpp:98–108; tx_verify.cpp:197–200 comment | `checkTransaction = ok ⇒ GetValueOut` terminates in range (lemma) | CVE-2010-5139 | 3 |
 | TXV-075 | coin "spent" representation | coins.h (Fresh/Dirty flags, IsSpent) | spent ⇔ absent-from-cache-or-spent-bit; Undo restores on disconnect | — | 3 |
 
-**Row count: 75.** (Brief expected 60+; surplus comes from serialization-as-consensus and sigops accounting rows. Rows TXV-049/051/054 overlap B2's interpreter turf — flagged in Open questions.)
+**Row count: 75.** (The original target was 60+; surplus comes from serialization-as-consensus and sigops accounting rows. Rows TXV-049/051/054 overlap the interpreter analysis — flagged in Open questions.)
 
 ---
 
-*Report by workstream B3 (report ID 07). All file:line citations verified against the cloned tree this session; INFERRED items explicitly marked.*
+*Report 07. All file:line citations verified against the cloned tree; INFERRED items explicitly marked.*

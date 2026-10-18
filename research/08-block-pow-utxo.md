@@ -1,8 +1,8 @@
 # 08 — Block-level consensus: structure, PoW/retarget, chain/UTXO state transition, soft-fork activation, genesis
 
-**Workstream:** B4 / report 08 · **Project:** btc-lean · **Date:** 2026-10-16
+**Report:** 08 · **Project:** btc-lean · **Date:** 2026-10-16
 **Ground truth:** bitcoin/bitcoin cloned at **commit `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`** (master, merged 2026-10-16, "Merge bitcoin/bitcoin#36535: policy: sum package weight in int64_t").
-NOTE: the brief pinned `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`; the actual `--depth 1` clone HEAD at task time was `cce32b168…`. Version: **v32.99** (master, pre-33; `CMakeLists.txt:30-31` `CLIENT_VERSION_MAJOR 32`, `CLIENT_VERSION_MINOR 99`). All `validation.cpp` line numbers below are at this commit.
+NOTE: the originally requested pin was `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`; the actual `--depth 1` clone HEAD was `cce32b168…`. Version: **v32.99** (master, pre-33; `CMakeLists.txt:30-31` `CLIENT_VERSION_MAJOR 32`, `CLIENT_VERSION_MINOR 99`). All `validation.cpp` line numbers below are at this commit.
 
 ---
 
@@ -17,7 +17,7 @@ NOTE: the brief pinned `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`; the actual `-
 7. **Chain selection** is precisely: maximize `nChainWork` (sum of `GetBitsProof(nBits)`, chain.cpp:120 = `~target/(target+1)+1`), tie-break by `nSequenceId` then pointer (node/blockstorage.cpp:174-188). Everything else (candidate set, `m_best_invalid`, failed-block caching) is implementation, spec-able as "invalid blocks may be remembered".
 8. **Genesis** (kernel/chainparams.cpp:47-72, 169-172): mainnet genesis = time 1231006505, nonce 2083236893, bits 0x1d00ffff, coinbase `"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"`, 50 BTC to P2PK of pubkey `04678afd…d5f`. "Genesis state" in code = **empty UTXO set + tip pointer at genesis hash; the 50 BTC output is unspendable-by-omission** (never written to the coin DB; ConnectBlock short-circuits genesis, :2330-2335).
 
-This track carries **the most state** of any workstream; §Implications splits what must be a functional state machine (UTXO map, chainwork, versionbits caches, BIP9 state) vs pure checks.
+This area carries **the most state** of any part of the model; §Implications splits what must be a functional state machine (UTXO map, chainwork, versionbits caches, BIP9 state) vs pure checks.
 
 ---
 
@@ -50,7 +50,7 @@ This track carries **the most state** of any workstream; §Implications splits w
 | K23 | Script flags per block: base = P2SH|WITNESS|TAPROOT always, overridden by `script_flag_exceptions` (BIP16 exception block `0000…02dc…`, taproot exception block `0000…0f14…` on mainnet — both get flags-minus-rule), then DERSIG/CLTV/CSV/NULLDUMMY added when their deployment is active *at this block* | validation.cpp:2249-2278, kernel/chainparams.cpp:113-116 |
 | K24 | BIP34 enforcement chain: version ≥2 rule (ContextualCheckBlockHeader) + coinbase scriptSig **starts with** `CScriptNum(height)` minimal encoding (`bad-cb-height`, ContextualCheckBlock) + it gates BIP30 skipping (ConnectBlock) | validation.cpp:4123-4130, 4163-4171, 2401-2500 |
 | K25 | BIP30: for every tx output, `view.HaveCoin(outpoint)` ⇒ `bad-txns-BIP30`; skipped exactly for blocks 91842/91880 (the two known duplicates) once the chain's block at `BIP34Height` has hash `BIP34Hash`; re-enabled from height 1,983,702 | validation.cpp:2477-2511, 6207-6211 |
-| K26 | Coinbase maturity: spend depth `nSpendHeight − coin.nHeight ≥ 100` (`bad-txns-premature-spend-of-coinbase`). **There is no "negative height" in current code** (brief's phrase appears stale): `Coin::nHeight` is a 31-bit unsigned; the genesis coinbase is unspendable because it is *never added to the coin DB* | consensus/consensus.h:19, consensus/tx_verify.cpp:184-188, coins.h:45-72 |
+| K26 | Coinbase maturity: spend depth `nSpendHeight − coin.nHeight ≥ 100` (`bad-txns-premature-spend-of-coinbase`). **There is no "negative height" in current code** (the earlier description appears stale): `Coin::nHeight` is a 31-bit unsigned; the genesis coinbase is unspendable because it is *never added to the coin DB* | consensus/consensus.h:19, consensus/tx_verify.cpp:184-188, coins.h:45-72 |
 | K27 | Subsidy: `50 COIN >> (height/210000)`, forced 0 when halvings ≥ 64; coinbase total ≤ subsidy + fees (`bad-cb-amount`); fee accumulation must stay in MoneyRange | validation.cpp:1833-1844, 2608-2612, 2543-2548 |
 | K28 | OP_RETURN (unspendable) outputs are **never inserted** into the UTXO set (`AddCoin` early-return) but ARE counted in `DisconnectBlock`'s consistency check only if present — i.e., disconnect skips them symmetrically (`IsUnspendable` guard) | coins.cpp:82, validation.cpp:2214-2227 |
 | K29 | Undo model: `CTxUndo` per non-coinbase tx stores the full previous `Coin` (out + height + coinbase bit) for each spent input; `ApplyTxInUndo` restores; `fClean` tracks "unclean" disconnects (BIP30/edge cases) that force a coins-db rebuild | validation.cpp:2001-2011, 2198-2247, 2204-2212 |
@@ -170,14 +170,14 @@ valid ⇔ decode(nBits) = (target, ok) ∧ ok ∧ target ≠ 0 ∧ target ≤ po
 
 **Rollback model.** `DisconnectBlock` (:2178-2247): undo txs in reverse; for each output **not unspendable**, `SpendCoin` must succeed and the coin must match `{vout, nHeight, fCoinBase}` exactly (mismatch ⇒ `fClean=false` unless BIP30-exception block); then restore inputs from `CTxUndo` via `ApplyTxInUndo`. `DISCONNECT_UNCLEAN` forces a coins-cache flush/rebuild. `DisconnectTip` (:2936) + `ConnectTip` (:3012) implement reorg as disconnect-to-fork then connect-forward; undo data written by `WriteBlockUndo` (required for any future disconnect — pruning drops blocks+undo only above the prune depth).
 
-**Coinbase maturity "negative height":** VERIFIED as *not present in current code* — see K26. The brief's phrase likely refers to the pre-0.15 `CCoins` era; the modern semantics are the plain depth check in `CheckTxInputs` plus `fCoinBase` bit. (The one genuinely negative height in the neighborhood is `nHeight = -1` used for `CBlockIndex` iteration in `ActivateBestChainStep`, unrelated to maturity.)
+**Coinbase maturity "negative height":** VERIFIED as *not present in current code* — see K26. The earlier description likely refers to the pre-0.15 `CCoins` era; the modern semantics are the plain depth check in `CheckTxInputs` plus `fCoinBase` bit. (The one genuinely negative height in the neighborhood is `nHeight = -1` used for `CBlockIndex` iteration in `ActivateBestChainStep`, unrelated to maturity.)
 
 **BIP34 enforcement chain** (three independent legs, all VERIFIED):
 1. block version ≥ 2 (header rule, only when HEIGHTINCB "active", i.e. height ≥ 227931 on mainnet),
 2. coinbase scriptSig prefix = CScriptNum(height) (`bad-cb-height`),
 3. BIP30-skip gating + `BIP34Hash` pin (the *exact* hash at 227931 is also pinned: `000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8`).
 
-**Coins cache vs disk** (CCoinsViewCache/CCoinsViewDB, FRESH/DIRTY entry states, flush heuristics, leveldb, `coinstatsindex`, assumeutxo snapshots): **implementation — out of formal scope** per charter; only the *logical* coins map + undo semantics are consensus.
+**Coins cache vs disk** (CCoinsViewCache/CCoinsViewDB, FRESH/DIRTY entry states, flush heuristics, leveldb, `coinstatsindex`, assumeutxo snapshots): **implementation — out of formal scope**; only the *logical* coins map + undo semantics are consensus.
 
 ### (f) Soft-fork activation — VERIFIED
 
@@ -197,7 +197,7 @@ valid ⇔ decode(nBits) = (target, ok) ∧ ok ∧ target ≠ 0 ∧ target ≤ po
 - BIP34/65/66 additionally have the *block version floor* legs in ContextualCheckBlockHeader (c).
 - testnet: BIP34@21111 (+hash), BIP66@330776, BIP65@581885, CSV@770112, segwit@834624; testnet4/regtest/signet bury at height 0/1 (regtest segwit at **0**).
 
-**Flag flow into script verification per block:** `GetBlockScriptFlags(block_index, chainman)` (validation.cpp:2249-2278) is called once in `ConnectBlock` (:2541) and applied to every non-coinbase tx's `CheckInputScripts`. Flags = base(P2SH|WITNESS|TAPROOT) ⊕ exceptions-by-hash ∪ {DERSIG, CLTV, CSV, NULLDUMMY as deployed}. (WITNESS_SH/NATIVE etc. are inside the interpreter's per-input logic, B5's territory.)
+**Flag flow into script verification per block:** `GetBlockScriptFlags(block_index, chainman)` (validation.cpp:2249-2278) is called once in `ConnectBlock` (:2541) and applied to every non-coinbase tx's `CheckInputScripts`. Flags = base(P2SH|WITNESS|TAPROOT) ⊕ exceptions-by-hash ∪ {DERSIG, CLTV, CSV, NULLDUMMY as deployed}. (WITNESS_SH/NATIVE etc. are inside the interpreter's per-input logic and are covered in the SegWit/Taproot note.)
 
 ### (g) Genesis — VERIFIED (kernel/chainparams.cpp:38-72, 169-172)
 
@@ -214,7 +214,7 @@ Mainnet:
 
 **Tie-breaking (implementation, but deterministic):** equal-work candidates order by `nSequenceId` (blocks on the active chain get the lowest; new blocks higher) then pointer address (node/blockstorage.cpp:174-189). Consensus-wise, equal-work ties are resolved by *whichever was received/connected first* staying tip — a spec may model the tie-break as "stay" without loss.
 
-**Invalid-block caching (`CANDIDATE`/BLOCK_FAILED_VALID):** on a non-mutated consensus failure, the block index entry gets `BLOCK_FAILED_VALID`; descendants are erased from `setBlockIndexCandidates`; `m_best_invalid` remembers the best invalid chain for warning/UI; `duplicate-invalid`/`bad-prevblk` reuse the cache (validation.cpp:4210-4219, 4253-4257, 3650-3676; InvalidateBlock clears flags on unmark). **Spec treatment:** an optional memoization of the verdict function; must not change the extension of "valid chain". Note the CVE-2012-2459 asymmetry (K7/B7): mutated blocks are *not* cached.
+**Invalid-block caching (`CANDIDATE`/BLOCK_FAILED_VALID):** on a non-mutated consensus failure, the block index entry gets `BLOCK_FAILED_VALID`; descendants are erased from `setBlockIndexCandidates`; `m_best_invalid` remembers the best invalid chain for warning/UI; `duplicate-invalid`/`bad-prevblk` reuse the cache (validation.cpp:4210-4219, 4253-4257, 3650-3676; InvalidateBlock clears flags on unmark). **Spec treatment:** an optional memoization of the verdict function; must not change the extension of "valid chain". Note the CVE-2012-2459 asymmetry (K7): mutated blocks are *not* cached.
 
 **Most-work vs "first-seen":** Core implements Nakamoto's rule exactly (most accumulated work), not "longest chain". `nMinimumChainWork` and the headers-sync `min_pow_checked` gate are DoS policy — out of consensus scope.
 
@@ -222,7 +222,7 @@ Mainnet:
 
 ## Implications for btc-lean (state-machine vs pure checks)
 
-This track contributes the **largest stateful core** of the 16 workstreams. Recommended decomposition:
+This area contributes the **largest stateful core** in the model. Recommended decomposition:
 
 **A. Pure total functions (easy, prove-first):**
 - nBits decode/encode (`SetCompact`/`GetCompact`) — small, decidable, ideal for `BitVec`-based Lean defs and property tests vs Core's unit vectors (`test/arith_uint256_tests.cpp`).
@@ -234,7 +234,7 @@ This track contributes the **largest stateful core** of the 16 workstreams. Reco
 **B. Pure predicates over (header, context) — still stateless in the Lean sense once context is a parameter:**
 - `CheckBlockHeader`, `CheckBlock` (parameterized by `pow_ok`, `merkle_ok`), `ContextualCheckBlockHeader(h, prev_index_summary)`, `ContextualCheckBlock(b, prev, activations)` — context can be modeled as a *record* `{height, mtp, nBits_next, activations_at, now_bounded_time}` so no pointer-forest (`CBlockIndex`) is needed in the spec.
 
-**C. Functional state machines (the real state — flag for C1/C4):**
+**C. Functional state machines (the real state):**
 1. **UTXO set**: `State = OutPoint ⇀ Coin`; step = `connect_block : State × Block → Option (State × Undo)`; `disconnect_block : State × Block × Undo → Option State` (+ `clean` flag). Theorems: `disconnect ∘ connect = id` (the undo lemma, mirroring `DISCONNECT_OK`), value conservation per block (fees+subsidy), no-creation-without-coinbase, BIP30 injectivity (outputs unique in `State`).
 2. **Chainwork/selection**: `nChainWork` fold + argmax with the "stay on tie" tie-break; theorem: active chain is the max-work chain among candidate extensions.
 3. **BIP9 activation**: an explicit five-state machine indexed by period; the lock-in-on-timeout ordering (K20) is a spec-level subtlety; define `DeploymentActiveAt` for buried forks as `height ≥ h` and prove the BIP9 machine with `nStartTime = ALWAYS_ACTIVE` *equals* the buried semantics (nice bridge theorem).
@@ -242,7 +242,7 @@ This track contributes the **largest stateful core** of the 16 workstreams. Reco
 
 **D. Wall-clock taint:** `time-too-new` (MAX_FUTURE_BLOCK_TIME) is the *only* accept/reject rule that depends on the validating node's clock. Options: (i) model as `time ≤ T_now + 7200` with `T_now` universally quantified and prove monotone-in-history properties; (ii) treat as liveness/relay rule, not consensus (a block rejected at T may be accepted at T+1h — Core itself relies on this, hence blocks never become *invalidated* by it, only `BLOCK_TIME_FUTURE` deferred). Recommend (i)+document.
 
-**E. Genesis as an axiom-free constant:** build the genesis block *by computation* in Lean (SHA-256 tower from C2) and state `genesis_hash = 0x…ce26f` as a theorem, not an axiom — this doubles as the first end-to-end conformance test.
+**E. Genesis as an axiom-free constant:** build the genesis block *by computation* in Lean (SHA-256 tower from the crypto layer) and state `genesis_hash = 0x…ce26f` as a theorem, not an axiom — this doubles as the first end-to-end conformance test.
 
 **F. Rule-ID prerequisites:** the CVE-2012-2459 `mutated` flag, the BIP30 height/hash pair set, the script-flag exception table, and `BIP34_IMPLIES_BIP30_LIMIT` must be *parameters* of the spec (network profile record), mirroring `Consensus::Params` — do not hardcode mainnet in the rules.
 
@@ -255,7 +255,7 @@ This track contributes the **largest stateful core** of the 16 workstreams. Reco
 3. **BIP30/BIP34 constant soup** — 4 hardcoded hashes (91722/91812 disconnect pair, 91842/91880 repeat pair) + BIP34Hash + BIP34_IMPLIES_BIP30_LIMIT=1983702. Low risk, but every one is a mandatory constant in the network profile; missing one breaks historical replay from block ~91k. LOW.
 4. **The `m_checked_*` / `fChecked` caching flags in `CBlock`** — validation *ordering* effects (e.g., witness-malleability checks deliberately deferred to ContextualCheckBlock so a corrupted block isn't cached invalid) are observable in failure *classification* (BLOCK_MUTATED vs BLOCK_CONSENSUS) but not in the validity predicate itself. Spec should classify failures the same way if we want rule-level conformance with Core's `reject reason` strings. MEDIUM.
 5. **`IsBlockMutated`'s 64-byte tx rule** is relay/mining-path only (not `CheckBlock`); if btc-lean models the p2p boundary at all this must be parked outside consensus. LOW.
-6. **SegWit "optional commitment"**: a pre-activation-height block *with* a valid commitment is fine; a block *without* commitment must have no witnesses. The interaction is only fully specified by reading `CheckWitnessMalleation`'s both branches — B5 should own the definitive write-up. LOW-MED (hand-off).
+6. **SegWit "optional commitment"**: a pre-activation-height block *with* a valid commitment is fine; a block *without* commitment must have no witnesses. The interaction is only fully specified by reading `CheckWitnessMalleation`'s both branches — the SegWit/Taproot note should own the definitive write-up. LOW-MED (hand-off).
 7. **Genesis-coinbase unspendability is *positional*, not a rule**: "the coinbase of the genesis block cannot be spent" is emergent (never added to the coin DB). A spec that instead adds it at height 0 and then needs an ad-hoc unspendable flag would diverge from Core's model — recommend modeling ∅-UTXO at genesis and *proving* the 50 BTC output never enters the set. LOW.
 8. **`assert`s as consensus checks**: `ConnectBlock` asserts (`hashPrevBlock == view.GetBestBlock()`, undo counts) are invariant guards, not rules; a total-functional spec converts them to hypotheses. Note in theorem statements. LOW.
 
@@ -264,12 +264,12 @@ This track contributes the **largest stateful core** of the 16 workstreams. Reco
 ## Recommendations
 
 1. **Adopt Core's 4-layer decomposition verbatim** as the Lean module structure: `BlockHeader.lean` (structure+PoW), `Block.lean` (stateless), `BlockContext.lean` (header/contextual), `Connect.lean` (UTXO state machine). One Lean definition per Core function, same name.
-2. **Milestone order**: (1) nBits+PoW+merkle (pure), (2) retarget trio, (3) CheckBlock/Contextual predicates, (4) UTXO connect/disconnect + undo-isomorphism theorem, (5) BIP9 machine + buried lookup, (6) genesis-by-computation, (7) chain selection. Items (1)–(3) are M1-achievable and give immediate conformance tests vs Core's `test/functional/mining_*.py` and `p2p_segwit.py` vectors.
+2. **Milestone order**: (1) nBits+PoW+merkle (pure), (2) retarget trio, (3) CheckBlock/Contextual predicates, (4) UTXO connect/disconnect + undo-isomorphism theorem, (5) BIP9 machine + buried lookup, (6) genesis-by-computation, (7) chain selection. Items (1)–(3) are achievable in the first milestone and give immediate conformance tests vs Core's `test/functional/mining_*.py` and `p2p_segwit.py` vectors.
 3. **Model context as a record, not the `CBlockIndex` forest** — collapses ~30% of validation.cpp complexity with zero rule loss (the forest is a performance structure; see K31/K32 for what leaks into consensus: only `nHeight`, `MTP`, `nBits_next`, `nChainWork`, ancestor hashes).
 4. **Make `mutated` a first-class result** of merkle computation (as Core does) so CVE-2012-2459's "don't cache invalid" asymmetry is representable.
 5. **Keep the network-profile record** (`Consensus::Params` mirror) as a Lean parameter from day one; mainnet values are one instance; testnet4/BIP94 and regtest come nearly free and serve as differential tests.
-6. **Escalate to B5**: witness-commitment details and NULLDUMMY/WITNESS flag interactions; **to B3**: `CheckTransaction`/`CheckTxInputs`/BIP68 details (referenced here only as block-context call sites).
-7. **File the wall-clock question** with D2 (formality ladder): decide whether `now` is axiomatized, quantified, or modeled as an environment cell (KEVM-style) before M2.
+6. **Hand off**: witness-commitment details and NULLDUMMY/WITNESS flag interactions belong with the SegWit/Taproot note; `CheckTransaction`/`CheckTxInputs`/BIP68 details belong with the transaction-validation note (referenced here only as block-context call sites).
+7. **Record the wall-clock question** for the formality-ladder decision: decide whether `now` is axiomatized, quantified, or modeled as an environment cell (KEVM-style) before the second milestone.
 
 ---
 
@@ -297,7 +297,7 @@ Primary source files (cloned at bitcoin/bitcoin):
 - `src/chain.h` — `CBlockIndex` (`nChainWork`, `nStatus`, `GetAncestor`).
 - `src/index/coinstatsindex.cpp` :129/357 — BIP30-unspendable usage.
 
-BIP/CVE references used: BIP22/23 (context), BIP30, BIP34, BIP65, BIP66, BIP68/112/113, BIP90, BIP94, BIP9, BIP141/144/147 (commitment parts; deep-dive in B5), BIP16 (exception), CVE-2012-2459, CVE-2018-17144, CVE-2010-5139, CVE-2012-1909 (BIP30), timewarp (PR 15482 / BIP94), merkle-weaknesses paper (lists.linuxfoundation.org 2019 attachment, cited in `IsBlockMutated`).
+BIP/CVE references used: BIP22/23 (context), BIP30, BIP34, BIP65, BIP66, BIP68/112/113, BIP90, BIP94, BIP9, BIP141/144/147 (commitment parts; deep dive in the SegWit/Taproot note), BIP16 (exception), CVE-2012-2459, CVE-2018-17144, CVE-2010-5139, CVE-2012-1909 (BIP30), timewarp (PR 15482 / BIP94), merkle-weaknesses paper (lists.linuxfoundation.org 2019 attachment, cited in `IsBlockMutated`).
 
 ## Appendix B — THE BLOCK RULE TABLE
 
@@ -446,7 +446,7 @@ Locations `file:function:lines` @`cce32b1682d…` (validation.cpp = V, consensus
 **VERIFIED (read directly from source at `cce32b1682d…`):** every file:line citation above; all constants (4M weight, 80k sigops, 100 maturity, 7200 future time, 600 timewarp, 2016 window, ×/4–×4 clamp, 11-block MTP, 210000 halving); all four historic BIP30 block hashes and heights; mainnet genesis tuple; the single-deployment BIP9 table; the exception-block hashes; `AddCoin` OP_RETURN exclusion; the lock-in-before-timeout ordering.
 
 **INFERRED (marked where used):**
-- The brief's "coinbase-maturity negative height" does not exist in current code (K26) — inferred as a stale reference to pre-0.15 `CCoins`.
+- The "coinbase-maturity negative height" claim does not exist in current code (K26) — inferred as a stale reference to pre-0.15 `CCoins`.
 - "Early-days difficulty-1 exception" — none in current `pow.cpp`; the genesis/powLimit identity is the only difficulty-1 specialness; historical v0.1 anomalies inferred from chain history, not source.
 - Tie-break-by-pointer being non-consensus-observable (it is deterministic given receive order, which consensus doesn't specify).
 - Exact upstream PR/BIP-erratum attribution for lock-in-on-timeout (behavior VERIFIED in code; the erratum label is from BIP9 history).
