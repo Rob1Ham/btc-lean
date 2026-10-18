@@ -1,11 +1,10 @@
 import Bitcoin.Script.Parser.Interface
 
 /-!
-# BitcoinProofs.Theorems.ParserCor — W15: parser-layer corollaries (sorry-free)
+# BitcoinProofs.Theorems.ParserCor — parser-layer corollaries (sorry-free)
 
-Corollaries of W05's proved parser laws (`Bitcoin.Script.Parser`,
-`research/w2-05-script-parser.md`). Zero-dependency: imports only the
-`core` package.
+Corollaries of proved parser laws (`Bitcoin.Script.Parser`).
+Zero-dependency: imports only the `core` package.
 
 C4 portfolio linkage:
 
@@ -18,7 +17,7 @@ C4 portfolio linkage:
 | THM-027p| `parseScript_shape` | every opcode a successful parse returns satisfies `opcodeShape` |
 | THM-009p| `parseScript_roundtrip_fuel` | roundtrip holds at ANY fuel ≥ size+1, not just the canonical one |
 
-Dependencies: W05's `parseFrom_mono`, `parseFrom_none_trunc`, `parseFrom_shape`,
+Dependencies: `parseFrom_mono`, `parseFrom_none_trunc`, `parseFrom_shape`,
 `parseFrom_roundtrip`, `getOp_spec` (all sorry-free in `Bitcoin.Script.Parser.Defs`).
 -/
 
@@ -105,8 +104,7 @@ theorem parseScript_none_truncation (s : Script) (h : parseScript s = none) :
   parseFrom_none_trunc _ s.bytes 0 (by omega) (by omega) h
 
 /-- THM-009p: roundtrip at any sufficient fuel — parsing the printed form
-of a well-formed opcode list recovers it at EVERY fuel ≥ size + 1 (W05's
-`parse_serialize_roundtrip` pinned at the canonical fuel; this extends it
+of a well-formed opcode list recovers it at EVERY fuel ≥ size + 1 (`parse_serialize_roundtrip` pinned at the canonical fuel; this extends it
 via `parseScript_fuel_indep`). -/
 theorem parseScript_roundtrip_fuel (ops : List Opcode) (f : Nat)
     (h : ∀ o ∈ ops, opcodeWF o) (hf : (serializeOpcodes ops).size + 1 ≤ f) :

@@ -4,10 +4,10 @@ import Bitcoin.Capstone.Block
 # BitcoinProofs.Theorems.CapstoneWiringCor — P10: the proved checker-wiring spec (sorry-free)
 
 Theorems about THE seam of the capstone pipeline (`Bitcoin.Capstone.Block`):
-where W14b's real ECDSA verifier, W11's sighash, W13's checker adapters and
-W09's interpreter meet, and where the Taproot unjudged lane is decided
+where the real ECDSA verifier, sighash, checker adapters and
+interpreter meet, and where the Taproot unjudged lane is decided
 (`verifyInput`'s `isTaprootProgram` gate, decided BEFORE the checker —
-W17 report §3's documented per-input assume-valid for v1 witness programs).
+report §3's documented per-input assume-valid for v1 witness programs).
 
 Every statement below is proved from the interfaces alone (no `sorry`, no
 `native_decide`): the lane gate is a pure `Bool` test, the checker record is
@@ -23,14 +23,14 @@ C4 portfolio linkage:
 | (BLK wiring) | `verifyInput_fail_shape` | an adjudicated failure is ALWAYS `CapError.scriptFail txIdx inputIdx e` with the caller's indices |
 | (BLK wiring) | `verifyInput_trichotomy` / `verifyInput_exclusive` | `verifyInput` is a decidable total function returning exactly one of the three constructors |
 | (BLK wiring) | `verifyInput_eq_unjudged` | away from the gate, `verifyInput` is literally the 3-way match on `verifyScriptFull` at the documented fuel |
-| (W13 wiring) | `realCheckerOf_*` | the checker record is pure: env fields are projections of `(tx, nIn)`, the Schnorr slot is fail-closed, the ECDSA entry is execData-independent and pops the hashtype into W14b's `verifyImpl` over W11's dispatch |
+| (wiring) | `realCheckerOf_*` | the checker record is pure: env fields are projections of `(tx, nIn)`, the Schnorr slot is fail-closed, the ECDSA entry is execData-independent and pops the hashtype into `verifyImpl` over dispatch |
 | (fuel) | `fuel_bound` / `fuel_bound_witness_item` | `verifyInput`'s fuel = ss.size + spk.size + witness bytes + 10 ≥ ss.size + spk.size (each opcode consumes ≥ 1 wire byte) |
 
 Axiom footprints (audited with `#print axioms` in a scratch file):
 all theorems here are `sorryAx`-free. The `Classical.choice` in most
 footprints is inherited from the core layer below (a bare `rfl` about
 `realCheckerOf` already carries it — it enters through the seam/record
-definitions' kernel-unfolding, exactly like W15's `InterpCor` theorems
+definitions' kernel-unfolding, exactly like `InterpCor` theorems
 over the same interpreter layer); no theorem here USES choice beyond
 what the core unfolds to.
 
@@ -93,8 +93,8 @@ private theorem getD_eq_get {α : Type} {l : List α} {i : Nat} {d : α}
 /-- **The unjudged lane is decided BEFORE the checker**: whenever the spent
 coin's scriptPubKey is a v1-witness (Taproot) program, `verifyInput`
 returns `unjudgedTaproot` without ever running `verifyScriptFull` — and
-therefore without ever reaching W13's fail-closed Schnorr entry. This is
-the per-input form of W17's leakage-freedom statement: the only inputs
+therefore without ever reaching fail-closed Schnorr entry. This is
+the per-input form of leakage-freedom statement: the only inputs
 not fully adjudicated are exactly the ones this gate catches. -/
 theorem verifyInput_taproot_lane (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
     (txIdx inputIdx : Nat)
@@ -113,7 +113,7 @@ theorem isTaprootProgram_none_false (spk : ByteArray)
   rw [h]
 
 /-- **SCR-053 corollary**: a v0 witness program is not a Taproot program —
-v0 P2WPKH/P2WSH coins stay on the fully-adjudicated W09/W11/W14b path. -/
+v0 P2WPKH/P2WSH coins stay on the fully-adjudicated path. -/
 theorem isTaprootProgram_v0_false (spk prog : ByteArray)
     (h : isWitnessProgram spk = some (0, prog)) :
     isTaprootProgram spk = false := by
@@ -139,7 +139,7 @@ theorem verifyInput_taproot_not_pass (height : UInt32) (tx : Tx) (i : Nat) (coin
   simp
 
 /-- The unjudged lane is NOT an adjudicated failure either: taking it can
-never throw `CapError.scriptFail` (W17's "does not gate the block verdict"). -/
+never throw `CapError.scriptFail` ("does not gate the block verdict"). -/
 theorem verifyInput_taproot_not_fail (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
     (txIdx inputIdx : Nat) (e : CapError)
     (h : isTaprootProgram coin.scriptPubKey.bytes = true) :
@@ -222,11 +222,11 @@ theorem verifyInput_not_pass_unjudged_or_fail (height : UInt32) (tx : Tx) (i : N
     exact Or.inr ⟨ee, he⟩
 
 /-- Unfolding lemma for the non-gated branch with the input IN RANGE
-(every real input is — W10/W12 check vin indices): away from the lane
+(every real input is — the module checks vin indices): away from the lane
 gate, `verifyInput` is literally a three-way match on `verifyScriptFull`
-at the documented fuel (`ss.size + spk.size + witness bytes + 10`), W06's
+at the documented fuel (`ss.size + spk.size + witness bytes + 10`),
 `getBlockScriptFlags`, default policy, and the REAL checker wiring
-(W13 adapter × W14b `verifyImpl` × W11 dispatch). -/
+(adapter × `verifyImpl` × dispatch). -/
 theorem verifyInput_eq_unjudged (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
     (txIdx inputIdx : Nat)
     (hgate : isTaprootProgram coin.scriptPubKey.bytes = false)
@@ -280,9 +280,9 @@ theorem realCheckerOf_env_sequence_inRange (tx : Tx) (nIn : Nat) (amount : Amoun
   unfold realCheckerOf
   rw [getD_eq_get h]
 
-/-- **The Review-3 slot is fail-closed**: through the capstone wiring, NO
+/-- **The slot is fail-closed**: through the capstone wiring, NO
 Schnorr signature can ever verify (`checkSchnorrSignature ≡ false`) —
-this is precisely why W17 routes v1-witness inputs to the unjudged lane
+this is precisely why routes v1-witness inputs to the unjudged lane
 instead of letting them fail. -/
 theorem realCheckerOf_schnorr_failclosed (tx : Tx) (nIn : Nat) (amount : Amount)
     (sig pk : ByteArray) (v : SigVersion) (d : ScriptExecutionData) :
@@ -298,22 +298,22 @@ theorem realCheckerOf_ecdsa_execData_indep (tx : Tx) (nIn : Nat) (amount : Amoun
   ecdsaEntry_execData_independent verifyImpl (sighashDispatch tx nIn amount) true
     sig pk code v d₁ d₂
 
-/-- The ECDSA entry point of the real checker, fully unfolded: W14b's
-`verifyImpl` behind W13's `ecdsaVerdict` gates, on W11's dispatched
+/-- The ECDSA entry point of the real checker, fully unfolded:
+`verifyImpl` behind `ecdsaVerdict` gates, on dispatched
 sighash, with `hasAmount = true`. -/
 theorem realCheckerOf_ecdsa_def (tx : Tx) (nIn : Nat) (amount : Amount)
     (sig pk code : ByteArray) (v : SigVersion) (d : ScriptExecutionData) :
     (realCheckerOf tx nIn amount).base.checkECDSASignature sig pk code v d
       = ecdsaVerdict verifyImpl (sighashDispatch tx nIn amount) true v sig pk code := rfl
 
-/-- W11 dispatch, witness lane: `WITNESS_V0 → SignatureHashBIP143`
+/-- dispatch, witness lane: `WITNESS_V0 → SignatureHashBIP143`
 (interpreter.cpp:1718-1722), amount-carrying. -/
 theorem sighashDispatch_witnessV0 (tx : Tx) (nIn : Nat) (amount : Amount)
     (code : ByteArray) (ht : UInt8) :
     sighashDispatch tx nIn amount code ht SigVersion.witnessV0
       = signatureHashBip143 tx nIn ⟨code⟩ (htToU32 ht) amount := rfl
 
-/-- W11 dispatch, legacy lane: every non-witness sigversion uses the
+/-- dispatch, legacy lane: every non-witness sigversion uses the
 legacy `SignatureHash`. -/
 theorem sighashDispatch_legacy (tx : Tx) (nIn : Nat) (amount : Amount)
     (code : ByteArray) (ht : UInt8) (v : SigVersion) (hv : v ≠ SigVersion.witnessV0) :
@@ -327,8 +327,8 @@ theorem sighashDispatch_legacy (tx : Tx) (nIn : Nat) (amount : Amount)
   | tapscript => rfl
 
 /-- **SWT-053 through the real wiring**: for a well-formed call (valid
-pubkey, nonempty signature) the real checker hands W14b's `verifyImpl`
-EXACTLY `sig` minus its trailing hashtype byte, hashed with W11's
+pubkey, nonempty signature) the real checker hands `verifyImpl`
+EXACTLY `sig` minus its trailing hashtype byte, hashed with
 dispatch on exactly the popped byte (interpreter.cpp:1707-1712). -/
 theorem realCheckerOf_ecdsa_pops_hashtype (tx : Tx) (nIn : Nat) (amount : Amount)
     (sig pk code : ByteArray) (v : SigVersion) (d : ScriptExecutionData)
@@ -340,7 +340,7 @@ theorem realCheckerOf_ecdsa_pops_hashtype (tx : Tx) (nIn : Nat) (amount : Amount
     sig pk code v d hpk hne (fun _ => rfl)
 
 /-- **SWT-054 through the real wiring**: an empty signature fails closed
-before any EC math — W14b's verifier is never reached. -/
+before any EC math — verifier is never reached. -/
 theorem realCheckerOf_ecdsa_empty_sig_false (tx : Tx) (nIn : Nat) (amount : Amount)
     (pk code : ByteArray) (v : SigVersion) (d : ScriptExecutionData) :
     (realCheckerOf tx nIn amount).base.checkECDSASignature

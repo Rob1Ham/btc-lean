@@ -1,11 +1,11 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneTxidCor — W17/P06: proved txid-keying spec (sorry-free)
+# BitcoinProofs.Theorems.CapstoneTxidCor — P06: proved txid-keying spec (sorry-free)
 
-The W17 capstone run keyed the ledger fold by the REAL txid:
+The capstone run keyed the ledger fold by the REAL txid:
 `Bitcoin.Capstone.Block.txidKey tx = fun _ k ⇒ ⟨txidOf tx, k⟩` (BLK-005),
-replacing W12's test placeholder `Bitcoin.Ledger.txidPreimageKey tx =
+replacing test placeholder `Bitcoin.Ledger.txidPreimageKey tx =
 fun _ k ⇒ ⟨serTx tx, k⟩` (the preimage itself in the hash slot). This
 module turns that runtime keying choice into proved statements, all at
 the Capstone surface (`Bitcoin.Capstone.Merkle.txidOf`/`wtxidOf`,
@@ -26,20 +26,20 @@ C4 portfolio linkage:
 | C4 ID / rule | theorem here | statement (short) |
 |--------------|--------------|-------------------|
 | BLK-005 | `txidOf_eq_dsha256_serTx`, `txidKey_eq`, `txidKey_eq_dsha` | txid = SHA256d(serTx); the ledger key applies it: `txidKey tx v k = ⟨txidOf tx, k⟩` |
-| BLK-005 (keying vs W12) | `txidKey_placeholder_index_agrees`, `txidKey_placeholder_hash_chain`, `txidKey_agrees_placeholder_of_txid_eq_preimage`, `txidKey_placeholder_differ_example` | keys agree on `n`; hash slot related by `sha256d`; NOT equal in general (concrete counterexample) |
+| BLK-005 (keying vs) | `txidKey_placeholder_index_agrees`, `txidKey_placeholder_hash_chain`, `txidKey_agrees_placeholder_of_txid_eq_preimage`, `txidKey_placeholder_differ_example` | keys agree on `n`; hash slot related by `sha256d`; NOT equal in general (concrete counterexample) |
 | BLK-005 (BIP30, 91842/91880) | `txidOf_congr`, `txidKey_congr`, `bip30_collision_same_txid` | same base serialization ⇒ same txid ⇒ same key ⇒ identical addedCoins ⇒ the BIP30 duplicate-coinbase collision fires |
-| BLK-006 | `wtxidOf_eq_txidOf_of_no_witness`, `wtxidOf_eq_dsha256_encodeTx_of_hasWitness`, `wtxidOf_eq_datalaws_wtxid` | wtxid = txid verbatim when no witness; = SHA256d(encodeTx) otherwise; bridge to W03's `DataLaws.wtxid` |
-| TXV-017 cor | `serTx_witness_independence`, `txidOf_witness_independence`, `txidKey_witness_independence`, `hasWitness_datalaws_eq` | witness data never touches the txid or the key (corollary of W03's `DataLaws.txid_witness_independence`) |
+| BLK-006 | `wtxidOf_eq_txidOf_of_no_witness`, `wtxidOf_eq_dsha256_encodeTx_of_hasWitness`, `wtxidOf_eq_datalaws_wtxid` | wtxid = txid verbatim when no witness; = SHA256d(encodeTx) otherwise; bridge to `DataLaws.wtxid` |
+| TXV-017 cor | `serTx_witness_independence`, `txidOf_witness_independence`, `txidKey_witness_independence`, `hasWitness_datalaws_eq` | witness data never touches the txid or the key (corollary of `DataLaws.txid_witness_independence`) |
 | BLK-102 / INV-111 (fold) | `txidKey_ofNat_inj`, `addedCoins_txidKey_lookup`, `coinbase_coin_keyed_by_txid`, `no_double_spend_txidKey` | the fold inserts/looks up coins at outpoints `⟨txidOf tx, j⟩` — the REAL txid, on the nose |
 
 Axiom footprints (verified by the `#guard_msgs` pins at the bottom):
 all theorems land in `[propext, Quot.sound]` or smaller; none pulls
-`sorryAx` (W13's `sha256d` is real) or `Classical.choice`.
+`sorryAx` (`sha256d` is real) or `Classical.choice`.
 
 Dependencies: `Bitcoin.Capstone.Block` (which transitively carries
 `Bitcoin.Capstone.Merkle`, `Bitcoin.Ledger.Interface`, `Bitcoin.DataLaws`,
 `Bitcoin.Serialization.Interface`), plus `Bitcoin.DataLaws.
-txid_witness_independence` as the W03 bridge.
+txid_witness_independence` as the bridge.
 -/
 
 namespace BitcoinProofs.Theorems.CapstoneTxid
@@ -51,21 +51,21 @@ open Bitcoin.Capstone.Merkle Bitcoin.Capstone.Block
 /-! ## §1. BLK-005 unfold pins: the Capstone txid surface -/
 
 /-- **BLK-005** unfold: the Capstone txid is `SHA256d` of the base
-(no-witness) serialization — the same pipeline as W03's `DataLaws.txid`
-(`Bitcoin.DataLaws.txid_eq_dsha256_serTx` at the W03 surface). -/
+(no-witness) serialization — the same pipeline as `DataLaws.txid`
+(`Bitcoin.DataLaws.txid_eq_dsha256_serTx` at the surface). -/
 theorem txidOf_eq_dsha256_serTx (tx : Tx) : txidOf tx = sha256d (serTx tx) := rfl
 
-/-- The Capstone txid IS W03's `DataLaws.txid` (definitional link between
+/-- The Capstone txid IS `DataLaws.txid` (definitional link between
 the BLK-005 merkle-leaf function and the TXV-017 data law). -/
 theorem txidOf_eq_datalaws_txid (tx : Tx) : txidOf tx = Bitcoin.DataLaws.txid tx := rfl
 
-/-- **BLK-005 keying, point form**: the W17 ledger key applied to
+/-- **BLK-005 keying, point form**: the ledger key applied to
 `(v, k)` is the outpoint whose hash is the REAL txid and whose index is
 `k`. -/
 theorem txidKey_eq (tx : Tx) (v : OutPoint) (k : UInt32) :
     txidKey tx v k = ⟨txidOf tx, k⟩ := rfl
 
-/-- The W12 placeholder key applied to `(v, k)`: the outpoint whose hash
+/-- The placeholder key applied to `(v, k)`: the outpoint whose hash
 is the base serialization itself (the txid *preimage*). -/
 theorem txidPreimageKey_eq (tx : Tx) (v : OutPoint) (k : UInt32) :
     txidPreimageKey tx v k = ⟨serTx tx, k⟩ := rfl
@@ -96,9 +96,9 @@ theorem wtxidOf_eq_dsha256_encodeTx_of_hasWitness (tx : Tx)
   rw [h]
   rfl
 
-/-- Bridge to W03: `wtxidOf` (Capstone surface) is `DataLaws.wtxid`
-(TXV-018) whenever the two `hasWitness` predicates agree and W02's
-`encodeTx` matches W03's `serTxWithWitness`. The `hasWitness` predicates
+/-- Bridge to `wtxidOf` (Capstone surface) is `DataLaws.wtxid`
+(TXV-018) whenever the two `hasWitness` predicates agree and
+`encodeTx` matches `serTxWithWitness`. The `hasWitness` predicates
 differ only in how they pad absent witness slots (range-over-`vin` with
 `getD`-defaults vs `.any` over the witness list) — see
 `hasWitness_datalaws_eq` for the wire-domain agreement. -/
@@ -111,7 +111,7 @@ theorem wtxidOf_eq_datalaws_wtxid (tx : Tx)
   rfl
 
 /-- On the wire domain (one witness slot per input, absent slots empty)
-W03's `hasWitness` (`.any` over the witness list) and W02's `hasWitness`
+`hasWitness` (`.any` over the witness list) and `hasWitness`
 (range over `vin` with `getD` padding) agree exactly. -/
 theorem hasWitness_datalaws_eq (tx : Tx) (hlen : tx.witness.length ≤ tx.vin.length) :
     Bitcoin.DataLaws.hasWitness tx = Bitcoin.Serialization.hasWitness tx := by
@@ -156,7 +156,7 @@ theorem serTx_witness_independence (tx : Tx) (w : List WitnessStack) :
     serTx { tx with witness := w } = serTx tx := rfl
 
 /-- TXV-017 corollary at the Capstone surface: `txidOf` ignores the
-witness — a corollary of W03's `Bitcoin.DataLaws.txid_witness_independence`
+witness — a corollary of `Bitcoin.DataLaws.txid_witness_independence`
 (`txid {tx with witness := w} = txid tx`), transferred through the
 definitional link `txidOf = DataLaws.txid`. -/
 theorem txidOf_witness_independence (tx : Tx) (w : List WitnessStack) :
@@ -171,7 +171,7 @@ theorem txidKey_witness_independence (tx : Tx) (w : List WitnessStack)
     txidKey { tx with witness := w } v k = txidKey tx v k := by
   rw [txidKey_eq, txidKey_eq, txidOf_witness_independence]
 
-/-! ## §4. Keying vs W12's placeholder: the honest hash-chain bridge -/
+/-! ## §4. Keying vs placeholder: the honest hash-chain bridge -/
 
 /-- The two keys agree on the index component — for EVERY tx, witness or
 not (both keys pass the output index through untouched). -/
@@ -179,7 +179,7 @@ theorem txidKey_placeholder_index_agrees (tx : Tx) (v : OutPoint) (k : UInt32) :
     (txidKey tx v k).n = (txidPreimageKey tx v k).n := rfl
 
 /-- The honest hash-chain bridge: the txid-keyed key's hash slot is
-exactly `sha256d` of the placeholder key's hash slot. (W12's key-generic
+exactly `sha256d` of the placeholder key's hash slot. (key-generic
 fold theorems transfer: any property proved for an arbitrary `Key` holds
 at `txidKey`; where the placeholder's *byte identity* matters, the
 transfer goes through this chain, not through key equality.) -/
@@ -217,7 +217,7 @@ theorem txidKey_placeholder_differ_example (v : OutPoint) (k : UInt32) :
 /-! ## §5. BIP30 mechanism: same txid ⇒ same key ⇒ same coins -/
 
 /-- Equal base serializations give equal txids (the sha256d congruence
-half of BLK-005; W03's `DataLaws.txid_congr` at the Capstone surface). -/
+half of BLK-005; `DataLaws.txid_congr` at the Capstone surface). -/
 theorem txidOf_congr (a b : Tx) (h : serTx a = serTx b) : txidOf a = txidOf b :=
   congrArg sha256d h
 
@@ -288,7 +288,7 @@ theorem addedCoins_txidKey_lookup (tx : Tx) (height : UInt32) (j : Nat)
     (fun i k hi hk hcon => txidKey_ofNat_inj tx (by omega) (by omega) hcon)
 
 /-- **THE TXID-KEYING THEOREM (BLK-005 × BLK-102)**: connecting a lone
-coinbase to the EMPTY view under the W17 key succeeds, and the coin it
+coinbase to the EMPTY view under the key succeeds, and the coin it
 creates sits at the outpoint keyed by the coinbase's REAL txid — with
 the connection height and the coinbase bit, on the nose. This is the
 proved form of what the capstone run observed for the genesis anchor
@@ -345,8 +345,8 @@ theorem coinbase_coin_keyed_by_txid (cb : Tx) (height : UInt32)
       (fun i k hi hk hcon => txidKey_ofNat_inj cb (by omega) (by omega) hcon)]
     simp [hcb]
 
-/-- W12's INV-110 block form transfers to the Capstone key verbatim
-(W12's fold theorems quantify key-generically over `kf : Tx → Key`, and
+/-- INV-110 block form transfers to the Capstone key verbatim
+(fold theorems quantify key-generically over `kf : Tx → Key`, and
 `txidKey` is a `Tx → Key`): a succeeding txid-keyed fold never
 double-spends a coin that is absent from the starting view and never
 re-created. -/

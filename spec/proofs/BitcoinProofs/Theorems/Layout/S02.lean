@@ -5,7 +5,7 @@ import Bitcoin.Capstone.Pow
 /-!
 # BitcoinProofs.Theorems.Layout.S02 — 80-byte block-header byte-map
 
-Layout tier (S02, Review-6). Ground truth: the header wire form of
+Layout tier (S02). Ground truth: the header wire form of
 `spec/core/Bitcoin/Serialization/Interface.lean` `encHeaderL`
 (primitives/block.h `CBlockHeader` SERIALIZE_METHODS @c50817f) and
 `Bitcoin.Capstone.Pow.headerHash` (BLK-003, `GetHash`).
@@ -21,7 +21,7 @@ The six-field byte map, all fields little-endian:
 | 72..76 | 4    | `nBits`         | `encU32L` |
 | 76..80 | 4    | `nNonce`        | `encU32L` |
 
-VERIFIED below (sorry-free; axiom pins in scratch/S02/axioms.txt):
+VERIFIED below (sorry-free; axiom pins in `axioms.txt`):
 
 * the six take/drop byte-map theorems + total length 80 (`headerLen`);
 * `headerHash_dsha` — `headerHash h = sha256d (bytesOfList (encHeaderL h))`
@@ -32,7 +32,7 @@ VERIFIED below (sorry-free; axiom pins in scratch/S02/axioms.txt):
 * genesis pins: `encHeaderL genesisHeader` is the literal 80-byte
   genesis wire form, byte for byte.
 
-python3 cross-check (2026-10-16, scratch/S02/crosscheck.py): a faithful
+python3 cross-check (2026-10-16, `crosscheck.py`): a faithful
 python mirror of `encU32L`/`encHeaderL`/`encCSL`/sha256d asserts every
 offset slice above, the all-LE round-decode of each field, and
 `sha256d(genesis wire).reverse` = the canonical display hash
@@ -199,7 +199,7 @@ theorem frame_two_stage (h : Bitcoin.Chain.BlockHeader) (k : Nat) (rest : Bytes)
 
 /-! ## 5. Genesis pins (python-cross-checked byte-for-byte) -/
 
-/-- The mainnet genesis 80-byte wire form (scratch/S02/crosscheck.py;
+/-- The mainnet genesis 80-byte wire form (`crosscheck.py`;
 display hash `000000000019d668…ce26f` verified there via hashlib). -/
 def genesisWire : Bytes :=
   [0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,

@@ -4,8 +4,7 @@ import Bitcoin.Ledger.Utxo
 import Bitcoin.Ledger.Interface
 import Bitcoin.Invariants.RC10
 
-/-! # PDW18.lean — proof-promotion review, items TOP-86..90
-(PDW18, recovery review RC21, 2026-10-17; claim 0e4e305).
+/-! # PDW18.lean
 
 Five rows, one or more sorry-free promotion theorems each (route B,
 PDW11/PDW12/PDW16 pattern — zero core writes, the `@[rule]` tags ride
@@ -230,7 +229,7 @@ theorem controlBlockSizeOk_iff (control : ByteArray) :
 /-! ## BLK-101 — the 31-bit well-formedness domain
 
 `Coin.height` is a full `UInt32` in `Bitcoin/Ledger/Utxo.lean` (outside
-this lane's edit surface), so the 31-bit field cannot be enforced by a
+this module), so the 31-bit field cannot be enforced by a
 subtype here.  We therefore state the invariant as a predicate, prove
 that every coin *constructed/stored* by the model's UTXO update path
 satisfies it (given the connection height is below `2^31`), and prove
@@ -323,7 +322,7 @@ theorem updateCoins_preserves_wellFormed (u : UtxoSet) (tx : Tx)
 /-- The residual is real: `Coin.height` is an unrestricted `UInt32`, so
 `CoinWellFormed` does not hold for every in-model record.  A subtype (or
 an invariant on `UtxoSet`) in `Bitcoin/Ledger/Utxo.lean` would be needed
-to make the 31-bit domain automatic; that file is outside this lane. -/
+to make the 31-bit domain automatic; that file is outside this module. -/
 theorem Coin_not_all_wellFormed : ¬ ∀ c : Coin, CoinWellFormed c := by
   intro h
   have := h (Coin.mk 0 0x80000000 false Script.empty)

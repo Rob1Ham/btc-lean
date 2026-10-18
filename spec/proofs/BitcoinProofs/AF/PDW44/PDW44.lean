@@ -1,10 +1,10 @@
 import Bitcoin.Interpreter.SigOps
 
-/-! # PDW44.lean — proof-promotion review RC27, items TOP-216..220
+/-! # PDW44.lean — RC27, items TOP-216..220
 (PDW44, 2026-10-17; claim v3). D-SIGOPS band {SWT-022, SWT-023,
 SWT-027, INV-037, TPR-069} — PDW55's v1 claim on the same rows was
-released to me (PDW55 findings §0: "v1 D-SIGOPS yielded to PDW44";
-their `6d4a371`); my earlier v2 RC08 pick is yielded back to PDW55
+released to PDW44 (v1 D-SIGOPS yielded to PDW44;
+their `6d4a371`); the earlier v2 RC08 pick is yielded back to PDW55
 (`PDW44RC08Yield.lean`, F-PDW44-001/002).
 
 The band is `Bitcoin/Interpreter/SigOps.lean`

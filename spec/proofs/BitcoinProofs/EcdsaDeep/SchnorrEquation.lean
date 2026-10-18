@@ -42,7 +42,7 @@ restates the →-direction in BIP340's own notation with `e` named.
 
 ## Directions, honestly named
 
-* **→ `verifyImpl_true_satisfies`** (soundness direction, the deliverable
+* **→ `verifyImpl_true_satisfies`** (soundness direction, the target
   minimum): an accepted signature satisfies the equation — the verdict
   fabricates nothing. Built on X02's `verifyImpl_true_cases` /
   `verifyLifted_true_range` / `verifyLifted_true_R` (in the core import,
@@ -156,7 +156,7 @@ theorem verifyLifted_true_satisfies (sig : ByteArray) (px py : Nat)
   rw [hx] at heq
   exact ⟨hr1, hr2, ry, heq, hy⟩
 
-/-- **Composed →-direction** (the deliverable soundness minimum):
+/-- **Composed →-direction** (the soundness minimum):
 `verifyImpl = true` ⇒ sizes (step 1), the lift (step 2), and the full
 post-lift equation (steps 3–7). On X02's `verifyImpl_true_cases` +
 `sizeGate_eq_true`. -/

@@ -5,11 +5,11 @@ import Bitcoin.Crypto.Seam.Entry
 /-!
 # B14 — BIP342 coverage audit: decisive kill-vectors for the COVERED-WEAK clauses
 
-Review-5 support suite, contributor B14 (2026-10-16). X04's `Test.Script.Tapscript.Delta`
+2026-10-16. X04's `Test.Script.Tapscript.Delta`
 pins the happy paths of the BIP342 deltas; the DB rows they back (TPR-055..079,
 SCR-121/159/160/168) all carry `test_vector_ids: []` — no corpus vector would
 fail if a clause were mutated. This module lands the missing decisive pins,
-each cross-checked against `ref342.py` (scratch/B14; mirrors interpreter.cpp
+each cross-checked against a python3 reference (mirrors interpreter.cpp
 @cce32b168) and quoted against BIP342 (bip-0342.mediawiki @ bips 927b6de,
 BSD-3-Clause):
 

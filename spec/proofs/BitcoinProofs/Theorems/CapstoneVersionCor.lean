@@ -1,9 +1,9 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneVersionCor — proved buried-version gates (P09, W17 capstone review)
+# BitcoinProofs.Theorems.CapstoneVersionCor — proved buried-version gates (P09)
 
-The executable core's buried-version gate (W17 S2b, `Bitcoin.Capstone.Block.versionOk`,
+The executable core's buried-version gate (S2b, `Bitcoin.Capstone.Block.versionOk`,
 rule rows BLK-060/061/062, Core `ContextualCheck`'s `nVersion ≥ 2/3/4` once
 BIP34/BIP66/BIP65 are buried) turned from runtime booleans into proved statements.
 Every gate is a decidable `UInt32`/`Int32` comparison, so all concrete anchor

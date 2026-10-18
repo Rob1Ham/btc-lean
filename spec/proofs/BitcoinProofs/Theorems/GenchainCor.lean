@@ -3,7 +3,7 @@ import Bitcoin.Conservation.Interface
 import Bitcoin.Block.Connect
 
 /-!
-# BitcoinProofs.Theorems.Genchain — synthetic-chain theorems (Review-6 G03)
+# BitcoinProofs.Theorems.Genchain — synthetic-chain theorems (G03)
 
 Over the G01/G02 synthetic-chain format this module states and proves,
 sorry-free:
@@ -34,7 +34,7 @@ sorry-free:
 
 ## The documented G01 chain schema (JSON shape)
 
-Per block (the shape G01's brief documents: "JSON blocks + a UTXO-set
+Per block (the shape G01's specification documents: "JSON blocks + a UTXO-set
 manifest"):
 
 ```json
@@ -50,7 +50,7 @@ manifest entry (one per non-unspendable output):
   "value": <sats>, "height": <creation height>, "isCoinbase": bool,
   "scriptPubKey": <hex>}` — coins are keyed by the txid PREIMAGE
 (`Bitcoin.Ledger.txidPreimageKey`), the documented simplification
-pending the W13 hash floor; `n` is the output index.
+pending the hash floor; `n` is the output index.
 
 ## Documented simplifications (instance-level, PROPOSED until G01 lands)
 
@@ -69,8 +69,7 @@ pending the W13 hash floor; `n` is the output index.
   (`bip30Enforced_at_500` / `_at_2000`).
 * The schema-level statements are VERIFIED here; INSTANCE-level claims
   (the actual 2000 generated blocks satisfying the hypotheses) are
-  PROPOSED until G01's generator + G02's driver land — see
-  spec/db/findings-w6/G03.md.
+  PROPOSED until G01's generator + G02's driver land.
 
 ## Axiom footprints
 

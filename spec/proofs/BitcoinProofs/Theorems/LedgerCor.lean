@@ -8,15 +8,15 @@ import BitcoinProofs.Conservation.Thms
 /-!
 # BitcoinProofs.Theorems.LedgerCor
 
-W15 correctness theorems over the frozen consensus-check layer
-(`Bitcoin.Consensus.TxCheck`, C1) and W08's conservation machinery.
+correctness theorems over the frozen consensus-check layer
+(`Bitcoin.Consensus.TxCheck`, C1) and conservation machinery.
 
 **Post-repair (LEDGER, F-G3-01 then F-TS04-001):** `checkTransaction`'s
 oversize branch has oscillated between the stripped-size test and the
 full BIP141 weight. It is now (F-TS04-001, tx_check.cpp:27-29) Core's
 stripped-size gate `txStrippedWeightL tx > MAX_BLOCK_WEIGHT`, i.e.
 `4 · serTxSize tx > MAX_BLOCK_WEIGHT`, reusing the same numeric
-predicate as the W15 originals. Repair: every rewrite that peels the
+predicate as the originals. Repair: every rewrite that peels the
 oversize branch targets `txStrippedWeightL`, and
 `checkTransaction_none_basic`'s no-witness × 4 bound is exactly the
 negation of that gate (no arithmetic bridge needed). Statements are
@@ -41,15 +41,15 @@ Portfolio rows carried here:
 * **THM-037 (arithmetic tier)** — `block_conservation_arith`: per-tx
   conservation inequalities compose additively over a block's tx
   sequence. NOTE: the full per-block coinbase-surplus statement needs
-  W12's `applyBlock` fold (not landed); this is the arithmetic core,
-  deduplicated against W12 by construction (W12 can reuse these fold
+  `applyBlock` fold (not landed); this is the arithmetic core,
+  deduplicated against by construction (can reuse these fold
   lemmas directly).
 * `supplyAt_checkpoints` — named, axiom-pinned versions of the supply
-  boundary values W08's Test decides anonymously (dedup: same `supplyAt`
+  boundary values Test decides anonymously (dedup: same `supplyAt`
   model, no new definitions).
 
 No mathlib import; proofs use induction/rewriting, `decide` only on
-closed numerals (W14 finding).
+closed numerals.
 -/
 
 namespace BitcoinProofs.Theorems.LedgerCor
@@ -262,21 +262,21 @@ theorem checkTransaction_none_noNullPrevout (tx : Tx)
 /-! ## THM-037 (arithmetic tier): block-level composition -/
 
 /-- Per-tx output total as a fold (mirrors core `totalOut`'s definitional
-shape, kept local so the block fold does not depend on W08 internals). -/
+shape, kept local so the block fold does not depend on internals). -/
 def txTotalOut (tx : Tx) : Amount := tx.vout.foldl (fun a o => a + o.value) 0
 
 /-- Block output total: left fold of per-tx totals. -/
 def blockOut (txs : List Tx) : Amount :=
   txs.foldl (fun acc t => acc + txTotalOut t) 0
 
-/-- Block input total: left fold of W08's per-tx `totalInVin` over each
+/-- Block input total: left fold of per-tx `totalInVin` over each
 tx's inputs against the UTXO view. -/
 def blockIn (u : UtxoSet) (txs : List Tx) : Amount :=
   txs.foldl (fun acc t => acc + totalInVin u t.vin) 0
 
 private theorem intZeroAdd (a : Int) : a = 0 + a := by omega
 
-/-- Translation law for the block output fold (W08's fold-shift pattern). -/
+/-- Translation law for the block output fold (fold-shift pattern). -/
 private theorem blockOutFrom_eq : ∀ (ts : List Tx) (x : Amount),
     ts.foldl (fun acc t => acc + txTotalOut t) x = blockOut ts + x := by
   intro ts
@@ -329,7 +329,7 @@ theorem blockIn_cons (u : UtxoSet) (t : Tx) (ts : List Tx) :
 /-- **THM-037 (arithmetic tier)** — per-transaction conservation
 (`outputs ≤ inputs` against a fixed UTXO view) composes additively over a
 block's transaction sequence. The full coinbase-surplus statement
-(THM-037, C4) additionally needs W12's `applyBlock` fold; W12 can reuse
+(THM-037, C4) additionally needs `applyBlock` fold; can reuse
 `blockOut_cons` / `blockIn_cons` directly (dedup by construction). -/
 theorem block_conservation_arith (u : UtxoSet) : ∀ (txs : List Tx),
     (∀ t ∈ txs, txTotalOut t ≤ totalInVin u t.vin) →
@@ -348,10 +348,10 @@ theorem block_conservation_arith (u : UtxoSet) : ∀ (txs : List Tx),
       intros; intros; omega
     exact gen _ _ _ _ h2 h1
 
-/-! ## Named supply checkpoints (dedup with W08's Test examples) -/
+/-! ## Named supply checkpoints (dedup with Test examples) -/
 
 /-- Named, axiom-pinned versions of the supply boundary values that
-W08's `Conservation.Test` asserts anonymously: full epoch-0 supply at the
+`Conservation.Test` asserts anonymously: full epoch-0 supply at the
 last pre-halving block, first post-halving block, and the terminal cap
 (2,099,999,997,690,000 sats, flat from height 6,930,000). -/
 theorem supplyAt_checkpoints :

@@ -1,7 +1,7 @@
 import Bitcoin.Crypto.Taproot.Program
 
-/-! # PDW25.lean — proof-promotion review RC22, items TOP-121..125
-(PDW25, recovery review RC22, 2026-10-17; claim v1 = `6ff8ca6`).
+/-! # PDW25.lean — RC22, items TOP-121..125
+(PDW25, RC22, 2026-10-17; claim v1 = `6ff8ca6`).
 
 Five sorry-free promotion theorems (11 theorems / 5 rows), one per
 claimed rules.yaml row — the D-TPRPRG c-true thm+attr+flip five of

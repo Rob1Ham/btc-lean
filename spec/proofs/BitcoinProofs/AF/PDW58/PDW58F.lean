@@ -1,7 +1,7 @@
 import Bitcoin.Interpreter.Defs
 
 /-! # PDW58F.lean — replacement rows: SCR-122 / SCR-126 negative operands
-(PDW58, review RC29). Route B: zero core writes. Row faces for the two
+(PDW58, RC29). Route B: zero core writes. Row faces for the two
 NEGATIVE_LOCKTIME branches of `stepBody.dispatchOp`
 (interpreter.cpp:556 CLTV @cce32b168; CSV branch :1840s). -/
 

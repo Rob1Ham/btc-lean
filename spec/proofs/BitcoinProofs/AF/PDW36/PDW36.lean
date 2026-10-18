@@ -1,6 +1,6 @@
 import Bitcoin.Interpreter.Rules
 
-/-! # PDW36.lean — proof-promotion review RC27, items TOP-176..180
+/-! # PDW36.lean — RC27, items TOP-176..180
 (PDW36, 2026-10-17; claim 8f82321).
 
 R-SIDE accounting/gate belt of `Bitcoin/Interpreter/Rules.lean`:
@@ -110,7 +110,7 @@ theorem p2shSigOpCount_pushOnly (ss : ByteArray) (ops : List WireOp)
 `p2shSigOpCount` itself does NOT implement Core's early `opcode > OP_16`
 return: it only inspects the last parsed op. Thus `OP_DUP <push redeem>`
 is counted here and returns 0 in Core. The definition lives in
-`Bitcoin/Interpreter/Rules.lean`, which is outside this lane; the row is
+`Bitcoin/Interpreter/Rules.lean`, which is outside this module; the row is
 narrowed to the push-only (all ops ≤ OP_16) case proved by
 `p2shSigOpCount_pushOnly`, and the non-push over-count is an explicit
 residual, not claimed.
@@ -119,7 +119,7 @@ residual, not claimed.
 
 /-! ## SCR-035: `witnessSigOps` (WitnessSigOps) -/
 
-/-- SCR-035 (supplementary, row owned by PDW33): v0-32 lane: a 32-byte v0
+/-- SCR-035 (supplementary, PDW33 row): v0-32 lane: a 32-byte v0
 program counts the ACCURATE sigops of the last witness item. -/
 theorem witnessSigOps_v0_32 (prog script : ByteArray) (witness : WitnessStack)
     (ops : List WireOp) (h32 : prog.size = 32)
@@ -138,7 +138,7 @@ theorem witnessSigOps_v0_other (prog : ByteArray) (witness : WitnessStack)
 
 /-! ## SCR-036: `countWitnessSigOps` (CountWitnessSigOps) -/
 
-/-- SCR-036 (supplementary, row owned by PDW33) non-witness, non-P2SH lane: no extension. -/
+/-- SCR-036 (supplementary, PDW33 row) non-witness, non-P2SH lane: no extension. -/
 theorem countWitnessSigOps_nonwitness (ss spk : ByteArray) (witness : WitnessStack)
     (hw : isWitnessProgram spk = none) (hp : isPayToScriptHash spk = false) :
     countWitnessSigOps ss spk witness = 0 := by

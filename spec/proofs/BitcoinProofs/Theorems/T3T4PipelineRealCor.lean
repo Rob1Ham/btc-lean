@@ -3,20 +3,14 @@ import BitcoinProofs.Theorems.T3T4RealCheckerCor
 
 /-!
 # BitcoinProofs.Theorems.T3T4PipelineRealCor — THM-036/037/044/045
-# Auth-side + pipeline determinism (X10b, Review 3, Module C = S4)
+# Auth-side + pipeline determinism
 
-The third execution unit of X10's S1 inventory
-(`research/w3-10-theorems-t3t4.md` §2, execution list E3): the
+This module gives the
 InputAuth-REAL instantiation of the C4 conservation tier's Auth rows
 (THM-037/044/045 — the inversion P13/P15 hypothesize) plus the
-real-pipeline determinism half of THM-051, over W17's `validateBlock`
-(W02 decode → BLK structure → PoW/merkle → W10/W09/W11/W13/W14b script
-layer → W12 fold).
-
-Landed by X10b (X10's replacement): X10 stalled after S3 with this
-module's ok-inversion scouted only as a dirty ScratchB probe (salvaged
-separately — see ScratchB.lean's salvage note); the S1 report's
-"PROVED (S4)" row was aspirational and is made true here.
+real-pipeline determinism half of THM-051, over `validateBlock`
+(decode → BLK structure → PoW/merkle → the script
+layer → fold).
 
 ## What this module proves (C1–C5)
 
@@ -31,7 +25,7 @@ separately — see ScratchB.lean's salvage note); the S1 report's
   for the whole ladder (`verifyInput_pure` … `validateBlock_pure`).
 * **C1 (per-tx inversion)** — `applyTx_ok_noncb`: one non-coinbase
   `applyTx` success inverts to (stateless gate none, `verifyTxInputs`
-  ok, W12 fold step ok); `applyTxs_ok_verifyTxInputs_each`: the whole
+  ok, fold step ok); `applyTxs_ok_verifyTxInputs_each`: the whole
   fold's success inverts PER TX (by position) to its
   `verifyTxInputs` ok against the intermediate UTXO view the tx
   actually saw; `validateBlock_ok_verifyTxInputs_each` threads it
@@ -44,7 +38,7 @@ separately — see ScratchB.lean's salvage note); the S1 report's
   non-coinbase tx's every (prefix-reachable, coin-present) input was
   adjudicated `.pass` or `.unjudgedTaproot`, and every `.pass` ran
   `verifyScriptFull` to `.ok` at the REAL checker (`realCheckerOf` =
-  W14b lax-ECDSA × W11 sighash × real locktime env). This instantiates
+  lax-ECDSA × sighash × real locktime env). This instantiates
   the C4 `InputAuth` abstraction of THM-037/044/045 with "the real
   seam checker accepted".
 * **C5 (the honest X03/X04 corner, at the pipeline)** —
@@ -68,7 +62,7 @@ separately — see ScratchB.lean's salvage note); the S1 report's
 
 * **The missing-coin early stop.** `verifyTxInputs`' loop TERMINATES
   with `.ok` at the first input whose coin is missing from the view
-  (`coinLookup = none`; the HaveInputs error is W12/W10's lane). A
+  (`coinLookup = none`; the HaveInputs error is the module's lane). A
   `.fail` verdict at input k is therefore compatible with an `.ok`
   loop result whenever the loop stopped BEFORE k — the honest
   per-input statement carries the prefix condition "every input ≤ k
@@ -79,7 +73,7 @@ separately — see ScratchB.lean's salvage note); the S1 report's
   v1-witness-program gate is false; `scriptUnjudged` counts the
   unjudged lane (P16's counter bound). No theorem here claims Taproot
   inputs were verified.
-* **W14 discipline** (inherited): no theorem here kernel-decides
+* **reduction discipline** (inherited): no theorem here kernel-decides
   through the EC layer; every EC-fact is a congruence or an inversion
   of the pipeline's own structure. `checkTransaction`, `applyTxStepL`,
   the PoW/merkle gates are treated as fixed opaque checks.
@@ -120,7 +114,7 @@ theorem verifyInput_eq (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
 
 /-- **C3a — `.pass` inversion**: an adjudicated PASS means the
 taproot-program gate is FALSE and the REAL checker's `verifyScriptFull`
-(witnessV0/base lanes: W09 interpreter × W14b lax-ECDSA × W11 sighash ×
+(witnessV0/base lanes: interpreter × lax-ECDSA × sighash ×
 real locktime env) returned `.ok` on exactly this input's dataflow. -/
 theorem verifyInput_pass_inv (height : UInt32) (tx : Tx) (i : Nat) (coin : Coin)
     (txIdx inputIdx : Nat)
@@ -237,10 +231,10 @@ theorem validateBlock_pure (raw₁ raw₂ : ByteArray) (st₁ st₂ : CapState)
 /-! ## C1 — per-tx ok-inversion -/
 
 /-- **C1a**: one non-coinbase `applyTx` success inverts to the full
-three-layer contract: the W10 stateless gate passed
+three-layer contract: the stateless gate passed
 (`checkTransaction = none`), the script layer passed
 (`verifyTxInputs = .ok` with exactly the returned counters), and the
-W12 fold step succeeded with exactly the returned utxo. -/
+fold step succeeded with exactly the returned utxo. -/
 theorem applyTx_ok_noncb (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l' : List (OutPoint × Coin)) (a b : Nat)
     (hcb : tx.isCoinBase = false)
@@ -314,7 +308,7 @@ theorem applyTxs_ok_verifyTxInputs_each (height : UInt32) :
 /-- **C1c**: threaded through P16's poststate contract —
 `validateBlock`-ok inverts, per decoded non-coinbase tx (by position),
 to its `verifyTxInputs = .ok` against the intermediate utxo view, and
-its W10 stateless gate passing. -/
+its stateless gate passing. -/
 theorem validateBlock_ok_verifyTxInputs_each (raw : ByteArray) (st : CapState)
     (r : CapReport) (hval : validateBlock raw st = .ok r) :
     ∃ (bh : Bitcoin.Chain.BlockHeader) (txs : List Tx),
@@ -444,8 +438,8 @@ theorem validateBlock_ok_input_no_fail (raw : ByteArray) (st : CapState)
 /-- **C4c — THE InputAuth-REAL INSTANTIATION (headline)**:
 `validateBlock`-ok ⇒ every decoded non-coinbase tx's every
 (prefix-reachable, coin-present) input that was adjudicated `.pass`
-ran `verifyScriptFull` to `.ok` at the REAL checker — W09's
-interpreter under `realCheckerOf` (W14b lax-ECDSA × W11 sighash × the
+ran `verifyScriptFull` to `.ok` at the REAL checker —
+interpreter under `realCheckerOf` (lax-ECDSA × sighash × the
 real locktime environment), on exactly this input's fuel/flags/witness
 dataflow, with the taproot-program gate false. The C4 conservation
 tier's abstract `InputAuth` is thereby instantiated by "the REAL seam
@@ -483,7 +477,7 @@ theorem validateBlock_ok_inputAuth_real (raw : ByteArray) (st : CapState)
 /-- **C5a — X02-NON-INTERFERENCE AT THE PIPELINE**: every adjudicated
 `.pass` of a validated block has the same `verifyScriptFull` outcome
 under X02's both-real-entries assembly `realCheckerFullOf` as under
-W17's `realCheckerOf` the pipeline binds — Module A's checker-level
+`realCheckerOf` the pipeline binds — Module A's checker-level
 non-interference (A6) lifted to `validateBlock`. X02's Unit-3 Schnorr
 wiring changed zero block-level verdicts; the one-parameter
 `sighashSchnorr` flip (now unblocked by X03's landed `sighashTaproot`,

@@ -8,10 +8,9 @@ import BitcoinProofs.EcdsaDeep.VerifyEquation
 # [CROWNLINK] CrownLinkKernel — the KERNEL layer of the E05-battery ×
 # E06-crown bridge: 17/215 rows pinned HYPOTHESIS-FREE (verdict + crown)
 
-Contributor CROWNLINK (recovery review 5), 2026-10-17. See `CrownBattery.lean`
+CROWNLINK, 2026-10-17. See `CrownBattery.lean`
 (the corpus), `CrownLink.lean` (the bridge theorem),
-`CrownLinkRun.lean` (the 215-row runtime layer) and
-`db/findings-dl/CROWNLINK.md`.
+`CrownLinkRun.lean` (the 215-row runtime layer).
 
 **The kernel layer.** Of the 215 battery rows, **17 reject-rows are
 pinned by bare kernel `decide`** — 8 parse-rejects (E05
@@ -60,7 +59,7 @@ open BitcoinProofs.EcdsaDeep.VerifyEquation
 set_option maxRecDepth 100000
 
 /-- Parse a hex string into a ByteArray (test infra only; copied from
-the W14b harness, EcdsaTest.lean:36-52, read-only). -/
+the harness, EcdsaTest.lean:36-52, read-only). -/
 def hexDigitVal (c : Char) : Option Nat :=
   let n := c.toNat
   if 48 ≤ n ∧ n ≤ 57 then some (n - 48)

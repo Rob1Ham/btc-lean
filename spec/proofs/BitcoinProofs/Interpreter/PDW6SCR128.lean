@@ -3,7 +3,7 @@ import Bitcoin.Interpreter.Rules
 /-!
 # PDW6SCR128 — SCR-128 promotion proofs (CSV requires tx version ≥ 2)
 
-PDW6 (proof-promotion review 6, TOP-26..30), recovery review 3,
+PDW6 (6, TOP-26..30),
 2026-10-17. Row SCR-128 (d=2, BIP68/BIP112): `Bitcoin.Interpreter
 .checkSequenceDef_version_gate` (Interpreter/Rules.lean:136),
 in-tree, `@[rule "SCR-128"]`-tagged THM-on-target row (PD02-22
@@ -11,7 +11,7 @@ band). Core anchor: interpreter.cpp:1800-1801
 (`GenericTransactionSignatureChecker::CheckSequence`) — BIP68
 sequence-lock semantics are undefined for transaction version 1,
 and Core FAILS the check (returns false; it does not NOP the
-opcode) — the first branch of W09's `checkSequenceDef`
+opcode) — the first branch of `checkSequenceDef`
 (Defs.lean:264: `if env.txVersion < 2 then false`).
 
 The in-tree gate is the one-way direction (`txVersion < 2 →

@@ -5,7 +5,7 @@ import Bitcoin.Crypto.Curve.Mod
 # BitcoinProofs.EcdsaDeep.SmulCor (E04)
 
 Scalar-multiplication correctness for the secp256k1 executable group law
-(`Bitcoin.Crypto.Curve.Secp`, W14b — read-only here): the double-and-add
+(`Bitcoin.Crypto.Curve.Secp` — read-only here): the double-and-add
 scalar mult `smulBits` (STRUCTURAL over the little-endian bit list, the
 R6/D-004 kernel-reducible mirror of the WF-recursive `mulP`, exactly the
 `expBits`-over-`expM` pattern of `Curve/Mod.lean:138-205` / F-W14-1) equals
@@ -19,7 +19,7 @@ multiple `n • p` by `bitsVal bs`.
    double-and-add over `bs` IS the WF `mulP` at the integer `bitsVal bs`.
    Induction is structural in `bs`; the `k`-descent lemmas `mulP_two_mul` /
    `mulP_two_mul_add_one` (`Mod.lean`-style, over the `mulP.eq_2` equation
-   lemma) are the W14-blessed route through WF definitions (proof shape of
+   lemma) are the blessed route through WF definitions (proof shape of
    `Mod.expM_lt` / `Secp.mulP_ok`). Because `smulBits` is structural,
    `decide`/`rfl` reduce through it (R6 evidence: `SmulCor.kcheck` below).
 2. **Rung 2 (§E, raw layer, zero mathlib) + the group lane
@@ -48,7 +48,7 @@ multiple `n • p` by `bitsVal bs`.
    that `addP` is associative exists (that is E05's on-curve
    chord/tangent content), so an honest `Monoid RawPoint` with
    `add := addP`, `zero := none` cannot be landed zero-hypothesis
-   (the W2 decide-wall also blocks a concrete counterexample check);
+   (the Wall 2 decide-wall also blocks a concrete counterexample check);
    `smulBits_eq_smul` as a zero-hypothesis group-rung statement is
    not landable; the monoid
    lives in the hom-IMAGE (`M` under `MulPIF`'s `φ`), not on
@@ -118,7 +118,7 @@ theorem smulBits_cons_true (bs : List Bool) (p : RawPoint) :
 unfold its recursion directly; we route through the **equation lemma**
 `mulP.eq_2` (auto-generated, carries the match + the ite condition
 `((k'+1) % 2 == 0) = true` as a Prop) — the same discipline as
-`Mod.expBits_eq_pow_mod` / `Secp.mulP_ok` (the W14b way: one `simp only
+`Mod.expBits_eq_pow_mod` / `Secp.mulP_ok` (the way: one `simp only
 [mulP]`-free step through `.eq_2`, everything else `Nat`-arithmetic
 (`omega`, `% 2` facts) + the existing `mulP_zero`/`mulP_one`/`addP_none`/
 `doubleP_none` closure lemmas (`Secp.lean:259-273`).
@@ -257,7 +257,7 @@ identity needs `p + (p + s) = (p + p) + (p + p)`-shaped associativity
 of the raw law = the OnCurve chord/tangent layer (E02/E05), NOT
 zero-hypothesis. So the group rung ("smul = the monoid multiple") is a
 CONDITIONAL theorem over a monoid hom in the proofs package:
-`SmulCorIF.MulPIF` (NEW file) takes `φ : RawPoint → M` with
+`SmulCorIF.MulPIF` (new module) takes `φ : RawPoint → M` with
 `φ none = 0` and `φ (addP p q) = φ p + φ q` (E3h) and proves, from
 `addP_okφ` + `addP_self` + the §B k-descent lemmas ALONE:
 `mulP_okφ : φ (mulP k p) = k • φ p` (E2), `mulP_noneφ`,
@@ -311,9 +311,9 @@ checks — every `decide`/`rfl` below closes WITHOUT `native_decide`
 (D-004 clean). The empirical map, probed in scratch (`dprobe.lean`,
 2026-10-17) — TWO decide-walls, both WF-recursive (`termination_by`):
 
-* **W1** — `mulP` itself (WF, `Secp.lean:248`): the wall R6 was written
+* **Wall 1** — `mulP` itself (WF, `Secp.lean:248`): the wall R6 was written
   for; the structural `smulBits` is the fix (D-1/D-2 below reduce).
-* **W2** — `egcd` (WF, `Mod.lean:211`), inside `invP = invM P d`
+* **Wall 2** — `egcd` (WF, `Mod.lean:211`), inside `invP = invM P d`
   (`Secp.lean:169`), i.e. inside every *real* (non-vertical, non-`none`)
   `doubleRaw`/`addRaw` step: 2-step real-point walks blow "maximum
   recursion depth" even at `maxRecDepth 100000` + `maxHeartbeats
@@ -324,7 +324,7 @@ checks — every `decide`/`rfl` below closes WITHOUT `native_decide`
 D-1 walk structure; D-2 structural `bitsVal`; D-3 REAL mod-p arithmetic
 deciding (branch table + `negN`, incl. negative controls); D-4 negative
 control that the walk `decide`s are not vacuous; D-5 bridge — structural
-= WF *via the theorems, not the kernel* (the kernel cannot, W1). -/
+= WF *via the theorems, not the kernel* (the kernel cannot, Wall 1). -/
 
 section kcheck
 
@@ -363,7 +363,7 @@ example : smulBits [true, false] kc3 ≠ none := by decide
 -- D-5: bridge sanity — structural = WF at 1 *through the theorems*
 -- (D-2's `bitsVal` + rung 1; `mulP_one` and D-1's `smulBits [true] kc2
 -- = kc2` collapse the two sides to `kc2` separately); the kernel alone
--- cannot (W1)
+-- cannot (Wall 1)
 example : smulBits [true] kc2 = mulP 1 kc2 := by
   have hb : bitsVal [true] = 1 := by decide
   rw [smulBits_eq_mulP, hb]
@@ -383,8 +383,8 @@ example : addP (some (5, 0)) (some (5, 0)) = none := by decide
 
 -- The TWO decide-walls (NOT includable as failing examples; pinned in
 -- F-E04-001 with the scratch reproduction `dprobe.lean` P2/P4):
--- W1:  `example : mulP 1 kc2 = kc2 := by decide` — WF `mulP`.
--- W2:  `example : kc2 ≠ doubleP kc2 := by decide` and
+-- Wall 1:  `example : mulP 1 kc2 = kc2 := by decide` — WF `mulP`.
+-- Wall 2:  `example : kc2 ≠ doubleP kc2 := by decide` and
 --      `example : smulBits [true] kc2 ≠ doubleP kc2 := by decide` and
 --      `example : smulBits [true, true] kc3 = addP kc3 (doubleP (addP kc3
 --        (doubleP none))) := by decide` — real `doubleRaw`/`addRaw` =

@@ -2,9 +2,9 @@ import BitcoinProofs.AF.PDW46b.PDW46bB
 import Bitcoin.DataLaws.Laws
 
 /-! # PDW68x.lean — TOP-361..363: full CLTV/CSV checker verdicts
-(PDW68, review RC29). Claim `94fac5e`. Route B, zero core writes.
+(PDW68, RC29). Claim `94fac5e`. Route B, zero core writes.
 Reject/pass halves of SCR-123..125/129..130 (PDW46b) are reused.
-Path `AF/PDW68x/` avoids the concurrent PDW68 contributor's `AF/PDW68/`. -/
+Path `AF/PDW68x/` avoids the concurrent `AF/PDW68/`. -/
 
 namespace BitcoinProofs.AF.PDW68x
 

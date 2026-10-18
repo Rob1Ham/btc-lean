@@ -12,7 +12,7 @@ open Bitcoin.Interpreter Bitcoin.Numeric
 theorem castToBool_encodeScriptNum_zero :
     castToBool (encodeScriptNum 0 false) = false := by decide
 
-/-! ## Support (SCR-022 lane yielded to PDW80): op-count increment/reject -/
+/-! ## Support (SCR-022, PDW80): op-count increment/reject -/
 
 theorem stepBody_opCount_reject {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : 0x60 < op.wire)

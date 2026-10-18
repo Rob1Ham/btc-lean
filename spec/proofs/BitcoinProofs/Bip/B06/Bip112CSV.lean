@@ -1,7 +1,7 @@
 import Bitcoin.Interpreter.Defs
 
 /-!
-# BitcoinProofs.Bip.B06 — BIP112 (CHECKSEQUENCEVERIFY) clause coverage (W5/B06)
+# BitcoinProofs.Bip.B06 — BIP112 (CHECKSEQUENCEVERIFY) clause coverage
 
 BIP112 (public domain) makes OP_CSV fail the script when any of the
 following holds (consensus-force clauses, from the BIP Summary and its
@@ -49,7 +49,7 @@ pin `test_vector_ids: []`):
 
 Every EXPECTED verdict below was computed by the independent Python
 mirror of Core's CheckSequence @ cce32b168 in
-`build/scratch/W5suite/scratch/B06/ref.py` (written from the
+a reference script (written from the
 BIP112 reference-implementation text) and cross-checked case-for-case.
 All proofs are kernel `decide` — sorry-free, no `native_decide`.
 -/

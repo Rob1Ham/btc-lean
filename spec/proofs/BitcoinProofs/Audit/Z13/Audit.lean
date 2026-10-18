@@ -4,14 +4,12 @@ import Bitcoin.Block.Params
 import Bitcoin.Capstone.Pow
 
 /-!
-# Z13 dark-corner audit — genesis = empty UTXO set & OP_RETURN never stored (W4 suite)
+# Z13 dark-corner audit — genesis = empty UTXO set & OP_RETURN never stored
 
-NEW file, owned by Z13, 2026-10-16. Python3 probe: scratch
-`build/scratch/build/scratch/scratch/Z13/z13_probe.py` (ALL PROBES OK).
-Findings: `spec/db/findings-w4/Z13.md`.
+2026-10-16. Python3 probe:
+`z13_probe.py` (ALL PROBES OK).
 
-Ground truth: Bitcoin Core @ `cce32b1682d86076ee71c10f9788c48d44458a263`
-(vendored at `build/scratch/W02/bitcoin/src/`):
+Ground truth: Bitcoin Core @ `cce32b1682d86076ee71c10f9788c48d44458a263`:
   - `src/kernel/chainparams.cpp:47-50` — "the output of its generation
     transaction cannot be spent since it did not originally exist in the
     database" (unspendability is POSITIONAL — by omission, not a script rule);

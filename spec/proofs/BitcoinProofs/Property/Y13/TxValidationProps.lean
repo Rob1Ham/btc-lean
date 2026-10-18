@@ -2,11 +2,11 @@ import Bitcoin.TxValidation.Interface
 import Bitcoin.DataLaws.Laws
 
 /-!
-# BitcoinProofs.Property.Y13 — property-test corpus for TxValidation (Review-4, contributor Y13)
+# BitcoinProofs.Property.Y13 — property-test corpus for TxValidation
 
 Systematic edges + seeded pseudo-random tx mutations against an INDEPENDENT
-python reference. Every EXPECTED verdict below was computed by
-`scratch/Y13/ref.py` — a ground-truth port of Bitcoin Core @ cce32b168
+python reference. Every EXPECTED verdict below was computed by a
+ground-truth port of Bitcoin Core @ cce32b168
 (tx_check.cpp:23-68 `CheckTransaction`; tx_verify.cpp:23-43 `IsFinalTx`,
 :45-121 `CalculateSequenceLocks`/`EvaluateSequenceLocks`, :170-220
 `Consensus::CheckTxInputs`; transaction.h:299 `const uint32_t version`;
@@ -14,8 +14,8 @@ amount.h:12-27 `MoneyRange`; consensus.h) — NOT from the Lean code.
 Module under test: `Bitcoin.TxValidation.Interface` (the frozen
 `validateTx` signature); the script lane is X09's `Full` — out of scope.
 
-REPRODUCIBLE: `python3 build/scratch/build/scratch/scratch/Y13/gen.py`
-regenerates this file byte-for-byte; all pseudo-random cases use
+REPRODUCIBLE: the generator regenerates this file byte-for-byte; all
+pseudo-random cases use
 `random.Random(20261016)`.
 
 Model totalizations (documented; mirror the frozen `validateTx` signature):
@@ -28,7 +28,7 @@ Model totalizations (documented; mirror the frozen `validateTx` signature):
     verdict-neutral in both implementations;
   * `oversize` (TXV-003) is exercised only implicitly (every corpus tx is far
     below the 1 MB base-serialization bound; the exact weight model is
-    W02/W03's).
+    out of scope.
 
 Sections (145 cases, all kernel `decide`-checkable concrete vectors):
   A  checkTransaction systematic edges (18 cases)
@@ -44,8 +44,7 @@ Sections (145 cases, all kernel `decide`-checkable concrete vectors):
 VERDICT: all 145 python (Core) verdicts are confirmed by kernel
 `decide` — zero Lean-vs-python divergence on the reachable domain. The one
 out-of-domain divergence (future-coin maturity depth wrap, F-Y13-001) is
-pinned in section C with the LEAN verdict and filed in
-spec/db/findings-w4/Y13.md.
+pinned in section C with the LEAN verdict (F-Y13-001).
 -/
 
 namespace BitcoinProofs.Property.Y13.TxValidationProps
@@ -56,7 +55,7 @@ open Bitcoin.TxValidation Bitcoin.Activation Bitcoin.DataLaws
 set_option maxRecDepth 10000
 
 /-- Lean core ships no `DecidableEq (Except α β)`; the vectors decide on
-`Except` equalities, so provide it locally (W02/W10 shim). -/
+`Except` equalities, so provide it locally (the local shim). -/
 private instance instDecEqExcept {α β : Type} [DecidableEq α] [DecidableEq β] :
     DecidableEq (Except α β)
   | .error e, .error e' =>
@@ -391,7 +390,7 @@ example : validateTx (mkTx 2 [txIn (op 1) (SEQUENCE_LOCKTIME_DISABLE_FLAG ||| 5)
 /-- cF087 — python: OK fee=600000000 — SEQUENCE_FINAL: no lock -/
 example : validateTx (mkTx 2 [txIn (op 1) sFin] [txOut (4 * COIN)] 0) (view [(op 1, coin (10 * COIN) 0x00000032 false)]) 50 0 { csv := true } = .ok (6 * COIN) := by decide
 
-/-- cF088 — python: OK fee=600000000 — time-based seq: HEIGHT projection only -> gate passes (time domain is the W12 seam) -/
+/-- cF088 — python: OK fee=600000000 — time-based seq: HEIGHT projection only -> gate passes (time domain is the seam) -/
 example : validateTx (mkTx 2 [txIn (op 1) (SEQUENCE_LOCKTIME_TYPE_FLAG ||| 100)] [txOut (4 * COIN)] 0) (view [(op 1, coin (10 * COIN) 0x00000032 false)]) 55 0 { csv := true } = .ok (6 * COIN) := by decide
 
 /-- cF089 — python: OK fee=600000000 — csv flag off: gate disabled -/

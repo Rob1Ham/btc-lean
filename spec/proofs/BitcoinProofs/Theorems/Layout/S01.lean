@@ -18,11 +18,11 @@ Ground truth (Core @ cce32b168):
 * Wire model: `serTx`/`serTxIn`/`serTxOut` (Bitcoin.Data.Tx:86-99),
   `encTxL`/`encStacksL` (Bitcoin.Serialization.Interface:1016,882).
 
-Cross-check: scratch/S01/crosscheck.py re-encodes a concrete 1-in-1-out tx
+Cross-check: `crosscheck.py` re-encodes a concrete 1-in-1-out tx
 with and without witness via python3 `struct.pack` and asserts each offset
 claim at the stated byte positions.
 
-AXIOMS: see scratch/S01/axioms.out (`#print axioms` — no sorryAx). All 17
+AXIOMS: see `axioms.out` (`#print axioms` — no sorryAx). All 17
 theorems sorry-free.
 -/
 

@@ -1,7 +1,7 @@
 import Bitcoin.Capstone.Pow
 
 /-!
-# BitcoinProofs.Theorems.CapstonePowCor — W17/P05: proved PoW-layer spec (sorry-free)
+# BitcoinProofs.Theorems.CapstonePowCor — P05: proved PoW-layer spec (sorry-free)
 
 Corollaries and exact-value pins over the executable capstone PoW layer
 (`Bitcoin.Capstone.Pow`, core `spec/core/Bitcoin/Capstone/Pow.lean`) and the
@@ -24,8 +24,7 @@ C4 portfolio linkage:
 
 Dependencies: core only — `Bitcoin.Chain.compactTarget_difficulty_one` (rfl),
 `Bitcoin.Capstone.Pow.{headerHash,hashNatLE,powLimit,targetOk,powOk}`.
-No Mathlib. Every theorem is sorry-free; axiom footprints (checked in
-build/scratch/W17/scratch/P05/) are recorded per theorem below.
+No Mathlib. Every theorem is sorry-free; axiom footprints are recorded per theorem below.
 -/
 
 namespace BitcoinProofs.Theorems.CapstonePow

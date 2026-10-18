@@ -2,23 +2,22 @@ import Bitcoin.SigHash.Interface
 import Bitcoin.Serialization.Interface
 
 /-!
-# BitcoinProofs.Property.Y09 — property-test corpus for Sighash/BIP143 (Review-4, contributor Y09)
+# BitcoinProofs.Property.Y09 — property-test corpus for Sighash/BIP143
 
 Systematic edges + seeded-random segwit-v0 spends, checked against a PYTHON
-ground-truth reference (`scratch/Y09/reference.py`) written from
+ground-truth reference written from
 bip-0143.mediawiki (@ bips 927b6de) and Bitcoin Core @ cce32b168
 (interpreter.cpp:1609-1687 legacy / :1633-1670 WITNESS_V0) — NOT from the
 Lean code. The reference was validated BEFORE any Lean contact against two
 independent corpora: 4/4 BIP143 worked examples and 500/500 legacy rows of
-`spec/vectors/core/sighash.json` (see scratch/Y09/validate.py).
+`spec/vectors/core/sighash.json`.
 
-REPRODUCIBLE: `python3 build/scratch/build/scratch/scratch/Y09/gen.py`
-regenerates this file byte-for-byte; every pseudo-random case derives from
+REPRODUCIBLE: the generator regenerates this file byte-for-byte; every pseudo-random case derives from
 `random.Random(20261016)`. Digests are asserted in INTERNAL sha256d byte
 order (the order the BIP text itself prints; sighash.json prints the
 GetHex()-reversed order).
 
-Proof tiers (why not every case is a digest `rfl` — see findings F-Y09-001):
+Proof tiers (why not every case is a digest `rfl` — see F-Y09-001):
   * BULK: preimage-level assertion `bip143MsgL/legacyMsgL .. = <python
     preimage>` by kernel `decide`, with BIP143's three dshaL sub-hashes
     rewritten by the shared staged theorems `dsha0..` below.

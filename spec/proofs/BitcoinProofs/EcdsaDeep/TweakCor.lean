@@ -11,7 +11,7 @@ BIP341's output-key equation, at the GROUP level:
     Q = P + t • G,   t = int(taggedHash("TapTweak", P.x ‖ merkle_root))
 
 `Bitcoin.Crypto.Taproot.tweakPoint` (X03 Unit 1, TapTweak.lean:135-141,
-READ-ONLY) computes that equation over the W14b **raw** structure
+READ-ONLY) computes that equation over the **raw** structure
 (`RawPoint = Option (Nat × Nat)`, `addP`, `mulP`; Curve/Secp.lean),
 returning `none` for the two libsecp reject modes (tweak ≥ n; `P + tG = ∞`).
 
@@ -48,8 +48,8 @@ the raw layer. Parameters: `E : WeierstrassCurve.Affine (ZMod P)` with
 `a₁ = a₂ = a₃ = a₄ = 0, a₆ = 7`, `[ell : E.IsElliptic]`; `[CommRing
 (ZMod P)]`, `[Field (ZMod P)]`, `[DecidableEq (ZMod P)]`, `[Nontrivial
 (ZMod P)]` are all in scope GLOBALLY via `CurveZMod.secp_P_prime :
-Fact (Nat.Prime P)` (CurveZMod.lean:548, the W14b Pratt certificate) —
-probed before this file was written (build/scratch/e09check/p2b.lean).
+Fact (Nat.Prime P)` (CurveZMod.lean:548, the Pratt certificate) —
+probed before this file was written (probe p2b).
 Fields:
 
 * `onCurveE` : raw `OnCurve x y` (RANGE-FREE: `OnCurve x y := (y*y)%P =
@@ -86,7 +86,7 @@ instantiation `E` with `[ell : E.IsElliptic]` is a HYPOTHESIS of the
 record (E02's lane), NOT constructed here; where E02 lands
 `proofs/BitcoinProofs/EcdsaDeep/SecpCurve.lean` with a matching record,
 a `def e02e03IF : E02E03IF E := ...` closes the gap — see the PROPOSED
-disposition in `db/findings-dl/E09.md`. `ZMod P` primality IS available
+disposition below. `ZMod P` primality IS available
 globally (CurveZMod), but `E`'s secp256k1 shape (`a₆ = 7`) and
 `IsElliptic` are not.
 
@@ -173,7 +173,7 @@ used below; both are theorems of TapTweak.lean, cited in the anchors).
 NOTE on `G`: in TapTweak.lean, `mulP (tweakScalar p root) G` elaborates
 with `G : Nat × Nat` (Secp.lean:89) coerced to `RawPoint` by the
 elaborator as `mulP _ (some G)` — see the olean-checked `#check` in
-build/scratch/e09check/p1.lean. The restatements below re-state X03's
+probe p1. The restatements below re-state X03's
 theorems VERBATIM (proof = the theorem itself), so the coercion is
 identical on both sides. -/
 

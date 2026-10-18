@@ -3,11 +3,10 @@ import BitcoinProofs.Conservation.Thms
 /-!
 # INV033BLK090SubsidyCor — TOP-31/INV-033 + TOP-32/BLK-090 promotion proofs
 
-PDW7 (proof-promotion review 4, recovery review 4), 2026-10-17.
 Rows INV-033 + BLK-090 (the halving-schedule pair, one def:
 `Bitcoin.Conservation.blockSubsidy`, validation.cpp:GetBlockSubsidy:
 1833-1844 @cce32b168; BIP42). BLK-090 = the 08-block-pow-utxo
-restatement ("W08: same def as INV-033"), lean_target identical.
+restatement ("same def as INV-033"), lean_target identical.
 
 Core anchor (cce32b168, validation.cpp:1833-1844):
 
@@ -19,13 +18,13 @@ Core anchor (cce32b168, validation.cpp:1833-1844):
       return nSubsidy;
     }
 
-Our `blockSubsidy` (Conservation/Interface.lean:149, W08 frozen):
+Our `blockSubsidy` (Conservation/Interface.lean:149, frozen):
 `((5000000000 / 2 ^ (min (halvingsAt height) 64) : Nat) : Amount)` —
 Core's `halvings >= 64 → 0` guard = the `min _ 64` saturation; the
 BIP42 fix (`subsidyNat_zero_ge33`: 2^33 > 5·10^9) kills the tail even
 earlier, from halving 33 on — the no-hyperinflation law.
 
-This file = the proof-promotion tier (route-B): the W08 sorry-free
+This file = the row-face theorem tier (route-B): the sorry-free
 `BitcoinProofs.Conservation.Thms` schedule theorems (THM-015/016/
 039/040, built over the frozen core interface) restated 1:1 in the
 PDW7 AF-file (PDW2 4df229b pattern) under the INV-033/BLK-090 rule
@@ -117,7 +116,7 @@ theorem BLK090_supplyAt_le_cap (height : UInt32) :
 
 
 /-! ## L3 axiom pins (D2): drift on any of these fails the build.
-All 9 theorems sorry-free; fingerprints = the upstream W08
+All 9 theorems sorry-free; fingerprints = the upstream
 `Conservation.Thms` tier (port side adds nothing: `exact`-restatements).
 `subsidy_le_max`/`subsidy_moneyRange` pick up `propext` via
 `Int.ofNat_le`/`moneyRange_eq_true_iff` decide-bridge; the

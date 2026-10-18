@@ -1,6 +1,6 @@
 import Bitcoin.Interpreter.Defs
 
-/-! # PDW60 RowsD — replacement rows SCR-170, SCR-127 (review RC29).
+/-! # PDW60 RowsD — replacement rows SCR-170, SCR-127 (RC29).
 
 Route B row faces on `Bitcoin.Interpreter.stepBody` / `dispatchOp`:
 the legacy-disabled opcode gate fires before execution (SCR-170,

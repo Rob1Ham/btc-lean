@@ -1,7 +1,7 @@
 import Bitcoin.Invariants.RC10
 import Bitcoin.Activation.Interface
 
-/-! # PDW21.lean — proof-promotion review RC26, items TOP-101..105
+/-! # PDW21.lean — RC26, items TOP-101..105
 (PDW21, 2026-10-17; claim b053a92).
 
 Route B (PDW11..16 pattern): zero core writes; `@[rule]` tags ride

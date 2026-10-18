@@ -33,7 +33,7 @@ and total by definition.  The file does not restate those facts as
 `f x = f x` / `∃ r, f x = r`; `expand?_eq_spec` and the fragment theorems
 above are the substantive statements.
 
-What is *not* proved here (see `wallet-review/peer-reports/PEER-DESC.md`):
+What is *not* proved here:
 the numeric bound of a wildcard range is the provider list length (Core's
 `[0, 2^31)` index domain is not re-checked), and provider/index validity is
 an explicit hypothesis, mirroring Core's explicit-index boundary.

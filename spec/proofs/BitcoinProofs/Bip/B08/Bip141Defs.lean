@@ -1,7 +1,7 @@
 /-
 BitcoinProofs.Bip.B08.Bip141Defs — BIP141 (SegWit, consensus layer) clause models.
 
-B08 Review-5 support suite, 2026-10-16. Ground truth: BIP141.mediawiki
+2026-10-16. Ground truth: BIP141.mediawiki
 (public domain) fetched from bitcoin/bips master; Core @ cce32b168 for the
 witness-merkle shape (merkle.cpp:BlockWitnessMerkleRoot) and the BIP9
 segwit deployment constants (deploymentinfo.cpp: threshold 1916).
@@ -9,7 +9,7 @@ segwit deployment constants (deploymentinfo.cpp: threshold 1916).
 Every definition here is pure, computable, axiom-free. The Double-SHA256
 combine of the witness merkle is injected as `combine` (a documented seam);
 its byte-level behaviour is cross-checked in python3
-(scratch/B08/bip141_xcheck.py) against hashlib, mirroring Core's
+against hashlib, mirroring Core's
 MerkleComputation (odd count duplicates the last leaf).
 -/
 

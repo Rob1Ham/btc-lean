@@ -1,17 +1,17 @@
 import Bitcoin.Interpreter.Defs
 
 /-!
-# BitcoinProofs.ErrMap.E02.Taxonomy — error-taxonomy completeness (Review 6, E02)
+# BitcoinProofs.ErrMap.E02.Taxonomy — error-taxonomy completeness
 
 Complete crosswalk between Core's `ScriptError_t` enum
-(`src/script/script_error.h`, pinned `cce32b168…`) and W09's
+(`src/script/script_error.h`, pinned `cce32b168…`) and
 `Bitcoin.Interpreter.ExecError` (`spec/core/Bitcoin/Interpreter/Defs.lean:109`).
 
 Ground truth:
 - enum list: script_error.h @ `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`
   (53 named values + `SCRIPT_ERR_OK` + `SCRIPT_ERR_UNKNOWN_ERROR` +
   `SCRIPT_ERR_ERROR_COUNT` sentinel);
-- interpreter behavior: interpreter.cpp @ W09's pin `cce32b168` (local tree);
+- interpreter behavior: interpreter.cpp @ pin `cce32b168` (local tree);
 - policy/consensus split: `validation.cpp:2259-2288` (`getBlockScriptFlags`:
   P2SH|WITNESS|TAPROOT + DERSIG/CLTV/CSV/NULLDUMMY by deployment) — a
   `SCRIPT_ERR_*` value is `policyOnly` iff it is reachable ONLY under a
@@ -73,8 +73,8 @@ deriving Repr, DecidableEq, Inhabited
 
 /-! ## The crosswalk table -/
 
-/-- `ScriptError_t → (W09 ExecError?, E02 status)`. Row order = enum
-order; per-row evidence in `spec/db/findings-w6/E02.md`.
+/-- `ScriptError_t → (ExecError?, E02 status)`. Row order = enum
+order; per-row evidence follows.
 - `policyOnly` rows: MINIMALDATA (SCR-177), SIG_PUSHONLY (SCR-010),
   SIG_HIGH_S (LOW_S, SCR-175), PUBKEYTYPE (STRICTENC, SCR-176),
   SIG_HASHTYPE (STRICTENC-defined-hashtype, SCR-105/SCR-176),
@@ -232,7 +232,7 @@ theorem hashtypeGate_false_consensus (sig : ByteArray) :
   rw [show (default : Bitcoin.Interpreter.PolicyFlags).strictEnc = false from rfl]
   simp
 
-/-! ## Axiom footprints (full capture: scratch/E02/Axioms.lean) -/
+/-! ## Axiom footprints (full capture below) -/
 
 #print axioms tableTotal_true
 #print axioms imgsDistinct_true

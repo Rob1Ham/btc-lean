@@ -1,7 +1,7 @@
 import Bitcoin.Block.Index
 
 /-! # PDW30.lean — TOP-146..150, part 1 (D-INDEX residue)
-(PDW30, review RC26, 2026-10-17; claim 011ae09).
+(PDW30, RC26, 2026-10-17; claim 011ae09).
 
 Row-face theorems for BLK-059 / BLK-116 / BLK-117 on the sorry-free
 core defs of `Bitcoin/Block/Index.lean` (X08-B3). Route B: zero core

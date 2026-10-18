@@ -4,7 +4,7 @@ import Bitcoin.Numeric.Interface
 /-!
 # PDW80A — TOP-421..423: CHECKMULTISIG order/limits + CScriptNum minimality
 
-Route-B row faces over the W09 interpreter. Zero core writes.
+Route-B row faces over the interpreter. Zero core writes.
 Rows: INV-049 (multisig semantics + off-by-one dummy), SCR-114
 (nKeys∈[0,20], nSigs∈[0,nKeys], depth checks), SCR-050 (non-minimal
 CScriptNum rejected under fRequireMinimal).

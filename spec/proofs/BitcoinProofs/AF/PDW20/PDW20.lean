@@ -2,8 +2,8 @@ import Bitcoin.Invariants.RC10
 import Bitcoin.Activation.Bip9
 import Bitcoin.DataLaws.Laws
 
-/-! # PDW20.lean — proof-promotion review, items TOP-96..100
-(PDW20, recovery review RC21/RC26, 2026-10-17).
+/-! # PDW20.lean — items TOP-96..100
+(PDW20, RC21/RC26, 2026-10-17).
 
 Five sorry-free row-face groups, one per claimed rules.yaml row:
 

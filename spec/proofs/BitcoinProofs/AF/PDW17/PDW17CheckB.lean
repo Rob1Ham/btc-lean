@@ -3,7 +3,6 @@ import Bitcoin.SigHash.Theorems
 /-!
 # PDW17CheckB — sorry-free / axiom-footprint check (items TOP-81..85, part B)
 
-PDW17 (proof-promotion review, recovery RC21/RC22), 2026-10-17.
 Claim `4d864b8`. PDW15CheckB / PDW11Check(B) pattern. Item:
 SCR-141. Split from PDW17Check.lean (bloat rule:
 per-theorem/per-import files; this one pulls the
@@ -27,7 +26,7 @@ bare `#print axioms` capture = the in-file gallery pin
 Theorems.lean:305 = the same line). The full charter trio
 `[propext, Classical.choice, Quot.sound]` (Classical.choice via
 the `hashOutputsL` `htBase`-match decidability). ZERO
-`sorryAx` (Theorems.lean = the W11 S3 all-sorry-free module,
+`sorryAx` (Theorems.lean = the S3 all-sorry-free module,
 "every theorem carries an axiom pin" :7-8; sorry-scan =
 doc-words only).
 

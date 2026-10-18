@@ -3,7 +3,6 @@ import Bitcoin.Block.Pow
 /-!
 # INV100TimewarpCor — T15/INV-100 promotion proof (P19)
 
-PDW3 (proof-promotion review 3), recovery review 3, 2026-10-17.
 Row INV-100 (BIP94 timewarp guard, validation.cpp:4105-4113 +
 consensus.h:35 @cce32b168): on a period boundary (testnet4/regtest,
 `enforce_BIP94`) the first-block-of-period time must be at least the

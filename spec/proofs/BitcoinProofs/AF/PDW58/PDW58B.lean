@@ -2,7 +2,7 @@ import Bitcoin.Capstone.Merkle
 import BitcoinProofs.AF.PDW13.WitnessCommitmentReserved
 
 /-! # PDW58B.lean — TOP-312: SWT-030 witness commitment value
-(PDW58, review RC29). Row face for
+(PDW58, RC29). Row face for
 `Bitcoin.Capstone.Merkle.witnessCommitmentOk` (validation.cpp:
 CheckWitnessMalleation:3898-3906 @ cce32b168; BIP141).
 Route B: zero core writes. -/

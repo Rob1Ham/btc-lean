@@ -3,8 +3,7 @@ import Bitcoin.Serialization.Interface
 import Bitcoin.DataLaws.Interface
 import Bitcoin.Invariants.RC08
 
-/-! # PDW67.lean — proof-promotion review RC29, items TOP-356..360
-(contributor PDW67, 2026-10-17). Claim commit at `spec/db/findings-af/PDW67.md`.
+/-! # PDW67.lean
 
 BIP342 tapscript dispatch + wire-canonicality status-debt band. Route B:
 zero core writes, row-face theorems tagged here; core proof bank re-used.

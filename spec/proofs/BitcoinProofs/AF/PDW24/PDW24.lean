@@ -1,8 +1,8 @@
 import Bitcoin.Block.Index
 import Bitcoin.Capstone.Pow
 
-/-! # PDW24.lean — proof-promotion review, items TOP-116..120
-(PDW24, review RC22, 2026-10-17; claim v1 = 5f12442).
+/-! # PDW24.lean — items TOP-116..120
+(PDW24, RC22, 2026-10-17; claim v1 = 5f12442).
 
 Five sorry-free promotion theorems, one per claimed rules.yaml
 row — the **X08-B3 chainwork/tip band** (workOf / chainWork /

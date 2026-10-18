@@ -43,7 +43,7 @@ The claims are deliberately limited to that model:
   (created change is above dust); non-negativity additionally needs
   `0 ≤ minViableChange`.
 
-Core anchors are pinned to `cce32b168` under `build/scratch/btc/core-src`:
+Core anchors are pinned to `cce32b168` at the pinned sources:
 
 * `COutput::effective_value = txout.nValue - fee`, with
   `fee = feerate.GetFee(input_bytes)`:

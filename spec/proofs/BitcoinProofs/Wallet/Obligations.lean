@@ -32,7 +32,7 @@ are recorded as `no obligation: unmodelled` in
 vacuous or invented predicates.
 
 Core anchors are line numbers in the pinned tree
-`build/scratch/core-build/src` at commit `cce32b168`.  When that tree is
+`src` at commit `cce32b168`.  When that tree is
 absent, the same anchors are the `core_ref` values in
 `spec/db/rules-wallet.yaml`.
 -/

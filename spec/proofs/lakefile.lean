@@ -9,12 +9,12 @@ criterion 1, C1's two-package architecture F4/R1). The core package
 (`../core`) must stay zero-dependency so `#print axioms` audits are
 trivially interpretable.
 
-## Bootstrap (W01 skeleton)
+## Bootstrap (skeleton)
 
 This package is its own lake workspace (the repo-root workspace
 deliberately does NOT require it — see `../lakefile.lean`). The mathlib
 dependency is DECLARED below; activating it is a deliberate step owned
-by W15:
+:
 
     cd spec/proofs
     lake update        # resolves mathlib + toolchain deps (large)

@@ -3,14 +3,12 @@ import Bitcoin.Interpreter.Defs
 /-!
 # INV041ScriptSizeCor — T11/INV-041 promotion proof (P15)
 
-PDW2 (proof-promotion review 2), recovery review 2, 2026-10-17.
 Row INV-041 (`len(script) ≤ 10000`, Satoshi; core anchor
 interpreter.cpp:EvalScript:437-439 + the pre-parse gate 419-421
 @cce32b168): reject direction.
 
 Statement P15 = `evalScriptBytes_scriptSize_reject`, restated 1:1
-verbatim from `spec/db/findings-af/PDW2Check.lean` (the PDW2 mirror
-of the PD03 statement registry), INCLUDING the F-PDW2-001(ii) repair:
+verbatim, INCLUDING the F-PDW2-001(ii) repair:
 `{fuel : Nat}` as a binder — `PD03-stmtcheck.lean`'s P15 (line 68)
 omits it (ill-elaborating as written there).
 

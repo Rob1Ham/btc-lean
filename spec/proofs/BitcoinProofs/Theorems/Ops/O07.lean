@@ -3,7 +3,7 @@ import Bitcoin.Interpreter.Defs
 /-!
 # BitcoinProofs.Theorems.Ops.O07 — per-opcode semantics: the crypto group
 
-O07 (Review-6). Sorry-free per-opcode semantics theorems over W09's
+O07. Sorry-free per-opcode semantics theorems over
 interpreter tier (`Bitcoin.Interpreter.Defs`, `stepBody.dispatchOp`)
 for the crypto group:
 
@@ -27,9 +27,9 @@ SCR-093 :584 (output sizes 20/20/32), SCR-094 :585 (HASH160 =
 RIPEMD160∘SHA256, HASH256 = SHA256d), SCR-095 :586 (empty element hashes
 fine), SCR-167 (CODESEPARATOR records `op.next`).
 
-Concrete verdicts are cross-checked by `scratch/O07/xcheck.py`
+Concrete verdicts are cross-checked by a python script
 (python3 `hashlib` transcription of the C++ cases) against `#eval` of
-the Lean hash floor (scratch/O07/probe1.out): RIPEMD160("abc") =
+the Lean hash floor (probe `probe1.out`): RIPEMD160("abc") =
 8eb208f7e05d987a9b044a8e98c6b087f15a0bfc, SHA1("abc") =
 a9993e364706816aba3e25717850c26c9cd0d89d, SHA256("abc") =
 ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad,
@@ -40,8 +40,7 @@ byte-identical on both sides (VERIFIED).
 
 VERIFIED vs PROPOSED: everything here is VERIFIED against the pinned
 C++ (anchors above) and the python3 mirror; no PROPOSED rows. No
-divergence from Core found in this group (no F-O07-* rows); see
-findings-w6/O07.md.
+divergence from Core found in this group (no F-O07-* rows).
 -/
 
 namespace BitcoinProofs.Theorems.Ops.O07
@@ -344,7 +343,7 @@ theorem step_hash_unexecuted_budgetBurns (ctx : Ctx) (op : WireOp) (st : State)
 
 /-- Dispatch level (interpreter.cpp:1058-1067): OP_CODESEPARATOR is a
 TOTAL transition — any stack, any fExec — that only records
-`pbegincodehash = pc`, i.e. W09's `codeSep := op.next` (the byte offset
+`pbegincodehash = pc`, i.e. `codeSep := op.next` (the byte offset
 just past the opcode). -/
 theorem opCodeSep_dispatch (ctx : Ctx) (op : WireOp) (fExec : Bool) (st : State) :
     stepBody.dispatchOp ctx op 0xab fExec st = .ok { st with codeSep := op.next } := by

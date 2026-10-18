@@ -26,7 +26,7 @@ but the capstone still routes the whole v1 lane to `unjudgedTaproot`
 * No consensus claim is strengthened and no contract or interpreter
   definition is modified.
 * Nothing here proves that a wallet-produced Taproot spend is accepted
-  by consensus; that is the W1 target, stated separately.
+  by consensus; that is the target, stated separately.
 -/
 
 namespace BitcoinProofs.Wallet.Taproot

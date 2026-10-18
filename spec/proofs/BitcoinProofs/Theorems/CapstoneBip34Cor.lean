@@ -25,17 +25,17 @@ Q = `Quot.sound`, C = `Classical.choice`):
 
 | C4 ID / rule | theorem here | statement (short) | axioms |
 |----------|--------------|-------------------|--------|
-| (BLK-069 vacuity) | `bip34Ok_vacuous_below` | height < 227931 ⇒ `bip34Ok = true` unconditionally (W15-flags-style vacuity) | P,C,Q |
+| (BLK-069 vacuity) | `bip34Ok_vacuous_below` | height < 227931 ⇒ `bip34Ok = true` unconditionally (flags-style vacuity) | P,C,Q |
 | (BLK-069 zero pin) | `cbHeightPush_zero` | height 0 pushes exactly `[0x00]` (all-zero digits strip to empty) | P |
 | (BLK-069 genesis era) | `cbHeightPush_one_byte_heights` | 0 < n < 128 ⇒ push = `[0x01, n]` | P,Q |
-| (BLK-069 anchor 481824) | `cbHeightPush_481824` | push = `[0x03, 0x20, 0x5A, 0x07]` — REAL anchor data (W17 run) | P |
-| (BLK-069 anchor 709632) | `cbHeightPush_709632` | push = `[0x03, 0x00, 0xD4, 0x0A]` — REAL anchor data (W17 run) | P |
+| (BLK-069 anchor 481824) | `cbHeightPush_481824` | push = `[0x03, 0x20, 0x5A, 0x07]` — REAL anchor data (run) | P |
+| (BLK-069 anchor 709632) | `cbHeightPush_709632` | push = `[0x03, 0x00, 0xD4, 0x0A]` — REAL anchor data (run) | P |
 | (BLK-069 activation pin) | `cbHeightPush_227931` | the push at the BIP34 activation height itself | P |
 | (BLK-069 bound) | `cbHeightPush_length_bound` | every `UInt32` height pushes ≤ 6 bytes | P,Q |
 | (BLK-069 bound, sharp) | `cbHeightPush_length_bound31` | height < 2^31 ⇒ ≤ 5 bytes (the realistic regime) | P,Q |
 | (BLK-069 bound pin) | `cbHeightPush_max` | 2^32−1 pushes exactly 6 bytes — so "≤ 5 on all of UInt32" is FALSE (the generic bound is 6, not 5) | P |
 | (CScriptNum::getvch) | `cbHeightBytes_sign_rule` | top digit ≥ 0x80 ⇒ exactly one `0x00` sign byte appended | P,Q |
-| (BLK-069 acceptance) | `bip34Ok_push_prefix` | any coinbase whose scriptSig *extends* the exact push passes the gate (the direction the W17 anchor run exercised) | P,C,Q |
+| (BLK-069 acceptance) | `bip34Ok_push_prefix` | any coinbase whose scriptSig *extends* the exact push passes the gate (the direction the anchor run exercised) | P,C,Q |
 
 Supporting lemmas (bridges, digit roundtrips, the `digitsOf_cases`
 workhorse): footprints ⊆ {P, Q}; see the `#print axioms` pins at the bottom.
@@ -303,7 +303,7 @@ theorem digitsOf_cases (n : Nat) :
 
 /-! ## BLK-069: the gate itself -/
 
-/-- **BLK-069 vacuity** (W15-flags-style): below the BIP34 activation
+/-- **BLK-069 vacuity** (flags-style): below the BIP34 activation
 height 227931 the gate is vacuously true, for EVERY coinbase — the `if`
 takes the `else true` branch and the scriptSig is never inspected. -/
 theorem bip34Ok_vacuous_below (height : UInt32) (cb : Tx)
@@ -314,7 +314,7 @@ theorem bip34Ok_vacuous_below (height : UInt32) (cb : Tx)
   simp only [bip34Ok, if_neg (show ¬(Bitcoin.Ledger.BIP34_HEIGHT ≤ height) from by
     rw [UInt32.le_iff_toNat_le]; omega)]
 
-/-- **BLK-069 acceptance direction** (the one the W17 anchor run
+/-- **BLK-069 acceptance direction** (the one the anchor run
 exercised): when BIP34 is active and the coinbase scriptSig *extends* the
 exact minimal push — `push ++ rest` — the gate passes
 (`ByteArray.extract_append_eq_left` reads the pushed prefix back). -/
@@ -405,7 +405,7 @@ theorem cbHeightPush_max :
     cbHeightPush 4294967295 = ([5, 255, 255, 255, 255, 0] : List UInt8).toByteArray := by
   rfl
 
-/-! ## Concrete pushes (kernel computations; the W17 anchor data) -/
+/-! ## Concrete pushes (kernel computations; the anchor data) -/
 
 /-- Height 0 (genesis-era, pre-BIP34): all four digits are zero, the strip
 empties the list, and the push of the empty `CScriptNum` is the single
@@ -446,7 +446,7 @@ theorem cbHeightPush_one_byte_ofNat (n : Nat) (hpos : 0 < n) (hlt : n < 128) :
     (by rw [hto]; exact hpos) (by rw [hto]; exact hlt)
   rwa [hto] at hres
 
-/-- **REAL anchor 481824** (SegWit activation; the W17 capstone run
+/-- **REAL anchor 481824** (SegWit activation; the capstone run
 verified this exact push against the block's coinbase): 481824 = 0x075A20,
 digits `0x20 0x5A 0x07`, top digit 0x07 < 0x80 so no sign byte. -/
 theorem cbHeightPush_481824 :

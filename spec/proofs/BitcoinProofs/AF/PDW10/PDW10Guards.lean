@@ -6,7 +6,7 @@ import Bitcoin.Block.Connect
 /-!
 # PDW10Guards — axiom pins for the PDW10 (TOP-46..50) promotions
 
-Recovery review 5, contributor PDW10, 2026-10-17. Rows BLK-026 / BLK-034 /
+2026-10-17. Rows BLK-026 / BLK-034 /
 BLK-036 / BLK-039 / BLK-068 promoted route A (attr-stack of
 `@[rule "BLK-xxx"]` on the read-verified sorry-free S-evidence
 theorem over the exact gate — PD02 F-PD02-002 "attr+flip" class,
@@ -16,7 +16,7 @@ RC03/RC09/PDW5-BLK-072 attr-only-on-done-files precedent):
   -> `BitcoinProofs.Theorems.CapstoneWeight.weightOk_iff`
      (PD02 V-VERIFIED ≡ rule statement: `weightOk = true ↔
      3·strippedSize + totalSize ≤ 4_000_000`, by `decide_eq_true_iff`;
-     W17 870ab22, sorry-free).
+     870ab22, sorry-free).
 - BLK-034 `Bitcoin.Block.Sigops.legacySigOpBudgetOk` (gate)
   -> `BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_le_20000`
      (over-gate: `legacySigOpBudgetOk = true →
@@ -29,7 +29,7 @@ RC03/RC09/PDW5-BLK-072 attr-only-on-done-files precedent):
 - BLK-039 `Bitcoin.Capstone.Pow.powOk` (gate)
   -> `BitcoinProofs.Theorems.CapstonePow.powOk_iff_conj`
      (PD02 V-VERIFIED ≡ rule statement: `powOk = true ↔ targetOk ∧
-     hashNatLE (headerHash h) ≤ compactTarget`; W17 870ab22,
+     hashNatLE (headerHash h) ≤ compactTarget`; 870ab22,
      sorry-free).
 - BLK-068 `Bitcoin.Block.Connect.blockFinalityOk` (gate)
   -> `Bitcoin.Block.Connect.blockFinalityOk_all`
@@ -50,8 +50,7 @@ Axiom pins (house style: bare `#print axioms`, info-level output
 only, B07/RC03 discipline). Expected footprints ⊆ the charter trio
 `[propext, Classical.choice, Quot.sound]`, zero `sorryAx`; every
 `#print axioms` line below was captured in the PDW10 build log
-(direct-lean + foreground-flock module build) and recorded in
-findings-af/PDW10.md.
+(direct-lean + foreground-flock module build).
 -/
 
 #print axioms BitcoinProofs.Theorems.CapstoneWeight.weightOk_iff

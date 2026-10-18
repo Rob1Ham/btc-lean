@@ -2,7 +2,7 @@ import Bitcoin.Serialization.Interface
 import Bitcoin.SigHash.Digest
 import Bitcoin.Consensus.TxCheck
 
-/-! # PDW34.lean — proof-promotion review RC27, items TOP-166..170
+/-! # PDW34.lean — RC27, items TOP-166..170
 (PDW34, 2026-10-17). Claim 4307fe1.
 
 BIP144 witness-framing band of `Bitcoin/Serialization/Interface.lean`

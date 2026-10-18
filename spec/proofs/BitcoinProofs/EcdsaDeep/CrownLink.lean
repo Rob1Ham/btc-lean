@@ -5,14 +5,14 @@ import BitcoinProofs.EcdsaDeep.VerifyEquation
 # [CROWNLINK] CrownLink — the E05-battery × E06-crown bridge
 # (sample consistency over the 215-vector corpus)
 
-Contributor CROWNLINK (recovery review 5), 2026-10-17. See the data layer
-`CrownBattery.lean` (the corpus) and `db/findings-dl/CROWNLINK.md`.
+CROWNLINK, 2026-10-17. See the data layer
+`CrownBattery.lean` (the corpus).
 
 **The bridge.** E06's verify-equation IFF crown
 (`VerifyEquation.verifyImpl_iff` : `verifyImpl sig pk msg = true ↔
 VerifyEqRaw sig pk msg`, sorry-free) and E05's 215-vector battery
 (`DerBatteryCor`, the kernel-pinned lax-DER corpus + this very
-corpus, `crownBattery`, the W14b vectors verbatim) are here COMPOSED:
+corpus, `crownBattery`, the vectors verbatim) are here COMPOSED:
 `crownLink` says that for every battery row whose `verifyImpl`
 verdict is pinned to the battery's expected value (`hv`), the
 expected verdict and the crown's equation side `VerifyEqRaw` are
@@ -32,7 +32,7 @@ in three complementary layers (honest division of labour):
   `¬ VerifyEqRaw ...` unconditionally (through the crown).
 * **runtime layer** (`CrownLinkRun.lean`, 198/215 rows = 139
   accept + 59 reject): compiled-interpreter evaluation of
-  `verifyImpl` over the corpus (the W14b `EcdsaTest` conformance
+  `verifyImpl` over the corpus (the `EcdsaTest` conformance
   re-run on this corpus) — the R6 wall (WF-recursive
   `mulP`/`expM`/`egcd` cannot be kernel-reduced) is exactly the
   17/198 boundary.

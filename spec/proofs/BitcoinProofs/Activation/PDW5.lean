@@ -3,12 +3,11 @@ import Bitcoin.Interpreter.Rules
 import Bitcoin.SigHash.Theorems
 
 /-!
-# PDW5 — promotion review proofs, items TOP-21..25 (INV-129 iff-gap-fill)
+# PDW5 — proofs for items TOP-21..25 (INV-129 iff-gap-fill)
 
-PDW5 (proof-promotion review), recovery review 3, 2026-10-17.
-NEW file, owned by PDW5 (claim-first: `spec/db/findings-af/PDW5.md`,
-commit 5ad2d00). Sister probes: `PDW2Check.lean` (PDW2's statement
-registry), `PDW5Check.lean` (this lane's pins file, db/findings-af).
+2026-10-17.
+Commit 5ad2d00. Sister probes: `PDW2Check.lean` (PDW2's statement
+registry), `PDW5Check.lean` (pins file).
 
 ## What this file is (and is NOT)
 
@@ -28,7 +27,7 @@ carries the ONE piece of new math the bank was missing:
   Ecdsa-Verify + RealChecker precedent; crosscheck gate-1 scans
   `spec/proofs/**` too).
 
-It is NOT: a Flags.lean content edit (that file = W06's, RC11-tagged,
+It is NOT: a Flags.lean content edit (that file is RC11-tagged,
 live-suite-shared; attr-only touches there are the sanctioned
 exception — see the BLK-072 stacks, recorded in the PDW5 commit); and
 it is NOT the SCR-047 exec-push half (row check "OP_1NEGATE pushes
@@ -41,7 +40,7 @@ PDW1/PDW2's T10/T11/T12 interpreter-gate territory). `buriedActive`
 
 ## Axiom pins (CI-visible guards, RC03-pattern)
 
-Every **flip-target** of this review is pinned here (§ charter axiom-subset
+Every **flip-target** is pinned here (§ charter axiom-subset
 [propext, Classical.choice, Quot.sound]; all five + the gap-fill are
 ⊆):
 * `cltv_flag_off` **[propext]** (below)
@@ -55,7 +54,7 @@ Every **flip-target** of this review is pinned here (§ charter axiom-subset
   `#guard_msgs`-pinned in its own file at :314)
 
 This module is deliberately **NOT** imported by the `BitcoinProofs`
-root (`proofs/BitcoinProofs.lean` = W15's closure list; the root
+root (`proofs/BitcoinProofs.lean` = closure list; the root
 `lake build` is RED on pre-existing `Theorems/LedgerCor` errors —
 S15/F-S15-004(b), e16-crown-debt): new-file, own-target-built,
 A18-isolated = the `proofs/BitcoinProofs/Shortcuts/S05/`-pattern

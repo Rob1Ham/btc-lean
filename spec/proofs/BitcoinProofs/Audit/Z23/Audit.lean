@@ -6,15 +6,13 @@ import Bitcoin.Crypto.Ecdsa.Interface
 # Z23 dark-corner audit — C1 uncompressed/hybrid pubkey forms,
 C2 the ONE shared lax-overflow flag (SGN-106/107 interplay)
 
-NEW file, owned by Z23 alone, 2026-10-16. Python3 probe (20/20 PASS against
+2026-10-16. Python3 probe (20/20 PASS against
 a byte-exact transcription of Core @ `cce32b168` — `src/pubkey.cpp:45-186,283-298`,
 `src/secp256k1/src/secp256k1.c:407-426,472-486`,
 `src/secp256k1/src/group_impl.h:1069-1102`,
-`src/secp256k1/src/scalar_4x64_impl.h:147-159`, vendored at
-`build/scratch/W02/bitcoin` == `build/scratch/W14b/bitcoin`,
-`pubkey.cpp` verified identical, both HEAD = c50817f):
-`build/scratch/build/scratch/scratch/Z23/z23_probe.py`.
-Findings: `spec/db/findings-w4/Z23.md`.
+`src/secp256k1/src/scalar_4x64_impl.h:147-159`,
+`pubkey.cpp` verified identical, HEAD = c50817f):
+`z23_probe.py`.
 
 ## Verdicts
 
@@ -46,11 +44,11 @@ Findings: `spec/db/findings-w4/Z23.md`.
   silently emitted ZERO vectors in 40 tries (expected hits 1.5e-37), while
   rules.yaml SGN-107 and the EcdsaTest.lean docstring still claim 10.
   Same conclusion reached independently by the DEEP-LEAN suite
-  (findings-dl E05 F-E05-001; EcdsaDeep/DerSpec.lean header) — unlanded
+  (F-E05-001; EcdsaDeep/DerSpec.lean header) — unlanded
   there (relation `CoreZero` documented, no def/theorem/vector yet).
 
 All examples kernel-`decide`d on the structural Der layer (no WF-recursive
-`mulP`/`expM` reduction, W14 §5 discipline); no `native_decide`.
+`mulP`/`expM` reduction, §5 discipline); no `native_decide`.
 -/
 
 namespace BitcoinProofs.Audit.Z23
@@ -125,7 +123,7 @@ theorem Z23_C1_hybrid_accepts :
 /- Harness row `pkform-hybrid-001`: a 0x07-tagged (odd-y) hybrid pubkey
 verifies end-to-end — checked by COMPILED RUNTIME execution in `main`
 below (verifyImpl routes through the WF-recursive `mulP`/`expM`, which
-kernel `decide` must not reduce; W14 §5 discipline, D-004: no
+kernel `decide` must not reduce; §5 discipline, D-004: no
 `native_decide`). -/
 
 /-! ## C2 — the ONE shared overflow flag (SGN-106) and its ≥n twin -/

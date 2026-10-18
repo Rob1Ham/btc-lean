@@ -4,7 +4,7 @@ import Bitcoin.Crypto.Curve.Secp
 
 /-!
 # [E12] StrictWindow - the strict-BIP66 half of the r/s ≥ n divergence
-# window (findings-dl/E12.md; the r/s-range-checks lane).
+# window (the r/s-range-checks lane).
 
 E05's `CoreZero`/`CoreLax` (Bitcoin.Crypto.EcdsaDeep.DerSpec, repaired
 `6066928` = F-E12-001) had ZERO theorems (F-E12-002); `isDERSignature`

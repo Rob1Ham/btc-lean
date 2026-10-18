@@ -6,8 +6,7 @@ import Bitcoin.Crypto.Ecdsa.Der
 # `parsePubKeyDeep` (the E07 pubkey-parse crown, E05-DerSpec-pattern)
 
 **Bitcoin Core @ `cce32b168`** (pin verified by E05; the parse-relevant
-sites, all anchors in the E05-archived bytes
-`spec/db/findings-dl/E05-anchors/`):
+sites, all anchors in the archived vector bytes):
 
 * `CPubKey::Verify` — **pubkey.cpp:283-294**: `IsValid()` →
   `secp256k1_ec_pubkey_parse(ctx, &pubkey, vch, size())`
@@ -53,7 +52,7 @@ sites, all anchors in the E05-archived bytes
   Core reject, exactly.
 * **Unit 1 (parsePubKeyDeep = parsePubKey byte-identical,
   SGN-105)** landed at 2b726a3 (`parsePubKeyDeep_eq` by `rfl`; the
-  215/215 W14b conformance battery transfers verbatim). The 33B
+  215/215 conformance battery transfers verbatim). The 33B
   **Some**-path is R6 (`sqrtP` = `expM` = WellFounded,
   F-W14b-1/F-E14): the E05-style `parseDerLax ≠ none ↔ CoreLax`-iff
   (via `split`-inversion) is **NOT** available there — `decide`

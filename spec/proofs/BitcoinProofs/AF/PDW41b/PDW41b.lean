@@ -1,10 +1,10 @@
 import Bitcoin.Capstone.Merkle
 
-/-! # PDW41b.lean — proof-promotion review RC28, items TOP-291..295
+/-! # PDW41b.lean — RC28, items TOP-291..295
 (PDW41b, 2026-10-17). Claim `d5a85e0` (dedup relaunch).
 
 `Capstone/Merkle` witness-commitment status-debt band (BIP141): the
-executable defs and their W17/P08 corollaries
+executable defs and their P08 corollaries
 (`proofs/.../Theorems/CapstoneCommitmentCor.lean`) already exist and are
 sorry-free; the rules.yaml rows were never flipped. Route B: zero core
 writes, row-face theorems on my own `@[rule]` tags.

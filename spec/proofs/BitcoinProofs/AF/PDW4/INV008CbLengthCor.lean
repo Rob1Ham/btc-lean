@@ -3,10 +3,9 @@ import Bitcoin.Consensus.TxCheck
 /-!
 # INV008CbLengthCor — T8/INV-008 promotion proof (P12)
 
-PDW4 (proof-promotion review), recovery review 3, 2026-10-17.
 Row INV-008 (coinbase scriptSig length ∈ [2,100],
 `bad-cb-length`; core anchor tx_check.cpp:55-58 @cce32b168).
-Claim: `spec/db/findings-af/PDW4.md` @ 5fe77cf (rank 19 = T8).
+Claim commit 5fe77cf.
 Statement P12 (bound dir) restated 1:1 verbatim from
 `PD03-stmtcheck.lean:97-103` (elaborated green in `PDW4Check.lean`).
 

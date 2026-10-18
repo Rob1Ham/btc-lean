@@ -4,7 +4,7 @@ import Bitcoin.Data.Script
 /-!
 # PDW9/Unspendable — BLK-094 + SCR-070 promotion (route B)
 
-PDW9 (proof-promotion review 5), recovery review 5 (RC5), 2026-10-17.
+PDW9 (RC5), 2026-10-17.
 Rows BLK-094 + SCR-070 (TOP-41..45 claim `1c53f09`):
 `CScript::IsUnspendable()` (script/script.h:564-567) — the two
 unspendable-script classification faces.
@@ -12,7 +12,7 @@ unspendable-script classification faces.
 Route B (RC03-4 B-vehicle): both rows' tags sit on the core
 *definition* `Bitcoin.Ledger.scriptUnspendable`
 (Ledger/Interface.lean:100, `@[rule "INV-112", "BLK-094",
-"SCR-070"]` — INV-112 = W12's pre-existing tag, BLK-094/SCR-070 =
+"SCR-070"]` — INV-112 = pre-existing tag, BLK-094/SCR-070 =
 X08-Added) — tag-on-def tagdebt. Promotion = this file's sorry-free
 theorems, my `@[rule]` tags, zero core edits.
 
@@ -35,7 +35,7 @@ unspendable", but Core's (and the Lean port's) `IsUnspendable` is
 `size > 0 && first == OP_RETURN` — an *empty* script is NOT
 unspendable (it has no first byte to test). `scriptUnspendable_empty`
 pins the def's actual (Core-faithful) behavior; the row text is the
-spec-letter drift, documented in findings-af/PDW9.md (F-PDW9-002).
+spec-letter drift, documented as F-PDW9-002.
 
 **lean_target name-drift (F-PDW11-004 class)**: rules.yaml
 BLK-094/SCR-070 lean_targets spelled `Bitcoin.Ledger.
@@ -48,8 +48,7 @@ proofs/BitcoinProofs/PDW9/Unspendable.lean`, direct-lean
 RC05/PDW11Check route). Additive module, not imported by anything.
 
 Axiom pins (house style: bare `#print axioms`, info-level only,
-B07/RC03/PDW10Guards discipline); footprints in findings-af/PDW9.md
-v2; all ⊆ the charter trio `[propext, Classical.choice,
+B07/RC03/PDW10Guards discipline); footprints below; all ⊆ the charter trio `[propext, Classical.choice,
 Quot.sound]`, zero `sorryAx`.
 -/
 

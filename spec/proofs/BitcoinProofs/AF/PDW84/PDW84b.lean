@@ -48,7 +48,7 @@ theorem cmsLoop_order_step_row (flags : Bitcoin.Activation.ScriptFlags)
 by at least one spare key (nSigs ≥ nKeys+2), the count test fires on the
 first step whatever the checker says. (The boundary nSigs = nKeys+1 is
 unreachable from `checkMultiSig`, which rejects `nSigs > nKeys` with
-`sigCount`; see findings.) -/
+`sigCount`.) -/
 @[rule "SCR-116"]
 theorem cmsLoop_early_false_row (flags : Bitcoin.Activation.ScriptFlags)
     (pol : PolicyFlags) (sv : Bitcoin.Crypto.Seam.SigVersion)

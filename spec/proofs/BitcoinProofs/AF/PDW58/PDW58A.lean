@@ -1,7 +1,7 @@
 import Bitcoin.Invariants.RC12
 
 /-! # PDW58A.lean — TOP-311: INV-134 BIP113 MTP cutoff gate
-(PDW58, review RC29). Row face for `Bitcoin.Invariants.RC12.bip113Cutoff`
+(PDW58, RC29). Row face for `Bitcoin.Invariants.RC12.bip113Cutoff`
 (validation.cpp:4141-4150 @ cce32b168). Route B: zero core writes. -/
 
 namespace BitcoinProofs.AF.PDW58

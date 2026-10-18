@@ -17,7 +17,7 @@ they decide the definition shapes of the whole lane (R6 / F-W14b-1):
   over a literal 17-bit list.  This is the deepest single reduction
   in the eventual `verifyImpl'` (~35 `mulM` + one 17-round `expB`).
   Literals: `addRaw 1 31426 1 31426 = some (51285, 55626)` (= 2G).
-* **P4** — the lax-DER parser (W14b `Ecdsa/Der.lean:56-142` carbon)
+* **P4** — the lax-DER parser (`Ecdsa/Der.lean:56-142` carbon)
   on a literal `ByteArray`, `parseDerLax sig₄ = some (171, 205)`.
   (gates the byte-level `verifyImpl'` carbon; ByteArray literals are
   written `ByteArray.mk (L.toArray)`.)
@@ -26,10 +26,10 @@ they decide the definition shapes of the whole lane (R6 / F-W14b-1):
   the `x ≥ p` reject and the on-curve check.
 
 Every literal was fixed by the python oracle first
-(`build/scratch/DLsuite/scratch/probe_lits.py`).
+(the probe script `probe_lits.py`).
 
 All `decide`s below must be kernel `sorry`-free reductions — if any
-fails or hangs, the fallback is the W14b F-W14b-1 route (hardcoded
+fails or hangs, the fallback is the F-W14b-1 route (hardcoded
 literal bit lists everywhere), which would cost the parser-level
 carbon copy (P4).
 -/

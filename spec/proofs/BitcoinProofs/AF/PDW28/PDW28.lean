@@ -1,7 +1,7 @@
 import Bitcoin.Block.Connect
 import Bitcoin.Block.Pow
 
-/-! # PDW28 — proof-promotion review RC22 continuation, items TOP-136..140
+/-! # PDW28 — RC22 continuation, items TOP-136..140
 
 D-POW / D-CONNECT continuation of the 268-S-mass c-true head (claim
 `7e7517e`, recovered post model-rotation from the glm claim WIP).

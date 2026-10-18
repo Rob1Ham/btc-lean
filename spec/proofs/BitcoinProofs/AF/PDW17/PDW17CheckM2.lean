@@ -3,7 +3,6 @@ import Bitcoin.Crypto.Taproot.Sighash
 /-!
 # PDW17CheckM2 — sorry-free / axiom-footprint check (items TOP-81..85, part A)
 
-PDW17 (proof-promotion review, recovery RC21/RC22), 2026-10-17.
 Claim `4d864b8` (me-2). v2.1: renamed PDW17Check.lean ->
 PDW17CheckM2.lean (F-PDW28-003 twin-path conflict: me-1's
 PDW17Check.lean @e717653 restored verbatim to the shared path;

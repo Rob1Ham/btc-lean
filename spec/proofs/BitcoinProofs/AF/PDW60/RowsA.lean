@@ -2,7 +2,7 @@ import Bitcoin.Interpreter.Rules
 import Bitcoin.Block.Params
 import Bitcoin.Invariants.RC08
 
-/-! # PDW60 RowsA — TOP-321/322/325: SCR-147, BLK-106, INV-086 (review RC29).
+/-! # PDW60 RowsA — TOP-321/322/325: SCR-147, BLK-106, INV-086 (RC29).
 Route B status-debt promotion: row faces stated on the core declarations;
 zero core writes. -/
 
