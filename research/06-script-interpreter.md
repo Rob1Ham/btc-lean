@@ -1,6 +1,6 @@
-# 06 — The Bitcoin Script Interpreter: Complete Operational Semantics (Workstream B2)
+# 06 — The Bitcoin Script Interpreter: Complete Operational Semantics
 
-Project: **btc-lean** · Workstream B2 (report ID 06) · Date: 2026-10-16
+Project: **btc-lean** · Report 06 · Date: 2026-10-16
 
 **Ground truth pinned:** `bitcoin/bitcoin` @ `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66` (master, client version 32.99, cloned 2026-10-16).
 NOTE: the canonical pinned HEAD `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66` had moved; the actual clone HEAD is the hash above. All `file:line` citations below are at this commit.
@@ -381,7 +381,7 @@ Fields in order: nVersion; hashPrevouts (double-SHA256 of all prevouts; omitted=
 25. **Empty pubkey fails immediately in tapscript**; non-32-byte pubkey is a silent success (upgradable) with the check "passing" counted (:377-392, comment :370).
 26. **CODESEPARATOR position is uint32 opcode index** recorded even mid-branch; BIP342 sighash commits to it (:1065, :1574-1576).
 27. **SerializeScriptCode removes CODESEPARATORs in legacy sighash** (:1282-1302) — including unexecuted ones; FindAndDelete + codesep interplay is where legacy malleability lived.
-28. **IsUnspendable** (script.h:564-567): first byte OP_RETURN or script >10k ⇒ output prunable; consensus consequence: those outputs can never be spent (script would fail), but the *classification* happens at UTXO-layer (B3/B4 interface).
+28. **IsUnspendable** (script.h:564-567): first byte OP_RETURN or script >10k ⇒ output prunable; consensus consequence: those outputs can never be spent (script would fail), but the *classification* happens at the UTXO layer.
 29. **HasValidOps / MAX_OPCODE** (script.cpp:300-311, script.h:217) — mempool/descriptor-level checks, not consensus.
 30. **Exception safety as semantics**: `scriptnum_error` → SCRIPTNUM tag; any other exception → UNKNOWN_ERROR (:1236-1243). Both = script failure; the tag matters only for error reporting, not acceptance. Lean model can collapse to a boolean + optional reason.
 
@@ -395,10 +395,10 @@ Fields in order: nVersion; hashPrevouts (double-SHA256 of all prevouts; omitted=
    - *Spec-by-execution* (inevitable in corners): FindAndDelete's byte-level semantics, the legacy sighash serializer, and CastToBool's negative-zero are easiest specified *literally* (as byte-level functions mirroring Core), then proven equivalent to cleaner datatype-level specs (e.g., FindAndDelete ≡ "remove all occurrences of the serialized push of sig, interpreted as an opcode stream" — note these are *not* equal in general! byte matching can split a push in half; the Lean model must pick the byte-level version as ground truth).
 3. **The interpreter as a `ForIn`/recursion over decoded ops** with the check-order of §1.2 exactly preserved — check *order* is consensus-observable only through the error tag, which is not consensus-observable on-chain; hence a Lean model may reorder checks as long as the accept/reject predicate is proven equal. This is a spec-simplification opportunity worth a theorem (`check_order_irrelevance`).
 4. **Parameterization**: `flags : VerifyFlags` with the consensus instantiation `consensusFlags (height) (blockHash)` = P2SH|WITNESS|TAPROOT + deployment-derived + exceptions (validation.cpp:2249-2286). Policy flags needed only for the conformance harness against `script_tests.json` (which tests policy flags heavily).
-5. **Signature-checker as an interface** (`BaseSignatureChecker`): the Lean module should take `checkECDSA / checkSchnorr / checkLockTime / checkSequence` as opaque-or-abstract functions, so the script module composes with C2's crypto tower and B3's locktime context. `MissingDataBehavior` can be dropped (consensus = ASSERT_FAIL, i.e., total context always available).
+5. **Signature-checker as an interface** (`BaseSignatureChecker`): the Lean module should take `checkECDSA / checkSchnorr / checkLockTime / checkSequence` as opaque-or-abstract functions, so the script module composes with the crypto layer and the locktime context. `MissingDataBehavior` can be dropped (consensus = ASSERT_FAIL, i.e., total context always available).
 6. **Sighash**: three independent message constructions (legacy/BIP143/BIP341-342) are *separate modules* consumed by the interpreter through the checker interface; the legacy serializer's FindAndDelete/CODESEPARATOR interactions live in the *interpreter-to-sighash* boundary (scriptCode preparation), not in the sighash itself — place them in the script module exactly as Core does (EvalChecksigPreTapscript, interpreter.cpp:331-343).
 7. **Numbers**: CScriptNum fits mathlib's `ℤ` plus a bounded-encoding predicate; the *encoding* (sign-magnitude LE) must be its own function pair with round-trip lemmas; `0x80` = 0 (negative zero) and the minimal-encoding exception (`vch[size-2] & 0x80` case, script.h:262-268) need explicit tests.
-8. **What to prove first** (highest value/effort): (i) decoder totality/faithfulness; (ii) ConditionStack ≡ List Bool; (iii) scriptnum round-trip + minimality; (iv) check-order irrelevance; (v) opcode-count bound ⇒ execution termination (good total-correctness lemma: every loop iteration consumes ≥1 byte and nOpCount bounds iterations); (vi) "no inflation through script" framing = script is a predicate, value moves only via tx-level rules (B3).
+8. **What to prove first** (highest value/effort): (i) decoder totality/faithfulness; (ii) ConditionStack ≡ List Bool; (iii) scriptnum round-trip + minimality; (iv) check-order irrelevance; (v) opcode-count bound ⇒ execution termination (good total-correctness lemma: every loop iteration consumes ≥1 byte and nOpCount bounds iterations); (vi) "no inflation through script" framing = script is a predicate, value moves only via tx-level rules.
 9. **Size of the surface**: the *accept/reject predicate* of EvalScript is ~1,200 lines of C++ with ~90 reachable opcode behaviors; a faithful Lean `step` function is realistically 800–1,500 lines plus ~100 lemmas. This is the single largest module of btc-lean; budget accordingly.
 
 ### 8. Open questions & risks
@@ -406,7 +406,7 @@ Fields in order: nVersion; hashPrevouts (double-SHA256 of all prevouts; omitted=
 1. **FindAndDelete byte-vs-opcode duality** (open): the byte-level spec is ground truth; proving the cleaner opcode-level characterization equal is subtle when a signature's serialized push appears *across* an opcode boundary (it can: the match is a raw subsequence). Decide early whether Lean adopts byte-level directly (recommended).
 2. **`uint256::ONE` sighash value**: confirm the exact bytes (`…0001` little-endian) when implementing; test against `script_tests.json` SIGHASH_SINGLE-overflow vectors.
 3. **ScriptNum 4-byte "range" folklore**: the real rule is byte-length, not value range (a 4-byte `0x00 0x00 0x00 0x80` decodes to −2³¹ fine). Keep the Lean predicate as `size ≤ n`.
-4. **P2A consensus status**: in master as a consensus-visible success path for witness v1/2-byte programs (interpreter.cpp:2000-2001). Was activated via a soft-fork? Its consensus acceptance of *any* witness stack for `OP_1 4e73` outputs must be in the model; flag to B5.
+4. **P2A consensus status**: in master as a consensus-visible success path for witness v1/2-byte programs (interpreter.cpp:2000-2001). Was activated via a soft-fork? Its consensus acceptance of *any* witness stack for `OP_1 4e73` outputs must be in the model; noted for the SegWit/Taproot layer.
 5. **SigHashCache/PrecomputedTransactionData** are pure optimizations; excluding them is safe but the differential harness must then compare *sighash outputs*, not internal states.
 6. **`stacktop` int64-cast UB corner**: `stacktop(i)` with i beyond bounds throws (caught); no UB at current call sites — verified all call sites are guarded.
 7. **Tapscript validation-weight underflow check `< 0`** (not `≤`): budget exactly 0 after decrement is OK; int64 arithmetic can't overflow (witness ≤ 4M → budget ≤ ~4M, 50×sigops bounded by budget) — verify in Lean with bounds.
@@ -415,10 +415,10 @@ Fields in order: nVersion; hashPrevouts (double-SHA256 of all prevouts; omitted=
 ### 9. Recommendations
 
 1. Build the module in this order: decoder → ScriptNum → CastToBool/stack primitives → push+control (IF/ELSE/ENDIF) → limits → numeric ops → hashes → checksig skeleton (checker as parameter) → CLTV/CSV → CMS → VerifyScript orchestration → witness v0 → taproot/tapscript → P2A/exceptions.
-2. Adopt Core's error enum verbatim (script_error.h) in Lean for differential-testability of rejection reasons with `test/functional` + `src/test/data/script_tests.json` (C3's harness).
+2. Adopt Core's error enum verbatim (script_error.h) in Lean for differential-testability of rejection reasons with `test/functional` + `src/test/data/script_tests.json` (the differential-testing harness).
 3. Pin the two exception blocks + deployment heights as data, not code.
 4. Add a "termination" lemma per script: `nOpCount` (BASE/W0) or validation-weight (tapscript) or script-length (trivial) bounds execution.
-5. Coordinate with B5 (control-block/commitment details) at the interface points: `ComputeTapleafHash`, `VerifyTaprootCommitment`, sighash field order.
+5. Coordinate at the interface points with the SegWit/Taproot layer (control-block/commitment details): `ComputeTapleafHash`, `VerifyTaprootCommitment`, sighash field order.
 6. Keep `EvalScript`'s *check order* in the Lean code (not the reordered theorem) until the check-order-irrelevance lemma is proven — makes line-by-line differential debugging against Core trivial.
 
 ---

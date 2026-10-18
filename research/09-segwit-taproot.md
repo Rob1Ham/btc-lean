@@ -1,8 +1,8 @@
 # 09 — SegWit & Taproot Consensus Layers (BIP141/143/144/145/146/147 + BIP340/341/342)
 
-**Workstream B5 · project btc-lean · 2026-10-16**
+**Report 09 · project btc-lean · 2026-10-16**
 
-> **Pin note.** Brief requested Core HEAD `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`; the depth-1 clone
+> **Pin note.** The originally requested Core HEAD was `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`; the depth-1 clone
 > resolved to **`cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`** (v32.99.0 master, merge of #36535, dated
 > 2026-10-16). Every `file:function:lines` citation below is against this commit (`@c50817f`). The
 > SegWit/Taproot interpreter code is stable across this range; no relevant semantic drift expected
@@ -41,7 +41,7 @@
     taproot commitment → tapscript opcode deltas → sigops/weight accounting.
 12. Test-vector coverage is superb and machine-readable: `bips/bip-0340/test-vectors.csv`,
     `bips/bip-0341/wallet-test-vectors.json`, plus Core's `src/test/script_tests.cpp` JSON corpus —
-    these are the conformance harness for this workstream.
+    these are the conformance harness for these rules.
 
 ---
 
@@ -137,8 +137,8 @@ hence the malleation check is "ignored" per the code comment (3895-3897). Activa
 at/after segwit activation **must** have either a valid commitment or zero witness data anywhere
 (`ContextualCheckBlock → CheckWitnessMalleation`, `validation.cpp:4177`, `3913-3921`); with a
 commitment present, coinbase input witness must be exactly one 32-byte reserved value (3886-3893).
-The "someone-can't-spend"/unspendable-genesis nuance from the brief: not present in BIP141's
-consensus layer (it concerns `IsUnspendable`/OP_RETURN, B2's territory) — skipped per brief.
+The "someone-can't-spend"/unspendable-genesis nuance: not present in BIP141's
+consensus layer (it concerns `IsUnspendable`/OP_RETURN, script-interpreter territory) — out of scope here.
 
 **A.8 Activation interplay (VERIFIED).**
 BIP141/143/144/147 deployed together via BIP9, name "segwit", **bit 1** (`bip-0141.mediawiki:304-308`;
@@ -179,7 +179,7 @@ appended *after* any cached midstate (1680-1686).
   from the last executed `OP_CODESEPARATOR` (inclusive of none if none executed); **no**
   `FindAndDelete` of the signature (338-343); unexecuted `OP_CODESEPARATOR`s *after* the last
   executed one are retained (BIP143:43-44; worked example `bip-0143.mediawiki:295-312`).
-- The 520-byte question in the brief: there is **no** scriptCode size limit *for hashing*; the
+- The 520-byte question: there is **no** scriptCode size limit *for hashing*; the
   10,000-byte `MAX_SCRIPT_SIZE` applies to the witnessScript as executed (`interpreter.cpp:438-440`).
 
 **B.4 Hashtype handling (VERIFIED).**
@@ -215,7 +215,7 @@ standardness: `CheckSignatureEncoding` gates them behind `SCRIPT_VERIFY_DERSIG|L
 flags (`interpreter.cpp:211-226`) and `CheckPubKeyEncoding:228-236`; none appear in
 `GetBlockScriptFlags`. The *consensus* member of that family is BIP66 DERSIG (buried at 363,725,
 `validation.cpp:2268-2270`) which enforces `IsValidSignatureEncoding` (strict DER, incl. the
-hashtype byte's high-bit rule). The "MINIMAL flag semantics" phrase in the brief maps to
+hashtype byte's high-bit rule). The "MINIMAL flag semantics" phrase maps to
 `SCRIPT_VERIFY_MINIMALDATA` (`CheckMinimalPush`, `script.cpp:373+`) — also policy-only.
 
 **C.4 BIP147 NULLDUMMY (VERIFIED, consensus).** Deployed with segwit (BIP9 bit 1); enforced at
@@ -256,7 +256,7 @@ p = 2²⁵⁶ − 2³² − 977, n = 0xFFFF…D0364141 (`bip-0340.mediawiki:98-9
 8. (wrapper) 65-byte sig with hashtype 0x00;
 9. (wrapper) undefined hashtype (>3 and ∉ 0x81..0x83);
 10. (SINGLE) `in_pos ≥ tx_to.vout.size()` → `SignatureHashSchnorr` returns false → same error.
-On the brief's "not both R and s invalid" acceptance nuance — INFERRED reading: verification is a
+On the "not both R and s invalid" acceptance nuance — INFERRED reading: verification is a
 *total deterministic function*; there is no state in which a signature is "partially valid"; in
 particular the verifier never accepts on a fallback equation (contrast: some ECDSA verifier
 variants). The design property cited by BIP340 is "completely specified at the byte level"
@@ -318,7 +318,7 @@ tapscript extension iff TAPSCRIPT: tapleaf_hash, key_version 0x00, codesep_pos (
 All sub-hashes single-SHA256 (`GetSHA256`, `hash.h:134-138`); the whole message is fed to a
 `TapSighash`-tagged hasher and finalized with single-SHA256, *then* BIP340 verifies over that
 32-byte message — i.e. **no double-SHA256 anywhere in BIP341 hashing** (contrast BIP143).
-The "sha-single/double nuance" from the brief: VERIFIED mapping — single-SHA256: P2WSH program,
+The "sha-single/double nuance": VERIFIED mapping — single-SHA256: P2WSH program,
 tapleaf/tapbranch/taptweak, all BIP341 sub-hashes; double-SHA256: BIP141 block/tx ids, BIP143
 digest and its sub-hashes. Epoch byte exists to allow a future invasive redefinition of the
 sighash under the same tag (BIP341 ref).
@@ -426,9 +426,9 @@ falls back to `HandleMissingData`).
 
 | Primitive | Used by | Where in consensus path | Lean sizing |
 |---|---|---|---|
-| SHA-256 (single) | P2WSH program match; tapleaf/tapbranch/taptweak; all BIP341 sub-hashes; witness merkle root | interpreter + block validation | verified impl (C2) |
+| SHA-256 (single) | P2WSH program match; tapleaf/tapbranch/taptweak; all BIP341 sub-hashes; witness merkle root | interpreter + block validation | verified impl (crypto layer) |
 | SHA-256 (double) | BIP143 digest + sub-hashes; txid/wtxid; witness commitment | sighash + block | same |
-| RIPEMD-160 / Hash160 | P2WPKH reconstruction executes `OP_HASH160` | inside EvalScript (B2's opcode, but C2 must supply it) | verified impl |
+| RIPEMD-160 / Hash160 | P2WPKH reconstruction executes `OP_HASH160` | inside EvalScript (an interpreter opcode, but the crypto layer must supply it) | verified impl |
 | secp256k1 field/group ops | taproot tweak check (P + tG, parity), lift_x | `CheckTapTweak` | the hard part; mathlib `ℤ` + custom mod arithmetic |
 | ECDSA verify (lax DER parse, S-normalize) | every pre-tapscript CHECKSIG | `CPubKey::Verify` (`pubkey.cpp:283-298`) | hardest; consider axiomatized-at-first, verified later |
 | BIP340 Schnorr verify | tapscript CHECKSIG + key path | `XOnlyPubKey::VerifySchnorr` | moderate (needs EC scalar mult) |
@@ -478,9 +478,9 @@ preserve):
    (in `bip-0143.mediawiki:139-537`) — fully machine-checkable, no crypto beyond SHA-256.
 3. **BIP341/342 dispatch + sighash (d=3-4):** same, plus tagged hashes; BIP341 JSON test vectors.
 4. **Taproot commitment check (d=4):** needs the secp256k1 group; start with an *axiomatized*
-   `xonly_tweak_add_check` and prove the surrounding logic; verify the group later (C2).
+   `xonly_tweak_add_check` and prove the surrounding logic; verify the group later (crypto layer).
 5. **Schnorr/ECDSA verify (d=5):** axiomatize first (assume `verify_correct`), conformance-test on
-   BIP340 `test-vectors.csv`; the full proof is C2's endgame.
+   BIP340 `test-vectors.csv`; the full proof is the crypto layer's endgame.
 6. **Sigops/weight accounting (d=3):** `GetTransactionSigOpCost` + tapscript budget; good theorem
    material ("budget ≥ 0 ⇒ at most ⌈(witness_size+50)/50⌉ sigops").
 
@@ -504,10 +504,10 @@ preserve):
 
 ## Open questions & risks
 
-1. **(INFERRED→verify with A/B4)** Where exactly does `spent_outputs` get populated in the
-   block-connection path (`ConnectBlock` → `CheckInputScripts`?) — the taproot sighash is
+1. **(INFERRED → to verify against the block-level analysis)** Where exactly does
+   `spent_outputs` get populated in the block-connection path (`ConnectBlock` → `CheckInputScripts`?) — the taproot sighash is
    undefined without it; the consensus assert (`m_bip341_taproot_ready`) is the contract. Needs the
-   B3 report cross-checked.
+   transaction-validation note cross-checked.
 2. **Taproot activation modeling.** Master has *removed* taproot from `vDeployments` entirely
    (always-on + exception block). For chains where taproot activates at a height (signet? new
    chains?), btc-lean must decide: buried-height model everywhere, or keep a BIP9 model for
@@ -519,14 +519,14 @@ preserve):
    the *entire* script semantics is deferred (returns success) — the Lean spec should make
    "leaf-version dispatch" a total function returning `∞-many future semantics ⊎ tapscript`.
 5. **`GetWitnessInputWeight`** (`consensus/validation.h:150`) — used where? (appears to serve
-   mempool/package policy and possibly the taproot validation-weight equivalence). Confirm with B3
+   mempool/package policy and possibly the taproot validation-weight equivalence). Confirm in the transaction-validation note
    that block validation only uses tx/block weight.
 6. **BIP141 footnote 109** (CastToBool of program hash) is unimplemented/unimplementable in Core —
    document as "vacuous in practice" to preempt reviewer questions.
 7. **ECDSA in Lean**: the lax-DER parse + normalize + verify chain is consensus-visible *only
    through its accept/reject decision*; a mismatched re-implementation silently forks. The BIP340
    test vectors are exact for Schnorr; for ECDSA the vectors are Core's own `data/` + `src/test/`.
-   Risk: medium. Mitigation: differential harness against Core's `bitcoin-chainstate` (C3).
+   Risk: medium. Mitigation: differential harness against Core's `bitcoin-chainstate`.
 8. **The two mainnet exception blocks** must be first-class citizens of the flag-derivation model,
    else replaying the chain in Lean fails at height ~234,000 (BIP16) and ~709,632 (taproot).
 
@@ -548,11 +548,11 @@ preserve):
 5. **Encode the exception-map** (`script_flag_exceptions`) as literal data in the chain-params
    module and property-test `GetBlockScriptFlags` against it.
 6. **Do not formalize**: signing, batch verify, mempool policy (BIP146 flags), BIP145 (mining),
-   NUMS guidance. Catalogue them in a `nonconsensus.md` instead (charter §2 boundary).
-7. **Priority test corpus** for this workstream: BIP143 worked examples; BIP341
+   NUMS guidance. Catalogue them in a `nonconsensus.md` instead (the consensus/non-consensus boundary).
+7. **Priority test corpus**: BIP143 worked examples; BIP341
    `wallet-test-vectors.json`; BIP340 `test-vectors.csv`; Core `src/test/script_tests.cpp`
    (search "taproot"/"P2WSH" blocks); the two mainnet exception blocks; a real mainnet taproot
-   script-path spend block (e.g. pick one via RPC during M2).
+   script-path spend block (e.g. pick one via RPC during the second milestone).
 
 ---
 
@@ -610,7 +610,7 @@ Signature Message Extension:105-111, §Signature validation:112-123, §Resource 
 **Not found / N/A:** BIP148/149 (activation of segwit via UASF — historical, no consensus code);
 BIP116 (MERKLEBRANCHVERIFY — not deployed); `src/script/sigencoding*` does not exist as a file in
 this tree (encoding checks are in interpreter.cpp); "someone-can't-spend/unspendable genesis" —
-no such construct in BIP141/341; skipped per brief.
+no such construct in BIP141/341; out of scope here.
 
 ---
 
@@ -781,7 +781,7 @@ All Core citations @`c50817f`. "BIP §" = section anchor in the mediawiki text.
 | TPR-082 | NUMS guidance non-consensus | bip-0341:156-158 | H = lift_x(0x50929b74…) construction is wallet guidance | 341 | 1 |
 | TPR-083 | Unspendable-script-path tweak | pubkey.cpp:ComputeTapTweakHash:248-251 | t = tag_TapTweak(p) with no merkle root (key-only outputs still tweakable) | 341 | 2 |
 
-**Row count: 68 SWT + 83 TPR = 151 rows.** (Brief asked 90+; delivered ~1.7×, split so the
+**Row count: 68 SWT + 83 TPR = 151 rows.** (The original target was 90+; delivered ~1.7×, split so the
 SegWit-era traceability can be maintained independently of the Taproot-era one.)
 
 ---
