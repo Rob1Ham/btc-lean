@@ -519,7 +519,7 @@ Format: Rule ID | Rule/check | Core location (file:function:lines @ `cce32b1682d
 | SCR-048 | CheckMinimalPush | script.cpp:CheckMinimalPush:373-396 | canonical push opcode for each data length (under MINIMALDATA, pol.) | BIP62 r3 | 3 |
 | SCR-049 | Minimal pushes only in executed context | interpreter.cpp:EvalScript:488-492 | fExec-gated (unexecuted non-minimal pushes OK) | BIP62 r3 | 3 |
 | SCR-050 | ScriptNum minimal encoding | script.h:CScriptNum:252-268 | top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal) | BIP62 r4 | 4 |
-| SCR-051 | fRequireMinimal always for CLTV/CSV/CMS-counts/CHECKSIGADD-num | interpreter.cpp:556,584,1126,1140,1103 | numeric operands always minimal | BIP342/CLTV/CSV | 3 |
+| SCR-051 | fRequireMinimal under MINIMALDATA for CLTV/CSV/CMS-counts/CHECKSIGADD-num | interpreter.cpp:556,584,1126,1140,1103 | minimal numeric operands only when MINIMALDATA is set; policy, not consensus | BIP342/CLTV/CSV | 3 |
 | SCR-052 | IsPushOnly | script.cpp:266-286 | opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push | BIP16/62 | 2 |
 | SCR-053 | IsWitnessProgram | script.cpp:250-264 | 4..42 bytes; OP_0/OP_N + exact-length push; program 2..40 | BIP141 | 2 |
 | SCR-054 | IsPayToScriptHash | script.cpp:224-231 | 23-byte HASH160 pattern | BIP16 | 1 |
