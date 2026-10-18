@@ -1212,7 +1212,8 @@ theorem satisfy_wrapC_pkH_accepts (sf : Satisfier) (key keyHash sig : ByteArray)
 
 /-- `satisfy` for a hash lock produces the singleton witness `[p]`. -/
 theorem satisfy_hash_eq (sf : Satisfier) (node : Node) (p : ByteArray)
-    (hproduce : produce sf node = (some [bytes [0,0,0,0]], some [p])) :
+    (hproduce : produce sf node =
+      (some [bytes (List.replicate 32 0)], some [p])) :
     satisfy sf node = some [p] := by
   unfold satisfy
   rw [hproduce]
@@ -1222,7 +1223,8 @@ theorem satisfy_hash_eq (sf : Satisfier) (node : Node) (p : ByteArray)
 lock, the `satisfy` witness is accepted.
 
 Not modeled: only the preimage witness is proved; the satisfier is trusted to
-return a preimage of the pinned 32-byte hash (`hsel`), and the digest size
+return a preimage of the pinned 32-byte hash (`hproduce` supplies both the
+32-byte canonical dissatisfaction and the preimage), and the digest size
 premise is exactly what the interpreter's `OP_EQUAL` requires. -/
 theorem satisfy_hash_accepts (sf : Satisfier) (h p digest : ByteArray) (w : Nat)
     (hw : w = 0xa8 ∨ w = 0xaa ∨ w = 0xa6 ∨ w = 0xa9)
@@ -1230,7 +1232,8 @@ theorem satisfy_hash_accepts (sf : Satisfier) (h p digest : ByteArray) (w : Nat)
     (hscript : toScript ctx node = serializeOpcodes
       [.op ⟨0x82, by omega⟩, .pushBytes (bytes [0x20]), .op ⟨0x88, by omega⟩,
        .op ⟨w, by omega⟩, .pushBytes digest, .op ⟨0x87, by omega⟩])
-    (hproduce : produce sf node = (some [bytes [0,0,0,0]], some [p]))
+    (hproduce : produce sf node =
+      (some [bytes (List.replicate 32 0)], some [p]))
     (hp : p.size = 32) (hhash : hashForOp w p = digest)
     (hd : digest.size = 32 ∨ digest.size = 20)
     (flags : ScriptFlags) (pol : PolicyFlags) (chk : ScriptChecker)
@@ -1248,6 +1251,39 @@ theorem satisfy_hash_accepts (sf : Satisfier) (h p digest : ByteArray) (w : Nat)
     (by intro d hd'; simp only [List.mem_singleton] at hd'; subst hd'; rw [hp]; omega)
     (by simpa using eval_hash w hw p digest hp hhash hd flags pol chk default hmin)
     (by simp) castToBool_vchTrue
+
+/-! ### Hash-lock dissatisfaction checks
+
+The canonical dissatisfaction of a hash fragment is Core's `ZERO32`, the
+32-zero-byte vector (`src/script/miniscript.h:1359`).  The first example
+checks that the corrected 32-byte value is the one `produce` actually
+returns and that `satisfy_hash_eq` applies to it; the second checks that
+the former four-byte value does not occur. -/
+
+private theorem produce_sha256_fst_eq (sf : Satisfier) (h : ByteArray) :
+    (produce sf (.sha256 h)).1 =
+      some [bytes (List.replicate 32 0)] := by
+  simp [produce]
+  decide
+
+example (sf : Satisfier) (h p : ByteArray)
+    (hh : sf.satSHA256 h = some p) :
+    satisfy sf (.sha256 h) = some [p] := by
+  apply satisfy_hash_eq
+  exact Prod.ext (produce_sha256_fst_eq sf h) (by simp [produce, hh])
+
+example (sf : Satisfier) (h p : ByteArray) :
+    produce sf (.sha256 h) ≠
+      (some [bytes [0,0,0,0]], some [p]) := by
+  intro hz
+  have hfst := congrArg Prod.fst hz
+  rw [produce_sha256_fst_eq] at hfst
+  have hlist : [bytes (List.replicate 32 0)] =
+      [bytes [0,0,0,0]] := Option.some.inj hfst
+  have hb : bytes (List.replicate 32 0) = bytes [0,0,0,0] :=
+    List.cons.inj hlist |>.1
+  have hsz := congrArg ByteArray.size hb
+  simp [bytes_size] at hsz
 
 /-- `satisfy` for `after n` produces the empty witness when the checker
 accepts the absolute locktime. -/

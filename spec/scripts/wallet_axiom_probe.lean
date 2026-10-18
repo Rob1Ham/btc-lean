@@ -252,8 +252,6 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms BitcoinProofs.Wallet.Desc.expand?_multi_consts
 #print axioms BitcoinProofs.Wallet.Desc.expand?_wpkh_range
 #print axioms BitcoinProofs.Wallet.Desc.expand?_multi_xpub_consts
-#print axioms BitcoinProofs.Wallet.Desc.expand?_deterministic
-#print axioms BitcoinProofs.Wallet.Desc.expand?_total
 #print axioms BitcoinProofs.Wallet.Desc.expand_eq_of_ok
 
 -- spec/proofs/BitcoinProofs/Wallet/Desc/Parse.lean
@@ -630,7 +628,6 @@ import BitcoinProofs.Wallet.Taproot.Program
 #print axioms BitcoinProofs.Wallet.Miniscript.intersperseAdd_map_size
 #print axioms BitcoinProofs.Wallet.Miniscript.toScriptWith_size
 #print axioms BitcoinProofs.Wallet.Miniscript.toScript_size
-#print axioms BitcoinProofs.Wallet.Miniscript.toScript_total
 #print axioms BitcoinProofs.Wallet.Miniscript.toScript_pkK
 #print axioms BitcoinProofs.Wallet.Miniscript.toScript_pkH
 #print axioms BitcoinProofs.Wallet.Miniscript.toScript_pk_fragments
@@ -909,9 +906,6 @@ import BitcoinProofs.Wallet.Taproot.Program
 -- spec/proofs/BitcoinProofs/Wallet/Spend/Selection.lean
 #print axioms BitcoinProofs.Wallet.Spend.runSelection_largestFirst
 #print axioms BitcoinProofs.Wallet.Spend.runSelection_smallestFit
-#print axioms BitcoinProofs.Wallet.Spend.largestFirst_deterministic
-#print axioms BitcoinProofs.Wallet.Spend.smallestFit_deterministic
-#print axioms BitcoinProofs.Wallet.Spend.runSelection_deterministic
 #print axioms BitcoinProofs.Wallet.Spend.runSelection_congr
 #print axioms BitcoinProofs.Wallet.Spend.largestFirst_congr
 #print axioms BitcoinProofs.Wallet.Spend.smallestFit_congr

@@ -26,8 +26,12 @@ The laws are:
 * `multi`/`sortedmulti` over non-empty fixed-key lists expand to one script
   that keeps source order (`multi`) or applies `sortPubkeys` (`sortedmulti`);
 * a ranged key expands to one script per key supplied by the provider, in
-  provider order (hence ascending derivation-index order);
-* expansion is deterministic and total (`Except`-valued, never `panic`).
+  provider order (hence ascending derivation-index order).
+
+The implementation is a Lean function into `Except`, so it is deterministic
+and total by definition.  The file does not restate those facts as
+`f x = f x` / `∃ r, f x = r`; `expand?_eq_spec` and the fragment theorems
+above are the substantive statements.
 
 What is *not* proved here (see `wallet-review/peer-reports/PEER-DESC.md`):
 the numeric bound of a wildcard range is the provider list length (Core's
@@ -548,8 +552,6 @@ theorem specExpand?_multi_xpub_consts
   rw [hordered]
   exact mapM_range_buildAt_multi t sorted ks cs ks.length rfl
 
-/-! ## Determinism and totality -/
-
 /-! ## Transfer to the executable `expand?` -/
 
 theorem expand?_pk_const (origin : Option KeyOrigin) (pubkey : ByteArray)
@@ -612,16 +614,6 @@ theorem expand?_multi_xpub_consts
         multiScript t (if sorted then sortPubkeys (k :: cs) else k :: cs)) := by
   rw [expand?_eq_spec]
   exact specExpand?_multi_xpub_consts t sorted o enc path w raw hw ks hne cs
-
-/-- Expansion is deterministic: it is a pure function of descriptor and
-provider, so it cannot depend on any ambient state. -/
-theorem expand?_deterministic (d : Descriptor) (p : KeyProvider) :
-    expand? d p = expand? d p := rfl
-
-/-- Expansion is total: every input has an `Except` result (there is no
-`panic`/`Option` failure path). -/
-theorem expand?_total (d : Descriptor) (p : KeyProvider) :
-    ∃ r, expand? d p = r := ⟨_, rfl⟩
 
 /-- The error-erasing interface only discards errors; on success it returns
 exactly the scripts computed by `expand?`. -/
