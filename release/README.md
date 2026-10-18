@@ -15,7 +15,7 @@ itself. The content manifest covers **615 payload files**: 608 data files
 from the `spec/vectors/` corpus plus 7 byte-identical `spec/db/` metadata
 files. The payload is data-only; executable sources, logs, caches, and
 narrative worklogs are excluded. Manifest paths are relative to the archive
-root.
+root. The source/data boundary is documented in [`../docs/HARNESS.md`](../docs/HARNESS.md).
 
 The release download location is the deployment target configured in
 `scripts/fetch_data.sh`; it is not hard-coded here.
