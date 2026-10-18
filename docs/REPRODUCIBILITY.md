@@ -182,7 +182,7 @@ theorem/lemma declarations. The wallet script also covers the 140-anchor census 
 
 ## 5. Data
 
-The repository tracks an 181-file, 5,056,027-byte (4.82 MiB) curated subset
+The repository tracks an 181-file, 5,056,063-byte (4.82 MiB) curated subset
 under `spec/data/` with a `sha256` manifest. The data-only corpus and anchor blocks
 are release assets, not git objects: the archive is
 `btc-lean-data-2026.10.17.tar.gz` (357,916,214 bytes; SHA-256
