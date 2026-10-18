@@ -213,14 +213,18 @@ theorem reorgTo_reorgPlan {Undo : Type} (s : TipState Undo)
 
 Core `InvalidBlockFound` (validation.cpp:1987-1996) sets
 `BLOCK_FAILED_VALID` only when the validation result is **not**
-`BLOCK_MUTATED`; the candidate scan then drops descendants of the failed
-block. The model below makes both halves explicit over a bit-projection of
-`nStatus`: `markFailedValid` is `nStatus |= BLOCK_FAILED_VALID`,
-`markFailedChild` is `nStatus |= BLOCK_FAILED_CHILD`, and the pruning
-filter remains the existing `prunedCandidates`. The theorem set proves
-(1) the failed block is marked and no valid block is mutated (pure
-memoization), (2) every pruned candidate below it is marked
-`BLOCK_FAILED_CHILD`, and (3) survivors keep their status unchanged. -/
+`BLOCK_MUTATED`, erases the failed block from `setBlockIndexCandidates`,
+and marks its **proper descendants** `BLOCK_FAILED_CHILD`.  The failed
+block itself is therefore dropped and marked `BLOCK_FAILED_VALID`, not
+`BLOCK_FAILED_CHILD`.  The model below makes all of that explicit over a
+bit-projection of `nStatus`: `markFailedValid` is
+`nStatus |= BLOCK_FAILED_VALID`, `markFailedChild` is
+`nStatus |= BLOCK_FAILED_CHILD`, and the pruning filter remains the
+existing `prunedCandidates` (which is reflexive, so it drops the failed
+block too).  The theorem set proves (1) the failed block is marked VALID
+and no valid block is mutated (pure memoization), (2) every *proper
+descendant* dropped by the filter is marked `BLOCK_FAILED_CHILD`, and
+(3) survivors keep their status unchanged. -/
 
 /-- Bit-projection model of the consensus-relevant `nStatus` flags
 (chain.h `BlockStatus`): validity-level `BLOCK_VALID_SCRIPTS` plus the
@@ -337,8 +341,31 @@ theorem failedStatusOf_descendant (parentOf : Nat → Option Nat) (fuel bad k : 
   unfold failedStatusOf
   simp [hne, hd, markFailedChild]
 
+/-- **BLK-119** (failed block drops as VALID, not CHILD): the failed block
+itself is removed from the candidate set by the reflexive prune filter,
+keeps `BLOCK_FAILED_VALID`, and does not acquire `BLOCK_FAILED_CHILD`
+unless that bit was already set. -/
+@[rule "BLK-119"]
+theorem failedStatusOf_bad_dropped_valid (parentOf : Nat → Option Nat)
+    (fuel bad : Nat) (status : Nat → IndexStatus) (cands : List Nat)
+    (_hbad : bad ∈ cands) :
+    bad ∉ prunedCandidates parentOf bad (fuel + 1) cands ∧
+      (failedStatusOf parentOf false (fuel + 1) bad status bad).failedValid = true ∧
+      (failedStatusOf parentOf false (fuel + 1) bad status bad).failedChild =
+        (status bad).failedChild := by
+  refine ⟨?_, failedStatusOf_bad parentOf (fuel + 1) bad status, ?_⟩
+  · intro hm
+    unfold prunedCandidates at hm
+    have hk := (List.mem_filter.mp hm).2
+    rw [isDescendantOf_refl] at hk
+    simp at hk
+  · unfold failedStatusOf
+    rw [if_neg (by decide : ¬ (false = true))]
+    simp [markFailedValid]
+
 /-- **BLK-119** (pure memoization, pruning face): a surviving candidate
-(not a descendant, hence not pruned) keeps its status exactly. -/
+(not the failed block and not a proper descendant, hence not pruned) keeps
+its status exactly. -/
 @[rule "BLK-119"]
 theorem survivorStatus_unchanged (parentOf : Nat → Option Nat) (fuel bad : Nat)
     (status : Nat → IndexStatus) (cands : List Nat) (d : Nat)
@@ -366,8 +393,10 @@ theorem prunedCandidates_iff (parentOf : Nat → Option Nat) (failed fuel : Nat)
   · rintro ⟨hm, hk⟩
     exact ⟨hm, by simp [hk]⟩
 
-/-- **BLK-119** (descendant marking): every candidate dropped by the prune
-filter is marked `BLOCK_FAILED_CHILD` in the post-failure status. -/
+/-- **BLK-119** (descendant marking): every *proper descendant* candidate
+dropped by the prune filter is marked `BLOCK_FAILED_CHILD` in the
+post-failure status.  The failed block itself is also dropped, but it is
+marked `BLOCK_FAILED_VALID` (see `failedStatusOf_bad_dropped_valid`). -/
 @[rule "BLK-119"]
 theorem prunedStatus_marked (parentOf : Nat → Option Nat) (fuel bad : Nat)
     (status : Nat → IndexStatus) (cands : List Nat) (d : Nat)
@@ -388,6 +417,7 @@ theorem prunedStatus_marked (parentOf : Nat → Option Nat) (fuel bad : Nat)
 #print axioms reorgPlan_at_fork
 #print axioms prunedCandidates_subset
 #print axioms descendant_not_pruned
+#print axioms failedStatusOf_bad_dropped_valid
 #print axioms reorgTo_reorgPlan
 
 end BitcoinProofs.AF.PDW30
