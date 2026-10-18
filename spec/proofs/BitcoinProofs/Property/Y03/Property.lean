@@ -3,13 +3,24 @@ import Bitcoin.Script.Parser.Interface
 /-!
 # BitcoinProofs.Property.Y03 — property corpus for Script/parser
 
-Random + edge-case program bytes -> parse -> print -> reparse, checked
-by kernel `decide`. Every EXPECTED value below was computed by the
-reference `y03ref.py` (an independent Python port of Core
+Random + edge-case program bytes -> parse -> print -> reparse. Expected
+values below were computed by the reference `y03ref.py` (an independent
+Python port of Core
 @ cce32b168: script.cpp:313-363 GetScriptOp, script.h:408-427
 AppendDataSize) and CROSS-CHECKED case-for-case against the
 `Test/Script/Parser/ref.py` norm_walk (78/78 agree; F-Y03-001).
 Generator: fixed seed 20261016, fully reproducible.
+
+Proof tiers (explicitly disclosed): rows over inputs of at most 60 bytes
+are closed by kernel `decide`. The heavy rows (PUSHDATA1/2/4 length
+boundaries and long seeded-random scripts) are compiled-evaluation
+`native_decide` checks: kernel `decide` on a 255-byte push takes ~122 s
+standalone, so those rows are not kernel-reduced.
+The heavy rows are anonymous `example`s — not exported named theorems —
+and their footprint carries the generated `native_decide` trusted-evaluation
+axiom (the parser test-corpus convention), never `sorryAx`.
+The one named theorem, `y03_roundtrip_small`, is proved by kernel `decide`
+only, so its axiom pin is the standard trio.
 
 Per canonical valid case (kinds P/R/K):
   P  parse(input) = some ops          — parser agrees with Core walk
@@ -19,12 +30,9 @@ Per canonical valid case (kinds P/R/K):
                                         (instance of the frozen law
                                         parse_serialize_roundtrip)
 FAIL cases pin clean truncation failure (parse = none).
-Checker policy (measured, see F-Y03-004): kernel `decide` on
-ByteArray parse is ~O(n^2) with a large constant (122 s standalone for
-one 255-byte push), so cases with <= 60 bytes are checked by kernel
-`decide` (strongest form) and heavier cases by `native_decide`
-(compiled evaluation, Tests.lean precedent) -- the named theorem
-below stays kernel-decide, so its axiom pin remains the standard trio.
+Checker policy: kernel `decide` on ByteArray parse is ~O(n^2) with a large
+constant, so only the <= 60-byte rows use it; heavier cases use
+`native_decide` as described above.
 -/
 
 namespace BitcoinProofs.Property.Y03

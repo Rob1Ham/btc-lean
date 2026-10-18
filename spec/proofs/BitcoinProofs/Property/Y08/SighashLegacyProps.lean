@@ -93,8 +93,15 @@ where
         | some ha, some hb => go rest (acc ++ [((ha * 16 + hb) % 256).toUInt8])
         | _, _ => go rest acc
 
-/-- ONE as uint256::GetHex() sees it — 32×0x01, internal order. -/
-private def one256 : ByteArray := fromHex "0101010101010101010101010101010101010101010101010101010101010101"
+/-- Core's `uint256::ONE` in internal byte order — `01` followed by 31
+zero bytes (not 32×`0x01`). This is the value of the legacy SIGHASH_SINGLE
+out-of-range early return (`singleOverflowOneB`). -/
+private def one256 : ByteArray := fromHex "0100000000000000000000000000000000000000000000000000000000000000"
+
+/-- Regression for the constant itself: the expected overflow value used by
+the B/F rows is exactly the digest constant returned by the model. -/
+theorem one256_eq_singleOverflowOneB : one256 = singleOverflowOneB := by
+  native_decide
 /-- Zero hash — Lean totalization of an out-of-range nIn. -/
 private def zero256 : ByteArray := fromHex "0000000000000000000000000000000000000000000000000000000000000000"
 
@@ -437,7 +444,7 @@ example : bytesBEq (signatureHashLegacy
          vout := [],
          locktime := 0x00000000, witness := [] }
       0 ⟨fromHex ""⟩ 0x00000003)
-    (fromHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+    (fromHex "0100000000000000000000000000000000000000000000000000000000000000") = true := by native_decide
 
 -- b01: SINGLE overflow: 1vin 0vout, nIn 0, ht 0x83 -> uint256::ONE
 example : bytesBEq (signatureHashLegacy
@@ -445,7 +452,7 @@ example : bytesBEq (signatureHashLegacy
          vout := [],
          locktime := 0x00000000, witness := [] }
       0 ⟨fromHex ""⟩ 0x00000083)
-    (fromHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+    (fromHex "0100000000000000000000000000000000000000000000000000000000000000") = true := by native_decide
 
 -- b02: SINGLE overflow: 2vin 1vout, nIn 1, ht 0x03 -> uint256::ONE
 example : bytesBEq (signatureHashLegacy
@@ -453,7 +460,7 @@ example : bytesBEq (signatureHashLegacy
          vout := [⟨1, ⟨fromHex "51"⟩⟩],
          locktime := 0x00000000, witness := [] }
       1 ⟨fromHex "51"⟩ 0x00000003)
-    (fromHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+    (fromHex "0100000000000000000000000000000000000000000000000000000000000000") = true := by native_decide
 
 -- b03: SINGLE overflow: 2vin 1vout, nIn 1, ht 0x83 -> uint256::ONE
 example : bytesBEq (signatureHashLegacy
@@ -461,7 +468,7 @@ example : bytesBEq (signatureHashLegacy
          vout := [⟨1, ⟨fromHex "51"⟩⟩],
          locktime := 0x00000000, witness := [] }
       1 ⟨fromHex "51"⟩ 0x00000083)
-    (fromHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+    (fromHex "0100000000000000000000000000000000000000000000000000000000000000") = true := by native_decide
 
 -- b04: no overflow: 2vin 1vout, nIn 0, ht 0x03 (in-range SINGLE)
 example : legacyMsgL
@@ -826,7 +833,7 @@ example : bytesBEq (signatureHashLegacy
          vout := [⟨10, ⟨fromHex "51"⟩⟩, ⟨20, ⟨fromHex "52"⟩⟩],
          locktime := 0x00000064, witness := [] }
       2 ⟨fromHex "53"⟩ 0x00000003)
-    (fromHex "0101010101010101010101010101010101010101010101010101010101010101") = true := by native_decide
+    (fromHex "0100000000000000000000000000000000000000000000000000000000000000") = true := by native_decide
 
 -- d12: ACP with 3 vins: only signed input serialized
 example : legacyMsgL
