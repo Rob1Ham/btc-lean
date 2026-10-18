@@ -159,9 +159,10 @@ sha256sum -c --strict spec/data/MANIFEST.sha256
 bash scripts/check_subset_size.sh --root spec/data
 ```
 
-See [`docs/DATA.md`](docs/DATA.md), [`docs/MANIFEST-SPEC.md`](docs/MANIFEST-SPEC.md),
-and `release/README.md` for the release layout, fetch/verify procedure, and
-transport checksums. The transport checksums are not signatures.
+See [`docs/DATA.md`](docs/DATA.md), [`docs/HARNESS.md`](docs/HARNESS.md),
+[`docs/MANIFEST-SPEC.md`](docs/MANIFEST-SPEC.md), and `release/README.md` for
+the release layout, source/data boundary, fetch/verify procedure, and transport
+checksums. The transport checksums are not signatures.
 
 ## Gates
 
@@ -211,6 +212,8 @@ The script runs the wallet static battery, the 140-anchor census when
 | `spec/runners/` | Executable corpus and wallet-differential runners. |
 | `release/` | Data-release transport checksums and README; the archive and content manifest are release assets. |
 | `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md` and the generated evidence matrix), generated theorem and wallet indexes (`THEOREMS.md`, `WALLET-THEOREMS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
+| `docs/HARNESS.md` | The source/data boundary and the remaining harness/corpus reproducibility gap. |
+| `docs/research/` | Selected 2026-10-16 survey notes on mechanized models, conformance, the theorem portfolio, and the formality ladder. |
 
 ### Where evidence lives
 

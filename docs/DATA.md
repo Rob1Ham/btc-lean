@@ -52,7 +52,8 @@ The archive contains **615 data files**: 608 files from the `spec/vectors/`
 corpus plus 7 byte-identical `spec/db/` metadata files needed for
 data-dependent runs. Executable sources, generator scripts, build caches,
 logs, and narrative worklogs are excluded. The Lean sources are not duplicated
-into the archive; they are text and stay in git.
+into the archive; they are text and stay in git. The source/data boundary and
+the remaining reproducibility gap are recorded in [`HARNESS.md`](HARNESS.md).
 
 * `manifest.sha256` lists every payload file, relative to the archive root.
 * `assets.sha256` lists exactly the archive and `manifest.sha256`.
