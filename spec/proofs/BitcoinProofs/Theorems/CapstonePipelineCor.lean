@@ -466,12 +466,8 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       -- gate: merkleMutationOk (BLK-011)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
-      -- gate: commitmentGate (private dummy stand-in), inner anyWitness lane
-      obtain ⟨_, hval⟩ := gate_step2 _ _ _ hval
-      -- gate: commitmentValueZero (private dummy stand-in)
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
-      -- gate: commitmentNonceOk (private dummy stand-in)
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- ordered witness shape/hash/no-commitment stage
+      obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- gate: weightOk (BLK-024/026), AFTER the commitment gates (BLK-021)
       obtain ⟨hg3, hval⟩ := gate_step _ _ hval
       -- gate: BIP30 pre-block overlap loop (BLK-096/097/098, TXV-063)
@@ -596,10 +592,8 @@ theorem validateBlock_ok_bip30_quiet (raw : ByteArray) (st : CapState) (r : CapR
       -- merkleMutationOk
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
-      -- commitmentGate, commitmentValueZero, commitmentNonceOk
-      obtain ⟨_, hval⟩ := gate_step2 _ _ _ hval
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- ordered witness shape/hash/no-commitment stage
+      obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- weightOk
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- BIP30 pre-block overlap loop

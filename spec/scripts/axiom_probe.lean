@@ -30,6 +30,7 @@ import BitcoinProofs.Theorems.CapstoneFunding
 import BitcoinProofs.Theorems.CapstoneContext
 import BitcoinProofs.Theorems.CapstoneSequence
 import BitcoinProofs.Theorems.CapstoneSigops
+import BitcoinProofs.Theorems.CapstoneWitness
 import BitcoinProofs.AF.PDW29.PDW29Sigops
 import BitcoinProofs.AF.PDW36.PDW36Guards
 import BitcoinProofs.AF.PDW21.PDW21
@@ -393,3 +394,16 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget
 
 #print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose
+
+-- R05: exact witness verdict stage and amount independence.
+#print axioms Bitcoin.Capstone.Merkle.witnessReservedValue_nonce
+#print axioms Bitcoin.Capstone.Merkle.witnessCommitmentOk_nonce
+#print axioms Bitcoin.Capstone.Block.checkWitnessCommitment_ok_iff
+#print axioms Bitcoin.Capstone.Block.checkWitnessCommitment_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.witnessCommitmentOutput_values
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_values
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values

@@ -1,10 +1,10 @@
 {
-  "goal_status": "active",
+  "goal_status": "paused",
   "user_authorization": "2026-10-18: user explicitly asked to start the drafted goal immediately after review",
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T16:29:46.542018+00:00",
+  "updated_at_utc": "2026-10-18T16:43:24.667681+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -608,9 +608,47 @@
       "id": "R05",
       "priority": "P1",
       "title": "Commitment-output zero-value convention enforced as consensus",
-      "evidence": "source-confirmed against pinned Core; Lean execution pending",
-      "status": "confirmed_open",
-      "next_action": "Implement and verify against the goal contract; retain per-item evidence."
+      "evidence": "12 pre-fix public failures and seven controls; 31 new runtime checks pass. Both exact Core pins agree on 12 reference cases; 11 guarded kernel proofs connect the ordered stage to public success and actual-coinbase amount independence.",
+      "status": "fixed_and_verified_with_scoped_evidence",
+      "next_action": "Include in the complete R08 module/cited-target matrix; continue separate R06 adjudication and R07 exception work.",
+      "verification_artifact": "validation-r05.json",
+      "changed_files": [
+        "Makefile",
+        "README.md",
+        "docs/CLAIMS.md",
+        "docs/DATA.md",
+        "docs/PROOF-BUILD.md",
+        "docs/PROOF-SCOPE.md",
+        "docs/QUICKSTART.md",
+        "docs/REGRESSION-VECTORS.md",
+        "docs/REPRODUCIBILITY.md",
+        "docs/TCB.md",
+        "docs/THEOREMS.md",
+        "spec/core/Bitcoin/Capstone/Block.lean",
+        "spec/core/Bitcoin/Capstone/Merkle.lean",
+        "spec/core/Test/Capstone/WitnessCommitment.lean",
+        "spec/core/Test/Capstone/WitnessStage.lean",
+        "spec/data/MANIFEST.sha256",
+        "spec/data/review/witness-commitment/nonzero.raw",
+        "spec/data/review/witness-commitment/provenance.json",
+        "spec/db/axiom-manifest.txt",
+        "spec/db/rules.yaml",
+        "spec/proofs/BitcoinProofs.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW41b/PDW41b.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW53/PDW53.lean",
+        "spec/proofs/BitcoinProofs/ErrMap/E01/Test.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneSigops.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneWitness.lean",
+        "spec/scripts/axiom_probe.lean",
+        "spec/scripts/check_witness_commitment_core.py",
+        "spec/scripts/generate_witness_commitment_block.py",
+        "spec/scripts/rules_overrides_sync.py"
+      ]
     },
     {
       "id": "R06",
@@ -918,9 +956,12 @@
       "title": "Witness commitment uses a zero reserved value.",
       "description": "**Witness commitment uses a zero reserved value.** `spec/core/Bitcoin/Capstone/Merkle.lean:187-195` hashes `zeroBytes 32`, not the coinbase witness reserved value. `witnessCommitmentOkReserved` exists in `AF/PDW13/WitnessCommitmentReserved.lean` but is orphaned; `commitmentGate` still uses the old definition. Wire the corrected definition through and re-prove BLK-017/SWT-030/PDW58B.",
       "initial_triage": "reported addressed; revalidate relevant source and regressions",
-      "status": "requires_current_head_validation",
+      "status": "already_fixed_reserved_binding_revalidated_with_public_integration",
       "changed_files": [],
-      "verification": []
+      "verification": [
+        "validation-r05.json"
+      ],
+      "evidence": "Nonzero actual reserved value binds on both public entries; zero replacement mismatches the highest selected output. PDW13 reserved-value proofs and guards rebuild (15 jobs). See validation-r05.json."
     },
     {
       "id": "I4-07",
@@ -1531,12 +1572,13 @@
     "Repaired shared static sigop semantics, P2SH push-only/redeem parsing, native/wrapped witness indexing and explicit flag gates. Corrected the neighboring spkOf(0) reuse for every input.",
     "Reproduced 18 named sigop failures with 10 passing controls. All 36 new checks pass; 28 raw/per-input cases agree with nine identical extracted Core functions at both exact pins.",
     "Rebuilt the 32-module default proof closure plus affected consumers and all 53 wallet imports. Dynamic axiom checks pass for 270 consensus and 838 wallet entries. Closed the SCR-033 missing-link residual with a per-CMS continuation proof; 26 explicit residual rows remain.",
-    "Wired early legacy and live evolving-view cumulative sigop budgets; both public paths accept mined 80000-unit fixtures and reject 80004. All 157 targeted runtime checks and 16 core checks pass. New exact trace/bound proofs and eighteen guarded footprints pass; dynamic probes verify 288 consensus and 838 wallet entries. See validation-sigop-budget.json; complete module/census matrix remains pending."
+    "Wired early legacy and live evolving-view cumulative sigop budgets; both public paths accept mined 80000-unit fixtures and reject 80004. All 157 targeted runtime checks and 16 core checks pass. New exact trace/bound proofs and eighteen guarded footprints pass; dynamic probes verify 288 consensus and 838 wallet entries. See validation-sigop-budget.json; complete module/census matrix remains pending.",
+    "R05 repaired: nonzero commitment amounts accepted under ordinary value/reward bounds; nonce shape precedes hashing; exact Core witness reasons restored. All 188 targeted checks, 16 core checks, scoped 1741-job proof build, 53 wallet imports, 299 consensus/838 wallet probes and static/generated gates pass. Full repository matrix remains pending."
   ],
   "external_blockers": [],
   "next_actions": [
     "Wire actual-hash genesis and other historical exceptions (R07/R07b); correct live full-powLimit constant use (I4-43).",
-    "Repair witness commitment semantics and explicit Taproot adjudication (R05/R06).",
+    "Repair explicit Taproot adjudication and native witness structural gates (R06).",
     "Complete CI/full build/declaration coverage, all census classifications and metadata, wallet row review, archive and evidence reproducibility."
   ],
   "verification": [
@@ -1569,6 +1611,10 @@
     {
       "artifact": "validation-sigop-budget.json",
       "status": "scoped checks pass; live resource bound fixed; broader goal work pending"
+    },
+    {
+      "artifact": "validation-r05.json",
+      "status": "scoped checks pass; value/verdict defects fixed; complete module/census matrix remains pending"
     }
   ],
   "sessions": {},
@@ -1624,5 +1670,7 @@
       ]
     }
   ],
-  "latest_resume": "User explicitly requested Resume goal; continued interrupted sigop verification."
+  "latest_resume": "User explicitly requested Resume goal; continued interrupted sigop verification.",
+  "work_status": "resumed_in_current_chat_turn",
+  "goal_control_note": "User requested Resume goal. Read-only goal controller still reports paused; available goal tools cannot change status to active. Authorized repository work continued in this turn."
 }

@@ -1,0 +1,28 @@
+{
+  "kind": "synthetic conditional witness-validation regression fixture",
+  "generator": "spec/scripts/generate_witness_commitment_block.py",
+  "regeneration": "python3 spec/scripts/generate_witness_commitment_block.py --check",
+  "file": "nonzero.raw",
+  "bytes": 267,
+  "sha256": "09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+  "header_hash_display": "00000000389e4fb36ab57dcdc8427fe57ee6a94ee55a13b65a9a2211e04a3ce3",
+  "bits": "1d00ffff",
+  "nonce": 2125207511,
+  "header_time": 1231006506,
+  "header_version": 4,
+  "coinbase_height": 481824,
+  "output_values_satoshis": [
+    1,
+    1249999999
+  ],
+  "reserved_value_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+  "selection": "Two matching outputs: first binds reserved zero; last binds the actual nonzero reserved value and has one legal trailing byte.",
+  "parent": "real mainnet genesis hash; parent height/history are conditional test inputs, not a reachable chain claim",
+  "mining": {
+    "method": "local CommonCrypto SHA256d search, eight workers",
+    "hashes_reported": 2125332480,
+    "seconds": 90.5843,
+    "target": "unchanged mainnet difficulty-one target; no PoW override"
+  },
+  "scope": "Real PoW and public serialized validator regression. Not a canonical mainnet block, not a valid historical ancestor chain, and not full bitcoind verification. The contextual fixture supplies a conditional ancestor index with the complete MTP and exact-timespan retarget inputs."
+}

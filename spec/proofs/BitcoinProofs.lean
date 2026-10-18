@@ -30,3 +30,5 @@ import BitcoinProofs.Theorems.WitnessRulesCor
 import BitcoinProofs.Theorems.Test
 import BitcoinProofs.Crypto.CurveZMod
 import BitcoinProofs.Crypto.Schnorr
+
+import BitcoinProofs.Theorems.CapstoneWitness

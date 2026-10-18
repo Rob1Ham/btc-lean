@@ -13,7 +13,7 @@ writes, row-face theorems on my own `@[rule]` tags.
   the non-coinbase `wtxid`s (merkle.cpp:118-126).
 * **BLK-015** `witnessCommitmentOutput`: last coinbase output with the
   `6a24aa21a9ed` prefix and size ≥ 38 (validation.cpp:3880-3900).
-* **BLK-016** `commitmentValueZero`: every matching commitment output
+* Historical `commitmentValueZero` reference: every matching commitment output
   carries `nValue = 0`.
 * **BLK-022** `vtxNonempty`: empty vtx is `bad-cb-missing`.
 * **INV-089** `commitmentNonceOk`: the coinbase scriptWitness is exactly
@@ -175,12 +175,12 @@ theorem witnessCommitmentOutput_some_last {tx : Tx} {s : ByteArray}
     obtain ⟨hsize, hpfx⟩ := (commitmentShape_eq o).mp hpred
     exact ⟨pre, o, post, hsplit, hsize, hpfx, h, hpost⟩
 
-/-! ## BLK-016 — commitment value zero -/
+/-! ## Historical generator/reference predicate — commitment value zero -/
 
-/-- **BLK-016**: the value check passes iff every output that matches the
-commitment shape carries `nValue = 0` (BIP141: the commitment output is
-provably unspendable and must not burn spendable value). -/
-@[rule "BLK-016"]
+/-- The retained reference predicate passes iff every output that matches the
+commitment shape carries `nValue = 0`. This is a property of the retained
+generator/reference predicate. Core block validation permits nonzero amounts
+and does not call this predicate. -/
 theorem commitmentValueZero_eq_true_iff (tx : Tx) :
     commitmentValueZero tx = true ↔
       ∀ o ∈ tx.vout,

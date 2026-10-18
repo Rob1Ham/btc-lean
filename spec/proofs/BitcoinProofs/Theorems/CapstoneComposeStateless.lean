@@ -25,7 +25,7 @@ Row list (all `@[rule]`-backed in core, context-free):
 | BLK-069 | `bip34Ok` (height commitment) |
 | BLK-037/038/039 | `targetOk` ∧ `powOk` |
 | BLK-010 (+008/009, CVE-2012-2459) | `merkleOk` |
-| BLK-015..020 | commitment gate, zero value, 32-byte nonce |
+| BLK-015..020 | ordered commitment/32-byte nonce checks; amounts checked separately |
 | BLK-030 (INV-001..009) | `checkTransaction t = none` for every `t ∈ txs` |
 
 `versionOk`/`bip34Ok` take the connection `height`: Core classes them as
@@ -64,10 +64,6 @@ def StatelessRows (bh : BlockHeader) (txs : List Tx) (raw : ByteArray)
   powOk bh = true ∧
   merkleOk bh txs = true ∧
   commitmentGate (segwitActive height) txs (cbOf txs) = true ∧
-  (!(segwitActive height) || (witnessCommitmentOutput (cbOf txs)).isNone ||
-    commitmentValueZero (cbOf txs)) = true ∧
-  (!(segwitActive height) || (witnessCommitmentOutput (cbOf txs)).isNone ||
-    commitmentNonceOk (cbOf txs)) = true ∧
   (∀ t ∈ txs, checkTransaction t = none)
 
 /-- **The stateless model's accept predicate**: decode, then every
@@ -88,8 +84,6 @@ def statelessValidate (raw : ByteArray) (height : UInt32) : Bool :=
       else if !powOk bh then false
       else if !merkleOk bh txs then false
       else if !commitmentGate (segwitActive height) txs (cbOf txs) then false
-      else if segwitActive height && (witnessCommitmentOutput (cbOf txs)).isSome && !commitmentValueZero (cbOf txs) then false
-      else if segwitActive height && (witnessCommitmentOutput (cbOf txs)).isSome && !commitmentNonceOk (cbOf txs) then false
       else txs.all (fun t => (checkTransaction t).isNone)
 
 /-- The model accepts `raw` at `height` when the row conjunction holds. -/
@@ -243,9 +237,8 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   obtain ⟨hg9, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-010 merkle
   obtain ⟨_, hJP⟩ := guard_inv _ _ _ _ hJP        -- BLK-011 mutation
   obtain ⟨_, hJP⟩ := unit_precheck_ok _ _ hJP       -- CheckBlock stateless/legacy
-  obtain ⟨hgc, hJP⟩ := guard2_inv _ _ _ _ _ _ hJP -- BLK-019/020
-  obtain ⟨hgv, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-016 value
-  obtain ⟨hgn, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-018 nonce
+  obtain ⟨witnessOk, hJP⟩ := unit_precheck_ok _ _ hJP
+  have hgc := (checkWitnessCommitment_ok_iff _ _ _).1 witnessOk
   obtain ⟨hg4, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-023..026
   obtain ⟨_, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BIP30 (contextual, outside model)
   obtain ⟨q, hbudget, _⟩ := bind_ok_inv
@@ -255,7 +248,6 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   have hap := applyBlockTransactions_ok hap
   refine ⟨bh, txs, hdec, ?_⟩
   exact ⟨hg1, hg2, hg3, hg4, hg5, hg6, hg7, hg8, hg9, hgc,
-    commitment_gate_pass hgv, commitment_gate_pass hgn,
     applyTxs_checkTx_all st.height txs 0 0 0 st.utxo u' k j hap⟩
 
 /-- **Pipeline corollary**: if the full block-validation pipeline accepts

@@ -8,13 +8,13 @@ This page is the static scope index for the Lean proof package at `spec/proofs`.
 
 | Metric | Count |
 |---|---:|
-| Tracked `.lean` files under `spec/proofs` | 414 |
-| Lean modules | 413 |
+| Tracked `.lean` files under `spec/proofs` | 415 |
+| Lean modules | 414 |
 | Non-module `.lean` files | 1 (`lakefile.lean`) |
-| Modules in the default `BitcoinProofs` closure | 33 |
+| Modules in the default `BitcoinProofs` closure | 34 |
 | Modules outside the default closure | 380 |
 
-The package has 414 tracked `.lean` files: 413 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
+The package has 415 tracked `.lean` files: 414 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
 
 ## Module-count convention
 
@@ -28,7 +28,7 @@ The **default closure** is the root module plus every module reachable through `
 
 ## Default closure
 
-The root has 32 direct imports. Their transitive local closure is 33 modules:
+The root has 33 direct imports. Their transitive local closure is 34 modules:
 
 - `BitcoinProofs`
 - `BitcoinProofs.Conservation.Test`
@@ -55,6 +55,7 @@ The root has 32 direct imports. Their transitive local closure is 33 modules:
 - `BitcoinProofs.Theorems.CapstoneVersionCor`
 - `BitcoinProofs.Theorems.CapstoneWeightCor`
 - `BitcoinProofs.Theorems.CapstoneWiringCor`
+- `BitcoinProofs.Theorems.CapstoneWitness`
 - `BitcoinProofs.Theorems.FlagsCor`
 - `BitcoinProofs.Theorems.InterpCor`
 - `BitcoinProofs.Theorems.LedgerCor`
@@ -85,10 +86,10 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 | `Property` | 17 | 0 | 17 |
 | `Shortcuts` | 3 | 0 | 3 |
 | `SmallCurve` | 3 | 0 | 3 |
-| `Theorems` | 51 | 27 | 24 |
+| `Theorems` | 52 | 28 | 24 |
 | `Trivial` | 1 | 1 | 0 |
 | `Wallet` | 22 | 0 | 22 |
-| **Total** | **413** | **33** | **380** |
+| **Total** | **414** | **34** | **380** |
 
 <details><summary><code>(root)</code> — 1 modules (1 in closure)</summary>
 
@@ -504,7 +505,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 
 </details>
 
-<details><summary><code>Theorems</code> — 51 modules (27 in closure)</summary>
+<details><summary><code>Theorems</code> — 52 modules (28 in closure)</summary>
 
 - `BitcoinProofs.Theorems.Audit.CV02`
 - `BitcoinProofs.Theorems.Audit.CV03`
@@ -531,6 +532,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.Theorems.CapstoneVersionCor`
 - `BitcoinProofs.Theorems.CapstoneWeightCor`
 - `BitcoinProofs.Theorems.CapstoneWiringCor`
+- `BitcoinProofs.Theorems.CapstoneWitness`
 - `BitcoinProofs.Theorems.Exhaust.F01PushEncode`
 - `BitcoinProofs.Theorems.Exhaust.LeafVersionSweep`
 - `BitcoinProofs.Theorems.Exhaust.MerkleShapes64`

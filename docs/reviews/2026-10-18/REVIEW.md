@@ -4,20 +4,25 @@ Review date: 2026-10-18, America/Chicago. Baseline: [`57607451faa168497d971e2d50
 
 The repository has useful executable definitions, explicit residual disclosures and working static checks. Its principal weakness is composition: the public block replay path does not enforce several consensus rules that exist as separate, proved helpers. Its evidence gates also permit changes that contradict the published proof contract. Fixing the remaining property fixtures alone will not close those gaps.
 
-This review was initially prepared before implementation. The user subsequently authorized the goal, which remains active. [execution-ledger.json](execution-ledger.json) records current progress separately from the historical findings below. The remediation branch has integrated merged PRs 18 and 19 (upstream `08208274bcdcab2a5baa1426c0057472e5c0de07`). R01 input-value enforcement and R09/R10 proof-gate enforcement are fixed with regression evidence. R02 now enforces checked fee accumulation and the coinbase reward bound on the public serialized-block path: all 20 funding cases and 13 input-value cases pass, and the default proof root plus affected consumers build. See [validation-r02.json](validation-r02.json) for commands, source hashes, Core-pin comparison and exact limits. R04 now has an explicit contextual-header entry with checked nBits, full-window MTP and node time, verified by 23 new tests and five kernel theorems; see [validation-r04.json](validation-r04.json). Anchor runners use the explicitly partial replay adapter. The primary runner also now rejects empty or incomplete selected input instead of reporting a false-green summary. R03 now enforces absolute finality and both BIP68 domains on the contextual path, with 33 distinct new runtime checks and eleven guarded kernel proofs; see [validation-r03.json](validation-r03.json). The remaining sigop, witness/adjudication, exception, evidence and census work stays open.
+This review was initially prepared before implementation. The user subsequently authorized the goal and requested resumed work. [execution-ledger.json](execution-ledger.json) records current progress separately from the historical findings below. The remediation branch has integrated merged PRs 18 and 19 (upstream `08208274bcdcab2a5baa1426c0057472e5c0de07`). R01 input-value enforcement and R09/R10 proof-gate enforcement are fixed with regression evidence. R02 now enforces checked fee accumulation and the coinbase reward bound on the public serialized-block path: all 20 funding cases and 13 input-value cases pass, and the default proof root plus affected consumers build. See [validation-r02.json](validation-r02.json) for commands, source hashes, Core-pin comparison and exact limits. R04 now has an explicit contextual-header entry with checked nBits, full-window MTP and node time, verified by 23 new tests and five kernel theorems; see [validation-r04.json](validation-r04.json). Anchor runners use the explicitly partial replay adapter. The primary runner also now rejects empty or incomplete selected input instead of reporting a false-green summary. R03 now enforces absolute finality and both BIP68 domains on the contextual path, with 33 distinct new runtime checks and eleven guarded kernel proofs; see [validation-r03.json](validation-r03.json). R17 now enforces both sigop budgets. R05 now permits nonzero commitment amounts and fixes witness verdict ordering; adjudication, exceptions, evidence and the remaining census work stay open.
 
 The review covers architecture, live validation call paths, proof/build scope, issue and PR evidence, selected wallet/serialization boundaries, release handling and gate enforcement. It is not an exhaustive independent verification of every theorem or the cryptographic arithmetic.
 
-The next reviewed repair unifies the static sigop counters across the
-interpreter, transaction and block layers. Thirty-six new checks pass;
-28 raw/per-input cases also match nine actual Core functions extracted
-and compiled at both immutable pins. The old source reproduces 18 named
-failures and 10 passing controls. Accurate multisig lookback, malformed
-prefix counting, P2SH push-only checks, witness indexing and explicit flag
-gates are repaired. SCR-033's stated missing proof now exists, reducing
-the explicit residual register from 27 to 26. The cumulative 80,000-unit
-check is still absent from the live block validator. See
-[validation-sigops.json](validation-sigops.json).
+R17 now shares faithful sigop counters and enforces both live budgets.
+Thirty-six counter checks and thirty-two budget checks pass, including
+mined public boundaries and exact extracted-Core comparisons at both pins.
+See [validation-sigops.json](validation-sigops.json) and
+[validation-sigop-budget.json](validation-sigop-budget.json). SCR-033's
+missing proof is closed, leaving 26 explicit residuals.
+
+R05 now removes the zero-value consensus restriction, checks reserved-value
+shape before commitment hashing, and uses Core's exact witness reasons.
+The old validator reproduces twelve public failures with seven controls;
+all 31 new public/stage checks pass after repair. Eleven guarded proofs
+include invariance under changing actual coinbase output amounts and a
+connection to public success. See [validation-r05.json](validation-r05.json).
+The fixture has genuine difficulty-one PoW and conditional ancestor input;
+it is not a reachable historical-mainnet chain or full bitcoind validation.
 
 Upstream `main` at `80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2` has all
 57 issue-4 checkboxes checked and no open PRs. Its source and count

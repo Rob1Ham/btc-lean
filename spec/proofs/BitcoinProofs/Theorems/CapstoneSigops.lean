@@ -107,6 +107,8 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
     (h : validateBlock raw st context = .ok report) :
     ∃ header txs resolved,
       decodeBlock raw = .ok (header, txs) ∧ checkBlockPrelude txs = .ok () ∧
+      checkWitnessCommitment (Bitcoin.Activation.SEGWIT_HEIGHT ≤ st.height) txs
+        (txs.getD 0 dummyTx) = .ok () ∧
       applyBlockTransactionsWithSigops resolved st.height (candidateScriptFlags st.height header)
         txs st.utxo = .ok ((report.state.utxo, report.scriptOk, report.scriptUnjudged), report.sigOpCost) ∧
       report.sigOpBudgetChecked = true := by
@@ -130,9 +132,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
       obtain ⟨_, h⟩ := gate_step _ _ h -- merkle
       obtain ⟨_, h⟩ := gate_step _ _ h -- mutation
       obtain ⟨prelude, h⟩ := unit_precheck_ok _ _ h
-      obtain ⟨_, h⟩ := gate_step2 _ _ _ h -- witness commitment
-      obtain ⟨_, h⟩ := gate_step _ _ h -- commitment value
-      obtain ⟨_, h⟩ := gate_step _ _ h -- witness nonce
+      obtain ⟨witness, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
       obtain ⟨_, h⟩ := gate_step _ _ h -- weight
       obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
       cases hs : applyBlockTransactionsWithSigops none st.height
@@ -142,7 +142,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         obtain ⟨⟨out, a, b⟩, total⟩ := value
         simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
         subst report
-        exact ⟨header, txs, none, rfl, prelude, hs, rfl⟩
+        exact ⟨header, txs, none, rfl, prelude, witness, hs, rfl⟩
     | some ctx =>
       cases hc : checkHeaderContext ctx st.height st.prevHash header with
       | error e => simp [hc] at h
@@ -154,9 +154,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         obtain ⟨_, h⟩ := gate_step _ _ h -- merkle
         obtain ⟨_, h⟩ := gate_step _ _ h -- mutation
         obtain ⟨prelude, h⟩ := unit_precheck_ok _ _ h
-        obtain ⟨_, h⟩ := gate_step2 _ _ _ h -- witness commitment
-        obtain ⟨_, h⟩ := gate_step _ _ h -- commitment value
-        obtain ⟨_, h⟩ := gate_step _ _ h -- witness nonce
+        obtain ⟨witness, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
         obtain ⟨_, h⟩ := gate_step _ _ h -- weight
         obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
         cases hs : applyBlockTransactionsWithSigops (some (ctx, facts)) st.height
@@ -166,7 +164,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
           obtain ⟨⟨out, a, b⟩, total⟩ := value
           simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
           subst report
-          exact ⟨header, txs, some (ctx, facts), rfl, prelude, hs, rfl⟩
+          exact ⟨header, txs, some (ctx, facts), rfl, prelude, witness, hs, rfl⟩
 
 /-- The public entry also enforces CheckBlock's early legacy-only budget
 and checks every stateless transaction before reaching input validation. -/
@@ -177,7 +175,7 @@ theorem validateBlock_legacy_budget {raw : ByteArray} {st : CapState}
     ∃ header txs, decodeBlock raw = .ok (header, txs) ∧
       Bitcoin.Block.Sigops.legacySigOpBudgetOk txs = true ∧
       ∀ tx ∈ txs, Bitcoin.Consensus.checkTransaction tx = none := by
-  obtain ⟨header, txs, _, hd, prelude, _, _⟩ := validateBlock_sigop_stage h
+  obtain ⟨header, txs, _, hd, prelude, _, _, _⟩ := validateBlock_sigop_stage h
   have checked := checkBlockPrelude_ok prelude
   exact ⟨header, txs, hd, checked.2, checkBlockStateless_ok checked.1⟩
 
@@ -191,7 +189,7 @@ theorem validateBlock_sigop_budget {raw : ByteArray} {st : CapState}
     ∃ header txs, decodeBlock raw = .ok (header, txs) ∧
       SigopTrace st.height (candidateScriptFlags st.height header) txs st.utxo
         report.state.utxo 0 report.sigOpCost := by
-  obtain ⟨header, txs, resolved, hd, _, stage, covered⟩ := validateBlock_sigop_stage h
+  obtain ⟨header, txs, resolved, hd, _, _, stage, covered⟩ := validateBlock_sigop_stage h
   obtain ⟨fees, fold, _⟩ := applyBlockTransactionsWithSigops_fold stage
   exact ⟨covered, applyTxsWithSigops_bounded (by decide) fold,
     header, txs, hd, applyTxsWithSigops_trace fold⟩

@@ -138,7 +138,7 @@ def CapError.reason : CapError → String
   | .badMerkleRoot => "bad-txnmrklroot"
   | .blockMutated => "bad-txns-duplicate"
   | .unexpectedWitness => "unexpected-witness"
-  | .badWitnessCommitment => "bad-witness-missing"
+  | .badWitnessCommitment => "bad-witness-merkle-match"
   | .badWitnessNonce => "bad-witness-nonce-size"
   | .badVersion => "bad-version"
   | .badCbHeight => "bad-cb-height"
@@ -456,6 +456,40 @@ This precedes witness/weight checks and contextual UTXO input access. -/
 def checkBlockPrelude (txs : List Tx) : Except CapError Unit := do
   checkBlockStateless txs
   if !Bitcoin.Block.Sigops.legacySigOpBudgetOk txs then throw CapError.badBlkSigops
+
+/-- Core CheckWitnessMalleation: select the last matching output, check the
+reserved-value shape before its hash, and otherwise forbid witness data.
+Output amounts do not participate. This stage must precede block weight. -/
+def checkWitnessCommitment (active : Bool) (txs : List Tx) (cb : Tx) :
+    Except CapError Unit := do
+  if active && (witnessCommitmentOutput cb).isSome then
+    if !commitmentNonceOk cb then throw CapError.badWitnessNonce
+    if !witnessCommitmentOk txs cb then throw CapError.badWitnessCommitment
+  else
+    if anyWitness txs then throw CapError.unexpectedWitness
+
+/-- Exact accepted predicate of the ordered witness stage. -/
+theorem checkWitnessCommitment_ok_iff (active : Bool) (txs : List Tx) (cb : Tx) :
+    checkWitnessCommitment active txs cb = .ok () ↔ commitmentGate active txs cb = true := by
+  unfold checkWitnessCommitment commitmentGate
+  split
+  · by_cases hn : commitmentNonceOk cb = true
+    · cases hh : witnessCommitmentOk txs cb <;> simp [hn, hh, pure, Except.pure]
+    · have hh : witnessCommitmentOk txs cb = false := by
+        cases h : witnessCommitmentOk txs cb
+        · rfl
+        · exact False.elim (hn (witnessCommitmentOk_nonce h))
+      simp [hn, hh, pure, Except.pure]
+  · cases anyWitness txs <;> simp [pure, Except.pure]
+
+/-- The witness stage can only emit its three Core witness verdicts. -/
+theorem checkWitnessCommitment_error {active : Bool} {txs : List Tx} {cb : Tx} {e : CapError}
+    (h : checkWitnessCommitment active txs cb = .error e) :
+    e = .badWitnessNonce ∨ e = .badWitnessCommitment ∨ e = .unexpectedWitness := by
+  unfold checkWitnessCommitment at h
+  cases ha : active && (witnessCommitmentOutput cb).isSome <;>
+    cases hn : commitmentNonceOk cb <;> cases hh : witnessCommitmentOk txs cb <;>
+    cases hw : anyWitness txs <;> simp_all [pure, Except.pure]
 
 theorem checkBlockStateless_error {txs : List Tx} {e : CapError}
     (h : checkBlockStateless txs = .error e) : ∃ txError, e = .txCheck txError := by
@@ -928,14 +962,8 @@ def validateBlock (raw : ByteArray) (st : CapState)
   -- block's own height ≥ 481824 (validation.cpp:4177). Before activation
   -- CheckWitnessMalleation is a no-op apart from the no-witness rule.
   let segwitActive := SEGWIT_HEIGHT ≤ st.height
-  if !commitmentGate segwitActive txs cb then
-    if anyWitness txs then throw CapError.badWitnessCommitment
-    else throw CapError.unexpectedWitness
-  if segwitActive && (witnessCommitmentOutput cb).isSome && !commitmentValueZero cb then
-    throw CapError.badWitnessCommitment
-  if segwitActive && (witnessCommitmentOutput cb).isSome && !commitmentNonceOk cb then
-    throw CapError.badWitnessNonce
-  -- 4b. BLK-021: the witness commitment (and its value/nonce arms) is
+  checkWitnessCommitment segwitActive txs cb
+  -- 4b. BLK-021: the witness commitment (reserved shape, then hash) is
   -- checked BEFORE the block weight. Core's ContextualCheckBlock comment
   -- (validation.cpp:4179-4187) is explicit: a too-big-by-witness block
   -- must not be cached invalid before the coinbase witness binds the
@@ -1043,7 +1071,8 @@ the source comment gives the hash-invariance reason). The real
 the actual pipeline, not on the `contextualChecksOrdered` helper. -/
 
 /-- **BLK-021 (pre-emption)**: at the real prelude, a commitment-gate
-failure pre-empts weight after CheckBlock succeeds. The exact equation
+failure pre-empts weight after CheckBlock succeeds. The ordered witness stage
+selects its precise nonce/hash/no-commitment verdict. The exact equation
 also propagates CheckBlock's earlier stateless/legacy-budget rejection,
 without assuming those checks succeeded. -/
 @[rule "BLK-021"]
@@ -1065,24 +1094,16 @@ theorem validateBlock_commitment_preempts_weight
     (hweight : weightOk txs raw.size = false) :
     validateBlock raw st = (do
       checkBlockPrelude txs
-      throw (if anyWitness txs then CapError.badWitnessCommitment
-              else CapError.unexpectedWitness)) := by
-  unfold validateBlock
+      checkWitnessCommitment (SEGWIT_HEIGHT ≤ st.height) txs (txs.getD 0 dummyTx)
+      throw CapError.badBlkWeight) := by
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
-  have hcg' : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
-      (txs[0]?.getD dummyTx) = false := by simpa using hcg
+  unfold validateBlock
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
-    hmerkle, hmut, hcg', throw_except_error]
-  cases hp : checkBlockPrelude txs with
-  | error e => simp [hp, Bind.bind, Except.bind]
-  | ok value =>
-    cases value
-    simp only [hp, Bind.bind, Except.bind]
-    split <;> rfl
+    hmerkle, hmut, hweight, throw_except_error]
 
 /-- **BLK-021 (weight reached only after commitment)**: once the
-commitment gate and its value/nonce arms pass, a failed weight check
+commitment gate passes, a failed weight check
 returns `badBlkWeight` after CheckBlock, whose errors propagate first.
 Together with the pre-emption theorem
 this pins the real prelude's order. -/
@@ -1102,31 +1123,19 @@ theorem validateBlock_badBlkWeight_after_commitment
     (hmut : merkleMutationOk txs = true)
     (hcg : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
              (txs.getD 0 dummyTx) = true)
-    (hvalz : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
-        commitmentValueZero (txs.getD 0 dummyTx) = false))
-    (hnonce : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
-        commitmentNonceOk (txs.getD 0 dummyTx) = false))
     (hweight : weightOk txs raw.size = false) :
     validateBlock raw st = (do
       checkBlockPrelude txs
       throw CapError.badBlkWeight) := by
-  unfold validateBlock
+  have witnessOk := (checkWitnessCommitment_ok_iff (SEGWIT_HEIGHT ≤ st.height)
+    txs (txs.getD 0 dummyTx)).2 hcg
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
-  have hcg' : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
-      (txs[0]?.getD dummyTx) = true := by simpa using hcg
-  have hvalz' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
-      commitmentValueZero (txs[0]?.getD dummyTx) = false) := by
-    simpa using hvalz
-  have hnonce' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
-      commitmentNonceOk (txs[0]?.getD dummyTx) = false) := by
-    simpa using hnonce
+  have witnessOk' : checkWitnessCommitment (SEGWIT_HEIGHT ≤ st.height) txs
+      (txs[0]?.getD dummyTx) = .ok () := by simpa using witnessOk
+  unfold validateBlock
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
-    hmerkle, hmut, hcg', hvalz', hnonce', hweight, throw_except_error]
+    hmerkle, hmut, witnessOk', hweight, throw_except_error]
 
 /-! ## BIP30 — the pre-block duplicate-coinbase gate
 
@@ -1156,32 +1165,20 @@ theorem validateBlock_badBip30
     (hmut : merkleMutationOk txs = true)
     (hcg : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
              (txs.getD 0 dummyTx) = true)
-    (hvalz : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
-        commitmentValueZero (txs.getD 0 dummyTx) = false))
-    (hnonce : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
-        commitmentNonceOk (txs.getD 0 dummyTx) = false))
     (hweight : weightOk txs raw.size = true)
     (hcol : bip30BlockCollision (viewOf st.utxo) txidKey txs st.height = true)
     (henf : bip30Enforced st.height = true) :
     validateBlock raw st = (do
       checkBlockPrelude txs
       throw (CapError.block BlockError.badTxnsBIP30)) := by
-  unfold validateBlock
+  have witnessOk := (checkWitnessCommitment_ok_iff (SEGWIT_HEIGHT ≤ st.height)
+    txs (txs.getD 0 dummyTx)).2 hcg
   have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
-  have hcg' : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
-      (txs[0]?.getD dummyTx) = true := by simpa using hcg
-  have hvalz' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
-      commitmentValueZero (txs[0]?.getD dummyTx) = false) := by
-    simpa using hvalz
-  have hnonce' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
-      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
-      commitmentNonceOk (txs[0]?.getD dummyTx) = false) := by
-    simpa using hnonce
+  have witnessOk' : checkWitnessCommitment (SEGWIT_HEIGHT ≤ st.height) txs
+      (txs[0]?.getD dummyTx) = .ok () := by simpa using witnessOk
+  unfold validateBlock
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
-    hmerkle, hmut, hcg', hvalz', hnonce', hweight, hcol, henf, throw_except_error]
+    hmerkle, hmut, witnessOk', hweight, hcol, henf, throw_except_error]
 
 end Bitcoin.Capstone.Block

@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 62, 'test_vector_ids': 26}.
+# 726 rows; field census {'check': 1, 'consensus': 1, 'core_ref': 86, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 62, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 08f5d5534252d64d01bf86a025ff782083a6022482a4cb5461a2b45ec1543d70
+#   726 rows, sha256 768ed2f2441f5c2079a66975cbc4c51b45a7a88d6b4015360c4050dd6b1cf767
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -2049,26 +2049,30 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-016': {
-        'summary': "GenerateCoinbaseCommitment creates the commitment output with nValue = 0 (generation only); block validation does not require nValue = 0 on an existing commitment output, and the model's `commitmentValueZero` checks every 38-byte `6a24aa21a9ed`-matching output, not only the last selected one",
-        'core_ref': 'src/validation.cpp:4013@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW41b.commitmentValueZero_eq_true_iff',
+        'summary': 'Witness commitment validation is independent of output amounts; ordinary amount and coinbase reward checks still apply',
+        'check': 'Commitment output amount independence',
+        'core_ref': 'src/validation.cpp:3878-3924@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values',
         'status': 'proven',
     },
     'BLK-017': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_eq_true, BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_iff',
+        'core_ref': 'src/validation.cpp:3898-3907@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-018': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.commitmentNonceOk_eq_true',
+        'core_ref': 'src/validation.cpp:3885-3893@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-019': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.commitmentGate_unexpected_witness',
+        'core_ref': 'src/validation.cpp:3913-3921@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-020': {
-        'core_ref': 'src/validation.cpp:3913-3920@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW14.commitmentGate_forces_binding',
+        'core_ref': 'src/validation.cpp:3878-3924@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-021': {

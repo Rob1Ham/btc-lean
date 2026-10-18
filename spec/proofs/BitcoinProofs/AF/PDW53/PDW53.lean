@@ -168,7 +168,7 @@ theorem contextualChecksOrdered_failure_cases (segwitActive : Bool)
 
 `contextualChecksOrdered` still pins the helper's order, and the REAL
 pipeline now matches it: `Capstone/Block.lean` checks the witness
-commitment (gate + value + nonce) before `weightOk`. The theorem below
+commitment (reserved shape, then hash) before `weightOk`. The theorem below
 is stated on `validateBlock` itself: with an identical earlier-gate set,
 a commitment-gate failure returns the commitment verdict even though
 `weightOk = false`, so a commitment failure pre-empts `badBlkWeight`.
@@ -201,9 +201,10 @@ theorem validateBlock_commitment_preempts_weight_row
     (hweight : Bitcoin.Capstone.Block.weightOk txs raw.size = false) :
     Bitcoin.Capstone.Block.validateBlock raw st = (do
       Bitcoin.Capstone.Block.checkBlockPrelude txs
-      throw (if Bitcoin.Capstone.Merkle.anyWitness txs then
-                Bitcoin.Capstone.Block.CapError.badWitnessCommitment
-              else Bitcoin.Capstone.Block.CapError.unexpectedWitness)) :=
+      Bitcoin.Capstone.Block.checkWitnessCommitment
+        (Bitcoin.Activation.SEGWIT_HEIGHT ≤ st.height) txs
+        (txs.getD 0 Bitcoin.Capstone.Block.dummyTx)
+      throw Bitcoin.Capstone.Block.CapError.badBlkWeight) :=
   Bitcoin.Capstone.Block.validateBlock_commitment_preempts_weight
     raw st h txs hdec hstruct hcbpos hcblen hver hbip34 htarget hpow hlink
     hmerkle hmut hcg hweight
@@ -241,8 +242,17 @@ theorem validateBlock_commitment_failure_ne_badBlkWeight
       simp [hp, Bind.bind, Except.bind]
   | ok value =>
     cases value
-    simp only [hp, Bind.bind, Except.bind, Bitcoin.Capstone.Block.throw_except_error]
-    split <;> intro hbad <;> cases hbad
+    simp only [hp, Bind.bind, Except.bind]
+    cases hw : Bitcoin.Capstone.Block.checkWitnessCommitment
+        (Bitcoin.Activation.SEGWIT_HEIGHT ≤ st.height) txs
+        (txs.getD 0 Bitcoin.Capstone.Block.dummyTx) with
+    | error e =>
+      rcases Bitcoin.Capstone.Block.checkWitnessCommitment_error hw with rfl | rfl | rfl <;>
+        simp [hw, Bind.bind, Except.bind]
+    | ok unit =>
+      have passed := (Bitcoin.Capstone.Block.checkWitnessCommitment_ok_iff _ _ _).1 hw
+      rw [hcg] at passed
+      contradiction
 
 @[rule "BLK-109"]
 theorem connectGenesis_utxo_row (utxo : List (Bitcoin.Data.OutPoint × Bitcoin.Ledger.Coin))

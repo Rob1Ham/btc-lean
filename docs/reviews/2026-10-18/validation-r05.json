@@ -1,0 +1,380 @@
+{
+  "finding": "R05; I4-06 integration revalidation; BLK-015..021",
+  "status": "witness_value_and_verdict_defects_fixed_and_verified_with_scoped_checks",
+  "verified_at_utc": "2026-10-18T16:43:24.667681+00:00",
+  "implementation_parent": "8856247c89c96437819289a1520c285d5b922071",
+  "upstream_main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "environment": {
+    "lean_bin": "/tmp/btc-lean-toolchain/lean-4.35.0-darwin_aarch64/bin",
+    "python_bin": "/tmp/btc-lean-review-py312/bin",
+    "cpp_sdkroot": "/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk",
+    "cpp_compiler": "Apple clang version 17.0.0 (clang-1700.3.19.1)",
+    "cpp_flags": [
+      "-std=c++17",
+      "-O2"
+    ],
+    "cpp_sha256": "CommonCrypto; current harness requires macOS SDK"
+  },
+  "resource_limits": {
+    "lake_scheduler": "default",
+    "additional_OS_memory_cap": null,
+    "new_proof_heartbeat_overrides": false,
+    "before_reproduction_timeout_seconds": 120,
+    "reference_compile_timeout_seconds": 60,
+    "reference_execution_timeout_seconds": 30
+  },
+  "behavior_changes": [
+    "Removed commitmentValueZero from the real validator and stateless composition; retained its mathematical reference predicate and theorem without a consensus-row tag.",
+    "Ordered stage selects the highest matching output, checks reserved-item shape first, then SHA256d(witness root ++ actual reserved item).",
+    "Malformed reserved stacks reject bad-witness-nonce-size; hash mismatch rejects bad-witness-merkle-match; witness without an active selected commitment rejects unexpected-witness.",
+    "Stage stays before full weight, preserving earlier CheckBlock errors. Amount/running-fee/coinbase-reward checks remain enforced separately."
+  ],
+  "proofs": {
+    "module": "BitcoinProofs.Theorems.CapstoneWitness",
+    "new_guarded_footprints": 11,
+    "consensus_entries": 299,
+    "consensus_manifest_lines": 385,
+    "prior_288_footprints_unchanged": true,
+    "allowed_axioms": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "actual_coinbase_value_invariance": "For arbitrary replacement f and remaining transactions, replacing amounts in the actual first transaction and selected coinbase argument leaves witness validation unchanged. This does not claim overall block acceptance is value-invariant.",
+    "public_dataflow": "Existing sigop-stage inversion is strengthened with the successful witness stage for either public entry; the new witness theorem exposes this stage and the Boolean commitment predicate.",
+    "contract_changes": [
+      "Removed the false zero-value conjunct from StatelessRows/statelessValidate; the correct nonce requirement remains implied by the exact commitment predicate and separately ordered in execution.",
+      "Weight/BIP30 rejection theorems no longer require unnecessary value/nonce assumptions; successful commitment implies nonce shape.",
+      "Commitment-preempts-weight equation exposes the ordered witness stage so its precise error taxonomy replaces the old generic reason. PDW53 commitment-failure-ne-weight statement remains unchanged.",
+      "Existing fee, sequence, sigop and ledger contracts remain proved."
+    ]
+  },
+  "before_regression": {
+    "command": "python3 docs/reviews/2026-10-18/reproduce_witness_commitment.py",
+    "exit_code": 0,
+    "baseline_commit": "8856247c89c96437819289a1520c285d5b922071",
+    "old_lean_exit": 1,
+    "named_public_failures": 12,
+    "passing_fixture_controls": 7,
+    "log": "/tmp/btc-lean-r05-before-reproduced.log",
+    "log_sha256": "3dc7ae4f0fe50c9c18665c6626de3b34c7f7d1edbe3ef1bc876cc259e371f810",
+    "scope": "Namespaced old Block.lean with current dependencies and unchanged driver/fixtures; compile/timeout/setup failures cannot satisfy the reproduction.",
+    "reproducer_sha256": "5a8e72d0d4aa60e7bb667c1a428ac2d91ad15352006a9d7fffd539b460ffa3f9"
+  },
+  "core_reference": {
+    "normative": {
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "reference_class": "two extracted functions with container/state/single-coinbase-merkle shims and CommonCrypto SHA256d",
+      "source_sha256": {
+        "/tmp/btc-lean-core-validation.cpp": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416",
+        "/tmp/btc-lean-core-consensus-validation.h": "2875af77e8e0d4db5b210bc716f37713bd0bd8922dde60713e611b33cdf1806a"
+      },
+      "functions_sha256": {
+        "GetWitnessCommitmentIndex": "097ba21f71ff27d640f4454f16e71edf0eb4a5b6bad7880696abb7e1555b01ee",
+        "CheckWitnessMalleation": "7200161e93586068b92eac574961366bc96f579a39156f5c4c413332b42cf4c4"
+      },
+      "fixture_sha256": "09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+      "checks": {
+        "nonzero outputs at exact subsidy": "ok",
+        "zero-valued outputs also valid": "ok",
+        "missing reserved item": "bad-witness-nonce-size",
+        "31-byte reserved item": "bad-witness-nonce-size",
+        "33-byte reserved item": "bad-witness-nonce-size",
+        "two reserved items": "bad-witness-nonce-size",
+        "last matching output binds actual reserved item": "bad-witness-merkle-match",
+        "reversing outputs changes selected commitment": "ok",
+        "preactivation rejects witness": "unexpected-witness",
+        "preactivation permits commitment without witness": "ok",
+        "absent commitment without witness": "ok",
+        "absent commitment with witness": "unexpected-witness"
+      },
+      "scope": "Witness-selection/shape/hash/verdict checks only; no Core parser, amount/reward, PoW or full-block validation."
+    },
+    "audit16": {
+      "core_commit": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+      "reference_class": "two extracted functions with container/state/single-coinbase-merkle shims and CommonCrypto SHA256d",
+      "source_sha256": {
+        "/tmp/btc-lean-core-audit16-validation.cpp": "b315005125a410a8ac1b920ae4a500eaf830c5aa8ddbcc16fd4b10c97bd49901",
+        "/tmp/btc-lean-core-audit16-consensus-validation.h": "a05efe3196a6fec585622102d91c4f7558f1bf56c642cc0df5a21640594a73bf"
+      },
+      "functions_sha256": {
+        "GetWitnessCommitmentIndex": "097ba21f71ff27d640f4454f16e71edf0eb4a5b6bad7880696abb7e1555b01ee",
+        "CheckWitnessMalleation": "7200161e93586068b92eac574961366bc96f579a39156f5c4c413332b42cf4c4"
+      },
+      "fixture_sha256": "09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+      "checks": {
+        "nonzero outputs at exact subsidy": "ok",
+        "zero-valued outputs also valid": "ok",
+        "missing reserved item": "bad-witness-nonce-size",
+        "31-byte reserved item": "bad-witness-nonce-size",
+        "33-byte reserved item": "bad-witness-nonce-size",
+        "two reserved items": "bad-witness-nonce-size",
+        "last matching output binds actual reserved item": "bad-witness-merkle-match",
+        "reversing outputs changes selected commitment": "ok",
+        "preactivation rejects witness": "unexpected-witness",
+        "preactivation permits commitment without witness": "ok",
+        "absent commitment without witness": "ok",
+        "absent commitment with witness": "unexpected-witness"
+      },
+      "scope": "Witness-selection/shape/hash/verdict checks only; no Core parser, amount/reward, PoW or full-block validation."
+    },
+    "identical_two_extracted_functions": true,
+    "both_exit_codes": [
+      0,
+      0
+    ],
+    "lean_runtime_comparison": {
+      "context nonzero outputs at exact subsidy": "ok",
+      "replay nonzero outputs at exact subsidy": "ok",
+      "zero values also bind": "ok",
+      "context missing reserved item": "bad-witness-nonce-size",
+      "replay missing reserved item": "bad-witness-nonce-size",
+      "context 31-byte reserved item": "bad-witness-nonce-size",
+      "replay 31-byte reserved item": "bad-witness-nonce-size",
+      "context 33-byte reserved item": "bad-witness-nonce-size",
+      "replay 33-byte reserved item": "bad-witness-nonce-size",
+      "context two reserved items": "bad-witness-nonce-size",
+      "replay two reserved items": "bad-witness-nonce-size",
+      "context last matching output binds actual reserved item": "bad-witness-merkle-match",
+      "replay last matching output binds actual reserved item": "bad-witness-merkle-match",
+      "reversing outputs changes selected commitment": "ok",
+      "preactivation rejects witness": "unexpected-witness",
+      "preactivation ignores commitment without witness": "ok",
+      "absent commitment without witness": "ok",
+      "absent commitment with witness": "unexpected-witness"
+    },
+    "source_url_templates": [
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/COMMIT/src/validation.cpp",
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/COMMIT/src/consensus/validation.h"
+    ],
+    "command_template": "SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk python3 spec/scripts/check_witness_commitment_core.py --validation VALIDATION_CPP --consensus-validation CONSENSUS_VALIDATION_H --fixture spec/data/review/witness-commitment/nonzero.raw --output RESULT_JSON"
+  },
+  "corpus": {
+    "fixture": {
+      "kind": "synthetic conditional witness-validation regression fixture",
+      "generator": "spec/scripts/generate_witness_commitment_block.py",
+      "regeneration": "python3 spec/scripts/generate_witness_commitment_block.py --check",
+      "file": "nonzero.raw",
+      "bytes": 267,
+      "sha256": "09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+      "header_hash_display": "00000000389e4fb36ab57dcdc8427fe57ee6a94ee55a13b65a9a2211e04a3ce3",
+      "bits": "1d00ffff",
+      "nonce": 2125207511,
+      "header_time": 1231006506,
+      "header_version": 4,
+      "coinbase_height": 481824,
+      "output_values_satoshis": [
+        1,
+        1249999999
+      ],
+      "reserved_value_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+      "selection": "Two matching outputs: first binds reserved zero; last binds the actual nonzero reserved value and has one legal trailing byte.",
+      "parent": "real mainnet genesis hash; parent height/history are conditional test inputs, not a reachable chain claim",
+      "mining": {
+        "method": "local CommonCrypto SHA256d search, eight workers",
+        "hashes_reported": 2125332480,
+        "seconds": 90.5843,
+        "target": "unchanged mainnet difficulty-one target; no PoW override"
+      },
+      "scope": "Real PoW and public serialized validator regression. Not a canonical mainnet block, not a valid historical ancestor chain, and not full bitcoind verification. The contextual fixture supplies a conditional ancestor index with the complete MTP and exact-timespan retarget inputs."
+    },
+    "payload_manifest_entries": 169,
+    "files_plus_manifest": 170,
+    "bytes": 5035774,
+    "sha256_coverage": "Exact unique regular-file set; all 169 hashes match."
+  },
+  "checks": [
+    {
+      "command": "lake build Bitcoin",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "scope": "74 Lake jobs; zero-dependency default core",
+      "log": "/tmp/btc-lean-r05-core-final.log",
+      "log_sha256": "3b35b185423d122c281d0a510798fb41b105e9bace1d2dcf9f6db89860b78d9c",
+      "output_tail": [
+        "warning: Bitcoin/Ledger/HashMap.lean:255:20: `if_neg` has been deprecated: Use `ite_eq_right` instead",
+        "",
+        "Hint: Replace the deprecated name:",
+        "  i\u0335f\u0335_\u0335n\u0335e\u0335g\u0335i\u0332t\u0332e\u0332_\u0332e\u0332q\u0332_\u0332r\u0332i\u0332g\u0332h\u0332t\u0332",
+        "Build completed successfully (74 jobs)."
+      ]
+    },
+    {
+      "command": "lake test",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "scope": "16 core runtime checks",
+      "log": "/tmp/btc-lean-r05-core-test.log",
+      "log_sha256": "6f1ad33b0b705c96234ca243eefb911a777e07a49fcf3bd9db436909054b941a",
+      "output_tail": [
+        "[PASS] compactTarget(0x1d00ffff) is difficulty-1",
+        "[PASS] UTXO: spent coin removed",
+        "[PASS] compactSizeDec \u2218 compactSizeEnc 300 roundtrip",
+        "[PASS] MoneyRange boundary: 0 and MAX_MONEY in range, MAX_MONEY+1 out",
+        "[PASS] CompactSize 0xfd marker canonicality: 0xfc encodes short, 0xfd needs marker"
+      ]
+    },
+    {
+      "command": "make test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops test-capstone-sigop-budget test-capstone-witness",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "188 distinct runtime checks, including 19 new public/fixture and 12 new witness-stage checks",
+      "log": "/tmp/btc-lean-r05-regressions-final.log",
+      "log_sha256": "69330c5b844f723e60c6fc9cbda007e0c42f9a6c2fa487be54143b1dd277dfd8",
+      "output_tail": [
+        "[PASS] funded stage rejects excessive reward: expected=bad-cb-amount, actual=bad-cb-amount",
+        "[PASS] witness check ignores negative amounts: expected=ok, actual=ok",
+        "[PASS] stateless gate rejects negative amounts: expected=bad-txns-vout-negative, actual=bad-txns-vout-negative",
+        "[PASS] funded exact nonzero subsidy: expected=ok, actual=ok",
+        "witness-stage checks=12 failures=0"
+      ]
+    },
+    {
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.Theorems.GenchainCor BitcoinProofs.AF.PDW14.B089B104 BitcoinProofs.AF.PDW41b.PDW41bGuards BitcoinProofs.AF.PDW53.PDW53Guards BitcoinProofs.ErrMap.E01.Test",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "scope": "1741 Lake jobs; default root, eleven new guards and named affected consumers",
+      "log": "/tmp/btc-lean-r05-proof-final.log",
+      "log_sha256": "e91378e1b9443760769202f0854d402b5922522c7bf71df46f3bdd603fe9a0da",
+      "output_tail": [
+        "",
+        "Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+        "\u2714 [1739/1741] Built BitcoinProofs.Theorems.CapstoneWitness (1.3s)",
+        "\u2714 [1740/1741] Built BitcoinProofs (7.5s)",
+        "Build completed successfully (1741 jobs)."
+      ]
+    },
+    {
+      "command": "lake build BitcoinProofs.AF.PDW13.PDW13Guards",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "scope": "15 jobs; old reserved-value symbolic proofs/guards and consumers",
+      "log": "/tmp/btc-lean-r05-reserved-consumers.log",
+      "log_sha256": "381dbdd1868bb48b31cfd029fbcb9836cc5c678f133962340fca372a10f0780b",
+      "output_tail": [
+        "",
+        "Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+        "\u2714 [14/15] Built BitcoinProofs.AF.PDW13.PDW13 (935ms)",
+        "\u2714 [15/15] Built BitcoinProofs.AF.PDW13.PDW13Guards (947ms)",
+        "Build completed successfully (15 jobs)."
+      ]
+    },
+    {
+      "command": "lake build Bitcoin.Wallet.Crypto.Hmac Bitcoin.Wallet.Crypto.Sha512 Bitcoin.Wallet.Descriptor Bitcoin.Wallet.Descriptor.Ast Bitcoin.Wallet.Descriptor.Checksum Bitcoin.Wallet.Descriptor.Expand Bitcoin.Wallet.Descriptor.Parse Bitcoin.Wallet.Encoding Bitcoin.Wallet.Encoding.Base58 Bitcoin.Wallet.Encoding.Bech32 Bitcoin.Wallet.Key.Bip32 Bitcoin.Wallet.Key.Origin Bitcoin.Wallet.Miniscript Bitcoin.Wallet.Miniscript.Node Bitcoin.Wallet.Miniscript.Satisfy Bitcoin.Wallet.Miniscript.Script Bitcoin.Wallet.Miniscript.Tests Bitcoin.Wallet.Miniscript.Type Bitcoin.Wallet.Psbt.Decode Bitcoin.Wallet.Psbt.Encode Bitcoin.Wallet.Psbt.Laws Bitcoin.Wallet.Psbt.Model Bitcoin.Wallet.Psbt.Psbt Bitcoin.Wallet.Psbt.Tests Bitcoin.Wallet.RuleAttr Bitcoin.Wallet.Spend Bitcoin.Wallet.Spend.Fee Bitcoin.Wallet.Spend.Funding Bitcoin.Wallet.Spend.Laws Bitcoin.Wallet.Spend.Selection Bitcoin.Wallet.Taproot.Commit BitcoinProofs.Wallet.Desc.Checksum BitcoinProofs.Wallet.Desc.Expand BitcoinProofs.Wallet.Desc.Parse BitcoinProofs.Wallet.Encoding.Base58Props BitcoinProofs.Wallet.Encoding.Bech32Props BitcoinProofs.Wallet.Encoding.Laws BitcoinProofs.Wallet.Key.Laws BitcoinProofs.Wallet.Key.Serialize BitcoinProofs.Wallet.Miniscript.Interp BitcoinProofs.Wallet.Miniscript.SatShape BitcoinProofs.Wallet.Miniscript.ScriptExact BitcoinProofs.Wallet.Miniscript.TypeSound BitcoinProofs.Wallet.Obligations BitcoinProofs.Wallet.Psbt.Canonical BitcoinProofs.Wallet.Psbt.Invariants BitcoinProofs.Wallet.Psbt.Lifecycle BitcoinProofs.Wallet.Psbt.RoundTrip BitcoinProofs.Wallet.Sign.Bridge BitcoinProofs.Wallet.Sign.Spec BitcoinProofs.Wallet.Spend.Selection BitcoinProofs.Wallet.Taproot.Bridge BitcoinProofs.Wallet.Taproot.Program",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "scope": "3242 jobs; all 53 wallet probe imports",
+      "log": "/tmp/btc-lean-r05-wallet-build.log",
+      "log_sha256": "a142568120c8fb2ed6b943ec80f9be11d30f827c300e9ce2c67ceca663cd7c77",
+      "output_tail": [
+        "info: BitcoinProofs/Wallet/Taproot/Bridge.lean:469:0: 'BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_program' depends on axioms: [propext,",
+        " Classical.choice,",
+        " Quot.sound]",
+        "info: BitcoinProofs/Wallet/Taproot/Bridge.lean:470:0: 'BitcoinProofs.Wallet.Taproot.verifyInput_unjudged_of_v1_34' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "Build completed successfully (3242 jobs)."
+      ]
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "299 entries/385 physical lines; non-update exact comparison",
+      "log": "/tmp/btc-lean-r05-axiom-check.log",
+      "log_sha256": "9e6b295cd62d2abec09cd4bd351e1cc0afe8fb98c3733c5956de6c0b67b1cbc7",
+      "output_tail": [
+        "axiom-manifest[validate]: OK (299 entries; only Classical.choice, Quot.sound, propext)",
+        "axiom-manifest: OK (385 lines)"
+      ]
+    },
+    {
+      "command": "bash spec/scripts/wallet_axiom_manifest.sh",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "838 wallet footprints",
+      "log": "/tmp/btc-lean-r05-wallet-axiom.log",
+      "log_sha256": "473ea4b99c6943db7446ce74cda7afd482476e7d76ee2ad38c032f476e13719b",
+      "output_tail": [
+        "wallet-axiom[probe]: OK (838 declaration(s), permitted ['propext', 'Classical.choice', 'Quot.sound'])"
+      ]
+    },
+    {
+      "command": "make gates gate-repro && python3 spec/scripts/theorem_index.py --check && python3 spec/scripts/residuals_index.py --check && python3 spec/scripts/proof_scope.py --check",
+      "cwd": ".",
+      "exit_code": 0,
+      "scope": "all nine static gates, exact fixture regeneration, theorem/residual/proof-scope checks",
+      "log": "/tmp/btc-lean-r05-gates-final.log",
+      "log_sha256": "aeeed09a2ddd946394c46d2b3fa28ad4efec79d6105c56652d60ea32ecc0851d",
+      "output_tail": [
+        "over-limit: bytes=1146 hash=0000000024828824b85c8b87fa1765cedb43a73977e75b83cdaea80aeee29f35 sha256=2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e",
+        "witness-commitment: bytes=267 hash=00000000389e4fb36ab57dcdc8427fe57ee6a94ee55a13b65a9a2211e04a3ce3 sha256=09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+        "theorem-index: 726 census rows, 140 wallet rows",
+        "residuals-index: 26 residuals",
+        "proof-scope: docs/PROOF-SCOPE.md and docs/PROOF-BUILD.md counts are current"
+      ]
+    }
+  ],
+  "proof_scope": {
+    "total_modules": 414,
+    "default_closure": 34,
+    "outside_default": 380,
+    "complete_current_matrix": "pending R08"
+  },
+  "census": {
+    "rows_updated": [
+      "BLK-016",
+      "BLK-017",
+      "BLK-018",
+      "BLK-019",
+      "BLK-020"
+    ],
+    "BLK_016": "The old generation convention is not a consensus rejection requirement. The corrected row states actual witness-stage amount independence and cites the new kernel theorem; the historical helper is retained without that tag. Attachment match classification disproved.",
+    "remaining": "Full row/cited-target metadata and applicability review remains pending for the broader census."
+  },
+  "source_sha256": {
+    "Makefile": "4de3855b71a21de4aa1da226698b9f2c48d23cad4a5b4c6af0fbf096b0b68f08",
+    "README.md": "ee1a7de363d85e6747e704c5413a90a757e1f21eb02147f3e6c83ebabd600d5c",
+    "docs/CLAIMS.md": "eea5b4d318adf3bdee206cfae8ef38cb6f0ccd1e8fd76a9536e30bcee2188b58",
+    "docs/DATA.md": "cb7291f8a0186d38481a8c6ae970335ad5dd9b5902249b2de8b182aa47fa9be3",
+    "docs/PROOF-BUILD.md": "560fe7286c96740a7ebb13ce31d946b84a49802c12cbf5383c038a406a3cf44b",
+    "docs/PROOF-SCOPE.md": "6605b6a9390c92b112612d451792f9f34bab4895339a40eebf177d84f4f25e86",
+    "docs/QUICKSTART.md": "3c15872ed2a06efb4c846a2886174cca1d177d178b9b19f4b6c242a0f762804e",
+    "docs/REGRESSION-VECTORS.md": "aab64ea72db0a975a34eb8946e7ae51e82ca5c7a8c6f7feac20bac9377b7a1d8",
+    "docs/REPRODUCIBILITY.md": "c90e34382118922d447deca34e7ef516796d2212a8811abcfa6a6da8ac6b0914",
+    "docs/TCB.md": "c854d1130e431c63636c7478e0a94674dee5f97add55404622c49f5797acf065",
+    "docs/THEOREMS.md": "aa72fdaa3a72124569eca6bb08ed5f3d504bc37d24bf8775b1661472adb14bcf",
+    "spec/core/Bitcoin/Capstone/Block.lean": "fa922c5329b94c5dc231a15141ebfd6ff198c97bc75b94e992fc6dbc1603b3df",
+    "spec/core/Bitcoin/Capstone/Merkle.lean": "6b38c8a76448eee352060dcffd5ca39d3bdb39f700a2aea28925975411407145",
+    "spec/core/Test/Capstone/WitnessCommitment.lean": "a0c84d9b67eb1be446a639fe1b5bdaae457cfa1d8749eab6a89f2f98015a2bbc",
+    "spec/core/Test/Capstone/WitnessStage.lean": "07b1ea93cf152ce397bbd7ae8dcfe1195936eed80330336768691cb96e809ed3",
+    "spec/data/MANIFEST.sha256": "4de9a5e5147e727b3dcbf951bcb5ae6c832c01850df6e3eea071d71258e2d02b",
+    "spec/data/review/witness-commitment/nonzero.raw": "09d76e9dad2202a263e071ec233b394ebbecba7951f7545bd97833ff6b15b604",
+    "spec/data/review/witness-commitment/provenance.json": "1ca2bf700c9497b4856130c81871f89daf4abad8cd17203e7e2d1705730822a2",
+    "spec/db/axiom-manifest.txt": "743ba1afb36187b6597debd416e36a0f305bede07623e62e323930681dc4a340",
+    "spec/db/rules.yaml": "768ed2f2441f5c2079a66975cbc4c51b45a7a88d6b4015360c4050dd6b1cf767",
+    "spec/proofs/BitcoinProofs.lean": "54ec92c196afc6fd0eb62f81c0ced5036621554aadb43c2834c282dd533b72d7",
+    "spec/proofs/BitcoinProofs/AF/PDW41b/PDW41b.lean": "591f511f506d6d0a822ed85d2d1529a64a417309d4f905a04ced487e87ffcabc",
+    "spec/proofs/BitcoinProofs/AF/PDW53/PDW53.lean": "b61defe80b02d2d974c771f3956b91cd71378936f7fc5b7be65d3c7f1b0c7959",
+    "spec/proofs/BitcoinProofs/ErrMap/E01/Test.lean": "969bae4d636ff8585822257b5ed5003dbc7d4e3437bb46268318decc01e54413",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposeStateless.lean": "d0ffae0f35f898a1a49b8eea2e016d704a3e1245a40f505b3dd69f8fead0c594",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneErrorCor.lean": "c77395ea634669dd5e601b5b79a902a890f0a8512481c28e8c0c7d69fa300437",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean": "8640147c30606ee8b9333b2f36b51abae6b52038074990e355fd5e5675bb34b4",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "ac141b82cd683206e8aa3f540f846dcb7daa8ce6dc74343ab30cfcb5993e1c82",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean": "1c49785695f4d84d4df5f144468ee1b25156f47f3e39e982e11329c768432d5d",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSigops.lean": "e63cc5d3b038b713bb956e0c6670d598b1f72aa88d33c07819ae1153ff46b42b",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneWitness.lean": "0a6fc2b96a2cf5bf62d1a79f5ddff2d14f8798162b8c61c05722a7a33bb73aad",
+    "spec/scripts/axiom_probe.lean": "d7cd2bf3479fe4e2aa6096098ea310d133056be6e735f82bd51781e2e16e16cb",
+    "spec/scripts/check_witness_commitment_core.py": "8fc1b67de956595fc887c07f387b4758ce7595f94d0814221d2115759f6a04b4",
+    "spec/scripts/generate_witness_commitment_block.py": "42d02a0ca6e9001604ae9a78767f3ba83c464c84b16c959d873f07112eee00f2",
+    "spec/scripts/rules_overrides_sync.py": "53c2916a916d81f2b941595f25e56d3f92d30e001f2f99115fe61ce5704ddcaa"
+  },
+  "limitations": [
+    "Two extracted Core functions with container/state and single-coinbase-merkle shims are runtime reference evidence, not a C++/Lean equivalence proof, Core parser check or whole-bitcoind verdict.",
+    "The mined candidate has genuine difficulty-one PoW and conditional supplied history at activation height. Its genesis parent is not a reachable ancestor at that height; no canonical-chain acceptance is claimed.",
+    "The witness-stage invariance theorem does not bypass amount or reward validity. Dedicated runtime cases reject negative output amounts and excessive coinbase reward.",
+    "Full module/cited-target matrix, current complete row-target axiom audit, all remaining census classifications, full release/anchor replay and R06/R07/evidence/archive work remain pending.",
+    "Pinned Core also has an earlier stripped-size/transaction-count bound; exact competing-error precedence with the model's later weight check remains a separate audit candidate. No extra acceptance counterexample is inferred from source inspection alone."
+  ],
+  "development_diagnostics": "Nonfinal proof/test elaboration failures were repaired without raising heartbeat limits. Only the named public failures accepted by the strict reproduction driver count as semantic before evidence."
+}

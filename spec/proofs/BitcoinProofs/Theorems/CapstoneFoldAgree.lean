@@ -806,45 +806,37 @@ theorem validateBlock_fold_agrees (raw : ByteArray) (st : CapState)
                   · split at hval
                     · cases hval
                     · have hval := (Bitcoin.Capstone.Block.unit_precheck_ok _ _ hval).2
+                      have hval := (Bitcoin.Capstone.Block.unit_precheck_ok _ _ hval).2
                       split at hval
-                      · -- commitmentGate hit: one more if (anyWitness)
-                        split at hval
-                        · cases hval
-                        · cases hval
+                      · cases hval
                       · split at hval
                         · cases hval
-                        · split at hval
-                          · cases hval
-                          · split at hval
-                            · cases hval
-                            · split at hval
-                              · cases hval
-                              · -- per-tx stage: extract the applyTxs result
-                                cases hbudget : Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops none st.height
-                                    (Bitcoin.Capstone.Block.candidateScriptFlags st.height hd) txs st.utxo with
-                                | error e =>
-                                  rw [hbudget] at hval
-                                  exceptSimp at hval
-                                  cases hval
-                                | ok r =>
-                                  obtain ⟨⟨u', okN, unjN⟩, sigops⟩ := r
-                                  have hfund : Bitcoin.Capstone.Block.applyBlockTransactions st.height txs st.utxo =
-                                      .ok (u', okN, unjN) :=
-                                    Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection hbudget
-                                  rw [hbudget] at hval
-                                  exceptSimp at hval
-                                  injection hval with hrep
-                                  have hap := Bitcoin.Capstone.Block.applyBlockTransactions_ok hfund
-                                  -- the report's utxo IS the applyTxs result
-                                  have hu : u' = rep.state.utxo := by
-                                    rw [← hrep]
-                                  -- ledger agreement: L = u'
-                                  have hg := applyBlockL_gate_quiet hfold
-                                  have hagr :=
-                                    applyTxs_ledger_agrees st.height txs 0 st.utxo 0 0
-                                      u' okN unjN hg hap
-                                  rw [hfold] at hagr
-                                  injection hagr with hL
-                                  rw [hL, hu]
+                        · -- per-tx stage: extract the applyTxs result
+                          cases hbudget : Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops none st.height
+                              (Bitcoin.Capstone.Block.candidateScriptFlags st.height hd) txs st.utxo with
+                          | error e =>
+                            rw [hbudget] at hval
+                            exceptSimp at hval
+                            cases hval
+                          | ok r =>
+                            obtain ⟨⟨u', okN, unjN⟩, sigops⟩ := r
+                            have hfund : Bitcoin.Capstone.Block.applyBlockTransactions st.height txs st.utxo =
+                                .ok (u', okN, unjN) :=
+                              Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection hbudget
+                            rw [hbudget] at hval
+                            exceptSimp at hval
+                            injection hval with hrep
+                            have hap := Bitcoin.Capstone.Block.applyBlockTransactions_ok hfund
+                            -- the report's utxo IS the applyTxs result
+                            have hu : u' = rep.state.utxo := by
+                              rw [← hrep]
+                            -- ledger agreement: L = u'
+                            have hg := applyBlockL_gate_quiet hfold
+                            have hagr :=
+                              applyTxs_ledger_agrees st.height txs 0 st.utxo 0 0
+                                u' okN unjN hg hap
+                            rw [hfold] at hagr
+                            injection hagr with hL
+                            rw [hL, hu]
 
 end BitcoinProofs.Theorems.CapstoneFold

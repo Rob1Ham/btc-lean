@@ -55,6 +55,28 @@ an exact cost trace over each intermediate ledger. See
 `docs/reviews/2026-10-18/validation-sigop-budget.json` for scoped receipts
 and the remaining whole-repository verification work.
 
+Witness commitment validation has 31 further checks in
+`Test/Capstone/WitnessCommitment.lean` and `WitnessStage.lean`
+(`make test-capstone-witness`). The 267-byte mined fixture accepts two
+nonzero output amounts totalling exactly the subsidy. Its highest matching
+output binds a nonzero 32-byte reserved value and has a legal trailing
+byte. Witness-only variants preserve its txid/merkle root/PoW and exercise
+missing, 31/33-byte and multiple reserved items, plus an actual hash mismatch.
+The supplied height/history is conditional input; this is not a reachable
+historical mainnet block. Stage checks include preactivation, no commitment,
+reversed output selection, and separate amount/reward rejection.
+
+`python3 docs/reviews/2026-10-18/reproduce_witness_commitment.py` requires
+exactly twelve old public failures and seven passing fixture controls at
+`8856247`. Regenerate with
+`python3 spec/scripts/generate_witness_commitment_block.py --check`.
+`spec/scripts/check_witness_commitment_core.py` takes `--validation`,
+`--consensus-validation` and `--fixture` paths and verifies the source hashes
+at either pin. Two unchanged extracted functions agree on twelve reference
+cases using container/state/single-coinbase-merkle shims and CommonCrypto
+SHA256d. These are runtime checks, not whole-bitcoind validation or a
+C++/Lean equivalence proof. See `validation-r05.json` in the review directory.
+
 The proof-surface repairs are already exercised in-file:
 
 * `SmallCurve/TweakCorSmall.lean`: `mulP' (2^16) G = none` and

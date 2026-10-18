@@ -43,7 +43,7 @@ Mathlib is large and is downloaded on the first build:
 cd spec/proofs
 lake build BitcoinProofs
 # Upstream recorded 1722 jobs at its 29-module revision; see PROOF-BUILD.md for current scope.
-# 33-module default import closure, not all 413 proof modules.
+# 34-module default import closure, not all 414 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. A
@@ -70,7 +70,7 @@ lake build BitcoinProofs.Wallet.Desc.Checksum
 
 ## 5. Data
 
-The repository tracks a 168-file, 5,033,780-byte curated subset under
+The repository tracks a 170-file, 5,035,774-byte curated subset under
 `spec/data/` with a SHA-256 manifest. The data-only corpus and anchor blocks
 are release assets: the archive is `btc-lean-data-2026.10.17.tar.gz`
 (357,916,214 bytes; SHA-256

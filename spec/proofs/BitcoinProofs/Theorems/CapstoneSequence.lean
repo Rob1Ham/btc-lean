@@ -280,9 +280,7 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
       obtain ⟨_, h⟩ := gate_step _ _ h -- merkle root
       obtain ⟨_, h⟩ := gate_step _ _ h -- mutation
       obtain ⟨_, h⟩ := unit_precheck_ok _ _ h
-      obtain ⟨_, h⟩ := gate_step2 _ _ _ h -- commitment
-      obtain ⟨_, h⟩ := gate_step _ _ h -- commitment value
-      obtain ⟨_, h⟩ := gate_step _ _ h -- nonce
+      obtain ⟨_, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
       obtain ⟨_, h⟩ := gate_step _ _ h -- weight
       obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
       cases ht : applyBlockTransactionsWithSigops (some (ctx, facts)) st.height
