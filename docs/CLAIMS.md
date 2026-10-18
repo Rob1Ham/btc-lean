@@ -31,7 +31,7 @@ a proof of the model.
 The nine static gates are run by `.github/workflows/gates.yml` and by
 `make gates`; in this candidate all nine pass, and no Lean build or dynamic
 `#print axioms` probe runs in CI. The recorded dynamic checks are separate:
-223 consensus axiom entries (237 manifest lines) and 844 wallet theorem/lemma
+223 consensus axiom entries (237 manifest lines) and 838 wallet theorem/lemma
 declarations in the wallet axiom manifest. Job counts and pins are in
 `docs/REPRODUCIBILITY.md`. Wallet gates are package-local and are listed
 separately in the README.
@@ -46,4 +46,4 @@ separately in the README.
   corrected statements without a proof.
 - **Theorem declarations**: a different metric from rule rows. The repository
   does not publish a consensus declaration count; the census is authoritative.
-  The wallet axiom manifest separately covers 844 declarations.
+  The wallet axiom manifest separately covers 838 declarations.

@@ -81,7 +81,7 @@ proofs**, not 140 proved row contracts. Forty rows carry a
 `@[walletRule "<ID>"]` tag; 37 are recorded as entailed, and three tagged rows
 also have partial obligations. The obligation register covers 99 rows (30
 PARTIAL, 69 UNMODELLED; 75 model gaps and 24 proof gaps), and four further
-rows had contradicted text corrected without a proof. The 844 wallet
+rows had contradicted text corrected without a proof. The 838 wallet
 theorem/lemma declarations pass a dedicated
 axiom gate with only `propext`, `Classical.choice`, and `Quot.sound`. The full
 obligation register is [`docs/WALLET-OBLIGATIONS.md`](docs/WALLET-OBLIGATIONS.md).
@@ -190,7 +190,7 @@ The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
 the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 223 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
-844 wallet declarations.
+838 wallet declarations.
 
 Wallet gates also support the optional Core-source anchor census:
 
