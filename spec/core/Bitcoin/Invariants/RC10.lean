@@ -215,6 +215,17 @@ theorem mempool_height_ne_real (h : UInt32) (hh : h.toNat ≤ 1000000) :
   rw [he, hv, h2] at hh
   omega
 
+/-- Stronger form: every height below the 31-bit sentinel differs from it
+(the `UInt32` type still admits values above Core's signed-height range;
+those are not real block heights). -/
+theorem mempool_height_ne_of_lt_sentinel (h : UInt32)
+    (hh : h.toNat < 2147483647) : h ≠ Bitcoin.Ledger.MEMPOOL_HEIGHT := by
+  have hv : Bitcoin.Ledger.MEMPOOL_HEIGHT = 2147483647 := rfl
+  have h2 : (2147483647 : UInt32).toNat = 2147483647 := rfl
+  intro he
+  rw [he, hv, h2] at hh
+  omega
+
 /-! ## INV-119 — UTXO-set snapshot hash (MuHash3072, abstracted) -/
 
 /-- kernel/coinstats.cpp:59–66: the assumeutxo snapshot commitment hashes
