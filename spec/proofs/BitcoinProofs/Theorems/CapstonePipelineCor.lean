@@ -478,6 +478,8 @@ theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
       obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- gate: weightOk (BLK-024/026), AFTER the commitment gates (BLK-021)
       obtain ⟨hg3, hval⟩ := gate_step _ _ hval
+      -- gate: BIP30 pre-block overlap loop (BLK-096/097/098, TXV-063)
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
       -- the fold: applyTxs st.height txs 0 st.utxo 0 0
       generalize hax : applyTxs st.height txs 0 st.utxo 0 0 = q at hval
       cases q with
@@ -532,6 +534,53 @@ theorem validateBlock_ok_mutationFree (raw : ByteArray) (st : CapState) (r : Cap
       -- merkleMutationOk (BLK-011)
       obtain ⟨hmut, _hval⟩ := gate_step _ _ hval
       exact ⟨bh, txs, rfl, bool_not_false hmut⟩
+
+/-- **P16-5 (BIP30 corollary)**: `validateBlock` success implies the
+pre-block overlap gate is quiet — either BIP30 enforcement is off at
+this height, or no tx of the block recreates an outpoint live in the
+pristine pre-block view. This is the pipeline-level statement of Core's
+2466-2475 loop (TXV-063) after the gate was wired into `validateBlock`. -/
+theorem validateBlock_ok_bip30_quiet (raw : ByteArray) (st : CapState) (r : CapReport)
+    (hval : validateBlock raw st = .ok r) :
+    ∃ (bh : Bitcoin.Chain.BlockHeader) (txs : List Tx),
+      decodeBlock raw = .ok (bh, txs) ∧
+      (bip30BlockCollision (viewOf st.utxo) txidKey txs st.height
+        && bip30Enforced st.height) = false := by
+  revert hval
+  rw [validateBlock.eq_1]
+  generalize hdec : decodeBlock raw = d
+  cases d with
+  | error e =>
+      intro hval
+      simp only [ethrow, ebind_err] at hval
+      simp at hval
+  | ok p =>
+      obtain ⟨bh, txs⟩ := p
+      intro hval
+      simp only [epure_ok, ebind_ok] at hval
+      -- vtxNonempty, cbPositionOk, cbLengthOk
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- versionOk, bip34Ok
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- targetOk, powOk, chain link, merkleOk
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- merkleMutationOk
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- commitmentGate, commitmentValueZero, commitmentNonceOk
+      obtain ⟨_, hval⟩ := gate_step2 _ _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- weightOk
+      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- BIP30 pre-block overlap loop
+      obtain ⟨hbip30, _⟩ := gate_step _ _ hval
+      exact ⟨bh, txs, rfl, hbip30⟩
 
 /-- **P16-5 (height corollary)**: on success the reported poststate height
 is EXACTLY the connection height plus one — the pipeline never skips,

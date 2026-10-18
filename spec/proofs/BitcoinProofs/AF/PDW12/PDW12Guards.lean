@@ -34,7 +34,7 @@ Expected lines = the g2.out pass-2 output verbatim (the
 /-- info: 'BitcoinProofs.AF.PDW12.feeAccumInRange_eq' depends on axioms: [propext] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW12.feeAccumInRange_eq
 
-/-- info: 'BitcoinProofs.AF.PDW12.levelHasAdjacentDupCap_eq' does not depend on any axioms -/
+/-- info: 'BitcoinProofs.AF.PDW12.levelHasAdjacentDupCap_eq' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW12.levelHasAdjacentDupCap_eq
 
 /-- info: 'BitcoinProofs.AF.PDW12.merkleMutationFreeCap_eq' depends on axioms: [propext, Quot.sound] -/

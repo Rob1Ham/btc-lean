@@ -378,6 +378,15 @@ def validateBlock (raw : ByteArray) (st : CapState) :
   -- must not be cached invalid before the coinbase witness binds the
   -- tree, since filling the reserved witness does not change the hash.
   if !weightOk txs raw.size then throw CapError.badBlkWeight
+  -- 4c. BIP30 duplicate-coinbase gate (BLK-096/097/098, TXV-063).
+  -- Core ConnectBlock validation.cpp:2401/2466-2475 runs ONE pre-block
+  -- overlap loop on the PRISTINE view, before the per-tx script/ledger
+  -- fold: if enforcement is on and some tx output recreates a live
+  -- outpoint, the block fails `bad-txns-BIP30`. `applyBlockL` already has
+  -- this gate; the pipeline must not bypass it.
+  if bip30BlockCollision (viewOf st.utxo) txidKey txs st.height
+        && bip30Enforced st.height then
+    throw (CapError.block BlockError.badTxnsBIP30)
   -- 5. Per-tx: W10 stateless + script (real ECDSA) + W12 fold.
   let (utxo', okN, unjN) ← applyTxs st.height txs 0 st.utxo 0 0
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
@@ -527,5 +536,58 @@ theorem validateBlock_badBlkWeight_after_commitment
     simpa using hnonce
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
     hmerkle, hmut, hcg', hvalz', hnonce', hweight, throw_except_error]
+
+/-! ## BIP30 — the pre-block duplicate-coinbase gate
+
+Core `ConnectBlock` (validation.cpp:2401/2466-2475) runs the overlap loop
+once on the pristine view, before the per-tx script/ledger fold. The
+pipeline now performs the same check (`bip30BlockCollision` gated by
+`bip30Enforced`), so a block that recreates a live outpoint is rejected
+with `bad-txns-BIP30` instead of being admitted by `applyTxs`. -/
+
+/-- **BIP30 (pipeline face)**: when every earlier gate passes, BIP30 is
+enforced, and some tx output recreates an outpoint live in the pristine
+pre-block view, `validateBlock` returns exactly `badTxnsBIP30`. -/
+@[rule "BLK-096", rule "BLK-097", rule "BLK-098", rule "INV-104"]
+theorem validateBlock_badBip30
+    (raw : ByteArray) (st : CapState) (h : Bitcoin.Chain.BlockHeader) (txs : List Tx)
+    (hdec : decodeBlock raw = .ok (h, txs))
+    (hstruct : vtxNonempty txs = true)
+    (hcbpos : cbPositionOk txs = true)
+    (hcblen : cbLengthOk (txs.getD 0 dummyTx) = true)
+    (hver : versionOk st.height h.version = true)
+    (hbip34 : bip34Ok st.height (txs.getD 0 dummyTx) = true)
+    (htarget : targetOk h.bits = true)
+    (hpow : powOk h = true)
+    (hlink : bytesBEq h.hashPrevBlock st.prevHash = true)
+    (hmerkle : merkleOk h txs = true)
+    (hmut : merkleMutationOk txs = true)
+    (hcg : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
+             (txs.getD 0 dummyTx) = true)
+    (hvalz : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
+        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
+        commitmentValueZero (txs.getD 0 dummyTx) = false))
+    (hnonce : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
+        (witnessCommitmentOutput (txs.getD 0 dummyTx)).isSome = true) ∧
+        commitmentNonceOk (txs.getD 0 dummyTx) = false))
+    (hweight : weightOk txs raw.size = true)
+    (hcol : bip30BlockCollision (viewOf st.utxo) txidKey txs st.height = true)
+    (henf : bip30Enforced st.height = true) :
+    validateBlock raw st = .error (CapError.block BlockError.badTxnsBIP30) := by
+  unfold validateBlock
+  have hcblen' : cbLengthOk (txs[0]?.getD dummyTx) = true := by simpa using hcblen
+  have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
+  have hcg' : commitmentGate (SEGWIT_HEIGHT ≤ st.height) txs
+      (txs[0]?.getD dummyTx) = true := by simpa using hcg
+  have hvalz' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
+      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
+      commitmentValueZero (txs[0]?.getD dummyTx) = false) := by
+    simpa using hvalz
+  have hnonce' : ¬ (((SEGWIT_HEIGHT ≤ st.height) ∧
+      (witnessCommitmentOutput (txs[0]?.getD dummyTx)).isSome = true) ∧
+      commitmentNonceOk (txs[0]?.getD dummyTx) = false) := by
+    simpa using hnonce
+  simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
+    hmerkle, hmut, hcg', hvalz', hnonce', hweight, hcol, henf, throw_except_error]
 
 end Bitcoin.Capstone.Block

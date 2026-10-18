@@ -28,23 +28,25 @@ theorem bip113Cutoff_eq_prevMtp_iff (height blockTime prevMtp : UInt32) :
   · rw [ite_eq_left h]; simp [h]
   · rw [ite_eq_right h]; simp [h]
 
-/-- SWT-030: the witness commitment is exactly the SHA256d(root ‖ 32 zero
-bytes) versus scriptPubKey[6..38] of the selected commitment output. -/
+/-- SWT-030: the witness commitment is exactly the SHA256d(root ‖ the
+coinbase's ACTUAL 32-byte reserved value) versus scriptPubKey[6..38] of
+the selected commitment output (Core validation.cpp:3884-3906). -/
 @[rule "SWT-030"]
 theorem witnessCommitmentOk_true_iff (txs : List Bitcoin.Data.Tx) (cb : Bitcoin.Data.Tx) :
     Bitcoin.Capstone.Merkle.witnessCommitmentOk txs cb = true ↔
-      ∃ script, Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb = some script ∧
+      ∃ script reserved,
+        Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb = some script ∧
+        Bitcoin.Capstone.Merkle.witnessReservedValue cb = some reserved ∧
         bytesBEq (Bitcoin.Crypto.Seam.sha256d
-          (Bitcoin.Capstone.Merkle.witnessMerkleRoot txs ++ Bitcoin.Data.zeroBytes 32))
+          (Bitcoin.Capstone.Merkle.witnessMerkleRoot txs ++ reserved))
           (script.extract 6 38) = true := by
-  unfold Bitcoin.Capstone.Merkle.witnessCommitmentOk
-  cases h : Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb with
-  | none => simp
+  simp only [Bitcoin.Capstone.Merkle.witnessCommitmentOk]
+  cases ho : Bitcoin.Capstone.Merkle.witnessCommitmentOutput cb with
+  | none => simp [ho]
   | some script =>
-      exact ⟨fun hb => ⟨script, rfl, hb⟩, fun ⟨s, hs, hb⟩ => by
-        simp only [Option.some.injEq] at hs
-        subst hs
-        exact hb⟩
+    cases hr : Bitcoin.Capstone.Merkle.witnessReservedValue cb with
+    | none => simp [ho, hr]
+    | some reserved => simp [ho, hr]; rfl
 
 /-- INV-117: the undo payload wins over the post-state (restore lane). -/
 @[rule "INV-117"]

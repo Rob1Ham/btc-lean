@@ -246,6 +246,7 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   obtain ⟨hgv, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-016 value
   obtain ⟨hgn, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BLK-018 nonce
   obtain ⟨hg4, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-023..026
+  obtain ⟨_, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BIP30 (contextual, outside model)
   obtain ⟨q, hap, _⟩ := bind_ok_inv (applyTxs st.height txs 0 st.utxo 0 0) _ r hJP
   obtain ⟨u', k, j⟩ := q
   refine ⟨bh, txs, hdec, ?_⟩

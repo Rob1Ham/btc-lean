@@ -760,27 +760,29 @@ theorem validateBlock_fold_agrees (raw : ByteArray) (st : CapState)
                           · cases hval
                           · split at hval
                             · cases hval
-                            · -- per-tx stage: extract the applyTxs result
-                              cases hap : applyTxs st.height txs 0 st.utxo 0 0 with
-                              | error e =>
-                                rw [hap] at hval
-                                exceptSimp at hval
-                                cases hval
-                              | ok r =>
-                                obtain ⟨u', okN, unjN⟩ := r
-                                rw [hap] at hval
-                                exceptSimp at hval
-                                injection hval with hrep
-                                -- the report's utxo IS the applyTxs result
-                                have hu : u' = rep.state.utxo := by
-                                  rw [← hrep]
-                                -- ledger agreement: L = u'
-                                have hg := applyBlockL_gate_quiet hfold
-                                have hagr :=
-                                  applyTxs_ledger_agrees st.height txs 0 st.utxo 0 0
-                                    u' okN unjN hg hap
-                                rw [hfold] at hagr
-                                injection hagr with hL
-                                rw [hL, hu]
+                            · split at hval
+                              · cases hval
+                              · -- per-tx stage: extract the applyTxs result
+                                cases hap : applyTxs st.height txs 0 st.utxo 0 0 with
+                                | error e =>
+                                  rw [hap] at hval
+                                  exceptSimp at hval
+                                  cases hval
+                                | ok r =>
+                                  obtain ⟨u', okN, unjN⟩ := r
+                                  rw [hap] at hval
+                                  exceptSimp at hval
+                                  injection hval with hrep
+                                  -- the report's utxo IS the applyTxs result
+                                  have hu : u' = rep.state.utxo := by
+                                    rw [← hrep]
+                                  -- ledger agreement: L = u'
+                                  have hg := applyBlockL_gate_quiet hfold
+                                  have hagr :=
+                                    applyTxs_ledger_agrees st.height txs 0 st.utxo 0 0
+                                      u' okN unjN hg hap
+                                  rw [hfold] at hagr
+                                  injection hagr with hL
+                                  rw [hL, hu]
 
 end BitcoinProofs.Theorems.CapstoneFold

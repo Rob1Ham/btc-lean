@@ -16,37 +16,30 @@ if (memcmp(hash_witness.begin(),
            &block.vtx[0]->vout[commitpos].scriptPubKey[6], 32)) { ... }
 ```
 
-`Bitcoin.Capstone.Merkle.witnessCommitmentOk` hashes `zeroBytes 32`
-instead.  The old definition is retained unchanged (other rows ride it);
-this module adds the faithful `witnessCommitmentOkReserved`, which
-hashes the actual 32-byte item, and proves the BLK-017/SWT-030 equations
-against it.  `witnessCommitmentOkReserved_zero` proves the two agree
-exactly on the zero-reserved special case, so the repair is additive and
-does not weaken the existing model. -/
+`Bitcoin.Capstone.Merkle.witnessCommitmentOk` now hashes the actual
+32-byte item and fails closed unless the coinbase carries exactly one
+32-byte witness element.  This module records the model repair: the
+definitions below are aliases for the core ones (so the old names used by
+this proof suite keep working), and `witnessCommitmentOkReserved_zero`
+pins the zero-reserved special case against the retained
+`witnessCommitmentOkZero` reference. -/
 
 namespace BitcoinProofs.AF.PDW13
 
 open Bitcoin.Capstone.Merkle Bitcoin.Data Bitcoin.Crypto.Seam.Hash
 
-/-- The coinbase witness reserved value, exactly Core's
-`witness_stack.size() == 1 && witness_stack[0].size() == 32` shape:
-the head witness stack must be the singleton `[nonce]` with
-`nonce.size = 32`.  Every other shape is `none` (the
-`bad-witness-nonce-size` reject is the caller's BLK-018 check). -/
-def witnessReservedValue (cb : Tx) : Option ByteArray :=
-  match cb.witness.getD 0 [] with
-  | [nonce] => if nonce.size = 32 then some nonce else none
-  | _ => none
+/-- The coinbase witness reserved value (alias for the core definition):
+exactly Core's `witness_stack.size() == 1 && witness_stack[0].size() == 32`
+shape.  Every other shape is `none` (the `bad-witness-nonce-size` reject
+is the caller's BLK-018 check). -/
+abbrev witnessReservedValue : Tx → Option ByteArray :=
+  Bitcoin.Capstone.Merkle.witnessReservedValue
 
-/-- The corrected commitment equation: `SHA256d(witness_root ‖
-reserved_value) == scriptPubKey[6..38]`, where `reserved_value` is the
-actual coinbase witness item. -/
-def witnessCommitmentOkReserved (txs : List Tx) (cb : Tx) : Bool :=
-  match witnessCommitmentOutput cb, witnessReservedValue cb with
-  | some script, some reserved =>
-      bytesBEq (sha256d (witnessMerkleRoot txs ++ reserved))
-        (script.extract 6 38)
-  | _, _ => false
+/-- The corrected commitment equation (alias for the core definition):
+`SHA256d(witness_root ‖ reserved_value) == scriptPubKey[6..38]`, where
+`reserved_value` is the actual coinbase witness item. -/
+abbrev witnessCommitmentOkReserved : List Tx → Tx → Bool :=
+  Bitcoin.Capstone.Merkle.witnessCommitmentOk
 
 /-- BLK-017 / SWT-030: on a selected commitment output and a valid
 reserved value, the gate is exactly the Core equation with the actual
@@ -59,8 +52,7 @@ theorem witnessCommitmentOkReserved_eq_true (txs : List Tx) (cb : Tx)
     witnessCommitmentOkReserved txs cb =
       bytesBEq (sha256d (witnessMerkleRoot txs ++ reserved))
         (script.extract 6 38) := by
-  unfold witnessCommitmentOkReserved
-  rw [ho, hr]
+  simp [witnessCommitmentOkReserved, Bitcoin.Capstone.Merkle.witnessCommitmentOk, ho, hr]
 
 /-- BLK-017 / SWT-030 (full characterization): the corrected gate is
 true exactly when the coinbase carries a selected commitment output and
@@ -74,7 +66,7 @@ theorem witnessCommitmentOkReserved_iff (txs : List Tx) (cb : Tx) :
         witnessReservedValue cb = some reserved ∧
         bytesBEq (sha256d (witnessMerkleRoot txs ++ reserved))
           (script.extract 6 38) = true := by
-  unfold witnessCommitmentOkReserved
+  simp only [witnessCommitmentOkReserved, Bitcoin.Capstone.Merkle.witnessCommitmentOk]
   cases ho : witnessCommitmentOutput cb with
   | none => simp [ho]
   | some script =>
@@ -88,18 +80,23 @@ theorem witnessCommitmentOkReserved_iff (txs : List Tx) (cb : Tx) :
 theorem witnessCommitmentOkReserved_false (txs : List Tx) (cb : Tx)
     (h : witnessCommitmentOutput cb = none ∨ witnessReservedValue cb = none) :
     witnessCommitmentOkReserved txs cb = false := by
-  unfold witnessCommitmentOkReserved
+  simp only [witnessCommitmentOkReserved, Bitcoin.Capstone.Merkle.witnessCommitmentOk]
   rcases h with h | h <;> simp [h]
 
 /-- BLK-017 / SWT-030 (compatibility): when the reserved value happens
 to be the 32-byte zero `uint256()`, the repaired equation coincides with
-the legacy `witnessCommitmentOk`.  The zero constant is therefore a
-faithful special case, not the general rule. -/
+the retained zero-reserved reference gate.  The zero constant is
+therefore a faithful special case, not the general rule. -/
 theorem witnessCommitmentOkReserved_zero (txs : List Tx) (cb : Tx)
     (hr : witnessReservedValue cb = some (zeroBytes 32)) :
-    witnessCommitmentOkReserved txs cb = witnessCommitmentOk txs cb := by
-  unfold witnessCommitmentOkReserved witnessCommitmentOk
-  rw [hr]
-  cases ho : witnessCommitmentOutput cb <;> simp [ho]
+    witnessCommitmentOkReserved txs cb = witnessCommitmentOkZero txs cb := by
+  simp only [witnessCommitmentOkReserved, Bitcoin.Capstone.Merkle.witnessCommitmentOk,
+    Bitcoin.Capstone.Merkle.witnessCommitmentOkZero]
+  cases hv : witnessReservedValue cb with
+  | none => simp [hv] at hr
+  | some reserved =>
+    simp only [hv, Option.some.injEq] at hr
+    subst hr
+    cases ho : witnessCommitmentOutput cb <;> simp [hv, ho]
 
 end BitcoinProofs.AF.PDW13

@@ -11,6 +11,8 @@ ride these theorems; `lean_target` flips to them at promotion.
   `CheckMerkleRoot` returns `BLOCK_MUTATED` for BOTH a root mismatch
   (`bad-txnmrklroot`) and a mutated tree (`bad-txns-duplicate`), so
   `plainMismatch` is a model bucket, not a `BLOCK_CONSENSUS` category.
+  The mutation scan is PAIR-ALIGNED (`hashes[2i] == hashes[2i+1]`);
+  an odd-tail `[A,B,B]` is not a mutation.
 * **BLK-021** `contextualChecksOrdered` — commitment-before-weight
   order is verdict-invariant (both checks pure); the SegWit activation
   flag is threaded explicitly through both sides of the swap.

@@ -38,8 +38,9 @@ decoded block + running view:
   MoneyRange (`bad-txns-accumulated-fee-outofrange`).
 * `vtxCountWeightOk` — **BLK-023**: vtx.size × 4 ≤ 4,000,000.
 * `merkleMutationFree`/`merkleFailureKind` — **BLK-011/BLK-012**: the
-  CVE-2012-2459 adjacent-duplicate detector over the level fold, and
-  the BLOCK_MUTATED-vs-CONSENSUS taxonomy (mutated ⇒ not cached
+  CVE-2012-2459 pair-aligned-duplicate detector (even-offset pairs
+  `hashes[2i] == hashes[2i+1]`) over the level fold, and the
+  BLOCK_MUTATED-vs-CONSENSUS taxonomy (mutated ⇒ not cached
   permanently invalid).
 * `connectGenesis` — **BLK-109**: the genesis connection skips the tx
   fold entirely (validation.cpp:2330-2334).
@@ -214,16 +215,20 @@ theorem coinbase_draw_le_subsidy_plus_fees (cb : Tx)
 /-! ## BLK-011/012: merkle mutation -/
 
 /-- **BLK-011** (merkle.cpp:55-63 + validation.cpp:3853-3864): a level
-containing two ADJACENT equal hashes marks the block as a mutation
-(CVE-2012-2459's shape). -/
+containing an equal pair at an EVEN offset (`hashes[2i] == hashes[2i+1]`)
+marks the block as a mutation (CVE-2012-2459's shape). Core's
+`ComputeMerkleRoot` walks `for (i = 0; i < tree.size(); i += 2)` and only
+compares `tree[i]` with `tree[i+1]`; an odd-tail pair such as
+`[A, B, B]` is therefore NOT a mutation (the fixed 2012 rule). The name
+is retained for API stability. -/
 @[rule "BLK-011"]
 def levelHasAdjacentDup : List ByteArray → Bool
   | [] => false
   | [_] => false
-  | a :: b :: rest => (a == b) || levelHasAdjacentDup (b :: rest)
+  | a :: b :: rest => (a == b) || levelHasAdjacentDup rest
 
 /-- The mutation detector over the whole tree: every level of the
-`merkleLevel` fold is adjacent-dup-free. -/
+`merkleLevel` fold is pair-aligned-duplicate-free. -/
 def merkleMutationFree : List ByteArray → Nat → Bool
   | _, 0 => true
   | l, f+1 =>
@@ -238,9 +243,9 @@ theorem merkleMutationFree_singleton (a : ByteArray) :
 
 /-- **BLK-012** (validation.cpp:1987-1996): the failure taxonomy. A
 merkle mismatch on a mutation-free tree is plain CONSENSUS; a mismatch
-with an adjacent-duplicate level is BLOCK_MUTATED — which must NOT mark
-the block permanently invalid (the duplicate shape is attacker-chosen
-relay data, not a chain-consensus fact). -/
+with a pair-aligned-duplicate level is BLOCK_MUTATED — which must NOT
+mark the block permanently invalid (the duplicate shape is
+attacker-chosen relay data, not a chain-consensus fact). -/
 inductive MerkleFailure where
   | plainMismatch     -- BLOCK_CONSENSUS "bad-txnmrklroot"
   | mutatedDuplicate  -- BLOCK_MUTATED "bad-txns-duplicate" (not cached invalid)
