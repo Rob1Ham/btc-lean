@@ -81,7 +81,7 @@ proofs**, not 140 proved row contracts. Forty rows carry a
 `@[walletRule "<ID>"]` tag; 37 are recorded as entailed, and three tagged rows
 also have partial obligations. The obligation register covers 99 rows (30
 PARTIAL, 69 UNMODELLED; 75 model gaps and 24 proof gaps), and four further
-rows had contradicted text corrected without a proof. The 844 wallet
+rows had contradicted text corrected without a proof. The 838 wallet
 theorem/lemma declarations pass a dedicated
 axiom gate with only `propext`, `Classical.choice`, and `Quot.sound`. The full
 obligation register is [`docs/WALLET-OBLIGATIONS.md`](docs/WALLET-OBLIGATIONS.md).
@@ -111,11 +111,11 @@ lake test
 cd ../proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
-# This is the 31-module default import closure, not all 411 proof modules.
+# This is the 32-module default import closure, not all 412 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-default closure is 31 of the current 411 proof modules. The remaining 380
+default closure is 32 of the current 412 proof modules. The remaining 380
 modules require the full build review; the previously reported 365 passes
 and 15 failures are historical upstream results. See
 [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for exact verification scope.
@@ -140,9 +140,11 @@ node-clock context. `validateBlockInContext` additionally requires the caller's
 validated parent-chain index, checks expected mainnet nBits and retargeting,
 requires the complete parent MTP window, and enforces the node-clock future
 bound. Missing history returns an unavailable-context error; it is never
-replaced by zeros. Reports expose `headerContextChecked`. Both paths still
-have the separately tracked finality/BIP68, sigop-budget, Taproot and historical
-exception gaps, so success is not a claim of full consensus validation.
+replaced by zeros. Reports expose `headerContextChecked`. The contextual path now also enforces absolute finality (BIP113 cutoff) and
+both BIP68 domains against each intermediate UTXO view. Reports expose
+`absoluteFinalityChecked` and `sequenceLocksChecked`. The sigop-budget,
+witness/Taproot and historical-exception gaps remain, so success is not a
+claim of full consensus validation.
 
 
 ## Data and release assets
@@ -151,8 +153,8 @@ The candidate tracks a size-bounded corpus subset at `spec/data/`:
 
 | Property | Value |
 |---|---:|
-| Tracked files | 161 |
-| Tracked bytes | 4,852,246 |
+| Tracked files | 165 |
+| Tracked bytes | 5,029,306 |
 | Subset manifest | `spec/data/MANIFEST.sha256` |
 | Release archive | `btc-lean-data-2026.10.17.tar.gz` |
 | Archive bytes | 357,916,214 |
@@ -199,9 +201,9 @@ local checkout paths in tracked shell/Python files.
 
 The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
-the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 223 consensus
+the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 250 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
-844 wallet declarations.
+838 wallet declarations.
 
 Wallet gates also support the optional Core-source anchor census:
 

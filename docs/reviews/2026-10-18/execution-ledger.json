@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T15:15:11.625864+00:00",
+  "updated_at_utc": "2026-10-18T15:44:16.496120+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -265,9 +265,210 @@
       "id": "R03",
       "priority": "P1",
       "title": "Block finality and BIP68 omitted",
-      "evidence": "source-confirmed; Lean execution pending",
-      "status": "confirmed_open",
-      "next_action": "Compose absolute finality and both BIP68 domains using the new ChainContext. Coin-parent MTP must come from max(coin.height-1,0) in the evolving view, including same-block spends; no dummy zero times or truncated input data."
+      "evidence": "Nine pre-fix stage/public failures reproduced; 33 distinct finality/BIP68 checks pass. Eleven guarded kernel proofs establish live finality, both relative-lock domains, complete input alignment, evolving-view ledger trace and preserved funding.",
+      "status": "fixed_and_verified_for_contextual_entry",
+      "next_action": "Continue live sigop and exception/adjudication work; reconcile the three affected census rows with actual live targets.",
+      "changed_files": [
+        "Makefile",
+        "spec/core/Bitcoin/Capstone/Block.lean",
+        "spec/core/Bitcoin/Capstone/Context.lean",
+        "spec/core/Test/Capstone/Finality.lean",
+        "spec/data/MANIFEST.sha256",
+        "spec/data/review/r03/block1.raw",
+        "spec/data/review/r03/block349992.raw",
+        "spec/data/review/r03/parent349991.header",
+        "spec/data/review/r03/provenance.json",
+        "spec/db/axiom-manifest.txt",
+        "spec/proofs/BitcoinProofs.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneFunding.lean",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean",
+        "spec/scripts/axiom_probe.lean"
+      ],
+      "verification_artifact": "validation-r03.json",
+      "verification_after": [
+        {
+          "command": "lake build Bitcoin",
+          "cwd": "spec/core",
+          "exit_code": 0,
+          "jobs": 73,
+          "log": "/tmp/btc-lean-r03-core-full.log"
+        },
+        {
+          "command": "lake test",
+          "cwd": "spec/core",
+          "exit_code": 0,
+          "checks": 16,
+          "log": "/tmp/btc-lean-r03-core-test.log"
+        },
+        {
+          "command": "make test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality",
+          "exit_code": 0,
+          "checks": 89,
+          "new_finality_checks": 33,
+          "log": "/tmp/btc-lean-r03-regressions.log"
+        },
+        {
+          "command": "python3 docs/reviews/2026-10-18/reproduce_finality.py",
+          "exit_code": 0,
+          "baseline_lean_exit_code": 1,
+          "expected_behavioral_failures": 9,
+          "passing_controls": 23,
+          "log": "/tmp/btc-lean-r03-before.log"
+        },
+        {
+          "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.AF.PDW53.PDW53",
+          "cwd": "spec/proofs",
+          "exit_code": 0,
+          "jobs": 1732,
+          "scope": "32-module default closure plus named affected consumers; not all 412 proof modules",
+          "log": "/tmp/btc-lean-r03-proofs-final.log"
+        },
+        {
+          "command": "lake build capstone",
+          "cwd": "spec/core",
+          "exit_code": 0,
+          "jobs": 88,
+          "log": "/tmp/btc-lean-r03-capstone-build.log"
+        },
+        {
+          "command": "CAPSTONE_ONLY=1 .lake/build/bin/capstone",
+          "cwd": "spec/core",
+          "exit_code": 1,
+          "expected_exit_code": 1,
+          "scope": "Empty selection must report unavailable/incomplete input; not successful anchor-corpus replay.",
+          "output": "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated\nSUMMARY blocks=0 missing=0 allOk=false totalMs=0\nuncaught exception: capstone: replay checks failed or the selected input corpus is incomplete\n"
+        },
+        {
+          "command": "make gates gate-repro",
+          "exit_code": 0,
+          "scope": "all nine static gates, ten proof-gate negative tests and reproducibility checks",
+          "log": "/tmp/btc-lean-r03-gates-final.log"
+        },
+        {
+          "commands": [
+            "python spec/scripts/theorem_index.py --check",
+            "python spec/scripts/residuals_index.py --check",
+            "python spec/scripts/proof_scope.py --check"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": "shasum -a256 -c spec/data/MANIFEST.sha256",
+          "exit_code": 0,
+          "payloads": 164,
+          "coverage": "Exact coverage of all tracked data files except the manifest itself; no extra, missing or duplicate entries.",
+          "log": "/tmp/btc-lean-r03-data-checksums.log"
+        },
+        {
+          "command": "bash spec/scripts/axiom_manifest.sh",
+          "exit_code": 0,
+          "entries": 250,
+          "new_entries": 12,
+          "scope": "Reviewed manifest diff adds eleven new guarded sequence/finality proofs and the stable core engine equation, all standard trio. No old footprint drift.",
+          "log": "/tmp/btc-lean-r03-axiom-final.log"
+        },
+        {
+          "command": "bash spec/scripts/wallet_axiom_manifest.sh",
+          "exit_code": 0,
+          "declarations": 838,
+          "log": "/tmp/btc-lean-r03-wallet-axiom.log"
+        },
+        {
+          "command": [
+            "lake",
+            "build",
+            "Bitcoin.Wallet.Crypto.Hmac",
+            "Bitcoin.Wallet.Crypto.Sha512",
+            "Bitcoin.Wallet.Descriptor",
+            "Bitcoin.Wallet.Descriptor.Ast",
+            "Bitcoin.Wallet.Descriptor.Checksum",
+            "Bitcoin.Wallet.Descriptor.Expand",
+            "Bitcoin.Wallet.Descriptor.Parse",
+            "Bitcoin.Wallet.Encoding",
+            "Bitcoin.Wallet.Encoding.Base58",
+            "Bitcoin.Wallet.Encoding.Bech32",
+            "Bitcoin.Wallet.Key.Bip32",
+            "Bitcoin.Wallet.Key.Origin",
+            "Bitcoin.Wallet.Miniscript",
+            "Bitcoin.Wallet.Miniscript.Node",
+            "Bitcoin.Wallet.Miniscript.Satisfy",
+            "Bitcoin.Wallet.Miniscript.Script",
+            "Bitcoin.Wallet.Miniscript.Tests",
+            "Bitcoin.Wallet.Miniscript.Type",
+            "Bitcoin.Wallet.Psbt.Decode",
+            "Bitcoin.Wallet.Psbt.Encode",
+            "Bitcoin.Wallet.Psbt.Laws",
+            "Bitcoin.Wallet.Psbt.Model",
+            "Bitcoin.Wallet.Psbt.Psbt",
+            "Bitcoin.Wallet.Psbt.Tests",
+            "Bitcoin.Wallet.RuleAttr",
+            "Bitcoin.Wallet.Spend",
+            "Bitcoin.Wallet.Spend.Fee",
+            "Bitcoin.Wallet.Spend.Funding",
+            "Bitcoin.Wallet.Spend.Laws",
+            "Bitcoin.Wallet.Spend.Selection",
+            "Bitcoin.Wallet.Taproot.Commit"
+          ],
+          "cwd": "spec/core",
+          "exit_code": 0,
+          "jobs": 60,
+          "module_imports": 31,
+          "scope": "All modules imported by the committed wallet axiom probe; not a semantic revalidation of all wallet rows.",
+          "log": "/tmp/btc-lean-r03-wallet-core-build.log"
+        },
+        {
+          "command": [
+            "lake",
+            "build",
+            "BitcoinProofs.Wallet.Desc.Checksum",
+            "BitcoinProofs.Wallet.Desc.Expand",
+            "BitcoinProofs.Wallet.Desc.Parse",
+            "BitcoinProofs.Wallet.Encoding.Base58Props",
+            "BitcoinProofs.Wallet.Encoding.Bech32Props",
+            "BitcoinProofs.Wallet.Encoding.Laws",
+            "BitcoinProofs.Wallet.Key.Laws",
+            "BitcoinProofs.Wallet.Key.Serialize",
+            "BitcoinProofs.Wallet.Miniscript.Interp",
+            "BitcoinProofs.Wallet.Miniscript.SatShape",
+            "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+            "BitcoinProofs.Wallet.Miniscript.TypeSound",
+            "BitcoinProofs.Wallet.Obligations",
+            "BitcoinProofs.Wallet.Psbt.Canonical",
+            "BitcoinProofs.Wallet.Psbt.Invariants",
+            "BitcoinProofs.Wallet.Psbt.Lifecycle",
+            "BitcoinProofs.Wallet.Psbt.RoundTrip",
+            "BitcoinProofs.Wallet.Sign.Bridge",
+            "BitcoinProofs.Wallet.Sign.Spec",
+            "BitcoinProofs.Wallet.Spend.Selection",
+            "BitcoinProofs.Wallet.Taproot.Bridge",
+            "BitcoinProofs.Wallet.Taproot.Program"
+          ],
+          "cwd": "spec/proofs",
+          "exit_code": 0,
+          "jobs": 3232,
+          "module_imports": 22,
+          "scope": "All modules imported by the committed wallet axiom probe; not a semantic revalidation of all wallet rows.",
+          "log": "/tmp/btc-lean-r03-wallet-proof-build.log"
+        }
+      ],
+      "source_sha256": {
+        "Makefile": "b5d730d1484cd77e6f7680c26b4bff5d8876c04dce0c724984b0d53342cb3649",
+        "spec/core/Bitcoin/Capstone/Block.lean": "b8d2e983f49f46fa7b2b7f62753314c8db8c73a056bf8625c9c74def749a2bd3",
+        "spec/core/Bitcoin/Capstone/Context.lean": "4981a501533531590c3ab60ae5f5399624b96511bea04d6c78ec7dfc8a657f28",
+        "spec/core/Test/Capstone/Finality.lean": "8db7b2e4de1e64e9925dd58915999f8696ad98a20c8664381d66321bad770de8",
+        "spec/data/MANIFEST.sha256": "bb53cefb07e7100696472e3bff7a40f812b208db43c80dce379777b1c0c46e44",
+        "spec/data/review/r03/block1.raw": "9c192c128fac3ded236ffed725ae19b3ecef7828e09ed9e633d2e5370550dae0",
+        "spec/data/review/r03/block349992.raw": "05d147f229027f965c2ad568d9d12228513a18e6e6348e536a98f9f1da83189f",
+        "spec/data/review/r03/parent349991.header": "084aa79aa7f68d8718cefb23bafba7622b23e025c5862f4993ca8a7ababe88d5",
+        "spec/data/review/r03/provenance.json": "20370bcaba1947e106ff9989b8fa1e64ffbf0663fe0bf5d481c53e5c2878718c",
+        "spec/db/axiom-manifest.txt": "4aa4314f100111c4f892a11f63547be2830c23bdde8cd512b55d9dfd5f52eebb",
+        "spec/proofs/BitcoinProofs.lean": "54ecbdf05bff0ec4371c0fe9165c2049137c1110c9604b5f8efd99a5879d1568",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "8ea9a91f5f5dfd8810b0d86aedad3d095646754c48c75c7b78a6f366a40be6fa",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneFunding.lean": "12e74a798631bcc4259b67a79f743d814301f7f8578f0dcc6631bc1f57a2b4b6",
+        "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean": "85093f8c0d1327050e450374e0c6f0da9d46548d77d1f28c4f83e4800107d9f0",
+        "spec/scripts/axiom_probe.lean": "4f9a23b310754178202f865de4eda2b7941dfb9161b1274531c993888a4e725f"
+      }
     },
     {
       "id": "R04",
@@ -391,7 +592,7 @@
         "spec/scripts/axiom_probe.lean": "8c89e8e5da069734a2a033dfc5202400e738f31f16a1a01bdd119cda52d7cf41",
         "spec/scripts/proof_scope.py": "8807190b8b56f86f42d1e11740c87f02a7631d321be30cf36455e8a399ca0dd8"
       },
-      "implementation_commit": "db87aca"
+      "implementation_commit": "db87acac0833e1ed95aa71bd589ce2b37fa4f35d"
     },
     {
       "id": "R05",
@@ -1114,9 +1315,12 @@
       "title": "`PDW28` mainnet powLimit pin is the genesis target.",
       "description": "**`PDW28` mainnet powLimit pin is the genesis target.** `AF/PDW28/PDW28.lean:58`: pins `2^224 - 2^208`, not Core's `2^224 - 1`; the corrected `powLimitMainnetFull` is unused.",
       "initial_triage": "reported addressed; revalidate relevant source and regressions",
-      "status": "requires_current_head_validation",
+      "status": "reopened_live_definition_mismatch",
       "changed_files": [],
-      "verification": []
+      "verification": [],
+      "verification_artifact": "validation-r03.json",
+      "evidence": "Core chainparams.cpp:126 uses 2^224-1. Both Capstone.Pow.powLimit and Block.Pow.mainnetParams.powLimit still use the genesis compact target 2^224-2^208. PDW28 corrected its statement/added a full constant but left the live constants unchanged. No acceptance/rejection difference is asserted from the numeric mismatch alone.",
+      "next_action": "Use the true full Core limit in live target/retarget parameters and repair dependent proofs/census. Keep the compact genesis target as a separately named mathematical constant; verify encoded-target equivalence/boundaries."
     },
     {
       "id": "I4-44",
@@ -1273,7 +1477,7 @@
       "verification": []
     }
   ],
-  "issue16_inventory": "issue16-census.tsv; all 726 rows require current-head classification verification; do not overwrite the historical snapshot",
+  "issue16_inventory": "Historical attachment snapshot preserved in issue16-census.tsv; current per-row dispositions in census-progress.tsv (all 726 IDs). R03 verifies live block-finality/sequence composition, with census metadata and other clauses explicitly pending.",
   "completed_actions": [
     "Activated persistent goal with complete prompt linked as its specification",
     "Created local remediation branch",
@@ -1286,13 +1490,17 @@
     "Reviewed and integrated upstream PR19 sigop accuracy changes; PDW29 target verified with the R02 build.",
     "R02 live checked-fee accumulation and coinbase funding verified: 20 funding tests, 13 retained value tests, core build/test, default proof root plus affected consumers, 232-entry dynamic axiom check, all static/generated gates.",
     "R04 contextual-header composition verified with real block 1, five baseline failures, 23 new checks, five guarded kernel proofs and 238-entry dynamic axiom manifest.",
-    "Primary replay false-green on empty/missing input fixed; current default proof closure 31 of 411 modules; outside matrix remains pending."
+    "Primary replay false-green on empty/missing input fixed; current default proof closure 31 of 411 modules; outside matrix remains pending.",
+    "R03 contextual absolute finality and both BIP68 domains wired and verified, retaining one checked-input pass before scripts and exact fee/ledger dataflow.",
+    "89 distinct runtime regressions, core test/build, 32-module default plus affected proof build, 250 consensus and 838 wallet dynamic axiom entries pass; all 53 wallet probe imports build.",
+    "Recorded all 726 row progress states separately from the snapshot; reopened live powLimit constant use and confirmed genesis UTXO composition gap R07b."
   ],
   "external_blockers": [],
   "next_actions": [
-    "Compose absolute finality, both BIP68 domains and live sigop budget (R03/issue4) using explicit ChainContext",
-    "Repair commitment semantics, Taproot adjudication and hash-aware historical exceptions (R05-R07)",
-    "Complete declaration/build coverage, census revalidation, archive/evidence work and remaining issue checklist"
+    "Wire faithful live sigop accounting and the 80000 budget, first repairing the known malformed-prefix/P2SH counting discrepancies.",
+    "Wire actual-hash genesis and other historical exceptions (R07/R07b); correct live full-powLimit constant use (I4-43).",
+    "Repair witness commitment semantics and explicit Taproot adjudication (R05/R06).",
+    "Complete CI/full build/declaration coverage, all census classifications and metadata, wallet row review, archive and evidence reproducibility."
   ],
   "verification": [
     {
@@ -1336,6 +1544,25 @@
       "after_output": "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated\nSUMMARY blocks=0 missing=0 allOk=false totalMs=0\nuncaught exception: capstone: replay checks failed or the selected input corpus is incomplete\n",
       "test_command": "CAPSTONE_ONLY=1 capstone (new compiled binary); old Run.lean at 140e8ef via lake env lean --run in a distinct namespace",
       "scope": "Primary capstone runner now requires nonempty selected results and zero missing files; fixed-list variants already attempt every input and throw on missing files; GenchainRun already rejects empty input."
+    },
+    {
+      "id": "R07b",
+      "title": "Genesis replay inserts a spendable ledger coin instead of Core genesis connection skip",
+      "status": "confirmed_open",
+      "priority": "P1",
+      "evidence": {
+        "command": "lake env lean --run /tmp/btc-lean-r03-genesis-review.lean",
+        "exit_code": 1,
+        "output": "genesis_utxo_coins=1 genesis_utxo_value=5000000000\n",
+        "normative": "cce32b168 validation.cpp:2336-2343 returns before the transaction loop when the actual block hash is hashGenesisBlock; Bitcoin.Block.Connect.connectGenesis models the empty-UTXO behavior separately.",
+        "model": "replayBlock of canonical genesis at height 0 returns one coin of 5000000000 satoshis."
+      },
+      "related_rows": [
+        "BLK-109",
+        "BLK-110",
+        "INV-107"
+      ],
+      "next_action": "Wire the actual-hash genesis exception into the real validator/report dataflow. Recheck legacy funding proofs and migrate the R02 public halving fixture from genesis to real block 1, so genesis special treatment is not mistaken for ordinary coinbase funding."
     }
   ]
 }

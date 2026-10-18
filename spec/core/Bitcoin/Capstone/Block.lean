@@ -13,8 +13,8 @@ import Bitcoin.Interpreter.Interface
 
 `validateBlock : SerializedBlock → CapState → Except CapError CapReport`
 composes the modeled gates on real serialized bytes. The default call is
-partial replay (`replayBlock`); an explicit `ChainContext` adds header
-context checks. Remaining finality/BIP68, sigop, witness/Taproot and historical
+partial replay (`replayBlock`); an explicit `ChainContext` adds header,
+absolute-finality and both BIP68-domain checks. Remaining sigop, witness/Taproot and historical
 exception defects are actionable work in the remediation ledger, not assumed
 consensus validity. The gates currently composed are:
 
@@ -312,13 +312,38 @@ def verifyTxInputs (height : UInt32) (tx : Tx) (txIdx : Nat)
 
 /-! ## The pipeline -/
 
-/-- The canonical transaction step returns the fee from the same input
-check that gates scripts. The caller can check its block-level budget
-before any script runs; no second input scan or unchecked fee estimate
-is used by the live block fold. Coinbase fees are always zero. -/
+/-- The canonical transaction engine validates input amounts exactly once,
+then runs caller checks before scripts and UpdateCoins. Callers can carry
+checked budget metadata in α without re-running CheckTxInputs. -/
+def applyTxWithChecks {α : Type} (height : UInt32) (tx : Tx) (txIdx : Nat)
+    (l : List (OutPoint × Coin)) (checks : Amount → Except CapError α) :
+    Except CapError (((List (OutPoint × Coin) × Nat × Nat) × Amount) × α) := do
+  match checkTransaction tx with
+  | some e => throw (CapError.txCheck e)
+  | none => pure ()
+  let fee ← if tx.isCoinBase then pure 0 else
+    match checkTxInputs tx (viewOf l) height with
+    | .error e => throw (CapError.tx e)
+    | .ok fee => pure fee
+  let checked ← checks fee
+  let (okN, unjN) ← if tx.isCoinBase then pure (0, 0)
+                     else verifyTxInputs height tx txIdx l
+  match applyTxStepL l tx (txidKey tx) height with
+  | .error e => throw (CapError.block e)
+  | .ok l' => pure (((l', okN, unjN), fee), checked)
+
+/-- Fee-only standalone adapter of the canonical engine. -/
 def applyTxWithFeeCheck (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) (checkFee : Amount → Except CapError Unit) :
     Except CapError ((List (OutPoint × Coin) × Nat × Nat) × Amount) := do
+  let (result, _) ← applyTxWithChecks height tx txIdx l
+    (fun fee => if tx.isCoinBase then .ok () else checkFee fee)
+  pure result
+
+/-- Stable fee-only equation for existing transaction/funding proofs. -/
+theorem applyTxWithFeeCheck_unfold (height : UInt32) (tx : Tx) (txIdx : Nat)
+    (l : List (OutPoint × Coin)) (checkFee : Amount → Except CapError Unit) :
+    applyTxWithFeeCheck height tx txIdx l checkFee = (do
   match checkTransaction tx with
   | some e => throw (CapError.txCheck e)
   | none => pure ()
@@ -333,7 +358,25 @@ def applyTxWithFeeCheck (height : UInt32) (tx : Tx) (txIdx : Nat)
           pure (a, b, fee)
   match applyTxStepL l tx (txidKey tx) height with
   | .error e => throw (CapError.block e)
-  | .ok l' => pure ((l', okN, unjN), fee)
+  | .ok l' => pure ((l', okN, unjN), fee)) := by
+  unfold applyTxWithFeeCheck applyTxWithChecks
+  cases hc : checkTransaction tx with
+  | some e => simp [hc] <;> rfl
+  | none =>
+    cases hb : tx.isCoinBase with
+    | true => cases hs : applyTxStepL l tx (txidKey tx) height <;> simp [hc, hb, hs] <;> rfl
+    | false =>
+      cases hm : checkTxInputs tx (viewOf l) height with
+      | error e => simp [hc, hb, hm] <;> rfl
+      | ok fee =>
+        cases hf : checkFee fee with
+        | error e => simp [hc, hb, hm, hf] <;> rfl
+        | ok unit =>
+          cases hv : verifyTxInputs height tx txIdx l with
+          | error e => simp [hc, hb, hm, hf, hv] <;> rfl
+          | ok counts =>
+            obtain ⟨x, y⟩ := counts
+            cases hs : applyTxStepL l tx (txidKey tx) height <;> simp [hc, hb, hm, hf, hv, hs] <;> rfl
 
 /-- Standalone transaction validation. Block-level fee and subsidy
 budgets belong to `applyBlockTransactions`, not to this partial helper. -/
@@ -358,7 +401,8 @@ theorem applyTx_unfold (height : UInt32) (tx : Tx) (txIdx : Nat)
       match applyTxStepL l tx (txidKey tx) height with
       | .error e => throw (CapError.block e)
       | .ok l' => pure (l', okN, unjN)) := by
-  unfold applyTx applyTxWithFeeCheck
+  unfold applyTx
+  rw [applyTxWithFeeCheck_unfold]
   cases hc : checkTransaction tx with
   | some e => simp [Except.map] <;> rfl
   | none =>
@@ -415,6 +459,51 @@ def applyBlockTransactions (height : UInt32) (txs : List Tx)
   if !coinbaseRewardOk (txs.getD 0 dummyTx) fees height then throw CapError.badCbAmount
   pure result
 
+/-- BIP68 on exactly aligned input data from the evolving view. The activation
+bit is the block deployment, independent of script-local CSV execution. -/
+def checkSequenceContext (ctx : Bitcoin.Capstone.Context.ChainContext)
+    (facts : Bitcoin.Capstone.Context.HeaderFacts) (height : UInt32)
+    (tx : Tx) (l : List (OutPoint × Coin)) : Except CapError Unit := do
+  let csv := (CSV_HEIGHT ≤ height : Bool)
+  if tx.isCoinBase || !Bitcoin.DataLaws.bip68Enabled tx.version csv then pure ()
+  else
+    let data ← match Bitcoin.Capstone.Context.sequenceInputData ctx facts.parentMtp (viewOf l) tx.vin with
+      | .error e => throw (CapError.context e)
+      | .ok data => pure data
+    if !sequenceLocksOk tx csv data (height.toNat : Int) (facts.parentMtp.toNat : Int) then
+      throw (CapError.tx .badTxnsNonfinal)
+
+/-- ConnectBlock's fee-range check precedes BIP68, which precedes scripts. -/
+def checkContextualTx (ctx : Bitcoin.Capstone.Context.ChainContext)
+    (facts : Bitcoin.Capstone.Context.HeaderFacts) (height : UInt32)
+    (tx : Tx) (l : List (OutPoint × Coin)) (fees fee : Amount) : Except CapError Unit := do
+  if tx.isCoinBase then pure () else
+    checkFeeTotal fees fee
+    checkSequenceContext ctx facts height tx l
+
+/-- Contextual transaction fold: CheckTxInputs supplies each fee once;
+BIP68 reads coin heights from the same current view, including outputs
+created earlier in this block. -/
+def applyTxsInContext (ctx : Bitcoin.Capstone.Context.ChainContext)
+    (facts : Bitcoin.Capstone.Context.HeaderFacts) (height : UInt32) :
+    List Tx → Nat → List (OutPoint × Coin) → Nat → Nat → Amount →
+    Except CapError ((List (OutPoint × Coin) × Nat × Nat) × Amount)
+  | [], _, l, a, b, fees => .ok ((l, a, b), fees)
+  | tx :: rest, i, l, a, b, fees => do
+    let (((l', x, y), fee), _) ← applyTxWithChecks height tx i l
+      (checkContextualTx ctx facts height tx l fees)
+    applyTxsInContext ctx facts height rest (i+1) l' (a+x) (b+y) (fees+fee)
+
+/-- Funded contextual fold. Absolute finality is the earlier block prelude;
+this stage adds BIP68 at its input-dependent ConnectBlock call site. -/
+def applyContextualBlockTransactions (ctx : Bitcoin.Capstone.Context.ChainContext)
+    (facts : Bitcoin.Capstone.Context.HeaderFacts) (height : UInt32)
+    (txs : List Tx) (l : List (OutPoint × Coin)) :
+    Except CapError (List (OutPoint × Coin) × Nat × Nat) := do
+  let (result, fees) ← applyTxsInContext ctx facts height txs 0 l 0 0 0
+  if !coinbaseRewardOk (txs.getD 0 dummyTx) fees height then throw CapError.badCbAmount
+  pure result
+
 /-- A successful budgeted step refines standalone transaction validation. -/
 theorem applyTxWithFeeCheck_ok {height : UInt32} {tx : Tx} {i : Nat}
     {l : List (OutPoint × Coin)} {checkFee : Amount → Except CapError Unit}
@@ -422,7 +511,7 @@ theorem applyTxWithFeeCheck_ok {height : UInt32} {tx : Tx} {i : Nat}
     (h : applyTxWithFeeCheck height tx i l checkFee = .ok (result, fee)) :
     applyTx height tx i l = .ok result := by
   rw [applyTx_unfold]
-  unfold applyTxWithFeeCheck at h
+  rw [applyTxWithFeeCheck_unfold] at h
   cases hc : checkTransaction tx with
   | some e => simp [hc] at h
   | none =>
@@ -488,6 +577,8 @@ structure CapReport where
   scriptOk : Nat          -- inputs adjudicated PASS (real ECDSA + the interpreter layer + the sig-hash layer)
   scriptUnjudged : Nat    -- inputs on the Taproot unjudged lane
   headerContextChecked : Bool := false -- expected nBits, parent MTP, node-clock bound
+  absoluteFinalityChecked : Bool := false
+  sequenceLocksChecked : Bool := false
   deriving Repr
 
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
@@ -513,15 +604,20 @@ def validateBlock (raw : ByteArray) (st : CapState)
   if !powOk h then throw CapError.badPow
   if !bytesBEq h.hashPrevBlock st.prevHash then throw CapError.badChainLink
   -- Missing header history is an unavailable-context error, never an assumed pass.
-  match context with
-  | none => pure ()
-  | some ctx =>
-    match Bitcoin.Capstone.Context.checkHeaderContext ctx st.height st.prevHash h with
-    | .error e => throw (CapError.context e)
-    | .ok _ => pure ()
+  let resolved ← match context with
+    | none => pure none
+    | some ctx =>
+      match Bitcoin.Capstone.Context.checkHeaderContext ctx st.height st.prevHash h with
+      | .error e => throw (CapError.context e)
+      | .ok facts => pure (some (ctx, facts))
   -- 3b. Contextual gates: buried version gates (BLK-060/061/062) and
   -- BIP34 coinbase height push (BLK-069) — Core ContextualCheck order.
   if !versionOk st.height h.version then throw CapError.badVersion
+  match resolved with
+  | none => pure ()
+  | some (_, facts) =>
+    if !Bitcoin.Capstone.Context.blockFinalityAtHeight txs st.height facts.parentMtp h.time then
+      throw (CapError.tx .badTxnsNonfinal)
   if !bip34Ok st.height (txs.getD 0 dummyTx) then throw CapError.badCbHeight
   -- 4. Merkle root (BLK-010), then the CVE-2012-2459 mutation scan
   -- (BLK-011) at the same CheckMerkleRoot call site. A mutated tree is
@@ -559,10 +655,13 @@ def validateBlock (raw : ByteArray) (st : CapState)
         && bip30Enforced st.height then
     throw (CapError.block BlockError.badTxnsBIP30)
   -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
-  let (utxo', okN, unjN) ← applyBlockTransactions st.height txs st.utxo
+  let (utxo', okN, unjN) ← match resolved with
+    | none => applyBlockTransactions st.height txs st.utxo
+    | some (ctx, facts) => applyContextualBlockTransactions ctx facts st.height txs st.utxo
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
-         headerContextChecked := context.isSome }
+         headerContextChecked := context.isSome
+         absoluteFinalityChecked := context.isSome, sequenceLocksChecked := context.isSome }
 
 /-- Explicit partial anchor-replay adapter. No ancestor/clock checks are
 claimed; script adjudication may also be incomplete as the report records. -/
@@ -570,8 +669,9 @@ def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
   validateBlock raw st none
 
 /-- Header-context entry point. Checks expected nBits, parent MTP and node
-time as well as the replay gates. Absolute/BIP68 finality and the live sigop
-budget are still tracked as missing until their transaction-loop wiring lands. -/
+time, absolute finality and both BIP68 domains as well as the funded replay
+gates. The live sigop budget and remaining witness/historical-exception defects
+remain open; success is not yet a full consensus-validation claim. -/
 def validateBlockInContext (raw : ByteArray) (st : CapState)
     (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=
   validateBlock raw st (some ctx)

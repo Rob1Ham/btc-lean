@@ -94,3 +94,12 @@ run reads it, it is small, and its provenance and license are recorded. Any
 change to the tracked path set is a bundle-version change; it is not a silent
 re-run of a selector. Bulk data goes to a new `data-<version>` release and a
 new `manifest.sha256`.
+
+## R03 tracked regression blocks
+
+`spec/data/review/r03/` adds real mainnet block 1 as an acceptance control and
+block 349992 plus its actual parent header for an absolute-finality rejection
+under a deliberately changed supplied height. `provenance.json` records the
+source hashes, immutable block hashes and conditional-context scope. Their
+checksums are included in `spec/data/MANIFEST.sha256`. These small regression
+fixtures are separate from the frozen release's full anchor corpora.

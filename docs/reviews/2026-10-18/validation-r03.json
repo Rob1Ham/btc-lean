@@ -1,0 +1,286 @@
+{
+  "finding": "R03",
+  "status": "fixed_and_verified_for_contextual_entry",
+  "verified_at_utc": "2026-10-18T15:44:16.496120+00:00",
+  "implementation_parent": "2552cb870a359a6f0923e7089257b711e81da12b",
+  "before_code_commit": "db87acac0833e1ed95aa71bd589ce2b37fa4f35d",
+  "upstream_main": "32e8463a47022307f4dc3e337bfdbb10999b7bcc",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "resource_limits": {
+    "baseline_timeout_seconds": 120,
+    "build_scheduler": "default Lake scheduler",
+    "build_memory_limit": "no additional OS memory cap",
+    "new_proof_heartbeat_overrides": false
+  },
+  "core_pins": {
+    "normative": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+    "audit16": "9be056a8a72b624dae9623b2f7bded92c2a21c91"
+  },
+  "reference_comparison": {
+    "IsFinalTx": {
+      "identical_at_both_pins": true,
+      "sha256": "0374122d2d385f8591729f4b383eafc70cc656caa84e5b493b0181ae30c62fde"
+    },
+    "CalculateSequenceLocks": {
+      "identical_at_both_pins": true,
+      "sha256": "1f24763eba672825a4a2f9fe4fd033140c95e7812e9cb3ff79124b27f8b49266"
+    },
+    "EvaluateSequenceLocks": {
+      "identical_at_both_pins": true,
+      "sha256": "5bee4d0105ad68142129552fe938aefb84d0e041c988ea18b254914b8c76af3f"
+    },
+    "BIP113_and_absolute_finality": {
+      "identical_at_both_pins": true,
+      "sha256": "7c378607e3ae86169c2d8d1438e6f0940e4f92a8327dd78d7cd5eb7a7621cac6"
+    },
+    "genesis_connection": {
+      "identical_at_both_pins": true,
+      "sha256": "08a2ed89af340a74fea82cf2450e9981037d852e6d622b55587a2f3ccb8285af"
+    }
+  },
+  "oracle_correction": {
+    "topic": "wire transaction version ffffffff",
+    "evidence": "Both pinned primitives/transaction.h definitions store CTransaction::version as const uint32_t. CalculateSequenceLocks tests version >= 2.",
+    "disposition": "Initial signed-version exemption test assumption was wrong; retained existing correct UInt32 interpretation and corrected that new test using the pinned source. No version-semantic implementation change."
+  },
+  "changes": [
+    "One canonical applyTxWithChecks performs monetary CheckTxInputs validation once, then budget/BIP68 checks before scripts and ledger update. The old fee-only adapter is proved equivalent to its prior equation.",
+    "Absolute finality uses actual parent MTP after CSV and candidate time before CSV, over every transaction including coinbase.",
+    "BIP68 input data is exactly aligned with vin and reads max(coin.height-1,0) MTP only for relevant time-domain inputs, against the evolving view including same-block spends.",
+    "Contextual fold success projects to the existing checked-fee fold, preserving exact UTXO, counters, fees and subsidy bounds.",
+    "Public symbolic theorem establishes absolute locks and a per-step relative-lock/checked-fee trace ending at the actual reported UTXO. Reports mark both finality checks; replay remains explicitly partial.",
+    "Eleven new guarded symbolic proof declarations and one core equation added to the dynamic manifest.",
+    "Fragile duplicate default-pipeline inversion in CapstoneConservationCor replaced with the unchanged-strength shared shape theorem."
+  ],
+  "verification": [
+    {
+      "command": "lake build Bitcoin",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "jobs": 73,
+      "log": "/tmp/btc-lean-r03-core-full.log"
+    },
+    {
+      "command": "lake test",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "checks": 16,
+      "log": "/tmp/btc-lean-r03-core-test.log"
+    },
+    {
+      "command": "make test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality",
+      "exit_code": 0,
+      "checks": 89,
+      "new_finality_checks": 33,
+      "log": "/tmp/btc-lean-r03-regressions.log"
+    },
+    {
+      "command": "python3 docs/reviews/2026-10-18/reproduce_finality.py",
+      "exit_code": 0,
+      "baseline_lean_exit_code": 1,
+      "expected_behavioral_failures": 9,
+      "passing_controls": 23,
+      "log": "/tmp/btc-lean-r03-before.log"
+    },
+    {
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.AF.PDW53.PDW53",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "jobs": 1732,
+      "scope": "32-module default closure plus named affected consumers; not all 412 proof modules",
+      "log": "/tmp/btc-lean-r03-proofs-final.log"
+    },
+    {
+      "command": "lake build capstone",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "jobs": 88,
+      "log": "/tmp/btc-lean-r03-capstone-build.log"
+    },
+    {
+      "command": "CAPSTONE_ONLY=1 .lake/build/bin/capstone",
+      "cwd": "spec/core",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "scope": "Empty selection must report unavailable/incomplete input; not successful anchor-corpus replay.",
+      "output": "mode: partial anchor replay; ancestor/clock/finality/sigop context is not fully adjudicated\nSUMMARY blocks=0 missing=0 allOk=false totalMs=0\nuncaught exception: capstone: replay checks failed or the selected input corpus is incomplete\n"
+    },
+    {
+      "command": "make gates gate-repro",
+      "exit_code": 0,
+      "scope": "all nine static gates, ten proof-gate negative tests and reproducibility checks",
+      "log": "/tmp/btc-lean-r03-gates-final.log"
+    },
+    {
+      "commands": [
+        "python spec/scripts/theorem_index.py --check",
+        "python spec/scripts/residuals_index.py --check",
+        "python spec/scripts/proof_scope.py --check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "shasum -a256 -c spec/data/MANIFEST.sha256",
+      "exit_code": 0,
+      "payloads": 164,
+      "coverage": "Exact coverage of all tracked data files except the manifest itself; no extra, missing or duplicate entries.",
+      "log": "/tmp/btc-lean-r03-data-checksums.log"
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "exit_code": 0,
+      "entries": 250,
+      "new_entries": 12,
+      "scope": "Reviewed manifest diff adds eleven new guarded sequence/finality proofs and the stable core engine equation, all standard trio. No old footprint drift.",
+      "log": "/tmp/btc-lean-r03-axiom-final.log"
+    },
+    {
+      "command": "bash spec/scripts/wallet_axiom_manifest.sh",
+      "exit_code": 0,
+      "declarations": 838,
+      "log": "/tmp/btc-lean-r03-wallet-axiom.log"
+    },
+    {
+      "command": [
+        "lake",
+        "build",
+        "Bitcoin.Wallet.Crypto.Hmac",
+        "Bitcoin.Wallet.Crypto.Sha512",
+        "Bitcoin.Wallet.Descriptor",
+        "Bitcoin.Wallet.Descriptor.Ast",
+        "Bitcoin.Wallet.Descriptor.Checksum",
+        "Bitcoin.Wallet.Descriptor.Expand",
+        "Bitcoin.Wallet.Descriptor.Parse",
+        "Bitcoin.Wallet.Encoding",
+        "Bitcoin.Wallet.Encoding.Base58",
+        "Bitcoin.Wallet.Encoding.Bech32",
+        "Bitcoin.Wallet.Key.Bip32",
+        "Bitcoin.Wallet.Key.Origin",
+        "Bitcoin.Wallet.Miniscript",
+        "Bitcoin.Wallet.Miniscript.Node",
+        "Bitcoin.Wallet.Miniscript.Satisfy",
+        "Bitcoin.Wallet.Miniscript.Script",
+        "Bitcoin.Wallet.Miniscript.Tests",
+        "Bitcoin.Wallet.Miniscript.Type",
+        "Bitcoin.Wallet.Psbt.Decode",
+        "Bitcoin.Wallet.Psbt.Encode",
+        "Bitcoin.Wallet.Psbt.Laws",
+        "Bitcoin.Wallet.Psbt.Model",
+        "Bitcoin.Wallet.Psbt.Psbt",
+        "Bitcoin.Wallet.Psbt.Tests",
+        "Bitcoin.Wallet.RuleAttr",
+        "Bitcoin.Wallet.Spend",
+        "Bitcoin.Wallet.Spend.Fee",
+        "Bitcoin.Wallet.Spend.Funding",
+        "Bitcoin.Wallet.Spend.Laws",
+        "Bitcoin.Wallet.Spend.Selection",
+        "Bitcoin.Wallet.Taproot.Commit"
+      ],
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "jobs": 60,
+      "module_imports": 31,
+      "scope": "All modules imported by the committed wallet axiom probe; not a semantic revalidation of all wallet rows.",
+      "log": "/tmp/btc-lean-r03-wallet-core-build.log"
+    },
+    {
+      "command": [
+        "lake",
+        "build",
+        "BitcoinProofs.Wallet.Desc.Checksum",
+        "BitcoinProofs.Wallet.Desc.Expand",
+        "BitcoinProofs.Wallet.Desc.Parse",
+        "BitcoinProofs.Wallet.Encoding.Base58Props",
+        "BitcoinProofs.Wallet.Encoding.Bech32Props",
+        "BitcoinProofs.Wallet.Encoding.Laws",
+        "BitcoinProofs.Wallet.Key.Laws",
+        "BitcoinProofs.Wallet.Key.Serialize",
+        "BitcoinProofs.Wallet.Miniscript.Interp",
+        "BitcoinProofs.Wallet.Miniscript.SatShape",
+        "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+        "BitcoinProofs.Wallet.Miniscript.TypeSound",
+        "BitcoinProofs.Wallet.Obligations",
+        "BitcoinProofs.Wallet.Psbt.Canonical",
+        "BitcoinProofs.Wallet.Psbt.Invariants",
+        "BitcoinProofs.Wallet.Psbt.Lifecycle",
+        "BitcoinProofs.Wallet.Psbt.RoundTrip",
+        "BitcoinProofs.Wallet.Sign.Bridge",
+        "BitcoinProofs.Wallet.Sign.Spec",
+        "BitcoinProofs.Wallet.Spend.Selection",
+        "BitcoinProofs.Wallet.Taproot.Bridge",
+        "BitcoinProofs.Wallet.Taproot.Program"
+      ],
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "jobs": 3232,
+      "module_imports": 22,
+      "scope": "All modules imported by the committed wallet axiom probe; not a semantic revalidation of all wallet rows.",
+      "log": "/tmp/btc-lean-r03-wallet-proof-build.log"
+    }
+  ],
+  "runtime_output": "[PASS] input value below outputs: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] input coin above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] negative input coin: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] running input sum above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] input amount failure precedes script failure: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] input coin at MAX_MONEY: expected=ok, actual=ok\n[PASS] running input sum at MAX_MONEY: expected=ok, actual=ok\n[PASS] valid zero-fee spend: expected=ok, actual=ok\n[PASS] valid positive-fee spend: expected=ok, actual=ok\n[PASS] missing input: expected=bad-txns-inputs-missingorspent, actual=bad-txns-inputs-missingorspent\n[PASS] immature coinbase input: expected=bad-txns-premature-spend-of-coinbase, actual=bad-txns-premature-spend-of-coinbase\n[PASS] same-block spend uses the new coin value: expected=ok, actual=ok\n[PASS] same-block inflation is rejected: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] public validator accepts the subsidy boundary: expected=ok, actual=ok\n[PASS] public validator rejects coinbase above the halved subsidy: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] exact zero-fee reward: expected=ok, actual=ok\n[PASS] reward over subsidy by one satoshi: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] unclaimed subsidy is allowed: expected=ok, actual=ok\n[PASS] exact subsidy plus fee: expected=ok, actual=ok\n[PASS] reward over subsidy plus fee by one: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] same-block fees use evolving coins: expected=ok, actual=ok\n[PASS] same-block fees cannot fund an extra satoshi: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] checked fee total excludes coinbase and includes child: expected=2, actual=2\n[PASS] accumulated fees at MAX_MONEY: expected=ok, actual=ok\n[PASS] accumulated fees above MAX_MONEY: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] fee accumulation failure precedes script failure: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] script failure precedes final reward failure: expected=script-verify-error, actual=script-verify-error\n[PASS] last block before halving: expected=ok, actual=ok\n[PASS] first block after halving: expected=ok, actual=ok\n[PASS] halved reward plus one: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 32 last satoshi: expected=ok, actual=ok\n[PASS] epoch 33 no subsidy: expected=bad-cb-amount, actual=bad-cb-amount\n[PASS] epoch 33 fee-only reward: expected=ok, actual=ok\n[PASS] public valid block with its real genesis parent: expected=ok, actual=ok\n[PASS] public node-clock plus 7200 boundary: expected=ok, actual=ok\n[PASS] public node-clock plus 7201 rejects: expected=time-too-new, actual=time-too-new\n[PASS] public expected retarget bits reject a difficulty-1 candidate: expected=bad-diffbits, actual=bad-diffbits\n[PASS] public sparse MTP history is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] public parent height must match candidate: expected=context-height-mismatch, actual=context-height-mismatch\n[PASS] public missing parent is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] timestamp equals parent MTP rejects: expected=time-too-old, actual=time-too-old\n[PASS] timestamp one above parent MTP: expected=ok, actual=ok\n[PASS] wrong non-boundary bits: expected=bad-diffbits, actual=bad-diffbits\n[PASS] wrong index parent hash: expected=context-parent-mismatch, actual=context-parent-mismatch\n[PASS] retarget exact quarter-timespan clamp: expected=ok, actual=ok\n[PASS] missing retarget anchor is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] wrong bits precede unresolved MTP: expected=bad-diffbits, actual=bad-diffbits\n[PASS] strict MTP has upper median for an even genesis window: expected=20, actual=20\n[PASS] strict MTP requires an internal missing height: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] strict MTP stops at genesis without requiring negative heights: expected=1231006505, actual=1231006505\n[PASS] signed node time does not wrap to a large UInt32: expected=time-too-new, actual=time-too-new\n[PASS] Core height range does not wrap: expected=context-height-mismatch, actual=context-height-mismatch\n[PASS] contextual report records header coverage: expected=true, actual=true\n[PASS] replay report records absent header coverage: expected=false, actual=false\n[PASS] missing context is unavailable, not a consensus rejection: expected=true, actual=true\n[PASS] bad difficulty is a rejection, not unavailable context: expected=false, actual=false\n[PASS] height lock first valid block: expected=ok, actual=ok\n[PASS] height lock last invalid block: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] time lock exact 512-second boundary: expected=ok, actual=ok\n[PASS] time lock 511-second boundary rejects: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] version one is exempt: expected=ok, actual=ok\n[PASS] wire ffffffff version is unsigned in pinned Core: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] before CSV activation is exempt: expected=ok, actual=ok\n[PASS] disable bit ignores relative lock: expected=ok, actual=ok\n[PASS] reserved sequence bits are ignored: expected=ok, actual=ok\n[PASS] same-block height lock zero: expected=ok, actual=ok\n[PASS] same-block height lock one rejects: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] same-block time lock zero: expected=ok, actual=ok\n[PASS] same-block time lock one rejects: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] input amounts precede relative finality: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] relative finality precedes script failure: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] missing inputs precede relative finality: expected=bad-txns-inputs-missingorspent, actual=bad-txns-inputs-missingorspent\n[PASS] coinbase maturity precedes relative finality: expected=bad-txns-premature-spend-of-coinbase, actual=bad-txns-premature-spend-of-coinbase\n[PASS] time lock missing old window is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor\n[PASS] height lock does not require unused old MTP: expected=ok, actual=ok\n[PASS] disabled time input does not require old MTP: expected=ok, actual=ok\n[PASS] version-exempt time input does not require old MTP: expected=ok, actual=ok\n[PASS] coin at height zero uses genesis MTP: expected=ok, actual=ok\n[PASS] context fee accumulation at MAX_MONEY: expected=ok, actual=ok\n[PASS] context accumulated-fee overflow precedes sequence and script failure: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[PASS] two inputs cannot truncate an unsatisfied second lock: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] absolute height equal rejects: expected=false, actual=false\n[PASS] absolute height below accepts: expected=true, actual=true\n[PASS] absolute lock ignores all-final sequences: expected=true, actual=true\n[PASS] BIP113 uses parent MTP rather than candidate time: expected=false, actual=false\n[PASS] BIP113 time one below MTP accepts: expected=true, actual=true\n[PASS] pre-CSV uses candidate time: expected=true, actual=true\n[PASS] public serialized block enforces absolute finality before UTXOs: expected=bad-txns-nonfinal, actual=bad-txns-nonfinal\n[PASS] public real block one accepts with finality coverage: expected=true, actual=true\n",
+  "baseline_output": "baseline=db87acac0833e1ed95aa71bd589ce2b37fa4f35d source_sha256=b9d091299d19c2fee834af1f68aff101a5fd3f5f07428c8471ad717d5d99d47e\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:364:20: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:366:44: warning: This simp argument is unused:\n  hb\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Bool.false_eq_true, \u2193reduceIte]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:368:25: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:371:27: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:374:69: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:375:65: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:440:13: warning: Local variable 'unit' resembles constructor 'PUnit.unit' - write '.unit' (with a dot) or 'PUnit.unit' to use the constructor.\n\nNote: This linter can be disabled with `set_option linter.constructorNameAsVariable false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:433:42: warning: This simp argument is unused:\n  Functor.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Except.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:433:55: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Functor.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:446:48: warning: This simp argument is unused:\n  Functor.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Except.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:446:61: warning: This simp argument is unused:\n  Except.map\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [Bind.bind, Except.bind, Functor.map, pure, Except.pure]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:595:5: warning: Variable name `hweight` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _hweight\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:606:40: warning: This simp argument is unused:\n  hweight\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink, hmerkle]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-r03-before-_wzqs19c/Baseline.lean:668:5: warning: Variable name `hweight` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _hweight\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n[PASS] height lock first valid block: expected=ok, actual=ok\n[FAIL] height lock last invalid block: expected=bad-txns-nonfinal, actual=ok\n[PASS] time lock exact 512-second boundary: expected=ok, actual=ok\n[FAIL] time lock 511-second boundary rejects: expected=bad-txns-nonfinal, actual=ok\n[PASS] version one is exempt: expected=ok, actual=ok\n[FAIL] wire ffffffff version is unsigned in pinned Core: expected=bad-txns-nonfinal, actual=ok\n[PASS] before CSV activation is exempt: expected=ok, actual=ok\n[PASS] disable bit ignores relative lock: expected=ok, actual=ok\n[PASS] reserved sequence bits are ignored: expected=ok, actual=ok\n[PASS] same-block height lock zero: expected=ok, actual=ok\n[FAIL] same-block height lock one rejects: expected=bad-txns-nonfinal, actual=ok\n[PASS] same-block time lock zero: expected=ok, actual=ok\n[FAIL] same-block time lock one rejects: expected=bad-txns-nonfinal, actual=ok\n[PASS] input amounts precede relative finality: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[FAIL] relative finality precedes script failure: expected=bad-txns-nonfinal, actual=script-verify-error\n[PASS] missing inputs precede relative finality: expected=bad-txns-inputs-missingorspent, actual=bad-txns-inputs-missingorspent\n[PASS] coinbase maturity precedes relative finality: expected=bad-txns-premature-spend-of-coinbase, actual=bad-txns-premature-spend-of-coinbase\n[FAIL] time lock missing old window is unavailable: expected=context-missing-ancestor, actual=ok\n[PASS] height lock does not require unused old MTP: expected=ok, actual=ok\n[PASS] disabled time input does not require old MTP: expected=ok, actual=ok\n[PASS] version-exempt time input does not require old MTP: expected=ok, actual=ok\n[PASS] coin at height zero uses genesis MTP: expected=ok, actual=ok\n[PASS] context fee accumulation at MAX_MONEY: expected=ok, actual=ok\n[PASS] context accumulated-fee overflow precedes sequence and script failure: expected=bad-txns-accumulated-fee-outofrange, actual=bad-txns-accumulated-fee-outofrange\n[FAIL] two inputs cannot truncate an unsatisfied second lock: expected=bad-txns-nonfinal, actual=ok\n[PASS] absolute height equal rejects: expected=false, actual=false\n[PASS] absolute height below accepts: expected=true, actual=true\n[PASS] absolute lock ignores all-final sequences: expected=true, actual=true\n[PASS] BIP113 uses parent MTP rather than candidate time: expected=false, actual=false\n[PASS] BIP113 time one below MTP accepts: expected=true, actual=true\n[PASS] pre-CSV uses candidate time: expected=true, actual=true\n[FAIL] public serialized block enforces absolute finality before UTXOs: expected=bad-txns-nonfinal, actual=bad-txns-inputs-missingorspent\nR03 baseline reproduction: nine stage/public failures confirmed; 23 controls pass\n",
+  "source_sha256": {
+    "Makefile": "b5d730d1484cd77e6f7680c26b4bff5d8876c04dce0c724984b0d53342cb3649",
+    "spec/core/Bitcoin/Capstone/Block.lean": "b8d2e983f49f46fa7b2b7f62753314c8db8c73a056bf8625c9c74def749a2bd3",
+    "spec/core/Bitcoin/Capstone/Context.lean": "4981a501533531590c3ab60ae5f5399624b96511bea04d6c78ec7dfc8a657f28",
+    "spec/core/Test/Capstone/Finality.lean": "8db7b2e4de1e64e9925dd58915999f8696ad98a20c8664381d66321bad770de8",
+    "spec/data/MANIFEST.sha256": "bb53cefb07e7100696472e3bff7a40f812b208db43c80dce379777b1c0c46e44",
+    "spec/data/review/r03/block1.raw": "9c192c128fac3ded236ffed725ae19b3ecef7828e09ed9e633d2e5370550dae0",
+    "spec/data/review/r03/block349992.raw": "05d147f229027f965c2ad568d9d12228513a18e6e6348e536a98f9f1da83189f",
+    "spec/data/review/r03/parent349991.header": "084aa79aa7f68d8718cefb23bafba7622b23e025c5862f4993ca8a7ababe88d5",
+    "spec/data/review/r03/provenance.json": "20370bcaba1947e106ff9989b8fa1e64ffbf0663fe0bf5d481c53e5c2878718c",
+    "spec/db/axiom-manifest.txt": "4aa4314f100111c4f892a11f63547be2830c23bdde8cd512b55d9dfd5f52eebb",
+    "spec/proofs/BitcoinProofs.lean": "54ecbdf05bff0ec4371c0fe9165c2049137c1110c9604b5f8efd99a5879d1568",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "8ea9a91f5f5dfd8810b0d86aedad3d095646754c48c75c7b78a6f366a40be6fa",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFunding.lean": "12e74a798631bcc4259b67a79f743d814301f7f8578f0dcc6631bc1f57a2b4b6",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneSequence.lean": "85093f8c0d1327050e450374e0c6f0da9d46548d77d1f28c4f83e4800107d9f0",
+    "spec/scripts/axiom_probe.lean": "4f9a23b310754178202f865de4eda2b7941dfb9161b1274531c993888a4e725f"
+  },
+  "data": {
+    "tracked_files": 165,
+    "tracked_bytes": 5029306,
+    "maximum_bytes": 5242880,
+    "manifest_sha256": "bb53cefb07e7100696472e3bff7a40f812b208db43c80dce379777b1c0c46e44",
+    "new_fixtures": [
+      "spec/data/review/r03/block1.raw",
+      "spec/data/review/r03/block349992.raw",
+      "spec/data/review/r03/parent349991.header",
+      "spec/data/review/r03/provenance.json"
+    ],
+    "scope": "Block 349992 has real valid header/merkle/transactions and actual parent, tested under a deliberately changed supplied candidate/index height. This isolates the public finality gate, not reachable mainnet chain admission. Block 1 is the real public acceptance control."
+  },
+  "reproducer_sha256": "f3e277a5211cbcfb8ee97f497afc975c879cb728c51cc6558211ac5d8723bafb",
+  "new_review_evidence": {
+    "R07b": {
+      "status": "confirmed_open",
+      "exit_code": 1,
+      "output": "genesis_utxo_coins=1 genesis_utxo_value=5000000000\n",
+      "program": "import Bitcoin.Capstone.Block\nimport Bitcoin.Block.Params\nopen Bitcoin.Capstone.Block Bitcoin.Block.Params Bitcoin.Serialization\n\ndef main : IO UInt32 := do\n  let raw := encodeBlock genesisHeader [genesisCoinbaseTx]\n  match replayBlock raw { height := 0, prevHash := genesisHeader.hashPrevBlock, utxo := [] } with\n  | .error e => IO.println e.reason; return 2\n  | .ok report =>\n    let value := report.state.utxo.foldl (fun n p => n + p.2.value) (0 : Bitcoin.Data.Amount)\n    IO.println s!\"genesis_utxo_coins={report.state.utxo.length} genesis_utxo_value={value}\"\n    return if report.state.utxo.isEmpty then 0 else 1\n",
+      "expected_Core_state": "Genesis connection skips its transaction outputs; no added UTXO coin.",
+      "next_action": "Actual-hash genesis path and exception-aware public contracts; migrate R02 public halving fixture to block 1."
+    },
+    "I4-43": {
+      "status": "reopened_live_definition_mismatch",
+      "normative_source": "kernel/chainparams.cpp:126 assigns mainnet powLimit = 2^224-1.",
+      "model_evidence": [
+        "Capstone.Pow.powLimit = compact genesis target",
+        "Block.Pow.mainnetParams.powLimit = powLimitMainnet, also compact genesis target",
+        "PDW28.powLimitMainnetFull corrects the theorem/constant but is unused by the live paths"
+      ],
+      "limit": "No acceptance/rejection difference is inferred merely from this numeric mismatch; full-limit wiring and compact-target boundaries remain to verify."
+    }
+  },
+  "remaining_scope": [
+    "The contextual mainnet non-genesis entry is verified for modeled finality/BIP68. Replay without context deliberately does not perform those checks.",
+    "The live sigop budget, witness-commitment value defect, Taproot adjudication and hash-aware historical exceptions remain open.",
+    "Canonical genesis connection mismatch is confirmed R07b; the full no-parent/genesis context path is not implemented yet.",
+    "No full C++ integer-wrapping agreement or global Coin-height subtype invariant is claimed; the existing arithmetic/domain residuals remain to reconcile.",
+    "Census metadata for BLK-067/068/104 still requires reconciliation with the new live proof; all 726 rows are tracked separately in census-progress.tsv and unreviewed clauses remain open.",
+    "The 380 outside-default proof modules, CI enforcement, complete row-target probing and wallet semantic row review remain required.",
+    "Both axiom probes ran and all 53 wallet probe imports built, but that does not prove all 140 wallet contracts or discharge the 99 accepted wallet obligations.",
+    "The frozen release anchor corpus was not replayed; the empty-selection check is an expected unavailable-input failure, not chain verification."
+  ]
+}

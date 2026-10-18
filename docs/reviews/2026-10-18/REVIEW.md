@@ -4,7 +4,7 @@ Review date: 2026-10-18, America/Chicago. Baseline: [`57607451faa168497d971e2d50
 
 The repository has useful executable definitions, explicit residual disclosures and working static checks. Its principal weakness is composition: the public block replay path does not enforce several consensus rules that exist as separate, proved helpers. Its evidence gates also permit changes that contradict the published proof contract. Fixing the remaining property fixtures alone will not close those gaps.
 
-This review was initially prepared before implementation. The user subsequently authorized the goal, which remains active. [execution-ledger.json](execution-ledger.json) records current progress separately from the historical findings below. The remediation branch has integrated merged PRs 18 and 19 (upstream `08208274bcdcab2a5baa1426c0057472e5c0de07`). R01 input-value enforcement and R09/R10 proof-gate enforcement are fixed with regression evidence. R02 now enforces checked fee accumulation and the coinbase reward bound on the public serialized-block path: all 20 funding cases and 13 input-value cases pass, and the default proof root plus affected consumers build. See [validation-r02.json](validation-r02.json) for commands, source hashes, Core-pin comparison and exact limits. R04 now has an explicit contextual-header entry with checked nBits, full-window MTP and node time, verified by 23 new tests and five kernel theorems; see [validation-r04.json](validation-r04.json). Anchor runners use the explicitly partial replay adapter. The primary runner also now rejects empty or incomplete selected input instead of reporting a false-green summary. The remaining transaction-context, witness, evidence and census findings stay open until separately resolved.
+This review was initially prepared before implementation. The user subsequently authorized the goal, which remains active. [execution-ledger.json](execution-ledger.json) records current progress separately from the historical findings below. The remediation branch has integrated merged PRs 18 and 19 (upstream `08208274bcdcab2a5baa1426c0057472e5c0de07`). R01 input-value enforcement and R09/R10 proof-gate enforcement are fixed with regression evidence. R02 now enforces checked fee accumulation and the coinbase reward bound on the public serialized-block path: all 20 funding cases and 13 input-value cases pass, and the default proof root plus affected consumers build. See [validation-r02.json](validation-r02.json) for commands, source hashes, Core-pin comparison and exact limits. R04 now has an explicit contextual-header entry with checked nBits, full-window MTP and node time, verified by 23 new tests and five kernel theorems; see [validation-r04.json](validation-r04.json). Anchor runners use the explicitly partial replay adapter. The primary runner also now rejects empty or incomplete selected input instead of reporting a false-green summary. R03 now enforces absolute finality and both BIP68 domains on the contextual path, with 33 distinct new runtime checks and eleven guarded kernel proofs; see [validation-r03.json](validation-r03.json). The remaining sigop, witness/adjudication, exception, evidence and census work stays open.
 
 The review covers architecture, live validation call paths, proof/build scope, issue and PR evidence, selected wallet/serialization boundaries, release handling and gate enforcement. It is not an exhaustive independent verification of every theorem or the cryptographic arithmetic.
 
@@ -158,3 +158,24 @@ Likewise, source-to-Core fidelity is not proved by a row tag, an axiom-light the
 | Full published archive and anchor replay | Not downloaded/run. Manifest compatibility was checked locally; extraction defects used small controlled fixtures. |
 
 The remediation order should be live monetary/contextual validation, strict partial-verdict handling, proof/gate enforcement and complete builds, PR 18 reconciliation, census policy/network corrections, then data/evidence reproducibility. The prepared goal includes concrete success criteria for those steps and keeps unsolved research obligations visible.
+
+## Additional composition evidence during remediation
+
+**R07b (P1), genesis connection:** replaying the canonical genesis block at
+height 0 inserts one 5,000,000,000-satoshi coin into the actual output state.
+Pinned Core's `ConnectBlock` returns before connecting genesis transactions
+(`validation.cpp:2336-2343`), because its coinbase is unspendable. The separate
+`Bitcoin.Block.Connect.connectGenesis` helper does not fix the live path. This
+is confirmed open and belongs with the remaining hash-aware exception wiring.
+The R02 public subsidy fixture must also use a non-genesis block when that
+exception is wired.
+
+Issue **I4-43** remains open at the live definition level: Core uses
+`2^224-1`, while the two core PoW paths still use the compact genesis target.
+The corrected PDW28 theorem does not change those definitions. No behavioral
+acceptance difference is inferred merely from that numeric mismatch; encoded
+target boundaries and the actual constant wiring still require verification.
+
+[census-progress.tsv](census-progress.tsv) now tracks all 726 IDs separately
+from the preserved historical attachment snapshot. R03 adds live block-finality
+and sequence-lock evidence; unreconciled census fields remain explicitly open.

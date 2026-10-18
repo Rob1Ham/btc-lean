@@ -23,7 +23,7 @@ theorem applyTxWithFeeCheck_fee {height : UInt32} {tx : Tx} {i : Nat}
     (tx.isCoinBase = true ∧ fee = 0) ∨
       (tx.isCoinBase = false ∧ checkTxInputs tx (viewOf l) height = .ok fee ∧
         checkFee fee = .ok ()) := by
-  unfold applyTxWithFeeCheck at h
+  rw [applyTxWithFeeCheck_unfold] at h
   cases hc : Bitcoin.Consensus.checkTransaction tx with
   | some e => simp [hc] at h
   | none =>

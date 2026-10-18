@@ -1,3 +1,4 @@
+import BitcoinProofs.Theorems.CapstonePipelineCor
 import BitcoinProofs.Theorems.CapstoneFoldAgree
 import Bitcoin.Capstone.Block
 import Bitcoin.Ledger.Interface
@@ -502,66 +503,10 @@ private theorem validateBlock_ok_inv (raw : ByteArray) (st : CapState) (r : CapR
       Bitcoin.Serialization.decodeBlock raw = Except.ok (hd, txs)
       ∧ applyTxs st.height txs 0 st.utxo 0 0 = Except.ok (utxo', okN, unjN)
       ∧ r.state.utxo = utxo' := by
-  unfold validateBlock at h
-  simp (config := { zeta := false }) only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok r := h; nomatch h'
-  · rename_i p heq
-    obtain ⟨hd, txs⟩ := p
-    -- Peel the leading `let __x ← pure (hd, txs)` bind, instantiate the
-    -- peeled witness with the decoded pair, and let the join-point lets
-    -- (`have __do_jp := fun __r => ...`, i.e. `letFun`) resolve.  With
-    -- `zeta := false` the CPS skeleton stays linear; one `letFun` pass
-    -- then expands it into the plain gate-`if` chain.
-    obtain ⟨w, hw, hcont⟩ := peelOk _ _ _ h
-    have hwe : w = (hd, txs) := (Except.ok.inj hw).symm
-    rw [hwe] at hcont
-    simp (config := { zeta := false }) only [] at hcont
-    simp only [letFun] at hcont
-    -- Each structural/header/merkle gate: on the error path the whole
-    -- do-block is one `throw`-bind (contradicting `= Except.ok r`); on the
-    -- pass path continue with the next gate.  `backward.split false` keeps
-    -- `split`'s internal simp neutral, which is essential on the big
-    -- expanded term.
-    split at hcont
-    · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-    · split at hcont
-      · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-      · split at hcont
-        · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-        · split at hcont
-          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-          · split at hcont
-            · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-            · split at hcont
-              · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-              · split at hcont
-                · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                · split at hcont
-                  · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                  · split at hcont
-                    · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                    · split at hcont
-                      · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                      · split at hcont
-                        · -- cGate error arm: inner anyWitness if; both
-                          -- arms are `do throw _; _` ≡ `Except.error _`
-                          split at hcont
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                        · split at hcont
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                          · split at hcont
-                            · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                            · split at hcont
-                              · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                              · split at hcont
-                                · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                                · obtain ⟨q, hap, hfin⟩ := peelOk _ _ _ hcont
-                                  obtain ⟨utxo', okN, unjN⟩ := q
-                                  simp only [] at hfin
-                                  obtain ⟨rfl⟩ := Except.ok.inj hfin
-                                  exact ⟨hd, txs, utxo', okN, unjN, heq, Bitcoin.Capstone.Block.applyBlockTransactions_ok hap, rfl⟩
+  obtain ⟨header, txs, utxo', okN, unjN, hdec, _, _, _, _, _, _, _, _, hfold,
+    hstate, _, _, _⟩ :=
+    BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_shape raw st r h
+  exact ⟨header, txs, utxo', okN, unjN, hdec, hfold, by simp only [hstate]⟩
 
 /-- **Bridge at the full pipeline (P15 item 4)**: a block that
 `validateBlock` accepts has its report UTXO list produced by the

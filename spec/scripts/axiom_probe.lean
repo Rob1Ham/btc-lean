@@ -28,6 +28,7 @@ import BitcoinProofs.Crypto.CurveZMod
 
 import BitcoinProofs.Theorems.CapstoneFunding
 import BitcoinProofs.Theorems.CapstoneContext
+import BitcoinProofs.Theorems.CapstoneSequence
 
 /-!
 # Axiom probe — the input of the axiom-manifest gate
@@ -328,3 +329,17 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstoneContext.checkHeaderContext_ok
 #print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header
 #print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header_rules
+
+-- R03: single checked-input pass, actual contextual lock trace and public funding.
+#print axioms Bitcoin.Capstone.Block.applyTxWithFeeCheck_unfold
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.contextualFinality_eq
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_checked
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_fee_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.sequenceInputData_length
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.checkSequenceContext_ok
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.checkContextualTx_ok
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_fee_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_trace
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyContextualBlockTransactions_funding
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_stages
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_locks

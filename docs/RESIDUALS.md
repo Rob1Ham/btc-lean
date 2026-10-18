@@ -8,7 +8,7 @@ against Core.
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 31-module closure; a post-audit per-name run covers the
+`BitcoinProofs` target is a 32-module closure; a post-audit per-name run covers the
 380 outside-closure modules (381 `.lean` entries including the non-module
 `lakefile.lean`), for which upstream reports 372 individual passes and 8 failures at revision
 32e8463. The full remediation-head matrix is pending. Upstream reports no cited

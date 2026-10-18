@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -30,6 +30,7 @@ help:
 	@echo "make test-capstone-values # live capstone monetary regressions (needs Lean)"
 	@echo "make test-capstone-funding # block reward and fee regressions (needs Lean)"
 	@echo "make test-capstone-context # contextual header regressions (needs Lean)"
+	@echo "make test-capstone-finality # absolute/BIP68 contextual regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -94,3 +95,6 @@ test-capstone-funding:
 
 test-capstone-context:
 	@cd $(SPEC)/core && lake env lean --run Test/Capstone/HeaderContext.lean
+
+test-capstone-finality:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/Finality.lean

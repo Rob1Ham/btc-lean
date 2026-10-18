@@ -18,7 +18,7 @@ following are trusted:
 
 The theorem package is the only package allowed to depend on mathlib. The
 `spec/core` model has no Lake dependencies. A successful default
-`BitcoinProofs` build means the 31-module import closure elaborates; the other
+`BitcoinProofs` build means the 32-module import closure elaborates; the other
 380 proof modules are outside that closure. Upstream reports 372 passes and
 8 failures at its own revision; a full current-head run is still pending
 (see [`PROOF-BUILD.md`](PROOF-BUILD.md)).
@@ -36,8 +36,8 @@ propext, Classical.choice, Quot.sound
 The committed static manifest is checked by
 `bash spec/scripts/axiom_manifest.sh --check-static`; the dynamic probe
 `bash spec/scripts/axiom_manifest.sh` re-elaborates the probed declarations
-and prints their footprints. The consensus manifest has 223 entries (237
-physical lines). The wallet layer has its own 844-declaration manifest and
+and prints their footprints. The consensus manifest has 250 entries (306
+physical lines). The wallet layer has its own 838-declaration manifest and
 accepts the same three axioms.
 
 The gate-scanned `spec/core` and `spec/proofs` trees contain no `sorry`;
@@ -90,7 +90,7 @@ The wallet layer is additive and separate from the consensus census:
 
 The wallet modules do not import into the consensus roots, and the wallet
 census is never merged into the 726-row database. The wallet axiom manifest
-covers 844 declarations and accepts the same three axioms. The complete
+covers 838 declarations and accepts the same three axioms. The complete
 obligation register is [`WALLET-OBLIGATIONS.md`](WALLET-OBLIGATIONS.md).
 
 ## 6. Policy and obsolete rows

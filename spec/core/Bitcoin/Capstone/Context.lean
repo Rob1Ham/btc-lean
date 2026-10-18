@@ -1,5 +1,7 @@
 import Bitcoin.Block.Pow
 import Bitcoin.Capstone.Pow
+import Bitcoin.TxValidation.Interface
+import Bitcoin.Ledger.Utxo
 
 /-!
 # Explicit parent-chain context for capstone validation
@@ -29,6 +31,7 @@ inductive ContextError where
   | heightMismatch
   | parentMismatch
   | missingAncestor (height : Nat)
+  | missingCoin
   | badDiffbits
   | timeTooOld
   | timeTooNew
@@ -38,6 +41,7 @@ def ContextError.reason : ContextError → String
   | .heightMismatch => "context-height-mismatch"
   | .parentMismatch => "context-parent-mismatch"
   | .missingAncestor _ => "context-missing-ancestor"
+  | .missingCoin => "context-missing-coin"
   | .badDiffbits => "bad-diffbits"
   | .timeTooOld => "time-too-old"
   | .timeTooNew => "time-too-new"
@@ -47,7 +51,7 @@ theorem ContextError.reason_nonempty (e : ContextError) : e.reason ≠ "" := by
 
 /-- The missing-data errors describe unavailable validation, not invalid blocks. -/
 def ContextError.isUnavailable : ContextError → Bool
-  | .heightMismatch | .parentMismatch | .missingAncestor _ => true
+  | .heightMismatch | .parentMismatch | .missingAncestor _ | .missingCoin => true
   | _ => false
 
 def ancestor (ctx : ChainContext) (height : Nat) : Except ContextError BlockHeader :=
@@ -101,5 +105,37 @@ def checkHeaderContext (ctx : ChainContext) (height : UInt32) (parentHash : Byte
   if !timeNotTooOld header.time mtp then throw ContextError.timeTooOld
   if !((header.time.toNat : Int) ≤ ctx.nodeTime + 7200) then throw ContextError.timeTooNew
   pure ⟨expected, mtp⟩
+
+/-- BIP113 uses the parent's actual MTP after CSV, candidate time before it. -/
+@[rule "BLK-067"]
+def finalityCutoffAtHeight (height parentMtp blockTime : UInt32) : UInt32 :=
+  if Bitcoin.Activation.CSV_HEIGHT ≤ height then parentMtp else blockTime
+
+/-- All transactions, including the coinbase, must satisfy IsFinalTx. -/
+@[rule "BLK-068"]
+def blockFinalityAtHeight (txs : List Tx) (height parentMtp blockTime : UInt32) : Bool :=
+  txs.all (fun tx => Bitcoin.DataLaws.isFinalTx tx height
+    (finalityCutoffAtHeight height parentMtp blockTime))
+
+/-- Build exactly one BIP68 datum per input against the CURRENT view.
+Only an enabled time-domain input reads coin-parent MTP, at max(h-1,0).
+For height/disabled inputs the time field is unused by CalculateSequenceLocks;
+we carry the already-resolved block-parent MTP rather than invent historical
+zero times or require irrelevant old headers. Missing coins/history fail.
+The caller skips this function entirely when BIP68 is not enabled. -/
+def sequenceInputData (ctx : ChainContext) (parentMtp : UInt32)
+    (u : Bitcoin.Ledger.UtxoSet) : List TxIn → Except ContextError (List (Int × Int))
+  | [] => .ok []
+  | input :: rest => do
+    let coin ← match u input.prevout with
+      | none => .error .missingCoin
+      | some coin => .ok coin
+    let mtp ←
+      if Bitcoin.TxValidation.seqLockApplies input.sequence &&
+          Bitcoin.DataLaws.seqIsTimeBased input.sequence then
+        medianTimePastStrict ctx (coin.height.toNat - 1)
+      else pure parentMtp
+    let tail ← sequenceInputData ctx parentMtp u rest
+    pure (((coin.height.toNat : Int), (mtp.toNat : Int)) :: tail)
 
 end Bitcoin.Capstone.Context

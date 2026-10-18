@@ -1,9 +1,9 @@
 # Proof build scope and status
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
-proof tree. It builds the root module plus its 30 direct/transitive local
-imports: **31 modules**. The package contains **411
-Lean modules** (412 `.lean` files including `lakefile.lean`); **380 modules are
+proof tree. It builds the root module plus its 31 direct/transitive local
+imports: **32 modules**. The package contains **412
+Lean modules** (413 `.lean` files including `lakefile.lean`); **380 modules are
 outside the default closure**.
 
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
@@ -20,6 +20,12 @@ public header-context and complete-MTP-window theorems with guarded standard
 axiom footprints. The actual core build and compiled partial replay runner
 also pass their builds. [validation-r04.json](reviews/2026-10-18/validation-r04.json)
 records the checks and distinguishes unavailable replay input from success.
+
+The R03 run adds `CapstoneSequence`: symbolic kernel proofs connect the
+public contextual entry to absolute finality, both BIP68 domains at actual
+intermediate views, and the checked-fee/subsidy bound. The exact commands and
+baseline/public regressions are in
+[validation-r03.json](reviews/2026-10-18/validation-r03.json).
 
 The outside-closure results below are the upstream audit snapshot from before
 PR 18 merged and before the remediation changes. They remain historical
@@ -55,7 +61,7 @@ failures** over the 380 outside-closure modules.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
-| Default `BitcoinProofs` closure | 31 modules | 31 (R04 run) | 0 |
+| Default `BitcoinProofs` closure | 32 modules | 32 (R03 run) | 0 |
 | Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 365 | 15 |
 | — `AF` namespace | 249 | 249 | 0 |
 | — `Theorems` namespace | 24 | 21 | 3 |
@@ -73,8 +79,8 @@ failures** over the 380 outside-closure modules.
 | — `Interpreter` namespace | 1 | 1 | 0 |
 
 The historical 409-module snapshot included 29 in the default closure.
-The current 411-module snapshot adds default `CapstoneFunding` and
-`CapstoneContext` modules. The outside-closure
+The current 412-module snapshot adds default `CapstoneFunding`,
+`CapstoneContext` and `CapstoneSequence` modules. The outside-closure
 table has 381 entries because it includes the non-module `lakefile.lean`, which
 the static index excludes; `lakefile.lean` is the Lake build configuration, not
 a module, so it is not built by name and the builds-plus-failures total is the
@@ -128,9 +134,9 @@ The snapshot reported individual passes for six repaired modules:
 
 ## What a clean build means
 
-`BitcoinProofs` building means that the 31 default-closure modules elaborate
+`BitcoinProofs` building means that the 32 default-closure modules elaborate
 against the pinned Lean toolchain, mathlib revision, and core package. It does
-**not** mean that all 411 proof modules were rebuilt, that every cited row
+**not** mean that all 412 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
 Core. Statement fidelity is a separate review obligation, with the 27 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
