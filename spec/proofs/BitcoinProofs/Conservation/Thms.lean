@@ -379,7 +379,7 @@ def totalIssuance : Nat := issuanceThrough 33
 theorem totalIssuance_exact : totalIssuance = 2099999997690000 := by
   decide
 
-/-- THM-039: the total supply is under the 21M cap with 231,000 sats to
+/-- THM-039: the total supply is under the 21M cap with 2,310,000 sats to
 spare — the "geometric bookkeeping" bound. -/
 theorem totalIssuance_le_cap : totalIssuance ≤ 21000000 * 100000000 := by
   decide

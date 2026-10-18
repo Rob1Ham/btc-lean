@@ -15,7 +15,7 @@ Semantics: `checkTransaction`'s leading gate rejects an empty
 `vin` with `some .vinEmpty` (reject dir), and dually an accepted
 tx (result `none`) has non-empty `vin` (bound dir). Proof = the
 X09 `checkTransaction_weight_reject`/`_bound` skeleton
-(TxValidation/LocktimeSigOps.lean:318-344): unfold + gate-split +
+(TxValidation/LocktimeSigOps.lean:498-531): unfold + gate-split +
 `absurd`/`simp`-disjointness — no mathlib, no decide, no
 induction.
 
@@ -47,5 +47,13 @@ theorem checkTransaction_ok_vin_ne_nil (tx : Tx)
   split at h
   · exact absurd h (by simp)
   · next hn => exact absurd hn (by simp)
+
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_vinEmpty_reject' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_vinEmpty_reject
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_vin_ne_nil' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_vin_ne_nil
 
 end BitcoinProofs.AF.PDW4

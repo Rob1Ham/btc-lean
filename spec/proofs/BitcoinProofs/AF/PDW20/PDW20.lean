@@ -5,14 +5,14 @@ import Bitcoin.DataLaws.Laws
 /-! # PDW20.lean — proof-promotion review, items TOP-96..100
 (PDW20, recovery review RC21/RC26, 2026-10-17).
 
-Five sorry-free row-face modules, one per claimed rules.yaml row:
+Five sorry-free row-face groups, one per claimed rules.yaml row:
 
 * **INV-109** `chainLinkOk` (RC10.lean:27) → `chainLinkOk_iff`
   (byte-linkage ⇔ prev-hash, both halves of the accepted-header law).
-* **INV-115** `coinMetaEncode` (RC10.lean:65) → `coinMeta_roundtrip`
+* **INV-115** `coinMetaEncode` (RC10.lean:150) → `coinMeta_roundtrip`
   + `coinMeta_encode_decode` (two-sided height/coinbase codec inverse)
   + `coinMeta_lt_two_pow_32` (31-bit height fits UInt32).
-* **BLK-081** `mainnetTestdummy` (Bip9.lean:136) →
+* **BLK-081** `mainnetTestdummy` (Bip9.lean:207) →
   `mainnet_testdummy_table` (bit 28 / NEVER_ACTIVE / 1815 / 2016) +
   `mainnet_testdummy_dormant` (never activates) +
   `mainnet_deployments_singleton`.
@@ -25,7 +25,8 @@ Five sorry-free row-face modules, one per claimed rules.yaml row:
 Route B (PDW11/PDW12/PDW15/PDW16 pattern): zero core writes; the
 `@[rule]` tags ride these theorems; yaml lean_targets drift-fixed to
 the full names below. Module deliberately NOT imported by the
-`BitcoinProofs` root (PDW12 isolation pattern). Pins ⊆ charter trio.
+`BitcoinProofs` root (PDW12 isolation pattern). Axiom pins (⊆ charter
+trio) are guarded with expected footprints in `PDW20Guards.lean`.
 -/
 
 namespace BitcoinProofs.AF.PDW20

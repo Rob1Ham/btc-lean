@@ -65,7 +65,9 @@ theorem stepBody_within {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     Nat.not_lt.mpr hbudget, Nat.not_lt.mpr hstack,
     Bitcoin.Interpreter.stepBody.dispatchOp, disabledWire, pushBoolV]
 
-@[rule "SCR-091"]
+/-- SCR-076: OP_SIZE pushes the byte length of the top stack element as a
+minimal `ScriptNum`, leaving the element itself in place. -/
+@[rule "SCR-076"]
 theorem stepBody_size_raw {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x82)
     (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)

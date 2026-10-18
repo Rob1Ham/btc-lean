@@ -72,4 +72,9 @@ theorem checkTransaction_ok_prevoutNotNull (tx : Tx)
                 nomatch hcc
               exact hne hcontra
 
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_prevoutNotNull' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_prevoutNotNull
+
 end BitcoinProofs.AF.PDW4
