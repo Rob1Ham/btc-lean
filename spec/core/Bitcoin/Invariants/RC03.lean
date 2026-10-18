@@ -333,7 +333,7 @@ b49e36a, the RC09 rule-closure attr-only precedent). The broken local
 ambiguity — both `Ledger`'s and `Block.Sigops`'s are opened here) was
 deleted: the block-validation module's identical sorry-free original carries it. -/
 
-/-- Value vector (INV-035): one `OP_CHECKSIG` (0xad) in the scriptSig
+/-- Value vector (INV-035): one `OP_CHECKSIGVERIFY` (0xad) in the scriptSig
 counts 1, one `OP_CHECKMULTISIG` (0xae) in the scriptPubKey counts 20 —
 21 total, no accurate parsing. -/
 example : legacySigOpCountTx (vSigTx (ByteArray.mk #[0xad]) (ByteArray.mk #[0xae])) = 21 := by

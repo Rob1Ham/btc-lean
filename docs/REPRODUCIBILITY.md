@@ -119,7 +119,7 @@ and compiles mathlib and may take a long time and several GiB:
 ```sh
 cd spec/proofs
 lake build BitcoinProofs
-# Upstream recorded 1730 jobs at its 29-module revision; see PROOF-BUILD.md for current scope.
+# Upstream recorded 1722 jobs at its 29-module revision; see PROOF-BUILD.md for current scope.
 ```
 
 Do not use a bare `lake build`: it builds the default target and makes the

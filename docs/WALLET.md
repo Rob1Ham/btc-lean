@@ -118,7 +118,7 @@ The first command gives the row and statement; the second returns the tag at
 `Desc/Checksum.lean:124`; the third returns
 `descriptorChecksum_eq_empty_iff`; the build checks that the tagged module compiles; and the
 axiom probe plus `spec/scripts/wallet_gates.sh` check for `sorry`, tag/row agreement, census anchors and
-digest, the 844-entry wallet axiom manifest, and consensus isolation. The discharge is the tag
+digest, the 838-entry wallet axiom manifest, and consensus isolation. The discharge is the tag
 plus the compiled theorem plus the axiom check, not the tag alone.
 
 For an **open** obligation take `MS-001` (type bitmap): the same tag search returns
@@ -202,7 +202,7 @@ node, script, satisfaction, and sanity model for its fragment; the PSBT v0 typed
 encoder, lifecycle laws, and Core-derived vectors; fee/dust arithmetic, funding, two
 deterministic selection strategies, and their laws.
 
-Checked: the static wallet axiom manifest covers 844 theorem/lemma declarations in 53 wallet modules
+Checked: the static wallet axiom manifest covers 838 theorem/lemma declarations in 53 wallet modules
 and permits only `propext`, `Classical.choice`, and `Quot.sound`; 37 declarations carry 40 row tags across
 40 distinct row IDs (DESC 8, MS 19, PSBT 12, WSP 1, SGN2 0). Representative row targets are
 `Miniscript.TypeSound.calcType_hash_fragments`, `Miniscript.ScriptExact.toScript_pk_fragments`,
@@ -222,5 +222,5 @@ composition and `W1_taprootSpendJudged` are absent; the signer bridge
 (`Sign/Bridge.lean`) is stated conditionally, with its cryptographic target
 unproved. `bash spec/scripts/wallet_gates.sh` passes with 53
 files scanned, zero `sorry`/`admit`, 40 row tags across 40 IDs, 140 anchored `planned` rows, an
-844-entry axiom manifest with the three permitted axioms, and the consensus census unchanged at
+838-entry axiom manifest with the three permitted axioms, and the consensus census unchanged at
 726 rows (676 proven / 50 obsolete).

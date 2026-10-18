@@ -110,7 +110,7 @@ lake test
 # Proofs: theorem package, mathlib leaf dependency
 cd ../proofs
 lake build BitcoinProofs
-# recorded: Build completed successfully (1722 jobs).
+# Current scoped build receipts are in docs/PROOF-BUILD.md.
 # This is the 32-module default import closure, not all 412 proof modules.
 ```
 

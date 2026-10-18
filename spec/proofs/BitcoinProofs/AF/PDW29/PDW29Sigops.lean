@@ -41,7 +41,7 @@ private def sigTx (s1 s2 : ByteArray) : Bitcoin.Data.Tx :=
     [⟨Bitcoin.Data.OutPoint.null, ⟨s1⟩, 0xffffffff⟩]
     [⟨0, ⟨s2⟩⟩] 0 []
 
-/-- INV-035/BLK-033 vector: `OP_CHECKSIG` (0xad) in the scriptSig = 1,
+/-- INV-035/BLK-033 vector: `OP_CHECKSIGVERIFY` (0xad) in the scriptSig = 1,
 `OP_CHECKMULTISIG` (0xae) in the scriptPubKey = 20 ⇒ 21. -/
 @[rule "BLK-033"]
 theorem legacySigOpCountTx_row_vector :

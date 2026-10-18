@@ -8,7 +8,7 @@ Route B (PDW11..16 pattern): zero core writes; `@[rule]` tags ride
 THESE theorems; old core tags untouched; pins ⊆
 `[propext, Classical.choice, Quot.sound]`; zero `sorryAx`.
 
-* **INV-118** `MEMPOOL_HEIGHT` sentinel: ≠ every real (≤10⁶) height,
+* **INV-118** `MEMPOOL_HEIGHT` sentinel: ≠ every height below the 31-bit sentinel (and every real ≤10⁶ height),
   plus both lockpoints faces.
 * **INV-119** `muhashSet` — an ADDITIVE ABSTRACTION of the MuHash3072
   combination law: `muhashSet cf cs = Σ cf c` over `Nat`. It supports
@@ -33,6 +33,11 @@ open Bitcoin.Invariants.RC10
 theorem sentinel_ne_real_height (h : UInt32) (hh : h.toNat ≤ 1000000) :
     h ≠ Bitcoin.Ledger.MEMPOOL_HEIGHT :=
   mempool_height_ne_real h hh
+
+@[rule "INV-118"]
+theorem sentinel_ne_height_below_sentinel (h : UInt32)
+    (hh : h.toNat < 2147483647) : h ≠ Bitcoin.Ledger.MEMPOOL_HEIGHT :=
+  mempool_height_ne_of_lt_sentinel h hh
 
 @[rule "INV-118"]
 theorem lockpoints_mempool_face (t : UInt32) :
