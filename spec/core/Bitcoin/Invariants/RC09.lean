@@ -10,12 +10,12 @@ import Bitcoin.Activation.Flags
 
 B1's acceptance-spine invariant rows for the block-context lane
 (research/05-core-inventory.md §B.8, `ContextualCheckBlockHeader` /
-`ContextualCheckBlock` @cce32b168). CHECK-FIRST found every one of these
-behaviors already implemented under a BLK id by X08 / W12; this file
+`ContextualCheckBlock` @cce32b168). Inspection found every one of these
+behaviors already implemented under a BLK id by the block-validation module and the ledger; this file
 
 1. documents the aliasing: the `@[rule "INV-xxx"]` attributes are
    comma-stacked in-place on the owning declarations (attribute-only
-   edits to committed, stable X08/W12 files; no semantics touched), and
+   edits to committed, stable files; no semantics touched), and
 2. adds the sorry-free pins + vectors that make the alias honest:
    each INV id is the invariant reading of a check that already carries
    its BLK id.
@@ -61,15 +61,15 @@ txids impossible by construction, and from 1,983,702 the check is
 re-enabled wholesale (`BIP34_IMPLIES_BIP30_LIMIT`). The precondition
 that makes the optimization sound is the chain-level pin that the block
 at `BIP34Height` really is Core's `BIP34Hash`
-(kernel/chainparams.cpp:119 = W06's BLK-070 constant).
+(kernel/chainparams.cpp:119 = BLK-070 constant).
 
-FIX D2a (RC SWEEP 2026-10-17; was `BIP34_HEIGHT ≤ height`, i.e. the
+FIX D2a (the 2026-10-17 repair; was `BIP34_HEIGHT ≤ height`, i.e. the
 elide-window [227931, 1983702)): Core @cce32b168 validation.cpp:2458-2461
 computes `pindexBIP34height = pindex->pprev->GetAncestor(BIP34Height)` —
 on the height-227930 parent this is null, so 2461's second conjunct is
 VACUOUS at h = 227931 and Core ENFORCES BIP30 there (the 2466 loop gate
 `fEnforceBIP30 || h ≥ 1983702` is ON). The skip window proper is
-(227931, 1983702) — F-S04-001 / F-Z05-001 / CV07 D2a; the window here
+(227931, 1983702) — CV07 D2a; the window here
 now matches the fixed `bip30Enforced`'s negated window conjunct
 exactly (heights-only; the D2b hash-pin and D2c own-hash-pin remain
 documented divergences). -/
@@ -141,16 +141,16 @@ theorem inv108_gate_off (txs : List Bitcoin.Data.Tx)
 The BIP30 enforcement table below was cross-checked against an
 independent python3 evaluation of Core's predicate
 `not (h in {91842, 91880}) and not (227931 < h < 1983702)` over the
-same 8 boundary heights (see findings-rc/RC09.md).
+same 8 boundary heights.
 
-FIX D2a (RC SWEEP 2026-10-17): the window conjunct was
+FIX D2a (the 2026-10-17 repair): the window conjunct was
 `227931 <= h < 1983702` (pre-fix table `[true, true, false, false,
 true, false, false, true]` — 227931 elided). Core @cce32b168
 validation.cpp:2458-2461 computes `pindexBIP34height =
 pindex->pprev->GetAncestor(BIP34Height)` — null on the height-227930
 parent, so 2461's second conjunct is vacuous at h = 227931 and the
 2466 loop gate (`fEnforceBIP30 || h ≥ 1983702`) is ON: Core ENFORCES
-BIP30 at 227931 (F-S04-001 / F-Z05-001 / CV07 D2a). The 227931 row
+BIP30 at 227931 (CV07 D2a). The 227931 row
 flips false → true; skip window proper (227931, 1983702). -/
 
 -- python3-cross-checked enforce table (Core: not IsBIP30Repeat ∧ outside BIP34 window proper):

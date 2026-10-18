@@ -1,13 +1,13 @@
 import Bitcoin.Data.Basic
 
 /-!
-# Bitcoin.Crypto.Seam.Hash — the verified hash floor (W13)
+# Bitcoin.Crypto.Seam.Hash — the verified hash floor
 
 ## Provenance
 
-* **SHA-256**: verbatim port of the C2 zero-dependency PoC
-  (`research/poc/c2-sha256/Sha256.lean`, namespace renamed; 9/9 FIPS
-  180-4 + Bitcoin vectors verified by W13 against `python3 hashlib`
+* **SHA-256**: verbatim port of the zero-dependency prototype PoC
+  (the SHA-256 prototype, namespace renamed; 9/9 FIPS
+  180-4 + Bitcoin vectors verified against `python3 hashlib`
   and the genesis header dsha256 — see `Test/Crypto/SeamHashTest.lean`).
   Chosen over `fips-180-4-lean` (GPL-3.0) per DECISIONS.md D-003 /
   OPEN-001; license-clean for this repo.
@@ -29,7 +29,7 @@ namespace Bitcoin.Crypto.Seam.Hash
 
 namespace Sha256
 
-/-! ## SHA-256 (FIPS 180-4 §6.2) — vendored from C2's PoC -/
+/-! ## SHA-256 (FIPS 180-4 §6.2) — vendored from the prototype's PoC -/
 
 /-- Round constants, FIPS 180-4 §4.2.2. -/
 def K : Array UInt32 := #[
@@ -141,7 +141,7 @@ The padded length is always a positive multiple of the 64-byte block size
 (FIPS 180-4 §5.1.1 requires `len + 1 + k + 8 ≡ 0 (mod 64)` with `0 ≤ k < 64`).
 PROVED, not tested — this discharges the padding-length side condition that
 `compressLoop`'s `m.size / 64` relies on being exact.
-(C2's `pad_size_multiple`, ported verbatim.)
+(the prototype's `pad_size_multiple`, ported verbatim.)
 -/
 theorem pad_size_multiple (n : Nat) : (n % 64 + 1 + ((55 + 64 - n % 64) % 64) + 8) % 64 = 0 := by
   omega
@@ -150,7 +150,7 @@ end Sha256
 
 namespace Ripemd160
 
-/-! ## RIPEMD-160 (Dobbertin, Bosselaers, Preneel) — clean-room W13 -/
+/-! ## RIPEMD-160 (Dobbertin, Bosselaers, Preneel) — clean-room the seam layer -/
 
 /-- Left-rotate by `n` bits (n taken mod 32). -/
 def rol (x : UInt32) (n : Nat) : UInt32 :=

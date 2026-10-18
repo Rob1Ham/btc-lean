@@ -3,7 +3,7 @@ import Bitcoin.Crypto.Seam.Hash
 import Bitcoin.Serialization.Interface
 
 /-!
-# Bitcoin.Capstone.Pow — header hash + proof-of-work (W17 S2b)
+# Bitcoin.Capstone.Pow — header hash + proof-of-work (S2b)
 
 Pure, small, consensus-exact:
 

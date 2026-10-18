@@ -6,7 +6,7 @@ import Bitcoin.Data.Basic
 Block-header shape and the compact-bits → PoW-target expansion.
 Ground truth: `src/primitives/block.h` (`CBlockHeader`) and
 `src/arith_uint256.cpp` (`arith_uint256::SetCompact`, mirrored by
-`src/consensus/pow.cpp` users). Full block validation is workstream B4.
+`src/consensus/pow.cpp` users). Full block validation is not modeled here.
 -/
 
 

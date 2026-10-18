@@ -6,26 +6,26 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Test.Capstone.Run — W17 S3: the end-to-end anchor capstone run
+# Test.Capstone.Run — the end-to-end anchor capstone run
 
-Validates the 6 mainnet anchor blocks through `validateBlock` (W02 decode
+Validates the 6 mainnet anchor blocks through `validateBlock` (`decodeBlock`
 → structure → PoW/chain-link → merkle/witness-commitment → per-tx
-W10 stateless + W10 checkTxInputs + W09 verifyScriptFull with the REAL
-W13×W14b checker + W12 ledger fold), reading:
+stateless + `checkTxInputs` + `verifyScriptFull` with the REAL
+crypto checker + ledger fold), reading:
 
   spec/vectors/anchors/<H>.raw     — the serialized block
   spec/vectors/anchors/<H>.parent  — the REAL parent hash (display hex)
   spec/vectors/anchors/<H>.seeds   — the real-chain prevout view:
         <wire-order txid hex> <block height> <raw prevout tx hex>
 
-The seeds play the role of W10's vector prevout table: the anchor
+The seeds play the role of the vector prevout table: the anchor
 sequence skips the intermediate blocks, so the UTXO entries the block
 spends are materialized from the REAL chain data (fetched prevout txs;
-values/scripts extracted Lean-side by W02's decodeTx; only the height
+values/scripts extracted Lean-side by `decodeTx`; only the height
 metadata is trusted). Every check of the block itself is live.
 
 Cross-check: the final UTXO list of the interleaved fold must equal
-W12's frozen `applyBlockL` over the same start list (defense in depth).
+the frozen `applyBlockL` over the same start list (defense in depth).
 
 Output: per-block JSON lines to stdout (consumed by
 `scripts/capstone_report.py`); per-tx probe on failure.
@@ -76,7 +76,7 @@ private def dummyTx : Tx := ⟨0, [], [], 0, []⟩
 
 /-! ## Seed materialization -/
 
-/-- The seed line's coin set: decode the prevout tx (W02), index the
+/-- The seed line's coin set: decode the prevout tx (the serialization layer), index the
 vouts. `isCoinbase` derived from the decoded tx itself. -/
 def seedCoins (line : String) : List (OutPoint × Coin) :=
   match line.splitOn " " with
@@ -178,8 +178,8 @@ where
 
 def anchors : List Nat := [0, 74638, 91842, 91880, 481824, 709632]
 
-/-- X12 (Review-3 anchor expansion): the six additional diversity anchors in
-`vectors/anchors2/` — see `research/w3-12-anchors2.md`:
+/-- the capstone anchor expansion (anchor expansion): the six additional diversity anchors in
+`vectors/anchors2/` — see the anchor-corpus notes:
   170     first block with >1 tx (the Satoshi→Finney tx; 2009 era semantics)
   170061  BIP16-era block right after the exception block 170060 (P2SH flags era)
   170060  THE P2SH exception block (hash-keyed flags-map corner + the
@@ -193,7 +193,7 @@ Heights pinned in `fetch_anchors2.sh`; kept in sync there. -/
 def anchors2 : List Nat := [170, 170061, 170060, 481827, 481828, 499195, 709635]
 
 /-- Corpora: (directory, heights). `CAPSTONE_SET=1|2` restricts to one
-corpus (Review-3 re-runs use `2` to skip the 60-min Review-2 re-run); default
+corpus (re-runs use `2` to skip the 60-min re-run); default
 `all` runs both. Heights whose `<H>.raw` file is absent are skipped, so a
 partial corpus run still reports what exists. -/
 def corpora : List (String × List Nat) :=

@@ -5,11 +5,11 @@ import Bitcoin.Interpreter.Rules
 # Bitcoin.Invariants.RC07 — INV-073/074 (RC07, Rule-Closure suite)
 
 Two B1 acceptance-spine invariant rows whose BIP341/342 script-path hash
-lane had no faithful Lean home yet (the EC tweak step lives behind X03's
-`CheckTapTweak` seam; the control-block dispatch in X07's
+lane had no faithful Lean home yet (the EC tweak step lives behind the Taproot module's
+`CheckTapTweak` seam; the control-block dispatch in the interpreter rule layer's
 `verifyWitnessProgram` returns `.unjudged` exactly there). The pure-hash
 half is fully closable standalone, so it is closed here, in RC07's own
-namespace, on X07's tagged-hash floor (SCR-146's `tapLeafHash`) and X02's
+namespace, on the interpreter rule layer's tagged-hash floor (SCR-146's `tapLeafHash`) and the Schnorr module's
 `taggedHash`.
 
 Rows closed here (B-type):
@@ -17,23 +17,23 @@ Rows closed here (B-type):
 - **INV-073** — leaf commitment, hash lane
   (`interpreter.cpp:ComputeTaprootMerkleRoot:1898–1911` +
   `VerifyTaprootCommitment:1913–1926` @cce32b168): starting from the
-  tapleaf hash (X07 `tapLeafHash`, SCR-146), climb the control block's
+  tapleaf hash (the interpreter rule layer `tapLeafHash`, SCR-146), climb the control block's
   32-byte internal nodes with the lexicographically-ordered tagged
   `TapBranch` hash (`ComputeTapbranchHash:1903–1910`); malformed control
   shapes (short / oversized / non-multiple-of-32 path) are rejected.
   The final `q.CheckTapTweak(p, root, control[0]&1)` EC comparison is the
-  X03 seam lane (TPR rows) and is NOT re-modeled here.
+  the Taproot module seam lane (TPR rows) and is NOT re-modeled here.
 - **INV-074** — tapscript leaf version 0xc0
   (`interpreter.cpp:1962–1972`, BIP342 §2): the leaf version is
   `control[0] &&& 0xfe` (parity bit stripped); the script path executes
   as tapscript iff that mask equals 0xc0. Leaf versions that mask
   elsewhere are NOT consensus-invalid — they take the upgradable path
-  (DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is the policy hook, X07's
+  (DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is the policy hook, the interpreter rule layer's
   SCR-149 lane) — so the honest consensus check is the 0xc0 mask gate
   alone.
 
-Vectors: python3-cross-checked (see `spec/db/findings-rc/RC07.md`,
-VERIFIED section) — tapbranch ordering/masking and the control-shape
+Vectors: python3-cross-checked — tapbranch ordering/masking and
+the control-shape
 gates mirrored in python3 over the 33 + 32k control-block shape
 convention (0xc0/0xc1/unknown first bytes).
 
@@ -48,14 +48,13 @@ open Bitcoin.Crypto.Schnorr (taggedHash)
 
 **Core-faithful, RC07-local** (`interpreter.h:244-247` @cce32b168:
 `TAPROOT_CONTROL_BASE_SIZE = 33`, `_MAX_SIZE = 33 + 32·128 = 4129`).
-NOTE F-RC07-001 (FIXED by the RC SWEEP): X07's
+NOTE the control-size note (fixed in the 2026-10-17 repair): the interpreter rule layer's
 `Bitcoin.Interpreter.TAPROOT_CONTROL_BASE_SIZE` (Defs.lean) had pinned
 **65** (and MAX 4161) — over-strict against Core's 33: a single-leaf
 taptree has a 33-byte control block (0 internal nodes). The defect was
-fixed at the SWEEP (Interpreter/Defs.lean 65→33, MAX 4161→4129, the
+fixed in that repair (Interpreter/Defs.lean 65→33, MAX 4161→4129, the
 same Core-33 fix as 201e050/8a3343b); these RC07-local constants
-mirrored Core exactly all along and are unchanged. History:
-findings-rc/RC07.md F-RC07-001, findings-rc/SWEEP.md. -/
+mirrored Core exactly all along and are unchanged. History: the control-size note. -/
 
 @[rule "INV-073"]
 def controlBaseSize : Nat := 33
@@ -201,9 +200,9 @@ theorem taprootMerkleRoot_single_node (c : ByteArray) (tl : ByteArray)
 
 /-- Full leaf commitment, hash lane (Core `VerifyTaprootCommitment:1913–1926`
 minus the final EC step): tapleaf hash from the script being spent
-(X07's `tapLeafHash`, SCR-146 — `leaf_ver = control[0] &&& 0xfe`) fed
+(the interpreter rule layer's `tapLeafHash`, SCR-146 — `leaf_ver = control[0] &&& 0xfe`) fed
 through the climb. `none` = control shape rejected. The remaining
-`q.CheckTapTweak(p, root, control[0]&1)` comparison is the X03 seam lane. -/
+`q.CheckTapTweak(p, root, control[0]&1)` comparison is the Taproot module seam lane. -/
 @[rule "INV-073"]
 def tapleafCommitment (control : ByteArray) (script : ByteArray) :
     Option ByteArray :=

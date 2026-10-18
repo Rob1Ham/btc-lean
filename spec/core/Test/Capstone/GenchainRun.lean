@@ -6,10 +6,10 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Test.Capstone.GenchainRun — W6 G02: synthetic-chain driver
+# Test.Capstone.GenchainRun — G02: synthetic-chain driver
 
 Feeds a synthetic chain (G01's genchain corpus, or the G02 fallback 50-block
-coinbase-only chain) through the W17 capstone pipeline
+coinbase-only chain) through the capstone pipeline
 `validateBlock : SerializedBlock → CapState → Except CapError CapReport`,
 **threading** the sequential state (height, prevHash, UTXO list) from block
 to block — unlike `Test.Capstone.Run`, which validates anchor blocks against
@@ -56,7 +56,7 @@ where
     else if 65 ≤ n ∧ n ≤ 70 then some (n - 55)
     else none
 
-/-- UTXO-list equality (capstone state vs independent W12 fold). -/
+/-- UTXO-list equality (capstone state vs the independent ledger-layer fold). -/
 def eqUTXO : List (OutPoint × Coin) → List (OutPoint × Coin) → Bool
   | [], [] => true
   | (a, ca) :: r, (b, cb) :: r' => (a == b) && (ca == cb) && eqUTXO r r'

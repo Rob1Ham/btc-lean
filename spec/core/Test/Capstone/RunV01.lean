@@ -6,21 +6,21 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Test.Capstone.RunV01 — Review-4 anchor expansion, contributor V01
+# Test.Capstone.RunV01 — anchor expansion
 
-Self-contained copy of the W17 capstone runner machinery (`Test.Capstone.Run`:
+Self-contained copy of the capstone runner machinery (`Test.Capstone.Run`:
 runAnchor/probeTx/seedCoins, copied verbatim — ZERO consensus code changed)
 so that the run can execute via read-only `lean --run` with an explicit
 LEAN_PATH (the shared `.lake` build dir and the global build lock are left
-untouched; the W17 anchor list is pinned inside the existing Run.lean, which
-W4 doctrine forbids editing).
+untouched; the anchor list is pinned inside the existing Run.lean, which
+the runner doctrine forbids editing).
 
 Validates THREE additional real mainnet blocks (2010 era) through the exact
-Review-2 capstone pipeline `validateBlock`:
+capstone pipeline `validateBlock`:
 
   70000 · 70863 · 72000
 
-Reads (contributor-owned corpus, header-hash-verified at fetch):
+Reads (externally supplied corpus, header-hash-verified at fetch):
   spec/vectors/anchors2/V01/<H>.raw     — serialized block
   spec/vectors/anchors2/V01/<H>.parent  — REAL parent hash (display hex)
   spec/vectors/anchors2/V01/<H>.seeds   — `<wire txid> <height> <raw tx hex>`
@@ -173,7 +173,7 @@ where
 
 /-! ## V01 expansion anchors -/
 
-/-- The Review-4 V01 expansion blocks (2010 era, pre-BIP34/pre-segwit). -/
+/-- The V01 expansion blocks (2010 era, pre-BIP34/pre-segwit). -/
 def anchorsV01 : List Nat := [70000, 70863, 72000]
 
 /-- Per-tx adjudication trace (recorded even on PASS). V01 note: unlike

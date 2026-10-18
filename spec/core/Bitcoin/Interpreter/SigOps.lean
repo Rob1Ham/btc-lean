@@ -3,11 +3,11 @@ import Bitcoin.Interpreter.Defs
 import Bitcoin.Consensus.TxCheck
 
 /-!
-# Bitcoin.Interpreter.SigOps — the BIP141 sigop-cost model (X05)
+# Bitcoin.Interpreter.SigOps — the BIP141 sigop-cost model (the sigop model)
 
 `GetTransactionSigOpCost` / `GetBlockSigOpCost` (tx_verify.cpp:149-168,
-consensus.h:17 @`cce32b168`) as a pure model over W05's parsed `WireOp`
-stream and W09's witness-program classification:
+consensus.h:17 @`cce32b168`) as a pure model over parsed `WireOp`
+stream and witness-program classification:
 
 * **SWT-021** — the block limit: Σ sigop-cost ≤ `MAX_BLOCK_SIGOP_COST`
   = 80,000 per block (`blockSigOpCostOk`).

@@ -2,12 +2,12 @@ import Bitcoin.Crypto.Taproot.Program
 
 /-!
 # Bitcoin.Crypto.Taproot.OutputKey — output-key reconstruction and the
-# parity / internal-key checks (X06)
+# parity / internal-key checks (the witness-structure module)
 
 The BIP341 control-block key lanes that are implementable STANDALONE of
-the BIP341 sighash pipeline and the BIP342 tapscript deltas (X03/X04
-lanes). Everything here composes X02's `liftX`/`bytesToNatBE` and
-X03's `tweakPoint` — no new crypto, just the control-block-facing
+the BIP341 sighash pipeline and the BIP342 tapscript deltas (the Taproot and interpreter delta layers
+lanes). Everything here composes the Schnorr module's `liftX`/`bytesToNatBE` and
+the Taproot module's `tweakPoint` — no new crypto, just the control-block-facing
 plumbing `pubkey.cpp:CheckTapTweak` performs before the sighash lane
 runs:
 
@@ -19,7 +19,7 @@ runs:
   `lift_x` (pubkey.cpp:CheckTapTweak:260 @cce32b168; BIP341 §"Script
   validation": "fail if x ≥ p or x³+7 is not a quadratic residue").
 * **Composite reconstruction** — `outputKeyOk`: size gate (TPR-009
-  base size) → parse (TPR-018) → tweak (X03 `tweakPoint`, TPR-016/017
+  base size) → parse (TPR-018) → tweak (the Taproot module `tweakPoint`, TPR-016/017
   reject modes) → parity (TPR-011). `none` at any stage fails closed.
   This is the control-block-facing half of Core's `CheckTapTweak`: the
   separate output-key comparison `q == x(Q)` (the 32-byte witness
@@ -150,7 +150,7 @@ theorem internalKeyOk_geP (control : ByteArray) (h : 33 ≤ control.size)
 
 /-- The tweaked-key recomputation as one Option chain (BIP341 §"Script
 validation" steps 5-6): parse the internal key, then recompute
-`Q = P + int(t)·G` with X03's `tweakPoint` — the TPR-016/017 reject
+`Q = P + int(t)·G` with the Taproot module's `tweakPoint` — the TPR-016/017 reject
 modes are the `none` cases. -/
 def tweakedKey (control : ByteArray) (root : Option ByteArray) :
     Option (Nat × Nat) :=
@@ -197,7 +197,7 @@ theorem outputKeyOk_parse_none (control : ByteArray) (root : Option ByteArray)
   · omega
 
 /-- Composite (TPR-017 reject, composed): a parsed internal key whose
-tweak overflows the group order (or lands on 𝒪) fails — X03's
+tweak overflows the group order (or lands on 𝒪) fails — the Taproot module's
 `tweakPoint = none` propagates to `false`. -/
 theorem outputKeyOk_tweak_none (control : ByteArray) (root : Option ByteArray)
     (xI yI : Nat)
@@ -266,7 +266,7 @@ theorem outputKeyOk_gate_of_controlBlockSizeOk (control : ByteArray)
     TAPROOT_CONTROL_BASE_SIZE ≤ control.size :=
   ((controlBlockSizeOk_sizes control).mp h).1
 
-/-! ## Axiom footprints (X02/X03/X06 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the existing modules' style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext,
 Classical.choice, Quot.sound]`.

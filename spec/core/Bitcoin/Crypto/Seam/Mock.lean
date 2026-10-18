@@ -2,12 +2,12 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.Data.Basic
 
 /-!
-# Bitcoin.Crypto.Seam.Mock — table-driven checker (W13)
+# Bitcoin.Crypto.Seam.Mock — table-driven checker
 
-The Review-2 bootstrap checker the review-plan calls for: verdicts come from
+The bootstrap checker the design calls for: verdicts come from
 a pre-baked `(sig, pubkey) → Bool` table instead of real EC math
-(DECISIONS.md: Review 2 ships "pre-baked verdicts" behind the frozen seam
-if W14 has not landed). Byte equality is `Bitcoin.Data.bytesBEq` so no
+(This implementation ships "pre-baked verdicts" behind the frozen seam
+if the crypto layer has not landed). Byte equality is `Bitcoin.Data.bytesBEq` so no
 BEq instance assumptions creep in.
 
 Theorems: table hits return `true`, misses return `false`, and the

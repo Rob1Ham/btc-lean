@@ -1,17 +1,14 @@
 import Bitcoin.Activation.Interface
 
 /-!
-# Bitcoin.Activation.Bip9 — BIP9 signalling + mainnet deployment table (W06)
+# Bitcoin.Activation.Bip9 — BIP9 signalling + mainnet deployment table
 
-## Ownership block
+## Interface contract
 
-Owning workstream     : W06 (Consensus flags & activation)
-Dependent workstreams : W12 (height context for future deployments),
-                        W16 (audit)
 Core counterpart files: src/versionbits.cpp:79-131 (Condition,
 GetStateFor), src/kernel/chainparams.cpp:128-134 (mainnet deployment
 table), BIP9 (+ the 2017 lock-in-on-timeout erratum)
-Status                : implemented + proved 2026-10-16 by W06.
+Status: implemented + proved 2026-10-16.
 
 The state MACHINE itself lives in `Bitcoin.Activation.Interface`
 (`bip9State`, `bip9Transition`, `lockin_then_active`); this module adds

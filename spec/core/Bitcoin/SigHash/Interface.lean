@@ -4,21 +4,17 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.SigHash.Digest
 
 /-!
-# Bitcoin.SigHash — FROZEN INTERFACE (W01)
+# Bitcoin.SigHash — FROZEN INTERFACE
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W11 (Sighash legacy + BIP143)
-Dependent workstreams : (depends on) W02, W07 — (depended on by)
-                        W09 (CHECKSIG paths), W13 (feeds the checker),
-                        W16 (BIP143 example-vector audit)
 Core counterpart files: src/script/interpreter.cpp
                         (SignatureHash legacy:1417-1464? / WITNESS_V0:
                         1633-1670, BIP143 midstate), BIP143 spec,
-                        BIP341 (SigMsg/tagged hashes — Review 3 for proofs,
+                        BIP341 (SigMsg/tagged hashes — proofs are future work,
                         signature shape frozen here)
-Status                : frozen 2026-10-16 by W01. Statements are
-                        sorry-stubbed placeholders; W11 fills bodies.
+Status: frozen 2026-10-16. Some statements are
+                        sorry-stubbed placeholders; bodies are filled.
 
 ## Scope
 
@@ -46,7 +42,7 @@ deriving Repr, DecidableEq, BEq
 
 /-- Legacy `SignatureHash` (interpreter.cpp, pre-segwit path):
 `scriptCode` is the scriptPubKey with OP_CODESEPARATOR-trimmed suffix.
-Body (W11): the modified-transaction serialization of
+Body: the modified-transaction serialization of
 `CTransactionSignatureSerializer` (:1337-1356) + 4-byte LE hashtype,
 double-SHA256'd — see `Bitcoin.SigHash.signatureHashLegacyImpl`. Def
 (not `opaque`) so the interface theorems below are provable by `unfold`. -/
@@ -56,11 +52,11 @@ def signatureHashLegacy (tx : Tx) (nIn : Nat) (scriptCode : Script) (ht : UInt32
 
 /-- BIP143 `SignatureHash` (midstate construction over the
 precomputed-hash matrix; `amount` is the spent output's value).
-Body (W11): the 10-field preimage
+Body: the 10-field preimage
 `version ‖ hashPrevouts ‖ hashSequence ‖ outpoint ‖ scriptCode ‖ amount ‖
 nSequence ‖ hashOutputs ‖ nLockTime ‖ hashtype` (interpreter.cpp:1660-1670),
 double-SHA256'd — see `Bitcoin.SigHash.signatureHashBip143Impl`. Def
-(not `opaque`) so S3 theorems unfold it. P2WPKH/P2WSH scriptCode
+(not `opaque`) so the theorem set unfold it. P2WPKH/P2WSH scriptCode
 construction rules: `p2wpkhScriptCodeL` / `witnessScriptSizeOk`. -/
 def signatureHashBip143 (tx : Tx) (nIn : Nat) (scriptCode : Script) (ht : UInt32)
     (amount : Amount) : ByteArray :=
@@ -88,7 +84,7 @@ subscript with `FindAndDelete(OP_CODESEPARATOR)` applied — byte-exact
 `CScript` semantics (B2 dark corner: the legacy digest splices the parsed
 1-byte OP_CODESEPARATOR ops out of the raw bytes; pushes are NOT
 canonically re-encoded — see `Bitcoin.SigHash.serializeScriptCodeL`).
-Body (W11): byte-level `FindAndDelete` of the `[0xab]` pattern
+Body: byte-level `FindAndDelete` of the `[0xab]` pattern
 (`findAndDeleteB`, the general `CScript::FindAndDelete` machinery). -/
 def scriptCodeOf (s : Script) : Script :=
   ⟨findAndDeleteB s.bytes (bytesOfList codeSepL)⟩

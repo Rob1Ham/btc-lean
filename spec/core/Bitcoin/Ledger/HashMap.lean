@@ -2,19 +2,19 @@ import Bitcoin.Ledger.Interface
 import Std.Data.HashMap
 
 /-!
-# Bitcoin.Ledger.HashMap — the M1 UTXO instance (X13 U1)
+# Bitcoin.Ledger.HashMap — the M1 UTXO instance (the map-backed UTXO layer)
 
-C1's M1 design (report 10 §2 option 2): `Std.HashMap OutPoint Coin` behind
+The M1 design (§2 option 2): `Std.HashMap OutPoint Coin` behind
 the SAME abstract interface `UtxoSet := OutPoint → Option Coin`, with an
-abstraction lemma mirroring W12's assoc-list one exactly:
+abstraction lemma mirroring the assoc-list one exactly:
 
   `viewOfM (updateCoinsM m tx key height) = updateCoins (viewOfM m) tx key height`
 
 and lifted through the block fold (`applyBlockM_abstract`), plus the
-transfer theorem `applyBlockL_applyBlockM_agree` handing every W12
+transfer theorem `applyBlockL_applyBlockM_agree` handing every
 scenario through the HashMap instance unchanged.
 
-Design note (the one semantic subtlety): W12's assoc-list rep resolves
+Design note (the one semantic subtlety): the assoc-list representation resolves
 duplicate keys FIRST-match-wins (`coinLookup` prepends `addedCoins`).
 `Std.HashMap.insert` is last-write-wins, so the insert fold runs over
 `xs.reverse` — the FIRST entry of `xs` is inserted LAST and wins. With
@@ -25,10 +25,10 @@ hypothesis and holds for the fully generic `Key`, exactly like
 replications agree on every real block; `mapOfL_viewOf` pins the
 list→map bridge.)
 
-Everything reuses W12's frozen surface (`addedCoins`, `coinLookup`,
+Everything reuses the frozen surface (`addedCoins`, `coinLookup`,
 `updateCoins`, `applyTxStepU`, `applyBlockU`, the BIP30/maturity
 predicates) — this file only adds the second concrete representation,
-per charter §6 [W12] ("HashMap deferred to X13").
+per the interface-change policy.
 -/
 
 namespace Bitcoin.Ledger
@@ -38,7 +38,7 @@ open Bitcoin.Data Bitcoin.TxValidation
 /-! ## LawfulBEq + Hashable for `OutPoint`
 
 `OutPoint`'s BEq (Data/Tx.lean:41) is `bytesBEq hash hash && n == n`.
-W12 already proved `outPointBEq_eq`; reflexivity is immediate. With
+The frozen interface already proved `outPointBEq_eq`; reflexivity is immediate. With
 `LawfulBEq` in place, core derives `EquivBEq` and `LawfulHashable`
 (Init/Data/BEq.lean:66, Init/Data/LawfulHashable.lean) — exactly what
 `Std.HashMap`'s lemma API requires. -/
@@ -59,7 +59,7 @@ instance : Hashable OutPoint where
 
 /-! ## The map-backed representation -/
 
-/-- Executable representation, milestone M1: `Std.HashMap` (C1 option 2). -/
+/-- Executable representation, milestone M1: `Std.HashMap` (the prototype option 2). -/
 abbrev UtxoMap := Std.HashMap OutPoint Coin
 
 /-- The abstraction map, map edition (mirror of `viewOf`). -/
@@ -123,7 +123,7 @@ theorem get?_eraseVins (vins : List TxIn) (m : UtxoMap) (o : OutPoint) :
         try rfl
 
 /-- Spend fold: after erasing `tx`'s prevouts, exactly the spent
-prevouts are gone (mirror of W12's filter discipline). -/
+prevouts are gone (mirror of filter discipline). -/
 theorem get?_erasePrevoutsM (m : UtxoMap) (tx : Tx) (o : OutPoint) :
     (erasePrevoutsM m tx).get? o =
       if tx.isCoinBase then m.get? o
@@ -134,8 +134,8 @@ theorem get?_erasePrevoutsM (m : UtxoMap) (tx : Tx) (o : OutPoint) :
   · rfl
   · rw [get?_eraseVins]
 
-/-- THE ABSTRACTION LEMMA (X13 U1): lookup over the updated map computes
-the pointwise `updateCoins` — mirror of W12's `updateCoinsL_abstract`,
+/-- THE ABSTRACTION LEMMA (the map-backed UTXO layer): lookup over the updated map computes
+the pointwise `updateCoins` — mirror of `updateCoinsL_abstract`,
 with NO extra hypotheses (first-match-wins by the reverse fold). -/
 theorem updateCoinsM_abstract (m : UtxoMap) (tx : Tx) (key : Key) (height : UInt32) :
     viewOfM (updateCoinsM m tx key height) = updateCoins (viewOfM m) tx key height := by
@@ -210,7 +210,7 @@ theorem applyTxStepM_abstract (m : UtxoMap) (tx : Tx) (key : Key) (height : UInt
         rw [updateCoinsM_abstract]
 
 /-- The whole gate-free fold commutes with the abstraction map
-(mirror of `applyBlockFoldL_abstract`; X13 U1 exit criterion). -/
+(mirror of `applyBlockFoldL_abstract`; the map-backed UTXO layer exit criterion). -/
 theorem applyBlockFoldM_abstract (m : UtxoMap) (kf : Tx → Key) (txs : List Tx)
     (height : UInt32) :
     (applyBlockFoldM m kf txs height).map viewOfM =
@@ -255,9 +255,9 @@ theorem applyBlockM_abstract (m : UtxoMap) (kf : Tx → Key) (txs : List Tx)
     rw [if_neg hbp, if_neg hbp]
     exact applyBlockFoldM_abstract m kf txs height
 
-/-! ## The list → map bridge (handing W12's scenarios through) -/
+/-! ## The list → map bridge (handing the ledger layer's scenarios through) -/
 
-/-- Build a map from a W12-style assoc list, first-match-wins (same
+/-- Build a map from a ledger-style assoc list, first-match-wins (same
 resolution as `coinLookup`). -/
 def mapOfL (l : List (OutPoint × Coin)) : UtxoMap := insertCoinsM (Std.HashMap.emptyWithCapacity l.length) l
 
@@ -273,7 +273,7 @@ theorem mapOfL_viewOf (l : List (OutPoint × Coin)) : viewOfM (mapOfL l) = viewO
   | some c => rfl
   | none => rfl
 
-/-- TRANSFER THEOREM (U1): any W12 assoc-list scenario runs identically
+/-- TRANSFER THEOREM (the abstraction layer): any ledger-layer assoc-list scenario runs identically
 through the HashMap instance — both folds land on the same abstract
 view. Every `Test/Ledger` scenario transfers through this for free. -/
 theorem applyBlockL_applyBlockM_agree (l : List (OutPoint × Coin)) (kf : Tx → Key)
@@ -282,7 +282,7 @@ theorem applyBlockL_applyBlockM_agree (l : List (OutPoint × Coin)) (kf : Tx →
       (applyBlockM (mapOfL l) kf txs height).map viewOfM := by
   rw [applyBlockL_abstract, applyBlockM_abstract, mapOfL_viewOf]
 
-/-! ## Axiom pins (L3) -/
+/-! ## Axiom pins -/
 
 /-- info: 'Bitcoin.Ledger.updateCoinsM_abstract' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateCoinsM_abstract

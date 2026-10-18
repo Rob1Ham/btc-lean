@@ -4,25 +4,21 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.DataLaws.Laws
 
 /-!
-# Bitcoin.DataLaws — FROZEN INTERFACE (W01), bodies filled by W03
+# Bitcoin.DataLaws — FROZEN INTERFACE, bodies filled
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W03 (Data-type laws)
-Dependent workstreams : W02 (encode forms this reasons about),
-                        W07 (weight/txid laws drive vector dashboards),
-                        W08, W10, W12 (consume the laws)
 Core counterpart files: src/consensus/validation.h:139-142 (weight),
                         src/primitives/transaction.cpp (ComputeHash:81-84,
                         ComputeWitnessHash:86-93), src/consensus/tx_verify.cpp
                         (IsFinalTx:23-43), src/primitives/transaction.h
                         (nSequence, SEQUENCE_FINAL),
                         src/script/script.h:48 (LOCKTIME_THRESHOLD)
-Status                : statements frozen 2026-10-16 by W01; the four
+Status: statements frozen 2026-10-16; the four
                         stub bodies and the six frozen theorem proofs were
-                        filled by W03 (see research/w2-03-type-laws.md).
-                        The last stub `totalSize` (the W02-owned witness
-                        framing) was filled by P02/W17: it is now the real
+                        filled (see the type-law notes).
+                        The last stub `totalSize` (the witness
+                        framing) is now the real
                         extended-serialization size `|serTxWithWitness tx|`
                         (BIP141/BIP144), still consumed opaquely by
                         `txWeight`. The module is sorryAx-free end to end.
@@ -31,8 +27,8 @@ Status                : statements frozen 2026-10-16 by W01; the four
 
 The weight model (BIP141 3×base+total), txid/wtxid laws, and the
 locktime/sequence field laws (finality, BIP113 MTP cutoff, BIP68
-sequence numbers) over the W01/C1 types. Exit: T1 lemmas on types,
-sorry-free (`totalSize`'s former W02-owned stub was filled by P02/W17).
+sequence numbers) over the frozen types. Exit: T1 lemmas on types,
+sorry-free (`totalSize`'s former stub is now filled).
 -/
 
 namespace Bitcoin.DataLaws
@@ -81,9 +77,9 @@ def baseSize (tx : Tx) : Nat := (serTx tx).size
 `|serTxWithWitness(tx)|`: base serialization + the 0x00/0x01 marker/flag
 pair + the per-input BIP144 witness stacks (BIP141 "total size"; Core's
 `GetTransactionWeight` uses `::GetSerializeSize(TX_WITH_WITNESS(tx))` for
-this term). The witness framing itself is W02's (`encodeTx` /
-`SerializeTransaction`). Formerly the last `opaque` seam stub
-(`SORRY[W02]`), filled by P02/W17 with this real body; `txWeight`'s
+this term). The witness framing itself is `encodeTx` /
+`SerializeTransaction`. Formerly the last `opaque` seam stub
+(`SORRY`), now filled with this real body; `txWeight`'s
 formula law consumes it by `rfl`. -/
 def totalSize (tx : Tx) : Nat := (serTxWithWitness tx).size
 
@@ -256,12 +252,12 @@ theorem txWeight_lt_three_base_add_total_add_witness (tx : Tx)
 /-! ## txid / wtxid (TXV-017/018, BLK-005/006) -/
 
 /-- `txid = dsha256(encodeTxNoWitness tx)` (transaction.cpp:ComputeHash:81-84).
-`encodeTxNoWitness` is W02's `Bitcoin.Serialization.encodeTxNoWitness`, whose
+`encodeTxNoWitness` is `Bitcoin.Serialization.encodeTxNoWitness`, whose
 live definition is exactly `serTx` (`TX_NO_WITNESS`). -/
 @[rule "TXV-017"]
 def txid (tx : Tx) : ByteArray := sha256d (serTx tx)
 
-/-- TXV-017 unfold: the txid pipeline in the W03/W02 seam terms. -/
+/-- TXV-017 unfold: the txid pipeline in data-layer / serialization-layer seam terms. -/
 theorem txid_eq_dsha256_serTx (tx : Tx) : txid tx = sha256d (serTx tx) := rfl
 
 /-- The txid only depends on the base serialization. -/
@@ -272,7 +268,7 @@ theorem txid_congr (a b : Tx) (h : serTx a = serTx b) : txid a = txid b := by
 /-- `CTransaction::HasWitness()` (transaction.h): some input carries a
 non-empty witness stack (`CScriptWitness::IsNull` = stack empty). Core
 quantifies over `vin`; here over the witness slots — the two coincide on
-W02's well-formed domain (`witness.length = vin.length`). -/
+well-formed domain (`witness.length = vin.length`). -/
 def hasWitness (tx : Tx) : Bool :=
   tx.witness.any (fun s => !s.isEmpty)
 
@@ -651,7 +647,7 @@ where
 /-- A one-in/one-out segwit transaction (version 2, sequence
 `0x00400010` = 16 × 512 s time-based relative locktime, witness stack
 `[0xab 0xcd]`). Computed independently in Python (see
-research/w2-03-type-laws.md Appendix A). -/
+the type-law notes' Appendix A). -/
 def sampleSegwitTx : Tx where
   version := 2
   vin := [{ prevout := ⟨serU32 0x01020304 ++ zeroBytes 28, 1⟩
@@ -682,9 +678,9 @@ example : isFinalTx { sampleSegwitTx with locktime := 900000000 } 800000 800000 
 
 -- Axiom transcripts of the frozen-interface proofs (the pins double as the
 -- in-module half of the axiom-manifest gate). The former `sorryAx` entries
--- were the transitive footprints of W02's `totalSize` and W13's `sha256d`
+-- were the transitive footprints of `totalSize` and `sha256d`
 -- opaque stubs; both seams now carry real bodies and the module is
--- sorryAx-free end to end (`totalSize` filled by P02/W17).
+-- sorryAx-free end to end (`totalSize` filled).
 /-- info: 'Bitcoin.DataLaws.txWeight_formula' depends on axioms: [propext] -/
 #guard_msgs in #print axioms txWeight_formula
 /-- info: 'Bitcoin.DataLaws.totalSize_ge_base' depends on axioms: [propext, Quot.sound] -/

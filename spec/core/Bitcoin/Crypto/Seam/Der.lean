@@ -1,7 +1,7 @@
 import Bitcoin.Crypto.Seam.Interface
 
 /-!
-# Bitcoin.Crypto.Seam.Der — BIP66 signature-encoding gate (W13)
+# Bitcoin.Crypto.Seam.Der — BIP66 signature-encoding gate
 
 Verbatim transliteration of the consensus-visible DER predicates from
 Bitcoin Core `src/script/interpreter.cpp` @ cce32b168:
@@ -22,13 +22,13 @@ Bitcoin Core `src/script/interpreter.cpp` @ cce32b168:
   policy gate (CheckPubKeyEncoding), included for completeness and
   clearly marked policy.
 
-Theorems banked here are the seam contract for W09: empty-ok, the
+Theorems banked here are the seam contract for the interpreter: empty-ok, the
 DERSIG dispatch iff, lax acceptance, and BIP66's "valid DER is accepted
 at every flag setting".
 -/
 
 /-!
-## License notice (OPEN-004, landed 2026-10-17 by S13)
+## License notice (OPEN-004, landed 2026-10-17 by the license cleanup)
 
 This file is a Lean transliteration (port) of MIT-licensed Bitcoin
 Core code — see the module header above for the exact upstream anchors
@@ -57,7 +57,7 @@ the notice text for the portion derived from Bitcoin Core (`COPYING`):
   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Project license: MIT (repo-root `LICENSE`, 2026 btc-lean contributors);
+Project license: MIT (repo-root `LICENSE`, 2026 btc-lean authors);
 per-file provenance table: `docs/PROVENANCE.md` §1a.
 -/
 
@@ -195,7 +195,7 @@ theorem isValidPubKey_empty : isValidPubKey ByteArray.empty = false := by decide
 /-- `IsCompressedOrUncompressedPubKey` (interpreter.cpp:72-89): the
 STRICTENC pubkey-type gate `CheckPubKeyEncoding` applies
 (interpreter.cpp:228-236). Policy for v0 (SCR-178/180); consensus only
-via tapscript's own rules (W09/Review-3). -/
+via tapscript's own rules (interpreter-side). -/
 def isCompressedOrUncompressedPubKey (pk : ByteArray) : Bool :=
   if pk.size < 33 then false
   else if pk[0]! == 0x04 then pk.size == 65

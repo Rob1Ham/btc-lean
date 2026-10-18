@@ -1,12 +1,11 @@
 import Bitcoin.Crypto.Curve.Secp
 
 /-!
-# Bitcoin.Crypto.EcdsaDeep.PointRel — the raw point-relation layer (E02B)
+# Bitcoin.Crypto.EcdsaDeep.PointRel — the raw point-relation layer
 
-The E02B landing of the relation layer that E02's `SecpCurve.lean`
-deferred (see `spec/db/findings-dl/E02.md`, "PROPOSED / NOT landed"):
-`E03`-agnostic *relations* over the raw curve layer (`RawPoint`, `addP`,
-`doubleP`, `negP`, `mulP`) together with
+The point-relation layer that the curve layer's `SecpCurve.lean`
+deferred (still not landed): *relations* over the raw curve layer (`RawPoint`, `addP`,
+`doubleP`, `negP`, `mulP`), independent of the correspondence layer, together with
 
 * **decidable hooks** (`OnCurve`, `RawOK`, and each relation) so the
   proof lane can `decide`/`by_cases` on raw statements without
@@ -14,7 +13,7 @@ deferred (see `spec/db/findings-dl/E02.md`, "PROPOSED / NOT landed"):
 * **λ-table branch hooks**: the case split of `addRaw` / `doubleRaw`
   expressed as separate equations (same point ⇒ double, inverse ⇒ `none`,
   else the slope branch; `y = 0` ⇒ `none` for doubling). These are
-  exactly the raw-side premises that an E03 correspondence proof needs
+  exactly the raw-side premises that a correspondence proof needs
   to match the `dite` case table of mathlib's
   `WeierstrassCurve.Affine.Point.add`.
 
@@ -29,7 +28,7 @@ namespace Bitcoin.Crypto.EcdsaDeep.PointRel
 open Bitcoin.Crypto.Curve.Secp
 open Bitcoin.Crypto.Curve.Mod
 
-/-! ## Relation definitions (E03-agnostic, raw layer only) -/
+/-! ## Relation definitions (correspondence-agnostic, raw layer only) -/
 
 /-- The raw point-addition relation: `addP p q` lands exactly at `r`. -/
 def PointAddRel (p q r : RawPoint) : Prop := addP p q = r
@@ -136,7 +135,7 @@ theorem addP_some_some (x1 y1 x2 y2 : Nat) :
 theorem addP_none_left (q : RawPoint) : addP none q = q := rfl
 
 
-/-! ## `mulP` recursion hooks (parity split; salvage of the E02B p1 probe) -/
+/-! ## `mulP` recursion hooks (parity split; extracted from the point-relation layer) -/
 
 /-- Even step of the LSB-first ladder: `mulP (k+1)` doubles the half. -/
 theorem mulP_succ_even {k : Nat} {p : RawPoint}
@@ -158,7 +157,7 @@ theorem negP_some (x y : Nat) : negP (some (x, y)) = some (x, negN y) := rfl
 
 /-! ## The abstract correspondence package (relation form of E02E03IF)
 
-`PointRelCorr` is the E03-agnostic, relation-level form of the
+`PointRelCorr` is the curve-relation layer-agnostic, relation-level form of the
 `addP_okE` / `mulP_okE` / `mulP_noneE` fields of `E02E03IF`
 (`TweakCor.lean`): an abstract carrier `G` with operations `add`, `smul`
 and zero `zero`, a raw→abstract map `e`, and the four transport laws in
@@ -180,14 +179,14 @@ structure PointRelCorr (G : Type) (zero : G) (add : G → G → G)
   /-- `mulP` computes the abstract multiple. -/
   smul_corr : ∀ (k : Nat) (p r : RawPoint) (A : G), PointSmulRel k p r →
     e p = some A → e r = some (smul k A)
-  /-- `mulP = none` means the abstract multiple is zero (E03/E04's
+  /-- `mulP = none` means the abstract multiple is zero (the curve-relation layer's
   `mulP_noneE`). -/
   smul_none : ∀ (k : Nat) (p : RawPoint) (A : G), mulP k p = none →
     e p = some A → smul k A = zero
 
 
 
-/-! ## Axiom pins (D2 ladder, `#guard_msgs` form)
+/-! ## Axiom pins (axiom-pin checks, `#guard_msgs` form)
 
 All branch/recursion hooks = the standard trio `[propext,
 Classical.choice, Quot.sound]` (the `ite` decidability and the `Bool`

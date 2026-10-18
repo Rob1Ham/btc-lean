@@ -2,7 +2,7 @@ import Bitcoin.Chain.Basic
 import Bitcoin.RuleAttr
 
 /-!
-# Bitcoin.Block.Index — chainwork accumulation + tip selection (X08)
+# Bitcoin.Block.Index — chainwork accumulation + tip selection (the block-validation module)
 
 The `CBlockIndex` chain-score layer, at rule-DB fidelity:
 
@@ -30,7 +30,7 @@ The `CBlockIndex` chain-score layer, at rule-DB fidelity:
   (warning/UI only).
 * `connectHeight` — **BLK-059**: height = pindexPrev.height + 1.
 
-Every theorem is sorry-free; axiom pins at the bottom (L3 discipline).
+Every theorem is sorry-free; axiom pins at the bottom (axiom-pin discipline).
 -/
 
 namespace Bitcoin.Block.Index
@@ -618,7 +618,7 @@ def connectHeight (prevHeight : Nat) : Nat := prevHeight + 1
 /-- The derivation is literally the successor. -/
 theorem connectHeight_succ (h : Nat) : connectHeight h = h + 1 := rfl
 
-/-! ## Axiom pins (L3) -/
+/-! ## Axiom pins -/
 
 #print axioms workOf_difficulty_one_pos
 #print axioms workOf_pos_of_valid

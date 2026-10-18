@@ -10,28 +10,25 @@ import Bitcoin.DataLaws.Laws
 import Bitcoin.RuleAttr
 
 /-
-# Bitcoin.TxValidation — FROZEN INTERFACE (W01)
+# Bitcoin.TxValidation — FROZEN INTERFACE
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W10 (Stateless tx validation)
-Dependent workstreams : (depends on) W02, W03, W04 — (depended on by)
-                        W12 (validateTx gates applyBlock), W15, W16
 Core counterpart files: src/consensus/tx_check.cpp (CheckTransaction:19-68),
                         src/consensus/tx_verify.cpp (CheckTxInputs:170-220,
                         IsFinalTx, SequenceLocks/BIP68 trio),
                         src/validation.cpp (contextual checks)
-Status                : frozen 2026-10-16 by W01. Statements are
-                        sorry-stubbed placeholders; W10 fills bodies.
+Status: frozen 2026-10-16. Statements are
+                        sorry-stubbed placeholders; the bodies are filled.
 
-## Interface-change log (W10, 2026-10-16 — sanctioned by the W07 handoff
+## Interface-change log (2026-10-16 — sanctioned by the interface conventions
 protocol "fill the opaque stub bodies"; deviations documented here)
 
 1. `checkTxInputs` gained a `spendHeight : UInt32` parameter. Core's real
    signature is `CheckTxInputs(tx, state, inputs, int nSpendHeight, txfee)`
    (tx_verify.cpp:170) — the coinbase-maturity check (TXV-021) is
    meaningless without it. The frozen 2-arg form could not express
-   maturity; callers (W12) pass the block/tip+1 height.
+   maturity; callers pass the block/tip+1 height.
 2. New `TxError` constructor `badTxnsInputvaluesOutOfRange`
    ("bad-txns-inputvalues-outofrange", tx_verify.cpp:193) — the input-side
    MoneyRange failure is distinct from the frozen `badTxnsFeeOutOfRange`
@@ -39,10 +36,10 @@ protocol "fill the opaque stub bodies"; deviations documented here)
 3. Reject-string comments corrected against Core @ f54186c:
    "bad-txns-inputs-missingorspent" (tx_verify.cpp:174, no hyphen before
    `spent`) and "bad-txns-fee-outofrange" (tx_verify.cpp:215, one word) —
-   the W01 placeholders read "missing-or-spent" / "fee-out-of-range".
+   the placeholders read "missing-or-spent" / "fee-out-of-range".
    `rejectReason` below carries the exact strings.
 4. Imports added: `Bitcoin.Numeric.Amount` (plainSum/checkedSum),
-   `Bitcoin.Conservation.Interface` (W08's `totalIn`, fee-conservation
+   `Bitcoin.Conservation.Interface` (`totalIn`, fee-conservation
    bridge), `Bitcoin.DataLaws.Interface` (isFinalTx),
    `Bitcoin.DataLaws.Laws` (BIP68 field algebra), `Bitcoin.RuleAttr`
    (@[rule] traceability).
@@ -54,7 +51,7 @@ protocol "fill the opaque stub bodies"; deviations documented here)
 
 `CheckTransaction` + `CheckTxInputs` + finality/sequence as one pure
 `validateTx`, with the 75 TXV rules wired via `@[rule]` attributes.
-The C1 bootstrap `checkTransaction` (9 reasons, CVE-tagged) is preserved
+The prototype bootstrap `checkTransaction` (9 reasons, CVE-tagged) is preserved
 and reused. Exit: tx_valid/tx_invalid 100% stateless.
 -/
 
@@ -66,9 +63,9 @@ open Bitcoin.Data Bitcoin.Ledger Bitcoin.Consensus Bitcoin.Numeric
 
 /-- The full tx-validation error taxonomy: the 9 stateless
 `TxCheckError` reasons (reused) + the contextual/input rules.
-Constructor names = Core reject strings (C1 R6). -/
+Constructor names = Core reject strings (the prototype R6). -/
 inductive TxError where
-  | stateless (e : TxCheckError)   -- the C1-bootstrap taxonomy, embedded
+  | stateless (e : TxCheckError)   -- the prototype-bootstrap taxonomy, embedded
   | badTxnsInputsMissingOrSpent    -- "bad-txns-inputs-missingorspent" (tx_verify.cpp:174)
   | badTxnsInBelowout              -- "bad-txns-in-belowout" (tx_verify.cpp:203)
   | badTxnsFeeOutOfRange           -- "bad-txns-fee-outofrange" (tx_verify.cpp:215)
@@ -78,9 +75,9 @@ inductive TxError where
   | badTxnsNonstandardSequence     -- "non-BIP68-final" (validation.cpp:885, mempool path)
 deriving Repr, DecidableEq, BEq
 
-/-- Exact Core reject strings for the C1 stateless taxonomy
+/-- Exact Core reject strings for the prototype stateless taxonomy
 (`consensus/tx_check.cpp:23-68`; kept here because `TxCheckError` is
-W01/C1-frozen and cannot host the strings itself). -/
+frozen and cannot host the strings itself). -/
 def txCheckReason : TxCheckError → String
   | .vinEmpty            => "bad-txns-vin-empty"
   | .voutEmpty           => "bad-txns-vout-empty"
@@ -165,9 +162,9 @@ spent only when `spendHeight − coinHeight ≥ COINBASE_MATURITY`. Core
 computes the depth with `uint32_t` subtraction; on the reachable domain
 (a coin's height is ≤ the spend height — coins enter the view when their
 block connects) this is exactly the `Nat` comparison below, which is also
-bit-identical to `Bitcoin.Ledger.maturityOk`'s per-coin test (W12's
+bit-identical to `Bitcoin.Ledger.maturityOk`'s per-coin test (see
 INV-028/BLK-100). The unreachable future-coin wrap corner is catalogued
-in the W10 report. -/
+in the transaction-validation notes. -/
 @[rule "TXV-021"]
 def coinMatured (spendHeight : UInt32) (c : Coin) : Bool :=
   ¬ c.isCoinbase ||
@@ -237,7 +234,7 @@ def inputValuesLoop (u : UtxoSet) (spendHeight : UInt32) :
 /-- `Consensus::CheckTxInputs` (tx_verify.cpp:170-220): inputs exist
 (TXV-020), values in range (TXV-023), value in ≥ value out (TXV-024),
 fee in MoneyRange (TXV-025). Returns the fee on success. Separate from
-`validateTx` so W12 can call it inside the block fold. Zero-value
+`validateTx` so callers can call it inside the block fold. Zero-value
 outputs flow through as ordinary coins (TXV-067: only the bounds are
 checked, tx_check.cpp:35-41). -/
 @[rule "TXV-067", rule "BLK-103"]
@@ -318,7 +315,7 @@ def seqLockApplies (s : UInt32) : Bool :=
   ¬ (s == Bitcoin.DataLaws.SEQUENCE_FINAL) && ¬ Bitcoin.DataLaws.seqIsDisabled s
 
 /-- One zipped input's height-domain lockpoint (`nCoinHeight + masked − 1`,
-tx_verify.cpp:96 — W03's TXV-037 algebra), or `none` when the sequence
+tx_verify.cpp:96 — TXV-037 algebra), or `none` when the sequence
 carries no lock or a time-based one. -/
 def heightLockOf (x : TxIn × (Int × Int)) : Option Int :=
   if seqLockApplies x.1.sequence && ¬ Bitcoin.DataLaws.seqIsTimeBased x.1.sequence then
@@ -326,8 +323,8 @@ def heightLockOf (x : TxIn × (Int × Int)) : Option Int :=
   else none
 
 /-- One zipped input's time-domain lockpoint
-(`coin-parent-MTP + (masked << 9) − 1`, tx_verify.cpp:79-94 — W03's
-TXV-036 algebra with W03's `SEQUENCE_LOCKTIME_GRANULARITY = 9`). -/
+(`coin-parent-MTP + (masked << 9) − 1`, tx_verify.cpp:79-94 —
+TXV-036 algebra with `SEQUENCE_LOCKTIME_GRANULARITY = 9`). -/
 def timeLockOf (x : TxIn × (Int × Int)) : Option Int :=
   if seqLockApplies x.1.sequence && Bitcoin.DataLaws.seqIsTimeBased x.1.sequence then
     some (x.2.2 + ((Bitcoin.DataLaws.seqRelative x.1.sequence * 512 : Nat) : Int) - 1)
@@ -353,7 +350,7 @@ def seqLockFold : List TxIn → List (Int × Int) → Int × Int
   | i :: vin, d :: rest => seqLockStep (seqLockFold vin rest) (i, d)
 
 /-- `CalculateSequenceLocks` (tx_verify.cpp:45-101). `csvFlag` is Core's
-`flags & LOCKTIME_VERIFY_SEQUENCE` bit (TXV-040 plumbing: W06's
+`flags & LOCKTIME_VERIFY_SEQUENCE` bit (TXV-040 plumbing:
 `ScriptFlags.csv` supplies it in block context). -/
 def calculateSequenceLocks (tx : Tx) (csvFlag : Bool) (prevData : List (Int × Int)) :
     Int × Int :=
@@ -371,7 +368,7 @@ def evaluateSequenceLocks (blockHeight blockTime : Int) (lockPair : Int × Int) 
 /-- The full BIP68 verdict: `SequenceLocks(tx, flags, prevHeights, block)`
 (tx_verify.cpp:114-121). `prevData` is the caller-supplied seam — Core
 reads each coin's parent-block MTP via `block.GetAncestor(h-1)`, which
-`Coin` (height+value+script only) cannot express; W12 supplies
+`Coin` (height+value+script only) cannot express; the ledger supplies
 `(prevHeight, parentMTP)` pairs per input. -/
 @[rule "TXV-041"]
 def sequenceLocksOk (tx : Tx) (csvFlag : Bool) (prevData : List (Int × Int))
@@ -382,7 +379,7 @@ def sequenceLocksOk (tx : Tx) (csvFlag : Bool) (prevData : List (Int × Int))
 /-- Height-domain-only projection used by the frozen `validateTx`
 signature: coin heights come from `u`; the time component is a dummy
 (unused by `heightLockOf`). TXV-036's time-domain lock needs the parent
-MTP chain and is checked by `sequenceLocksOk` with W12's seam. -/
+MTP chain and is checked by `sequenceLocksOk` with the ledger seam. -/
 def prevHeightData (tx : Tx) (u : UtxoSet) : List (Int × Int) :=
   tx.vin.map (fun i =>
     match u i.prevout with
@@ -464,9 +461,9 @@ theorem checkTransaction_ok_getValueOut_moneyRange (tx : Tx)
 /-- INV-007 (bound dir; CVE-2018-17144): a transaction
 `checkTransaction` accepts has no duplicate prevouts
 (`bad-txns-inputs-duplicate`, tx_check.cpp:49-53 @cce32b168).
-PDW3/T3b promotion (PD03 score row 13): attr-only tag onto X09's
+PDW3/T3b promotion (PD03 score row 13): attr-only tag onto the transaction-validation module's
 sorry-free bound theorem — PD03 T3b, "tag
-`checkTransaction_ok_no_dup_prevouts` onto INV-007" (F-PD03-002).
+`checkTransaction_ok_no_dup_prevouts` onto INV-007".
 The reject direction (PD03 P5 / T3a) is the PDW1 lane. -/
 @[rule "INV-007"]
 theorem checkTransaction_ok_no_dup_prevouts (tx : Tx)
@@ -557,7 +554,7 @@ theorem bip68HeightOk_congr (tx : Tx) (u u' : UtxoSet) (csv : Bool) (H : Int)
 
 /-- The pure validation entry (B3's proposed shape):
 `validateTx : Tx → CoinView → Height → Time → Flags → Except TxError Fee`.
-Returns the fee on success. `u` is the abstract UTXO view (C1's UTXO
+Returns the fee on success. `u` is the abstract UTXO view (the prototype's UTXO
 decision — theorems never touch concrete representations).
 
 Check order = Core's mempool path (`MemPoolAccept::PreChecks`):
@@ -565,7 +562,7 @@ stateless `CheckTransaction` prefix → `IsFinalTx` at `(height, mtp)`
 (TXV-032, with `mtp` = BIP113 cutoff per TXV-031) → coinbase early-exit
 (TXV-072: coinbases are exempt from `HaveInputs`/`CheckTxInputs`) →
 BIP68 height-domain gate (TXV-040's CSV flag plumbing; the time domain
-needs W12's `sequenceLocksOk` seam) → `checkTxInputs`
+needs `sequenceLocksOk` seam) → `checkTxInputs`
 (TXV-020/021/023/024/025). A BIP68 failure collapses into Core's block-
 context reject string `bad-txns-nonfinal` (validation.cpp:2556). `nVersion`
 is deliberately unchecked — any 32-bit value is valid (TXV-071,
@@ -588,9 +585,9 @@ theorem validateTx_total (tx : Tx) (u : UtxoSet) (height : UInt32) (mtp : UInt32
     (flags : Activation.ScriptFlags) :
     ∃ r, validateTx tx u height mtp flags = r := ⟨_, rfl⟩
 
-/-! ## Frozen laws (W10 exit criteria) -/
+/-! ## Frozen laws (the transaction-validation layer exit criteria) -/
 
-/-- The C1 bootstrap `checkTransaction` is exactly the stateless prefix
+/-- The prototype bootstrap `checkTransaction` is exactly the stateless prefix
 of `validateTx` (traceability: TXV-001..010 route through it). -/
 theorem validateTx_stateless_prefix (tx : Tx) (u : UtxoSet)
     (height : UInt32) (mtp : UInt32) (flags : Activation.ScriptFlags) :
@@ -603,7 +600,7 @@ theorem validateTx_stateless_prefix (tx : Tx) (u : UtxoSet)
   | none => simp only [hc]
 
 /-- Fee soundness: a successful validation returns a fee that makes
-`valueIn = valueOut + fee` (bridge to W08's conservation). -/
+`valueIn = valueOut + fee` (bridge to conservation). -/
 theorem validateTx_fee_consistent (tx : Tx) (u : UtxoSet)
     (height : UInt32) (mtp : UInt32) (flags : Activation.ScriptFlags)
     (h : (validateTx tx u height mtp flags).isOk) :
@@ -1038,7 +1035,7 @@ theorem inputValuesLoop_ok_sum (u : UtxoSet) (spendHeight : UInt32) :
             rw [Int.add_assoc] at h2
             exact h2
 
-/-- Bridge between W08's `totalIn` fold and the loop's step function
+/-- Bridge between the conservation layer's `totalIn` fold and the loop's step function
 (the two `match`es compile to different matcher constants, which are not
 definitional-equal for an abstract view; the bridge goes through
 pointwise equality). -/
@@ -1078,7 +1075,7 @@ theorem inputValuesLoop_ok_moneyRange (u : UtxoSet) (spendHeight : UInt32) :
           · rename_i hacc
             exact ih (acc + c.value) v (by simpa using hacc) h
 
-/-- The full validateTx fee contract, folded with W08's conservation
+/-- The full validateTx fee contract, folded with the conservation laws
 hypotheses: a successful `checkTxInputs` returns `fee = totalIn − totalOut`
 with the fee nonnegative — `single_tx_conservation`'s conclusion. -/
 theorem checkTxInputs_ok_conservation (tx : Tx) (u : UtxoSet) (spendHeight : UInt32)
@@ -1192,7 +1189,7 @@ theorem applyTx_zeroValue_output_coin (l : UtxoList) (tx : Tx) (k : Nat)
   exact List.mem_append.mpr
     (Or.inr (List.mem_map.mpr ⟨k, List.mem_range.mpr hk, rfl⟩))
 
-/-! ## Axiom pins (W10): drift on any of these fails the build -/
+/-! ## Axiom pins (the transaction-validation layer): drift on any of these fails the build -/
 
 /--
 info: 'Bitcoin.TxValidation.coinHeightOfCode_pack' depends on axioms: [propext, Quot.sound]

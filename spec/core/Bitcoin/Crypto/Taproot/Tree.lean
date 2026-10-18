@@ -3,7 +3,7 @@ import Bitcoin.Data.Basic
 
 /-!
 # Bitcoin.Crypto.Taproot.Tree — TapLeaf / TapBranch / the Merkle walk
-# (X03, Unit 2)
+# (the Taproot module)
 
 BIP341's script-path hashing lane: the tapleaf hash, the sorted
 TapBranch pairing, and the control-block Merkle walk (bip-0341.mediawiki
@@ -21,7 +21,7 @@ Core `ComputeTapleafHash` / `ComputeTapbranchHash` /
   **Core passes `control[0] & TAPROOT_LEAF_MASK` at the call site**
   (interpreter.cpp:1983) = BIP341:79's `v = c[0] & 0xfe` (the parity bit
   is masked OFF before the leaf hash) — that masking is the caller's
-  (Unit 3 `Verify.lean`) job; this def takes the masked leaf version.
+  (the verifier module `Verify.lean`) job; this def takes the masked leaf version.
 * `lexLtB` (private) + `tapBranch` (TPR-013) —
   `ComputeTapbranchHash` (interpreter.cpp:1887-1896) EXACTLY:
   `if std::lexicographical_compare(a, b) { a ‖ b } else { b ‖ a }` —
@@ -44,25 +44,25 @@ Core `ComputeTapleafHash` / `ComputeTapbranchHash` /
   foldl-cons equation under a def whnf-times-out in this List-backed
   -Array toolchain, and the structural form makes all walk equations
   definitional). The `(size-33)/32`-chunking of
-  the control block is the control-block PARSE (TPR-009, Unit 3
+  the control block is the control-block PARSE (TPR-009
   `Verify.lean`); this module walks the parsed nodes, so
   `m = 0 ⇔ root = tapleaf hash` (Core 1905) is definitional.
 * Tag distinctness (BIP341 §design: `hash_tag` domain separation) —
   `TapTweak ≠ TapLeaf ≠ TapBranch` + `TapLeaf ≠ TapSighash` by
   `decide` (the 4 tags involved in the Tree/TapTweak lanes; TapSighash
-  is Unit 4's). [propext, Quot.sound] only — no `sorry`, no
+  is the verifier's). [propext, Quot.sound] only — no `sorry`, no
   `native_decide`.
 
 ## Rule rows (spec/db/rules.yaml TPR block)
 
 TPR-012 (tapleaf hash), TPR-013 (TapBranch lexicographic pairing),
 TPR-014 (merkle walk fold) live on this module's defs. TPR-016
-(commitment equation) stays on Unit 1's `tweakPoint` + Unit 3's
-`Verify.lean`. TPR-009 (control-block size `33+32m`) = the Unit 3 parse.
+(commitment equation) stays on the verifier's `tweakPoint` + the verifier's
+`Verify.lean`. TPR-009 (control-block size `33+32m`) = the verifier parse.
 
-## Status: X03 Unit 2 — all theorems sorry-free, axioms pinned at the
+## Status: the Taproot module — all theorems sorry-free, axioms pinned at the
 bottom (footprints ⊆ the standard trio `[propext, Classical.choice,
-Quot.sound]`, X02 style). No `sorry`, no `native_decide`, zero-warning
+Quot.sound]`, the Schnorr module style). No `sorry`, no `native_decide`, zero-warning
 build (no deprecated `if_pos`/`if_neg`; `split` + `nomatch` forms).
 -/
 
@@ -78,7 +78,7 @@ open Bitcoin.Data (serU8 compactSizeEnc)
 /-- `tapLeaf v s` = `taggedHash("TapLeaf", serU8 v ‖ compactSizeEnc
 s.size ‖ s)` — Core `ComputeTapleafHash(leaf_version, script)`
 (interpreter.cpp:1882-1885) = BIP341:71. `v` is the MASKED leaf version
-(`c[0] & 0xfe`, interpreter.cpp:1983; BIP341:79) — Unit 3's caller does
+(`c[0] & 0xfe`, interpreter.cpp:1983; BIP341:79) — the verifier's caller does
 the masking. TPR-012. -/
 @[rule "TPR-012"]
 def tapLeaf (v : UInt8) (script : ByteArray) : ByteArray :=
@@ -271,7 +271,7 @@ theorem tapBranch_comm (a b : ByteArray) :
 chunks `c[33+32j..65+32j)`, BIP341:74), `k = ComputeTapbranchHash(k,
 e_j)` (Core 1906-1908; BIP341:75-76). Core's walk is over `path_len =
 (control.size() - 33) / 32` nodes; `taprootMerkleRoot` walks the PARSED
-node list (the `33+32m` control-block parse = TPR-009, Unit 3), so
+node list (the `33+32m` control-block parse = TPR-009), so
 Core's `for (int i = 0; i < path_len; ++i)` = the structural recursion
 `| e :: rest, tl => taprootMerkleRoot rest (tapBranch tl e)` (the sort
 lives inside `tapBranch`, Core 1908 passes `(k, node)`; the equivalent
@@ -333,11 +333,11 @@ lanes). -/
 theorem tagTapLeaf_ne_branch : tagTapLeaf ≠ tagTapBranch := by decide
 
 /-- The TapLeaf and TapSighash tags are distinct (the leaf/sighash
-lanes; TapSighash is Unit 4's tag, pinned here for the TapLeaf
+lanes; TapSighash is the sighash tag, pinned here for the TapLeaf
 domain). -/
 theorem tagTapLeaf_ne_sighash : tagTapLeaf ≠ tagTapSighash := by decide
 
-/-! ## Axiom footprints (X02 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the Schnorr module style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio
 `[propext, Classical.choice, Quot.sound]`, pinned by the guard blocks

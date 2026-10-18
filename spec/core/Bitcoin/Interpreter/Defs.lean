@@ -8,19 +8,19 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.Interpreter.Hashes
 
 /-!
-# Bitcoin.Interpreter.Defs — the script interpreter core (W09)
+# Bitcoin.Interpreter.Defs — the script interpreter core
 
 A total, fuel-bounded transliteration of Core's `EvalScript` /
 `VerifyScript` / `VerifyWitnessProgram` / `ExecuteWitnessScript`
-(interpreter.cpp @ `cce32b168`) over the W05 `Opcode` AST.
+(interpreter.cpp @ `cce32b168`) over the `Opcode` AST.
 
 Ground truth and ordering: every check appears in the same order as
-interpreter.cpp; the W09 Python prototype (corpus-validated at 98.8%
+interpreter.cpp; the Python prototype (corpus-validated at 98.8%
 against the hash-pinned `script_tests.json`) is the semantic reference.
 
 Design notes:
 
-* Evaluation walks a `List WireOp` — the W05 AST annotated with the
+* Evaluation walks a `List WireOp` — the AST annotated with the
   **wire byte** (needed by `CheckMinimalPush`, the 201-opcode budget and
   the disabled-opcode table, none of which are recoverable from the AST
   alone: `pushBytes ∅` may be OP_0 or a PUSHDATA1 of length 0) and the
@@ -36,13 +36,13 @@ Design notes:
 * Numbers are `Bitcoin.Numeric.ScriptNum := Int`. Core's int64 wrap on
   arithmetic overflow is NOT modeled (unbounded `Int`); the conformance
   corpus never exercises int64 overflow (max magnitudes are 2^31-ish),
-  and the divergence window is documented in the W09 report.
+  and the divergence window is documented in the interpreter notes.
 * Hashes come from `Bitcoin.Interpreter.Hashes` (the interpreter's own
-  hash floor; see that module's header for the W13 supersession path).
+  hash floor; see that module's header for the supersession path).
 * Signature checks route through `ScriptChecker` — the frozen
   `BaseSignatureChecker` seam plus the locktime environment
   (`CheckLockTime`/`CheckSequence` are virtual `BaseSignatureChecker`
-  members in Core; the frozen seam deliberately excludes them, so W09
+  members in Core; the frozen seam deliberately excludes them, so the interpreter
   carries them as pure defs — interface-change IC-2).
 * Taproot **script-path** spending stops at `VerifyTaprootCommitment`
   (`XOnlyPubKey::CheckTapTweak` EC is outside the seam): the outcome is
@@ -58,7 +58,7 @@ open Bitcoin.Crypto.Seam (BaseSignatureChecker ScriptExecutionData SigVersion st
 
 /-- The machine stack, head = TOP of stack.
 
-MOVED here from the W01-frozen `Interface.lean` (interface-change IC-1;
+MOVED here from the frozen `Interface.lean` (interface-change IC-1;
 the name `Bitcoin.Interpreter.Stack` is unchanged). -/
 abbrev Stack := List ByteArray
 
@@ -96,29 +96,28 @@ def ANNEX_TAG : Nat := 0x50
 /-- TAPROOT_CONTROL_BASE_SIZE (33) / _NODE_SIZE (32) / _MAX_SIZE (33 +
 32·128 = 4129) — interpreter.h:244-247 @cce32b168.
 
-FIX F-RC07-001 (SWEEP; was `:= 65`, MAX `65 + 128 * 32` = 4161): Core's
+FIX (the control-size note, 2026-10-17; was `:= 65`, MAX `65 + 128 * 32` = 4161): Core's
 lattice is BASE = 33 = 1 version/parity byte + 32 x-only internal-key
 bytes (interpreter.cpp:1918 `subspan(1, 32)`), MAX = 33 + 32·128 = 4129
 (BIP341 depth ≤ 128) — the same Core-33 fix as the Taproot/Program
-lattice (commits 201e050/8a3343b, F-X03-1) and RC07's local mirrors
+lattice (commits 201e050/8a3343b, the control-size fix) and RC07's local mirrors
 (Invariants/RC07.lean). The old 65/4161 reading wrongly rejected the
 m=0 single-leaf control (33 bytes) and accepted m=129 (4161 bytes):
-findings-rc/RC07.md F-RC07-001, findings-w6/M02.md F-M02-001,
-findings-dl/FIX-X03-1.md. -/
+the control-size note, the offset pin, and the control-size fix. -/
 def TAPROOT_CONTROL_BASE_SIZE : Nat := 33
 def TAPROOT_CONTROL_NODE_SIZE : Nat := 32
 def TAPROOT_CONTROL_MAX_SIZE : Nat := 33 + 128 * 32
 
 /-! ## ExecError — the SCRIPT_ERR_* taxonomy
 
-MOVED here from the W01-frozen `Interface.lean` (interface-change IC-1:
+MOVED here from the frozen `Interface.lean` (interface-change IC-1:
 the full name `Bitcoin.Interpreter.ExecError` is unchanged). The first
-13 constructors are the W01 freeze, in order; the rest are W09's
+13 constructors are the frozen interface, in order; the rest are
 extension completing the interpreter-facing subset of Core's enum
 (script_error.h), appended in script_error.h-adjacent groups. -/
 
 inductive ExecError where
-  -- frozen W01 block (order preserved)
+  -- frozen block (order preserved)
   | badOpcode              -- SCRIPT_ERR_BAD_OPCODE
   | pushSize               -- SCRIPT_ERR_PUSH_SIZE (element > 520)
   | opCount                -- SCRIPT_ERR_OP_COUNT (201-opcode budget)
@@ -132,7 +131,7 @@ inductive ExecError where
   | minimalIf              -- SCRIPT_ERR_MINIMALIF (witness v0, policy-gated)
   | cleanstack             -- SCRIPT_ERR_CLEANSTACK
   | unknownError
-  -- W09 extension (documented interface change)
+  -- extension (documented interface change)
   | evalFalse              -- SCRIPT_ERR_EVAL_FALSE
   | scriptNum              -- SCRIPT_ERR_SCRIPTNUM (CScriptNum ctor)
   | numEqualVerifyFailed   -- SCRIPT_ERR_NUMEQUALVERIFY
@@ -177,7 +176,7 @@ deriving Repr, DecidableEq, BEq, Inhabited
 /-! ## Policy flags
 
 The policy-only `SCRIPT_VERIFY_*` bits the interpreter reads (Core
-unifies consensus + policy in one flag word; W06's consensus
+unifies consensus + policy in one flag word; consensus
 `ScriptFlags` holds the 7 consensus bits, this record holds the rest).
 `DoTest` (script_tests.cpp:120-131) is the corpus judge: it forces
 `CLEANSTACK ⇒ P2SH|WITNESS` — applied by the vector Backend, not here. -/
@@ -294,7 +293,7 @@ def pushBoolV (v : Bool) : ByteArray := if v then vchTrue else vchFalse
 (CheckSignatureEncoding interpreter.cpp:120-160, CheckPubKeyEncoding
 interpreter.cpp:225-234, IsValidSignatureEncoding script.cpp,
 IsCompressedOrUncompressedPubKey interpreter.cpp:74, CheckLowS
-pubkey.h — DER-level S ≤ n/2 formulation, corpus-validated in W09.) -/
+pubkey.h — DER-level S ≤ n/2 formulation, corpus-validated.) -/
 
 /-- `IsValidSignatureEncoding` (BIP66, script.cpp:169-211). -/
 @[rule "SCR-102"]
@@ -431,7 +430,7 @@ def wireOpsFrom (off : Nat) : List Opcode → List WireOp
 
 /-- The disabled-opcode wire set (interpreter.cpp:447-467; verified
 against script.h's opcode table @master — note OP_RSHIFT is 0x99, cf.
-the W05 `isDisabled` discrepancy documented in the W09 report). -/
+the `isDisabled` discrepancy documented in the interpreter notes). -/
 @[rule "SCR-152", rule "INV-063"]
 def disabledWire (w : Nat) : Bool :=
   w ∈ [0x7e, 0x7f, 0x80, 0x81, 0x83, 0x84, 0x85, 0x86,
@@ -453,8 +452,8 @@ OP_SUCCESSx is decoded. Decode failures are ordered WITH the scan — a
 SUCCESSx before a truncated push still succeeds, a truncated push before
 any SUCCESSx is BAD_OPCODE (BIP342 §Spec step 2: "This is true even if
 later bytes in the tapscript would fail to decode otherwise"). The all
-or-nothing `parseWire` CANNOT model this ordering (X04 delta fix: the
-W09 pre-pass keyed `ops.any` off a full parse). Push-shaped decodes
+or-nothing `parseWire` CANNOT model this ordering (the interpreter delta layer fix: the
+pre-pass keyed `ops.any` off a full parse). Push-shaped decodes
 never carry a success wire byte (the success set is ≥ 80 and push wires
 are ≤ 0x60), so only `.op` payloads are tested. -/
 def opSuccessScanFrom : Nat → ByteArray → Nat → Bool
@@ -518,7 +517,7 @@ def checkMinimalPush (data : ByteArray) (opcode : Nat) : Bool :=
 
 /-! ## FindAndDelete (interpreter.cpp:239-265)
 
-Byte-level, walking opcode boundaries with W05's `getOp`; returns
+Byte-level, walking opcode boundaries with `getOp`; returns
 (nFound, newScript). Mirrors the do-while loop exactly (including the
 trailing `[pc2, end)` tail copy when `nFound > 0`). -/
 
@@ -718,10 +717,10 @@ on the tapscript path). Consensus-critical validation sequence per the
 Core comment: budget check precedes the pubkey rules; a non-empty INVALID
 signature fails the script (`SCRIPT_ERR_SCHNORR_SIG` — the BIP342
 "Validation failure in this case immediately terminates script execution
-with failure"; NULLFAIL baked in as consensus, not flag-gated). X04 delta
-fix: the W09 draft returned `.ok (ok && success, …)`, which pushed `false`
+with failure"; NULLFAIL baked in as consensus, not flag-gated). The interpreter delta layer
+fix: an earlier draft returned `.ok (ok && success, …)`, which pushed `false`
 and continued on a failed 32-byte-key verification — legacy CHECKSIG
-semantics, NOT tapscript. (Tags restored by X05 after X04's U2 rewrite
+semantics, NOT tapscript. (Tags restored by the sigop model after the interpreter delta layer's rewrite
 dropped the docstring-embedded attributes: SCR-121 tapscript-CMS ban via
 the `.tapscriptCheckMultiSig` path in `stepBody`, SCR-159/160 the
 empty-pubkey / empty-sig sequence below.) -/
@@ -1006,7 +1005,7 @@ where
       else
         let sig := topAt st.stack 2
         let pk := topAt st.stack 1
-        -- X04: EvalChecksig SigVersion mode dispatch (tapscript ≠ legacy)
+        -- the interpreter delta layer: EvalChecksig SigVersion mode dispatch (tapscript ≠ legacy)
         match evalChecksigDispatch flags pol ctx.chk ctx.ed ctx.sv st.codeSep ctx.bytes
             sig pk st.vwLeft with
         | .error e => .error e
@@ -1140,7 +1139,7 @@ def evalScriptBytes (fuel : Nat) (flags : ScriptFlags) (pol : PolicyFlags)
     | some ops =>
       finalStack (evalFrom ⟨flags, pol, chk, sv, b, ed⟩ fuel ops
         { stack := st0, alt := [], vf := [], opCount := 0, codeSep := 0,
-          -- X04: the BIP342 validation-weight budget starts at the value
+          -- the interpreter delta layer: the BIP342 validation-weight budget starts at the value
           -- ExecuteWitnessScript seeded into `ed` (Core mutates
           -- execdata.m_validation_weight_left in place; the machine
           -- threads it through State.vwLeft)
@@ -1164,7 +1163,7 @@ def witnessSerSize (items : List ByteArray) : Int :=
 /-- `ExecuteWitnessScript` (interpreter.cpp:1854-1894). Returns the
 VerifyOutcome of the inner evaluation. SWT-010: the ≤520 per-item cap;
 SWT-012: the implicit witness cleanstack (exactly 1 truthy final item).
-X07: SCR-031 (BIP342 initial main+alt stack ≤ 1000, :1864-1865) and
+the interpreter rule layer: SCR-031 (BIP342 initial main+alt stack ≤ 1000, :1864-1865) and
 SCR-040 (validation-weight budget = serialized witness size + 50 WU,
 :1991-1992 + script.h:62-65). -/
 @[rule "SCR-021", rule "SWT-010", rule "SWT-012", rule "SCR-031", rule "SCR-040", rule "TPR-066"]
@@ -1174,7 +1173,7 @@ def executeWitnessScript (fuel : Nat) (items : List ByteArray) (vwSer : Int)
     (sv : SigVersion) : VerifyOutcome :=
   if sv = .tapscript then
     -- OP_SUCCESSx scan overrides everything (incl. item size limits);
-    -- ordered per-opcode with the decode step (opSuccessScan, X04)
+    -- ordered per-opcode with the decode step (opSuccessScan, the interpreter delta layer)
     if opSuccessScan exec then
       if pol.discourageOpSuccess then .fail .discourageOpSuccess else .ok
     else if MAX_STACK_SIZE < items.length then .fail .stackSize
@@ -1213,7 +1212,7 @@ for taproot script-path spending (CheckTapTweak is outside the seam). -/
 @[rule "SCR-133", rule "SCR-134", rule "SCR-135", rule "SCR-136", rule "SCR-137", rule "SCR-138", rule "SCR-143", rule "SCR-145", rule "SCR-150", rule "SCR-151",
   rule "SWT-005", rule "SWT-006", rule "SWT-007", rule "SWT-008", rule "SWT-009",
   rule "SWT-013", rule "SWT-014",
-  -- X07: TAPROOT flag gate / key-path spend / upgradable leaf versions
+  -- the interpreter rule layer: TAPROOT flag gate / key-path spend / upgradable leaf versions
   rule "SCR-142", rule "SCR-144", rule "SCR-149",
   -- RC06: witness program shapes + v0 dispatch (INV-067/070)
   rule "INV-067", rule "INV-070",
@@ -1306,7 +1305,7 @@ def p2shInner (fuel : Nat) (flags : ScriptFlags) (pol : PolicyFlags)
             else .ok
 
 /-- `VerifyScript` with the full error taxonomy (the consensus entry —
-flags come from W06's `getBlockScriptFlags`, policy from the mempool
+flags come from `getBlockScriptFlags`, policy from the mempool
 policy the caller models). Check order mirrors interpreter.cpp:2012-2111. -/
 @[rule "SCR-001", rule "SCR-002", rule "SCR-004", rule "SCR-008", rule "SCR-010", rule "SCR-011", rule "SCR-013", rule "SCR-017",
   rule "SWT-003", rule "SWT-015", rule "INV-048",

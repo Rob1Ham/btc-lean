@@ -1,31 +1,31 @@
 import Bitcoin.Crypto.EcdsaDeep.EntryWired
 
 /-!
-# EntryWiredDis — the E14-slot crown instantiation (E16B)
+# EntryWiredDis — the fuel-discharge-layer crown instantiation (the alternate-entry integration)
 
-Review-RC22 contributor E16B (DL tower: the `EntryWired` `verifyStructEq'`
-slot). Third link of the E16 alternate-entry chain
+the rule-closure suite (deep-verification tower: the `EntryWired` `verifyStructEq'`
+slot). Third link of the alternate-entry chain
 (`Seam/Entry.lean` ← `EcdsaDeep/Entry.lean` ←
 `EcdsaDeep/EntryWired.lean` ← **this file**), executing the one
 remaining wiring step of the whole chain:
 
-**E11's crown theorem `verifyStructG_eq_verifyImpl` (VerifyStruct.lean,
+**the structural mirror's crown theorem `verifyStructG_eq_verifyImpl` (VerifyStruct.lean,
 commit 6aee3e9, sorry-free) reduces the crown equality
 `verifyStruct = verifyImpl` to exactly the two universal-completion
-hypotheses `hE`/`hN` — E14's fuel-completion layer (F-E14-9/F-E14-8;
+hypotheses `hE`/`hN` — the fuel-discharge layer's completion condition (the completion hypotheses;
 the Lamé-depth `egcdLDone` discharge) — and `EntryWired.lean` takes
 that crown equality as its one explicit hypothesis
-`verifyStructEq'`. This file instantiates that hypothesis with E11's
-crown AT THE FIXED FUEL LIST `FL := zeros 600`, i.e. under E14's
+`verifyStructEq'`. This file instantiates that hypothesis with the structural mirror's
+crown AT THE FIXED FUEL LIST `FL := zeros 600`, i.e. under the fuel-discharge layer's
 `hE`/`hN` the two wired alternate entries of `EntryWired.lean` ARE
 the production seam entries — and nothing else is needed.**
 
 ## VERIFIED (this file, sorry-free, axiom-pinned in-module)
 
-* `verifyStructEq'` — THE E14-SLOT CROWN EQUALITY:
+* `verifyStructEq'` — THE fuel-discharge-layer CROWN EQUALITY:
   `EntryWired.lean`'s `verifyStructEq'` hypothesis
   (`VerifyStruct.verifyStruct = Ecdsa.Verify.verifyImpl`) holds under
-  E11's crown hypotheses instantiated at `fs := FL` — by `funext` over
+  the structural mirror's crown hypotheses instantiated at `fs := FL` — by `funext` over
   the three verifier arguments + `verifyStructG_eq_verifyImpl FL hE
   hN` verbatim. (Name = the slot's name: Entry.lean:284's
   `verifyStructEq'` funeq form.)
@@ -36,25 +36,25 @@ the production seam entries — and nothing else is needed.**
   `txCheckerWiredOf = txCheckerOf Ecdsa.Verify.verifyImpl` (the
   RealChecker.lean:105 / TxValidation/Full.lean:80 wiring level).
 
-## PROPOSED (NOT here — the E14-2 discharge layer, read-only)
+## PROPOSED (NOT here — the discharge layer, read-only)
 
 The `hE : ∀ d < P, egcdLDone FL P d = true` / `hN : ∀ s < n,
-egcdLDone FL n s = true` hypotheses themselves (E14-2's
+egcdLDone FL n s = true` hypotheses themselves (the discharge layer's
 fuel-completion, e.g. the Lamé-halving `egcdLDone_zeros` route on
 `zeros (2·j+1)`-fuel, plus the FL = zeros 600 = zeros (2·300+1)
 instantiation and the `d = 0` case). When they land, THIS file's
-`hE`/`hN` binders are their exact contract (E11's crown
+`hE`/`hN` binders are their exact contract (the structural mirror's crown
 `verifyStructG_eq_verifyImpl` hypothesis shapes verbatim); until then
 every statement here is hypothesis-form — nothing is assumed,
-axiomatized or sorry-ed (D-004), and no production path may switch to
+axiomatized or sorry-ed (the no-axiom policy), and no production path may switch to
 the deep lane.
 
 Nothing outside `EcdsaDeep/EntryWiredDis.lean` (this file), the
-EntryWired.lean pass-2 axiom-pin repair (E16B — the twin's blind
-pass-1 pins, see that file's AxiomPins comment) and this report's
-companion findings entry was edited: E11's `VerifyStruct.lean`,
-E16's `Entry.lean`, E06's `VerifyEquation.lean`, E08's
-`SchnorrEquation.lean`, E14's discharge-layer files (E14-2
+EntryWired.lean completion axiom-pin notes (the alternate-entry integration — see that
+file's AxiomPins comment) and the companion discharge-layer notes was edited: the
+structural mirror's `VerifyStruct.lean`,
+the alternate-entry layer's `Entry.lean`, the verification-equation layer's `VerifyEquation.lean`, the Schnorr-equation layer's
+`SchnorrEquation.lean`, the fuel-discharge layer's discharge-layer files (the discharge layer
 probes) and the `Seam`/`Ecdsa` production files are read-only
 throughout.
 -/
@@ -69,11 +69,11 @@ open Bitcoin.Crypto.EcdsaDeep.Entry
 open Bitcoin.Crypto.EcdsaDeep.EntryWired
 open Bitcoin.Crypto.EcdsaDeep.VerifyStruct
 
-/-- **THE E14-SLOT CROWN EQUALITY**: `EntryWired.lean`'s
+/-- **THE fuel-discharge-layer CROWN EQUALITY**: `EntryWired.lean`'s
 `verifyStructEq'` hypothesis (Entry.lean:284's funeq form) HOLDS under
-E11's crown `verifyStructG_eq_verifyImpl` at the fixed fuel list
-`FL := zeros 600` and E14's fuel-completion hypotheses `hE`/`hN`
-(E11's crown hypothesis shapes verbatim — the E14-2 discharge
+the structural mirror's crown `verifyStructG_eq_verifyImpl` at the fixed fuel list
+`FL := zeros 600` and the fuel-discharge layer's fuel-completion hypotheses `hE`/`hN`
+(the structural mirror's crown hypothesis shapes verbatim — the discharge layer discharge
 contract). -/
 theorem verifyStructEq'
     (hE : ∀ d : Nat, d < P → egcdLDone FL P d = true)
@@ -84,7 +84,7 @@ theorem verifyStructEq'
   exact verifyStructG_eq_verifyImpl FL hE hN sig pk msg
 
 /-- **CROWN INSTANTIATION 1 (Dis-form)** = `ecdsaEntryWired_eq` with
-`verifyStructEq' := verifyStructEq' hE hN`: under E14's `hE`/`hN`, the
+`verifyStructEq' := verifyStructEq' hE hN`: under the fuel-discharge layer's `hE`/`hN`, the
 wired alternate entry IS the production ECDSA entry
 `ecdsaEntry Ecdsa.Verify.verifyImpl`. -/
 theorem ecdsaEntryWiredDis_eq
@@ -96,7 +96,7 @@ theorem ecdsaEntryWiredDis_eq
   ecdsaEntryWired_eq sighash hasAmount (verifyStructEq' hE hN)
 
 /-- **CROWN INSTANTIATION 2 (Dis-form)** = `txCheckerWiredOf_eq` with
-`verifyStructEq' := verifyStructEq' hE hN`: under E14's `hE`/`hN`, the
+`verifyStructEq' := verifyStructEq' hE hN`: under the fuel-discharge layer's `hE`/`hN`, the
 wired alternate smart constructor IS the production assembly
 `txCheckerOf Ecdsa.Verify.verifyImpl` (the RealChecker.lean:105 /
 TxValidation/Full.lean:80 wiring level). -/
@@ -114,14 +114,14 @@ theorem txCheckerWiredOfDis_eq
 
 section AxiomPins
 
--- E16B L3 axiom pins (D2 ladder), pass-1-plain/pass-2-guard (the E16
--- Entry.lean idiom): footprints discovered by the cat-probe
--- probe1.lean (plain #print axioms, 1.46s) and pinned here verbatim.
+-- the alternate-entry integration axiom pins (axiom-pin checks), plain/guarded (the alternate-entry layer
+-- Entry.lean idiom): footprints discovered by the combined probe
+-- (plain #print axioms) and pinned here verbatim.
 -- ALL THREE = [propext, Classical.choice, Quot.sound] (⊆ the
--- charter/D2 trio): `verifyStructEq'` = E11's crown
+-- standard trio): `verifyStructEq'` = the structural mirror's crown
 -- (`verifyStructG_eq_verifyImpl`, the trio per its own t15 pins)
 -- under `funext` (Quot.sound); the two Dis-instantiations = the
--- EntryWired pass-2 theorems (the trio — the `verifyStruct`/
+-- EntryWired completion theorems (the trio — the `verifyStruct`/
 -- `verifyImpl` def-constant closures) ∪ the crown (the trio). NO
 -- sorryAx, NO custom axioms anywhere in this module.
 

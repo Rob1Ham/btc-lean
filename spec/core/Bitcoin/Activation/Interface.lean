@@ -2,21 +2,17 @@ import Bitcoin.Data.Basic
 import Bitcoin.Data.Tx
 
 /-!
-# Bitcoin.Activation — consensus script flags & soft-fork activation (W06)
+# Bitcoin.Activation — consensus script flags & soft-fork activation
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W06 (Consensus flags & activation)
-Dependent workstreams : W09 (flags drive EvalScript/VerifyScript),
-                        W10 (CSV/CLTV contextual checks), W12 (BIP34
-                        height gate), W16 (audit of flag vectors)
 Core counterpart files: src/validation.cpp (GetBlockScriptFlags:2249-2288),
                         src/kernel/chainparams.cpp:113-137 (two mainnet
                         exception blocks, buried heights, testdummy),
                         src/versionbits.cpp:26-131 (BIP9 machine),
                         src/deploymentstatus.h:14-37, src/consensus/params.h
-Status                : bodies filled + theorems proved 2026-10-16 by W06.
-                        INTERFACE-CHANGE vs the W01 freeze — see below.
+Status: bodies filled + theorems proved 2026-10-16.
+                        INTERFACE-CHANGE vs the frozen interface — see below.
 
 ## Scope (B2/B4/B5-verified)
 
@@ -28,7 +24,7 @@ never activated) and are catalogued in `Bitcoin.Activation.Flags`
 `getBlockScriptFlags` + buried heights + 2 named mainnet exception
 blocks. The dormant BIP9 machine is modeled for future soft forks.
 
-## Interface changes vs the W01 freeze (each verified against Bitcoin Core
+## Interface changes vs the frozen interface (each verified against Bitcoin Core
 master as fetched 2026-10-16; full argument in
 research/w2-06-flags-activation.md §3)
 
@@ -56,7 +52,7 @@ research/w2-06-flags-activation.md §3)
    exception list. The frozen `∀ f : ScriptFlags → Bool, f (flags h₁) →
    f (flags h₂)` form is equivalent to `flags h₁ = flags h₂` (take
    `f := (· = flags h₁)`), which is false across activation heights —
-   W01's handoff anticipated the tightening.
+   the earlier interface anticipated the tightening.
 6. `getBlockScriptFlags` is a real `def` (was an `opaque` sorry stub).
 7. `lockin_survives_timeout` gained the no-overflow hypothesis `hno`
    (UInt32 height arithmetic in the conclusion must not wrap).
@@ -66,7 +62,7 @@ namespace Bitcoin.Activation
 
 open Bitcoin.Data
 
-/-! ## Flags (verify_flags.h; consensus subset as Bool-record, C1 R4) -/
+/-! ## Flags (verify_flags.h; consensus subset as Bool-record, the prototype R4) -/
 
 /-- Consensus script flags. A Bool-record (not a UInt32 bitset): fields
 stay `decide`-able and self-documenting; the `→ UInt32` mapping is
@@ -93,7 +89,7 @@ def BIP65_HEIGHT : UInt32 := 388381   -- CLTV
 def CSV_HEIGHT : UInt32 := 419328     -- CSV (BIP68/112/113)
 def SEGWIT_HEIGHT : UInt32 := 481824  -- SegWit (BIP141/143/144)
 /-- BIP147 NULLDUMMY activates with segwit (validation.cpp:2280-2283:
-`DeploymentActiveAt(DEPLOYMENT_SEGWIT)` gates NULLDUMMY). W01's stub had
+`DeploymentActiveAt(DEPLOYMENT_SEGWIT)` gates NULLDUMMY). The stub had
 419328 here, which is Core's CSVHeight — corrected per interface-change
 note 1. -/
 def BIP147_HEIGHT : UInt32 := 481824

@@ -2,36 +2,32 @@ import Bitcoin.Data.Basic
 import Bitcoin.Crypto.Curve.Mod
 
 /-!
-# Bitcoin.Crypto.Field — FROZEN INTERFACE (W01)
+# Bitcoin.Crypto.Field — FROZEN INTERFACE
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W14 (secp256k1 field layer — starts NOW, 2B: curve/ECDSA)
-Dependent workstreams : (depends on) nothing — (depended on by)
-                        Crypto.Curve/Ecdsa/Schnorr (this review), W13 (seam),
-                        Review 3 (Schnorr/Taproot proofs)
 Core counterpart files: src/crypto/secp256k1 (subtree): field_5x52_impl.h,
                         field.h (secp256k1_fe), modinv64 (safegcd —
                         Wuille'26 verified-inversion lineage)
-Status                : frozen 2026-10-16 by W01. Statements are
-                        sorry-stubbed placeholders; W14 fills bodies.
+Status: frozen 2026-10-16. Statements are
+                        sorry-stubbed placeholders; the bodies are filled separately.
 
 ## Scope (2A slot)
 
 F_p arithmetic for p = 2^256 - 2^32 - 977, modular inverse, and the
 inverse-correctness theorem. NO mathlib in core: `Fe` is a Subtype of
-Nat (invalid states unrepresentable, D2 ladder L1). If W14 later needs
+Nat (invalid states unrepresentable, design tier L1). If later needs
 mathlib's `ZMod`, the swap happens via interface-change PR + a proven
 abstraction lemma (same pattern as the UTXO set).
 
 Representation is deliberately abstract: ALL theorems are stated over
 `Fe` + the field laws, never over the bit layout.
 
-## FILL NOTE (W17/P01, 2026-10-16)
+## FILL NOTE (P01, 2026-10-16)
 
 The four `opaque` placeholders were replaced by `def`s of byte-identical
 type, delegating to `Bitcoin.Crypto.Curve.Mod` (`addM/mulM/subM/invM`).
-Reason (W17 finding, mirrors W14b's FILL HISTORY in `Curve/Interface.lean`):
+Reason (finding, mirrors FILL HISTORY in `Curve/Interface.lean`):
 `opaque f := body` is kernel-opaque — `rfl`, `unfold`, `delta`,
 `simp only`, `decide`, `show` all fail to see through it — so no theorem
 about the bodies can be proved while they stay `opaque`.
@@ -52,20 +48,20 @@ below:
 The 6-level Pratt certificate (Sbig → Qbig → Rbig → Qtwo → Cbig → P; the
 same sympy-verified data as the proofs-package `CurveZMod.lean`) discharges
 every per-level Lucas step through the kernel-reducible STRUCTURAL
-`Mod.expBits` over literal bit lists (W14 §5 lesson: never kernel-evaluate
+`Mod.expBits` over literal bit lists (§5 lesson: never kernel-evaluate
 `Nat.pow` at 256-bit exponents). All witness checks are `decide`s against
 `Mod.expBits`/`Mod.bitsVal`; small primes are kernel trial divisions. No
 `native_decide` anywhere. Axiom footprints: the primality layer needs only
 `[propext, Quot.sound]`; `feInv_correct` additionally carries
 `Classical.choice` — inherited verbatim from the delegate
-`Mod.invM_correct` (W14b), which already uses it, so the footprint equals
+`Mod.invM_correct`, which already uses it, so the footprint equals
 the generalized-from layer's exactly.
 -/
 
 
 namespace Bitcoin.Crypto.Field
 
-/-! ## The field prime and the element type (unchanged, W01) -/
+/-! ## The field prime and the element type (unchanged, the frozen interface) -/
 
 /-- The secp256k1 field prime p = 2^256 − 2^32 − 977. -/
 def P : Nat :=
@@ -1283,7 +1279,7 @@ degenerate input; `feInv_correct` covers `a ≠ feZero`). -/
 def feInv (a : Fe) : Fe :=
   ⟨invM P a.val, invM_lt P a.val P_pos⟩
 
-/-! ## Frozen laws (W14 exit criteria) -/
+/-! ## Frozen laws (the modular-arithmetic layer exit criteria) -/
 
 /-- `feAdd` respects the canonical representative (p | carry). -/
 theorem feAdd_spec (a b : Fe) : (feAdd a b).val = (a.val + b.val) % P :=
@@ -1293,7 +1289,7 @@ theorem feAdd_spec (a b : Fe) : (feAdd a b).val = (a.val + b.val) % P :=
 theorem feMul_spec (a b : Fe) : (feMul a b).val = (a.val * b.val) % P :=
   rfl
 
-/-- Inverse correctness (the W14 headline; safegcd lineage). -/
+/-- Inverse correctness (the modular-arithmetic layer headline; safegcd lineage). -/
 theorem feInv_correct (a : Fe) (ha : a ≠ feZero) :
     feMul (feInv a) a = feOne := by
   have hav : 0 < a.val := by

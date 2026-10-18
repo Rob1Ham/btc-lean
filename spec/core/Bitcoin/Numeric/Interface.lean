@@ -3,26 +3,21 @@ import Bitcoin.Data.Script
 import Bitcoin.Numeric.ScriptNum
 
 /-!
-# Bitcoin.Numeric — FROZEN INTERFACE (W01)
+# Bitcoin.Numeric — FROZEN INTERFACE
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W04 (ScriptNum + amount arithmetic)
-Dependent workstreams : W09 (interpreter consumes ScriptNum/CastToBool),
-                        W10 (fee arithmetic in CheckTxInputs),
-                        W11 (sighash single-byte encodings),
-                        W12 (subsidy/fee sums)
 Core counterpart files: src/script/interpreter.cpp (CScriptNum:415-451,
                         CScriptNum::GetNum64?, decode: GetOp/arith paths,
                         CastToBool:437-445), src/consensus/amount.h
-Status                : frozen 2026-10-16 by W01. Statements are
-                        sorry-stubbed placeholders; W04 fills bodies.
+Status: frozen 2026-10-16. Statements are
+                        sorry-stubbed placeholders; the bodies are filled.
 
 ## Scope
 
 `CScriptNum` (int64, little-endian, sign bit, 4-byte default carry
 limit), the minimal-encoding rule, `CastToBool`, and the fee/amount
-arithmetic layer on top of C1's `Amount := Int` + `MoneyRange`
+arithmetic layer on top of the prototype's `Amount := Int` + `MoneyRange`
 (`Bitcoin.Data.Basic` — already live). Exit: SCR numeric rules + overflow
 theorems sorry-free.
 -/
@@ -76,7 +71,7 @@ def feeOf : Amount → Amount → Amount :=
   fun vi vo => vi - vo
 
 /-- `MoneyRange` positive-ray law: `0 ≤ n ≤ MAX_MONEY` (amount.h:27),
-already C1-implemented — restated here as the numeric-layer entry of the
+already implemented in the prototype — restated here as the numeric-layer entry of the
 CAmount story. -/
 @[rule "TXV-068"]
 theorem moneyRange_iff (n : Amount) :
@@ -96,7 +91,7 @@ theorem fee_in_money_range (vi vo : Amount)
   refine ⟨Int.sub_nonneg.mpr h, ?_⟩
   exact Int.le_trans (Int.sub_le_self vi h2.1) h1.2
 
-/-! ## Frozen laws (W04 exit criteria) -/
+/-! ## Frozen laws (the numeric layer exit criteria) -/
 
 /-- Roundtrip for values representable within the width bound. -/
 theorem scriptNum_roundtrip (n : ScriptNum) (minimal : Bool)
@@ -170,7 +165,7 @@ theorem scriptNum_width_rule (b : ByteArray) (minimal : Bool) (maxSize : Nat)
 /-- Minimal-encoding rule (SCR row: non-minimal pushes rejected when
 `fRequireMinimal`): a trailing 0x00 or redundant sign byte is refused.
 
-INTERFACE CHANGE (W04, documented in research/w2-04): the W01-frozen
+INTERFACE CHANGE (documented in the script-number notes): the frozen
 statement (`1 < b.size ∧ back = 0 ⇒ reject`) is FALSE as stated — the
 counterexample is the two-byte `0x80 0x00` (= 128), which Core accepts
 (script.h:252-268 rejects only when the *second-to-last* byte's high bit
@@ -295,7 +290,7 @@ theorem encodeScriptNum_five_byte_witness :
   refine ⟨hsz, ?_⟩
   exact scriptNum_four_byte_rule_any _ true (by rw [hsz]; decide)
 
-/-! ## W04 helper laws for consumers (W09/W10) -/
+/-! ## the numeric layer helper laws for consumers (the interpreter and transaction-validation layers) -/
 
 /-- `CastToBool` agrees with the decoded value being nonzero — for every
 byte vector, including the negative-zero corner (`0x80` casts false,

@@ -1,12 +1,12 @@
 import Bitcoin.Serialization.Interface
 
 /-!
-# W02 unit tests — Serialization conformance vectors
+# Bitcoin.Serialization unit tests — Serialization conformance vectors
 
 Every check is a build-time `example … := by decide` (kernel-reduced, no
-IO), mirroring the C1 PoC / W05 pattern. All byte-exact vectors were
+IO), mirroring the prototype pattern. All byte-exact vectors were
 generated independently with plain Python (`struct`-packing, `gen_vectors.py`
-in the W02 scratch area), mirroring Bitcoin Core's serialization code
+separately), mirroring Bitcoin Core's serialization code
 @ `c50817f` (`serialize.h` CompactSize, `primitives/transaction.h`
 `UnserializeTransaction`, `primitives/block.h`).
 
@@ -132,7 +132,7 @@ example : decCS (hex "fd01") = .error .truncated := by decide
 -- empty input
 example : decCS ([] : Bytes) = .error .truncated := by decide
 
-/-! ## Legacy tx (C1 sampleCoinbase) — decode + byte-exact re-encode -/
+/-! ## Legacy tx (the prototype sampleCoinbase) — decode + byte-exact re-encode -/
 
 /-- Legacy coinbase wire form (same vector as Main.lean's
 `sampleCoinbaseHex`, independently regenerated). -/

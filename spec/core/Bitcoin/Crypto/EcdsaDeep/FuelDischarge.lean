@@ -1,9 +1,9 @@
 import Bitcoin.Crypto.EcdsaDeep.EntryWired
 
 /-!
-# FuelDischarge — discharging E11's `hE`/`hN` fuel-completion hypotheses (E14-2)
+# FuelDischarge — discharging the structural mirror's `hE`/`hN` fuel-completion hypotheses (the discharge layer)
 
-E11's crown (`VerifyStruct.verifyStructG_eq_verifyImpl`, commit 6aee3e9)
+the structural mirror's crown (`VerifyStruct.verifyStructG_eq_verifyImpl`, commit 6aee3e9)
 reduces `verifyStruct = verifyImpl` to two universal-completion
 hypotheses at the fixed fuel list `FL := zeros 600`:
 
@@ -11,7 +11,7 @@ hypotheses at the fixed fuel list `FL := zeros 600`:
 * `hN : ∀ s < n, egcdLDone FL n s = true`.
 
 This file DISCHARGES both, unconditionally, and lands the resulting
-unconditional crowns (nothing in E11/E16/E06/E08 edited):
+unconditional crowns (nothing in the structural-mirror, alternate-entry, verification-equation, and Schnorr-equation layers edited):
 
 * `egcdLDone_zeros_even` — Lamé two-step halving: `0 < b < 2^j` ⇒
   `egcdLDone (zeros (2*j+2)) a b = true` (NO primality, general in `a`;
@@ -22,14 +22,14 @@ unconditional crowns (nothing in E11/E16/E06/E08 edited):
   (`P < 2^256` and `n_lt_two256`, both kernel `decide` literals).
 * `verifyStruct_eq_verifyImpl` — THE UNCONDITIONAL CROWN.
 * `verifyStructEq'_uncond`, `ecdsaEntryWired_eq_uncond`,
-  `txCheckerWiredOf_eq_uncond` — E16's `EntryWired` slot and its two
+  `txCheckerWiredOf_eq_uncond` — the alternate-entry layer's `EntryWired` slot and its two
   production-equality instantiations, no hypotheses left.
 
 VERIFIED: this file is sorry-free and every theorem's axiom footprint is
-⊆ `[propext, Classical.choice, Quot.sound]` (scratch cat-echo pins,
-`spec/core`, zero `sorryAx`, zero custom axioms; D-004 clean:
+⊆ `[propext, Classical.choice, Quot.sound]` (pinned footprints,
+`spec/core`, zero `sorryAx`, zero custom axioms; the no-axiom policy clean:
 no `native_decide`, the only kernel computation is literal `decide` on
-`P`/`n`/`2^299` bounds). PROPOSED-NOT-HERE: nothing — the E11 hand-off
+`P`/`n`/`2^299` bounds). PROPOSED-NOT-HERE: nothing — the structural-mirror interface
 is closed. Production may still keep the compiled `verifyImpl` seam; the
 deep lane is now an equality, not a hypothesis.
 -/
@@ -153,25 +153,25 @@ theorem egcdLDone_FL_of_lt {m d : Nat} (h : d < m) (hm : m < 2 ^ 256) :
 /-- The field prime fits in 256 bits (kernel `decide` on the literal). -/
 theorem P_lt_two256 : P < 2 ^ 256 := by decide
 
-/-- **E14-2 `hE` DISCHARGED** (E11's crown hypothesis shape verbatim). -/
+/-- **the discharge layer `hE` DISCHARGED** (the structural mirror's crown hypothesis shape verbatim). -/
 theorem hE_uncond : ∀ d : Nat, d < P → egcdLDone FL P d = true := by
   intro d hd
   exact egcdLDone_FL_of_lt hd P_lt_two256
 
-/-- **E14-2 `hN` DISCHARGED** (mod-`n` analogue). -/
+/-- **the discharge layer `hN` DISCHARGED** (mod-`n` analogue). -/
 theorem hN_uncond : ∀ s : Nat, s < n → egcdLDone FL n s = true := by
   intro s hs
   exact egcdLDone_FL_of_lt hs n_lt_two256
 
 /-- **THE UNCONDITIONAL CROWN**: the structural mirror IS the production
-verifier (E11's `verifyStructG_eq_verifyImpl` with `hE`/`hN` discharged). -/
+verifier (the structural mirror's `verifyStructG_eq_verifyImpl` with `hE`/`hN` discharged). -/
 theorem verifyStruct_eq_verifyImpl :
     Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct
       = Bitcoin.Crypto.Ecdsa.Verify.verifyImpl := by
   funext sig pk msg
   exact verifyStructG_eq_verifyImpl FL hE_uncond hN_uncond sig pk msg
 
-/-- E16 `EntryWired.lean`'s `verifyStructEq'` slot, unconditionally. -/
+/-- the alternate-entry layer `EntryWired.lean`'s `verifyStructEq'` slot, unconditionally. -/
 theorem verifyStructEq'_uncond :
     Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct
       = Bitcoin.Crypto.Ecdsa.Verify.verifyImpl :=
@@ -199,7 +199,7 @@ theorem txCheckerWiredOf_eq_uncond
 
 section AxiomPins
 
--- E14-2 axiom pins: every discharge/crown theorem ⊆ the charter trio
+-- the discharge layer axiom pins: every discharge/crown theorem ⊆ the standard trio
 -- [propext, Classical.choice, Quot.sound]; NO sorryAx, NO custom axiom.
 
 /-- info: 'Bitcoin.Crypto.EcdsaDeep.FuelDischarge.egcdLDone_zeros_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/

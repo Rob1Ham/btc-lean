@@ -3,10 +3,10 @@ import Bitcoin.Data.Basic
 
 /-!
 # Bitcoin.Crypto.Taproot.Program — P2TR program recognition and
-# witness-structure classification (X06)
+# witness-structure classification (the witness-structure module)
 
 The Taproot-era rows that are implementable STANDALONE of the BIP341
-sighash pipeline and the BIP342 tapscript deltas (X03/X04 lanes):
+sighash pipeline and the BIP342 tapscript deltas (the Taproot and interpreter delta layers' lanes):
 
 * **P2TR program recognition** — `p2trProgram` / `isPayToTaproot`
   (TPR-001), the `SCRIPT_VERIFY_TAPROOT` flag gate (TPR-002), the
@@ -19,7 +19,7 @@ sighash pipeline and the BIP342 tapscript deltas (X03/X04 lanes):
 * **Annex rules** — the annex hash `sha_annex` (TPR-006).
 * **Tagged-hash construction pin** — TPR-047 (the
   `SHA256(SHA256(tag)‖SHA256(tag)‖msg)` construction, pinned as a
-  congruence/definitional theorem over X02's `taggedHash`).
+  congruence/definitional theorem over the Schnorr module's `taggedHash`).
 
 Ground truth @cce32b168: `script.cpp:IsPayToTaproot:241-246`,
 `IsPayToAnchor:216-222`, `interpreter.cpp:VerifyWitnessProgram
@@ -32,16 +32,15 @@ outputs".
 ## Deliberate layering
 
 This module is a PURE byte-level spec layer: it imports only
-`TapTweak` (X03 Unit 1, for the TPR-047 pin) and `Data.Basic` (the
+`TapTweak` (the Taproot module, for the TPR-047 pin) and `Data.Basic` (the
 CompactSize encoder). The interpreter-side counterpart of the same
-rules is W09's `verifyWitnessProgram` taproot branch
-(`Bitcoin.Interpreter.Defs`), which X04 owns; the theorems here are
-about THESE defs, and the report (research/w3-06-tpr-completion.md)
-maps each row to both.
+rules is `verifyWitnessProgram` taproot branch
+(`Bitcoin.Interpreter.Defs`), which the interpreter delta layer owns; the theorems here are
+about THESE defs, and the Taproot completion notes map each row to both.
 
 VERIFIED = defs + sorry-free theorems + axiom pins + wallet-vector
 conformance (spec/Test/Crypto/TaprootProgramTest.lean); PROPOSED = the
-cross-module mapping into X04's interpreter branch.
+cross-module mapping into the interpreter delta layer's interpreter branch.
 -/
 
 namespace Bitcoin.Crypto.Taproot.Program
@@ -62,7 +61,7 @@ def p2trProgram (version : Nat) (program : ByteArray) : Bool :=
   version = 1 ∧ program.size = 32
 
 /-- `IsPayToTaproot` on a full scriptPubKey: decode the witness-program
-template (`script.cpp:IsWitnessProgram:250-264`, same shape as W09's
+template (`script.cpp:IsWitnessProgram:250-264`, same shape as
 `isWitnessProgram`) and apply `p2trProgram`. -/
 @[rule "TPR-001"]
 def isPayToTaproot (spk : ByteArray) : Bool :=
@@ -169,7 +168,7 @@ theorem taprootLane_native (flagsTaproot : Bool) (program : ByteArray)
 /-! ## TPR-004 — the P2A anchor -/
 
 /-- `CScript::IsPayToAnchor` (script.cpp:216-222 @cce32b168): witness
-v1, 2-byte program `0x4e73`. Transliterated (W09's
+v1, 2-byte program `0x4e73`. Transliterated from
 `Bitcoin.Interpreter.Defs.isPayToAnchor` is the same def in the
 interpreter layer; this is the recognition-layer twin so the row can
 carry a Crypto-side target). -/
@@ -277,8 +276,8 @@ theorem compactSizeEnc_size_pos (n : Nat) : 0 < (compactSizeEnc n).size := by
 /-- `sha_annex` (interpreter.cpp:1964 + 1554-1556): `SHA256(CSize(len) ‖
 annex)` — the HashWriter serializes the SPAN of the annex (its
 CompactSize length, then the bytes INCLUDING the 0x50 tag). TPR-006's
-computation half; "enters sighash iff present" is the X03 sighash lane
-(ScriptExecutionData.annexPresent/annexHash, W13 seam already
+computation half; "enters sighash iff present" is the Taproot module sighash lane
+(ScriptExecutionData.annexPresent/annexHash, seam already
 plumbs both, `schnorrEntry_execData_plumbed` = TPR-072). -/
 @[rule "TPR-006"]
 def annexHash (annex : ByteArray) : ByteArray :=
@@ -467,12 +466,12 @@ theorem spendStack_length_of_isAnnex (items : List ByteArray)
 /-! ## TPR-009 — control-block size gate -/
 
 /-- The three taproot control constants (interpreter.h:244-247 @cce32b168).
-FIX F-X03-1 (was `:= 65`, 4161): Core's `TAPROOT_CONTROL_BASE_SIZE = 33`
+FIX (was `:= 65`, 4161): Core's `TAPROOT_CONTROL_BASE_SIZE = 33`
 (interpreter.cpp:1918 `XOnlyPubKey p{control.subspan(1, 32)}` = 1 version/
 parity byte + 32 x-only internal-key bytes) and `_MAX_SIZE = 33 + 32·128 =
 4129` (BIP341 depth ≤ 128). The 65/4161 lattice (65 = 33 + one node)
 over-rejected the m = 0 single-leaf control (33 bytes) and over-accepted
-m = 129 (4161) — kernel-verified in findings-w6/M02.md F-M02-001. -/
+m = 129 (4161) — kernel-verified (the offset pin). -/
 def TAPROOT_CONTROL_BASE_SIZE : Nat := 33
 def TAPROOT_CONTROL_NODE_SIZE : Nat := 32
 def TAPROOT_CONTROL_MAX_SIZE : Nat := 33 + 128 * 32
@@ -484,7 +483,7 @@ def controlBlockSizeOk (control : ByteArray) : Bool :=
     (control.size - TAPROOT_CONTROL_BASE_SIZE) % TAPROOT_CONTROL_NODE_SIZE = 0
 
 /-- The gate in literal-constant form (`len = 33 + 32m`, `0 ≤ m ≤ 128`;
-`33` = 1 version/parity byte + 32 internal-key bytes). FIX F-X03-1: the
+`33` = 1 version/parity byte + 32 internal-key bytes). FIX: the
 statement previously baked the 65/4161 convention; repaired to the
 Core-33 semantics (statement-fidelity path, documented in the commit). -/
 theorem controlBlockSizeOk_sizes (control : ByteArray) :
@@ -495,14 +494,14 @@ theorem controlBlockSizeOk_sizes (control : ByteArray) :
   exact decide_eq_true_iff
 
 /-- TPR-009 (minimal): the minimal control block is the 33-byte
-m = 0 case (leaf hash directly under the output key). FIX F-X03-1:
+m = 0 case (leaf hash directly under the output key). FIX:
 was `h : control.size = 65` (Core: m = 1). -/
 theorem controlBlockSizeOk_minimal (control : ByteArray)
     (h : control.size = 33) : controlBlockSizeOk control = true :=
   (controlBlockSizeOk_sizes control).mpr (by omega)
 
 /-- TPR-009 (maximal): m = 128 → 4129 bytes is accepted (the deepest
-tapscript tree; BIP341 §"Script validation"). FIX F-X03-1: was
+tapscript tree; BIP341 §"Script validation"). FIX: was
 `65 + 128 * 32` = 4161 (Core: m = 129, rejected). -/
 theorem controlBlockSizeOk_maximal (control : ByteArray)
     (h : control.size = 33 + 128 * 32) :
@@ -519,7 +518,7 @@ theorem controlBlockSizeOk_66 (control : ByteArray)
   exact decide_eq_false_iff_not.mpr h'
 
 /-- TPR-009 (the m-recovery): every accepted size determines its m,
-`0 ≤ m ≤ 128`, `size = 33 + 32m`. FIX F-X03-1: was `65 + 32m`. -/
+`0 ≤ m ≤ 128`, `size = 33 + 32m`. FIX: was `65 + 32m`. -/
 theorem controlBlockSizeOk_m (control : ByteArray)
     (h : controlBlockSizeOk control = true) :
     ∃ m : Nat, 0 ≤ m ∧ m ≤ 128 ∧ control.size = 33 + 32 * m := by
@@ -567,8 +566,8 @@ theorem tapscriptLeaf_even : TAPROOT_LEAF_TAPSCRIPT &&& 1 = 0 := by
 
 /-- TPR-047: the tagged-hash construction
 `SHA256(SHA256(tag) ‖ SHA256(tag) ‖ msg)` — pinned as the definitional
-unfolding of X02's `taggedHash`, the construction BIP341 reuses for
-TapTweak (TPR-015, X03) / TapLeaf (TPR-012) / TapSighash (TPR-032) /
+unfolding of the Schnorr module's `taggedHash`, the construction BIP341 reuses for
+TapTweak (TPR-015, the Taproot module) / TapLeaf (TPR-012) / TapSighash (TPR-032) /
 the annex-free single-SHA256 discipline (TPR-046: exactly ONE sha256
 compression over the doubled-tag preimage — see `taggedHash_size`
 below: 32-byte digest, no double hashing). -/
@@ -583,7 +582,7 @@ theorem taggedHash_unfold (tag msg : ByteArray) :
 
 /-- Witness-serialized size of a stack (Core
 `::GetSerializeSize(witness.stack)` — per item CompactSize(length) +
-bytes; same def as W09's `Bitcoin.Interpreter.Defs.witnessSerSize`,
+bytes; same def as `Bitcoin.Interpreter.Defs.witnessSerSize`,
 restated here as the Crypto-side pin for TPR-071). -/
 def witnessSerSize (items : List ByteArray) : Int :=
   items.foldl (fun acc d => acc + Int.ofNat ((compactSizeEnc d.size).size + d.size)) 0
@@ -634,7 +633,7 @@ theorem validationWeightInit_annex_included (items : List ByteArray)
     Int.add_lt_add_right hb (witnessSerSize items)
   omega
 
-/-! ## Axiom footprints (X02/X03 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the Schnorr and Taproot modules style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext, Classical.choice,
 Quot.sound]` (choice enters only via `by_cases` on undecidable-looking

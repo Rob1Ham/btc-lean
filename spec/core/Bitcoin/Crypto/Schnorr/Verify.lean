@@ -2,7 +2,7 @@ import Bitcoin.Crypto.Curve.Secp
 import Bitcoin.Crypto.Schnorr.TaggedHash
 
 /-!
-# Bitcoin.Crypto.Schnorr.Verify — BIP340 verification over the W14/W14b curve+field (X02)
+# Bitcoin.Crypto.Schnorr.Verify — BIP340 verification over the curve and field layers
 
 A faithful transliteration of the BIP340 verification algorithm
 (bip-0340.mediawiki §"Verification"), over the EXISTING core curve layer
@@ -13,7 +13,7 @@ extended-Euclid `invP` underneath, `negN` y-negation) — no new math.
 
 1. Fail if `sig.size ≠ 64` or `pk.size ≠ 32` (sizeGate). The message may
    be ANY length (bip-0340 step 1 gates only sig/pk; vectors 15–18 exercise
-   msg of size 0/1/17/100 — X02's first draft wrongly gated msg = 32 and
+   msg of size 0/1/17/100 — the Schnorr module's first draft wrongly gated msg = 32 and
    exactly those four vectors caught it). Core's tapscript entry always
    feeds a 32-byte BIP342 sighash, so on Core's domain the two agree.
 2. `P = lift_x(int(pk))` — fail if `x ≥ p` or `x³+7` is a non-residue
@@ -21,14 +21,14 @@ extended-Euclid `invP` underneath, `negN` y-negation) — no new math.
 3. `r = int(sig[0:32])`;  fail if `r ≥ p`.
 4. `s = int(sig[32:64])`; fail if `s ≥ n`.
 5. `e = int(tagged_hash("BIP0340/challenge", bytes(r) ‖ bytes(P.x) ‖ m)) mod n`
-   (`TaggedHash.challengeTagged` + mod-n; Unit 1, python-verified).
+   (`TaggedHash.challengeTagged` + mod-n; python-verified).
 6. `R = s·G − e·P` — implemented as `s·G + e·(−P)` with `−P = (px, p − py)`
    (`Secp.negN`), the same group element by the sign-symmetry of the
    negation map; `mulP` is total so no special cases.
 7. Fail if `R` is infinite (`none`), or `x(R) ≠ r`, or `has_even_y(R)` is false.
 8. Accept.
 
-## Core fidelity (charter: Core = ground truth)
+## Core fidelity (Core = ground truth)
 
 Core's verify path (`secp256k1_schnorrsig_verify`, vendored
 src/crypto/secp256k1, dispatched from src/key.cpp `CPubKey::Verify`)
@@ -137,7 +137,7 @@ theorem verifyLifted_true_R (sig : ByteArray) (px py : Nat) (msg : ByteArray)
 /-- BIP340 verification (bip-0340 §"Verification"). Total and deterministic
 in `(sig, pk, msg)` — every branch returns a defined `Bool` (BIP340 §design:
 "completely specified at the byte level"). Arg order `(sig, pk, msg)`
-mirrors the W13 seam call `schnorrVerdict` makes: `verify body pk h`. -/
+mirrors the seam call `schnorrVerdict` makes: `verify body pk h`. -/
 @[rule "TPR-050", rule "TPR-051", rule "TPR-052", rule "TPR-053"]
 def verifyImpl (sig pk msg : ByteArray) : Bool :=
   if !sizeGate sig pk then false

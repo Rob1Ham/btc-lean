@@ -5,29 +5,26 @@ import Bitcoin.TxValidation.Interface
 import Bitcoin.Conservation.Interface
 
 /-!
-# Bitcoin.Ledger — FROZEN INTERFACE (W01), bodies + theorem tier by W12
+# Bitcoin.Ledger — FROZEN INTERFACE, bodies + theorem tier filled
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W12 (Ledger / UTXO model)
-Dependent workstreams : (depends on) W03, W08 — (depended on by)
-                        W15 (block-apply / conservation theorems), W16
 Core counterpart files: src/coins.h (Coin, CCoinsView*), src/coins.cpp
                         (BatchWrite — a perf artifact, not modeled),
                         src/validation.cpp (UpdateCoins:1998, ConnectBlock
                         :2294 coinbase/maturity/BIP30, DisconnectBlock
                         :2178), src/coins.cpp:AddCoin:82 (OP_RETURN
                         early-return — unspendables NOT stored)
-Status                : frozen 2026-10-16 by W01; bodies + theorems
-                        filled 2026-10-16 by W12. Two SANCTIONED statement
-                        changes (charter §5.6, W08 `hle` precedent):
+Status: frozen 2026-10-16; bodies + theorems
+                        filled 2026-10-16. Two SANCTIONED statement
+                        changes (the interface conventions, `hle` precedent):
 
   1. `applyBlock` returns `Except BlockError UtxoSet` — the block-level
      checks (BIP30 `bad-txns-BIP30`, `bad-cb-missing`, `bad-cb-multiple`)
-     live in ConnectBlock, not in any single-tx check, so W10's frozen
+     live in ConnectBlock, not in any single-tx check, so the frozen
      `TxError` cannot express them. Per-tx failures still carry the
      exact `TxError` (`BlockError.txError e`). Interface-change proposal
-     filed for W10: absorb `badTxnsBIP30` into `TxError`.
+     filed: absorb `badTxnsBIP30` into `TxError`.
   2. `applyBlock_no_double_spend` restated in freshness form: the frozen
      "each outpoint spent by ≤ 1 tx" form is REFUTABLE — a tx that spends
      an outpoint whose txid-preimage a later tx in the same block
@@ -37,10 +34,10 @@ Status                : frozen 2026-10-16 by W01; bodies + theorems
 
 ## Scope
 
-C1's UTXO decision implemented: abstract `UtxoSet := OutPoint → Option
+The UTXO decision is implemented: abstract `UtxoSet := OutPoint → Option
 Coin` for theorems; assoc-list executable instance in
 `Bitcoin.Ledger.AssocList` (HashMap later — instances are NOT switched
-this review). `updateCoins` as a total function; `applyBlock` as the
+in this module). `updateCoins` as a total function; `applyBlock` as the
 explicit sequential fold (the same-block spend ordering — the one
 mutation-load-bearing behavior, B3); BIP30 carve-outs (91842/91880 +
 disconnect pair 91722/91812 + BIP34_IMPLIES_BIP30_LIMIT = 1,983,702);
@@ -48,10 +45,10 @@ coinbase maturity at apply time; OP_RETURN outputs never inserted;
 genesis = EMPTY Utxo set (validation.cpp:2330-2334).
 
 Keying: `applyBlock` keys new coins by `txidPreimageKey` = the base
-serialization `serTx tx` (W02-backed, real, computable). W03's
-`DataLaws.txid = sha256d (serTx tx)` carries the W13 `sha256d` opaque
+serialization `serTx tx` (serialization-backed, real, computable).
+`DataLaws.txid = sha256d (serTx tx)` carries the `sha256d` opaque
 stub (sorryAx by dependency) — keying by it would taint every theorem
-here with sorryAx, so the hash is applied at the W13 seam, not inside
+here with sorryAx, so the hash is applied at the seam, not inside
 the ledger. Swapping `txidPreimageKey` to txid is a one-line change when
 the hash floor lands; every theorem below is key-generic.
 -/
@@ -89,7 +86,7 @@ argument; it is kept so the fold is provable key-generically. -/
 abbrev Key := OutPoint → UInt32 → OutPoint
 
 /-- Canonical key pending the hash floor: the txid *preimage* (the base
-serialization, W02-backed). -/
+serialization-backed). -/
 def txidPreimageKey (tx : Tx) : Key := fun _ k => ⟨serTx tx, k⟩
 
 /-- `MAX_SCRIPT_SIZE` (script.h; Core consensus constant). -/
@@ -135,7 +132,7 @@ live in `applyTxStep`). Pointwise semantics:
     input has the null prevout and is never looked up (INV-110:
     "spend all inputs exactly once, coinbase exempt");
   * everything else is preserved.
-Theorems quantify over `u` and `key` — the C1 abstraction discipline. -/
+Theorems quantify over `u` and `key` — the abstraction discipline. -/
 @[rule "INV-110", rule "INV-111", rule "INV-113"]
 def updateCoins (u : UtxoSet) (tx : Tx) (key : Key) (height : UInt32) : UtxoSet :=
   fun o =>
@@ -146,11 +143,11 @@ def updateCoins (u : UtxoSet) (tx : Tx) (key : Key) (height : UInt32) : UtxoSet 
       else if tx.vin.any (fun i => i.prevout == o) then none
       else u o
 
-/-! ## Executable tier: the assoc-list fold (W12 S1)
+/-! ## Executable tier: the assoc-list fold (the ledger layer)
 
 The theorems quantify over the point (`UtxoSet`); the executable spec
 runs the SAME fold over the assoc list (`UtxoList`). The abstraction
-lemma `updateCoinsL_abstract` ties the two — C1's discipline, kept. -/
+lemma `updateCoinsL_abstract` ties the two — the abstraction discipline, kept. -/
 
 /-- Byte-wise equality is real equality (needed to reason about the
 `BEq OutPoint` instance inside the abstraction lemma). -/
@@ -175,7 +172,7 @@ theorem outPointBEq_eq (a b : OutPoint) (h : (a == b) = true) : a = b := by
   have hb : b = OutPoint.mk b.hash b.n := rfl
   rw [ha, hb, he1, he2]
 
-/-- The abstraction map: assoc list → point (C1's UTXO decision). -/
+/-- The abstraction map: assoc list → point (the UTXO decision). -/
 def viewOf (l : List (OutPoint × Coin)) : UtxoSet := fun o => coinLookup l o
 
 /-- Executable `updateCoins`: prepend `tx`'s non-unspendable output
@@ -269,7 +266,7 @@ theorem listAny_true_mem {α : Type _} (p : α → Bool) :
         obtain ⟨x, hx, hpx⟩ := listAny_true_mem p r h
         exact ⟨x, List.mem_cons.mpr (Or.inr hx), hpx⟩
 
-/-- THE ABSTRACTION LEMMA (S1): lookup over the updated list computes the
+/-- THE ABSTRACTION LEMMA (the executable tier): lookup over the updated list computes the
 pointwise `updateCoins`. Everything downstream (the block fold, THM-037,
 no-double-spend) is stated over the point and transferred through this. -/
 theorem updateCoinsL_abstract (l : List (OutPoint × Coin)) (tx : Tx) (key : Key) (height : UInt32) :
@@ -303,7 +300,7 @@ theorem updateCoinsL_abstract (l : List (OutPoint × Coin)) (tx : Tx) (key : Key
 
 /-! ## Block-level checks (ConnectBlock's UTXO-side per-tx gates) -/
 
-/-- Block-level error: per-tx failures keep W10's exact `TxError`;
+/-- Block-level error: per-tx failures keep the transaction-validation layer's exact `TxError`;
 ConnectBlock-only failures get their own constructors (ownership block,
 sanctioned change #1). -/
 inductive BlockError : Type where
@@ -338,7 +335,7 @@ check wholesale. The BIP34-window *hash pin* (the chain's block@227931
 = BIP34Hash) is a chain-level canonicality condition abstracted here —
 see report §"BIP30 modeling".
 
-FIX D2a (RC SWEEP; was `BIP34_HEIGHT ≤ height`, i.e. the elide-window
+FIX D2a (2026-10-17; was `BIP34_HEIGHT ≤ height`, i.e. the elide-window
 [227931, 1983702)): Core @cce32b168 validation.cpp:2458-2461 computes
 `pindexBIP34height = pindex->pprev->GetAncestor(BIP34Height)` — on the
 height-227930 parent this is null, so 2461's second conjunct is VACUOUS
@@ -346,8 +343,7 @@ at h = 227931 and Core ENFORCES BIP30 there (the loop-gate 2466
 `fEnforceBIP30 || h ≥ 1983702` is ON). The skip window proper is
 (227931, 1983702) — Core's null-ancestor reading makes 227931 the LAST
 BIP30-ON height, not the first elided one. Fixed heights-only, exactly
-the D2a divergence (F-S04-001 / F-Z05-001 / CV07 D2a / X11
-FIND-X11-004 / CT02 V2). This is the CANONICAL-CHAIN face: D2b
+the D2a divergence (CV07 D2a / the block-vector module / CT02 V2). This is the CANONICAL-CHAIN face: D2b
 (227932..1983701 non-canonical-branch hash-pin) and D2c (91842/91880
 own-hash-pins) are modeled by `bip30EnforcedAt` below, of which this is
 the canonical specialization (`bip30EnforcedAt_canonical`). -/
@@ -356,7 +352,7 @@ def bip30Enforced (height : UInt32) : Bool :=
   !(BIP30_DUPLICATE_COINBASE_HEIGHTS.contains height) &&
   !(BIP34_HEIGHT < height && height < BIP34_IMPLIES_BIP30_LIMIT)
 
-/-- Chain-context BIP30 gate (F-S04-002 D2b + F-S04-003 D2c): Core
+/-- Chain-context BIP30 gate (D2b + D2c): Core
 validation.cpp:2401/2458-2461/2466 --
 `fEnforceBIP30 = !IsBIP30Repeat(*pindex) && !(pindexBIP34height &&
 pindexBIP34height->GetBlockHash() == BIP34Hash)` and the 2466 overlap
@@ -464,15 +460,15 @@ theorem bip30EnforcedAtHashes_canonical (height : UInt32) :
 already in the view (`(u op).isSome` = Core's `HaveCoin`,
 spent = none = INV-114).
 
-FIX D4c-1 (BIP30R, first half of the atomic D4c-1+D4c-2 pair,
-F-TXVB-014): was `(addedCoins tx key height).any ...` —
+FIX D4c-1 — the first half of the atomic D4c-1+D4c-2 pair —
+was `(addedCoins tx key height).any ...` —
 unspendable-SKIPPED (via addedCoins' AddCoin filter), Core's loop
 2467-2471 is over ALL `tx.vout` with NO unspendable skip. Fixed to
 the unfiltered `List.range tx.vout.length` shape =
 `bip30OverlapPristine`'s inner (Bip30Nuance §2). The second half
 (D4c-2) moves the CALL SITE: Core runs this check ONCE pre-block on
 the PRISTINE view (the `bip30BlockCollision` gate), not per-tx in
-the W12 fold — D4c-2 lands as the immediate next decls; the S04 D4c
+the fold — D4c-2 lands as the immediate next decls; the BIP30 row set's D4c
 witnesses flip when both halves are in. `height` is the unused
 loop-gate context (kept for the def's signature stability). -/
 @[rule "INV-104"]
@@ -484,8 +480,8 @@ def bip30Collision (u : UtxoSet) (tx : Tx) (key : Key) (height : UInt32) : Bool 
 block (keyed `kf` per-tx, Core's `COutPoint(tx->GetId(), o)`) lands
 on an outpoint already in the PRE-BLOCK (pristine) view `u` — the
 loop Core runs ONCE per block, BEFORE the per-tx ConnectBlock fold
-(~2519). FIX D4c-2 (second half of the atomic D4c-1+D4c-2 pair,
-F-TXVB-014): `bip30Collision` was called per-tx INSIDE the W12 fold
+(~2519). FIX D4c-2 — the second half of the atomic D4c-1+D4c-2 pair —
+`bip30Collision` was called per-tx INSIDE the fold
 on the EVOLVING view; Core 2466-2475 calls it pre-block on the
 pristine view. This def is the collision loop; `applyBlockU/L`
 become the `badTxnsBIP30`-gated wrappers (next decls), and
@@ -497,7 +493,7 @@ def bip30BlockCollision (u : UtxoSet) (kf : Tx → Key) :
   | tx :: rest, height =>
     bip30Collision u tx (kf tx) height || bip30BlockCollision u kf rest height
 
-/-! ## The block fold (W12 S1): one tx step + the sequential fold
+/-! ## The block fold (the ledger layer): one tx step + the sequential fold
 
 `applyTxStep` = ConnectBlock's per-tx UTXO side, in Core's check order
 (ConnectBlock loop → `CheckTxInputs` gates → `UpdateCoins`): inputs
@@ -505,8 +501,8 @@ available (HaveInputs), coinbase maturity, then the total
 `updateCoins`. Coinbase txs skip the input checks (their single input
 is the null prevout, never looked up — INV-110).
 
-FIX D4c-2 (BIP30R, the second half of the atomic D4c-1+D4c-2 pair,
-F-TXVB-014): the BIP30 duplicate branch is REMOVED from
+FIX D4c-2 — the second half of the atomic D4c-1+D4c-2 pair —
+the BIP30 duplicate branch is REMOVED from
 `applyTxStepU/L` — Core runs the duplicate-coinbase check ONCE per
 block (validation.cpp:2466-2475) on the PRISTINE pre-block view
 BEFORE the per-tx ConnectBlock fold (~2519), never per-tx inside the
@@ -565,8 +561,8 @@ duplicate-coinbase loop (2466-2475) runs ONCE, PRE-BLOCK, on the
 PRISTINE view `u` (gated by `bip30Enforced`, 2466) and rejects the
 whole block with `bad-txns-BIP30` BEFORE the sequential per-tx fold
 (`applyBlockFoldU`). Was (pre-D4c-2): the bare sequential fold with
-the BIP30 branch inlined per-tx in `applyTxStepU` — the divergence
-F-TXVB-014 D4c documented (Core = pre-block pristine ONCE; ours =
+the BIP30 branch inlined per-tx in `applyTxStepU` — the D4c divergence
+(Core = pre-block pristine ONCE; ours =
 per-tx evolving). -/
 def applyBlockU (u : UtxoSet) (kf : Tx → Key) (txs : List Tx) (height : UInt32) :
     Except BlockError UtxoSet :=
@@ -584,20 +580,20 @@ def applyBlockL (l : List (OutPoint × Coin)) (kf : Tx → Key) (txs : List Tx) 
     Except.error BlockError.badTxnsBIP30
   else applyBlockFoldL l kf txs height
 
-/-! ### Frozen canonical wrappers (W01 surface, now on the kf fold)
+/-! ### Frozen canonical wrappers (the frozen interface surface, now on the kf fold)
 
-W01's frozen `applyBlock` took no key: the ledger's actual keying rule
+The frozen `applyBlock` took no key: the ledger's actual keying rule
 is the txid preimage, so the canonical wrappers pin `txidPreimageKey`
 per tx (`applyBlock`/`applyBlockExec`); the `kf`-threading folds above
 carry the general form the theorems quantify over. -/
 
-/-- FROZEN (W01): `ConnectBlock`'s UTXO fold, keyed by the txid preimage. -/
+/-- FROZEN (the frozen interface): `ConnectBlock`'s UTXO fold, keyed by the txid preimage. -/
 @[rule "BLK-102", rule "INV-027", rule "INV-028", rule "BLK-096"]
 def applyBlock (u : UtxoSet) (txs : List Tx) (height : UInt32) :
     Except BlockError UtxoSet :=
   applyBlockU u txidPreimageKey txs height
 
-/-- FROZEN (W01): executable twin of `applyBlock`. -/
+/-- FROZEN (the frozen interface): executable twin of `applyBlock`. -/
 def applyBlockExec (l : List (OutPoint × Coin)) (txs : List Tx) (height : UInt32) :
     Except BlockError (List (OutPoint × Coin)) :=
   applyBlockL l txidPreimageKey txs height
@@ -629,7 +625,7 @@ theorem applyTxStepL_abstract (l : List (OutPoint × Coin)) (tx : Tx) (key : Key
           Except.ok (updateCoins (viewOf l) tx key height)
         rw [updateCoinsL_abstract]
 
-/-- The whole gate-free fold commutes with the abstraction map (S1
+/-- The whole gate-free fold commutes with the abstraction map (the executable tier
 exit: the executable block-apply IS the point-level fold; the
 pre-D4c-2 `applyBlockL` body, now on `applyBlockFoldL`). -/
 theorem applyBlockFoldL_abstract (l : List (OutPoint × Coin)) (kf : Tx → Key) (txs : List Tx)
@@ -659,7 +655,7 @@ theorem applyBlockFoldL_abstract (l : List (OutPoint × Coin)) (kf : Tx → Key)
     rw [mapBind2]
     simp only [ih]
 
-/-- The whole fold commutes with the abstraction map (S1 exit: the
+/-- The whole fold commutes with the abstraction map (the executable tier: the
 executable block-apply IS the point-level fold). Post-D4c-2 wrapper:
 the pristine `bip30BlockCollision` gate either rejects the block
 outright (both sides the same `badTxnsBIP30` error) or the equation
@@ -797,7 +793,7 @@ theorem coinLookup_none_of_any_false (l : List (OutPoint × Coin)) (o : OutPoint
     (h : (l.any (fun p => p.1 == o)) = false) : coinLookup l o = none :=
   coinLookup_none_of_all_ne l o (listAny_false (fun p => p.1 == o) l h)
 
-/-! ## S2: the theorem tier — spend/insert/remove discipline, gating,
+/-! ## The theorem tier — spend/insert/remove discipline, gating,
 genesis (BLK-110), and THM-037 -/
 
 /-! ### Lookup discipline over `addedCoins` -/
@@ -1388,7 +1384,7 @@ theorem updateCoins_undo (u : UtxoSet) (tx : Tx) (key : Key) (height : UInt32)
 block's transactions can extract: fees ≤ (value in the starting UTXO
 set) + (total value the block's own outputs draw). Executable form over
 the assoc list, transferred to the point tier through `chainFees_viewOf`
-(S1's abstraction discipline).
+(the executable tier's abstraction discipline).
 
 Arithmetic note: this toolchain's `omega` only counts atoms whose type
 is syntactically `Int`, so every `Amount` fact is transported through
@@ -1954,7 +1950,7 @@ def chainFeesL (l : List (OutPoint × Coin)) (kf : Tx → Key) :
     | .error _ => chainFeesL (updateCoinsL l tx (kf tx) height) kf rest height
 
 /-- The executable fee fold computes the point-tier fee fold on the
-abstracted view (C1's discipline). -/
+abstracted view (the prototype's discipline). -/
 theorem chainFees_viewOf (kf : Tx → Key) :
     (txs : List Tx) → (height : UInt32) → ∀ (l : List (OutPoint × Coin)),
     chainFees (viewOf l) kf txs height = chainFeesL l kf txs height := by
@@ -2150,7 +2146,7 @@ theorem applyBlockL_fees_le (l : List (OutPoint × Coin)) (txs : List Tx) (heigh
 /-! ## REM-01 remediation: THEOREM-TIER row vehicles (BLK-097/098/100/102/105,
 INV-028/113)
 
-The W12 rows below were tag-on-def only; these theorems state the row
+The rows below were tag-on-def only; these theorems state the row
 conclusions directly.  BLK-096 is a `resolved` row (its loop theorem is
 `BitcoinProofs.Theorems.CapstoneBip30Loop.applyBlockU_loop_iff`, verified
 from this module) and is deliberately not duplicated here. -/

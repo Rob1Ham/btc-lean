@@ -3,25 +3,21 @@ import Bitcoin.Data.Script
 import Bitcoin.Script.Parser.Defs
 
 /-!
-# Bitcoin.Script.Parser — FROZEN INTERFACE (W01, filled by W05)
+# Bitcoin.Script.Parser — FROZEN INTERFACE (filled)
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W05 (Script parser)
-Dependent workstreams : W09 (interpreter consumes the AST),
-                        W07 (parse layer of script_tests dashboard),
-                        W11 (scriptCode re-serialization needs push data)
 Core counterpart files: src/script/script.h (GetOp, opcode enum 0x00-0xff,
                         MAX_SCRIPT_ELEMENT_SIZE=520), src/script/
                         interpreter.cpp (push-data limits)
-Status                : frozen 2026-10-16 by W01; bodies filled by W05.
+Status: frozen 2026-10-16; bodies filled.
 
 ## Scope
 
 Total bytes→AST parser over the FULL 0x00–0xff opcode table (incl.
 PUSHDATA1/2/4 and the 15 disabled opcodes — CVE-2010-5137: disabled
 opcodes fail even in dead IF branches), roundtrip encode/decode for the
-enabled subset, and the 520-byte element limit. W05 replaces the C1
+enabled subset, and the 520-byte element limit. This module replaces the prototype
 bootstrap subset parser (`Bitcoin.Data.Script.parse`, preserved for the
 regression suite) — the two coexist; `ScriptInstr` (subset) and `Opcode`
 (full) are deliberately distinct types.
@@ -33,12 +29,12 @@ and all proof machinery are defined in `Bitcoin.Script.Parser.Defs`
 (same namespace). This module adds the `Script`-level entry point and
 the four frozen laws.
 
-## Documented interface changes vs the W01 freeze
+## Documented interface changes vs the frozen interface
 
 1. `parseScript`/`serializeOpcodes` placeholders were `opaque … := sorry`;
    filled as transparent `def`s (proofs must unfold them; the opaque
    wrapper would have blocked every theorem body).
-2. `parse_serialize_roundtrip`'s hypothesis: W01 wrote
+2. `parse_serialize_roundtrip`'s hypothesis: the frozen interface wrote
    `ops.all (fun o => match o with …)` — `List.all` takes a `Bool`
    predicate, so that placeholder did not typecheck. Replaced by the
    documented tightening `∀ o ∈ ops, opcodeWF o` (`opcodeWF` is the
@@ -52,16 +48,16 @@ open Bitcoin.Data
 
 /-- Total bytes→AST parse (`GetOp` walk over the whole script).
 `none` = malformed push / truncation. Fuel = byte size (each opcode
-consumes ≥ 1 byte), mirroring the C1 pattern. -/
+consumes ≥ 1 byte), mirroring the prototype pattern. -/
 def parseScript (s : Script) : Option (List Opcode) :=
   parseFrom (s.bytes.size + 1) s.bytes 0
 
-/-! ## Frozen laws (W05 exit criteria) -/
+/-! ## Frozen laws (the parser layer exit criteria) -/
 
 /-- Parser totality: every byte string either parses or fails *cleanly*
 — the parser never diverges (termination is by fuel construction; this
 theorem pins that `parseScript` is defined by structural/well-founded
-recursion that kernel-reduces, per C1 gotcha R5). -/
+recursion that kernel-reduces, per the prototype gotcha R5). -/
 theorem parseScript_terminates (s : Script) :
     parseScript s = none ∨ ∃ ops, parseScript s = some ops := by
   cases h : parseScript s with
@@ -79,7 +75,7 @@ theorem parse_serialize_roundtrip (ops : List Opcode)
 
 /-- Byte-exactness of the push machinery: OP_0 pushes the empty string;
 OP_1..OP_75 push exactly that many following bytes; PUSHDATA{n} uses
-exactly n length bytes. (Statement per push class; W05 splits as needed.) -/
+exactly n length bytes. (Statement per push class; split as needed.) -/
 theorem pushBytes_exact (d : ByteArray) (h : 1 ≤ d.size ∧ d.size ≤ 75) :
     ∃ ops, parseScript ⟨serializeOpcodes [Opcode.pushBytes d]⟩ = some ops
       ∧ ops = [Opcode.pushBytes d] := by

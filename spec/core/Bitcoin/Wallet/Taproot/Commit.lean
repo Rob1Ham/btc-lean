@@ -381,7 +381,7 @@ theorem taprootSpendJudged_iff_commitment
   rw [ite_eq_left hsize]
   simp
 
-/-- **W1 — Taproot spend judgement (target, not proven).**
+/-- **Taproot spend judgement (target, not proven).**
 
 For every spent `scriptPubKey` that really is a Taproot output, every
 wallet-supplied program, every control block and every leaf script, if
