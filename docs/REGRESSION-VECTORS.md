@@ -5,7 +5,7 @@ fixes tracked by the source audit. The model changes themselves belong to the
 modules that own each definition; this page keeps the vectors and the intended
 test locations in one place so a fix is not accepted without a witness.
 
-The Area-8 fixes are already exercised in-file:
+The proof-surface repairs are already exercised in-file:
 
 * `SmallCurve/TweakCorSmall.lean`: `mulP' (2^16) G = none` and
   `mulP' (2^16 + 1) G = mulP' 1 G` (kernel checks for the 16-bit bound).

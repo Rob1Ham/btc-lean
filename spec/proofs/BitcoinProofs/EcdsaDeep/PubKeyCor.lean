@@ -50,36 +50,36 @@ remains an open proof obligation; it is recorded in
 R6 lane (`sqrtP = expM`), so a total iff would in any case have to
 split into a kernel-decidable matrix half and an R6 half.
 
-* **Unit 1 (parsePubKeyDeep = parsePubKey byte-identical,
+* **U1 (parsePubKeyDeep = parsePubKey byte-identical,
   SGN-105)** is in the core module (`parsePubKeyDeep_eq` by `rfl`; the
-  215/215 W14b conformance battery transfers verbatim). The 33-byte
+  215/215 secp conformance battery cases transfer verbatim). The 33-byte
   Some-path and the 65-byte lane are exercised by
   `BitcoinProofs.EcdsaDeep.PubKeyMatrix`, whose 33-byte Some rows are
   documented there as R6.
 
-## R6-legend (honest kernel-boundary map, D-004/D2)
+## R6 legend (honest kernel-boundary map)
 
 * `parseMatrix65`-ladder + all `blen`/`tag`-gates + `onCurveN`
   (mulM-GMP) = **kernel-decidable** (S15-M4/M6; PubKeyCorVec rows).
 * 33B-lane = R6 (`sqrtP`); `decide`-rows never cross it (x≥P/gates
   short-circuit first; Some-paths = pyC-TRUTH rows only).
 * ser-shape rows (serUncompressed/serHybrid on literals) = **R6b**
-  (F-Y09-001 echo: `Array.map`/`++`-opacity) — see PubKeyCorProbe.
+  (`Array.map`/`++`-opacity) — see PubKeyCorProbe.
 
 ## Findings (E07.md)
 
-* **F-E07-001** (Unit 1): `pubkey.cpp` @cce32b168 has NO GetLen/hybrid
+* `pubkey.cpp` @cce32b168 has NO GetLen/hybrid
   parse — the length+prefix validation lives in `pubkey.h`
   (GetLen/Set/ValidSize) + `group_impl.h::ge_impl_parse` (the hybrid
   parity check 1094-1096) + `secp256k1.c:265-281`.
-* **F-E07-002** (this file): `CPubKey::Verify` (pubkey.cpp:283-294) =
+* `CPubKey::Verify` (pubkey.cpp:283-294) =
   `IsValid() ∧ ge_parse`. Only the header half (`GetLen`/`ValidSize`)
   is proved here; the parse-dimension iff (`CoreVerifyParse` =
   `validPubKeySize ∧ CorSerDec`, `parsePubKeyDeep_core`) was advertised
   but never landed and its claim has been removed (see the U2 note).
-* **F-E07-003** (PubKeyCorProbe): ser-shape `decide`-BLOCKED
-  (Array-map/++-opacity = F-Y09-001/F-S02-003 echo) — R6b-wall.
-* **F-E07-004** (HYP-risk list): NO Eq-hypotheses in this file (the
+* **PubKeyCorProbe:** ser-shape `decide`-BLOCKED
+  (`Array.map`/`++` opacity) — R6b-wall.
+* **Hypothesis-risk list:** NO Eq-hypotheses in this file (the
   Eq-list §end = every `Eq`-occurrence is `bEq`/`plit`-internal);
   RASMUSSEN-NO = 33-S-literal-splits only.
 -/
