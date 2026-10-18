@@ -5,15 +5,15 @@ import BitcoinProofs.EcdsaDeep.SchnorrEquation
 # [CROWNLINK] CrownSchnorr - the E08 extension: the 19 official BIP340
 # vectors x the E08 BIP340-IFF crown (sample-consistency twin)
 
-Contributor CROWNLINK (recovery review 5), 2026-10-17, Unit 4 = the E08
+CROWNLINK, 2026-10-17, Unit 4 = the E08
 extension lane (secondary objective). See the ECDSA-lane files
 (CrownBattery/CrownLink/CrownLinkKernel/CrownLinkRun = the E05 x E06
-bridge) and db/findings-dl/CROWNLINK.md. THIS file is the same
+bridge). THIS file is the same
 CROWNLINK bridge, one lane over: E08's verify-equation IFF crown
 (SchnorrEquation.lean 7df8f20, READ-ONLY here:
 `verifyImpl_iff : verifyImpl sig pk msg = true <-> satisfiesEquation
 sig pk msg`, sorry-free) x X02's 19 official BIP340 vectors
-(SchnorrTest.lean = the W14b-generated bip-0340_test-vectors.csv
+(SchnorrTest.lean = the generated bip-0340_test-vectors.csv
 corpus, 9 accept / 10 reject) - via X02's REAL verifier
 (`Bitcoin.Crypto.Schnorr.Verify.verifyImpl`, read-only).
 
@@ -64,7 +64,7 @@ pk, msg, sig) tuples -> CrownSRow (name, expected, sig, pk, msg)).
 The official per-vector comments (the bip-0340 property map) are
 carried on the row lines. Corpus-integrity pins = kernel decides
 (19 / 9+10; own crownSCount, the v4.35.0 List.count avoidance).
-`fromHex`/`hexDigitVal` = the W14b harness read-only copies
+`fromHex`/`hexDigitVal` = the harness read-only copies
 (SchnorrTest.lean:40-57). NO mathlib.
 
 E08 crown build note: SchnorrEquation.lean (E08 7df8f20, direct-lean
@@ -93,7 +93,7 @@ open BitcoinProofs.EcdsaDeep.SchnorrEquation
 set_option maxRecDepth 100000
 
 /-- Parse a hex string into a ByteArray (test infra only; copied from
-the W14b harness, SchnorrTest.lean:40-57, read-only). -/
+the harness, SchnorrTest.lean:40-57, read-only). -/
 def hexDigitVal (c : Char) : Option Nat :=
   let n := c.toNat
   if 48 ≤ n ∧ n ≤ 57 then some (n - 48)

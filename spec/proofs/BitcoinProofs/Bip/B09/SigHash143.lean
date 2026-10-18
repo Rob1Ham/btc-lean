@@ -4,14 +4,14 @@ import Bitcoin.Serialization.Interface
 /-!
 # B09 BIP143 kill-vector corpus — the digests the existing harness does NOT pin
 
-Review-5 support suite contributor B09, 2026-10-16. NEW file, owned by B09.
+2026-10-16.
 
 BIP143 (Transaction Signature Verification for Version 0 Witness Program,
 public domain, bitcoin/bips `bip-0143.mediawiki`). Ground truth: the BIP
 text (vendored at `spec/vectors/bips/bip-0143.mediawiki`) and Core
 `src/script/interpreter.cpp:1633-1670` @ `cce32b168`.
 
-Audit context (findings: `spec/db/findings-w5/B09.md`): the kernel-checked
+Audit context: the kernel-checked
 harness `spec/Test/Sighash/SighashTest.lean` pins BIP143 digests E1, E2,
 E3a/E3b, E4a/E4b, E5(ALL) — the 7 worked examples — but leaves the
 following consensus clauses WITHOUT any digest-level kill-vector:
@@ -33,7 +33,7 @@ following consensus clauses WITHOUT any digest-level kill-vector:
 
 Every expected digest below was cross-checked with an independent
 python3 reference transcribed from the BIP text alone
-(`scratch/B09/bip143_ref.py`, 18/18 PASS, 2026-10-16); the reference
+(18/18 PASS, 2026-10-16); the reference
 reproduces all 10 BIP-published digests and both published full preimages
 byte-exactly before the new constants were extracted.
 
@@ -170,7 +170,7 @@ example : bytesBEq (signatureHashBip143 txF2 0
 are byte-identical to the E1 ALL case, while field 10 carries the RAW
 `0x41000000`. Kills implementations that classify by exact match on
 0x01/0x02/0x03 (fail-closed on valid consensus hashtypes) or that frame the
-hashtype as 1 byte. Cross-checked with scratch/B09/bip143_ref.py. -/
+hashtype as 1 byte. Cross-checked in python3. -/
 example : bytesBEq (signatureHashBip143
     { version := 1
       vin :=

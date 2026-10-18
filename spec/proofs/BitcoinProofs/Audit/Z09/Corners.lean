@@ -2,13 +2,12 @@ import Bitcoin.Interpreter.Defs
 
 /-!
 # Z09 dark-corner audit — dead-branch opcode counting + disabled opcodes in
-unexecuted branches (W4 suite, 2026-10-16)
+unexecuted branches (2026-10-16)
 
-NEW file, owned by Z09 alone. Python3 probes:
-`build/scratch/build/scratch/scratch/Z09/xcheck.py` (transcription of
+Python3 probes:
+`xcheck.py` (transcription of
 `EvalScript`'s pre-execution block, vendored Core @ `c50817f`,
-`build/scratch/W02/bitcoin/src/script/interpreter.cpp:448-500`).
-Findings: `spec/db/findings-w4/Z09.md`.
+`script/interpreter.cpp:448-500`).
 
 ## Corners audited
 
@@ -31,7 +30,7 @@ Findings: `spec/db/findings-w4/Z09.md`.
   because disabled ⊆ OP_SUCCESSx and `executeWitnessScript` runs the
   `opSuccessScan` pre-pass first.
 
-## Verdicts (details + evidence in findings-w4/Z09.md)
+## Verdicts
 
 * C1: **CAPTURED** — fold theorems `deadNops_endif_ok` /
   `deadNops_endif_opCount` pin flow-insensitive accumulation and the
@@ -60,7 +59,7 @@ deriving instance DecidableEq for Except
 /-- Wire-op witness (O02 pattern): `.op` AST carrying wire byte `n`. -/
 def opw (n : Nat) : WireOp := ⟨.op ⟨n % 256, by omega⟩, n, 1⟩
 
-/-- Hex digit value (test-only, W09/W12 convention). -/
+/-- Hex digit value (test-only, house convention). -/
 def hexDigitVal (c : Char) : Option Nat :=
   let n := c.toNat
   if 48 ≤ n ∧ n ≤ 57 then some (n - 48)
@@ -170,7 +169,7 @@ precedes :488-490) -/
 
 /-- A dead OP_NOP burns exactly one budget unit and is then a no-op on
 the rest of the machine state (:462 increment precedes the :493
-fExec/window gate). (BASE; the W6/O02 dark-corner theorem, restated for
+fExec/window gate). (BASE; the O02 dark-corner theorem, restated for
 the fold lemmas below; WITNESS_V0 twin next.) -/
 theorem stepBody_nop_burn (ctx : Ctx) (st : State)
     (hsv : ctx.sv = SigVersion.base)
@@ -435,7 +434,7 @@ theorem deadNops_cat_opCount (ctx : Ctx) (hsv : ctx.sv = SigVersion.base) :
               have := maxOps_201; simp only [this] at hlt ⊢; omega
             simp [evalFrom, stepChecked_nop_trip ctx st hsv hover']
 
-/-! ## Python3-cross-checked byte-level verdicts (scratch/Z09/xcheck.py,
+/-! ## Python3-cross-checked byte-level verdicts (xcheck.py,
 13/13 PASS against interpreter.cpp:448-500 @ c50817f) -/
 
 -- B1 (xcheck E1) — dead OP_CAT: DISABLED_OPCODE even unexecuted (C2, BASE)

@@ -4,9 +4,8 @@ import Bitcoin.DataLaws.Interface
 /-!
 # BitcoinProofs.Theorems.NumericCor
 
-W15 correctness theorems over the frozen numeric layer
-(`Bitcoin.Numeric`, W04) and the finality constants (`Bitcoin.DataLaws`,
-W03). Zero-dependency on mathlib: plain Lean + the core library only.
+correctness theorems over the frozen numeric layer
+(`Bitcoin.Numeric`) and the finality constants (`Bitcoin.DataLaws`). Zero-dependency on mathlib: plain Lean + the core library only.
 
 Portfolio rows carried here:
 
@@ -23,7 +22,7 @@ Portfolio rows carried here:
   (SCR-057/SCR-083, interpreter.cpp:46-59).
 
 All proofs use induction / rewriting; no `decide` through recursive
-definitions (W14 finding).
+definitions.
 -/
 
 namespace BitcoinProofs.Theorems.NumericCor

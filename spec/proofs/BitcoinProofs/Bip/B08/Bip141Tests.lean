@@ -1,8 +1,8 @@
 /-
 BitcoinProofs.Bip.B08.Bip141Tests — decisive BIP141 (SegWit) clause tests.
 
-B08 Review-5 support suite, 2026-10-16. Every expected value below was
-computed by scratch/B08/bip141_xcheck.py (python3, hashlib) against the
+2026-10-16. Every expected value below was
+computed in python3 (hashlib) against the
 BIP141 text (public domain) / Core @ cce32b168. All checks are `decide`/
 `rfl`-closed: sorry-free.
 

@@ -3,13 +3,12 @@ import Bitcoin.Consensus.TxCheck
 /-!
 # INV001VinCor — T5/INV-001 + TXV-001 promotion proofs (P7, P8)
 
-PDW4 (proof-promotion review), recovery review 3, 2026-10-17.
 Rows INV-001 / TXV-001 (`vin` non-empty, `bad-txns-vin-empty`;
 core anchor tx_check.cpp:CheckTransaction:22-23 @cce32b168).
-Claim: `spec/db/findings-af/PDW4.md` @ 5fe77cf (rank 16 = T5).
+Claim commit 5fe77cf.
 Statements P7 (reject) + P8 (bound) restated 1:1 verbatim from
 `PD03-stmtcheck.lean:43-49` (elaborated green in
-`PDW2Check`-pattern copy `PDW4Check.lean`, this lane).
+`PDW2Check`-pattern copy `PDW4Check.lean`, this module).
 
 Semantics: `checkTransaction`'s leading gate rejects an empty
 `vin` with `some .vinEmpty` (reject dir), and dually an accepted

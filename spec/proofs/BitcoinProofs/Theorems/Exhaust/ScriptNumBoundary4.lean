@@ -3,16 +3,16 @@ import Bitcoin.Numeric.ScriptNum
 /-!
 # BitcoinProofs.Theorems.Exhaust.ScriptNumBoundary4
 
-F02 (Review-6): the `CScriptNum` decode domain at the 4-byte boundary, made
+F02: the `CScriptNum` decode domain at the 4-byte boundary, made
 exhaustive. Every one-byte sign-magnitude encoding (all 256 digits —
 `one_byte_256`) and every 2/3/4-byte encoding is classified —
-minimal-valid vs non-minimal-but-valid vs rejected — per W04's corrected
+minimal-valid vs non-minimal-but-valid vs rejected — per corrected
 minimal-encoding rule (report w2-04 K1: reject iff `back & 0x7f = 0` AND
 (`size ≤ 1` OR `vch[size−2] & 0x80 = 0`); the two-byte wire `0x80 0x00`
 = 128 IS valid).
 
 Ground truth: `Bitcoin.Numeric.decodeBE` / `minimalOkBE` / `setVchBE`
-(W04-owned `Numeric/ScriptNum.lean`, mirroring Core script.h:246-271,
+(`Numeric/ScriptNum.lean`, mirroring Core script.h:246-271,
 376-391 @ `cce32b168`). Byte lists here are big-endian digit lists
 (most-significant first), the Lean-internal convention.
 
@@ -24,7 +24,7 @@ Structure:
   `decode1_matrix` … `decode4_matrix`, the width-4 master
   classification `boundary_matrix_4byte`, and `decode_none_iff`.
 * §3 the decided boundary rows: the 0x7f/0x80/0xff patterns at every
-  decisive position — the W04 corrected case, the negative zeros, the
+  decisive position — the corrected case, the negative zeros, the
   2^31−1 extremes, the 5-byte −2^31 CLTV/CSV special case (SCR-081) and
   the width-4 overflow gate.
 
@@ -89,7 +89,7 @@ theorem setVchBE_quad (d e f g : Nat) :
 /-! ## §2 The decode matrices at consensus width 4 (SCR-080) -/
 
 /-- Below the width gate, decode fails exactly under the minimal-encoding
-rejection (W04's corrected rule). -/
+rejection (corrected rule). -/
 theorem decodeBE_le (m : Bool) (maxSize : Nat) (l : List Nat)
     (hlen : l.length ≤ maxSize) :
     decodeBE m maxSize l =
@@ -124,7 +124,7 @@ theorem one_byte_256 (m : Bool) (d : Nat) (_hd : d < 256) :
 
 /-- **Two-byte matrix.** Rejection needs the top byte's magnitude zero
 AND the second byte's high bit clear — so `[0x00, 0x80] = 128` IS
-minimal-valid (W04's correction), while `[0x80, 0x00]` (two-byte
+minimal-valid (correction), while `[0x80, 0x00]` (two-byte
 negative zero) is not. -/
 theorem decode2_matrix (m : Bool) (d e : Nat) :
     decodeBE m 4 [d, e] =
@@ -245,7 +245,7 @@ theorem row2_00_01_min : decodeBE true 4 [0x00, 0x01] = none := by decide
 theorem row2_00_01_nonmin : decodeBE false 4 [0x00, 0x01] = some 1 := by decide
 theorem row2_00_7f_min : decodeBE true 4 [0x00, 0x7f] = none := by decide
 theorem row2_00_7f_nonmin : decodeBE false 4 [0x00, 0x7f] = some 127 := by decide
-/-- W04's corrected case: the two-byte wire `0x80 0x00` = 128 IS
+/-- corrected case: the two-byte wire `0x80 0x00` = 128 IS
 minimal-valid (the `0x80` rides on the *second* byte). -/
 theorem row2_00_80 : decodeBE true 4 [0x00, 0x80] = some 128 := by decide
 /-- Two-byte negative zero: valid only without the minimal gate. -/
@@ -273,7 +273,7 @@ theorem row3_ff_80_00 : decodeBE true 4 [0xff, 0x80, 0x00] = some (-8355840) := 
 theorem row4_00_00_00_01_min : decodeBE true 4 [0x00, 0x00, 0x00, 0x01] = none := by decide
 theorem row4_00_00_00_01_nonmin :
     decodeBE false 4 [0x00, 0x00, 0x00, 0x01] = some 1 := by decide
-/-- W04's corrected case one width up: wire `00 00 00 80` = 128,
+/-- corrected case one width up: wire `00 00 00 80` = 128,
 rejected as non-minimal. -/
 theorem row4_00_00_00_80_min : decodeBE true 4 [0x00, 0x00, 0x00, 0x80] = none := by decide
 theorem row4_00_00_00_80_nonmin :

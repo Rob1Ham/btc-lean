@@ -4,7 +4,7 @@ import Bitcoin.Crypto.Schnorr.Verify
 
 /-!
 # BitcoinProofs.Theorems.T3T4RealCheckerCor — THM-051, the real-checker
-# instantiation tier (X10, Review 3)
+# instantiation tier
 
 C4 portfolio row **THM-051** (Tier 4, "abstraction-instance consistency"):
 
@@ -12,18 +12,18 @@ C4 portfolio row **THM-051** (Tier 4, "abstraction-instance consistency"):
 > tower such that `VerifySig`-level determinism holds *(interface lemmas,
 > not crypto proofs)*.
 
-W13 proved the **seam contract** — `checker_ext`,
+proved the **seam contract** — `checker_ext`,
 `checker_eq_of_entry_eq`, `ecdsaEntry_execData_independent`, the
 `schnorrEntry` gates — over an **abstract** `verify` parameter (36 pins).
-Review 2b/W17/X02 then wired the **real tower** into that seam:
-`realEcdsaEntry` (W14b lax-ECDSA `verifyImpl`, 215/215 conformance) and
+The **real tower** was then wired into that seam:
+`realEcdsaEntry` (lax-ECDSA `verifyImpl`, 215/215 conformance) and
 `realSchnorrEntry` (X02 BIP340 `verifyImpl`, 19/19 official vectors),
 assembled as `realCheckerFullOf` = `txCheckerOf` with both real entries.
 This module proves the missing **seam ↔ tower consistency** lemmas for the
 REAL instances, plus the two facts that only the real wiring makes
 stateable:
 
-* **X02-non-interference** (A5/A6): `realCheckerFullOf` and W17's
+* **X02-non-interference** (A5/A6): `realCheckerFullOf` and
   `realCheckerOf` are *verdict-identical* checkers at
   `verifyScriptFull` — X02's Unit-3 Schnorr wiring (with the BIP342
   sighash still the fail-closed `none` stand-in) changed zero
@@ -32,19 +32,19 @@ stateable:
   point.
 * **fail-closed totality** (A4): until X03 lands, the live consensus
   checker **cannot accept any Schnorr signature** (no false accepts) —
-  every W13 gate (sigversion / 32-byte key / 64-65-byte sig /
+  every gate (sigversion / 32-byte key / 64-65-byte sig /
   65th-byte ≠ SIGHASH_DEFAULT) fails closed *upstream* of the real
   `verifyImpl`, and the stand-in digest is `none`.
 
-## W14 discipline (decide-cannot-reduce-WF-defs)
+## reduction discipline (decide-cannot-reduce-WF-defs)
 
 No theorem here reduces `verifyImpl` (either lane) into the field/EC
 arithmetic: `verifyImpl` is treated as an opaque total function with
-W14b/X02's pinned facts, and every proof is a **congruence** (A0/A1/A2/A7),
-a **gate corollary** of W13's ∀-`verify` theorems (A3), or a
+X02's pinned facts, and every proof is a **congruence** (A0/A1/A2/A7),
+a **gate corollary** of ∀-`verify` theorems (A3), or a
 **fail-closed totality** argument that never reaches the EC math (A4).
 The only funext on an entry is A5's (carrying `Quot.sound`), which
-asserts that W17's fail-closed Schnorr slot and X02's stand-in-digest
+asserts that fail-closed Schnorr slot and X02's stand-in-digest
 slot are the *same* function — both are `fun _ _ _ _ => false` up to the
 seam's own gates.
 
@@ -71,10 +71,10 @@ open Bitcoin.Crypto.Seam Bitcoin.Crypto.Seam.Entry Bitcoin.Crypto.Seam.Der
 "instantiated by the actual tower") -/
 
 /-- THM-051 (wiring pin, ECDSA lane): the abstract `verify` parameter of
-`ecdsaEntry` in the real wiring IS W14b's lax-ECDSA `verifyImpl`
+`ecdsaEntry` in the real wiring IS lax-ECDSA `verifyImpl`
 (`Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`, 215/215 conformance, Core
-`CPubKey::Verify` semantics), with W11's sighash dispatch and
-`hasAmount = true` (the W17 capstone always supplies the spent coin). -/
+`CPubKey::Verify` semantics), with sighash dispatch and
+`hasAmount = true` (the capstone always supplies the spent coin). -/
 theorem realEcdsaEntry_verify_is_w14b (tx : Tx) (nIn : Nat) (amount : Amount) :
     realEcdsaEntry tx nIn amount
       = ecdsaEntry Bitcoin.Crypto.Ecdsa.Verify.verifyImpl
@@ -96,7 +96,7 @@ determinism", real instance) -/
 /-- **THM-051 (real-ECDSA purity)**: the real ECDSA entry's verdict is a
 pure function of exactly `(tx, nIn, amount, sig, pk, scriptCode,
 sigversion)` — equal arguments give equal verdicts. Proof is pure
-congruence (the W14b verifier is never unfolded; W14-clean), and the
+congruence (the verifier is never unfolded), and the
 `ScriptExecutionData` argument is irrelevant even before A2 (the adapter
 ignores it definitionally). -/
 theorem realEcdsaEntry_pure (tx₁ tx₂ : Tx) (n₁ n₂ : Nat) (am₁ am₂ : Amount)
@@ -108,7 +108,7 @@ theorem realEcdsaEntry_pure (tx₁ tx₂ : Tx) (n₁ n₂ : Nat) (am₁ am₂ : 
 
 /-- Same purity for the real-ECDSA arguments of the entry alone: equal
 `(sig, pk, code, v)` give equal verdicts (the entry functions are the
-only channel from the checker to the interpreter; W13's
+only channel from the checker to the interpreter;
 `checker_eq_of_entry_eq` then transports verdict equality through
 `verifyScriptFull`). -/
 theorem realEcdsaEntry_congr_args (tx : Tx) (nIn : Nat) (amount : Amount)
@@ -123,14 +123,14 @@ theorem realEcdsaEntry_congr_args (tx : Tx) (nIn : Nat) (amount : Amount)
   exact ecdsaEntry_execData_independent Bitcoin.Crypto.Ecdsa.Verify.verifyImpl
     (sighashDispatch tx nIn amount) true sig₂ pk₂ code₂ v₂ d₁ d₂
 
-/-! ## A2 — execdata independence, real instances (W13's seam contract
+/-! ## A2 — execdata independence, real instances (seam contract
 `ecdsaEntry_execData_independent` is a ∀-`verify` theorem) -/
 
 /-- **THM-051 (execdata independence, real ECDSA)**: the real ECDSA lane
 cannot see the interpreter's `ScriptExecutionData` — Core's
 `CheckECDSASignature` takes none (interpreter.cpp:1701-1706 @cce32b168),
-and the real wiring preserves the seam contract. Instantiation of W13's
-∀-`verify` theorem at W14b's `verifyImpl`; no EC reduction. -/
+and the real wiring preserves the seam contract. Instantiation of
+∀-`verify` theorem at `verifyImpl`; no EC reduction. -/
 theorem realEcdsaEntry_execData_independent (tx : Tx) (nIn : Nat) (amount : Amount)
     (sig pk code : ByteArray) (v : SigVersion) (d₁ d₂ : ScriptExecutionData) :
     (realEcdsaEntry tx nIn amount).checkECDSASignature sig pk code v d₁
@@ -147,11 +147,11 @@ theorem realCheckerFullOf_ecdsa_execData_independent (tx : Tx) (nIn : Nat) (amou
   ecdsaEntry_execData_independent Bitcoin.Crypto.Ecdsa.Verify.verifyImpl
     (sighashDispatch tx nIn amount) true sig pk code v d₁ d₂
 
-/-! ## A3 — the W13 gates hold at the REAL verifiers (corollaries of the
+/-! ## A3 — the gates hold at the REAL verifiers (corollaries of the
 ∀-`verify` seam theorems) -/
 
 /-- THM-051 (gate, real Schnorr; SWT-054-analogue TPR slot): only 64- and
-65-byte signatures can reach the real BIP340 verifier — W13's size gate
+65-byte signatures can reach the real BIP340 verifier — size gate
 (`schnorrEntry_size_gate`, interpreter.cpp:1736-1737) instantiated at
 X02's `verifyImpl`. -/
 theorem realSchnorrEntry_size_gate (sig pk : ByteArray) (v : SigVersion)
@@ -190,8 +190,8 @@ theorem realSchnorrEntry_default_hashtype_rejected (sig pk : ByteArray)
   · rfl
 
 /-- THM-051 (gate, real ECDSA; SWT-054): empty signatures fail closed
-before any EC math — W13's `ecdsaEntry_empty_sig_false` (a ∀-`verify`
-theorem) at W14b's real verifier. -/
+before any EC math — `ecdsaEntry_empty_sig_false` (a ∀-`verify`
+theorem) at real verifier. -/
 theorem realEcdsaEntry_empty_sig_false (tx : Tx) (nIn : Nat) (amount : Amount)
     (pk code : ByteArray) (v : SigVersion) (d : ScriptExecutionData) :
     (realEcdsaEntry tx nIn amount).checkECDSASignature
@@ -212,15 +212,15 @@ theorem realEcdsaEntry_badPubKey_false (tx : Tx) (nIn : Nat) (amount : Amount)
 /-! ## A4 — fail-closed totality: no false Schnorr accepts (until X03) -/
 
 /-- **THM-051 (fail-closed totality, the honest X02-state pin)**: the live
-consensus Schnorr entry — real BIP340 `verifyImpl` behind W13's gates,
+consensus Schnorr entry — real BIP340 `verifyImpl` behind gates,
 BIP342 sighash still the `none` stand-in — returns `false` for EVERY
-signature, key, sigversion and execdata. Every W13 gate fails closed
+signature, key, sigversion and execdata. Every gate fails closed
 *upstream* of the real verifier (sigversion / 32-byte key / 64-65-byte
 sig / 65th-byte ≠ DEFAULT), and the only remaining path dies at the
 missing-digest fail-closed (`none => false`,
 interpreter.cpp:1745-1747). Consequence: **no Schnorr signature can be
 accepted until X03 lands the BIP341/342 sighash** — no false accepts,
-by construction. (The Taproot inputs of the W17 pipeline never reach
+by construction. (The Taproot inputs of the pipeline never reach
 here anyway: `verifyInput` routes v1-witness programs to the
 `unjudgedTaproot` lane before the checker.) -/
 theorem realSchnorrEntry_fail_closed (sig pk : ByteArray) (v : SigVersion)
@@ -264,19 +264,19 @@ theorem realCheckerFullOf_schnorr_execData_independent (tx : Tx) (nIn : Nat)
 /-! ## A5/A6 — X02-non-interference: `realCheckerFullOf` ≡
 `realCheckerOf` at every interpreter verdict -/
 
-/-- W17's `realCheckerOf` (the checker `validateBlock` actually binds)
-carries the Review-2 fail-closed Schnorr slot: its `checkSchnorrSignature`
+/-- `realCheckerOf` (the checker `validateBlock` actually binds)
+carries the fail-closed Schnorr slot: its `checkSchnorrSignature`
 is literally the constant-`false` function. -/
 theorem realCheckerOf_schnorr_is_const_false (tx : Tx) (nIn : Nat) (amount : Amount) :
     (realCheckerOf tx nIn amount).base.checkSchnorrSignature
       = (fun _ _ _ _ => false) := rfl
 
 /-- **X02-non-interference (checker half)**: the both-real-entries
-assembly `realCheckerFullOf` and W17's ECDSA-only `realCheckerOf` are
+assembly `realCheckerFullOf` and ECDSA-only `realCheckerOf` are
 the **same** `BaseSignatureChecker`. Their ECDSA entries are the same
 `ecdsaEntry verifyImpl (sighashDispatch …) true` by definition; their
 Schnorr entries are the same function by A4 (X02's stand-in-digest
-`none` slot and W17's constant-`false` slot agree on every argument).
+`none` slot and constant-`false` slot agree on every argument).
 This funext is the one point where the fail-closed totality pin is
 load-bearing. -/
 theorem realCheckerFullOf_base_eq (tx : Tx) (nIn : Nat) (amount : Amount) :
@@ -288,7 +288,7 @@ theorem realCheckerFullOf_base_eq (tx : Tx) (nIn : Nat) (amount : Amount) :
   · -- ECDSA entries: definitionally `ecdsaEntry verifyImpl dispatch true`
     -- (A0), both projections delta-beta-reduce to the same `ecdsaVerdict`.
     intro sig pk code v d; rfl
-  · -- Schnorr entries: both constantly `false` (W17's slot by `rfl`,
+  · -- Schnorr entries: both constantly `false` (the slot by `rfl`,
     -- X02's slot by the fail-closed totality A4)
     intro sig pk v d
     exact realSchnorrEntry_fail_closed sig pk v d
@@ -311,7 +311,7 @@ theorem realCheckerFullOf_eq (tx : Tx) (nIn : Nat) (amount : Amount) :
 
 /-- **X02-non-interference (THE pin)**: `verifyScriptFull` cannot
 distinguish `realCheckerFullOf` from `realCheckerOf` — X02's Unit-3
-Schnorr wiring (real BIP340 verifier behind W13's gates, BIP342 sighash
+Schnorr wiring (real BIP340 verifier behind gates, BIP342 sighash
 still fail-closed) changed **zero** interpreter verdicts on any script,
 witness stack, flags, policy or fuel. The one-parameter X03 flip of
 `sighashSchnorr` is therefore the single verdict-visible change point of
@@ -330,7 +330,7 @@ consensus-visible behavior is a pure function of
 `(tx, nIn, amount, sig, pk, code, sigversion)` — the ECDSA entry by
 congruence (A1), the Schnorr entry by fail-closed totality (A4).
 `ScriptExecutionData` is invisible to both lanes (A2). Together with
-W13's `checker_eq_of_entry_eq` this is the "VerifySig-level determinism"
+`checker_eq_of_entry_eq` this is the "VerifySig-level determinism"
 of the portfolio row, now over the REAL tower. -/
 theorem realCheckerFullOf_pure (tx₁ tx₂ : Tx) (n₁ n₂ : Nat) (am₁ am₂ : Amount)
     (sig pk code : ByteArray) (v : SigVersion) (d : ScriptExecutionData)

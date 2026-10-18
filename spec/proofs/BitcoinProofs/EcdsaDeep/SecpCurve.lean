@@ -7,9 +7,9 @@ import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 `WeierstrassCurve.Affine (ZMod P)`
 
 The E02 half of the `E02E03IF` interface (E09's `TweakCor.lean:129`,
-the negotiation contract between this lane and E03's `PointCor`): the
+the negotiation contract between this module and E03's `PointCor`): the
 mathlib Weierstrass **instantiation** `E` for secp256k1 over `ZMod P`
-(`P` = the W14b field prime, `CurveZMod.secp_P_prime :
+(`P` = the field prime, `CurveZMod.secp_P_prime :
 Fact (Nat.Prime P)`), with
 
 * `a₁ = a₂ = a₃ = a₄ = 0, a₆ = 7` (the short Weierstrass form
@@ -95,7 +95,7 @@ deliberate: it is the form `natCast_eq_natCast_iff'` produces on the
 
 /-- **secp256k1 over `ZMod P`** — the mathlib Weierstrass curve of the
 DL tower (E02). Short form `y² = x³ + 7` (`a₁ = a₂ = a₃ = a₄ = 0`,
-`a₆ = 7 = Secp.curveB`), over the field prime `P` (W14b `CurveZMod`,
+`a₆ = 7 = Secp.curveB`), over the field prime `P` (`CurveZMod`,
 `Fact (Nat.Prime P)` global). -/
 def E : WeierstrassCurve.Affine (ZMod P) :=
   WeierstrassCurve.mk (0 : ZMod P) (0 : ZMod P) (0 : ZMod P) (0 : ZMod P)

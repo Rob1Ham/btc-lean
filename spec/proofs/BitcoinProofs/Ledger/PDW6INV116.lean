@@ -4,7 +4,7 @@ import Bitcoin.Ledger.Interface
 # PDW6INV116 — INV-116 promotion proofs (reorg undo, disconnect
 # round-trip)
 
-PDW6 (proof-promotion review 6, TOP-26..30), recovery review 3,
+PDW6 (6, TOP-26..30),
 2026-10-17. Row INV-116 (d=3, D-LEDGER; PD01 ledger; PDW5's landed
 claim 5ad2d00 names it the PDW6 tier): `Bitcoin.Ledger
 .updateCoins_undo` (Ledger/Interface.lean:1129), the reorg-undo /
@@ -13,12 +13,12 @@ post-state restores the original view, given the no-clobber
 side-condition `h5` (every added key was either fresh in `u` or
 itself re-spent by `tx`'s own inputs). Core anchors:
 validation.cpp `DisconnectBlock` / `ApplyTxInUndo` /
-`SpendCoin`, the UpdateCoins/UndoCoins mirror pair (W12 update
+`SpendCoin`, the UpdateCoins/UndoCoins mirror pair (update
 D-RC02 fold laws; INV-113 family, BLK-105 spentUndo CTxUndo
 layout, INV-117 undoCoins restore-wins discipline).
 
 The vehicle is a THM-on-target row: `updateCoins_undo` is an
-in-tree THEOREM (W12, sorry-free, 40-line funext case analysis
+in-tree THEOREM (sorry-free, 40-line funext case analysis
 over `coinLookup`/`spentUndo`/`addedCoins`) carrying the
 `@[rule "INV-116"]` tag. Promotion = PD02-22 THM-on-target class
 (PDW5's SWT-011 `witnessScriptSizeOk_spec` pattern): read-verify

@@ -1,7 +1,7 @@
 import Bitcoin.Activation.Interface
 
 /-!
-# BitcoinProofs.Theorems.Exhaust.LeafVersionSweep — M02 (Review-6): taproot leaf-version sweep
+# BitcoinProofs.Theorems.Exhaust.LeafVersionSweep — M02: taproot leaf-version sweep
 
 The full 256-entry sweep over the control-block version byte: which byte values
 mark a **valid tapscript leaf**, plus the **control-block parse-domain** theorem
@@ -10,7 +10,7 @@ mark a **valid tapscript leaf**, plus the **control-block parse-domain** theorem
 ## Ground truth (pinned)
 
 - Bitcoin Core v32.99 @ `cce32b168` (DECISIONS.md D-001), local probe copy
-  `build/scratch/X03/src/interpreter.h:242-247`,
+  `src/interpreter.h:242-247`,
   `interpreter.cpp:1979-1997`:
   - `TAPROOT_LEAF_MASK = 0xfe`, `TAPROOT_LEAF_TAPSCRIPT = 0xc0` (h:242-243);
   - `TAPROOT_CONTROL_BASE_SIZE = 33`, `TAPROOT_CONTROL_NODE_SIZE = 32`,
@@ -28,8 +28,8 @@ mark a **valid tapscript leaf**, plus the **control-block parse-domain** theorem
   element after removing the optional annex is 0xc0 **or 0xc1**), marking it as
   a tapscript spend." — exactly 2 of the 256 byte values.
 
-Python cross-check: `scratch/M02/crosscheck.py` (W6suite tree) — zero
-mismatches. Axiom probe: `scratch/M02/axcheck.lean`. All theorems sorry-free;
+Python cross-check: a reference script — zero
+mismatches. Axiom probe: `axcheck.lean`. All theorems sorry-free;
 no `native_decide` (kernel `decide`/`rfl`/`omega` only).
 -/
 

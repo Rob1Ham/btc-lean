@@ -1,7 +1,7 @@
 import Bitcoin.Block.Params
 import Bitcoin.SigHash.Digest
 
-/-! # PDW23.lean — proof-promotion review RC26, items TOP-111..115
+/-! # PDW23.lean — RC26, items TOP-111..115
 
 D-PARAMS `@[rule]`-tagged definitions (`Bitcoin/Block/Params.lean`,
 validation.cpp:2180-2185, 2330-2334) and the BIP143 preimage field law

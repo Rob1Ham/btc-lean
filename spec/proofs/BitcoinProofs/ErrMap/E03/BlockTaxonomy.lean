@@ -6,12 +6,12 @@ import Bitcoin.Block.Params
 
 /-!
 # BitcoinProofs.ErrMap.E03.BlockTaxonomy — error-taxonomy completeness:
-block/chain level (Review-6, contributor E03)
+block/chain level
 
 Ground truth: Bitcoin Core v32.99 @ `cce32b168` (DECISIONS.md D-001),
 `src/consensus/validation.h` + `src/validation.cpp`. Full mapping table
-(site → result → reject string → rules.yaml row → our repo home) in
-`spec/db/findings-w6/E03.md`; unmapped paths filed as F-E03-001..005.
+(site → result → reject string → rules.yaml row → our repo home) is
+below; unmapped paths are filed as F-E03-001..005.
 
 Three layers, all sorry-free:
 
@@ -193,7 +193,7 @@ def resultOf : BlkPath → BlockResult
 /-- **Taxonomy completeness** (kernel-checked): the only `UNSET`-result
 paths are the inconclusive re-check and the two runtime `state.Error`
 lanes. Every consensus failure path carries one of the 8 non-unset
-`BlockValidationResult` kinds — no orphan result kind (A.3 of findings). -/
+`BlockValidationResult` kinds — no orphan result kind. -/
 theorem resultOf_complete :
     ∀ p : BlkPath,
       resultOf p ≠ .unset ∨

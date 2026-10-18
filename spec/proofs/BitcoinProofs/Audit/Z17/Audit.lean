@@ -2,14 +2,13 @@ import Bitcoin.Activation.Interface
 import Bitcoin.Activation.Bip9
 
 /-!
-# Z17 dark-corner audit — BIP9 version-bits masking + lock-in-on-timeout ordering (W4 suite)
+# Z17 dark-corner audit — BIP9 version-bits masking + lock-in-on-timeout ordering
 
-NEW file, owned by Z17, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z17/` (`probe_c1_condition.py`,
-`probe_c2_lockin.py`). Findings: `spec/db/findings-w4/Z17.md`.
+2026-10-16. Python3 probes:
+`probe_c1_condition.py`,
+`probe_c2_lockin.py`).
 
-Ground truth: Bitcoin Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/` (header `git log -1` =
+Ground truth: Bitcoin Core @ `cce32b168` (header `git log -1` =
 `c50817f Merge bitcoin/bitcoin#36535`); cross-checked against live
 `master` `src/versionbits.cpp` / `versionbits_impl.h` fetched 2026-10-16
 (STARTED case unchanged: count test :93 precedes timeout test :95).

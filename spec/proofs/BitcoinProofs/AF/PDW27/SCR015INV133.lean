@@ -1,7 +1,7 @@
 import Bitcoin.Activation.Flags
 
 /-! # PDW27 SCR-015 + INV-133 — flag-selection row faces
-(proof-promotion review, items TOP-131..135).
+(items TOP-131..135).
 
 SCR-015 (`getBlockScriptFlagsP`, validation.cpp:2249-2288): the whole-def
 law — away from exception blocks the result is exactly the 7-field record

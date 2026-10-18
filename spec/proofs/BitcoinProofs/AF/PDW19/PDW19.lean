@@ -2,8 +2,8 @@ import Bitcoin.Interpreter.Rules
 import Bitcoin.Interpreter.SigOps
 import Bitcoin.Script.Tapscript.LeafVersion
 
-/-! # PDW19.lean — proof-promotion review, items TOP-91..95
-(PDW19, review RC21, 2026-10-17; claim f216df2; resumed post
+/-! # PDW19.lean — items TOP-91..95
+(PDW19, RC21, 2026-10-17; claim f216df2; resumed post
 model-rotation from bank 522cd8d).
 
 Four row-facing theorem groups, one per claimed `implemented`

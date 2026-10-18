@@ -1,7 +1,7 @@
 import Bitcoin.Block.Pow
 import Bitcoin.Block.Connect
 
-/-! # PDW38 — TOP-186..190 proof-promotion (route B).
+/-! # PDW38 — TOP-186..190 (route B).
 
 Five rules.yaml rows, theorems stated on the exact core definitions:
 

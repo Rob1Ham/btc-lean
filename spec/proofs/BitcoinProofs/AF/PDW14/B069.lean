@@ -3,14 +3,14 @@ import Bitcoin.Capstone.Block
 /-! # B069 — PDW14, row BLK-069 (TOP-67).
 `Bitcoin.Capstone.Block.bip34Ok` (Capstone/Block.lean:189).
 S-evidence: `CapstoneBip34Cor` `bip34Ok_vacuous_below` (:307) +
-`bip34Ok_push_prefix` (:321, the W17 anchor run) — restated on the
+`bip34Ok_push_prefix` (:321, the anchor run) — restated on the
 PDW14 tag (BIP34 `bad-cb-height`, validation.cpp). -/
 
 namespace BitcoinProofs.AF.PDW14
 
 open Bitcoin.Capstone.Block Bitcoin.Data
 
-/-! ## BLK-069 vacuity (W15-flags-style): below the BIP34 activation
+/-! ## BLK-069 vacuity (flags-style): below the BIP34 activation
 height 227931 the gate is vacuously true for EVERY coinbase — the
 `if` takes the `else true` branch, the scriptSig is never inspected. -/
 @[rule "BLK-069"]
@@ -22,7 +22,7 @@ theorem bip34Ok_vacuous_below (height : UInt32) (cb : Tx)
   simp only [bip34Ok, if_neg (show ¬(Bitcoin.Ledger.BIP34_HEIGHT ≤ height) from by
     rw [UInt32.le_iff_toNat_le]; omega)]
 
-/-! ## BLK-069 acceptance direction (the W17 anchor run): when BIP34 is
+/-! ## BLK-069 acceptance direction (the anchor run): when BIP34 is
 active and the coinbase scriptSig *extends* the exact minimal push —
 `push ++ rest` — the gate passes. -/
 @[rule "BLK-069"]

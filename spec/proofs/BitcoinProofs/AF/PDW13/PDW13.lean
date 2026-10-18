@@ -2,8 +2,7 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Block.Pow
 import BitcoinProofs.AF.PDW13.WitnessCommitmentReserved
 
-/-! # PDW13.lean — proof-promotion review 6, items TOP-61..65
-(PDW13, recovery review RC17, 2026-10-17).
+/-! # PDW13.lean
 
 Five sorry-free promotion theorems, one per claimed rules.yaml row
 (claim v1 = commit 4fd8dda; the PD02 Table-1 ErrMap attr+flip
@@ -30,7 +29,7 @@ weakening), tags `@[rule "row"]` ride these decls. The module is
 deliberately NOT imported by the `BitcoinProofs` root (the
 PDW12-AF isolation pattern) — own-target built, outside
 `core/**` (sorry_lint scans core only). BLK-020 (same
-lean_target `commitmentGate`) = the NEXT review's head, NOT tagged
+lean_target `commitmentGate`) = the next head, NOT tagged
 here (F-PDW13 hand-off, PDW11/PDW12 non-goal discipline). -/
 
 namespace BitcoinProofs.AF.PDW13

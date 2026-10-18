@@ -5,7 +5,7 @@ The **small-curve carbon copy** of the secp256k1 EC layer: a TINY
 prime-field Weierstrass curve where EVERYTHING — field ops, point ops,
 scalar mult, the whole ECDSA scheme including verify — is
 **kernel-decidable** (the R6 / D-004 hedge rung of the DEEP-LEAN
-suite; see `db/findings-dl/E10.md`).
+suite).
 
 ## The curve (a scaled-down secp256k1 in every parameter shape)
 
@@ -24,26 +24,26 @@ suite; see `db/findings-dl/E10.md`).
 
 ## Design: the R6 fix (why the carbon copy is kernel-decidable)
 
-The secp layer (`Curve/Mod.lean`, `Curve/Secp.lean`, W14b) is a
+The secp layer (`Curve/Mod.lean`, `Curve/Secp.lean`) is a
 *faithful but well-founded-recursive* program: `invM` (extended
 Euclid), `expM`/`sqrtP` (WF recursion on the exponent), `mulP` (WF
-recursion on the scalar) all poison `decide` (W14 F-W14-1).  This
+recursion on the scalar) all poison `decide` (F-W14-1).  This
 module keeps **every definitional shape** of the secp layer — the
 `addRaw`/`doubleRaw`/`addP`/`negP` case tables, the `RawPoint =
 Option (Nat × Nat)` representation, the `mulM m x y = (x*y)%m` field
 ops — and replaces exactly the three WF-poisoned kernels by
-**structural** recursions on literal-width bit lists (the W14b
+**structural** recursions on literal-width bit lists (the
 F-W14b-1 fix, in reusable form):
 
 * `expB m x bs = x ^ (bitsVal bs) % m` — square-and-multiply over a
   little-endian `List Bool` (structural in `bs`; `Curve.Mod.expBits`
   carbon).  **Correctness `expB_eq_pow` is PROVED here** (core `Nat`
-  lemmas only) — the secp version is still a Review-3 TODO
+  lemmas only) — the secp version is still a TODO
   (`Mod.lean:169`).
 * `invP' d = expB p d bitsP2 = d ^ (p-2) % p` — the **Fermat**
   inverse (secp: `invP d = invM p d`, extended Euclid).  Correctness
   `invP'_correct` (mathlib `ZMod` + `Nat.Prime p`, `norm_num`) is the
-  `VerifyEquationSmall.lean` (U3) deliverable.
+  `VerifyEquationSmall.lean` (U3).
 * `mulP' k q = bitListRec (bitsOfN k) q` — LSB-first
   double-and-add, structural in the 17 bits of `k`
   (`bitsOfN k = (List.range 17).map ((k>>>i)%2==1)`).  The secp
@@ -169,10 +169,10 @@ theorem mulM_congr {m a b c d : Nat} (h1 : a % m = c % m) (h2 : b % m = d % m) :
 
 `expB m x bs` computes `x ^ (bitsVal bs) % m` — square-and-multiply
 over the little-endian bit list `bs`, **structural** in `bs` (never
-WF-recursive on a Nat measure): the W14b F-W14b-1 kernel-decidability
+WF-recursive on a Nat measure): the F-W14b-1 kernel-decidability
 fix.  Correctness (`expB_eq_pow`, below) is proved over the core `Nat`
 lemmas only — the secp `expM`/`expBits` version of this theorem is
-still a Review-3 TODO (`Mod.lean:169`), so the carbon already
+still a TODO (`Mod.lean:169`), so the carbon already
 **improves** on the original here. -/
 
 /-- Square-and-multiply over an explicit little-endian bit list. -/

@@ -8,8 +8,7 @@ import Bitcoin.Interpreter.Rules
 band: TXV-031 BIP113 cutoff convention, INV-019 sequence type bit,
 TXV-061 full-pipeline checker env, TXV-062 script-exec cache laws,
 SWT-037 extended tx decode. TXV-012/TXV-034/SWT-067 found proven by
-PDW60/PDW67 at flip time; TXV-032 yielded to live peer PDW70 (swap
-recorded in findings). Route B, zero core writes. -/
+PDW60/PDW67 at flip time; TXV-032 yielded to PDW70 (swap recorded). Route B, zero core writes. -/
 
 namespace BitcoinProofs.AF.PDW63
 

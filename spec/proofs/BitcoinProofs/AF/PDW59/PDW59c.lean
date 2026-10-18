@@ -2,7 +2,7 @@ import Bitcoin.Interpreter.Defs
 
 /-! # PDW59c.lean — TOP-319/320: taproot future-version witness programs
 
-PDW59 (review RC29), claim `da681d5` (swapped rows, see findings §3).
+PDW59 (RC29), claim `da681d5` (swapped rows).
 Route B, zero core writes. Row faces for
 `Bitcoin.Interpreter.verifyWitnessProgram` (Defs.lean:1214,
 interpreter.cpp:2020-2032 @ cce32b168), the last two `else` arms:

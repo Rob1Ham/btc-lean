@@ -35,7 +35,7 @@ def TxStatefulOk (l : List (OutPoint × Coin)) (tx : Tx) (height : UInt32) : Pro
   tx.isCoinBase = true ∨
     (inputsAvailable (viewOf l) tx = true ∧ maturityOk (viewOf l) tx height = true)
 
-/-- **Per-step exactness (iff)**: the W12 ledger step succeeds iff the
+/-- **Per-step exactness (iff)**: the ledger step succeeds iff the
 state predicate holds, and then the output is EXACTLY the reference
 `updateCoinsL`. -/
 theorem applyTxStepL_ok_iff (l l' : List (OutPoint × Coin)) (tx : Tx)
@@ -200,7 +200,7 @@ theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
       exact ⟨l₁, a, b, rfl, h⟩
 
 /-- **Pipeline-to-ledger bridge**: a successful capstone `applyTxs` is a
-successful W12 `applyBlockFoldL` at the real `txidKey` with the same list. -/
+successful `applyBlockFoldL` at the real `txidKey` with the same list. -/
 theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin))
       (okN' unjN' : Nat),
@@ -301,7 +301,7 @@ theorem applyBlockL_ok_no_bip30 (l l' : List (OutPoint × Coin)) (kf : Tx → Ke
   rw [htrue] at hc; cases hc
 
 /-- **Sound direction at the FULL pipeline**: a `validateBlock` success
-decodes to a header/tx list whose capstone fold is W12's `applyBlockFoldL`
+decodes to a header/tx list whose capstone fold is `applyBlockFoldL`
 at `txidKey`, satisfies every per-tx state predicate on the threaded view,
 and whose report UTXO list is the reference update fold. -/
 theorem validateBlock_ok_fold (raw : ByteArray) (st : CapState) (r : CapReport)

@@ -1,7 +1,7 @@
 import BitcoinProofs.AF.PDW21.PDW21
 
 /-! # PDW21Guards.lean — axiom pins for TOP-101..105
-(PDW21, review RC26). Pins ⊆ `[propext, Classical.choice, Quot.sound]`. -/
+(PDW21, RC26). Pins ⊆ `[propext, Classical.choice, Quot.sound]`. -/
 
 namespace BitcoinProofs.AF.PDW21
 

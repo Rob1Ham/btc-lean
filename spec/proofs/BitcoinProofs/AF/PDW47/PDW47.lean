@@ -1,6 +1,6 @@
 import Bitcoin.Interpreter.Rules
 
-/-! # PDW47.lean — proof-promotion review RC27, items TOP-231..235
+/-! # PDW47.lean — RC27, items TOP-231..235
 (PDW47, 2026-10-17). Claim b6982a6.
 
 Status-debt band of `Bitcoin/Interpreter/Rules.lean` (X07 §9/§10):

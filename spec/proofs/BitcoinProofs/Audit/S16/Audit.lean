@@ -3,10 +3,10 @@ import Bitcoin.SigHash.Digest
 
 /-!
 # S16 audit — SCS-A12 independent re-verification (SIGHASH_SINGLE
-overflow constant) — claim-first closure, RC2b lane 16 (S16-2)
+overflow constant) — independent closure (S16-2)
 
-NEW file, owned by S16. 2026-10-17 03:2x. Sister file:
-`proofs/BitcoinProofs/Audit/Z01/Audit.lean` (W4 suite, F-Z01-001).
+2026-10-17. Sister file:
+`proofs/BitcoinProofs/Audit/Z01/Audit.lean` (F-Z01-001).
 
 ## What this file is (and is NOT)
 
@@ -26,14 +26,14 @@ repaired model.  It:
 * proves NOTHING new about Core beyond the pinned byte equality — the Core
   anchor at pin `cce32b168`
   (`cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`) is re-anchored OUT-OF-TREE
-  by S16 (see findings F-S16-002): `script/interpreter.cpp:1614-1622`
+  by S16 (F-S16-002): `script/interpreter.cpp:1614-1622`
   (legacy overflow arm `return uint256::ONE;` before any vin access)
   + `uint256.cpp:34-35` (`const uint256 uint256::ONE(1);`) +
   `uint256.h` (`constexpr explicit base_blob(uint8_t v) : m_data{v} {}`
   ⇒ `m_data[0]=v, m_data[1..31]=0`), web-pinned at 03:1x UTC.
   Z01's own g++ compiled-Core witness (`Z01_print_one.cpp`) and A02's
-  probe were **wiped** with `build/scratch/W02|build/scratch/`
-  in the 02:5x crash — irreproducible from the tree (F-S16-001).
+  probe were **wiped** in the 02:5x crash — irreproducible from the tree
+  (F-S16-001).
 
 Kernel-pure (`decide`) only, no `native_decide`, no new axioms, no
 hashing (the overflow arm early-returns) — the proof-form discipline of

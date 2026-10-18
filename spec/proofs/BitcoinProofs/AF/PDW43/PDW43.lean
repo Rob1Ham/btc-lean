@@ -3,7 +3,7 @@ import Bitcoin.Block.Index
 import Bitcoin.Block.Params
 import Bitcoin.DataLaws.Interface
 
-/-! # PDW43.lean — proof-promotion review RC27, items TOP-211..215
+/-! # PDW43.lean — RC27, items TOP-211..215
 
 Claim `30897db`. Route B (zero core writes). Part A: the D-INDEX /
 D-PARAMS status-debt tail.

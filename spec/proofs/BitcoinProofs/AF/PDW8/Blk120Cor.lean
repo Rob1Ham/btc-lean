@@ -3,8 +3,6 @@ import Bitcoin.Block.Index
 /-!
 # Blk120Cor — BLK-120 promotion proof (PDW8, row TOP-38)
 
-PDW8 → PDW8-2 (proof-promotion review 8, continuation after the 06:40
-mid-proof death; recovery review 4), 2026-10-17.
 Row BLK-120 (cached-failed block re-submission rejected as
 `duplicate-invalid` without re-validation, validation.cpp:4205-4219
 @cce32b168): the `failedCache` lane of header acceptance.
@@ -15,7 +13,7 @@ theorems here pin the two directions: the `duplicate-invalid` verdict
 holds iff the hash is in the failed cache (no re-validation — the
 cache verdict IS the verdict), and the `none` fall-through (fresh
 validation) iff the hash is not cached-failed. `by_cases` +
-`rw`/`simp` + `simp at hv` contradiction (W3 gold). Companion to the
+`rw`/`simp` + `simp at hv` contradiction (reference proof). Companion to the
 core `submitVerdict_failed` (one-directional, Index.lean:288).
 PDW8-2 build evidence: the tree file was clean FIRST-BUILD RC=0
 (the w3-120 gold assembly; contrast Blk063Cor which died with the

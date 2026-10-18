@@ -4,18 +4,18 @@ import Bitcoin.Crypto.Curve.Secp
 /-!
 # BitcoinProofs.Property.Y16 — property corpus: TapTweak / curve-edges
 
-Review-4 support suite contributor Y16, 2026-10-16. NEW file, owned by Y16.
+2026-10-16.
 
 Ground truth: BIP341 §3 (t = hash_TapTweak(p ‖ k_m), Q = lift_x(int(p)) +
 t·G), BIP340 (int_from_bytes big-endian, lift_x even-y), libsecp256k1
 extrakeys_main_impl.h:142-161 + eckey_impl.h:23-33 @ cce32b168 (tweak_add
 rejects iff t ≥ n OR P + t·G = ∞). The python reference
-`scratch/Y16/twtref.py` is validated against the vendored BIP341 wallet
+is validated against the vendored BIP341 wallet
 vectors (7/7 tweak hashes, 6/6 output keys) and every EXPECTED value
-below comes from it — never from the Lean code. Generator:
-`scratch/Y16/gen.py`, seed 20261016 — regenerates this file byte-for-byte.
+below comes from it — never from the Lean code. Generator seed 20261016 —
+regenerates this file byte-for-byte.
 
-TWO assertion lanes (kernel economics, F-Y16-004 in findings-w4/Y16.md):
+TWO assertion lanes (kernel economics, F-Y16-004):
 * `decide` lane — structural cases only (kernel whnf stops at the
   WF-recursive egcd/expM/mulP, so computed curve cases cannot decide);
 * `#eval` + `#guard_msgs` lane — for every computed case the EXPECTED

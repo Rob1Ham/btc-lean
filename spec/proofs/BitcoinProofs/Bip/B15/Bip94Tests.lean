@@ -3,7 +3,7 @@ BitcoinProofs.Bip.B15.Bip94Tests — decisive BIP94 (Testnet 4) + epoch-rule
 kill-vectors, exercised against the TREE's implementation
 (`Bitcoin.Block.Pow` BLK-040..055, `Bitcoin.Block.Index` BLK-113/114).
 
-B15 Review-5 support suite, 2026-10-16. NEW files only; owned by B15.
+2026-10-16.
 
 BIP94 consensus clauses audited (bip-0094.mediawiki, License CC0-1.0,
 fetched from bitcoin/bips master 2026-10-16):
@@ -23,15 +23,15 @@ Header arithmetic: nBits decode/encode is Y11's covered ground
 (Property/Y11/PowBits.lean); this module covers the epoch rules above and
 the chainwork layer (BLK-113/114) that BIP94's reorg rationale rests on.
 
-Every expected value was computed by the python3 oracle
-scratch/B15/bip94_xcheck.py — Core arith_uint256/pow/chain semantics
+Every expected value was computed by a python3 oracle — Core
+arith_uint256/pow/chain semantics
 @ cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66, big-int — and the oracle's
 mutation matrix confirms each family distinguishes a mutated rule (clamp
 1/4→1/5; overflow size>34→>35; timewarp 600→599).
 
 All checks are `rfl`/`decide`/`native_decide`-closed; `native_decide` is
 test-scoped only (house policy), the two `theorem`s are sorry-free and
-avoid it (#print axioms in scratch/B15/axcheck.lean).
+avoid it (#print axioms below).
 -/
 
 import Bitcoin.Chain.Basic

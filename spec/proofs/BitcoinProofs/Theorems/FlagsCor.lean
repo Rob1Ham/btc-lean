@@ -1,9 +1,9 @@
 import Bitcoin.Activation.Interface
 
 /-!
-# BitcoinProofs.Theorems.FlagsCor — W15: flag-monotonicity corollaries (sorry-free)
+# BitcoinProofs.Theorems.FlagsCor — flag-monotonicity corollaries (sorry-free)
 
-Corollaries of W06's proved flag laws (`Bitcoin.Activation`,
+Corollaries of proved flag laws (`Bitcoin.Activation`,
 `research/w2-06-flags-activation.md`). Zero-dependency.
 
 C4 portfolio linkage:
@@ -18,7 +18,7 @@ C4 portfolio linkage:
 | (BLK-072 pin) | `nullDummy_iff_segwit` | NULLDUMMY activates exactly with SegWit (BIP147 rides segwit) |
 | (BLK-074 cor) | `bip9_active_stable` | once a BIP9 deployment is ACTIVE it stays ACTIVE across periods |
 
-Dependencies: W06's `flags_norm`, `flags_bip16_exception`, `flags_taproot_exception`,
+Dependencies: `flags_norm`, `flags_bip16_exception`, `flags_taproot_exception`,
 `flags_exception_blocks`, `bip9State_next_period` (all sorry-free).
 -/
 
@@ -39,7 +39,7 @@ theorem flags_base_true (height : UInt32)
   exact ⟨rfl, rfl, rfl⟩
 
 /-- TAPROOT is on exactly at the non-exception heights (the two exception
-blocks drop it — interface-change note 4 of the W06 freeze). -/
+blocks drop it — interface-change note 4 of the frozen interface). -/
 theorem flags_taproot_iff (height : UInt32) :
     (getBlockScriptFlags height).taproot = true ↔ height ∉ EXCEPTION_HEIGHTS := by
   constructor
@@ -116,7 +116,7 @@ theorem flags_genesis_exact :
 
 /-! ## BIP9: activation is absorbing -/
 
-/-- Helper (companion of W06's `bip9StateByPeriod_lockIn_atStart`): an
+/-- Helper (companion of `bip9StateByPeriod_lockIn_atStart`): an
 ACTIVE period state can only arise post-start. -/
 theorem bip9StateByPeriod_active_atStart (P : Bip9Params) (k : Nat)
     (hl : bip9StateByPeriod P k = .active) :
@@ -136,7 +136,7 @@ theorem bip9StateByPeriod_active_atStart (P : Bip9Params) (k : Nat)
 /-- BLK-074 corollary: BIP9 ACTIVATION IS ABSORBING — once the machine is
 ACTIVE at height `h`, it is still ACTIVE a full confirmation period later
 (versionbits.cpp:100-104: the ACTIVE transition never leaves ACTIVE; the
-timeout plays no role, exactly as for W06's `lockin_survives_timeout`). -/
+timeout plays no role, exactly as for `lockin_survives_timeout`). -/
 theorem bip9_active_stable (P : Bip9Params) (h : Nat)
     (hP : 0 < P.period)
     (hactive : bip9State P h = .active) :

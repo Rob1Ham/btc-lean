@@ -11,9 +11,9 @@ import Bitcoin.Activation.Flags
 import Bitcoin.Activation.Bip9
 
 /-!
-# S02Flip — native_decide → decide flip measurement (D-004 census, contributor S02)
+# S02Flip — native_decide → decide flip measurement (D-004 census)
 
-DEEP-LEAN S02, 2026-10-16. NEW file (S02's home: proofs/BitcoinProofs/EcdsaDeep/).
+DEEP-LEAN S02, 2026-10-16. This file's home: proofs/BitcoinProofs/EcdsaDeep/.
 
 METHOD (measurement only — these are verbatim structural copies of the
 top-5 `Test/` native_decide use-sites + the two proofs-pkg archetypes,
@@ -21,7 +21,7 @@ with `by native_decide` replaced by `by decide`; fixtures are private in
 their source files and copied verbatim, source:line tagged in every
 section header). NO source file is edited. A section that checks here
 = that use-site would flip to kernel `decide` as written; an error =
-the wall (classified per S02 findings F-S02-00x). Axiom footprint of
+the wall (classified per F-S02-00x). Axiom footprint of
 every flipped example: `decide`-clean = the standard kernel-checked
 route (no `Lean.ofReduceBool`).
 
@@ -73,7 +73,7 @@ private def bL (ba : ByteArray) : List UInt8 := ba.toList
 /-- sighash.json / uint256::GetHex() byte order (reversed internal). -/
 private def revHex (s : String) : ByteArray := bytesOfList (bL (fromHex s)).reverse
 
--- Decode a vector's raw transaction (W02 decoder). :54-58 verbatim.
+-- Decode a vector's raw transaction (decoder). :54-58 verbatim.
 -- (plain comment: a doc comment cannot attach to `deriving instance`)
 deriving instance Inhabited for Tx
 

@@ -3,12 +3,12 @@ import Bitcoin.SigHash.Theorems
 
 /-!
 # BitcoinProofs.Theorems.T3T4SighashCor — THM-032c/033c-ECDSA, the
-# sighash-injectivity corollary tier (X10, Review 3, Module B)
+# sighash-injectivity corollary tier
 
 C4 portfolio rows **THM-032c** (Tier 3, "sighash injectivity
 corollaries") and the **ECDSA half of THM-033c** (real-dispatch totality;
-the BIP341 half is X03's lane), proved over W11's frozen
-`Bitcoin.SigHash` + W14b/X02's real checker wiring
+the BIP341 half is separate), proved over frozen
+`Bitcoin.SigHash` + X02's real checker wiring
 (`Bitcoin.Capstone.RealChecker`).
 
 ## What this module proves
@@ -17,18 +17,18 @@ the BIP341 half is X03's lane), proved over W11's frozen
   (`legacyMsgL`, `bip143MsgL`) end in the raw 4-byte LE `nHashType`
   (`ss << nHashType`, interpreter.cpp:1684-1686), so the **message
   determines the FULL hashtype, not just the class** ((I) + B1), whenever
-  the hashtype classes agree (W11's `*_determined` family, class level).
+  the hashtype classes agree (`*_determined` family, class level).
 * **THM-032c (digest-level, conditional)** — the same at the digest
   level (B2), **conditional on a named `dsha256`-injectivity hypothesis**
   (`Hdsha : ∀ a b, dshaL a = dshaL b → a = b`) — never an axiom, never
-  assumed silently (W14 discipline: W14b's dsha256 is not kernel-reduced
+  assumed silently (reduction discipline: dsha256 is not kernel-reduced
   here), and only on the honest domain: same class, in-range `nIn`,
   non-overflow corner.
 * **THM-032c (the honest blindness-corner map, B3)** — out-of-range
   `nIn` blinds the digest to everything (the zero hash, both lanes);
   out-of-range legacy SINGLE blinds it to the constant `uint256::ONE`
   (witnessV0 lane EXEMPT — BIP143 has no ONE early return: the tri-modal
-  SIGHASH_SINGLE divergence, W11 `legacyImpl_single_oor` /
+  SIGHASH_SINGLE divergence, `legacyImpl_single_oor` /
   `bip143_single_oor`). On these corners **injectivity provably FAILS**:
   the naive "distinct (tx, idx, hashtype) → distinct digests" is FALSE
   as stated (sanctioned statement-fidelity path, report §5).
@@ -36,9 +36,9 @@ the BIP341 half is X03's lane), proved over W11's frozen
   `sighashDispatch` is total, deterministic, and case-exhaustive in the
   sigversion (B4a: `witnessV0 → BIP143`, else legacy — all four
   `SigVersion` constructors covered), pure in the environment and in its
-  script-visible arguments (B4c/B4d), and W11's Impl-level
+  script-visible arguments (B4c/B4d), and Impl-level
   `*_determined` lifts to the Script level the dispatch actually calls
-  (B0a/B0b) and through the dispatch itself (B0c/B0d). W13's
+  (B0a/B0b) and through the dispatch itself (B0c/B0d).
   `ecdsaEntry_pops_hashtype` — the hashtype-pop totality: whatever the
   verdict, the signature reaches the verifier only as
   `sig.extract 0 (sig.size - 1)` against the digest of
@@ -50,7 +50,7 @@ the BIP341 half is X03's lane), proved over W11's frozen
 ## Statement-fidelity notes (sanctioned statement-wrong path, §5)
 
 * **Digest-level cross-hashtype determinism is NOT claimed** — and never
-  was: W11's Theorems.lean docstring itself says the raw `serU32L ht`
+  was: Theorems.lean docstring itself says the raw `serU32L ht`
   suffix is the one class-independent hashtype dependence (messages
   ending in `serU32L 0x01` vs `serU32L 0x21` share a class but hash
   differently). B pins the honest raw-suffix INJECTIVITY (same class +
@@ -59,25 +59,23 @@ the BIP341 half is X03's lane), proved over W11's frozen
   the honest domain is exactly the in-range, non-overflow corner; B3
   maps the corners rather than silently restricting the statement.
 * B2's `Hdsha` is a **hypothesis**, so B2 is a theorem ABOUT what
-  dsha256-injectivity would buy, not a proof of the EC/hash layer (W14:
-  no kernel reduction of the hash or the verifiers anywhere in this
+  dsha256-injectivity would buy, not a proof of the EC/hash layer (no kernel reduction of the hash or the verifiers anywhere in this
   module).
 
 ## E290 note (private re-derivations)
 
-W11's `hashPrevoutsL_determined'` / `hashSequenceL_determined'` /
+`hashPrevoutsL_determined'` / `hashSequenceL_determined'` /
 `hashOutputsL_determined'` are `private` in `Bitcoin.SigHash.Theorems`
 (a proof-internal there), so they cannot be imported here. Their
 statements are re-derived as the private `hashPrevoutsL_raw_inj'` /
 `hashSequenceL_raw_inj'` / `hashOutputsL_raw_inj'` (same statements,
 class-split hypotheses) — the public B1b carries the pinned correctness;
-the private helpers mirror W11's own privacy.
+the private helpers mirror their own privacy.
 
 ## THM-032/033 disposition
 
-THM-032 (BIP143 total+deterministic) is **OBSOLETE** as a row (W11:
-`bip143MsgL_determined`, the `hashXxxL_cases` family, the 10-field
-preimage shape); X10's B-tier adds what W11 deliberately did not claim —
+THM-032 (BIP143 total+deterministic) is **OBSOLETE** as a row (`bip143MsgL_determined`, the `hashXxxL_cases` family, the 10-field
+preimage shape); the B-tier adds what was deliberately not claimed —
 the raw-suffix injectivity corollaries (I)/(B1)/(B2) and the corner map
 (B3). THM-033 (BIP341 total+deterministic) is **STILL-BLOCKED (X03)**:
 the BIP342 sighash slot in `realSchnorrEntry` is the fail-closed `none`
@@ -96,7 +94,7 @@ open Bitcoin.Crypto.Seam Bitcoin.Crypto.Seam.Entry Bitcoin.Crypto.Seam.Der
 
 /-- **THM-032c ((I) ms-injectivity)**: a common prefix followed by the
 4-byte LE serialization of the hashtype determines the hashtype —
-`leNat (encU32L x) = x.toNat` (W02) + `serU32L = encU32L` (rfl) +
+`leNat (encU32L x) = x.toNat` + `serU32L = encU32L` (rfl) +
 `UInt32.toNat_inj`. The ms-level engine behind every B1/B2 row. -/
 theorem append_serU32L_inj {l : Bytes} {ht ht' : UInt32}
     (h : l ++ serU32L ht = l ++ serU32L ht') : ht = ht' := by
@@ -128,7 +126,7 @@ theorem htToU32_inj (ht ht' : UInt8) (h : htToU32 ht = htToU32 ht') :
   have : ht.toNat = ht'.toNat := by omega
   exact UInt8.toNat_inj.mp this
 
-/-! ## 3. E290 — private re-derivations of W11's private
+/-! ## 3. E290 — private re-derivations of private
 `hashX_determined'` helpers (statements identical; class-split
 hypotheses; see the module docstring). -/
 
@@ -154,8 +152,7 @@ private theorem hashOutputsL_raw_inj' {tx : Tx} {nIn : Nat} {ht ht' : UInt32}
 
 /-- **THM-032c (B1a, legacy)**: two legacy messages for the same
 `(tx, nIn, scriptCode)` in the same hashtype class are equal ONLY IF
-the full hashtypes are equal — the preimage is class-determined (W11
-`legacyPreimageL_determined`), so the raw `serU32L` suffix is the only
+the full hashtypes are equal — the preimage is class-determined (`legacyPreimageL_determined`), so the raw `serU32L` suffix is the only
 remaining hashtype channel, and it is injective ((I)). -/
 theorem legacyMsgL_raw_inj (tx : Tx) (nIn : Nat) (sc : Bytes) (ht ht' : UInt32)
     (hcls : htClass ht = htClass ht')
@@ -167,7 +164,7 @@ theorem legacyMsgL_raw_inj (tx : Tx) (nIn : Nat) (sc : Bytes) (ht ht' : UInt32)
 
 /-- **THM-032c (B1b, BIP143)**: the same for the 10-field BIP143
 preimage — all ten fields up to `hashOutputs`/`nLockTime` are
-class-determined (W11's private `hashX_determined'` re-derived here,
+class-determined (private `hashX_determined'` re-derived here,
 E290), so the trailing raw `serU32L` suffix carries the only remaining
 hashtype information. -/
 theorem bip143MsgL_raw_inj (tx : Tx) (nIn : Nat) (sc : Bytes) (ht ht' : UInt32)
@@ -183,10 +180,10 @@ theorem bip143MsgL_raw_inj (tx : Tx) (nIn : Nat) (sc : Bytes) (ht ht' : UInt32)
   rw [h1, h2, h3] at h
   exact append_serU32L_inj h
 
-/-! ## 5. B0 — W11-Impl determinism lifted: Script level + the real
+/-! ## 5. B0 — Impl determinism lifted: Script level + the real
 dispatch (033c-ECDSA-half, determinedness). -/
 
-/-- **THM-033c-ECDSA (B0a)**: W11's `signatureHashLegacyImpl_determined`
+/-- **THM-033c-ECDSA (B0a)**: `signatureHashLegacyImpl_determined`
 (Impl level, `Bytes` scriptCode) lifted to the Script-level
 `signatureHashLegacy` the real dispatch calls (`bL scriptCode.bytes`). -/
 theorem signatureHashLegacy_determined (tx : Tx) (nIn : Nat)
@@ -197,7 +194,7 @@ theorem signatureHashLegacy_determined (tx : Tx) (nIn : Nat)
   exact signatureHashLegacyImpl_determined tx nIn (bL scriptCode.bytes) ht ht'
     hcls hraw
 
-/-- **THM-033c-ECDSA (B0b)**: W11's `signatureHashBip143Impl_determined`
+/-- **THM-033c-ECDSA (B0b)**: `signatureHashBip143Impl_determined`
 lifted to the Script level (`signatureHashBip143`). -/
 theorem signatureHashBip143_determined (tx : Tx) (nIn : Nat)
     (scriptCode : Script) (ht ht' : UInt32) (amount : Amount)
@@ -287,7 +284,7 @@ theorem sighashDispatch_pure_args (tx : Tx) (nIn : Nat) (amount : Amount)
 /-- **THM-032c (B2a, legacy digest)**: on the honest domain — same
 hashtype class, NON-overflow (not out-of-range SINGLE), in-range `nIn` —
 equal legacy digests determine the full hashtype, GIVEN a named
-`dsha256`-injectivity hypothesis `Hdsha` (W14: the hash is never
+`dsha256`-injectivity hypothesis `Hdsha` (the hash is never
 kernel-reduced here; `Hdsha` is exactly what a future dsha256-injectivity
 proof would plug in). -/
 theorem signatureHashLegacyImpl_raw_inj (tx : Tx) (nIn : Nat) (sc : Bytes)
@@ -339,7 +336,7 @@ injectivity FAILS, and to what. -/
 /-- **THM-032c (B3a, corner: legacy out-of-range SINGLE)**: the early
 return fires before any vin indexing — the digest is the constant
 `uint256::ONE`, for the ARBITRARY hashtype of the class-hypothesis shape
-(W11's `legacyImpl_single_oor` is the ht = 0x03 shape). -/
+(`legacyImpl_single_oor` is the ht = 0x03 shape). -/
 theorem legacyImpl_single_oor_ht (tx : Tx) (nIn : Nat) (sc : Bytes)
     (ht : UInt32) (hs : htBase ht = HtBase.singleHt)
     (h : tx.vout.length ≤ nIn) :
@@ -401,10 +398,10 @@ theorem sighashDispatch_legacy_single_oor (tx : Tx) (nIn : Nat)
   | taproot => intro _; exact legacyImpl_single_oor_ht tx nIn (bL scriptCode) (htToU32 ht) hs h
   | tapscript => intro _; exact legacyImpl_single_oor_ht tx nIn (bL scriptCode) (htToU32 ht) hs h
 
-/-! ## 9. B4b — W13's hashtype-pop totality at the real entry
+/-! ## 9. B4b — hashtype-pop totality at the real entry
 (033c-ECDSA-half; SWT-053/SWT-054). -/
 
-/-- **THM-033c-ECDSA (B4b, hashtype-pop totality)**: W13's
+/-- **THM-033c-ECDSA (B4b, hashtype-pop totality)**:
 `ecdsaEntry_pops_hashtype` at the REAL checker — whatever the verdict,
 the signature reaches the verifier only as `sig.extract 0 (sig.size - 1)`
 (the hashtype byte popped before hashing/verifying,

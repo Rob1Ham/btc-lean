@@ -1,7 +1,7 @@
 import Bitcoin.Interpreter.Rules
 
 /-! # PDW33.lean — TOP-161..165, part 1 (SCR-009 flag combo, SCR-132 locktime env)
-(PDW33, review RC27, 2026-10-17; claim a904643).
+(PDW33, RC27, 2026-10-17; claim a904643).
 
 Route B (zero core writes): row-face theorems on the sorry-free core
 defs of `Bitcoin/Interpreter/Rules.lean`; tags ride these theorems and

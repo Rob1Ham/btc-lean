@@ -8,16 +8,14 @@ import Bitcoin.Data.Basic
 
 /-!
 # Z29 dark-corner audit — taproot odd-y lift before tweak + the TapBranch tag
-# (W4 suite)
+#
 
-NEW file, owned by Z29, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z29/` (`gen.py` + printed probes,
+2026-10-16. Python3 probes:
+`gen.py` + printed probes,
 all validated against the OFFICIAL BIP341 wallet vectors
-`spec/vectors/bips/bip-0341_wallet-test-vectors.json`). Findings:
-`spec/db/findings-w4/Z29.md`.
+`spec/vectors/bips/bip-0341_wallet-test-vectors.json`).
 
-Ground truth: Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/`:
+Ground truth: Core @ `cce32b168`:
 * C1: `secp256k1_xonly_pubkey_load` → the tweak ALWAYS runs on the EVEN-y
   lift (`secp256k1_ge_set_xo_var(…, 0)`); `secp256k1_extrakeys_ge_even_y`
   (extrakeys_main_impl.h:95-104) NEGATES an odd-y representative before

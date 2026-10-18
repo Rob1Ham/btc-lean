@@ -5,7 +5,7 @@ import Bitcoin.Activation.Bip9
 /-!
 # B11 — BIP147 NULLDUMMY decisive vectors (build-time, no IO)
 
-Review-5 support suite contributor B11, 2026-10-16. NEW file, owned by B11.
+2026-10-16.
 
 Ground truth:
   * BIP147 (bip-0147.mediawiki, public domain, status: Deployed) §Specification:
@@ -14,8 +14,8 @@ Ground truth:
     script. §Deployment: BIP147 rides the BIP9 "segwit" deployment (bit 1,
     start 1479168000, timeout 1510704000 — inherited verbatim from
     bip-0141.mediawiki:305-308).
-  * Bitcoin Core @ pinned commit `cce32b168` (checkout
-    build/scratch/B5/bitcoin, HEAD verified == cce32b1682d86076ee71c10f9788c48d44458a263):
+  * Bitcoin Core @ pinned commit `cce32b168` (HEAD verified ==
+    cce32b1682d86076ee71c10f9788c48d44458a263):
     `src/script/interpreter.cpp:1211-1213` — the gate runs AFTER signature
     validation and cleanup, BEFORE the CHECKMULTISIGVERIFY success-pop;
     `interpreter.cpp:1118` — tapscript (BIP342) removed CHECKMULTISIG
@@ -26,7 +26,7 @@ Lean implementation under audit: `Bitcoin.Interpreter.stepBody.checkMultiSig`
 SWT-064/SCR-119) and `Bitcoin.Activation.{Interface,Flags}` (BIP147_HEIGHT =
 481824, rules BLK-088/SWT-063).
 
-Python cross-check: `scratch/B11/ref147.py` (reference model of
+Python cross-check: a reference model of
 interpreter.cpp:1113-1225 @ cce32b168 with the same seam stub; verdict table
 reproduced below and matched 9/9, plus the mainnet activation boundary and the
 BIP9 timestamp arithmetic).
@@ -36,7 +36,7 @@ predicates (`errIs`/`okIs`; `ExecError`/`State` derive structural BEq, so these
 are exact verdict pins). `native_decide` examples carry the
 `Lean.ofReduceBool` compiler axiom by design (Test-scoped, per the
 Delta.lean house pattern); every named theorem below is `rfl`/`decide`-only
-(axiom audit in scratch/B11/axioms.md).
+(axiom audit below).
 
 Mutation-kill map (each pin names a mutation it detects):
   V1 kills "gate removed" and "gate checks wrong element";
@@ -183,7 +183,7 @@ example : flagBits (getBlockScriptFlags (481824 : UInt32)) = 0x20E15 := by
 /-! ### BIP9 deployment parameters (BIP147 §Deployment = BIP141's) -/
 
 /-- BIP147/BIP141 mainnet deployment row (bip-0141.mediawiki:305-308,
-values cross-checked by scratch/B11/ref147.py against python datetime):
+values cross-checked against python datetime):
 name "segwit", bit 1, start midnight 2016-11-15 UTC, timeout midnight
 2017-11-15 UTC. -/
 def bip147DeploymentBit : Nat := 1

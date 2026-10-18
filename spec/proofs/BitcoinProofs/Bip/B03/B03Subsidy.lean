@@ -9,12 +9,11 @@ redistributable without restriction. Status: Deployed (soft fork).
 
 Ground truth (VERIFIED):
 * Bitcoin Core `src/validation.cpp:1833–1844 @ cce32b168` (fetched copy:
-  `scratch/B03/validation_cce32b168.cpp`), mainnet `nSubsidyHalvingInterval
+  `validation.cpp`), mainnet `nSubsidyHalvingInterval
   = 210000`, `COIN = 10^8`, `MAX_MONEY = 21·10^6·COIN`.
-* Python cross-check: `scratch/B03/subsidy_reference.py` →
-  `scratch/B03/subsidy_cases.json` (11/11 clause checks pass, 20 pinned
-  heights). Every `example` below is kernel-`decide`/`rfl` and every
-  `theorem` is sorry-free (axiom footprint printed in scratch/B03/axioms.log).
+* Python cross-check: an independent reference implementation
+  (11/11 clause checks pass, 20 pinned heights). Every `example` below is
+  kernel-`decide`/`rfl` and every `theorem` is sorry-free.
 
 ## Consensus clauses extracted from the BIP text
 
@@ -36,9 +35,9 @@ Ground truth (VERIFIED):
 
 Traceability: rules.yaml rows `INV-033` (bip_cve "BIP42") and `BLK-090`
 (duplicate, bip_cve "—"), both `status: implemented` with `lean_target:
-Bitcoin.Conservation.blockSubsidy` (W08 commit 029488a filled the def —
+Bitcoin.Conservation.blockSubsidy` (commit 029488a filled the def —
 exact-Nat `/ 2 ^ min halvings 64` form), but `test_vector_ids: []` on
-both rows — see findings-w5/B03.md (F-B03-002).
+both rows (F-B03-002).
 -/
 
 namespace BitcoinProofs.Bip.B03
@@ -70,7 +69,7 @@ example : Bitcoin.Conservation.halvingsAt 13440000 = halvingsAt 13440000 := by
 example : Bitcoin.Data.COIN = 100000000 := by rfl
 example : Bitcoin.Data.MAX_MONEY = 2100000000000000 := by rfl
 
-/-! ## Pinned point values (python-cross-checked, scratch/B03/subsidy_cases.json) -/
+/-! ## Pinned point values (python-cross-checked) -/
 
 example : getBlockSubsidy 0 = 5000000000 := by rfl            -- genesis: 50 BTC
 example : getBlockSubsidy 1 = 5000000000 := by rfl

@@ -1,24 +1,23 @@
 /-
-# BitcoinProofs.Bip.B04.Bip66Coverage — BIP66 strict-DER clause audit (Review-5, contributor B04)
+# BitcoinProofs.Bip.B04.Bip66Coverage — BIP66 strict-DER clause audit
 
-Deliverable for the BIP-coverage audit of BIP66 (strict DER signatures).
 BIP text: https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
 (BSD-2-Clause; this port of the reference checker is a faithful
 re-implementation, structurally diffed against it clause by clause).
 
 The 23 decisive per-clause vectors below were cross-checked in python3
 against a verbatim port of the BIP's `IsValidSignatureEncoding`
-(`scratch/B04/bip66_ref.py` in the suite tree, ALL_MATCH 2026-10-16).
+(ALL_MATCH 2026-10-16).
 
 Status split:
 - The `isValidSignatureEncoding` port + all clause vectors: VERIFIED
   (BIP text + python3 cross-check).
 - The tree-state references (`BIP66_HEIGHT`, `ScriptFlags.dersig`) are
-  frozen-interface facts; see findings-w5/B04.md for the clause table.
+  frozen-interface facts; the clause table is below.
 - Revived-run note (2026-10-16): the live main-repo tree has since landed
   its own ports — Bitcoin.Interpreter.Defs.isValidSigEncoding :287
   (SCR-102) + checkSigEncoding :341 (C1/C2/C4) and
-  Bitcoin.Crypto.Seam.Der :40/:87 (W14b); w05 had none. This module
+  Bitcoin.Crypto.Seam.Der :40/:87; no earlier port existed. This module
   stays the BIP-text-faithful List-Nat port + the 23 per-clause
   kill-vectors (VERIFIED sorry-free by direct v4.35.0 toolchain
   compile, exit 0, axioms [propext]; lake build blocked by the

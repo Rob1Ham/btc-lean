@@ -3,7 +3,7 @@ import Bitcoin.Crypto.Taproot.TapTweak
 import Bitcoin.Crypto.Taproot.Verify
 import Bitcoin.Interpreter.Defs
 
-/-! # PDW56.lean — proof-promotion review RC27, items TOP-276..280
+/-! # PDW56.lean — RC27, items TOP-276..280
 (PDW56, 2026-10-17). Claim 7d94723.
 
 D-TPRTREE / D-TPRTWEAK status-debt band: the BIP341 leaf-hash and

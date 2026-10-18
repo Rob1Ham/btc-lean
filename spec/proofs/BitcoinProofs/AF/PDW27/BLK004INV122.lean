@@ -2,7 +2,7 @@ import Bitcoin.Block.Params
 import Bitcoin.Activation.Bip9
 
 /-! # PDW27 BLK-004 + INV-122 — null-header and BIP9 signal row faces
-(proof-promotion review, items TOP-131..135).
+(items TOP-131..135).
 
 BLK-004 (`headerIsNull`, primitives/block.h:54-57): nBits == 0 iff the
 header is null, plus the reject lane. INV-122 (`versionBitsSignals`,

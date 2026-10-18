@@ -3,7 +3,7 @@ import Bitcoin.Numeric.Amount
 /-!
 # PDW9/MoneyRange — INV-024 promotion (route B)
 
-PDW9 (proof-promotion review 5), recovery review 5 (RC5), 2026-10-17.
+PDW9 (RC5), 2026-10-17.
 Row INV-024 (TOP-41..45 claim `1c53f09`): `` `0 ≤ v ≤ MAX_MONEY` ``
 (consensus/amount.h:27 @cce32b168, CVE-2010-5139-adjacent money fence).
 
@@ -13,13 +13,13 @@ row's tag sits on the core *definition* `Bitcoin.Data.MoneyRange`
 predicate, `status: implemented` = tag-on-def tagdebt. Promotion =
 this file's sorry-free theorems over the exact gate, my
 `@[rule "INV-024"]` on the iff-vehicle `moneyRange_spec` (the def's
-propositional content), zero core edits. W04's frozen
+propositional content), zero core edits. frozen
 `moneyRange_intro`/`_elim`/`_iff` (Numeric/Amount.lean:31-39) stay
 untagged; the `_spec` twins below are the PDW9 vehicles.
 
 - `moneyRange_spec` (THE vehicle, `@[rule "INV-024"]`): the def
   unfolds to the amount.h:27 conjunction (`simp [MoneyRange]`).
-- `moneyRange_intro_spec` / `moneyRange_elim_spec`: W04 twins
+- `moneyRange_intro_spec` / `moneyRange_elim_spec`: twins
   (intro = `decide_eq_true_iff` + pair; elim = `moneyRange_elim`).
 - `moneyRange_reject_spec`: the reject-face — `n < 0 ∨ MAX_MONEY < n`
   ⇒ `MoneyRange n = false` (kernel `Int.lt_of_le_of_lt` /
@@ -33,8 +33,7 @@ route). NOT imported by anything (additive module, cannot break the
 root `lake build`, which covers `core` only).
 
 Axiom pins (house style: bare `#print axioms`, info-level only,
-B07/RC03/PDW10Guards discipline). Footprints recorded in
-findings-af/PDW9.md v2; all ⊆ the charter trio
+B07/RC03/PDW10Guards discipline). Footprints recorded below; all ⊆ the charter trio
 `[propext, Classical.choice, Quot.sound]`, zero `sorryAx`.
 -/
 
@@ -49,14 +48,14 @@ theorem moneyRange_spec {n : Amount} :
     MoneyRange n = true ↔ (0 ≤ n ∧ n ≤ MAX_MONEY) := by
   simp [MoneyRange]
 
-/-- `MoneyRange` introduction (W04 `moneyRange_intro` twin, PDW9
+/-- `MoneyRange` introduction (`moneyRange_intro` twin, PDW9
 `_spec` vehicle; the tag stays on the iff above). -/
 theorem moneyRange_intro_spec {n : Amount} (h1 : 0 ≤ n) (h2 : n ≤ MAX_MONEY) :
     MoneyRange n = true := by
   simp only [MoneyRange, decide_eq_true_iff]
   exact ⟨h1, h2⟩
 
-/-- `MoneyRange` elimination (W04 `moneyRange_elim` twin). -/
+/-- `MoneyRange` elimination (`moneyRange_elim` twin). -/
 theorem moneyRange_elim_spec {n : Amount} (h : MoneyRange n = true) :
     0 ≤ n ∧ n ≤ MAX_MONEY :=
   moneyRange_elim h

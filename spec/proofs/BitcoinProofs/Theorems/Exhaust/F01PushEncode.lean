@@ -1,14 +1,14 @@
 import Bitcoin.Script.Parser.Interface
 
 /-!
-# BitcoinProofs.Theorems.Exhaust.F01PushEncode — push-encoding decide-matrix (Review-6, F01)
+# BitcoinProofs.Theorems.Exhaust.F01PushEncode — push-encoding decide-matrix (F01)
 
 Exhaustive single-opcode decode matrix over every push-range opcode byte
 `0x00–0x4e` (79 bytes: OP_0, direct pushes 0x01–0x4b, PUSHDATA1/2/4 =
 0x4c/0x4d/0x4e), plus the adjacent single-byte range `0x4f–0x6a`
 (OP_1NEGATE, OP_RESERVED, OP_1..OP_16, OP_NOP..OP_RETURN).
 
-For each byte `c` the matrix pins the **exact** output of W05's parser
+For each byte `c` the matrix pins the **exact** output of parser
 (`Bitcoin.Script.Parser.getOp`, `getOpAux` tables — read, never edited)
 on a canonical wire image `canonInput c`:
 
@@ -17,21 +17,21 @@ on a canonical wire image `canonInput c`:
   every payload byte `0xAB`;
 * the next index `expectedNext c`.
 
-Proof technique: `rfl` — the kernel delta-reduces W05's real `getOp` on
+Proof technique: `rfl` — the kernel delta-reduces real `getOp` on
 the 107 concrete inputs.  (The `decide` *tactic* is NOT usable here: it
 evaluates the `Decidable` instance under reducible transparency and gets
-stuck on W05's non-`@[reducible]` `getOp`; plain `rfl` definitional
+stuck on non-`@[reducible]` `getOp`; plain `rfl` definitional
 checking has no such restriction.  No `native_decide`, no `sorry`.)
 Per-byte corollaries are extracted from the matrix via `List.all_eq_true`.
 
-Cross-check: `scratch/F01/xcheck.py` (W6suite) re-derives the same table
-from Bitcoin Core `script.cpp::GetScriptOp` (v32.99 semantics, the W05
+Cross-check: a python script re-derives the same table
+from Bitcoin Core `script.cpp::GetScriptOp` (v32.99 semantics, the
 ground truth) and compares it against these Lean tables for all 79 (+28)
-bytes.  Result: MATCH (see `spec/db/findings-w6/F01.md`).
+bytes.  Result: MATCH.
 
 Scope note (VERIFIED vs PROPOSED): the matrix is about the PARSER layer
 only.  Element sizes above 520, disabledness and opcode counting are
-interpreter-side (W05: `opcodeWF` vs `opcodeShape`); Core's `GetScriptOp`
+interpreter-side (`opcodeWF` vs `opcodeShape`); Core's `GetScriptOp`
 likewise parses any `≤ OP_PUSHDATA4` payload it can read.
 -/
 
@@ -84,7 +84,7 @@ def expectedNext (c : Nat) : Nat :=
 
 /-! ## The decide-matrix over 0x00–0x4e (79 bytes) -/
 
-/-- One matrix row: W05's parser, on the canonical input for byte `c`,
+/-- One matrix row: parser, on the canonical input for byte `c`,
 must produce exactly `pushBytes (ab (expectedSize c))` at next-index
 `expectedNext c`. -/
 def row (c : Nat) : Bool :=
@@ -95,7 +95,7 @@ def row (c : Nat) : Bool :=
 def matrix : Bool := (List.range 79).all row
 
 /-- **Decide-matrix theorem (push range).**  Kernel-checked for all 79
-bytes at once by `rfl` (definitional evaluation of W05's `getOp`). -/
+bytes at once by `rfl` (definitional evaluation of `getOp`). -/
 theorem matrix_true : matrix = true := by rfl
 
 theorem row_true (c : Nat) (hc : c < 79) : row c = true := by
@@ -129,7 +129,7 @@ a push); OP_1..OP_16 (0x51–0x60) → `pushNum (c - 0x50)`; OP_NOP..OP_RETURN
 
 def canonAux (c : Nat) : ByteArray := ByteArray.mk #[c.toUInt8]
 
-/-- Expected parse result for byte `c` in `0x4f–0x6a` (per W05's
+/-- Expected parse result for byte `c` in `0x4f–0x6a` (per
 `getOpAux` table). -/
 def expectedAux (c : Nat) : Option (Opcode × Nat) :=
   if c = 0x4f then some (Opcode.pushNum 0, 1)
@@ -153,7 +153,7 @@ theorem getOp_aux (c : Nat) (hc : 0x4f ≤ c) (hc' : c ≤ 0x6a) :
   rw [← hk]
   exact decide_eq_true_iff.mp (h (c - 0x4f) (List.mem_range.mpr (by omega)))
 
-/-! ## Spot-check corollaries (named, for the findings report) -/
+/-! ## Spot-check corollaries (named) -/
 
 theorem op_0 : getOp (ByteArray.mk #[0x00]) 0
     = some (Opcode.pushBytes ByteArray.empty, 1) := by rfl

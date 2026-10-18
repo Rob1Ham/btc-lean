@@ -4,7 +4,7 @@ import Bitcoin.Interpreter.Defs
 /-! # PDW66b — TOP-351..355 lane: CVE / witness-resource / coinbase band
 
 Second PDW66 lane (concurrent same-name claim 1a4571f took INV-103/088/139/
-BLK-031/TXV-021; this lane keeps INV-006/SWT-010/TXV-010/SWT-064/SWT-065).
+BLK-031/TXV-021; this module keeps INV-006/SWT-010/TXV-010/SWT-064/SWT-065).
 -/
 
 namespace BitcoinProofs.AF.PDW66b

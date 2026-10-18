@@ -4,7 +4,7 @@ import BitcoinProofs.Theorems.Ops.O09
 /-!
 # PDW80B — TOP-424..425: per-pair encoding checks + the 201-op budget
 
-Route-B row faces over the W09 interpreter. Zero core writes.
+Route-B row faces over the interpreter. Zero core writes.
 Rows: SCR-117 (CheckSignatureEncoding + CheckPubKeyEncoding run inside
 the CHECKMULTISIG matching loop, per (sig, key) pair) and SCR-022
 (any opcode > OP_16 charges one unit of the 201 budget under

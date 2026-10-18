@@ -4,14 +4,14 @@ import Bitcoin.Crypto.Curve.Secp
 /-!
 # BitcoinProofs.Crypto.Schnorr
 
-W3-X02 correctness theorems over the REAL BIP340 verifier
-(`Bitcoin.Crypto.Schnorr.Verify`, X02) and the W14b curve layer.
+X02 correctness theorems over the REAL BIP340 verifier
+(`Bitcoin.Crypto.Schnorr.Verify`, X02) and the curve layer.
 Zero-dependency on mathlib: plain Lean + the core library only (the
 ZMod closure for the group-law algebra stays in `CurveZMod`; nothing
 here needs primality — every theorem is conditional on the runtime
-checks the verifier itself performs, per the W14b liftX design).
+checks the verifier itself performs, per the liftX design).
 
-Theorems (brief item (e)):
+Theorems:
 
 * **lift_x correctness** — `liftX_correct`: whenever `liftX x = some (x', y')`,
   the lifted point is ON the curve (`y'² = x'³ + 7 mod P`) with the
@@ -24,14 +24,14 @@ Theorems (brief item (e)):
   ALL consensus gates (sizes, lift, `r < p`, `s < n`).
 * **verdict purity** — `verify_purity`: the verdict is a total function of
   exactly its three arguments (congruence; no environment/execdata/global
-  state appears in the definition — the seam-level analogue of W13's
+  state appears in the definition — the seam-level analogue of
   `ecdsaEntry_execData_independent`, instantiated for the real verifier).
 
-OUT OF SCOPE (honest note, brief item (e)): soundness/unforgeability
+OUT OF SCOPE (honest note): soundness/unforgeability
 ("no valid signature without knowledge of d" — EC-discrete-log hardness)
 is NOT formalized; neither is completeness over ALL accepting (r, s, P)
 tuples (the conformance corpora — official 19 + 225 python-cross-checked
-pairs — sample the space; W14b's ZMod group-law closure is the tool a
+pairs — sample the space; ZMod group-law closure is the tool a
 future soundness lane would build on). The `Secp.addP`/`mulP` equation
 preservation proofs also live at the ZMod layer, not here.
 -/

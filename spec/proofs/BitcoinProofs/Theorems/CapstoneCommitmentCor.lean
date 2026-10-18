@@ -1,9 +1,9 @@
 import Bitcoin.Capstone.Merkle
 
 /-!
-# BitcoinProofs.Theorems.CapstoneCommitmentCor — W17/P08: witness-commitment corollaries (sorry-free)
+# BitcoinProofs.Theorems.CapstoneCommitmentCor — P08: witness-commitment corollaries (sorry-free)
 
-Corollaries of the W17 capstone's executable witness-commitment tier
+Corollaries of the capstone's executable witness-commitment tier
 (`Bitcoin.Capstone.Merkle`, direct ports of Core `consensus/merkle.cpp
 @cce32b168`). All proofs are `rfl`/`simp`/case-analysis over the executable
 definitions — no hashing is ever entered (a single-leaf merkle root is the
@@ -26,7 +26,7 @@ C4 portfolio linkage:
 Dependencies: `Bitcoin.Capstone.Merkle` (all sorry-free executable defs),
 `Bitcoin.Data.zeroBytes` (via `Bitcoin.Data.Tx`).
 
-Axiom footprints (verified via `#print axioms` in the W17/P08 scratch
+Axiom footprints (verified via `#print axioms` in the P08 scratch
 area; pins are NOT asserted in this file):
 
 | theorem | axioms |

@@ -6,21 +6,19 @@ import Bitcoin.Interpreter.Hashes
 /-!
 # B13 — BIP341 kill-vector corpus: SigMsg / sighash / tapleaf / tweak
 
-NEW file, owned by B13 (Review-5 support suite, BIP-coverage audit: BIP341),
 2026-10-16. Ground truth NOT read off the Lean code:
 
-* the BIP text — bip-0341.mediawiki @ master (BSD-3-Clause; local copy
-  `scratch/B13/bip341.mediawiki`), sections "Common signature message"
+* the BIP text — bip-0341.mediawiki @ master (BSD-3-Clause), sections
+  "Common signature message"
   and "Script validation rules";
 * the OFFICIAL corpus `spec/vectors/bips/bip-0341_wallet-test-vectors.json`
   (keyPathSpending[0] + scriptPubKey cases 4/5);
-* python reference `scratch/B13/b13_ref.py` — implements SigMsg, sha_annex,
+* a python reference — implements SigMsg, sha_annex,
   tapleaf/branch/root and BIP340 verify from the BIP text. Self-checks:
   5/5 sub-hashes vs official intermediaries; the OFFICIAL fullySignedTx
   65-byte signature (ht 0x03) BIP340-VERIFIES against the
   `sighash_single` digest below; a self-signed ht 0x00 round-trip;
   leaves/root/tweak/tweakedPubkey match official for cases 4 and 5.
-  Regenerate this file: `python3 scratch/B13/gen_lean.py`.
 
 Why: the SigMsg lane (TPR-032/033/039/041/042/006) had NO test anywhere —
 `sigMsgTaproot`/`sighashTaproot` are referenced by no Lean or python test
@@ -32,7 +30,7 @@ omitted, or if the annex prefix / epoch byte is mutated.
 
 All theorems sorry-free; `native_decide` (compiler-backed, Lean.ofReduceBool
 axiom — Y02/Y03/Y07 precedent) after kernel `decide` hit reduction
-stalls on the sha256 pipeline; axiom footprint printed in scratch/B13/axioms.txt.
+stalls on the sha256 pipeline; every theorem is sorry-free.
 -/
 
 namespace BitcoinProofs.Bip.B13.SigMsg

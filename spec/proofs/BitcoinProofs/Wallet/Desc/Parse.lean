@@ -19,7 +19,7 @@ What is *not* proved here: a full success characterisation of
 `parseKeyExpr` / `parsePayload` (which would expose the parsed derivation
 path and wildcard as functions of an arbitrary successful input), and a
 general proof about `String.splitOn` for an arbitrary appended checksum.
-Both are recorded as gaps in `wallet-review/peer-reports/PEER-DESC.md`; the
+Both are recorded as gaps; the
 checksum-gate law is stated with the `splitOn` shape as an explicit
 hypothesis, which is exactly the condition the gate inspects.
 -/

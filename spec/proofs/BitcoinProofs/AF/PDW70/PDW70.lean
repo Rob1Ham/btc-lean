@@ -2,7 +2,7 @@ import Bitcoin.Ledger.Interface
 
 /-! # PDW70.lean — TOP-371..373: D-UTXO ledger row faces (BLK-092/093/095)
 Claim `d6e28e7`. Route B: zero core writes; row-face theorems on my own
-`@[rule]` tags, reusing W12's sorry-free helper theorems. BLK-110 is
+`@[rule]` tags, reusing sorry-free helper theorems. BLK-110 is
 yielded to the concurrent PDW68 claim; BLK-095 takes its slot. -/
 
 namespace BitcoinProofs.AF.PDW70

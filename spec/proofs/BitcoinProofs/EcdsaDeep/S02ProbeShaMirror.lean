@@ -2,7 +2,7 @@
 # S02 PROBE-2 — SHA-256 compression physics: kernel `decide` vs List-Bool
 # mirror (DEEP-LEAN S02, 2026-10-16; raw `lean` v4.35.0, no lake, no imports)
 
-D-004 census evidence (findings-dl/S02.md F-S02-002): kernel `decide` is
+D-004 census evidence (F-S02-002): kernel `decide` is
 STUCK through the production hash floor (`Seam/Hash.Sha256` over
 UInt32/BitVec/Array/ByteArray — the wall behind ~600 native_decide uses),
 but a List-Bool STRUCTURAL MIRROR of the same 64-round compression shape
@@ -22,7 +22,7 @@ algorithm. An E01-style structural mirror (List Bool / List UInt8 /
 Nat-words; `Nat &&&`/`^^^`/`>>>` are all kernel-reducible, pass-1
 PROBE-0) makes full 64-round SHA-256 compression kernel-`decide`-able.
 Every expected value here was computed by the independent python mirror
-(scratch/S02/, generator in the probe log). No sorry, no axioms: every
+(the generator is in the probe log). No sorry, no axioms: every
 example below is a closed kernel-checked `decide` (this file builds with
 plain `lean S02ProbeShaMirror.lean`, exit 0).
 -/

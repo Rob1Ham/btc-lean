@@ -3,7 +3,7 @@ import Bitcoin.Interpreter.Defs
 /-!
 # BitcoinProofs.Theorems.Audit.CV03 — the OP_EVAL incident probe (AF/CV03)
 
-**Mission** (AF/CV03 brief): the BIP12 OP_EVAL incident (Nov 2011,
+**Mission** (AF/CV03): the BIP12 OP_EVAL incident (Nov 2011,
 removed from Bitcoin Core before activation; the slot it would have
 redefined is a plain upgradable NOP today). Four questions:
 
@@ -14,7 +14,7 @@ redefined is a plain upgradable NOP today). Four questions:
 4. Is OP_SUCCESSx (tapscript) the only recursive-power escape hatch,
    and does it fail closed pre-activation?
 
-**Ground truth**: Bitcoin Core @ cce32b168 (`build/scratch/interpreter.cpp`,
+**Ground truth**: Bitcoin Core @ cce32b168 (`interpreter.cpp`,
 checked out at the same commit as the repo's pin): the NOP1/NOP4-10
 switch `interpreter.cpp:605-611` (pure NOP + DISCOURAGE_UPGRADABLE_NOPS
 policy), the OP_SUCCESSx pre-pass `:1847-1862` (TAPSCRIPT only), the
@@ -27,13 +27,13 @@ NOT 0xb5/OP_NOP6**; `EvalScript(..., bool fStrictOpEval, ...)` = the
 added OP_EVAL, reverted before the 0.6 release train shipped it;
 BIP16/P2SH (activated 2012-04-01) is the successor design.
 
-**NOTE on the brief's byte**: the brief says "0xb5 today = OP_NOP6" —
+**NOTE on the reference byte**: the reference says "0xb5 today = OP_NOP6" —
 correct that 0xb5 = OP_NOP6 today, but BIP12's OP_EVAL would have
 re-**defined OP_NOP1 = 0xb0** (BIP12 §Specification bullet 1: "OP_EVAL
 will re-define the existing OP_NOP1 opcode"; reference impl script.h).
 Both bytes sit in the same `0xb0 ∨ (0xb3 ≤ w ∧ w ≤ 0xb9)` NOP window
 (`stepBody`, Bitcoin/Interpreter/Defs.lean:826), so every probe below
-is run on BOTH 0xb5 (the brief's byte) and 0xb0 (the historical
+is run on BOTH 0xb5 (the reference byte) and 0xb0 (the historical
 OP_EVAL slot).
 
 **Probe map** (all sorry-free, no native_decide; axiom pins at the
@@ -59,7 +59,7 @@ bottom):
   semantics the same run would push vchTrue (`[0x01]`, valid) — the
   old-clients-INVALID / new-clients-VALID divergence that made BIP12
   a hard fork against the no-op-interpretation unless every node ran
-  the fStrictOpEval dual validation forever (see findings for why THAT
+  the fStrictOpEval dual validation forever (which
   was the risk that killed it).
 * **S4 — OP_SUCCESSx raw-byte scan** (question 4): `opSuccessScan`
   returns true on a lone 0xbb (OP_SUCCESS187), false on `0xb5 0x51`.
@@ -75,7 +75,7 @@ bottom):
   empty witness it fails `.witnessProgramWitnessEmpty`. Tapscript (and
   hence OP_SUCCESSx) is unreachable pre-activation.
 
-Everything here is a PROBE over the frozen W09/X04 interpreter
+Everything here is a PROBE over the frozen X04 interpreter
 (`Bitcoin.Interpreter.Defs`); no new definitions of consensus meaning.
 -/
 
@@ -89,7 +89,7 @@ deriving instance Inhabited for Bitcoin.Activation.ScriptFlags
 
 /-! ## S0 — wire-table facts: the OP_EVAL slots are quiet today
 
-BIP12 wanted OP_EVAL at OP_NOP1 (0xb0); the brief asks about 0xb5
+BIP12 wanted OP_EVAL at OP_NOP1 (0xb0); the note concerns 0xb5
 (OP_NOP6). Both are in the pure-NOP window `0xb0 ∨ 0xb3..0xb9`
 (interpreter.cpp:605-611); neither is in the disabled set
 (interpreter.cpp:447-467) nor in BIP342's OP_SUCCESSx set
@@ -123,8 +123,7 @@ def p32 : ByteArray := ByteArray.mk (Array.replicate 32 (0x02 : UInt8))
 (script.h) would reject a scriptSig containing it — the P2SH
 `sigPushOnly` lane (SWT-004) never lets a bare 0xb5 into the scriptSig
 push-only precheck. (An OP_EVAL-style design hides the opcode inside
-PUSHED DATA instead — exactly the scriptSig/push boundary the BIP16
-review was worried about.) -/
+PUSHED DATA instead — exactly the scriptSig/push boundary at issue.) -/
 theorem nop6_not_pushonly : isPushOnlyWire [nop6Op] = false := by decide
 
 /-- The 2-byte direct push `0x02 0x51 0x51` IS push-only — the
@@ -192,7 +191,7 @@ that must fail for both old and new miners/clients":
 2011 `VerifyScript` ran scriptSig then scriptPubKey over ONE shared
 stack (our `evalScriptBytes` runs the two byte-strings over a shared
 stack in the two probes below). The two probes fix both halves of the
-divergence Bitcoin Core actually hit (see findings §2): with 0xb0 as
+divergence Bitcoin Core actually hit: with 0xb0 as
 the PURE NOP Core shipped, OP_11 pushes scriptnum 11 = `0x0b`, the
 pushed item is the raw byte `0x5b` (= 91) — OP_EQUAL pops both and
 pushes vchFalse (empty) → the script ends with a falsy stack → the
@@ -224,7 +223,7 @@ theorem bip12_noprule_0xb0_fails : evalScriptBytes 10 default default
     = .ok [ByteArray.empty] := by
   set_option maxRecDepth 12000 in rfl
 
-/-- End-to-end 0xb5 (the brief's byte): the script
+/-- End-to-end 0xb5 (the reference byte): the script
 `0x02 0x51 0x51 0xb5` = "push the 2-byte script `OP_1 OP_1`, then 0xb5"
 leaves the pushed script BYTES on the stack, un-parsed and un-executed
 (`[0x51 0x51]`, NOT OP_EVAL's `[0x01, 0x01]`-with-`0x51 0x51`

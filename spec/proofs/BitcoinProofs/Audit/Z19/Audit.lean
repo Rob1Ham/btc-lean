@@ -3,28 +3,27 @@ import Bitcoin.Numeric.Interface
 
 /-!
 # Z19 dark-corner audit — hash-keyed flag carve-outs + MAX_MONEY vs the
-4-byte scriptNum decode (W4 suite, 2026-10-16)
+4-byte scriptNum decode (2026-10-16)
 
-NEW file, owned by Z19 alone. Python3 probes:
-`build/scratch/build/scratch/scratch/Z19/z19_c1_flags_probe.py` and
+Python3 probes:
+`z19_c1_flags_probe.py` and
 `z19_c2_scriptnum_probe.py` (transcriptions of Core `GetBlockScriptFlags`
 validation.cpp:2249-2288, `script_flag_exceptions`
 kernel/chainparams.cpp:115-118, and `CScriptNum` serialize/decode
-script.h:342-373/246-271, vendored @ `cce32b168`). Findings:
-`spec/db/findings-w4/Z19.md`.
+`script.h:342-373/246-271`, @ `cce32b168`).
 
 ## Corners audited
 
-* **C1 — exception blocks 170060/692261** (Review-1 report 09; W06 report
-  w2-06 §2.2): Core keys the two mainnet script-flag carve-outs by BLOCK
-  HASH; a hit REPLACES the base P2SH|WITNESS|TAPROOT set BEFORE the
-  buried ORs. Verdict: CAPTURED — `getBlockScriptFlagsP` +
-  `mainnetExceptionMap` + `exception_replaces_base` (BLK-084) are
+* **C1 — exception blocks 170060/692261** (Review-1 report 09;
+  `research/w2-06-flags-activation.md` §2.2): Core keys the two
+  mainnet script-flag carve-outs by BLOCK HASH; a hit REPLACES the base
+  P2SH|WITNESS|TAPROOT set BEFORE the buried ORs. Verdict: CAPTURED —
+  `getBlockScriptFlagsP` + `mainnetExceptionMap` + `exception_replaces_base` (BLK-084) are
   Core-faithful; this file adds the bit-level pins (0x0 / 0xE15, matching
   the python probe and report w2-06 §5) and the decisive hash-keyed (not
   height-keyed) counterfactuals.
 * **C2 — MAX_MONEY-scale values do NOT fit the 4-byte scriptNum decode**
-  (W04 warning K5'; report 07 amount.h lineage): `MAX_MONEY = 2.1e15`
+  (warning K5'; report 07 amount.h lineage): `MAX_MONEY = 2.1e15`
   serializes to 7 wire bytes; the default-width `CScriptNum` ctor
   throws "script number overflow" at anything > 4 bytes. Verdict:
   CAPTURED — `vec_max_money_not_scriptnum` (instance) +
@@ -130,9 +129,9 @@ theorem z19_magBEAux_length_ge : ∀ (f k n : Nat), 256 ^ k ≤ n → k < f →
       have hih := ih j (n / 256) hdiv hjf
       omega
 
-/-- **The missing only-if direction** (audit delta over W04): a value of
+/-- **The missing only-if direction** (audit delta over): a value of
 magnitude ≥ 2^31 needs ≥ 5 encoded bytes, so the canonical encoder output
-cannot pass the width-4 gate. W04 pinned `scriptNumBE_length_le4` (the
+cannot pass the width-4 gate. pinned `scriptNumBE_length_le4` (the
  converse) and the single instance `vec_max_money_not_scriptnum`; this
 generalizes both to the full half-line. -/
 theorem z19_scriptNumBE_length_ge5 {n : Int} (h : 2 ^ 31 ≤ n.natAbs)
@@ -226,7 +225,7 @@ theorem z19_max_money_wire :
 
 /-- Any amount in `[MAX_MONEY, 256^10)` fails the width-4 decode: the
 value-accumulation regime and the script-integer regime are disjoint
-(W04's K5′ warning, now a theorem). -/
+(K5′ warning, now a theorem). -/
 theorem z19_amount_scale_not_scriptnum (n : Amount) (hlo : MAX_MONEY ≤ n)
     (hhi : n < (256 ^ 10 : Amount)) :
     decodeScriptNum (encodeScriptNum n true) true 4 = none := by

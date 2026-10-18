@@ -3,8 +3,6 @@ import Bitcoin.Block.Params
 /-!
 # Blk122Cor — BLK-122 promotion proof (PDW8, row TOP-39)
 
-PDW8 → PDW8-2 (proof-promotion review 8, continuation after the 06:40
-mid-proof death; recovery review 4), 2026-10-17.
 Row BLK-122 (mainnet `nMinimumChainWork`,
 kernel/chainparams.cpp:141 @cce32b168): headers-first sync does not
 index headers below this accumulated work (`too-little-chainwork`,
@@ -17,10 +15,10 @@ is the constant; `minChainWorkOk` (Params.lean:298) is the gate
 pin the two directions: the accept verdict holds iff the work meets
 the minimum, and the `too-little-chainwork` reject verdict (`= false`)
 implies the work is strictly below (the reject lane).
-`Nat.not_le` (W12 gold). Companion to the core `minChainWorkOk_zero_false`
+`Nat.not_le` (gold). Companion to the core `minChainWorkOk_zero_false`
 (Params.lean:300) and `minChainWorkOk_at_limit` (Params.lean:302).
 PDW8-2 build evidence: the tree file was clean FIRST-BUILD RC=0
-(the W12-gold bare `simp [hc]` herds passed tree-as-is; contrast
+(the gold bare `simp [hc]` herds passed tree-as-is; contrast
 Blk063Cor which died with the :53/:54 errors).
 
 Axiom-pinned in-file (D2 L3); zero sorryAx — pin-sets per theorem

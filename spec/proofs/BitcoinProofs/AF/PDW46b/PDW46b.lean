@@ -1,7 +1,7 @@
 import Bitcoin.Interpreter.Rules
 
 /-! # PDW46b.lean — items TOP-301..303: OP_CHECKLOCKTIMEVERIFY operand checks
-(PDW46b, review RC28). Claim `89e1eb6`.
+(PDW46b, RC28). Claim `89e1eb6`.
 
 Row faces for the BIP65 checker `Bitcoin.Interpreter.checkLockTimeDef`
 (Defs.lean:255, interpreter.cpp:1755-1788 @ cce32b168). Route B: zero core

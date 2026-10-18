@@ -18,11 +18,11 @@ fail-OPEN axis + the fail-closed controls:
   (`Seam/Interface.lean:161-163`, both entry points nonempty-accept)
   and the shipped PoC interpreter's stub `OP_CHECKSIG`
   (`Script/Interp.lean:86-90`, runsTrue on nonempty non-DER garbage)
-  both accept what the real verifier REJECTS — W16-005's stub-blindness
+  both accept what the real verifier REJECTS — F-W16-005's stub-blindness
   made a *soundness* edge (S05 F-S05-004);
 * the fail-CLOSED control: `mockFind` misses return `false`
   (`Seam/Mock.lean:32`, the `[]`-clause = `mockFind_nil` :66, re-pinned
-  at the checker level) — the two W13 stand-ins SPLIT on the failure
+  at the checker level) — the two stand-ins SPLIT on the failure
   axis (mock miss = fail-closed = agrees with the real verifier;
   stub = fail-open = diverges);
 * the negative control (A21/G08-style): the fail-open stub still
@@ -38,7 +38,7 @@ via the `Inhabited` default, `verifyInput` binds `realCheckerOf`
 explicitly) — the edge is real but unreachable (S05 F-S05-004:
 unreachable-by-grep + fail-closed-at-the-sites-by-theorem).
 
-Nothing reduces `verifyImpl`'s EC math (W14 discipline), the SHA256
+Nothing reduces `verifyImpl`'s EC math (reduction discipline), the SHA256
 layer, or any tagged rule row. No `@[rule]`. New file, CENSUS2-owned,
 outside the `BitcoinProofs` root closure (A18 pattern).
 -/
@@ -69,7 +69,7 @@ theorem c2o_stub_ecdsa_fails_open :
       SigVersion.base (default : ScriptExecutionData) = true := by
   decide
 
-/-- Same on the Schnorr entry point (both lanes of the W01 frozen stub
+/-- Same on the Schnorr entry point (both lanes of the frozen stub
 are nonempty-accept). -/
 
 theorem c2o_stub_schnorr_fails_open :
@@ -91,7 +91,7 @@ theorem c2o_poc_stub_fails_open :
 
 /-! ## D03 — the soundness edge: stub/PoC accept what the real verifier rejects -/
 
-/-- The W01 stub vs the real lax-ECDSA verifier on the SAME
+/-- The stub vs the real lax-ECDSA verifier on the SAME
 `(sig, pk)`: stub `true`, `verifyImpl` `false` — the stub has no
 real-EC backing = a *soundness* edge, one step beyond F-W16-005's
 *coverage* blindness (S05 F-S05-004). -/
@@ -125,7 +125,7 @@ theorem c2o_mock_miss_fail_closed :
       SigVersion.base (default : ScriptExecutionData) = false := by
   rfl
 
-/-- The two W13 stand-ins SPLIT on the failure axis (S05
+/-- The two stand-ins SPLIT on the failure axis (S05
 `s05_standins_split`): on the same witness, the mock agrees with the
 real verifier (`false` = `false`) and ONLY the stub diverges (`true`). -/
 

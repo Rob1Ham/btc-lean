@@ -1,7 +1,7 @@
 import Bitcoin.SigHash.Theorems
 
 /-! # PDW58D.lean — TOP-314: SCR-140 BIP143 preimage field order
-(PDW58, review RC29). Row face for `Bitcoin.SigHash.bip143MsgL`
+(PDW58, RC29). Row face for `Bitcoin.SigHash.bip143MsgL`
 (interpreter.cpp:1633-1670 @ cce32b168; BIP143 §6).
 Route B: zero core writes. -/
 

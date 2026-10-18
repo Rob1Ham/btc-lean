@@ -3,7 +3,7 @@ import Bitcoin.Interpreter.Defs
 /-!
 # BitcoinProofs.Theorems.Ops.O02 — per-opcode semantics: the flow group
 
-O02 (Review-6). Sorry-free per-opcode semantics theorems over W09's
+O02. Sorry-free per-opcode semantics theorems over
 interpreter tier (`Bitcoin.Interpreter.Defs`, `stepBody.dispatchOp`)
 for the flow group:
 
@@ -25,7 +25,7 @@ and pinned by `opReturn_unexecuted_budgetBurns` /
 `opNop_unexecuted_budgetBurns`.
 
 Every concrete `*_verdict` example is cross-checked by
-`scratch/O02/xcheck.py`, which transcribes the C++ path literally
+a python reference, which transcribes the C++ path literally
 (including CastToBool interpreter.cpp:437-444) and prints the same
 verdict.
 
@@ -48,8 +48,7 @@ verdict.
 
 VERIFIED vs PROPOSED: everything here is VERIFIED against the pinned
 C++ (line numbers above) and the python3 mirror; no PROPOSED rows.
-No divergence from Core found in this group (no F-O02-* rows); see
-findings-w6/O02.md.
+No divergence from Core found in this group (no F-O02-* rows).
 -/
 
 namespace BitcoinProofs.Theorems.Ops.O02
@@ -326,7 +325,7 @@ theorem opVerifNotif_badOpcode_even_unexecuted (ctx : Ctx) (op : WireOp)
     stepBody.dispatchOp ctx op w fExec st = .error .badOpcode := by
   rcases hw with rfl|rfl <;> simp [stepBody.dispatchOp]
 
-/-! ## Python3-cross-checked concrete verdicts (scratch/O02/xcheck.py)
+/-! ## Python3-cross-checked concrete verdicts
 
 Each `decide`-checked verdict below is printed verbatim by the python3
 transcription of the C++ path. -/

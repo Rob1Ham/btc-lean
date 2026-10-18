@@ -23,13 +23,13 @@ Ground truth (VERIFIED against Core @ cce32b168, src/script/interpreter.cpp):
   PUSHDATA1-of-length-0 is non-minimal), and 1-byte payloads 0x01..0x16
   / 0x81 must use OP_1..OP_16 / OP_1NEGATE instead of a direct push.
 
-W09 model (`Bitcoin.Interpreter.stepBody`, Defs.lean:764): OP_0 is
+model (`Bitcoin.Interpreter.stepBody`, Defs.lean:764): OP_0 is
 `ast = .pushBytes ∅` (wire 0), OP_1NEGATE is `ast = .pushNum 0`
 (wire 0x4f, mapped to −1), OP_1..OP_16 are `ast = .pushNum n`
 (wire 0x50+n). Matches Core on all counts — **no divergence found**
 (F-O01: none).
 
-python3 cross-check (2026-10-16, scratch/O01/crosscheck.py): a faithful
+python3 cross-check (2026-10-16, `crosscheck.py`): a faithful
 re-implementation of `getvch` (script.h serialize loop) gives
 OP_0 → `''`, OP_1NEGATE → `81`, OP_1..OP_16 → `01..10`;
 budget condition counts none of the group; CheckMinimalPush boundary
@@ -299,7 +299,7 @@ theorem verdict_op5 (ctx : Ctx) :
   rwa [push_byte_5] at hrun
 
 /-! ## 6. Axiom footprints (plain #print axioms; #guard_msgs pins added
-from the captured output in scratch/O01/axioms.txt) -/
+from the captured output in `axioms.txt`) -/
 
 #print axioms enc_op1negate_0x81
 #print axioms encodeScriptNum_small

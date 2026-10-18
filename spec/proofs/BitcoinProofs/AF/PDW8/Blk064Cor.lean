@@ -3,15 +3,13 @@ import Bitcoin.Block.Params
 /-!
 # Blk064Cor — BLK-064 promotion proof (PDW8, row TOP-37)
 
-PDW8 → PDW8-2 (proof-promotion review 8, continuation after the 06:40
-mid-proof death; recovery review 4), 2026-10-17.
 Row BLK-064 (`bad-prevblk`, validation.cpp:4246-4250 @cce32b168):
 the parent must not be BLOCK_FAILED_VALID (and must be known).
 
 Semantics port (route B): `prevNotFailed` (Params.lean:73) — the
-`¬ e.failed` arm is a Prop (PDW8-2 probe W14 pp.all:
+`¬ e.failed` arm is a Prop (PDW8-2 probe pp.all:
 `Not (Eq Bool (failed e) true)`) that in the `: Bool` match-arm
-elaborates through the Prop→Bool decide-coercion (PDW8-2 probe W14b
+elaborates through the Prop→Bool decide-coercion (PDW8-2 probe
 #print pp.all: `@Decidable.decide (Not (Eq Bool (failed e) true))
 (instDecidableNot _ instDecidableEqBool)`), riding the shared
 `:68`-site `prevHeaderKnown.match_1` (none-branch
@@ -19,7 +17,7 @@ elaborates through the Prop→Bool decide-coercion (PDW8-2 probe W14b
 yields an entry with `failed = false`. Two reject lanes (the
 `bad-prevblk` taxonomy): a failed parent, and an unknown parent
 (BLK-063 `prev-blk-not-found` is the sub-lane).
-`cases hfl : e.failed` + `simp [hfl]` contra-tails (W10-v3/W11
+`cases hfl : e.failed` + `simp [hfl]` contra-tails (
 gold); reject lanes by `rw`-substitution (P4-shape). PDW8-2 build
 evidence: the tree file was clean FIRST-BUILD RC=0 (the w11
 PerfectFinal assembly was the one good tree write; contrast

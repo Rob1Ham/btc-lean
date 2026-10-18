@@ -2,17 +2,16 @@ import Bitcoin.Numeric.Interface
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Z21 dark-corner audit — C1 `scriptNum` minimal encoding, C2 `CastToBool` (W4 suite)
+# Z21 dark-corner audit — C1 `scriptNum` minimal encoding, C2 `CastToBool`
 
-NEW file, owned by Z21, 2026-10-16. Python3 probe (28/28 PASS against a
+2026-10-16. Python3 probe (28/28 PASS against a
 verbatim transcription of Core @ `cce32b168` — `script.h:246-271,342-391`,
-`interpreter.cpp:46-59`, vendored at `build/scratch/W02/bitcoin/src/`):
-`build/scratch/build/scratch/scratch/Z21/z21_corners_probe.py`.
-Findings: `spec/db/findings-w4/Z21.md`.
+`interpreter.cpp:46-59`):
+`z21_corners_probe.py`.
 
 ## Verdicts
 
-* **C1 (0x80 0x00 = 128 IS valid + minimal, the W04 catch): CAPTURED.**
+* **C1 (0x80 0x00 = 128 IS valid + minimal, the catch): CAPTURED.**
   `Bitcoin.Numeric.decodeScriptNum` = `decodeBE minimal maxSize (bytesOf b).reverse`
   (Numeric/Interface.lean:50-52) with `minimalOkBE` (Numeric/ScriptNum.lean:493-500)
   an exact port of script.h:252-268: reject iff `back & 0x7f == 0` AND
@@ -73,7 +72,7 @@ where
 
 section C1
 
-/-- **The W04 catch, minimal flag ON** (MINIMALDATA / CLTV/CSV/CMS-count
+/-- **The catch, minimal flag ON** (MINIMALDATA / CLTV/CSV/CMS-count
 setting): wire `{0x80, 0x00}` decodes to **+128**, not to `-0`/`-128`, and is
 ACCEPTED — the top byte's sign bit sits on the SECOND wire byte, so the
 script.h:262-268 sign-extension exception applies. -/

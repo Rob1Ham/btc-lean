@@ -7,7 +7,7 @@ import Bitcoin.Crypto.EcdsaDeep.EntryWiredDisUncond
 /-!
 # EndToEndChecksig — script CHECKSIG semantics ⇒ the E06/E11/E16 crown
 
-ETOWER1 (Phase-3, recovery). Unit 1: the BASE/WITNESS_V0 `CHECKSIG` step
+ETOWER1. Unit 1: the BASE/WITNESS_V0 `CHECKSIG` step
 (`Defs.evalChecksigPreTapscript`) reduced to the checker's ECDSA verdict,
 then that verdict identified with E06's `VerifyEqRaw` for the production
 wiring (`verifyImpl`) and with the E11 structural crown (`verifyStruct`,

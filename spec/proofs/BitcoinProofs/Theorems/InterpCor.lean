@@ -3,14 +3,14 @@ import Bitcoin.Script.Interp
 /-!
 # BitcoinProofs.Theorems.InterpCor
 
-W15 correctness theorems over the C1 bootstrap script interpreter
+correctness theorems over the C1 bootstrap script interpreter
 (`Bitcoin.Script.Interp` — structural-fuel `step`/`run`).
 
-DEPENDENCY NOTE: the production interpreter (W09's interpreter tier with
+DEPENDENCY NOTE: the production interpreter (interpreter tier with
 full `Bitcoin.Consensus` plumbing) has **not landed**; these theorems
-target the C1 bootstrap model and are marked for re-examination when W09
+target the C1 bootstrap model and are marked for re-examination when
 lands (its `evalScript` should satisfy the same fuel-canonicality laws;
-the statements transfer verbatim if W09 keeps structural fuel).
+the statements transfer verbatim if it keeps structural fuel).
 
 Portfolio rows carried here (T2 trio + support):
 
@@ -26,7 +26,7 @@ Portfolio rows carried here (T2 trio + support):
   errors (stackUnderflow / verifyFailed / equalVerifyFailed).
 
 All proofs are structural induction + rewriting; no `decide` through
-recursive definitions (W14 finding).
+recursive definitions.
 -/
 
 namespace BitcoinProofs.Theorems.InterpCor

@@ -1,7 +1,7 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneWeightCor — W17/P12: proved block-weight spec (sorry-free)
+# BitcoinProofs.Theorems.CapstoneWeightCor — P12: proved block-weight spec (sorry-free)
 
 Corollaries of the executable capstone weight layer (`Bitcoin.Capstone.Block`,
 rules BLK-024/025/026 — validation.cpp `GetBlockWeight`/`DEFAULT_MAX_BLOCK_WEIGHT`,

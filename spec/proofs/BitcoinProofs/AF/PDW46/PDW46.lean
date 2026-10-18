@@ -3,7 +3,7 @@ import Bitcoin.Block.Index
 import Bitcoin.Block.Params
 import Bitcoin.Invariants.RC12
 
-/-! # PDW46.lean — proof-promotion review RC27, items TOP-226..230
+/-! # PDW46.lean — RC27, items TOP-226..230
 (PDW46, 2026-10-17; claim 2f2008c).
 
 D-POW difficulty transitions + testnet walk-back

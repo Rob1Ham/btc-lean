@@ -2,7 +2,7 @@ import Bitcoin.Interpreter.Defs
 
 /-! # PDW59d.lean — TOP-321/323: disabled list + FindAndDelete no-match law
 
-PDW59 (review RC29), claim v1.2. Route B, zero core writes.
+PDW59 (RC29), claim v1.2. Route B, zero core writes.
 INV-063: canonical disabled-opcode membership (interpreter.cpp:482).
 INV-056: legacy FindAndDelete identity law — an empty needle and a
 no-boundary-match scan both leave the script byte-for-byte unchanged

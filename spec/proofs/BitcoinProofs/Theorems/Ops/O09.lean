@@ -1,9 +1,9 @@
 import Bitcoin.Interpreter.Defs
 
 /-!
-# BitcoinProofs.Theorems.Ops.O09 — OP_CHECKMULTISIG / OP_CHECKMULTISIGVERIFY semantics (Review-6, contributor O09)
+# BitcoinProofs.Theorems.Ops.O09 — OP_CHECKMULTISIG / OP_CHECKMULTISIGVERIFY semantics
 
-Per-opcode semantics theorems for the crypto3 group, against W09's
+Per-opcode semantics theorems for the crypto3 group, against
 interpreter (`Bitcoin.Interpreter.Defs`: `stepBody.checkMultiSig` +
 `cmsLoop` + `cmsCleanup`) and Core's `EvalScript` OP_CHECKMULTISIG case
 (interpreter.cpp:1113-1225 @ `cce32b168`):
@@ -39,7 +39,7 @@ on top of the opcode's own `+1` (0xae/0xaf > OP_16, :459-463) — a
 `stepBody` step charging `k` keys costs `k + 1` total.
 
 Concrete verdicts are cross-checked against a faithful python3 port of
-the C++ case (`scratch/O09/xcheck.py`, run 2026-10-16; python's
+the C++ case (`xcheck.py`, run 2026-10-16; python's
 `op_count_in` models the state AFTER the opcode's own +1): 0-of-0 with a
 nonzero dummy under default flags ⇒ OK, dummy consumed unchecked; 1-of-1
 with the stub checker ⇒ OK `vchTrue`; empty signature ⇒ `fSuccess =
@@ -309,7 +309,7 @@ theorem cmsv_ok_zero_sigs (ctx : Ctx) (st : State) (nkv : ScriptNum)
       cmsLoop, hcl, hne0, hcond0, hne4, hnd, pushBoolV, vchTrue, List.tail_drop,
       hdrop]
 
-/-! ## Concrete verdicts (python3-cross-checked: scratch/O09/xcheck.py) -/
+/-! ## Concrete verdicts (python3-cross-checked) -/
 
 /-- `OP_CHECKMULTISIG`, 0-of-0 with dummy `[7]` and preserved tail `[9]`
 (python A: `ops 0+1+0 = 1`, stack `[01, 09]`): OK — the nonzero dummy is

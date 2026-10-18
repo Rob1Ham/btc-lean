@@ -5,7 +5,6 @@ import Bitcoin.SigHash.Theorems
 /-!
 # PDW17Check — sorry-free / axiom-footprint check (TOP-81..85)
 
-PDW17 (proof-promotion review, RC26), 2026-10-17.
 PDW15Check / PDW11Check pattern (imports FIRST, module doc AFTER).
 Items (CLAIM v1, `[PDW17] claim`): SCR-141, TPR-032, TPR-040, TPR-041,
 TPR-046 = the PD02-F-PD02-002 "22 THM-on-target" promotion-overdue

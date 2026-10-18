@@ -6,8 +6,7 @@ import Bitcoin.DataLaws.Interface
 /-!
 # BitcoinProofs.Theorems.WitnessRulesCor — X05: SegWit-v0 witness-rule theorems
 
-New sorry-free theorems over the witness-side machinery (W09's
-`verifyWitnessProgram` / `executeWitnessScript` / `isWitnessProgram`, W02's
+New sorry-free theorems over the witness-side machinery (`verifyWitnessProgram` / `executeWitnessScript` / `isWitnessProgram`,
 `decTxCore`, X05's `SigOps` model, DataLaws' `vsize`). Each theorem carries an
 axiom fingerprint via `#guard_msgs` + `#print axioms` — footprints are within
 the sanctioned trio `[propext, Classical.choice, Quot.sound]`, most are
