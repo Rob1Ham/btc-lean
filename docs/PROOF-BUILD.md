@@ -9,47 +9,92 @@ outside the default closure**.
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
 
 This page records what was checked so that a default-root build is not mistaken
-for a package-wide build.
+for a package-wide build. It also replaces the earlier per-name census numbers
+with a fresh exact re-run of every outside-closure module.
 
-## Default and per-module results
+## Fresh exact per-module results
+
+On 2026-10-18 every outside-closure module was built individually by exact
+name against the pinned Lean toolchain and mathlib revision:
+
+```sh
+cd spec/proofs
+lake build <module>
+```
+
+Lake 5.0.0 rejects the `-j` option on `lake build`; the per-module command above
+is the equivalent serial invocation. The run produced **365 passes and 15
+failures** over the 380 outside-closure modules.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
 | Default `BitcoinProofs` closure | 29 modules | 29 | 0 |
-| Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 361 | 20 |
-| — public theorem modules | 294 | 290 | 4 |
-| — wallet proof modules | 22 | 22 | 0 |
-| — tests / generated corpora | 31 | 23 | 8 |
-| — audit / probes | 20 | 15 | 5 |
-| — experiments / scratch | 14 | 11 | 3 |
+| Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 365 | 15 |
+| — `AF` namespace | 249 | 249 | 0 |
+| — `Theorems` namespace | 24 | 21 | 3 |
+| — `Wallet` namespace | 22 | 22 | 0 |
+| — `EcdsaDeep` namespace | 20 | 18 | 2 |
+| — `Audit` namespace | 18 | 14 | 4 |
+| — `Property` namespace | 17 | 13 | 4 |
+| — `Bip` namespace | 15 | 13 | 2 |
+| — `ErrMap` namespace | 3 | 3 | 0 |
+| — `Shortcuts` namespace | 3 | 3 | 0 |
+| — `SmallCurve` namespace | 3 | 3 | 0 |
+| — `Ledger` namespace | 2 | 2 | 0 |
+| — `PDW9` namespace | 2 | 2 | 0 |
+| — `Activation` namespace | 1 | 1 | 0 |
+| — `Interpreter` namespace | 1 | 1 | 0 |
 
-The 409 modules include the 29 in the default closure. The build census totals
-381 outside-closure entries (361 builds, 20 failures): the 380 outside modules
-plus the non-module `lakefile.lean`, which the earlier `.lean`-file count
-treated as a module and which the static index excludes. Build results are from
-building each module by exact name against the pinned toolchain, not from adding
-them to one target. The five subcategory rows partition the same 381-entry
-historical census (294 + 22 + 31 + 20 + 14), so they also total 381; they are
-retained as recorded and are not recomputed by the static index.
+The 409 modules include the 29 in the default closure. The outside-closure
+table has 381 entries because it includes the non-module `lakefile.lean`, which
+the static index excludes; `lakefile.lean` is the Lake build configuration, not
+a module, so it is not built by name and the builds-plus-failures total is the
+380 modules. The namespace rows are a fresh partition of those 380 modules,
+not a re-use of the earlier five-way census categories.
+
+## Failing modules
+
+All 15 failures are outside the default closure. None is cited by `spec/db`,
+the docs, or the wallet record, and none imports a module changed in this
+pass. The failure list is:
+
+| Module | Observed failure |
+|---|---|
+| `BitcoinProofs.Audit.Z03.Audit` | unresolved `simp`/`decide` goals |
+| `BitcoinProofs.Audit.Z03.Probe` | missing `DecidableEq`/`LawfulBEq` instances; false `decide` goal |
+| `BitcoinProofs.Audit.Z09.Corners` | absent rewrite patterns; “no goals” |
+| `BitcoinProofs.Audit.Z21.Audit` | `decide` fails to reduce |
+| `BitcoinProofs.Bip.B03.B03Subsidy` | free variables, unknown tactic, unsolved goals |
+| `BitcoinProofs.Bip.B10.Bip144Vectors` | Lean killed with exit 137 (out of memory) on retry |
+| `BitcoinProofs.EcdsaDeep.DerBattery` | `import` after declarations |
+| `BitcoinProofs.EcdsaDeep.S02Flip` | `decide` fails to reduce |
+| `BitcoinProofs.Property.Y08.SighashLegacyProps` | `native_decide` evaluates the proposition as false |
+| `BitcoinProofs.Property.Y09.Property` | `decide` proves the proposition false |
+| `BitcoinProofs.Property.Y12.FoldProps` | Lean killed with exit 137 (out of memory) |
+| `BitcoinProofs.Property.Y15.WitnessProps` | Lean killed with exit 137 (out of memory) |
+| `BitcoinProofs.Theorems.Audit.CV02` | Lean killed with exit 137 (out of memory) |
+| `BitcoinProofs.Theorems.Exhaust.MerkleShapes64` | type mismatch; maximum recursion depth |
+| `BitcoinProofs.Theorems.FuelStabilityProbe` | deliberately failing probe (header says each `exact h` fails to dump a type) |
+
+The earlier census of the same 381 outside-closure entries recorded 361 builds
+and 20 failures. Those numbers are superseded by the fresh run above and are
+not used elsewhere on this page. The historical census is retained only as
+provenance; the static index does not regenerate it.
 
 ## Cited modules
 
-Of the 183 outside-closure modules cited by `spec/db`, docs, or the wallet
-record, **182 build** and **1 fails**: `BitcoinProofs.Theorems.Ops.O07`.
-`SCR-100` cites `O07.step_codesep_const_dead`; its other tag carriers build,
-but the cited target itself is not a passing build. This is disclosed rather
-than hidden.
+No outside-closure module cited by `spec/db`, the docs, or the wallet record is
+in the failing set. In particular, `SCR-100` cites
+`O07.step_codesep_const_dead`; `BitcoinProofs.Theorems.Ops.O07` now builds, so
+the single cited-target failure recorded by the earlier census is resolved.
 
-The four failing public-theorem modules are:
-
-- `BitcoinProofs.Bip.B03.B03Subsidy`
-- `BitcoinProofs.EcdsaDeep.PubKeyCor`
-- `BitcoinProofs.Theorems.FuelStability`
-- `BitcoinProofs.Theorems.Ops.O07`
-
-The remaining 16 failures are test, audit/probe, or experiment/scratch
-modules. They are not part of the default target, the public theorem surface,
-or the wallet surface.
+The six modules repaired while reconciling this build all pass individually:
+`BitcoinProofs.SmallCurve.TweakCorSmall`,
+`BitcoinProofs.EcdsaDeep.PubKeyCor`,
+`BitcoinProofs.EcdsaDeep.PubKeyMatrix`,
+`BitcoinProofs.EcdsaDeep.SmulCor`,
+`BitcoinProofs.Theorems.Ops.O07`, and
+`BitcoinProofs.Theorems.FuelStability`.
 
 ## What a clean build means
 
@@ -57,8 +102,9 @@ or the wallet surface.
 against the pinned Lean toolchain, mathlib revision, and core package. It does
 **not** mean that all 409 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
-Core. Statement fidelity is a separate review obligation, with the 26 known
-consensus residuals in [`RESIDUALS.md`](RESIDUALS.md).
+Core. Statement fidelity is a separate review obligation, with the 27 known
+consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
+proof-surface reductions in [`AUDIT-RESIDUALS.md`](AUDIT-RESIDUALS.md).
 
 The static hygiene gate (`spec/scripts/sorry_lint.sh`) scans both
 `spec/core` and `spec/proofs`, including modules outside the default closure.

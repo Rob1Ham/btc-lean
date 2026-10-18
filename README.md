@@ -15,7 +15,7 @@ row-by-row rule census in
 `spec/db/rules.yaml`: each row records a Bitcoin Core reference, a BIP/CVE
 attribution, the Lean declaration that carries the row's `@[rule "<ID>"]`
 tag, and its test-vector selectors. The consensus census has **726 rows:
-676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-six
+676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-seven
 of the proven rows are **explicit model residuals**: the row claim is true of
 Bitcoin Core, but the current Lean model does not yet entail it. They are
 listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and the generated
@@ -63,7 +63,7 @@ the theorem index lists the proven boundary rows separately from the proven
 consensus rows. `proven` means the row has a named Lean target and passes the
 traceability gates; it does not by itself assert byte-for-byte equivalence with
 Bitcoin Core (see
-[Scope and non-claims](#scope-and-non-claims)). The 26 explicit residuals are
+[Scope and non-claims](#scope-and-non-claims)). The 27 explicit residuals are
 counted in `proven` but are not claims of Core equivalence;
 `docs/RESIDUALS.md` is authoritative for that list.
 
@@ -115,10 +115,11 @@ lake build BitcoinProofs
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-default closure is 29 modules; the historical per-name census covers 381
-outside-closure `.lean` entries (380 modules plus `lakefile.lean`): 361 build
-and 20 do not. See [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for
-the exact scope and the one cited target that fails. The
+default closure is 29 modules. A fresh per-name run covers the 380
+outside-closure modules (381 `.lean` entries when the non-module
+`lakefile.lean` is counted): 365 build and 15 do not. None of the failures is
+a cited target. See [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for the exact
+scope and failure list. The
 optional capstone runner replays serialized mainnet anchor blocks through the
 model. Extract the data bundle at the repository root so its `spec/vectors`
 tree is at the path the runner reads:
@@ -250,7 +251,7 @@ The script runs the wallet static battery, the 140-anchor census when
   rows carry tags, 99 appear in the obligation register, and four have
   corrected statements without a proof. Wallet results are not consensus
   results and are never added to the 726-row denominator.
-- **Twenty-six consensus rows are explicit model residuals.** Their Core
+- **Twenty-seven consensus rows are explicit model residuals.** Their Core
   behaviour is retained as the row claim, but the current Lean model does not
   entail it. They are listed with the missing link in `docs/RESIDUALS.md`;
   `status: proven` refers to the cited Lean target, not to Core equivalence.

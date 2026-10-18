@@ -6,7 +6,8 @@ import Bitcoin.Crypto.Ecdsa.Der
 # `parsePubKeyDeep` (the E07 pubkey-parse crown, E05-DerSpec-pattern)
 
 **Bitcoin Core @ `cce32b168`** (pin verified by E05; the parse-relevant
-sites, all anchors in the archived vector bytes):
+sites, all anchors in the E05-archived bytes
+`spec/db/findings-dl/E05-anchors/`):
 
 * `CPubKey::Verify` — **pubkey.cpp:283-294**: `IsValid()` →
   `secp256k1_ec_pubkey_parse(ctx, &pubkey, vch, size())`
@@ -16,56 +17,45 @@ sites, all anchors in the archived vector bytes):
   (`GetLen vch[0] = size`, else `Invalidate`), `ge_parse`
   (secp256k1.c:265-281 → group_impl.h:1084-1102) = the
   compressed/uncompressed/hybrid point-parsing.
-* The Lean twin: `validPubKeySize` (ValidSize 86-88) ∧
+* The Lean twin: `validPubKeySize` (ValidSize 86-88) and
   `parsePubKeyDeep` (= `ge_parse`, byte-identical to SGN-105
   `parsePubKey`, `parsePubKeyDeep_eq : parsePubKeyDeep = parsePubKey`
-  by `rfl`) — **`CoreVerifyParse b := validPubKeySize b ∧
-  CorSerDec b`** (Def 1 below) = the Core acceptance, a **`Prop`**
-  (E05's DerSpec-idiom: the def IS the C-semantics; decidability is a
-  type-class-instance fact, never used to define it).
+  by `rfl`). The combined acceptance predicate
+  `CoreVerifyParse b := validPubKeySize b ∧ CorSerDec b` is **not**
+  defined here; see the U2 note below.
 
-## The theorems (all sorry-free; axioms pinned §end)
+## The theorems (U1 only; sorry-free; axioms pinned §end)
 
-* **U1 — length+prefix validation vs Core (pubkey.h:69-105)**:
-  `pubKeyLen` = `GetLen` (2/3→33, 4/6/7→65, else 0) with
-  * `pubKeyLen_none_tags`: tags outside {02,03,04,06,07} → 0;
-  * `pubKeyLen_02/03/04/06/07`-ladder: the header tag ↔ the promised
-    length (compressed 33, uncompressed/hybrid 65) — the GetLen matrix,
-    tag-by-tag, by `split` + `rfl` (Seam `pubKeyLen_values`-idiom,
-    Seam/Der.lean:145; **no Eq-hypotheses**: `Nat.beq t lit`-splits at
-    literal tags, `decide`-fire-gaps closed pointwise);
-  * `validPubKeySize_none_tag`: a wrong-tag key never `ValidSize`s;
-  * `validPubKeySize_cases`: `ValidSize`-accept forces
-    (blen, tag) ∈ {(33,02),(33,03),(65,04),(65,06),(65,07)} — Core's
-    `Set` never copies anything else (pubkey.h:98-105), and
-    `parsePubKeyDeep` rejects every other (blen, tag) pair
-    (group_impl.h:1099-1101) — `coreParse_none_blenTag`.
-* **U2 — the iff-theorem (parse success ↔ Core semantics)**:
-  `parsePubKeyDeep_core` : **`parsePubKeyDeep b ≠ none ↔
-  CoreVerifyParse b`** — the CPubKey::Verify-parse-dimension iff:
-  Lean-parse success = Core's `IsValid() ∧ ge_parse` acceptance
-  (`CorSerDec b` = the C-dispatch: 33B-tag-02/03-`parseMatrix33`
-  / 65B-tag-04/06/07-`parseMatrix65` / `none`-else).
-  Corollaries: `CoreVerifyParse= false ↔ (¬ValidSize ∨ matrix-none)`
-  (`coreVerifyParse_false_iff`), and — the parse-reject core-relation
-  — `coreRel_none_iff`: a `CorSerDec`-reject or a size-mismatch = a
-  Core reject, exactly.
+This module currently proves the **U1** layer — the CPubKey header
+(`GetLen`/`ValidSize`) matrix — and nothing above it:
+
+* `pubKeyLen_cases`: every tag is either invalid (`GetLen = 0`) or
+  one of the five header shapes;
+* `pubKeyLen_none_tags`: tags outside {02,03,04,06,07} → 0;
+* `pubKeyLen_02/03/04/06/07`-ladder: the header tag ↔ the promised
+  length (compressed 33, uncompressed/hybrid 65);
+* `pubKeyLen_FF`: `Invalidate`'s marker tag has `GetLen = 0`;
+* `validPubKeySize_none_tag`: a wrong-tag key never `ValidSize`s;
+* `validPubKeySize_cases`: `ValidSize`-accept forces
+  (blen, tag) ∈ {(33,02),(33,03),(65,04),(65,06),(65,07)} — Core's
+  `Set` never copies anything else (pubkey.h:98-105).
+
+**U2 is not present.** Earlier revisions of this header advertised a
+`CoreVerifyParse`/`CorSerDec` iff (`parsePubKeyDeep_core`), its
+false-iff corollary and `coreRel_none_iff`; those declarations never
+existed (and the file did not elaborate). The claims are removed
+rather than left dangling. The parse-vs-Core-matrix equivalence
+remains an open proof obligation; it is recorded in
+`docs/RESIDUALS.md` as an E07 residual. The 33-byte Some-path is the
+R6 lane (`sqrtP = expM`), so a total iff would in any case have to
+split into a kernel-decidable matrix half and an R6 half.
+
 * **Unit 1 (parsePubKeyDeep = parsePubKey byte-identical,
-  SGN-105)** landed at 2b726a3 (`parsePubKeyDeep_eq` by `rfl`; the
-  215/215 conformance battery transfers verbatim). The 33B
-  **Some**-path is R6 (`sqrtP` = `expM` = WellFounded,
-  F-W14b-1/F-E14): the E05-style `parseDerLax ≠ none ↔ CoreLax`-iff
-  (via `split`-inversion) is **NOT** available there — `decide`
-  cannot reduce `sqrtP` on 256-bit x. This file therefore carries the
-  iff as **C-side conditional lemmas** (`parseMatrix65`-ladder
-  `coreParse_m65` = the 65B-lane def↔matrix iff, kernel-clean; the
-  33B-lane statement `parsePubKeyDeep_core` = the full iff, proved by
-  `cases`-inversion on the parse-Option + `CorSerDec`-inversion —
-  both sides are C-transliterations (the geParse-dispatch = the
-  parsePubKeyDeep-branches) = the honest E05-form of the
-  "parse success ↔ Core `IsValidPubKey`-semantics" iff at the
-  **matrix level**; the 33B-Some-value-pick (`sqrtOk`-residue-root
-  = ge_set_xo_var) is Unit 3/pyC (R6) territory).
+  SGN-105)** is in the core module (`parsePubKeyDeep_eq` by `rfl`; the
+  215/215 W14b conformance battery transfers verbatim). The 33-byte
+  Some-path and the 65-byte lane are exercised by
+  `BitcoinProofs.EcdsaDeep.PubKeyMatrix`, whose 33-byte Some rows are
+  documented there as R6.
 
 ## R6-legend (honest kernel-boundary map, D-004/D2)
 
@@ -83,9 +73,10 @@ sites, all anchors in the archived vector bytes):
   (GetLen/Set/ValidSize) + `group_impl.h::ge_impl_parse` (the hybrid
   parity check 1094-1096) + `secp256k1.c:265-281`.
 * **F-E07-002** (this file): `CPubKey::Verify` (pubkey.cpp:283-294) =
-  `IsValid() ∧ ge_parse` — the parse-dimension **iff-theorem is a
-  Prop-level def↔matrix↔header-gate chain** (`CoreVerifyParse` =
-  `validPubKeySize ∧ CorSerDec`, parsePubKeyDeep_core).
+  `IsValid() ∧ ge_parse`. Only the header half (`GetLen`/`ValidSize`)
+  is proved here; the parse-dimension iff (`CoreVerifyParse` =
+  `validPubKeySize ∧ CorSerDec`, `parsePubKeyDeep_core`) was advertised
+  but never landed and its claim has been removed (see the U2 note).
 * **F-E07-003** (PubKeyCorProbe): ser-shape `decide`-BLOCKED
   (Array-map/++-opacity = F-Y09-001/F-S02-003 echo) — R6b-wall.
 * **F-E07-004** (HYP-risk list): NO Eq-hypotheses in this file (the
@@ -114,32 +105,18 @@ def RelTag65 (t : Nat) : Prop := t = 0x04 ∨ t = 0x06 ∨ t = 0x07
 theorem pubKeyLen_cases (t : Nat) :
     pubKeyLen t = 0 ∨ (pubKeyLen t = 33 ∧ RelTag33 t)
     ∨ (pubKeyLen t = 65 ∧ RelTag65 t) := by
-  unfold pubKeyLen
-  split
-  · next h23 =>
-    split
-    · next h2 => exact Or.inr (Or.inl ⟨by rw [if_pos (Or.inl h2)], Or.inl h2⟩)
-    · next h3 => exact Or.inr (Or.inl ⟨by rw [if_pos (Or.inr h3)], Or.inr h3⟩)
-  · next h23 =>
-    split
-    · next h4 => exact Or.inr (Or.inr ⟨by
-        rw [if_neg (fun h => absurd h (Or.inl (Or.inl h4)) : ¬(t = 2 ∨ t = 3))],
-        if_pos (Or.inl h4)⟩, Or.inl h4⟩)
-    · next h4 =>
-      split
-      · next h6 => exact Or.inr (Or.inr ⟨by
-          rw [if_neg (fun h => absurd h (Or.inl (Or.inl h6)) : ¬(t = 2 ∨ t = 3))],
-            if_pos (Or.inr (Or.inl h6))⟩, Or.inr (Or.inl h6)⟩)
-      · next h46 =>
-        split
-        · next h7 => exact Or.inr (Or.inr ⟨by
-            rw [if_neg (fun h => absurd h (Or.inl (Or.inl h7)) : ¬(t = 2 ∨ t = 3))],
-              if_pos (Or.inr (Or.inr h7))⟩, Or.inr (Or.inr h7)⟩)
-        · next h46 h7 => exact Or.inl (by
-            rw [if_neg (fun h => absurd h (Or.inl (Or.inl h)) : ¬(t = 2 ∨ t = 3)),
-                if_neg (fun h => absurd h (Or.inl (Or.inr h)) : ¬(t = 2 ∨ t = 3)),
-                if_neg (fun h => absurd h (Or.inr (Or.inl h)) : ¬(t = 4 ∨ t = 6)),
-                if_neg (fun h => absurd h (Or.inr (Or.inr h)) : ¬(t = 4 ∨ t = 6))])
+  unfold pubKeyLen RelTag33 RelTag65 compressedSize uncompressedSize
+  by_cases h2 : t = 2
+  · subst h2; simp
+  by_cases h3 : t = 3
+  · subst h3; simp
+  by_cases h4 : t = 4
+  · subst h4; simp
+  by_cases h6 : t = 6
+  · subst h6; simp
+  by_cases h7 : t = 7
+  · subst h7; simp
+  · simp [h2, h3, h4, h6, h7]
 
 /-- Tags outside the five valid headers give `GetLen = 0` (Core:
 `Invalidate`-territory, pubkey.h:79-82). -/
@@ -176,17 +153,54 @@ theorem validPubKeySize_cases (b : ByteArray) (h : validPubKeySize b = true) :
     (blen b = 33 ∧ RelTag33 (byteAt b 0))
     ∨ (blen b = 65 ∧ RelTag65 (byteAt b 0)) := by
   unfold validPubKeySize at h
+  simp only [Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq] at h
+  obtain ⟨hbpos, hlen⟩ := h
   cases hb : blen b with
-  | zero => simp at h
+  | zero => simp [hb] at hbpos
   | succ lb =>
     rcases pubKeyLen_cases (byteAt b 0) with h0 | ⟨h33, htag⟩ | ⟨h65, htag⟩
-    · rw [hb, h0] at h; simp at h
-    · rw [hb, h33] at h; simp at h; exact Or.inl ⟨hb, htag⟩
-    · rw [hb, h65] at h; simp at h; exact Or.inr ⟨hb, htag⟩
+    · rw [hb, h0] at hlen; simp at hlen
+    · exact Or.inl ⟨by omega, htag⟩
+    · exact Or.inr ⟨by omega, htag⟩
 
 /-- A wrong-tag key never passes `ValidSize` (`0xFF`-sample). -/
 theorem validPubKeySize_none_tag (b : ByteArray) (h : ¬ (RelTag33 (byteAt b 0)
     ∨ RelTag65 (byteAt b 0))) : validPubKeySize b = false := by
-  by_contra hc
-  rcases validPubKeySize_cases b (by rw [hc]; exact Bool.eq_true mp_eq??) with _
-| _ => exact absurd (Or.inl ‹_›) h
+  cases hv : validPubKeySize b with
+  | false => rfl
+  | true =>
+    rcases validPubKeySize_cases b hv with ⟨_, htag⟩ | ⟨_, htag⟩
+    · exact absurd (Or.inl htag) h
+    · exact absurd (Or.inr htag) h
+
+/-! ## Axiom pins (U1) -/
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_cases' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms pubKeyLen_cases
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_none_tags' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms pubKeyLen_none_tags
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_02' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_02
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_03' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_03
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_04' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_04
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_06' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_06
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_07' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_07
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.pubKeyLen_FF' does not depend on any axioms -/
+#guard_msgs in #print axioms pubKeyLen_FF
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.validPubKeySize_cases' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms validPubKeySize_cases
+
+/-- info: 'Bitcoin.Proofs.EcdsaDeep.PubKeyCor.validPubKeySize_none_tag' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms validPubKeySize_none_tag

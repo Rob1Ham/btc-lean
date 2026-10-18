@@ -410,35 +410,45 @@ theorem step_codesep_tapscript (ctx : Ctx) (op : WireOp) (st : State)
 /-! ## 5. Concrete verdicts (python3-cross-checked, xcheck.py) -/
 
 -- RIPEMD160("abc") executed under BASE:
---   stack := [8eb208f7e05d987a9b044a8e98c6b087f15a0bfc, 616263], opCount := 1
+--   stack := [8eb208f7e05d987a9b044a8e98c6b087f15a0bfc], opCount := 1
 example : stepBody (octx .base {}) (opw 0xa6) { st0 with stack := [abc] } =
     .ok { st0 with opCount := 1,
-                   stack := [hashRipemd160 abc, abc] } := by
-  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc]
+                   stack := [hashRipemd160 abc] } := by
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  have hd : disabledWire 0xa6 = false := disabledWire_hashblock 0xa6 (by omega)
+  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc, h201, hd]
 
--- SHA1("abc"): stack := [a9993e36…, 616263] (xcheck.py: hashlib.sha1)
+-- SHA1("abc"): stack := [a9993e36…] (xcheck.py: hashlib.sha1)
 example : stepBody (octx .base {}) (opw 0xa7) { st0 with stack := [abc] } =
     .ok { st0 with opCount := 1,
-                   stack := [hashSha1 abc, abc] } := by
-  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc]
+                   stack := [hashSha1 abc] } := by
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  have hd : disabledWire 0xa7 = false := disabledWire_hashblock 0xa7 (by omega)
+  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc, h201, hd]
 
--- SHA256("abc"): stack := [ba7816bf…, 616263] (hashlib.sha256)
+-- SHA256("abc"): stack := [ba7816bf…] (hashlib.sha256)
 example : stepBody (octx .base {}) (opw 0xa8) { st0 with stack := [abc] } =
     .ok { st0 with opCount := 1,
-                   stack := [hashSha256 abc, abc] } := by
-  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc]
+                   stack := [hashSha256 abc] } := by
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  have hd : disabledWire 0xa8 = false := disabledWire_hashblock 0xa8 (by omega)
+  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc, h201, hd]
 
--- HASH160("abc"): stack := [bb1be98c…, 616263] (ripemd160(sha256))
+-- HASH160("abc"): stack := [bb1be98c…] (ripemd160(sha256))
 example : stepBody (octx .base {}) (opw 0xa9) { st0 with stack := [abc] } =
     .ok { st0 with opCount := 1,
-                   stack := [hashHash160 abc, abc] } := by
-  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc]
+                   stack := [hashHash160 abc] } := by
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  have hd : disabledWire 0xa9 = false := disabledWire_hashblock 0xa9 (by omega)
+  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc, h201, hd]
 
--- HASH256("abc"): stack := [4f8b42c2…, 616263] (sha256d)
+-- HASH256("abc"): stack := [4f8b42c2…] (sha256d)
 example : stepBody (octx .base {}) (opw 0xaa) { st0 with stack := [abc] } =
     .ok { st0 with opCount := 1,
-                   stack := [hashSha256d abc, abc] } := by
-  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc]
+                   stack := [hashSha256d abc] } := by
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  have hd : disabledWire 0xaa = false := disabledWire_hashblock 0xaa (by omega)
+  simp [stepBody, stepBody.dispatchOp, opw, st0, octx, topAt, hashForOp, abc, h201, hd]
 
 -- SCR-095 edge: the EMPTY element hashes fine (SHA-256 of ∅ =
 -- e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855).
@@ -458,13 +468,15 @@ example : stepBody (octx .base {})
     ⟨.op ⟨0xab, by decide⟩, 0xab, 3⟩ { st0 with stack := [vchFalse, vchTrue] } =
     .ok { st0 with opCount := 1, codeSep := 3,
                    stack := [vchFalse, vchTrue] } := by
-  simp [stepBody, stepBody.dispatchOp, st0, octx, disabledWire, topAt]
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  simp [stepBody, stepBody.dispatchOp, st0, octx, disabledWire, topAt, h201]
 
 -- CONST_SCRIPTCODE kills even a DEAD separator (interpreter.cpp:484-486).
 example : stepBody (octx .base { constScriptCode := true })
     ⟨.op ⟨0xab, by decide⟩, 0xab, 3⟩ { st0 with vf := [false] } =
     .error .opCodeSeparator := by
-  simp [stepBody, stepBody.dispatchOp, st0, octx, disabledWire]
+  have h201 : MAX_OPS_PER_SCRIPT = 201 := rfl
+  simp [stepBody, stepBody.dispatchOp, st0, octx, disabledWire, h201]
 
 
 /-! ## 6. Axiom pins (exact footprints; no sorryAx, no native_decide) -/
@@ -482,15 +494,20 @@ example : stepBody (octx .base { constScriptCode := true })
 #guard_msgs (whitespace := lax) in #print axioms opHash_emptyElement
 
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.hashRipemd160_size' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs (whitespace := lax) in 
+#guard_msgs (whitespace := lax) in #print axioms hashRipemd160_size
+
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.hashSha1_size' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs (whitespace := lax) in 
+#guard_msgs (whitespace := lax) in #print axioms hashSha1_size
+
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.hashSha256_size' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs (whitespace := lax) in 
+#guard_msgs (whitespace := lax) in #print axioms hashSha256_size
+
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.hashHash160_size' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs (whitespace := lax) in 
+#guard_msgs (whitespace := lax) in #print axioms hashHash160_size
+
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.hashSha256d_size' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs (whitespace := lax) in 
+#guard_msgs (whitespace := lax) in #print axioms hashSha256d_size
+
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.step_ripemd160_base' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms step_ripemd160_base
 
@@ -509,7 +526,7 @@ example : stepBody (octx .base { constScriptCode := true })
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.step_sha256_tapscript_noBudget' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms step_sha256_tapscript_noBudget
 
-/-- info: 'BitcoinProofs.Theorems.Ops.O07.step_hash_underflow_base' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.Theorems.Ops.O07.step_hash_underflow_base' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms step_hash_underflow_base
 
 /-- info: 'BitcoinProofs.Theorems.Ops.O07.step_hash_unexecuted_budgetBurns' depends on axioms: [propext, Classical.choice, Quot.sound] -/
