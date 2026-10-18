@@ -101,7 +101,7 @@ passed.
 - A `proven` row means its cited Lean target exists, is in the proof surface,
   and carries the row tag. It does not by itself mean the target paraphrases
   the whole row summary. Statement fidelity is reviewed separately.
-- The 25 accepted residuals remain explicit until the replacement target
+- The 24 accepted residuals remain explicit until the replacement target
   covers the Core claim. A repaired code path is not by itself grounds to
   delete a residual. The ledger and its generated evidence page are updated
   together.

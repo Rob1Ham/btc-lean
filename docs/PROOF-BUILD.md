@@ -27,7 +27,9 @@ Lake 5.0.0 rejects the `-j` option on `lake build`; the per-module command above
 is the equivalent serial invocation. The first full post-audit run produced
 **365 passes and 15 failures** over the 380 outside-closure modules. Re-running
 that failure set after the source-audit fixes leaves **8 failures**, so the
-current outside-closure status is **372 passes and 8 failures**.
+recorded outside-closure status is **372 passes and 8 failures**. During
+closeout, `AF.PDW62b.PDW62b` was found to have stale axiom pins; it was
+repaired and now builds, and is not counted in the recorded table below.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
@@ -54,13 +56,14 @@ the static index excludes; `lakefile.lean` is the Lake build configuration, not
 a module, so it is not built by name and the builds-plus-failures total is the
 380 modules. The candidate adds seven modules to the default closure without
 changing the 380-module outside-closure count, so the recorded 372/8 status is
-unchanged. The namespace rows are the post-audit partition of those 380 modules,
+retained as the prior census; `AF.PDW62b.PDW62b` is an additional closeout
+regression that has been repaired. The namespace rows are the post-audit partition of those 380 modules,
 not a re-use of the earlier five-way census categories.
 
 ## Failing modules
 
-All 8 failures are outside the default closure. None is cited by `spec/db`,
-the docs, or the wallet record. The failure list is:
+All 8 recorded failures are outside the default closure. None is cited by
+`spec/db`, the docs, or the wallet record. The failure list is:
 
 | Module | Observed failure |
 |---|---|
@@ -81,7 +84,8 @@ provenance; the static index does not regenerate it.
 ## Cited modules
 
 No outside-closure module cited by `spec/db`, the docs, or the wallet record is
-in the failing set. In particular, `SCR-100` cites
+in the recorded failing set. The closeout-found cited module
+`AF.PDW62b.PDW62b` was repaired and now builds. In particular, `SCR-100` cites
 `O07.step_codesep_const_dead`; `BitcoinProofs.Theorems.Ops.O07` now builds, so
 the single cited-target failure recorded by the earlier census is resolved.
 
@@ -101,7 +105,7 @@ and `BitcoinProofs.Property.Y15.WitnessProps`.
 against the pinned Lean toolchain, mathlib revision, and core package. It does
 **not** mean that all 416 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
-Core. Statement fidelity is a separate review obligation, with the 25 known
+Core. Statement fidelity is a separate review obligation, with the 24 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
 proof-surface reductions in [`AUDIT-RESIDUALS.md`](AUDIT-RESIDUALS.md).
 

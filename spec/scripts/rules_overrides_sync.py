@@ -9,7 +9,7 @@
 # 726 rows; field census {'check': 11, 'consensus': 101, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 622, 'notes': 231, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 a58d0b48c198310edde87c0c4e429a186266f1b84d211e4f47b95c135eb465b1
+#   726 rows, sha256 ff2fd5de7a4cecd5bc9881a5d3443457e0b236d614a106975a49d8f3daf6afce
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -2577,7 +2577,7 @@ OVERRIDES_SYNC = {
     'BLK-113': {
         'summary': 'GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 when the compact decode is nonzero, non-negative, and non-overflowing; returns 0 when SetCompact flags it negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. There is no powLimit clamp; target ≤ powLimit is a separate header-validity rule.',
         'core_ref': 'chain.cpp:120-133@cce32b168 (GetBitsProof / SetCompact fNegative); Chain/Basic.lean:47-52',
-        'lean_target': 'BitcoinProofs.AF.PDW24.compactNegative, BitcoinProofs.AF.PDW24.workOfSigned, BitcoinProofs.AF.PDW24.workOfSigned_negative_zero, BitcoinProofs.AF.PDW24.workOfSigned_eq_workOf_of_nonneg, BitcoinProofs.AF.PDW24.workOfSigned_valid_formula, BitcoinProofs.AF.PDW24.workOfSigned_eq, BitcoinProofs.AF.PDW24.workOf_negative_diverges',
+        'lean_target': 'BitcoinProofs.AF.PDW24.compactNegative, BitcoinProofs.AF.PDW24.compactOverflow, BitcoinProofs.AF.PDW24.workOf_zero_invalid, BitcoinProofs.AF.PDW24.workOf_valid_formula, BitcoinProofs.AF.PDW24.workOf_eq, BitcoinProofs.AF.PDW24.workOf_negative_zero, BitcoinProofs.AF.PDW24.workOfSigned_negative_regression, BitcoinProofs.AF.PDW24.workOfSigned_overflow_regression, BitcoinProofs.AF.PDW24.workOf_powLimit_positive',
         'status': 'proven',
     },
     'BLK-114': {
@@ -3033,7 +3033,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'TPR-016': {
-        'lean_target': 'BitcoinProofs.AF.PDW56.taprootCommitmentOk_commitment, BitcoinProofs.AF.PDW56.taprootCommitmentOk_false_of_mismatch, BitcoinProofs.AF.PDW56.taprootCommitmentOutcome_mismatch',
+        'lean_target': 'BitcoinProofs.AF.PDW56.taprootCommitmentOk_commitment, BitcoinProofs.AF.PDW56.taprootCommitmentOk_false_of_wrong_program, BitcoinProofs.AF.PDW56.taprootCommitmentOutcome_mismatch',
         'status': 'proven',
     },
     'TPR-017': {

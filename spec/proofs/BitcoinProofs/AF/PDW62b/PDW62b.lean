@@ -185,15 +185,17 @@ theorem verifyScriptFull_p2sh_witness_fail (fuel : Nat)
 #guard_msgs in #print axioms evalChecksigPreTapscript_nonbase
 /-- info: 'BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_pk_invalid' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms evalChecksigPreTapscript_pk_invalid
-/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in #print axioms verifyScriptFull_sigPushOnly_nonpush_fail
-/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_first_eval_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_first_eval_fail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms verifyScriptFull_first_eval_fail
-/-- info: 'BitcoinProofs.AF.PDW62b.p2shInner_witness_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW62b.p2shInner_witness_fail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms p2shInner_witness_fail
-/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_bare_witness_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_bare_witness_fail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms verifyScriptFull_bare_witness_fail
-/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_p2sh_witness_fail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW62b.verifyScriptFull_p2sh_witness_fail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms verifyScriptFull_p2sh_witness_fail
 
 end BitcoinProofs.AF.PDW62b

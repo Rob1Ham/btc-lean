@@ -1,26 +1,26 @@
 # Consensus residuals
 
 The consensus census has 726 rows: 676 `proven`, 50 `obsolete`, 0
-`implemented`, and 0 `planned`. Twenty-five of the proven rows are **explicit
+`implemented`, and 0 `planned`. Twenty-four of the proven rows are **explicit
 model residuals**: the row's one-line claim is true of Bitcoin Core, but the
 current Lean model does not yet entail it. They are not counted as fully proved
 against Core.
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 29-module closure; a per-name run covers the
+`BitcoinProofs` target is a 36-module closure; a per-name run covers the
 380 outside-closure modules (381 `.lean` entries including the non-module
-`lakefile.lean`), of which 372 build individually and 8 do not. No cited
-target is in the failing set: `SCR-100`'s cited target,
-`Theorems.Ops.O07.step_codesep_const_dead`, now builds. The status does not by itself mean that the target's
+`lakefile.lean`), of which the recorded per-name census was 372 builds and 8 failures;
+`BitcoinProofs.AF.PDW62b.PDW62b` has since been repaired and now builds.
+No cited target remains in the failing set. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
-fidelity, and these 25 rows are where the current targets fall short.
+fidelity, and these 24 rows are where the current targets fall short.
 
 This document records the current per-row statement-fidelity record. The
 authoritative row records remain in `spec/db/rules.yaml`; this page exists so
 the gaps are visible without depending on unpublished notes.
 
-**Residual rows: 25 / 726.**
+**Residual rows: 24 / 726.**
 
 The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
 The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
@@ -121,13 +121,6 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - core: `validation.h:1399–1416; deploymentstatus.h@cce32b168`
 - target: `BitcoinProofs.AF.PDW88.deploymentActiveAt_iff`
 - missing link: The summary is true of Core: the API surface is `DeploymentActiveAfter` (buried height and BIP9 state), `DeploymentActiveAt` (delegates to ActiveAfter(pprev)), and `DeploymentEnabled` (buried `DeploymentHeight != INT_MAX`; BIP9 `nStartTime != NEVER_ACTIVE`) (deploymentstatus.h:14-50). The cited target deploymentActiveAt_iff (PDW88Act.lean:12-15) is the definitional restatement `deploymentActiveAt d height = true <-> d.minActivation <= height`, where the underlying def is literally that inequality (Taproot.lean:137-138); the sibling deploymentActiveAt_pprev_row (:17-22) only adds the previous-block composition. No `DeploymentEnabled` / `deploymentEnabled` declaration exists under the local tree, and no theorem states Core's `nStartTime != NEVER_ACTIVE` / `DeploymentHeight != INT_MAX` half or the BIP9 state-based `DeploymentActiveAfter` arm. The named API surface is still unmodelled; the claim is not narrowed. Open proof obligation.
-
-### INV-141
-
-- claim: work function
-- core: `chain.h:305–308 → chain.cpp:GetBitsProof@cce32b168`
-- target: `BitcoinProofs.AF.PDW24.workOf_pos_of_inRange`
-- missing link: The summary is true of Core's work function: GetBlockProof uses GetBitsProof, which rejects a negative compact decode (`fNegative`), an overflowing decode, or a zero target and returns 0, otherwise `(~target/(target+1))+1` (chain.cpp:120-132; chain.h:305-308). The cited target workOf_pos_of_inRange (PDW24.lean:220-222) proves `0 < workOf bits` from `0 < compactTarget bits`. The current core `workOf` (Block/Index.lean:54-56) returns 0 only when `compactTarget bits = 0`; it applies no `powLimit` clamp, and a target above `powLimit` correctly carries positive work (`workOf_above_powLimit_pos`, Block/Index.lean:73-75). The divergence is the missing compact sign/overflow gate: `compactTarget` masks `0x007fffff` (Chain/Basic.lean:28-35), discarding the sign bit, and does not reject an oversized exponent. Thus a sign-flagged or overflowing nBits decodes as a positive target and the model proves positive work where Core returns 0. The local witness workOf_negative_diverges (PDW24.lean:168-172) states `compactNegative 0x04801234 = true /\ workOfSigned 0x04801234 = 0 /\ workOf 0x04801234 != 0`; workOfSigned is only a proofs-side model and the core workOf remains unrepaired. Missing piece: add the compact sign and overflow rejection to `workOf` and prove positivity only under that gate. Open proof obligation; the true Core claim is not narrowed.
 
 ## SCR
 
