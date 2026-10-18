@@ -1,5 +1,9 @@
 # The wallet layer
 
+
+The generated declaration/obligation index is
+[`WALLET-THEOREMS.md`](WALLET-THEOREMS.md).
+
 ## 1. What this layer is, and what it is not
 
 The wallet layer is an executable specification of how a wallet turns descriptors and keys into
