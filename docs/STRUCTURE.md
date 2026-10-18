@@ -83,12 +83,14 @@ graph to locate a row's theorem (section 5).
 | Path | Role |
 |---|---|
 | `rules.yaml` | the authoritative 726-row census: ID, summary, Core anchor, Lean target, vectors, status, source |
+| `rules-wallet.yaml`, `rules-wallet.obligations.tsv` | the 140-row wallet census and its obligation register |
+| `residuals.yaml` | generated ID -> claim/Core/target/missing-link record for the 26 residuals |
 | `results.json` | machine-readable conformance record |
 | `axiom-manifest.txt`, `axiom-audit-rows.txt` | committed `#print axioms` fingerprints and row-level record |
 | `interface-hashes.txt` | hashes of frozen `Interface.lean` signatures |
 | `vector_ids.yaml` | vector-selector index |
 | `capstone.md` | capstone replay record |
-| `rules-wallet.*`, `axiom-manifest-wallet.txt` | the separate wallet census, lock, obligation table, and axiom manifest |
+| `axiom-manifest-wallet.txt` | the separate wallet axiom manifest |
 
 The override layer is kept next to the generator rather than as a second
 database: `spec/scripts/extract_rules.py` holds the curated `OVERRIDES` table,

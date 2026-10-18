@@ -8,14 +8,18 @@ release is distributed separately as checksum-pinned assets
 btc-lean is a machine-checked Lean 4 model of Bitcoin consensus rules. The
 executable model lives in `spec/core` as a zero-dependency Lean package; the
 theorem package in `spec/proofs` proves properties about those same
-definitions. Traceability is a row-by-row rule census in
+definitions. The generated rule-census theorem index is
+[`docs/THEOREMS.md`](docs/THEOREMS.md); the wallet index is
+[`docs/WALLET-THEOREMS.md`](docs/WALLET-THEOREMS.md). Traceability is a
+row-by-row rule census in
 `spec/db/rules.yaml`: each row records a Bitcoin Core reference, a BIP/CVE
 attribution, the Lean declaration that carries the row's `@[rule "<ID>"]`
 tag, and its test-vector selectors. The consensus census has **726 rows:
 676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-six
 of the proven rows are **explicit model residuals**: the row claim is true of
 Bitcoin Core, but the current Lean model does not yet entail it. They are
-listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md). A second, independent
+listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and the generated
+[`docs/RESIDUALS-EVIDENCE.md`](docs/RESIDUALS-EVIDENCE.md). A second, independent
 wallet census (`spec/db/rules-wallet.yaml`, **140 rows**) records wallet
 construction and signing behaviour; it has its own gates and is never merged
 into the consensus census. This is a model of consensus rules, not an
@@ -53,9 +57,12 @@ the repository does not publish a theorem-declaration count.
 
 The 50 `obsolete` rows are retired duplicates, policy-only boundaries, or
 out-of-scope entries. They remain rows rather than being deleted, which is
-why the denominator stays 726. `proven` means the row has a named Lean
-target and passes the traceability gates; it does not by itself assert
-byte-for-byte equivalence with Bitcoin Core (see
+why the denominator stays 726. Some proven rows are also boundary evidence:
+the database marks 70 rows `consensus: false` (43 proven and 27 obsolete), and
+the theorem index lists the proven boundary rows separately from the proven
+consensus rows. `proven` means the row has a named Lean target and passes the
+traceability gates; it does not by itself assert byte-for-byte equivalence with
+Bitcoin Core (see
 [Scope and non-claims](#scope-and-non-claims)). The 26 explicit residuals are
 counted in `proven` but are not claims of Core equivalence;
 `docs/RESIDUALS.md` is authoritative for that list.
@@ -203,7 +210,7 @@ The script runs the wallet static battery, the 140-anchor census when
 | `spec/data/` | Size-bounded in-tree corpus subset with a checksum manifest; the larger data-only corpus payload and anchor blocks are checksum-pinned release assets. |
 | `spec/runners/` | Executable corpus and wallet-differential runners. |
 | `release/` | Data-release transport checksums and README; the archive and content manifest are release assets. |
-| `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
+| `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md` and the generated evidence matrix), generated theorem and wallet indexes (`THEOREMS.md`, `WALLET-THEOREMS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
 
 ### Where evidence lives
 

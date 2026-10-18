@@ -21,6 +21,10 @@ the gaps are visible without depending on unpublished review notes.
 
 **Residual rows: 26 / 726.**
 
+The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
+The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
+both are rebuilt by `python3 spec/scripts/residuals_index.py`.
+
 ## BLK
 
 ### BLK-008
