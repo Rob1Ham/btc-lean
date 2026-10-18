@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the public consensus and wallet theorem indexes.
+"""Generate the public rule-census and wallet theorem indexes.
 
 The indexes are derived from the checked rule databases, not from a separate
 hand-maintained ledger:
 
-* ``spec/db/rules.yaml`` for the consensus census;
+* ``spec/db/rules.yaml`` for the consensus census, including rows explicitly
+  marked ``consensus: false`` as boundary evidence;
 * ``spec/db/rules-wallet.yaml`` and ``spec/db/rules-wallet.obligations.tsv``
   for the wallet rows and their obligation declarations.
 
@@ -67,6 +68,14 @@ def module_cell(row: dict) -> str:
     return "<br>".join(f"`{cell(name)}`" for name in modules)
 
 
+def is_boundary(row: dict) -> bool:
+    return row.get("consensus") is False
+
+
+def surface_cell(row: dict) -> str:
+    return "`boundary`" if is_boundary(row) else "`consensus`"
+
+
 def header(title: str, intro: str, counts: str) -> list[str]:
     return [
         f"# {title}",
@@ -82,40 +91,74 @@ def header(title: str, intro: str, counts: str) -> list[str]:
 
 def consensus_page(rows: list[dict]) -> str:
     proven = [row for row in rows if row.get("status") == "proven"]
+    proven_consensus = [row for row in proven if not is_boundary(row)]
+    proven_boundary = [row for row in proven if is_boundary(row)]
     obsolete = [row for row in rows if row.get("status") == "obsolete"]
     other = [row for row in rows if row.get("status") not in {"proven", "obsolete"}]
+    boundary = [row for row in rows if is_boundary(row)]
 
     lines = header(
-        "Consensus theorem index",
-        "Every consensus row in `spec/db/rules.yaml`, with its cited Lean target. "
+        "Rule-census theorem index",
+        "Every row in the `spec/db/rules.yaml` rule census, with its cited Lean "
+        "target. Rows marked `consensus: false` are boundary evidence about policy, "
+        "availability, trust, or anti-DoS surfaces; they are not consensus claims. "
         "The target is an index into the proof surface; it is not a claim that the "
         "target paraphrases every word of the row summary. Residual rows are listed "
         "separately in [RESIDUALS.md](RESIDUALS.md) and [RESIDUALS-EVIDENCE.md](RESIDUALS-EVIDENCE.md).",
-        f"Rows: **{len(rows)}** total, **{len(proven)}** proven, "
-        f"**{len(obsolete)}** obsolete, **{len(other)}** other.",
+        f"Rows: **{len(rows)}** total, **{len(proven)}** proven "
+        f"(**{len(proven_consensus)}** consensus, **{len(proven_boundary)}** boundary), "
+        f"**{len(obsolete)}** obsolete, **{len(other)}** other; "
+        f"**{len(boundary)}** rows are marked `consensus: false`.",
     )
     lines += [
-        "## Proven rows",
+        "## Proven consensus rows",
         "",
         "| ID | Claim | Core anchor | Lean target | Module |",
         "|---|---|---|---|---|",
     ]
-    for row in sorted(proven, key=lambda item: item["id"]):
+    for row in sorted(proven_consensus, key=lambda item: item["id"]):
         lines.append(
             f"| `{cell(row['id'])}` | {cell(row.get('summary'))} | "
             f"{cell(row.get('core_ref'))} | {target_cell(row)} | {module_cell(row)} |"
         )
-    lines += ["", "## Obsolete rows", "", "| ID | Claim | Core anchor |", "|---|---|---|"]
-    for row in sorted(obsolete, key=lambda item: item["id"]):
+    lines += [
+        "",
+        "## Proven boundary rows",
+        "",
+        "Rows marked `consensus: false`; their targets are boundary evidence, not "
+        "consensus claims.",
+        "",
+        "| ID | Claim | Core anchor | Lean target | Module |",
+        "|---|---|---|---|---|",
+    ]
+    for row in sorted(proven_boundary, key=lambda item: item["id"]):
         lines.append(
             f"| `{cell(row['id'])}` | {cell(row.get('summary'))} | "
+            f"{cell(row.get('core_ref'))} | {target_cell(row)} | {module_cell(row)} |"
+        )
+    lines += [
+        "",
+        "## Obsolete rows",
+        "",
+        "| ID | Surface | Claim | Core anchor |",
+        "|---|---|---|---|",
+    ]
+    for row in sorted(obsolete, key=lambda item: item["id"]):
+        lines.append(
+            f"| `{cell(row['id'])}` | {surface_cell(row)} | {cell(row.get('summary'))} | "
             f"{cell(row.get('core_ref'))} |"
         )
     if other:
-        lines += ["", "## Other rows", "", "| ID | Status | Claim |", "|---|---|---|"]
+        lines += [
+            "",
+            "## Other rows",
+            "",
+            "| ID | Surface | Status | Claim |",
+            "|---|---|---|---|",
+        ]
         for row in sorted(other, key=lambda item: item["id"]):
             lines.append(
-                f"| `{cell(row['id'])}` | {cell(row.get('status'))} | "
+                f"| `{cell(row['id'])}` | {surface_cell(row)} | {cell(row.get('status'))} | "
                 f"{cell(row.get('summary'))} |"
             )
     lines.append("")
@@ -193,7 +236,7 @@ def main() -> int:
         print("theorem-index: generated pages are stale", file=sys.stderr)
         return 1
     if args.check:
-        print(f"theorem-index: {len(consensus)} consensus rows, {len(wallet)} wallet rows")
+        print(f"theorem-index: {len(consensus)} census rows, {len(wallet)} wallet rows")
     return 0
 
 
