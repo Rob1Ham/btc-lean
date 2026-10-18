@@ -63,6 +63,15 @@ probes cover 315 consensus and 836 wallet declarations. The complete
 416-module matrix remains outstanding. Commands and bounds are in
 [validation-r06.json](reviews/2026-10-18/validation-r06.json).
 
+R18 corrects CSV's unsigned transaction-version comparison and the affected
+version-gate proof statements. The new gate, wire-congruence and four high-bit
+boundary claims use only `propext`, with exact in-file guards and dynamic
+manifest entries. The scoped build includes the default root, all probe
+imports and the affected BIP112/PDW46b/PDW68x/PDW6 consumers. Exact commands,
+results and resource limits are in
+[validation-r18.json](reviews/2026-10-18/validation-r18.json). The complete
+core/proof/cited-target matrix remains R08 work.
+
 The outside-closure results below are the upstream audit snapshot from before
 PR 18 merged and before the remediation changes. They remain historical
 results until the full module matrix is rerun under R08; the counts and failure

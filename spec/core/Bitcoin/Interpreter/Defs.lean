@@ -279,9 +279,11 @@ def checkLockTimeDef (env : LocktimeEnv) (n : ScriptNum) : Bool :=
 
 /-- `GenericTransactionSignatureChecker::CheckSequence`
 (interpreter.cpp:1791-1848). The operand's disable-flag NOP lives in
-the CSV opcode; this is the transaction-side comparison. -/
+the CSV opcode; this is the transaction-side comparison. Core stores the
+transaction version as uint32_t: compare the unsigned wire bits even when
+our Int32 storage has its high bit set. -/
 def checkSequenceDef (env : LocktimeEnv) (n : ScriptNum) : Bool :=
-  if env.txVersion < 2 then false
+  if env.txVersion.toUInt32 < 2 then false
   else
     let txSeq := env.txSequence.toNat
     if (txSeq &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0 then false

@@ -246,8 +246,12 @@ non-coinbase input with `OP_1 OP_CHECKSEQUENCEVERIFY OP_DROP OP_1` and sequence
 `ffffffff` with `unsatisfiedLocktime`, while the otherwise identical version-2
 control passes. Both Core source bodies agree on the unsigned gate. This is
 a script CSV defect; the separately repaired contextual BIP68 path already
-uses the unsigned version bits. R18 remains open pending its own strict
-before/after regression, pinned-source execution and proof-consumer repairs.
+uses the unsigned version bits. The R18 repair changes the script gate and
+its proof contracts to compare those same wire bits. Its shared public driver
+has 18 boundary cases; the unchanged pre-fix interpreter, checker and block
+engine reproduce six failures with twelve passing controls. See
+[validation-r18.json](validation-r18.json) for the scoped verification and
+comparison with both pinned Core function bodies.
 
 ### R19 P2 A compatibility checker selects the wrong signature algorithm
 

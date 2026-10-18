@@ -17,8 +17,7 @@ import Bitcoin.Activation.Flags
 composes the modeled gates on real serialized bytes. The default call is
 partial replay (`replayBlock`); an explicit `ChainContext` adds header,
 absolute-finality and both BIP68-domain checks. Both entries enforce
-legacy and contextual sigop budgets. Remaining witness/Taproot and historical
-exception defects are actionable work in the remediation ledger, not assumed
+legacy and contextual sigop budgets. Remaining historical exception defects are actionable work in the remediation ledger, not assumed
 consensus validity. The gates currently composed are:
 
 1. **Decode**: `decodeBlock` — header, tx count, txs (BIP144
@@ -41,7 +40,7 @@ consensus validity. The gates currently composed are:
    MoneyRange (BLK-091) → BIP68 when context is supplied → cumulative
    sigop cost (BLK-036), including coinbase → per-input
    `verifyScriptFull` with the real checker (ECDSA wiring,
-   `RealChecker.realCheckerOf`) → `applyTxStepL` (fold step,
+   `RealChecker.realCheckerWithTaproot`) → `applyTxStepL` (fold step,
    BIP30/inputs/maturity/UpdateCoins keyed by the REAL txid
    — `txidKey`, not test placeholder `txidPreimageKey`).
 6. **Reward**: coinbase outputs ≤ accumulated checked fees + the
@@ -49,17 +48,14 @@ consensus validity. The gates currently composed are:
 
 ## Depth semantics (HONEST reporting — see report §3)
 
-* Every tx of every anchor passes the stateless + ledger gates, and every
-  non-coinbase input's script runs under `verifyScriptFull` with REAL
-  ECDSA — except inputs whose scriptPubKey is a **v1 witness program**
-  (Taproot). Those take the `unjudged` lane: their coin is spent in the
-  ledger fold, their script check is recorded `unjudgedTaproot` and does
-  NOT gate the block verdict (schnorrEntry is fail-closed until
-  the implementation ships BIP340; letting it run would misreport a valid block).
-  Semantics = a documented, per-input assume-valid for Taproot ONLY;
-  the 709632 key-path spend count is reported.
-* `.unjudged` from `verifyScriptFull` (taproot script-path spending) is
-  treated the same, by construction of the interpreter.
+* The runner reports the gates actually reached for its supplied corpus and
+  context. Legacy/v0 ECDSA and native Taproot key/script paths use real signature
+  verification; Taproot hashing binds the complete ordered spent-output view.
+* Missing required signature context is explicit `unjudgedTaproot` data. The
+  report's `scriptAdjudication` is complete exactly when its unjudged count is
+  zero; replay runners reject incomplete reports as successful validations.
+* Supplied UTXOs and ancestor history remain conditional inputs. A complete
+  script verdict does not establish historical reachability of that state.
 
 Errors report the offending tx/input index where applicable.
 -/

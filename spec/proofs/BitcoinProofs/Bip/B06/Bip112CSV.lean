@@ -11,7 +11,7 @@ reference implementation, reproduced verbatim from the BIP text):
 - C2: the top stack item is < 0                  → NEGATIVE_LOCKTIME
 - C3: the operand has the disable flag (1 << 31)
       set                                        → NOP (no CheckSequence)
-- C4: transaction version < 2                    → UNSATISFIED_LOCKTIME
+- C4: unsigned wire transaction version < 2                    → UNSATISFIED_LOCKTIME
 - C5: tx input sequence disable flag (1 << 31)
       set                                        → UNSATISFIED_LOCKTIME
 - C6: relative lock-time type (bit 22) differs
@@ -145,7 +145,7 @@ theorem csv_c4_version_gate :
 /-- Def-level form of C4 (the SCR-128 theorem of X07, re-derivable): a
 version-1 env ALWAYS fails CheckSequence regardless of the operand. -/
 theorem checkSequenceDef_version1_fails (env : LocktimeEnv) (n : ScriptNum)
-    (hv : env.txVersion < 2) : checkSequenceDef env n = false := by
+    (hv : env.txVersion.toUInt32 < 2) : checkSequenceDef env n = false := by
   simp [checkSequenceDef, hv]
 
 /-! ### C5 — tx input sequence disable flag set → UNSATISFIED_LOCKTIME
@@ -165,7 +165,7 @@ theorem csv_c5_txseq_disable_flag :
 /-- Def-level C5: with the tx-version gate passed, a disable-flagged tx
 input sequence fails CheckSequence for EVERY operand. -/
 theorem checkSequenceDef_txseq_disable_fails (env : LocktimeEnv) (n : ScriptNum)
-    (hv : ¬ (env.txVersion < 2))
+    (hv : ¬ (env.txVersion.toUInt32 < 2))
     (hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0) :
     checkSequenceDef env n = false := by
   simp [checkSequenceDef, hv, hd]
@@ -185,7 +185,7 @@ fails for every (otherwise-passing) combination. `htype` is the BIP68
 type-match disjunction evaluated to False — the exact condition under
 which Core's CheckSequence (:1810-1818) rejects. -/
 theorem checkSequenceDef_typeMismatch_fails (env : LocktimeEnv) (n : ScriptNum)
-    (hv : ¬ (env.txVersion < 2))
+    (hv : ¬ (env.txVersion.toUInt32 < 2))
     (hd : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0)
     (htype : (((env.txSequence.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) < SEQUENCE_LOCKTIME_TYPE_FLAG ∧
                (n.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) < SEQUENCE_LOCKTIME_TYPE_FLAG) ∨

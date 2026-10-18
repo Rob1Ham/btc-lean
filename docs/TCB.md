@@ -36,7 +36,7 @@ propext, Classical.choice, Quot.sound
 The committed static manifest is checked by
 `bash spec/scripts/axiom_manifest.sh --check-static`; the dynamic probe
 `bash spec/scripts/axiom_manifest.sh` re-elaborates the probed declarations
-and prints their footprints. The consensus manifest has 315 entries (410
+and prints their footprints. The consensus manifest has 318 entries (413
 physical lines). The wallet layer has its own 836-declaration manifest and
 accepts the same three axioms.
 
@@ -52,7 +52,7 @@ proof of correctness; it is a hygiene gate.
 Core anchor, and a Lean target. The kernel checks the target; it does not
 prove that the target's conclusion is a faithful paraphrase of the summary.
 
-Statement fidelity is a review obligation. Twenty-six rows have a known gap
+Statement fidelity is a review obligation. Twenty-five rows have a known gap
 between the cited target and the row summary; they are listed with the missing
 link in [`RESIDUALS.md`](RESIDUALS.md). A `proven` status is therefore not a
 claim that every relevant Bitcoin behaviour is modelled, and it is not a count

@@ -26,7 +26,7 @@ Row families landed in this module (the interpreter rule layer):
    `txTo->vin[nIn].nSequence`, `txTo->nVersion` (:1755, 1792-1796);
    proved input-local by a congruence theorem.
 3. **CSV tx-version gate** (SCR-128): `CheckSequence` fails when
-   `txTo->nVersion < 2` (:1800-1801) — already the first branch of
+   `txTo->version < 2` (uint32_t) (:1800-1801) — already the first branch of
    `checkSequenceDef`; theorem-pinned here.
 4. **OP_1NEGATE encoding** (SCR-047): the `pushNum 0` arm of
    `stepBody` pushes `encodeScriptNum (-1)`; the wire form is exactly
@@ -130,19 +130,44 @@ theorem checkSequence_perInput (tx tx' : Bitcoin.Data.Tx) (nIn : Nat) (n : Scrip
       = checkSequenceDef (locktimeEnvOf tx' nIn) n := by
   rw [locktimeEnvOf_congr tx tx' nIn hver hlt hvin]
 
-/-! ## 3. CSV requires tx version ≥ 2 (SCR-128) -/
+/-! ## 3. CSV requires unsigned wire version ≥ 2 (SCR-128) -/
 
 /-- `CheckSequence` (interpreter.cpp:1800-1801): BIP68/112 semantics are
-undefined for transaction version 1, and Core FAILS the check (not
-NOPs it) — the first branch of `checkSequenceDef`. -/
+undefined for unsigned wire versions 0 and 1, and Core fails the check — the first branch of `checkSequenceDef`. -/
 @[rule "SCR-128"]
 theorem checkSequenceDef_version_gate (env : LocktimeEnv) (n : ScriptNum)
-    (hv : env.txVersion < 2) : checkSequenceDef env n = false := by
+    (hv : env.txVersion.toUInt32 < 2) : checkSequenceDef env n = false := by
   unfold checkSequenceDef
   split
   · rfl
   · rename_i hneg
     exact absurd hv hneg
+
+/-- CSV reads the version's unsigned wire bits and the current input's
+sequence; the transaction locktime is irrelevant to CheckSequence. -/
+theorem checkSequenceDef_wire_congr (env env' : LocktimeEnv) (n : ScriptNum)
+    (hv : env.txVersion.toUInt32 = env'.txVersion.toUInt32)
+    (hs : env.txSequence = env'.txSequence) :
+    checkSequenceDef env n = checkSequenceDef env' n := by
+  simp only [checkSequenceDef, hv, hs]
+
+/-- High-bit wire versions pass the version gate; ordinary sequence and
+operand checks still apply. These closed examples use kernel reduction. -/
+theorem checkSequenceDef_high_bit_versions :
+    checkSequenceDef { txVersion := -1, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2147483648, txSequence := 1 } 1 = true ∧
+    checkSequenceDef { txVersion := -2147483647, txSequence := 1 } 1 = true := by
+  decide
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_version_gate' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_version_gate
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_wire_congr' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_wire_congr
+
+/-- info: 'Bitcoin.Interpreter.checkSequenceDef_high_bit_versions' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkSequenceDef_high_bit_versions
 
 /-! ## 4. OP_1NEGATE pushes 0x81 (SCR-047) -/
 

@@ -12,18 +12,18 @@ band). Core anchor: interpreter.cpp:1800-1801
 sequence-lock semantics are undefined for transaction version 1,
 and Core FAILS the check (returns false; it does not NOP the
 opcode) — the first branch of `checkSequenceDef`
-(Defs.lean:264: `if env.txVersion < 2 then false`).
+(Defs.lean:264: `if env.txVersion.toUInt32 < 2 then false`).
 
-The in-tree gate is the one-way direction (`txVersion < 2 →
+The in-tree gate is the one-way direction (`txVersion.toUInt32 < 2 →
 checkSequenceDef = false`, by gate-hereding: the `if`-arm is
 `rfl`, the other arm contradicts `hneg`). Promotion = the
 bound-direction gap-fill (PDW5's `cltv_flag_off` iff-gap-fill
 pattern over RC11's one-way `cltv_flag_flow`) + the v1 faces:
 
 - `checkSequenceDef_version_gate_converse` — `= true` certifies
-  the version gate is open: `¬ (txVersion < 2)`.
+  the version gate is open: `¬ (txVersion.toUInt32 < 2)`.
 - `checkSequenceDef_true_ge2` — the ≥-form: `= true → 2 ≤
-  txVersion` (via `Int32.not_lt`).
+  txVersion.toUInt32` (via `UInt32.not_lt`).
 - `checkSequenceDef_v1_false` — the v1 pin: version-1
   transactions fail the check unconditionally (BIP68 undefined
   ⇒ FAIL, not NOP).
@@ -42,8 +42,7 @@ and verbatim target, not by resolution).
 Axiom-pinned in-file (D2 L3), zero sorryAx; the in-tree gate,
 the def, the converse and both v1 decls are `[propext]` exactly
 (PDW5's cltv_flag_off first-try class); `checkSequenceDef_true_ge2`
-adds `Int32.not_lt`'s full set ([propext, Classical.choice,
-Quot.sound] — p6e-probed). Unregistered in
+also uses only [propext] after comparing UInt32 wire bits. Unregistered in
 BitcoinProofs.lean (warzone convention: direct-lean verified,
 invisible to the default build).
 -/
@@ -53,28 +52,28 @@ namespace BitcoinProofs.Interpreter.PDW6
 /-- SCR-128 (converse / bound direction): a passing
 `checkSequenceDef` certifies the version gate was open — the
 transaction is not version-1 (BIP68 defined). Contrapositive of
-the in-tree one-way gate: had `txVersion < 2` held, the gate
+the in-tree one-way gate: had `txVersion.toUInt32 < 2` held, the gate
 would have forced `= false`. -/
 @[rule "SCR-128"]
 theorem checkSequenceDef_version_gate_converse
     (env : Bitcoin.Interpreter.LocktimeEnv)
     (n : Bitcoin.Numeric.ScriptNum)
     (h : Bitcoin.Interpreter.checkSequenceDef env n = true) :
-    ¬ (env.txVersion < 2) := by
+    ¬ (env.txVersion.toUInt32 < 2) := by
   intro hlt
   rw [Bitcoin.Interpreter.checkSequenceDef_version_gate env n hlt] at h
   exact Bool.noConfusion h
 
-/-- SCR-128 (≥-form): `= true` implies `2 ≤ txVersion` — the
+/-- SCR-128 (≥-form): `= true` implies `2 ≤ txVersion.toUInt32` — the
 BIP68/BIP112 version requirement in its inclusive form
-(`Int32.not_lt` transports the def's own `<`-comparison). -/
+(`UInt32.not_lt` transports the def's own `<`-comparison). -/
 @[rule "SCR-128"]
 theorem checkSequenceDef_true_ge2
     (env : Bitcoin.Interpreter.LocktimeEnv)
     (n : Bitcoin.Numeric.ScriptNum)
     (h : Bitcoin.Interpreter.checkSequenceDef env n = true) :
-    2 ≤ env.txVersion :=
-  Int32.not_lt.mp (checkSequenceDef_version_gate_converse env n h)
+    2 ≤ env.txVersion.toUInt32 :=
+  UInt32.not_lt.mp (checkSequenceDef_version_gate_converse env n h)
 
 /-- SCR-128 (v1 pin): BIP68 sequence-lock semantics are undefined
 for transaction version 1; Core FAILS the check (does not NOP) —
@@ -87,7 +86,7 @@ theorem checkSequenceDef_v1_false
     (n : Bitcoin.Numeric.ScriptNum)
     (h1 : env.txVersion = 1) :
     Bitcoin.Interpreter.checkSequenceDef env n = false := by
-  have hlt : env.txVersion < 2 := by rw [h1]; decide
+  have hlt : env.txVersion.toUInt32 < 2 := by rw [h1]; decide
   exact Bitcoin.Interpreter.checkSequenceDef_version_gate env n hlt
 
 /-- SCR-128 (v1 elimination): a version-1 transaction with a
@@ -100,7 +99,7 @@ theorem checkSequenceDef_v1_true_elim
     (h1 : env.txVersion = 1)
     (h : Bitcoin.Interpreter.checkSequenceDef env n = true) :
     False := by
-  have hlt : env.txVersion < 2 := by rw [h1]; decide
+  have hlt : env.txVersion.toUInt32 < 2 := by rw [h1]; decide
   rw [Bitcoin.Interpreter.checkSequenceDef_version_gate env n hlt] at h
   exact Bool.noConfusion h
 
@@ -122,7 +121,7 @@ sorryAx. -/
 #guard_msgs in
 #print axioms checkSequenceDef_version_gate_converse
 
-/-- info: 'BitcoinProofs.Interpreter.PDW6.checkSequenceDef_true_ge2' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+/-- info: 'BitcoinProofs.Interpreter.PDW6.checkSequenceDef_true_ge2' depends on axioms: [propext] -/
 #guard_msgs in
 #print axioms checkSequenceDef_true_ge2
 

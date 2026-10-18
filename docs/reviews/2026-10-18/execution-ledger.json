@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T18:29:53.705186+00:00",
+  "updated_at_utc": "2026-10-18T18:36:12.590100+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -908,12 +908,13 @@
       "id": "R18",
       "priority": "P1",
       "title": "CSV script gate compares transaction version as signed Int32",
-      "status": "confirmed_open",
-      "evidence": "Public applyTx atheight500000 with OP_1 CSV DROP OP_1,sequence1 and wireversionffffffff rejects unsatisfiedLocktime; version2 control passes. Both pinned Core CTransaction.version fields are uint32_t and CheckSequence tests version<2. Contextual BIP68 already uses unsigned bits; the script gate is separate.",
+      "status": "fixed_and_verified_with_scoped_evidence",
+      "evidence": "Six public high-bit version failures reproduced against unchanged parent interpreter/checker/validator, with twelve controls. All18 public CSV boundaries now pass. Fifteen transaction-side cases agree with identical unchanged CheckSequence bodies at both exact Core pins; header source verifies uint32_t. 263 targeted checks,16 core tests,120-target/3347-job scoped build,318 consensus/836 wallet probes and all gates pass.",
       "reproduction_log": "/tmp/btc-lean-r06-csv-public-candidate.log",
       "reproduction_log_sha256": "3bf921ca6d7efb001de1c444217196c96e543f4cce8c6a77fe1360993b2ac911",
-      "next_action": "Add durable fail-before/pass-after transaction regressions, execute exact pinned Core CheckSequence bodies, change script gate to unsigned version bits, repair old signed-version claims and rerun affected proofs.",
-      "reproduction_source": "CSV-VERSION-REPRO.lean"
+      "next_action": "Include affected CSV model/proof modules and row targets in R08 complete matrix; independently fix R07 historical exceptions.",
+      "reproduction_source": "CSV-VERSION-REPRO.lean",
+      "verification_artifact": "validation-r18.json"
     },
     {
       "id": "R19",
@@ -1629,13 +1630,13 @@
     "Rebuilt the 32-module default proof closure plus affected consumers and all 53 wallet imports. Dynamic axiom checks pass for 270 consensus and 838 wallet entries. Closed the SCR-033 missing-link residual with a per-CMS continuation proof; 26 explicit residual rows remain.",
     "Wired early legacy and live evolving-view cumulative sigop budgets; both public paths accept mined 80000-unit fixtures and reject 80004. All 157 targeted runtime checks and 16 core checks pass. New exact trace/bound proofs and eighteen guarded footprints pass; dynamic probes verify 288 consensus and 838 wallet entries. See validation-sigop-budget.json; complete module/census matrix remains pending.",
     "R05 repaired: nonzero commitment amounts accepted under ordinary value/reward bounds; nonce shape precedes hashing; exact Core witness reasons restored. All 188 targeted checks, 16 core checks, scoped 1741-job proof build, 53 wallet imports, 299 consensus/838 wallet probes and static/generated gates pass. Full repository matrix remains pending.",
-    "R06/R19: removed native witness bypass, wired real typed Taproot signatures and commitment/execution data, exact serialization budget and evolving-view cache, corrected compatibility ECDSA algorithm binding. 245 targeted runtime checks, 16 core checks, 116-target/3343-job scoped build, 315 consensus/836 wallet probes and all gates pass. Twenty S02 measurement examples and complete 131-core/416-proof/cited-target matrix remain explicitly pending."
+    "R06/R19: removed native witness bypass, wired real typed Taproot signatures and commitment/execution data, exact serialization budget and evolving-view cache, corrected compatibility ECDSA algorithm binding. 245 targeted runtime checks, 16 core checks, 116-target/3343-job scoped build, 315 consensus/836 wallet probes and all gates pass. Twenty S02 measurement examples and complete 131-core/416-proof/cited-target matrix remain explicitly pending.",
+    "R18: corrected CSV unsigned wire-version gate and affected proof statements. Shared public before/after driver verifies six fixes and twelve controls; both exact Core pins agree on15 comparable cases. 263 runtime checks,16 core checks,120-target/3347-job scoped build,318 consensus/836 wallet probes and all gates pass. Full matrix/census and R07 remain open."
   ],
   "external_blockers": [],
   "next_actions": [
-    "Fix R18 CSV script version gate with strict before/after and both exact Core pin comparisons.",
-    "Wire actual-hash genesis and other historical exceptions (R07/R07b); correct live full-powLimit constant use (I4-43).",
-    "Complete CI/full core/proof/cited-target build coverage, every issue/census classification and metadata, wallet scope, archive/evidence reproducibility."
+    "Correct the live full-powLimit constants (I4-43/R07c), actual-hash script/BIP30 exceptions and genesis connection (R07/R07b).",
+    "Complete R08 full core/proof/cited-target build and CI coverage, every issue/census disposition, wallet review, archive/evidence reproducibility."
   ],
   "verification": [
     {
@@ -1675,6 +1676,10 @@
     {
       "artifact": "validation-r06.json",
       "status": "R06/R19 scoped checks pass; complete repository matrix/census and separate semantic findings remain open"
+    },
+    {
+      "artifact": "validation-r18.json",
+      "status": "R18 scoped checks pass; broader goal still incomplete"
     }
   ],
   "sessions": {},
@@ -1730,7 +1735,7 @@
       ]
     }
   ],
-  "latest_resume": "User requested Resume goal; completed scoped R06/R19 verification and continuing confirmed semantic findings.",
+  "latest_resume": "User requested Resume goal; R06/R19 and R18 scoped fixes verified, continuing historical parameter/exception gaps.",
   "work_status": "resumed_in_current_chat_turn",
   "goal_control_note": "User requested Resume goal. Read-only goal controller still reports paused; available goal tools cannot change status to active. Authorized repository work continued in this turn."
 }

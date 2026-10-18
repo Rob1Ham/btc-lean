@@ -174,7 +174,7 @@ private theorem decide_of_not_not {p : Prop} [Decidable p]
 gate; the sequence semantics only exist from nVersion ≥ 2). -/
 @[rule "TXV-046"]
 theorem checkSequence_version_fails (env : LocktimeEnv) (n : ScriptNum)
-    (hv : env.txVersion < 2) :
+    (hv : env.txVersion.toUInt32 < 2) :
     checkSequenceDef env n = false := by
   unfold checkSequenceDef
   rw [if_pos hv]
@@ -183,7 +183,7 @@ theorem checkSequence_version_fails (env : LocktimeEnv) (n : ScriptNum)
 `CheckSequence` (BIP68: this input opts out of relative locktime). -/
 @[rule "TXV-047"]
 theorem checkSequence_disable_fails (env : LocktimeEnv) (n : ScriptNum)
-    (hv : ¬(env.txVersion < 2))
+    (hv : ¬(env.txVersion.toUInt32 < 2))
     (hbit : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) ≠ 0) :
     checkSequenceDef env n = false := by
   simp only [checkSequenceDef]
@@ -194,7 +194,7 @@ gates passed, `CheckSequence` compares BOTH sides under the bit22|0xffff
 mask in the same domain, and passes iff `nMasked ≤ txMasked`. -/
 @[rule "TXV-048"]
 theorem checkSequence_masked (env : LocktimeEnv) (n : ScriptNum)
-    (hv : ¬(env.txVersion < 2))
+    (hv : ¬(env.txVersion.toUInt32 < 2))
     (hdis : (env.txSequence.toNat &&& SEQUENCE_LOCKTIME_DISABLE_FLAG) = 0)
     (hok : checkSequenceDef env n = true) :
     ((env.txSequence.toNat &&& (SEQUENCE_LOCKTIME_TYPE_FLAG ||| SEQUENCE_LOCKTIME_MASK)) <

@@ -1,3 +1,4 @@
+import Bitcoin.Interpreter.Rules
 import Bitcoin.Data.Basic
 import Bitcoin.Chain.Basic
 import Bitcoin.Crypto.Seam.Interface
@@ -432,3 +433,8 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 
 -- R19: unconditional ECDSA preservation in the Boolean compatibility assembly.
 #print axioms Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq
+
+-- R18: unsigned wire-version CSV gate and high-bit boundaries.
+#print axioms Bitcoin.Interpreter.checkSequenceDef_version_gate
+#print axioms Bitcoin.Interpreter.checkSequenceDef_wire_congr
+#print axioms Bitcoin.Interpreter.checkSequenceDef_high_bit_versions

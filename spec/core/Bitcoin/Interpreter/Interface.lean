@@ -47,7 +47,9 @@ boundary only consumers use)
   `Seam/Hash.lean` real-hash supersession path is documented there;
   until that interface-change lands, the defs are the executable
   truth and no Backend pre-scan is needed (P2WSH/P2WPKH witness paths
-  are fully judged; only taproot script-path spending is `unjudged`).
+  are fully judged. Native Taproot paths use the typed real checker when
+  complete transaction context is available; unavailable required context is
+  explicitly `unjudged`).
 
 The consensus policy word passed to `evalScript` is `default`: Core's
 consensus `getBlockScriptFlags` never sets the policy-only bits this

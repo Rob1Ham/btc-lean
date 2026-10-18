@@ -15,7 +15,7 @@ row-by-row rule census in
 `spec/db/rules.yaml`: each row records a Bitcoin Core reference, a BIP/CVE
 attribution, the Lean declaration that carries the row's `@[rule "<ID>"]`
 tag, and its test-vector selectors. The consensus census has **726 rows:
-676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-six
+676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-five
 of the proven rows are **explicit model residuals**: the row claim is true of
 Bitcoin Core, but the current Lean model does not yet entail it. They are
 listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and the generated
@@ -201,7 +201,7 @@ local checkout paths in tracked shell/Python files.
 
 The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
-the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 315 consensus
+the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 318 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
 836 wallet declarations.
 
@@ -264,7 +264,7 @@ The script runs the wallet static battery, the 140-anchor census when
   rows carry tags, 99 appear in the obligation register, and four have
   corrected statements without a proof. Wallet results are not consensus
   results and are never added to the 726-row denominator.
-- **Twenty-six consensus rows are explicit model residuals.** Their Core
+- **Twenty-five consensus rows are explicit model residuals.** Their Core
   behaviour is retained as the row claim, but the current Lean model does not
   entail it. They are listed with the missing link in `docs/RESIDUALS.md`;
   `status: proven` refers to the cited Lean target, not to Core equivalence.
