@@ -2,10 +2,10 @@ import Bitcoin.Crypto.Seam.Entry
 import Bitcoin.Crypto.Ecdsa.Verify
 
 /-!
-# Bitcoin.Crypto.EcdsaDeep.Entry — the deep-ECDSA alternate seam entry (E16, EcdsaDeep)
+# Bitcoin.Crypto.EcdsaDeep.Entry — the deep-ECDSA alternate seam entry (EcdsaDeep)
 
-EcdsaDeep integration file (contributor E16). The DL suite (E01–E16) is building the
-proved, kernel-checkable ECDSA tower (risk R6 / D-004: the WF-recursive
+EcdsaDeep integration file. The deep-verification suite is building the
+proved, kernel-checkable ECDSA tower (risk R6 / the no-axiom policy: the WF-recursive
 modexp/egcd layer of `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` cannot be
 kernel-reduced). THIS file is the tower's landing pad at the signature seam:
 an **alternate entry point** of `Bitcoin.Crypto.Seam.Entry` — the deep
@@ -15,12 +15,12 @@ production verify", the one equality the tower must prove.
 
 ## The seam contract this file instantiates
 
-`Seam/Entry.lean` (W13) is the frozen two-function boundary of the EC layer:
+`Seam/Entry.lean` is the frozen two-function boundary of the EC layer:
 `ecdsaVerdict` / `ecdsaEntry` (interpreter.cpp:1701-1724), `schnorrVerdict` /
 `schnorrEntry` (interpreter.cpp:1726-1752) and the smart constructor
 `txCheckerOf` (Seam/Entry.lean:48/65/192/208/271) — ALL parameterized over
 the raw `verify : ByteArray → ByteArray → ByteArray → Bool`. Production
-wires `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` (W14b lax verifier,
+wires `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` (lax verifier,
 DECISION-lax-ecdsa.md) into that slot at exactly two places:
 
 * `Bitcoin.Capstone.RealChecker.realCheckerFullOf` (RealChecker.lean:105);
@@ -33,7 +33,7 @@ abstract `verifyD` parameter, so it is a lawful seam inhabitant by
 transport (§ contracts below) and becomes the production entry the moment
 `verifyD` is instantiated with a proved-equal deep verifier.
 
-## VERIFIED vs PROPOSED (D-004 / R6 honesty split)
+## VERIFIED vs PROPOSED (the no-axiom policy / R6 honesty split)
 
 * VERIFIED (this file, sorry-free, axiom-pinned in-module):
   1. Congruence laws — the raw `verify` parameter is the ONLY degree of
@@ -45,16 +45,16 @@ transport (§ contracts below) and becomes the production entry the moment
      `txCheckerDeepOf verifyD = txCheckerOf verifyI` as checkers
      (extensionality via `Seam.checker_eq_of_entry_eq`), and likewise for
      the Schnorr slot. Hence: **deep checker ≡ production checker is
-     exactly the E11 crown equality `verifyStruct = verifyImpl`**.
-  3. The alternate entry is a lawful seam inhabitant: every frozen W13
+     exactly the structural-mirror crown equality `verifyStruct = verifyImpl`**.
+  3. The alternate entry is a lawful seam inhabitant: every frozen
      seam contract on the ECDSA entry (execdata-inertness,
      SWT-054 empty-sig, pubkey gate, SWT-053 hashtype-pop,
      SWT-055 witnessV0-missing-amount) transports to `ecdsaEntryDeep`
      for an ARBITRARY deep verifier.
-* PROPOSED (NOT here; see the E11 integration slot at the bottom):
+* PROPOSED (NOT here; see the structural-mirror integration slot at the bottom):
   the crown wiring itself — instantiating `verifyD` with
-  `Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct` (E11) and
-  discharging the hypothesis with E11's mirror-equality theorem. Nothing
+  `Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct` (the structural mirror) and
+  discharging the hypothesis with the structural mirror's mirror-equality theorem. Nothing
   in this file assumes, states or axiomatizes that equality.
 -/
 
@@ -94,14 +94,14 @@ theorem schnorrVerdict_congr (verifyD verifyI : ByteArray → ByteArray → Byte
   have he : verifyD = verifyI := funext fun a => funext fun b => funext fun c => h a b c
   simp only [schnorrVerdict, he]
 
-/-! ## The deep alternate entry points (E16, EcdsaDeep).
+/-! ## The deep alternate entry points (EcdsaDeep).
 
 These mirror `Seam.Entry.ecdsaEntry` / `schnorrEntry` / `txCheckerOf`
 exactly, with the EC verifier slot named `verifyD` for the deep
-(kernel-decidable) implementation E11 will land. -/
+(kernel-decidable) implementation the structural mirror will land. -/
 
 /-- `Seam.Entry.ecdsaEntry` with the EC verifier slot reserved for the
-deep verifier: the E16 alternate entry point of the ECDSA seam. Its
+deep verifier: the deep alternate entry point of the ECDSA seam. Its
 checkers are equal to the production ones whenever
 `verifyD = Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` pointwise
 (`ecdsaEntryDeep_eq`). -/
@@ -111,14 +111,14 @@ def ecdsaEntryDeep (verifyD : ByteArray → ByteArray → ByteArray → Bool)
   ecdsaEntry verifyD sighash hasAmount
 
 /-- `Seam.Entry.schnorrEntry` with the BIP340 verifier slot reserved for
-the deep verifier (E08 / S03 lane). -/
+the deep verifier (the Schnorr-equation layer / the Schnorr-entry layer). -/
 def schnorrEntryDeep (verifyD : ByteArray → ByteArray → ByteArray → Bool)
     (sighashSchnorr : ScriptExecutionData → UInt8 → SigVersion → Option ByteArray) :
     BaseSignatureChecker :=
   schnorrEntry verifyD sighashSchnorr
 
 /-- `Seam.Entry.txCheckerOf` with the ECDSA slot reserved for the deep
-verifier: the E16 alternate of the smart constructor W09's interpreter
+verifier: the deep alternate of the smart constructor that the interpreter
 binds the seam to (vs `RealChecker.realCheckerFullOf` at
 RealChecker.lean:105 and `TxValidation.Full.txCheckerFor` at
 TxValidation/Full.lean:80). -/
@@ -129,10 +129,10 @@ def txCheckerDeepOf (verifyD : ByteArray → ByteArray → ByteArray → Bool)
     BaseSignatureChecker :=
   txCheckerOf verifyD sighash hasAmount verifySchnorr sighashSchnorr
 
-/-! ## Entry-level equivalence: the E16 transport laws.
+/-! ## Entry-level equivalence: the transport laws.
 
 THE integration contract of this file: a pointwise equality
-`verifyD = verifyI` of raw verifiers (E11's crown deliverable takes
+`verifyD = verifyI` of raw verifiers (the structural mirror's crown result takes
 `verifyD := EcdsaDeep.VerifyStruct.verifyStruct` and
 `verifyI := Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`) makes the deep
 alternate entries EQUAL to the production seam entries as
@@ -161,7 +161,7 @@ theorem ecdsaEntryDeep_eq' (verifyD verifyI : ByteArray → ByteArray → ByteAr
     (fun a b c => by rw [h'])
 
 /-- Pointwise `verifyD = verifyI` ⇒ `schnorrEntryDeep verifyD` IS the
-production Schnorr entry `schnorrEntry verifyI` (E08 / S03 lane). -/
+production Schnorr entry `schnorrEntry verifyI` (the Schnorr-equation layer / the Schnorr-entry layer). -/
 theorem schnorrEntryDeep_eq (verifyD verifyI : ByteArray → ByteArray → ByteArray → Bool)
     (sighashSchnorr : ScriptExecutionData → UInt8 → SigVersion → Option ByteArray)
     (h : ∀ a b c, verifyD a b c = verifyI a b c) :
@@ -208,11 +208,11 @@ theorem txCheckerDeepOf_eq' (verifyD verifyI : ByteArray → ByteArray → ByteA
   txCheckerDeepOf_eq verifyD verifyI sighash hasAmount verifySchnorr sighashSchnorr
     (fun a b c => by rw [h'])
 
-/-! ## The alternate entry is a lawful seam inhabitant (W13 contracts).
+/-! ## The alternate entry is a lawful seam inhabitant (the seam layer contracts).
 
 Every frozen seam contract on the ECDSA entry holds for
 `ecdsaEntryDeep` with an ARBITRARY deep verifier `verifyD` — by exact
-transport of the W13 theorems (the deep entry is the same adapter).
+transport of the theorems (the deep entry is the same adapter).
 These are the contracts the production wiring relies on
 (RealChecker.lean's "nothing else is needed" note); none of them touches
 the EC math. -/
@@ -269,11 +269,11 @@ theorem ecdsaEntryDeep_witnessV0_missing_amount_false
       sig pk code SigVersion.witnessV0 d = false :=
   ecdsaEntry_witnessV0_missing_amount_false verifyD sighash sig pk code d hpk hne
 
-/-! ## The E11 integration slot (PROPOSED — EcdsaDeep, not this file)
+/-! ## The structural-mirror layer integration slot (PROPOSED — EcdsaDeep, not this file)
 
 This file is the landing pad; the crown wiring is deliberately NOT here
-(nothing here assumes E11's existence). Once the DL suite lands
-`Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct` (E11's
+(nothing here assumes the structural mirror's existence). Once the deep-verification suite lands
+`Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct` (the structural mirror's
 kernel-decidable mirror of `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`,
 DECISION-lax-ecdsa.md semantics) with the mirror equality
 
@@ -297,15 +297,15 @@ TxValidation/Full.lean:80 wiring level. The capstone-level assembly
 (`realCheckerFullDeepOf` mirroring `RealChecker.realCheckerFullOf`) then
 lands in a further NEW file of this directory (never editing
 RealChecker.lean), with `realCheckerFullDeepOf_eq` proved by
-`txCheckerDeepOf_eq'` + `checker_ext`. Until E11's equality is proved,
+`txCheckerDeepOf_eq'` + `checker_ext`. Until the structural mirror's equality is proved,
 EVERY use of the deep lane is an alternate entry point only — no
-production path may switch to it (D-004 quarantines the shortcut side;
+production path may switch to it (the no-axiom policy quarantines the shortcut side;
 this file quarantines nothing: it adds, never replaces). -/
 
 section AxiomPins
 
--- E16 L3 axiom pins (D2 ladder): every public theorem of this module,
--- footprint discovered pass-1 (plain #print) and pinned guard-style.
+-- Axiom pins (axiom-pin checks): every public theorem of this module,
+-- footprint discovered initial version (plain #print) and pinned guard-style.
 -- Honest split: the congruence/transport laws pay the funext toll
 -- ([propext, Quot.sound] — funext is Quot.sound-derived in core Lean);
 -- three of the five contract transports are pure record-eta/simp

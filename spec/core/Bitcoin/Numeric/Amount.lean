@@ -1,13 +1,13 @@
 import Bitcoin.Numeric.Interface
 
 /-!
-# Bitcoin.Numeric.Amount — CAmount arithmetic (W04)
+# Bitcoin.Numeric.Amount — CAmount arithmetic
 
 MoneyRange introduction/elimination, the checked-vs-unchecked
 accumulation pair that encodes the CVE-2010-5137 ("184 billion BTC",
 Aug 2010) defense, int64 wraparound, and the concrete CVE instance as
 `decide`-theorems cross-checked against independent Python arithmetic
-(see research/w2-04-scriptnum-amount.md §5).
+(see the script-number notes §5).
 
 Core counterparts:
 - `consensus/amount.h:12-27` — CAmount, COIN, MAX_MONEY, MoneyRange.
@@ -15,7 +15,7 @@ Core counterparts:
 - `consensus/tx_verify.cpp:170-220` — CheckTxInputs fee arithmetic.
 - `validation.cpp:2548-2552` — block-level fee accumulator range check.
 
-All arithmetic is on `Amount := Int` (W01-frozen, `Bitcoin.Data.Basic`);
+All arithmetic is on `Amount := Int` (frozen, `Bitcoin.Data.Basic`);
 the int64 wraparound of the historical bug is modeled explicitly by
 `i64Wrap` rather than by machine integers.
 -/

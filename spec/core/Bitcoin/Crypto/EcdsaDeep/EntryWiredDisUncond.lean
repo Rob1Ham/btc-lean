@@ -2,14 +2,14 @@ import Bitcoin.Crypto.EcdsaDeep.EntryWiredDis
 import Bitcoin.Crypto.EcdsaDeep.FuelDischarge
 
 /-!
-# EntryWiredDisUncond — the Dis-form crown, hypothesis-free (E16B)
+# EntryWiredDisUncond — the Dis-form crown, hypothesis-free (the alternate-entry integration)
 
-Review-RC22 contributor E16B. Fourth link of the E16 alternate-entry chain
+the rule-closure suite. Fourth link of the alternate-entry chain
 (`Seam/Entry.lean` ← `EcdsaDeep/Entry.lean` ← `EcdsaDeep/EntryWired.lean`
 ← `EcdsaDeep/EntryWiredDis.lean` ← **this file**): `EntryWiredDis.lean`
-proved the Dis-form production equalities under E11's `hE`/`hN`; E14-2's
+proved the Dis-form production equalities under the structural mirror's `hE`/`hN`; the discharge layer's
 `FuelDischarge.lean` (`hE_uncond`/`hN_uncond`, already landed and pinned
-⊆ the charter trio) discharges those hypotheses. This file is the
+⊆ the standard trio) discharges those hypotheses. This file is the
 three-line application — nothing else, no re-proof, no new hypothesis.
 
 `FuelDischarge.lean` and `EntryWiredDis.lean` are read-only here; this
@@ -26,7 +26,7 @@ open Bitcoin.Crypto.EcdsaDeep.EntryWired
 open Bitcoin.Crypto.EcdsaDeep.EntryWiredDis
 open Bitcoin.Crypto.EcdsaDeep.FuelDischarge
 
-/-- E11's crown at `FL = zeros 600`, hypothesis-free (via E14-2). -/
+/-- the structural mirror's crown at `FL = zeros 600`, hypothesis-free (via the discharge layer). -/
 theorem verifyStructEq'_uncond :
     Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct
       = Bitcoin.Crypto.Ecdsa.Verify.verifyImpl :=

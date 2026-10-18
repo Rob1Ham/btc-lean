@@ -1,13 +1,13 @@
 import Bitcoin.Crypto.EcdsaDeep.VerifyStruct
 
 /-!
-# VerifyStructProbe — E11 kernel-reducibility probe (temporary, E11's own)
+# VerifyStructProbe — the structural mirror kernel-reducibility probe
 
 GO/NO-GO for the structural-mirror design of `VerifyStruct.lean`:
 can the Lean 4 kernel `decide` through the fuel-structural bit lists,
 the fuel-list `egcdL` (256-bit values in GMP positions only), the
 `Int` arithmetic of the Euclid step, and a full `mulPbsG` point chain?
-Every `by decide` here is kernel evaluation (D-004-clean; no
+Every `by decide` here is kernel evaluation (the no-axiom policy-clean; no
 `native_decide` anywhere in `spec/` outside `Test/`).
 -/
 

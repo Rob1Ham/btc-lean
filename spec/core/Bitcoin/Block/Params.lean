@@ -8,7 +8,7 @@ import Bitcoin.Activation.Bip9
 import Bitcoin.Capstone.Merkle
 
 /-!
-# Bitcoin.Block.Params — chain-parameter and meta rules (X08)
+# Bitcoin.Block.Params — chain-parameter and meta rules (the block-validation module)
 
 The non-algorithmic block layer: null headers (BLK-004), the header-index
 verdict interface (BLK-063/064/065), per-network deployment tables
@@ -343,7 +343,7 @@ theorem disconnectBlock_two_restores (u : UtxoSet) (height : UInt32)
 
 /-- BLK-107: unspendable outputs are excluded from disconnect
 re-verification (symmetry with BLK-093: AddCoin never stored them, so
-DisconnectBlock must not re-check them — `scriptUnspendable` from W12). -/
+DisconnectBlock must not re-check them — `scriptUnspendable` from the ledger). -/
 @[rule "BLK-107"]
 def disconnectRelevant (c : Coin) : Bool := ¬ scriptUnspendable c.scriptPubKey
 
@@ -454,7 +454,7 @@ theorem genesis_coinbase_value :
     genesisCoinbaseTx.vout.length = 1 ∧ genesisCoinbaseTx.vout.head!.value = 50 * COIN := by
   decide
 
-/-- The genesis subsidy: `GetBlockSubsidy(0) = 50·COIN` (W12's
+/-- The genesis subsidy: `GetBlockSubsidy(0) = 50·COIN` (the ledger layer's
 `blockSubsidy`, halvings 0). -/
 theorem genesis_subsidy : Bitcoin.Conservation.blockSubsidy 0 = 50 * COIN := by
   unfold Bitcoin.Conservation.blockSubsidy Bitcoin.Conservation.halvingsAt
@@ -573,7 +573,7 @@ theorem signetDefaultChallenge_shape :
 
 /-- BLK-126: on signet, the block solution must satisfy the challenge
 script when spent as a witness (`CheckSignetBlockSolution`, BIP325
-§"consensus"); abstracted over the W09 script engine. Nets with
+§"consensus"); abstracted over the script engine. Nets with
 `signet_blocks = false` (mainnet/testnet/testnet4/regtest) skip the
 check entirely. -/
 def signetSolutionOk (satisfies : ByteArray → ByteArray → Bool)
@@ -636,7 +636,7 @@ theorem merklePathVerify_empty (root leaf : ByteArray) :
 /-! ## BLK-130: the timestamp window -/
 
 /-- BLK-130: `MAX_FUTURE_BLOCK_TIME` (validation.h) = 7200 s — the same
-constant defines the headers-sync `TIMESTAMP_WINDOW`; W08's
+constant defines the headers-sync `TIMESTAMP_WINDOW`; the
 `timeNotTooNew` composes with it. -/
 @[rule "BLK-130"]
 def MAX_FUTURE_BLOCK_TIME : Nat := 7200

@@ -5,10 +5,10 @@ import Bitcoin.Numeric.Interface
 import Bitcoin.Consensus.TxCheck
 
 /-!
-# Bitcoin.DataLaws — type-level laws (W03)
+# Bitcoin.DataLaws — type-level laws
 
-Laws over the W01/C1 data types, proved sorry-free here (the only `sorry`
-in the W03 surface is the W04-owned CScriptNum contract, tagged and
+Laws over the frozen data types, proved sorry-free here (the only `sorry`
+in the surface is the -owned CScriptNum contract, tagged and
 routed). Companion of the frozen `Bitcoin.DataLaws.Interface`, which
 imports this file and fills its four `opaque` stubs.
 
@@ -20,14 +20,14 @@ Ground truth (Bitcoin Core @ `cce32b1682d86076ee71c10f9788c48d44458a263`):
                         `consensus/tx_verify.cpp:45-101` (`CalculateSequenceLocks`)
 * finality domain     — `script/script.h:48` (`LOCKTIME_THRESHOLD = 500_000_000`)
 * outpoint nullness   — `primitives/transaction.h:29-56` (`COutPoint::IsNull`,
-                        32-zero-byte hash — the C1-audited empty-vs-32-byte fix)
+                        32-zero-byte hash — the prototype-audited empty-vs-32-byte fix)
 * txid/wtxid          — `primitives/transaction.cpp:81-96` (`ComputeHash`,
                         `ComputeWitnessHash`: **returns txid verbatim when
                         `!HasWitness()`**)
 
 Rule-DB rows touched (see `spec/db/rules.yaml`): SWT-018, TXV-017..019,
 INV-011..014, TXV-027..030, TXV-034..038; the CScriptNum contract
-statement routes to W04.
+statement is supplied by the numeric layer.
 -/
 
 namespace Bitcoin.DataLaws
@@ -69,11 +69,11 @@ unit: one legacy byte of weight per byte of serialized size. -/
 def WITNESS_SCALE_FACTOR : Nat := 4
 
 /-- `LOCKTIME_VERIFY_SEQUENCE = 1 << 0` (`consensus/consensus.h`): the
-`CalculateSequenceLocks` flag; W06's `ScriptFlags.checkSequenceVerify`
+`CalculateSequenceLocks` flag; `ScriptFlags.checkSequenceVerify`
 supplies the value in block context. -/
 def LOCKTIME_VERIFY_SEQUENCE : Nat := 1
 
-/-- Non-divergence guard: the laws-layer constant equals the C1 bootstrap
+/-- Non-divergence guard: the laws-layer constant equals the prototype bootstrap
 copy in `Bitcoin.Consensus.TxCheck` (both pin consensus.h:21). -/
 theorem witnessScaleFactor_eq_consensus :
     WITNESS_SCALE_FACTOR = Bitcoin.Consensus.WITNESS_SCALE_FACTOR := rfl
@@ -138,7 +138,7 @@ theorem testBit31_iff (x : Nat) (hx : x < 4294967296) :
 /-! ## OutPoint / null-prevout laws (TXV-009/010, INV-008/009/010) -/
 
 /-- `zeroBytes (n+1)` appends one zero byte to `zeroBytes n` (structural
-form — keeps `decide` reduction healthy per the C1 kernel-reduction rules). -/
+form — keeps `decide` reduction healthy per the prototype kernel-reduction rules). -/
 private theorem zeroBytes_succ (n : Nat) : zeroBytes (n + 1) = (zeroBytes n).push 0 := by
   simp only [zeroBytes, List.range_succ, List.foldl_append]
   rfl
@@ -178,7 +178,7 @@ theorem zeroBytes_get_zero (n i : Nat) : (zeroBytes n).get! i == 0 := by
 theorem null_outPoint_isNull : OutPoint.null.isNull = true := by
   decide
 
-/-- REGRESSION (C1 audit, empty-vs-32-byte null prevout): `IsNull` demands
+/-- REGRESSION (the prototype audit, empty-vs-32-byte null prevout): `IsNull` demands
 32 ZERO bytes — an empty hash must NOT pass even with `n = NULL_INDEX`.
 Core: `COutPoint::IsNull() = hash.IsNull() && n == NULL_INDEX` with
 `uint256::IsNull` = all 32 bytes zero. -/
@@ -298,13 +298,13 @@ theorem seqIsTimeBased_iff (s : UInt32) :
 /-- TXV-034: the BIP68 enable gate (tx_verify.cpp:57):
 `tx.version >= 2 && flags & LOCKTIME_VERIFY_SEQUENCE`.
 
-AUDIT NOTE (W03): Core's `CTransaction::version` is `const uint32_t` @
+AUDIT NOTE : Core's `CTransaction::version` is `const uint32_t` @
 cce32b168, so `>= 2` compares the WIRE value unsigned; the scaffold's
 `Tx.version : Int32` is signed. The faithful gate therefore goes through
 `Int32.toUInt32` (byte-identical wire value): a tx with wire version
 0xFFFFFFFF has BIP68 *enabled* in Core — see the concrete instance below.
-(Scaffold infidelity flagged in research/w2-03-type-laws.md; the `Int32`
-field type itself is W01/C1's to change via interface-change PR.) -/
+(Scaffold infidelity flagged in the type-law notes; the `Int32`
+field type itself is the frozen interface's to change via interface-change PR.) -/
 @[rule "TXV-034", rule "INV-017"]
 def bip68Enabled (version : Int32) (locktimeFlag : Bool) : Bool :=
   decide (2 ≤ version.toUInt32.toNat) && locktimeFlag
@@ -446,7 +446,7 @@ theorem seqTimeLock_last_invalid (mtpParent : Nat) (s : UInt32) (mtpBlock : Nat)
   rw [seqTimeOk_iff]; omega
 
 /-! ## The CScriptNum 4-byte contract boundary (SCR numeric family;
-coordinate-by-interface — the implementation is W04's) -/
+coordinate-by-interface — the implementation is in `Bitcoin.Numeric`) -/
 
 /-- Largest value representable in a `w`-byte sign-magnitude CScriptNum
 (int64 semantics; `2^(8w−1) − 1`). -/
@@ -460,14 +460,14 @@ theorem scriptNum4ByteMaxValue :
 
 /-- CONTRACT (type-level statement of the 4-byte rule; SCR-numeric family).
 Whatever byte string decodes to a value under the default width bound is at
-most 4 bytes long. The implementation — and this theorem's proof — is W04's
-(`Bitcoin.Numeric.decodeScriptNum`, interpreter.cpp:429-451); W03 states the
-boundary here so W09/W10/W11 can consume it by interface. -/
+most 4 bytes long. The implementation — and this theorem's proof — is in
+(`Bitcoin.Numeric.decodeScriptNum`, interpreter.cpp:429-451); the boundary
+is stated here so consumers can use it by interface. -/
 theorem scriptNum_four_byte_boundary (b : ByteArray)
     (h : Bitcoin.Numeric.decodeScriptNum b true
         Bitcoin.Numeric.SCRIPT_NUM_DEFAULT_MAX_SIZE ≠ none) :
     b.size ≤ Bitcoin.Numeric.SCRIPT_NUM_DEFAULT_MAX_SIZE := by
-  -- Discharged by W04 (agreed handoff): contrapositive of
+  -- Discharged (agreed interface): contrapositive of
   -- `Bitcoin.Numeric.scriptNum_four_byte_rule` — a > 4-byte wire string
   -- always decodes to `none` under the default width, so a successful
   -- decode forces `b.size ≤ 4`.
@@ -488,21 +488,21 @@ example : seqHeightOk 100 0x00000003 103 = true := by decide
 example : seqHeightOk 100 0x00000003 102 = false := by decide
 -- The masked payload of SEQUENCE_FINAL is 0xffff, so the *raw* masked-lock
 -- predicate still bites at height 100; it is `seqIsDisabled` that removes
--- SEQUENCE_FINAL inputs from BIP68 consideration (W10's lockpoint fold).
+-- SEQUENCE_FINAL inputs from BIP68 consideration (lockpoint fold).
 example : seqHeightOk 100 SEQUENCE_FINAL 100 = false := by decide
 -- The unsigned-BIP68-gate audit instance: wire version 0xFFFFFFFF.
 example : bip68Enabled (-1 : Int32) true = true := by decide
 example : bip68Enabled 1 true = false := by decide
 example : bip68Enabled 2 true = true := by decide
 
--- Null-prevout regression set (C1 audit):
+-- Null-prevout regression set (the prototype audit):
 example : OutPoint.isNull ⟨ByteArray.empty, NULL_INDEX⟩ = false :=
   isNull_rejects_empty_hash NULL_INDEX
 example : OutPoint.null.isNull = true := null_outPoint_isNull
 
 -- Axiom transcripts of the headline laws (in-module half of the
--- axiom-manifest gate). The single `sorryAx` is the W04-owned
--- CScriptNum contract statement, tagged SORRY[W03→W04] above.
+-- axiom-manifest gate). The single `sorryAx` is the numeric layer's
+-- CScriptNum contract statement, tagged SORRY above.
 /-- info: 'Bitcoin.DataLaws.isNull_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms isNull_spec
 /-- info: 'Bitcoin.DataLaws.seqRelative_eq_mod' depends on axioms: [propext, Classical.choice, Quot.sound] -/

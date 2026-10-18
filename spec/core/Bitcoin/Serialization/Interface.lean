@@ -3,25 +3,19 @@ import Bitcoin.Data.Tx
 import Bitcoin.Chain.Basic
 
 /-!
-# Bitcoin.Serialization — W02
+# Bitcoin.Serialization — canonical wire serialization
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W02 (Serialization core)
-Dependent workstreams : W03 (uses encode forms for weight/txid laws),
-                        W07 (codegen runner decodes the vector corpus),
-                        W10 (validateTx consumes decoded txs),
-                        W11 (scriptCode re-serialization),
-                        W12 (block decode for applyBlock)
 Core counterpart files: src/serialize.h (CompactSize: WriteCompactSize/
                         ReadCompactSize), src/primitives/transaction.h
                         (UnserializeTransaction:212-239), src/primitives/
                         block.h, src/consensus/consensus.h
-Status                : frozen 2026-10-16 by W01 (signatures); bodies +
-                        proofs filled 2026-10-16 by W02. The three frozen
+Status: frozen 2026-10-16 (signatures); bodies +
+                        proofs filled 2026-10-16. The three frozen
                         theorem statements carry one added hypothesis each
                         (`wireDomain`) — the predicted interface-change
-                        (W01 report §5.4): the wire format cannot represent
+                        (report §5.4): the wire format cannot represent
                         a `Tx` whose `witness.length ≠ vin.length`, and the
                         frozen no-witness encoder `serTx` is lossy for
                         negative `Amount`s, so `decode ∘ encode = id` is
@@ -32,9 +26,9 @@ Status                : frozen 2026-10-16 by W01 (signatures); bodies +
 CompactSize canonical encoding (TXV-012), base/witness tx framing (BIP144
 marker/flag, TXV-013/014), superfluous-witness ban (TXV-015), unknown-flag
 ban (TXV-016), basic tx layout (TXV-011), header + block framing
-(BLK-001/002). `decode ∘ encode = id` theorems are the W02 exit criterion.
+(BLK-001/002). `decode ∘ encode = id` theorems are the conformance criterion.
 
-## Design (W02)
+## Design
 
 * The wire is modeled as `Bytes := List UInt8`; `ByteArray` is list-backed
   in Lean 4.34.1 (`ByteArray.data : Array UInt8`, `Array.data : List UInt8`),
@@ -64,7 +58,7 @@ open Bitcoin.Data
 /-! ## `SerError` (frozen) -/
 
 /-- Decoding failures, one constructor per BIP144/serialize.h failure class.
-W02 may EXTEND this inductive only via interface-change PR (rows TXV-011..016). -/
+This inductive may be EXTENDED only via interface-change PR (rows TXV-011..016). -/
 inductive SerError where
   | truncated              -- input ended mid-field
   | compactSizeNonMinimal  -- TXV-012: non-canonical CompactSize
@@ -668,7 +662,7 @@ theorem decBytesL_self (b : ByteArray) (rest : Bytes) (h : b.size = 32) :
 
 /-- `do`-notation plumbing: `simp` lemmas for `Bind.bind` on `Except`
 (do-notation desugars to `Bind.bind`, not `Except.bind`).
-The stdlib names differ across Lean versions, so W02 carries its own. -/
+The stdlib names differ across Lean versions, so this module carries its own. -/
 @[simp] theorem bindE_ok {ε : Type} {α β : Type} (x : α) (f : α → Except ε β) :
     Bind.bind (Except.ok x) f = f x := rfl
 
@@ -1098,12 +1092,12 @@ theorem decTxCore_encTxL (tx : Tx) (rest : Bytes) (h : wireDomain tx) :
 /-! ## Public ByteArray-level API (frozen interface members) -/
 
 /-- Decode a CompactSize prefix at offset `i`; returns `(value, bytes
-consumed)`. Reuses the C1 bootstrap decoder (`Bitcoin.Data.compactSizeDec`);
+consumed)`. Reuses the prototype bootstrap decoder (`Bitcoin.Data.compactSizeDec`);
 the canonicality laws (TXV-012) are proved over `decCS`/`encCSL` above. -/
 def decodeCompactSize (b : ByteArray) (i : Nat) : Option (Nat × Nat) :=
   compactSizeDec b i
 
-/-- Canonical CompactSize encoding (= C1 `compactSizeEnc`). -/
+/-- Canonical CompactSize encoding (= the prototype `compactSizeEnc`). -/
 def encodeCompactSize (n : Nat) : ByteArray :=
   compactSizeEnc n
 
@@ -2000,7 +1994,7 @@ def encBlockL (h : Bitcoin.Chain.BlockHeader) (txs : List Tx) : Bytes :=
 
 /-- Block body decode (BLK-002): header, tx count, then that many txs via
 `decTxCore` (witness framing handled per-tx). Returns the unconsumed
-remainder for `applyBlock` (W12). -/
+remainder for `applyBlock`. -/
 def decBlockCore (l : Bytes) : Except SerError (Bitcoin.Chain.BlockHeader × List Tx × Bytes) := do
   let (h, l1) ← decHeaderL l
   let (k, l2) ← decCS l1

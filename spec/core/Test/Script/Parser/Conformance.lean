@@ -1,7 +1,7 @@
 import Bitcoin.Script.Parser.Interface
 
 /-!
-# W05 conformance runner — Lean side of the script_tests.json conformance
+# Bitcoin.Script.Parser conformance runner — Lean side of the script_tests.json conformance
 
 Pairs with `ref.py` (a faithful Python port of Core's `ParseScript` +
 `GetScriptOp` @ `cce32b168`). `ref.py` turns every script asm string of

@@ -5,14 +5,14 @@ import Bitcoin.Crypto.Field.Interface
 /-!
 # Bitcoin.Crypto.Curve.Secp — the secp256k1 group law (zero-dependency)
 
-Affine point arithmetic over the W14 field representation (`Nat`, `x < P`
-invariant re-established by every op; see `Curve.Mod`). This is the 2B slot
-of W14. 2A counterpart: `research/poc/w2-14-field/Field.lean`.
+Affine point arithmetic over the field representation (`Nat`, `x < P`
+invariant re-established by every op; see `Curve.Mod`). This is the group-law
+layer over the field representation; the field-arithmetic prototype is its level-2A counterpart.
 
 ## Point representation
 
 `RawPoint := Option (Nat × Nat)` at the computation layer;
-`AffinePoint := Option (Fe × Fe)` (the frozen W01 interface type,
+`AffinePoint := Option (Fe × Fe)` (the frozen interface type,
 `Fe = {x : Nat // x < P}`) at the API layer. `none` is the point at
 infinity 𝒪. All group operations are **total** — the case table of `addP`
 is complete and every branch returns a defined value, which is a consensus
@@ -35,7 +35,7 @@ keeps every branch defined even for off-curve garbage inputs.
 
 Proving that the chord/tangent formulas preserve `y² = x³ + 7` needs modular
 cancellation, i.e. invertibility of every nonzero residue — P's primality.
-Per the W14 recommendation (w2-14 report §6 item 4) the closure theorems are
+Per the recommendation (the field-arithmetic notes §6 item 4) the closure theorems are
 proved in the `proofs` package over `ZMod P` (mathlib's proved Weierstrass
 group law + `field_simp`/`ring` automation; `BitcoinProofs.Crypto.CurveZMod`),
 bridged to these executable definitions. Core stays zero-dep and axiom-light;
@@ -45,7 +45,7 @@ the conformance vectors exercise the executable paths directly.
 
 `liftX x` returns the point with x-coordinate `x` whose y is EVEN (BIP340:
 "implementations MUST use the even-y convention"); `none` when x ≥ P or
-x³+7 is not a quadratic residue. W14's sqrt (p ≡ 3 mod 4 ⇒ root =
+x³+7 is not a quadratic residue. The square root (p ≡ 3 mod 4 ⇒ root =
 (x³+7)^((P+1)/4)) supplies the candidate; the two roots are `r, P−r`,
 exactly one even (P odd). `liftX`'s correctness theorem is conditional on
 the runtime residue check the code performs — no primality needed.
@@ -88,13 +88,13 @@ theorem Gy_lt : Gy < P := by decide
 /-- The generator as a raw point. -/
 def G : Nat × Nat := (Gx, Gy)
 
-/-- (P+1)/4, the square-root exponent for p ≡ 3 (mod 4) (W14 `sqrtExp`). -/
+/-- (P+1)/4, the square-root exponent for p ≡ 3 (mod 4) (the modular-arithmetic layer `sqrtExp`). -/
 def sqrtExp : Nat := (P + 1) / 4
 
 /-! ## The curve equation -/
 
 /-- Curve equation on raw representatives: `y² = x³ + 7 (mod P)`.
-Sign-correct form — W14's BIP-0340-vector bugfix, ported (the first version
+Sign-correct form — BIP-0340-vector bugfix, ported (the first version
 encoded `x³ = y² + 7`, the negated-b cousin, and all 18 on-curve BIP-0340
 keys failed). -/
 def onCurveN (x y : Nat) : Bool :=
@@ -185,7 +185,7 @@ theorem invP_correct {d : Nat} (hd : 0 < d) (_hdP : d < P)
   invM_correct P d P_gt_one hd hcop
 
 /-- Square root for p ≡ 3 (mod 4): `r = x^((P+1)/4)`; `r² = x (mod P)` iff x
-is a nonzero quadratic residue (checked at runtime by the caller; W14 §2.3). -/
+is a nonzero quadratic residue (checked at runtime by the caller; report §2.3). -/
 def sqrtP (x : Nat) : Nat := expM P x sqrtExp
 
 /-- The residue test used by `liftX`: does `r² = x (mod P)`? -/
@@ -324,7 +324,7 @@ theorem addP_ok (p q : RawPoint) (hp : RawOK p) (hq : RawOK q) : RawOK (addP p q
       exact addRaw_ok hx1 hy1 hx2 hy2
 
 /-- Scalar multiplication preserves `RawOK` (strong induction on `k`; proof
-shape mirrors `Mod.expM_lt`, the W14-blessed way through WF definitions). -/
+shape mirrors `Mod.expM_lt`, the standard way through WF definitions). -/
 theorem mulP_ok (p : RawPoint) (hp : RawOK p) : ∀ k : Nat, RawOK (mulP k p) := by
   intro k
   induction k using Nat.strongRecOn with
@@ -348,7 +348,7 @@ that the code's own check passed. -/
 /-- `x³ + 7 (mod P)` — the RHS of the curve equation at `x`. -/
 def liftY2 (x : Nat) : Nat := addM P (mulM P (mulM P x x) x) curveB
 
-/-- Square-root candidate: `r = (x³+7)^((P+1)/4)` (W14 §2.3, `p ≡ 3 mod 4`). -/
+/-- Square-root candidate: `r = (x³+7)^((P+1)/4)` (the modular-arithmetic layer §2.3, `p ≡ 3 mod 4`). -/
 def liftCand (x : Nat) : Nat := sqrtP (liftY2 x)
 
 theorem liftCand_lt (x : Nat) : liftCand x < P := expM_lt P _ _ P_gt_one
@@ -508,7 +508,7 @@ theorem liftX_even_root {x x' y' : Nat} (h : liftX x = some (x', y')) :
 
 Big/little-endian `ByteArray` → `Nat`. Used by ECDSA (message hash `z`)
 and the taproot tweak (BIP341: `t = le256(t)`); `tagHash` composition is
-the W13 seam's job. -/
+the seam's job. -/
 
 /-- Big-endian byte string → `Nat` (first byte most significant). -/
 def bytesToNatBE (b : ByteArray) : Nat :=

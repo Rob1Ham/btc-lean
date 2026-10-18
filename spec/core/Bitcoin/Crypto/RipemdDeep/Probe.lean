@@ -1,7 +1,7 @@
 import Bitcoin.Crypto.Seam.Hash
 import Bitcoin.Interpreter.Hashes
 
-/-! S06 probe (disposable, committed for the record — E06-Probe pattern).
+/-! the RIPEMD mirror probe (disposable, committed for the record — the verification-equation layer probe pattern).
 
 Round 2 (round 1: 1.3s elaboration — all 15 rmdF/rmdF2-arm `rfl` pins vs
 verbatim-C-text Cf1..Cf5 PASSED; all P3 literal `decide`s PASSED incl.

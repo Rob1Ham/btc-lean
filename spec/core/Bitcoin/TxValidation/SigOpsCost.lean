@@ -3,70 +3,69 @@ import Bitcoin.Interpreter.Defs
 import Bitcoin.Interpreter.SigOps
 
 /-!
-# Bitcoin.TxValidation.SigOpsCost — TXV-B: the per-input P2SH/witness sigop counters
+# Bitcoin.TxValidation.SigOpsCost — the per-input P2SH/witness sigop counters
 
 `GetP2SHSigOpCount` (tx_verify.cpp:132-147) and `GetWitnessSigOpCount`
 / `CountWitnessSigOps` (tx_verify.cpp:160-167; interpreter.cpp:2160-2182
 @`cce32b168`) — the two per-input cost components of
 `GetTransactionSigOpCost` (tx_verify.cpp:149-168) beyond the legacy
-term (TXV-049). This module is the recovery-review-2 (TXV-B) closure of
-rows **TXV-050** (P2SH sigop count) and **TXV-051** (witness sigop
-count); the accounting aggregation (×4 scaling, the 80,000 block cap)
-is X05's `Bitcoin.Interpreter.SigOps` (TXV-052 / INV-038 / INV-039 /
+term (TXV-049). This module closes rows **TXV-050** (P2SH sigop count)
+and **TXV-051** (witness sigop count); the accounting aggregation (×4 scaling, the 80,000 block cap)
+is the sigop model's `Bitcoin.Interpreter.SigOps` (TXV-052 / INV-038 / INV-039 /
 SWT-021..028), which this file deliberately does not duplicate.
 
-## Design decisions (against the two open audit findings F-TS02-003/007)
+## Design decisions (against two open audit issues)
 
-The tree currently has **two** models of the sigop counters and both
-carry an open TS02 (interpreter audit) finding:
+The tree currently has **two** models of the sigop counters, and both
+carry an open interpreter-audit issue:
 
-* X07's `Bitcoin.Interpreter.Rules.sigOpCount` (SCR-033) diverges from
-  Core `GetSigOpCount(fAccurate)` (**F-TS02-003, HIGH**: non-accurate
-  CMS +1 vs +20; last-of-list vs per-CMS lookback). TS02's verdict:
-  X05's `Bitcoin.Interpreter.SigOps.accurateSigOpCount` (per-CMS
+* the interpreter rule layer's `Bitcoin.Interpreter.Rules.sigOpCount` (SCR-033) diverges from
+  Core `GetSigOpCount(fAccurate)` (**the interpreter-audit note, HIGH**: non-accurate
+  CMS +1 vs +20; last-of-list vs per-CMS lookback). The audit's verdict:
+  the sigop model's `Bitcoin.Interpreter.SigOps.accurateSigOpCount` (per-CMS
   preceding-opcode lookback, script.cpp:159-181) "**is** the
   Core-faithful model". Every count in THIS file therefore goes through
-  X05's `accurateSigOpCount` / `witnessSigOps` — never X07's
+  the sigop model's `accurateSigOpCount` / `witnessSigOps` — never the interpreter rule layer's
   `sigOpCount`.
-* X05's `Bitcoin.Interpreter.SigOps.p2shWitnessSigOps` (SWT-027) is
+* the sigop model's `Bitcoin.Interpreter.SigOps.p2shWitnessSigOps` (SWT-027) is
   missing the `IsPushOnly` gate of Core `CountWitnessSigOps`
-  interpreter.cpp:2162 (**F-TS02-007, MODERATE**: a parseable but
+  interpreter.cpp:2162 (**the interpreter-audit note, MODERATE**: a parseable but
   non-push-only scriptSig ending in a witness-program push counts its
   witness sigops in Lean where Core returns 0). `countWitnessSigOps`
-  below is the F-TS02-007-repaired shape (Core :2160-2182 verbatim,
-  TS02-007's quote): the gate is `isPushOnlyWire` (X05's own SCR-052
+  below is the repaired shape (Core :2160-2182 verbatim,
+  the audit's quote): the gate is `isPushOnlyWire` (the sigop model's own SCR-052
   model of `CScript::IsPushOnly`, script.cpp:266-282: bare opcodes
   ≤ OP_16 incl. OP_RESERVED count as push, parse failure → false ⇒ 0).
 
-X07's `p2shSigOpCount` (SCR-034) re-parses `pushBytesWire d` (the push
+the interpreter rule layer's `p2shSigOpCount` (SCR-034) re-parses `pushBytesWire d` (the push
 *wrapper* `len ++ d`, a one-push script) where the redeemScript is the
-pushed **data** `d` itself (Core `CScript(vchRet)`, and X05's own
+pushed **data** `d` itself (Core `CScript(vchRet)`, and the sigop model's own
 SWT-027 shape `isWitnessProgram d`; B2/SCR-034: "accurate count of the
-redeemScript"). `p2shScriptSigSigOps` below parses `d` — reported to
-the owner lane as a tree discrepancy (see findings-rc/TXV-B.md
-F-TXVB-001); the X07 def itself is outside this lane's rows.
+redeemScript"). `p2shScriptSigSigOps` below parses `d` — recorded here
+as a tree discrepancy; the `Bitcoin.Interpreter.Rules` definition itself
+is outside these rows.
 
 ## Faithfulness notes (dead states, caller-side gates)
 
 * `p2shScriptSigSigOps` = `CScript::GetSigOpCount(scriptSig)`
   (script.cpp:183-205): parse-fail ⇒ 0 (Core `:188
-  if (!scriptSig.GetOp(…)) return 0;`, TS02-007); non-push tail ⇒ the
+  if (!scriptSig.GetOp(…)) return 0;`); non-push tail ⇒ the
   `GetOp` walk's data register cleared ⇒ empty subscript ⇒ 0; the
   subscript (last push data) counted with `GetSigOpCount(true)` =
   `accurateSigOpCount`; a subscript that itself fails to parse ⇒ 0
-  (Core's partial loop = dead state, TS02-007: unparseable ⇒ script
+  (Core's partial loop = dead state: unparseable ⇒ script
   validation fails ⇒ block invalid).
 * `spkTbl : OutPoint → Option ByteArray` resolves the prevout's
   scriptPubKey (Core: `inputs.AccessCoin(prevout).out.scriptPubKey`).
   `none` = the null Coin (Core's `AccessCoin` on a missing entry) =
   empty scriptPubKey = not P2SH / not a witness program ⇒ 0; in the
   validation pipeline `HaveCoins`/`CheckTxInputs` (TXV-020/021) run
-  before the sigop gate, so `none` is a dead state (TS02-007's
+  before the sigop gate, so `none` is a dead state (the audit's
   convention).
 * `p2shSigOpsTx` (TXV-050) = `GetP2SHSigOpCount`
   (tx_verify.cpp:132-147): **coinbase ⇒ 0** (B3/07-row text), per input
   only P2SH prevouts contribute; the caller-side `SCRIPT_VERIFY_P2SH`
-  gate (GetTransactionSigOpCost:156) is X05's `sigOpCost` lane.
+  gate (GetTransactionSigOpCost:156) is the sigop model's `sigOpCost` lane.
 * `witnessSigOpsTx` (TXV-051) = `GetWitnessSigOpCount`
   (tx_verify.cpp:160-167): the per-input loop over
   `CountWitnessSigOps(scriptSig, prevout.scriptPubKey, scriptWitness,
@@ -132,11 +131,11 @@ def p2shSigOpsTx (tx : Tx) (spkTbl : OutPoint → Option ByteArray) : Nat :=
 /-! ## interpreter.cpp:2160-2182 — `CountWitnessSigOps` @cce32b168 -/
 
 /-- `CountWitnessSigOps(scriptSig, scriptPubKey, witness, flags)`
-(interpreter.cpp:2160-2182 @`cce32b168`, TS02-007's verbatim quote):
+(interpreter.cpp:2160-2182 @`cce32b168`, the audit's verbatim quote):
 bare witness program in scriptPubKey ⇒ `WitnessSigOps`
-(:2133-2147 = X05's `witnessSigOps`); P2SH-wrapped
+(:2133-2147 = the sigop model's `witnessSigOps`); P2SH-wrapped
 (`scriptPubKey.IsPayToScriptHash() && scriptSig.IsPushOnly()` — the
-**:2162 gate**, F-TS02-007's repair) ⇒ the scriptSig's last push (the
+**:2162 gate**, the audit's repair) ⇒ the scriptSig's last push (the
 redeemScript) must itself be a witness program, else 0; anything else
 ⇒ 0. The `SCRIPT_VERIFY_WITNESS` gate (:2160) and the
 `assert(SCRIPT_VERIFY_P2SH)` (:2161) are caller-side (the
@@ -169,7 +168,7 @@ def countWitnessSigOps (ss spk : ByteArray) (witness : WitnessStack) : Nat :=
 
 /-- The per-input indexed loop of `GetWitnessSigOpCount`
 (tx_verify.cpp:160-167): `n` threads the input index (the witness stack
-resolve, X09's `tx.witness.getD n` idiom); each input's prevout
+resolve, the transaction-validation module's `tx.witness.getD n` idiom); each input's prevout
 scriptPubKey comes from `spkTbl` (Core
 `AccessCoin(prevout).out.scriptPubKey`).-/
 def witnessSigOpsTxFrom (tx : Tx) (spkTbl : OutPoint → Option ByteArray) :
@@ -301,7 +300,7 @@ theorem p2shScriptSigSigOps_push_redeem (ss : ByteArray) (ops : List WireOp)
 
 /-- The dead-state law: an unparseable redeemScript counts 0 (Core's
 partial `GetSigOpCount(true)` loop on the subscript = dead state,
-TS02-007).-/
+the audit).-/
 theorem p2shScriptSigSigOps_redeem_parse_fail (ss : ByteArray) (ops : List WireOp)
     (hp : parseWire ss = some ops) (last : WireOp) (d : ByteArray)
     (hl : ops.getLast? = some last) (hast : last.ast = .pushBytes d)
@@ -355,7 +354,7 @@ theorem p2shSigOpsTx_one_missing_zero (tx : Tx) (i : TxIn)
 
 /-- The bare-witness-program arm (interpreter.cpp:2163-2165): a prevout
 scriptPubKey that IS a witness program contributes exactly
-`WitnessSigOps(v, prog, witness)` (X05's :2133-2147 model) — the
+`WitnessSigOps(v, prog, witness)` (the sigop model's :2133-2147 model) — the
 per-input "witness program sigop cost" of the row.-/
 theorem countWitnessSigOps_witnessprogram (ss spk : ByteArray)
     (witness : WitnessStack) (v : Nat) (prog : ByteArray)
@@ -374,9 +373,9 @@ theorem countWitnessSigOps_nonwp_nonp2sh_zero (ss spk : ByteArray)
   simp only [countWitnessSigOps, hwp]
   rw [if_neg (by simp [hp2sh])]
 
-/-- **The IsPushOnly gate** (interpreter.cpp:2162; F-TS02-007's repair):
+/-- **The IsPushOnly gate** (interpreter.cpp:2162; the audit's repair):
 a P2SH prevout with a parseable but NON-push-only scriptSig counts 0 —
-Core skips the whole P2SH branch; the tree's X05
+Core skips the whole P2SH branch; the tree's sigop model
 `p2shWitnessSigOps` (SWT-027) counted the witness program here (the
 open audit finding).-/
 theorem countWitnessSigOps_pushonly_gate (ss spk : ByteArray)

@@ -4,15 +4,15 @@ import Bitcoin.Interpreter.Rules
 import Bitcoin.Interpreter.SigOps
 
 /-!
-# Bitcoin.TxValidation.LocktimeSigOps — X09: CLTV/CSV tx-side checks + sigop accounting
+# Bitcoin.TxValidation.LocktimeSigOps — the transaction-validation module: CLTV/CSV tx-side checks + sigop accounting
 
 The time-lock rows TXV-043..048 are the TRANSACTION-side halves of
 `CheckLockTime` / `CheckSequence` (interpreter.cpp:1755-1848): the
 operand-vs-`nLockTime`/`nSequence` comparisons live on the
 `LocktimeEnv` the tx supplies — the opcode/disabled-flag decode is
 SCR-122..131's. The sigop rows TXV-049/052/054 are the tx-level
-accounting over W05's parsed wire ops (`GetLegacySigOpCount`,
-tx_verify.cpp:117-168); the interpreter-side cost model is X05's
+accounting over the parsed wire ops (`GetLegacySigOpCount`,
+tx_verify.cpp:117-168); the interpreter-side cost model is the sigop model's
 `Bitcoin.Interpreter.SigOps`. TXV-066 (OP_RETURN outputs are
 consensus-valid: value rules only) and TXV-069 (the i64 incremental
 value arithmetic, CVE-2010-5137) close on `checkTransaction`'s output
@@ -480,7 +480,7 @@ theorem checkOutputs_none_zero_i64Fold_agrees (l : List TxOut)
 /-! ## TXV-003 / INV-003: the stripped-size oversize gate -/
 
 /-- The bridge: `TxCheck`'s cycle-free weight replicas are
-*definitionally* the frozen W01 models — `txWeightL` is `3·base+total`
+*definitionally* the frozen interface models — `txWeightL` is `3·base+total`
 (block weight) and `txStrippedWeightL` is `4·base` (Core's stateless
 oversize gate, `tx_check.cpp:27-29`). -/
 theorem txWeightL_eq_dataLaws (tx : Tx) :
@@ -493,7 +493,7 @@ theorem txStrippedWeightL_eq_dataLaws (tx : Tx) :
 
 /-- TXV-003: acceptance implies Core's stripped-size bound — a tx
 `checkTransaction` accepts has `4·baseSize ≤ MAX_BLOCK_WEIGHT`, i.e. the
-oversize gate counts the witness-free serialization only (F-TS04-001). -/
+oversize gate counts the witness-free serialization only. -/
 @[rule "TXV-003"]
 theorem checkTransaction_weight_bound (tx : Tx)
     (h : checkTransaction tx = none) :

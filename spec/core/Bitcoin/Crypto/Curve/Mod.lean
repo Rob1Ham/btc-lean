@@ -4,19 +4,19 @@ import Bitcoin.RuleAttr
 /-!
 # Bitcoin.Crypto.Curve.Mod — generic modular arithmetic over `Nat`
 
-Zero-dependency port (W14b) of the W14 field layer
-(`research/poc/w2-14-field/Field.lean`), **generalized over the modulus**:
+Zero-dependency port of the field layer
+(the field-arithmetic prototype), **generalized over the modulus**:
 the curve layer needs arithmetic mod `p = 2²⁵⁶ − 2³² − 977` (field
 coordinates) AND mod `n = 0xFFFF…D0364141` (the group order, for ECDSA
 scalars). Every operation takes the modulus explicitly and re-establishes
 the invariant `x < m` ("canonical representative").
 
-Representation decision (W14, benchmarked): plain `Nat`; Lean's runtime
+Representation decision (benchmarked): plain `Nat`; Lean's runtime
 backs `Nat` mul/div/mod with GMP ⇒ `mulM` at 275–281 ns/op on 256-bit
 operands (1.4× CPython), vs `BitVec 256` at 421–431 ns and hand-rolled
-limbs at ~9.2 µs. See w2-14-secp256k1-field.md §2.1.
+limbs at ~9.2 µs. See the field-arithmetic notes §2.1.
 
-Kernel note (W14 finding F-W14-1, applies here verbatim):
+Kernel note (applies here verbatim):
 `expM`/`egcd` are well-founded-recursive (`termination_by`), so
 `decide`/`rfl` cannot reduce through them. All *runnable* conformance
 checking happens in compiled test drivers (fine — WF code executes at
@@ -140,7 +140,7 @@ theorem expM_lt (m x e : Nat) (hm : 1 < m) : expM m x e < m := by
 `expBits m x bs` computes `x^E % m` where `E` is the binary number whose
 bits, least-significant first, are `bs`. Because the recursion is on the
 structure of `bs` (not on a well-founded measure), `decide`/`rfl` reduce
-through it — the W14 F-W14-1 workaround, in reusable form. -/
+through it — the workaround, in reusable form. -/
 
 /-- Multiplication congruence: equal residues multiply to equal residues. -/
 theorem mulM_congr {m a b c d : Nat} (h1 : a % m = c % m) (h2 : b % m = d % m) :
@@ -166,7 +166,7 @@ def bitsVal : List Bool → Nat
 
 /-- Bit list of `e`, least-significant first, computed with an explicit fuel.
 Runtime helper only (structural recursion); its correctness theorem is left
-to Review 3 (the kernel-reducible path that matters is `expBits_eq_pow_mod`
+to (the kernel-reducible path that matters is `expBits_eq_pow_mod`
 with caller-supplied bits). -/
 def natBitsF : Nat → Nat → List Bool
   | 0, _ => []
@@ -207,7 +207,7 @@ theorem expBits_eq_pow_mod (m x : Nat) (hm : 1 < m) : ∀ (bs : List Bool),
 /-! ## Extended Euclid over ℤ, and the modular inverse -/
 
 /-- `egcd a b = (g, u, v)` with `(a:ℤ)*u + (b:ℤ)*v = g`; `g = gcd a b` when `0 < a`.
-The certificate `u` is what the modular inverse needs. (Verbatim W14 machinery.) -/
+The certificate `u` is what the modular inverse needs. (Verbatim machinery.) -/
 def egcd (a b : Nat) : Int × Int × Int :=
   match b with
   | 0 => ((a : Int), 1, 0)
@@ -358,7 +358,7 @@ def invM (m x : Nat) : Nat :=
   let (g, _, v) := egcd m x
   if g == 1 then (v % (m : Int)).toNat else 0
 
-/-- **Inverse correctness** (W14 `invMod_correct`, generalized to modulus `m`).
+/-- **Inverse correctness** (the modular-arithmetic layer `invMod_correct`, generalized to modulus `m`).
 For `0 < x` coprime to `m`, `(x * invM m x) % m = 1`. Sorry-free.
 SGN-102: modular inverse correctness. -/
 @[rule "SGN-102"]

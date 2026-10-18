@@ -1,15 +1,15 @@
 import Bitcoin.Crypto.Seam.Hash
 import Bitcoin.Interpreter.Hashes
 
-/-! S06 ProbeD (disposable) — THE kernel-decidability ladder.
+/-! the RIPEMD mirror ProbeD (disposable) — THE kernel-decidability ladder.
 
-The brief's core question: is the 80-step/2-line RIPEMD-160 compression
-kernel-decidable via `by decide` (structural List.range-folds, D-004-clean),
-or does it hit the Y10/X11 wall (elaborator-stuck-on-ByteArray-decEq /
+The core question: is the 80-step/2-line RIPEMD-160 compression
+kernel-decidable via `by decide` (structural List.range-folds, the no-axiom policy-clean),
+or does it hit the Y10 / block-vector wall (elaborator-stuck-on-ByteArray-decEq /
 byte-heavy decide OOM)?
 
 Ladder, lightest-first (one file = one cost level; shell `timeout 360`
-boxes the whole run — a stall here is a FINDING, cf. Y10 F-Y10-005):
+boxes the whole run — a stall here is a useful signal, cf. Y10:
 
 * D1  pad size, 0-byte msg   (List.range 55/8 folds, 63 pushes, size-Nat)
 * D2  pad size, 1-byte msg   (same shape)
@@ -73,7 +73,7 @@ theorem D7 : (Ripemd160.ripemd160 "a".toUTF8).data.toList.map (·.toNat)
     = [0x0b,0xdc,0x9d,0x2d,0x25,0x6b,0x3e,0xe9,0xda,0xae,
        0x34,0x7b,0xe6,0xf4,0xdc,0x83,0x5a,0x46,0x7f,0xfe] := by decide
 
-/-! D9: the consensus-path twin (Interpreter/Hashes.lean) — STUCK, see F-S06-001.
+/-! D9: the consensus-path twin (Interpreter/Hashes.lean) — STUCK, see the kernel-reduction note.
 
 `hashRipemd160 "a"` (=`rmdCompress` with the x-load
 `(List.range 16).toArray.map (fun i => wordLE block (off + 4*i))`,
@@ -83,7 +83,7 @@ Root cause isolated (ProbeR): `Array.map` over a `List.toArray` value =
 "decide failed to reduce" even at 16 elements (H1); push-fold x-load =
 `rmdCompress` verbatim otherwise = `by decide` CLEAN at 100k, correct
 values (G1). Commented out to keep this file error-clean; the stall
-itself is the F-S06-001 evidence.
+itself is the kernel-reduction note evidence.
 theorem D9 : (hashRipemd160 "a".toUTF8).data.toList.map (·.toNat)
     = [0x0b,0xdc,0x9d,0x2d,0x25,0x6b,0x3e,0xe9,0xda,0xae,
        0x34,0x7b,0xe6,0xf4,0xdc,0x83,0x5a,0x46,0x7f,0xfe] := by decide

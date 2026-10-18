@@ -12,11 +12,11 @@ import Bitcoin.Block.Sigops
 # Bitcoin.Invariants.RC03 — INV-025..INV-036 acceptance-spine pins (RC03)
 
 B1's §B.3 Money-and-fees + §B.4 sigop-accounting invariant rows. The
-faithful executable checks already exist (X09 `TxValidation.inputValuesLoop`
-/ `checkTxInputs`, X08 `Block.Connect` fee/coinbase gates, X08
-`Block.Sigops` legacy/P2SH counters, X04 `Data.Basic` constants). X08
-(family closed b49e36a) and X09 (TXV-A 6b84737) are done contributors; per the
-RC09/RCR attr-only-on-done-files precedent, the two def-semantics rows
+faithful executable checks already exist (the transaction-validation module `TxValidation.inputValuesLoop`
+/ `checkTxInputs`, the block-validation module `Block.Connect` fee/coinbase gates, the block-validation module
+`Block.Sigops` legacy/P2SH counters, the interpreter delta layer `Data.Basic` constants). The block-validation module
+(family closed b49e36a) and the transaction-validation module (TXV-A 6b84737) are completed modules; per the
+the RC09 rule-closure attr-only precedent, the two def-semantics rows
 (INV-035 → `legacySigOpCountTx`, INV-040 → `legacySigOpBudgetOk`) are
 A-aliased by attribute in Block/Sigops.lean; the invariant-semantics rows
 (INV-025/026/029/031/032/034/036) are pinned with sorry-free theorems
@@ -60,7 +60,7 @@ private def vSigTx (s1 s2 : ByteArray) : Tx :=
 
 /-- `COIN = 10^8` satoshis; `MAX_MONEY = 21·10^6 · COIN` — the two
 constants of `consensus/amount.h` every Money-range rule cites. (Defs
-live in `Bitcoin.Data.Basic`, X04; this pin states them against Core's
+live in `Bitcoin.Data.Basic`, the interpreter delta layer; this pin states them against Core's
 literals.) -/
 @[rule "INV-034"]
 theorem coin_constants : COIN = 100000000 ∧ MAX_MONEY = 21000000 * COIN :=
@@ -75,7 +75,7 @@ example : MoneyRange 0 = true ∧ MoneyRange MAX_MONEY = true ∧
 (`tx_verify.cpp:190-194`, CVE-2010-5139 lane) -/
 
 /-- If Core's per-coin accumulation loop (`Bitcoin.TxValidation.inputValuesLoop`,
-X09's TXV-023) succeeds, every input's coin value was MoneyRange-checked:
+the transaction-validation module's TXV-023) succeeds, every input's coin value was MoneyRange-checked:
 the loop's guard `¬ MoneyRange c.value` fires
 `bad-txns-inputvalues-outofrange` (tx_verify.cpp:190-194) before the
 coin is accumulated. -/
@@ -151,9 +151,9 @@ example : checkTxInputs (vTx2 600) vU2 0 =
 /-! ## INV-029: value in ≥ value out (`tx_verify.cpp:201-205`) -/
 
 /-- **INV-029** (`bad-txns-in-belowout`, tx_verify.cpp:201-205): if
-`checkTxInputs` (X09's TXV-020/023/024/025 composite) returns a fee, the
+`checkTxInputs` (the transaction-validation module's TXV-020/023/024/025 composite) returns a fee, the
 total input value covers the total output value — conservation's
-executable gate. Built directly on X09's sorry-free
+executable gate. Built directly on the transaction-validation module's sorry-free
 `checkTxInputs_ok_conservation` (Interface.lean:887, axioms ⊆
 [propext, Classical.choice, Quot.sound]: `totalIn = getValueOut + fee`
 with `fee ≥ 0`), i.e. the INV-030 fee leg instantiated at this row. -/
@@ -178,7 +178,7 @@ example : checkTxInputs (vTx 1500) (vU 1000) 0 =
 /-! ## INV-031: block accumulated fee in MoneyRange
 (`validation.cpp:2540-2545`) -/
 
-/-- **INV-031**: inside ConnectBlock's composite (`connectChecks`, X08),
+/-- **INV-031**: inside ConnectBlock's composite (`connectChecks`, the block-validation module),
 the accumulated fee of the whole block is re-checked against MoneyRange —
 the SUM check, not just the per-tx fees
 (`bad-txns-accumulated-fee-outofrange`, validation.cpp:2540-2545). -/
@@ -199,8 +199,8 @@ example : feeAccumInRange 100 = true ∧ feeAccumInRange (MAX_MONEY + 1) = false
 
 /-- **INV-032** (`bad-cb-amount`, THE 51%-inflation rule): a block
 passing ConnectBlock's composite pays its coinbase at most the subsidy
-plus the accumulated fees — routed through X08's `cbAmountOk` on the
-real fee fold `chainFeesL` (the `.mp`/`Int.add_comm` tail mirrors X08's
+plus the accumulated fees — routed through the block-validation module's `cbAmountOk` on the
+real fee fold `chainFeesL` (the `.mp`/`Int.add_comm` tail mirrors the block-validation module's
 own sorry-free `coinbase_draw_le_subsidy_plus_fees`, Connect.lean:184). -/
 @[rule "INV-032"]
 theorem connectChecks_ok_noInflation (txs : List Tx) (cb : Tx)
@@ -221,7 +221,7 @@ example : cbAmountOk (vCbTx 5000000000) 0 0 = true ∧
 /-! ## INV-036: P2SH sigop accounting (`policy.cpp:132-160`, BIP16) -/
 
 /-- Fold law: with no P2SH prevout among the coins, the P2SH fold
-contributes nothing beyond its accumulator. (Proof in X09's
+contributes nothing beyond its accumulator. (Proof in the transaction-validation module's
 `foldl_value_sum` idiom: `simp only [List.foldl_cons]` — which also
 beta-reduces — then a `cases` on the head's prevout and `show`-forced
 branches; the old `rw [List.foldl_cons]` version left a beta-redex that
@@ -262,7 +262,7 @@ private theorem p2shFold_zero (u : UtxoSet) :
       rw [h0, ite_eq_right (by simp), Nat.add_zero]
       exact ih acc hmem'
 
-/-- **INV-036** (BIP16): `p2shSigOpCount` (X08) counts accurate sigops
+/-- **INV-036** (BIP16): `p2shSigOpCount` (the block-validation module) counts accurate sigops
 from the redeem script ONLY for inputs whose prevout coin's scriptPubKey
 is PayToScriptHash — a tx with no P2SH prevout contributes 0. -/
 @[rule "INV-036"]
@@ -325,13 +325,13 @@ theorem p2shSigOpCount_single_p2sh (u : UtxoSet) (tx : Tx) (i : TxIn)
 
 /- **INV-035 = route A** (attribute-only alias): the row's check —
 legacy sigop count = `OP_CHECKSIG(≈1)` + `OP_CHECKMULTISIG(k=20)` over
-scriptSigs + scriptPubKeys, no accurate parse — is exactly X08's
+scriptSigs + scriptPubKeys, no accurate parse — is exactly the block-validation module's
 `legacySigOpCountTx` (BLK-033, Bitcoin/Block/Sigops.lean), so the tag
-`@[rule "INV-035"]` is comma-stacked there (X08's file: done contributor
-b49e36a, RC09/RCR attr-only precedent). The broken local
+`@[rule "INV-035"]` is comma-stacked there (the block-validation module's file: completed module
+b49e36a, the RC09 rule-closure attr-only precedent). The broken local
 `legacySigOpCountBlock_append` copy (failed only on the `foldl_add_split`
 ambiguity — both `Ledger`'s and `Block.Sigops`'s are opened here) was
-deleted: X08's identical sorry-free original carries it. -/
+deleted: the block-validation module's identical sorry-free original carries it. -/
 
 /-- Value vector (INV-035): one `OP_CHECKSIG` (0xad) in the scriptSig
 counts 1, one `OP_CHECKMULTISIG` (0xae) in the scriptPubKey counts 20 —
@@ -339,7 +339,7 @@ counts 1, one `OP_CHECKMULTISIG` (0xae) in the scriptPubKey counts 20 —
 example : legacySigOpCountTx (vSigTx (ByteArray.mk #[0xad]) (ByteArray.mk #[0xae])) = 21 := by
   decide
 
-/-! ## L3 axiom pins (drift fails the build) -/
+/-! ## Axiom pins (drift fails the build) -/
 
 /--
 info: 'Bitcoin.Invariants.RC03.coin_constants' does not depend on any axioms

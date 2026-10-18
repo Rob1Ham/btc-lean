@@ -5,8 +5,8 @@ import Bitcoin.RuleAttr
 # Bitcoin.Numeric.ScriptNum — `CScriptNum` and the numeric-opcode layer
 
 Lean transcription of Bitcoin Core's `CScriptNum`
-(`src/script/script.h:227-394` @ `cce32b168`; verified line-by-line by B2,
-report 06 §1.5). W04-owned; the frozen public signatures live in
+(`src/script/script.h:227-394` @ `cce32b168`; verified line-by-line against
+Core, `research/06-script-interpreter.md` §1.5). The frozen public signatures live in
 `Numeric/Interface.lean` and delegate here.
 
 ## Core semantics mirrored (SCR-079…086)
@@ -48,14 +48,14 @@ report 06 §1.5). W04-owned; the frozen public signatures live in
   order internally (most-significant byte first): the minimal-encoding and
   sign rules are stated on the most-significant byte, so BE makes them
   structural. Wire (LE) order appears only at the `ByteArray` bridge.
-* `magBE` is fuel-recursive (C1's `bytesOfNumAux` pattern; W01 handoff):
+* `magBE` is fuel-recursive (the prototype's `bytesOfNumAux` pattern; interface):
   structural on fuel, so kernel `decide` reduces it in tests. Fuel 10
   covers every value decodable within the 5-byte CLTV/CSV width (and far
   beyond `int64`).
 
 Ground truth: Bitcoin Core v32.99 @ `cce32b168` (`script.h`,
 `interpreter.cpp`), cross-checked against a python3 re-implementation of
-`serialize`/`set_vch` (W04 scratch `vecgen.py`; transcript in report
+`serialize`/`set_vch` (generator `vecgen.py`; transcript in report
 w2-04 §5).
 -/
 
@@ -209,7 +209,7 @@ theorem bytesOf_reverse_get1 (b : ByteArray) (h : 1 < b.size) :
 /-! ## Magnitude digits, big-endian (`magBEAux` / `magOfBE`) -/
 
 /-- Big-endian base-256 digits of `n ≥ 0` (most-significant byte first),
-fuel-recursive for kernel `decide`-friendliness (C1 `bytesOfNumAux`
+fuel-recursive for kernel `decide`-friendliness (the prototype `bytesOfNumAux`
 pattern). Exactly Core's `serialize` digit loop
 (`while (absvalue) { push(absvalue & 0xff); absvalue >>= 8; }`,
 script.h:355-358) read in reverse order. -/

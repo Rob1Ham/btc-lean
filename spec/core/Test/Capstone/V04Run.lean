@@ -6,28 +6,28 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Test.Capstone.V04Run — W4 V04: mainnet anchor EXPANSION run
+# Test.Capstone.V04Run — V04: mainnet anchor expansion run
 
-Standalone copy of `Test.Capstone.Run` (W17 S3) with the anchor list and
+Standalone copy of `Test.Capstone.Run` with the anchor list and
 seed directory pointed at the V04 expansion corpus — the harness code is
-byte-for-byte the W17-verified logic (reusing it via `import` would clash
+byte-for-byte the verified logic (reusing it via `import` would clash
 with Run.lean's root `main`, and editing that file is out of scope).
 
 Validates 3 ADDITIONAL real mainnet blocks at era-boundary points the 6
-original W17 anchors miss, through the same pipeline (W02 decode →
-structure → PoW/chain-link → merkle/witness commitment → per-tx W10
-stateless + W10 checkTxInputs + W09 verifyScriptFull with the REAL
-W13×W14b ECDSA checker → W12 ledger fold, keyed by REAL txid):
+original anchors miss, through the same pipeline (decode →
+structure → PoW/chain-link → merkle/witness commitment → per-tx
+stateless + checkTxInputs + verifyScriptFull with the REAL
+ECDSA checker → ledger fold, keyed by REAL txid):
 
   201170 — 2012-09-30, pre-BIP34 pre-halving era (subsidy 50)
   210000 — 2012-11-28, THE FIRST HALVING block (subsidy 50→25)
   218000 — 2013-01-25, late BIP34-era run-up, pre-segwit
 
-Reads (NEW files, V04-owned):
+Reads (new files):
   spec/vectors/anchors2/V04/<H>.raw     — serialized block (header
                                           sha256d-verified at fetch time)
   spec/vectors/anchors2/V04/<H>.parent  — REAL parent hash (display hex)
-  spec/vectors/anchors2/V04/<H>.seeds   — UTXO seeds, w2-17 format:
+  spec/vectors/anchors2/V04/<H>.seeds   — UTXO seeds, the anchor-seed format:
         <wire-order txid hex> <block height> <raw prevout tx hex>
 
 Run (compiled): `cd spec/core && lake env lean --run Test/Capstone/V04Run.lean`
@@ -41,7 +41,7 @@ open Bitcoin.Capstone.Block Bitcoin.Capstone.Merkle Bitcoin.Capstone.Pow
 
 set_option maxRecDepth 100000
 
-/-! ## Hex + file helpers (W17 Run.lean verbatim) -/
+/-! ## Hex + file helpers (the capstone runner Run.lean verbatim) -/
 
 def hexDigitVal (c : Char) : Option Nat :=
   let n := c.toNat
@@ -74,9 +74,9 @@ def toHex (b : ByteArray) : String :=
 /-- Inhabited stand-in (real blocks always decode). -/
 private def dummyTx : Tx := ⟨0, [], [], 0, []⟩
 
-/-! ## Seed materialization (W17 Run.lean verbatim) -/
+/-! ## Seed materialization (the capstone runner Run.lean verbatim) -/
 
-/-- The seed line's coin set: decode the prevout tx (W02), index the
+/-- The seed line's coin set: decode the prevout tx (the serialization layer), index the
 vouts. `isCoinbase` derived from the decoded tx itself. -/
 def seedCoins (line : String) : List (OutPoint × Coin) :=
   match line.splitOn " " with
@@ -92,7 +92,7 @@ def seedCoins (line : String) : List (OutPoint × Coin) :=
                        ⟨o.value, (hHex.toNat!).toUInt32, tx.isCoinBase, o.scriptPubKey⟩))
   | _ => []
 
-/-! ## Per-tx probe (failure forensics, W17 Run.lean verbatim) -/
+/-! ## Per-tx probe (failure forensics, the capstone runner Run.lean verbatim) -/
 
 /-- Isolate tx `i` against the seed view: stateless + script + ledger
 step. Used only when a block fails, to pinpoint the offending tx. -/
@@ -114,7 +114,7 @@ def probeTx (height : UInt32) (tx : Tx) (i : Nat)
           | .badCbMultiple => "bad-cb-multiple"}"
       | .ok _, .ok _ => s!"tx#{i}: ok"
 
-/-! ## The per-block run (W17 Run.lean verbatim) -/
+/-! ## The per-block run (the capstone runner Run.lean verbatim) -/
 
 structure BlockResult where
   height : Nat

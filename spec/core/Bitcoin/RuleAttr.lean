@@ -6,7 +6,7 @@ import Lean
 Every Lean declaration that implements (or will implement) a rule-DB row
 carries `@[rule "XXX-nnn"]`. The attribute payload is the rule ID from
 `spec/db/rules.yaml`; `scripts/rule_crosscheck.py` enforces
-`@[rule]` ↔ YAML ↔ Core-anchor consistency in CI (charter non-negotiable 2,
+`@[rule]` ↔ YAML ↔ Core-anchor consistency in CI (a repository invariant,
 D1 traceability design, seL4-style pinned-source discipline).
 
 This is a real kernel-side parametric attribute (payload stored in the
@@ -14,7 +14,7 @@ environment extension and exported with the module), NOT a comment
 convention — so the cross-check reads ground truth from the `.lean`
 sources, not from docstrings.
 
-W01 owns this file; W02+ contributors must not edit it without an
+This file is frozen; it must not be edited without an
 interface-change PR.
 -/
 

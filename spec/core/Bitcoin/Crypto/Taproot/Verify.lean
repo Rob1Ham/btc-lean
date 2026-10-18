@@ -2,7 +2,7 @@ import Bitcoin.Crypto.Taproot.Tree
 import Bitcoin.Crypto.Taproot.OutputKey
 
 /-!
-# Bitcoin.Crypto.Taproot.Verify — the taproot commitment verdict (X03, Unit 4)
+# Bitcoin.Crypto.Taproot.Verify — the taproot commitment verdict (the Taproot module)
 
 The script-path SPEND composition (Core `interpreter.cpp:1976-1990`, the
 `else` arm of `VerifyWitnessProgram`'s taproot branch) and the P2TR
@@ -10,9 +10,9 @@ OUTPUT construction (BIP341 §"Constructing and spending Taproot
 outputs"), assembling the committed primitives:
 
 * `scriptPathTapleaf` — TPR-012's CALLER side: the tapleaf hash under
-  the MASKED leaf version `control[0] & 0xfe` (X06's `leafVersionOf`,
-  TPR-010; Core masks at the call site interpreter.cpp:1983 — Unit-3
-  Verify does the masking, per the Tree-module note).
+  the MASKED leaf version `control[0] & 0xfe` (the witness-structure module's `leafVersionOf`,
+  TPR-010; Core masks at the call site interpreter.cpp:1983 — the verifier
+  does the masking, per the Tree-module note).
 * `pathNodes` / `scriptPathMerkleRoot` — TPR-014's caller side: the
   control block's `m` 32-byte path nodes (`(size − 33) / 32` of them,
   TPR-009 lattice) walked by `taprootMerkleRoot`
@@ -70,14 +70,14 @@ def scriptPathTapleaf (control script : ByteArray) : ByteArray :=
   tapLeaf (leafVersionOf control).toUInt8 script
 
 /-- The control block's path-node count: `(size − 33) / 32` (Core
-:1904, `path_len`; the TPR-009 lattice makes this exact). FIX F-X03-1:
+:1904, `path_len`; the TPR-009 lattice makes this exact). FIX:
 was `(size − 65) / 32` (self-consistent with the old 65-constant). -/
 def pathNodeCount (control : ByteArray) : Nat := (control.size - 33) / 32
 
 /-- The `m` path nodes: 32 bytes each, starting at offset 33 (Core
 :1907, `subspan(BASE + NODE·i, NODE)`). Out-of-range extractions
 fail closed to short slices — the TPR-009 gate is the caller.
-FIX F-X03-1: was offset 65 (X06's Program.lean 65-convention). -/
+FIX: was offset 65 (the witness-structure module's Program.lean 65-convention). -/
 def pathNodes (control : ByteArray) : List ByteArray :=
   (List.range (pathNodeCount control)).map
     (fun i => control.extract (33 + 32 * i) (65 + 32 * i))
@@ -313,7 +313,7 @@ theorem verifyTaprootCommitment_wrong_length (control program tapleafHash : Byte
 
 /-- TPR-009 (reject side, script-path arm): a control block outside the
 size lattice is rejected before any hashing (Core :1980-1982; the spec's
-`TAPROOT_CONTROL_BASE_SIZE = 33` since the F-X03-1 fix — Core's own
+`TAPROOT_CONTROL_BASE_SIZE = 33` since the fix — Core's own
 constant is 33, the pre-fix 65 was the confirmed spec defect). -/
 theorem scriptPathSpend_badSize_none (control script program : ByteArray)
     (h : controlBlockSizeOk control = false) :
@@ -322,7 +322,7 @@ theorem scriptPathSpend_badSize_none (control script program : ByteArray)
   rw [if_neg (by simp [h])]
 
 /-- A 33-byte control block (m = 0) passes the size gate — the minimal
-script-path shape (FIX F-X03-1: was `h : control.size = 65`, the old
+script-path shape (FIX: was `h : control.size = 65`, the old
 65-convention's m = 0). -/
 theorem scriptPathSpend_minimal_some (control script program : ByteArray)
     (h : control.size = 33) :
@@ -377,13 +377,13 @@ theorem p2trOutput_none_badKey (pk : ByteArray) (tree : Option TapTree)
   unfold p2trOutput
   rw [h]
 
-/-- Determinism (W14b discipline): `p2trOutput` is a pure function. -/
+/-- Determinism (the modular-arithmetic layer discipline): `p2trOutput` is a pure function. -/
 theorem p2trOutput_congr (pk₁ pk₂ : ByteArray) (t₁ t₂ : Option TapTree)
     (h₁ : pk₁ = pk₂) (h₂ : t₁ = t₂) :
     p2trOutput pk₁ t₁ = p2trOutput pk₂ t₂ := by
   subst h₁; subst h₂; rfl
 
-/-! ## Axiom footprints (X02/X03/X06 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the existing modules' style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext, Classical.choice,
 Quot.sound]`. Pinned by the guard block below.

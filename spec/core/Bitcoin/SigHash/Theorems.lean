@@ -1,10 +1,9 @@
 import Bitcoin.SigHash.Interface
 
 /-!
-# Bitcoin.SigHash.Theorems — W11 S3 proof pins
+# Bitcoin.SigHash.Theorems — proof pins
 
-Owning workstream: W11 (Sighash legacy + BIP143). All declarations in this
-module are sorry-free; every theorem carries an axiom pin
+All declarations in this module are sorry-free; every theorem carries an axiom pin
 (`#guard_msgs in #print axioms`) at the bottom of the file.
 
 ## What is pinned
@@ -27,7 +26,7 @@ module are sorry-free; every theorem carries an axiom pin
    `bip143_single_oor` `@[rule "SCR-141", rule "SWT-046"]`; legacy
    interface-level pin `legacy_single_overflow`): out-of-range SINGLE is
    `uint256::ONE` for legacy but zero `hashOutputs` for BIP143. BIP341
-   (fail-closed hashtype error) is Review-3 scope — see the stub note below.
+   (fail-closed hashtype error) is out of scope — see the stub note below.
 5. **scriptCode substitution well-definedness** (`findAndDeleteL_codeSep_eq`
    `@[rule "INV-057"]`, `scriptCodeOf_idempotent` `@[rule "SCR-101"]`): the
    byte-exact `FindAndDelete(OP_CODESEPARATOR)` walk, and its closure law.
@@ -361,12 +360,12 @@ theorem bip143_single_oor (tx : Tx) (nIn : Nat) (ht : UInt32)
   rw [hs, if_neg (by omega : ¬ (nIn < tx.vout.length))]
 
 /-! **BIP341 stub note.** The taproot sighash (BIP341 SigMsg / tagged
-hashes) is Review-3 scope: `Bitcoin.SigHash` deliberately exposes no BIP341
-digest in this review. The tri-modal SIGHASH_SINGLE dispatch is pinned for its
+hashes) is out of scope: `Bitcoin.SigHash` deliberately exposes no BIP341
+digest in this module. The tri-modal SIGHASH_SINGLE dispatch is pinned for its
 two implemented modes above (`legacyImpl_single_oor` → `uint256::ONE`,
 `bip143_single_oor` → zero `hashOutputs`); the third mode (BIP341:
 fail-closed hashtype error, `interpreter.cpp:1962-1964`) will be pinned by
-the Review-3 workstream against the tagged-hash seam floor. -/
+the remaining proofs against the tagged-hash seam floor. -/
 
 /-! ## 6. Witness-v0 scriptCode shape -/
 

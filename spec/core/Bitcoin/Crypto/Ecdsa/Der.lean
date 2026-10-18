@@ -7,7 +7,7 @@ import Bitcoin.Crypto.Curve.Secp
 Faithful port of Core `src/pubkey.cpp::ecdsa_signature_parse_der_lax`
 (taken by Core itself from libsecp256k1) and
 `src/script/interpreter.cpp::IsValidSignatureEncoding` (BIP66), both read
-at the W14b pinned commit `cce32b168`.
+at the pinned commit `cce32b168`.
 
 ## Lax grammar (what pre-BIP66 consensus effectively accepted)
 
@@ -47,7 +47,7 @@ interpreter (`CheckSignatureEncoding`) before this check is reached.
 -/
 
 /-!
-## License notice (OPEN-004, landed 2026-10-17 by S13)
+## License notice (OPEN-004, landed 2026-10-17 by the license cleanup)
 
 This file is a Lean transliteration (port) of MIT-licensed Bitcoin
 Core code — see the module header above for the exact upstream anchors
@@ -78,7 +78,7 @@ MIT §2, the notice text for the portion derived from Bitcoin Core
   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Project license: MIT (repo-root `LICENSE`, 2026 btc-lean contributors);
+Project license: MIT (repo-root `LICENSE`, 2026 btc-lean authors);
 per-file provenance table: `docs/PROVENANCE.md` §1a.
 -/
 

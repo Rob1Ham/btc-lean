@@ -6,7 +6,7 @@ import Bitcoin.RuleAttr
 /-!
 # Bitcoin.Invariants.RC10
 
-Rule-Closure suite contributor RC10 — INV-109..INV-120 (chain linkage + the
+Rule-Closure suite  — INV-109..INV-120 (chain linkage + the
 UTXO-transition data-model/serialization/undo/sentinel/state rows).
 Ground truth: `research/05-core-inventory.md` Appendix B §B.8/§B.9,
 Bitcoin Core v32.99 @ `cce32b168`. All theorems sorry-free; axiom pins at
@@ -184,7 +184,7 @@ example : coinMetaDecode (coinMetaEncode 840000 false) = (840000, false) := rfl
 
 The sentinel constant itself is `Bitcoin.Ledger.MEMPOOL_HEIGHT`
 (0x7FFFFFFF, txmempool.h:51) — INV-118 stacked on that declaration
-in W12's Interface.lean; X09's TXV-042 pins the mempool-side equality.
+in Interface.lean; the transaction-validation module's TXV-042 pins the mempool-side equality.
 Here: the lockpoints rule + the ≠-real-height pin. -/
 
 /-- validation.cpp:198–200 (`CalculateLockPointsAtTip`): a coin at the
@@ -224,7 +224,7 @@ multiset hash over the class group: Insert/Remove = multiply/divide by
 predicate relies on is partition/order-invariance of the combination;
 we pin that over an abstracted commutative monoid `(Nat, +)` with a
 per-coin datum `cf`. The 3072-bit modular arithmetic itself is NOT
-modeled (zero-FFI core; Review-4 bigint seam) — algebraic pin VERIFIED,
+modeled (zero-FFI core; bigint seam) — algebraic pin VERIFIED,
 arithmetic PROPOSED. -/
 @[rule "INV-119"]
 def muhashSet (cf : Coin → Nat) (coins : List Coin) : Nat :=

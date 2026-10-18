@@ -1,7 +1,7 @@
 import Bitcoin.Data.Basic
 
 /-!
-# Bitcoin.Interpreter.Hashes — the interpreter's hash floor (W09)
+# Bitcoin.Interpreter.Hashes — the interpreter's hash floor
 
 Self-contained, kernel-decidable implementations of the hash primitives
 the interpreter's crypto opcodes need:
@@ -19,17 +19,17 @@ Design notes:
   `ByteArray.toList` in executable code, so everything reduces under
   `decide` for the small payloads the tests use.
 * These are **interim implementations owned by the interpreter** (B2
-  finding: the frozen W13 seam exposes only `sha256`/`sha256d`/
+  finding: the frozen seam exposes only `sha256`/`sha256d`/
   `hash160` — not RIPEMD-160 or SHA-1, which OP_RIPEMD160/OP_SHA1
-  need). When W13's verified hash floor lands, the five-line hash
+  need). When the verified hash floor lands, the five-line hash
   dispatch in `Defs.lean` (`hashForOp`) is the only call site to
   repoint (interface-change PR). Correctness is pinned by standard
   test vectors in `Test/Script/Interpreter/Tests.lean` (FIPS 180-4 +
   RIPEMD-160 appendix digests, cross-checked against Python
-  `hashlib` in W09). The digest pins use `native_decide`: full
+  `hashlib`). The digest pins use `native_decide`: full
   block-compression is quadratic through the kernel's list-backed
   `Array`/`ByteArray` and exceeds `decide`'s heartbeat budget
-  (cf. W05 codegen gotchas). Cheap corollaries (output length 32,
+  (cf. codegen gotchas). Cheap corollaries (output length 32,
   etc.) are kernel-`decide`d.
 -/
 

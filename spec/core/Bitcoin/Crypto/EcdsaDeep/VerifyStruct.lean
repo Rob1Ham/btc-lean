@@ -1,19 +1,19 @@
 import Bitcoin.Crypto.Ecdsa.Verify
 
 /-!
-# Bitcoin.Crypto.EcdsaDeep.VerifyStruct — the kernel-decidable verifyImpl mirror (E11)
+# Bitcoin.Crypto.EcdsaDeep.VerifyStruct — the kernel-decidable verifyImpl mirror (the structural mirror)
 
-EcdsaDeep contributor E11. Target of this file: the **structural mirror** of the
+EcdsaDeep. Target of this file: the **structural mirror** of the
 consensus ECDSA verifier `Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`
 (Ecdsa/Verify.lean:82, the lax-ECDSA decision's compute layer) that is
 **kernel-reducible** — i.e. `decide`/`rfl` in the Lean kernel can evaluate
 it on concrete 215-vector-battery inputs — together with the
 **mirror-equality theorems** that reduce `verifyStruct = verifyImpl` to
-small, explicitly-named hypotheses (E16's `EcdsaDeep/Entry.lean` transport
+small, explicitly-named hypotheses (the alternate-entry layer's `EcdsaDeep/Entry.lean` transport
 slot: `ecdsaEntryDeep verifyStruct = ecdsaEntry verifyImpl` modulo exactly
 this equality).
 
-## Why a mirror is needed (R6 / D-004 / F-W14-1)
+## Why a mirror is needed (R6 / the no-axiom policy)
 
 `verifyImpl` is NOT kernel-reducible: three of its ingredients are
 well-founded-recursive (`termination_by`), and the kernel cannot unfold
@@ -36,7 +36,7 @@ secp256k1 literals decided in `Curve/Secp.lean:63-85` (`G_onCurve`,
 `Gx_lt`, …) and `Curve/Field/Interface.lean`'s Pratt certificates
 (`expBits P 3 bspF = 1 := by decide`, :1205).
 
-## The mirror technique (W14's `expBits` pattern, made systematic)
+## The mirror technique (`expBits` pattern, made systematic)
 
 A WF recursion on a 256-bit `Nat` **value** cannot be made
 kernel-reducible by adding a fuel counter alone: matching on a bignum
@@ -90,8 +90,8 @@ See `verifyStructCor` (proofs package) for the per-battery-vector
 discharges (`decide`).
 
 PROPOSED (NOT here): the universal `hE`/`hN` (a Euclid/Lamé-style depth
-≤ 600 bound for the two 256-bit moduli — E02/E07 territory), and the
-`verifyStruct = verifyImpl` *battery* instantiation (E11's proofs file).
+≤ 600 bound for the two 256-bit moduli — the curve and pubkey-parse layers' territory), and the
+`verifyStruct = verifyImpl` *battery* instantiation (the structural mirror's proofs file).
 Nothing in this file assumes, states or axiomatizes them.
 -/
 
@@ -388,10 +388,10 @@ def mulPbsG (fs : List Nat) : List Bool → RawPoint → RawPoint
 def mulPSG (fs : List Nat) (u : Nat) (p : RawPoint) : RawPoint :=
   mulPbsG fs (bitsLeF 256 u) p
 
-/-! ## The pass-2 bridges: `mulPSG = mulP`, `verifyStructG = verifyImpl`
+/-! ## The completion bridges: `mulPSG = mulP`, `verifyStructG = verifyImpl`
 
-The universal mod-`P` completion hypothesis (E14's fuel-sufficiency
-hand-off F-E14-9 / F-E14-8, the Lamé-depth `≤ 600` bound = E02/E07
+The universal mod-`P` completion hypothesis (the fuel-discharge layer's fuel-sufficiency
+interface, the completion hypotheses; the Lamé-depth `≤ 600` bound = the curve and pubkey-parse layers'
 territory, PROPOSED-NOT-HERE):
 
   `hE : ∀ d < P, egcdLDone FL P d = true`
@@ -601,18 +601,18 @@ def verifyStructG (fs : List Nat) (sig pk msg : ByteArray) : Bool :=
         | none => false
         | some (rx, _) => rx % n == r
 
-/-- **The crown bridge** (pass-2's `verifyStructG_eq_verifyImpl`, the
-E16 `EntryWired` integration slot's hypothesis-form equality): under
+/-- **The crown bridge** (completion's `verifyStructG_eq_verifyImpl`, the
+the alternate-entry layer `EntryWired` integration slot's hypothesis-form equality): under
 the two universal-completion hypotheses —
-  `hE : ∀ d < P, egcdLDone fs P d = true` (F-E14-9, the mod-`P`
+  `hE : ∀ d < P, egcdLDone fs P d = true` (the completion hypothesis, the mod-`P`
 Lamé-depth bound, PROPOSED-NOT-HERE) and its mod-`n` analogue `hN`
-(F-E14-8) — the structural mirror `verifyStructG fs` IS `verifyImpl`.
+(the completion hypothesis) — the structural mirror `verifyStructG fs` IS `verifyImpl`.
 The parse bridge `parsePubKeyG = parsePubKey` is unconditional;
 `invMSG = invM` at `s0 % n` (via `hN`, `s0 % n < n` by `Nat.mod_lt`),
 `mulPSG = mulP` (via `hE`, at `u1, u2 = mulM n _ w < n < 2^256`) and
 `addPG = addP` (via `hE`) carry the scalar-multiplication pipeline.
 No property of `parseDerLax` — both `match`es are split on both sides
-of the equation (E06's `verifyImpl_iff` route). -/
+of the equation (the verification-equation layer's `verifyImpl_iff` route). -/
 theorem verifyStructG_eq_verifyImpl (fs : List Nat)
     (hE : ∀ d : Nat, d < P → egcdLDone fs P d = true)
     (hN : ∀ s : Nat, s < n → egcdLDone fs n s = true) (sig pk msg : ByteArray) :
@@ -639,7 +639,7 @@ theorem verifyStructG_eq_verifyImpl (fs : List Nat)
           addPG_eq_addP fs hE]
       rfl
 
-/-- The mirror at the fixed fuel list — E16's `EcdsaDeep/Entry.lean`
+/-- The mirror at the fixed fuel list — the alternate-entry layer's `EcdsaDeep/Entry.lean`
 integration slot (`verifyD := Bitcoin.Crypto.EcdsaDeep.VerifyStruct.verifyStruct`). -/
 def verifyStruct (sig pk msg : ByteArray) : Bool := verifyStructG FL sig pk msg
 

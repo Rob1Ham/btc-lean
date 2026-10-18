@@ -6,14 +6,14 @@ import Bitcoin.Crypto.Taproot.TapTweak
 import Bitcoin.Crypto.Taproot.OutputKey
 
 /-!
-# Bitcoin.Interpreter.Rules — X07 SCR rule-row completion (Review 3)
+# Bitcoin.Interpreter.Rules — the interpreter rule layer SCR rule-row completion
 
 The remaining SCR rows of the rule DB (`spec/db/rules.yaml`), one honest
 consensus check + `@[rule]` tag + theorem per rule family. Ground truth:
-interpreter.cpp @ `cce32b168` (the W09 pin); every definition here is
+interpreter.cpp @ `cce32b168` (the pin); every definition here is
 total and sorry-free.
 
-Row families landed in this module (X07):
+Row families landed in this module (the interpreter rule layer):
 
 1. **Flag-combination well-formedness** (SCR-009/014): CLEANSTACK
    requires P2SH+WITNESS (interpreter.cpp:2113-2114), WITNESS requires
@@ -25,9 +25,9 @@ Row families landed in this module (X07):
    `txTo->vin[nIn].nSequence`, `txTo->nVersion` (:1755, 1792-1796);
    proved input-local by a congruence theorem.
 3. **CSV tx-version gate** (SCR-128): `CheckSequence` fails when
-   `txTo->nVersion < 2` (:1800-1801) — already the first branch of W09's
+   `txTo->nVersion < 2` (:1800-1801) — already the first branch of
    `checkSequenceDef`; theorem-pinned here.
-4. **OP_1NEGATE encoding** (SCR-047): the `pushNum 0` arm of W09's
+4. **OP_1NEGATE encoding** (SCR-047): the `pushNum 0` arm of
    `stepBody` pushes `encodeScriptNum (-1)`; the wire form is exactly
    `0x81` (:499-523).
 -/
@@ -133,7 +133,7 @@ theorem checkSequence_perInput (tx tx' : Bitcoin.Data.Tx) (nIn : Nat) (n : Scrip
 
 /-- `CheckSequence` (interpreter.cpp:1800-1801): BIP68/112 semantics are
 undefined for transaction version 1, and Core FAILS the check (not
-NOPs it) — the first branch of W09's `checkSequenceDef`. -/
+NOPs it) — the first branch of `checkSequenceDef`. -/
 @[rule "SCR-128"]
 theorem checkSequenceDef_version_gate (env : LocktimeEnv) (n : ScriptNum)
     (hv : env.txVersion < 2) : checkSequenceDef env n = false := by
@@ -158,7 +158,7 @@ theorem encodeScriptNum_1negate_0x81 :
 The resource-accounting family the block-level cost limit reads
 (`CScript::GetSigOpCount` script.cpp:173-205, `WitnessSigOps`
 interpreter.cpp:2133-2147, `CountWitnessSigOps` :2162-2173). Pure
-functions over the W05 wire layer; the interpreter-side 201-opcode
+functions over the wire layer; the interpreter-side 201-opcode
 budget (SCR-022/023) is separate and already in `Defs.lean`. -/
 
 /-- The four signature-checking wire opcodes (0xac OP_CHECKSIG,
@@ -370,7 +370,7 @@ theorem MIN_TRANSACTION_WEIGHT_factored :
 
 /-! ## 8. BIP341 key-path spending (SCR-142 / SCR-144 / SCR-149)
 
-The key-path semantics live in W09's `verifyWitnessProgram`; this
+The key-path semantics live in `verifyWitnessProgram`; this
 section pins the three verdict-visible behaviors. -/
 
 /-- SCR-142: the TAPROOT flag gate (interpreter.cpp:1959) — without
@@ -431,10 +431,10 @@ theorem verifyWitnessProgram_upgradable_leaf_ok
 /-! ## 7. BIP342 validation-weight budget (SCR-031 / SCR-040 / SCR-041 /
 ## SCR-042 / SCR-168)
 
-The budget semantics live in W09/X04's `executeWitnessScript` (init)
+The budget semantics live in `executeWitnessScript` (init)
 and `evalChecksigTapscript` (decrement) — this section theorem-pins
 them. The `evalChecksigTapscript` wiring into the CHECKSIG dispatch is
-X04's Unit 2 (`evalChecksigDispatch`). -/
+the interpreter delta layer's (`evalChecksigDispatch`). -/
 
 /-- SCR-031: the BIP342 initial-stack gate (:1864-1865) — on the
 tapscript path, away from an OP_SUCCESSx override, a witness stack of
@@ -606,7 +606,7 @@ construction — when the BIP341 sighash cannot be built for the popped
 hashtype `ht` (e.g. SIGHASH_SINGLE with `in_pos ≥ vout.size()`, which
 is the canonical construction failure the seam models as `none`), the
 verdict is reject. The SignatureHashSchnorr body producing that `none`
-is SCR-169 (blocked on X03-retry). -/
+is SCR-169 (blocked on the Taproot module). -/
 @[rule "SCR-166"]
 theorem schnorrVerdict_sighash_fail_closed
     (verify : ByteArray → ByteArray → ByteArray → Bool)
@@ -661,7 +661,7 @@ theorem opSuccessScan_0x8e :
 as the byte offset just past the opcode (`op.next`, interpreter.cpp:444-445
 `pbegincodehash = pc - pbegin` … :1065), consumed downstream by the
 pre-tapscript sighash as `bytes.extract codeSep` (interpreter.cpp:1282's
-scriptCode tail; W09 `State.codeSep`, initialized to 0 = "from the
+scriptCode tail; `State.codeSep`, initialized to 0 = "from the
 beginning" at ExecScript entry). -/
 @[rule "SCR-167"]
 theorem stepBody_codesep_records_next
@@ -681,9 +681,9 @@ theorem stepBody_codesep_records_next
 
 /-- SCR-146 (interpreter.cpp:1882-1885, BIP341 §3): the tapleaf hash —
 `hashTapLeaf = taggedHash("TapLeaf", leaf_ver ‖ CompactSize(script) ‖ script)`
-with `leaf_ver = control[0] & 0xfe` (the parity bit stripped). W09's
+with `leaf_ver = control[0] & 0xfe` (the parity bit stripped).
 script path returns `.unjudged` at the tapleaf/CheckTapTweak EC step;
-this pins the digest CONSTRUCTION on X02's tagged-hash floor. -/
+this pins the digest CONSTRUCTION on the Schnorr module's tagged-hash floor. -/
 @[rule "SCR-146"]
 def tapLeafHash (leafVersion : UInt8) (script : ByteArray) : ByteArray :=
   Bitcoin.Crypto.Schnorr.taggedHash Bitcoin.Crypto.Schnorr.tagTapLeaf
@@ -699,7 +699,7 @@ theorem tapLeafHash_size (leafVersion : UInt8) (script : ByteArray) :
 
 /-- SCR-147 (interpreter.cpp:1913-1925): the tap tweak commitment is a
 FUNCTION of the internal key `p` and the script-tree merkle root — equal
-inputs give the same tweaked output key `q` (X03's `tweakPoint`; the
+inputs give the same tweaked output key `q` (the Taproot module's `tweakPoint`; the
 parity bit `control[0] & 1` enters the SERIALIZATION of the control
 block, not the commitment input `taptweak(p, root)`). -/
 @[rule "SCR-147"]

@@ -5,32 +5,32 @@ import Bitcoin.DataLaws.Interface
 # Bitcoin.Invariants.RC02 — INV-015/016/021 (RC02, Rule-Closure suite)
 
 B1 acceptance-spine invariant rows whose faithful homes sit in files owned
-by *running* contributors (X08's `Block/Connect.lean`, X09's
+by *running* models (the block-validation module's `Block/Connect.lean`, the transaction-validation module's
 `TxValidation/Interface.lean`): the attribute-only aliasing lane is closed
 there, so these three rows get the smallest honest standalone check here,
-in RC02's own namespace, cross-referenced to the running contributors' decls.
+in RC02's own namespace, cross-referenced to the corresponding declarations.
 
 Rows closed here (B-type):
 
 - **INV-015** — BIP113 finality-cutoff domain switch
   (`validation.cpp:ContextualCheckBlock:4141-4150`): once CSV is active the
   cutoff for `IsFinalTx`'s time comparison is the parent block's
-  median-time-past, else the block's own time. Mirrors X08's
+  median-time-past, else the block's own time. Mirrors the block-validation module's
   `Bitcoin.Block.Connect.finalityCutoff` (`@[rule "BLK-067"]`).
 - **INV-016** — block-level quantifier over the per-tx finality gate
   (`validation.cpp:4152-4157`, `bad-txns-nonfinal`): EVERY tx of the block
-  must be final at `(height, cutoff)`. Composes W03's frozen
-  `Bitcoin.DataLaws.isFinalTx` (INV-012/013) over `txs.all`; mirrors X08's
+  must be final at `(height, cutoff)`. Composes the frozen
+  `Bitcoin.DataLaws.isFinalTx` (INV-012/013) over `txs.all`; mirrors the block-validation module's
   `Bitcoin.Block.Connect.blockFinalityOk` (`@[rule "BLK-068"]`).
 - **INV-021** — `EvaluateSequenceLocks` (`tx_verify.cpp:103-111`): the
   BIP68 lock-pair verdict `minH < blockHeight ∧ minT < blockTime`, where
-  `blockTime` is Core's `MTP(block.prev)` caller convention. Mirrors X09's
+  `blockTime` is Core's `MTP(block.prev)` caller convention. Mirrors the transaction-validation module's
   `Bitcoin.TxValidation.evaluateSequenceLocks` (`@[rule "TXV-039"]`).
 
 Vectors: decide-pinned `example`s below (threshold-adjacent values,
 both switch arms, block-level pass/fail, lock-pair boundaries), each
 independently cross-checked in python3 (see
-`spec/db/findings-rc/RC02.md`, VERIFIED section).
+the internal record, VERIFIED section).
 -/
 
 namespace Bitcoin.Invariants.RC02
@@ -41,7 +41,7 @@ open Bitcoin.Data Bitcoin.DataLaws
 
 /-- The (block, BIP113-corrected) time cutoff handed to `IsFinalTx`:
 the parent's median-time-past once CSV is active, else the block's own
-time (`validation.cpp:4141-4150`; identical switch to X08's
+time (`validation.cpp:4141-4150`; identical switch to the block-validation module's
 `finalityCutoff`, BLK-067). -/
 @[rule "INV-015"]
 def bip113Cutoff (csvActive : Bool) (mtp blockTime : UInt32) : UInt32 :=
@@ -64,7 +64,7 @@ theorem bip113Cutoff_mem (csvActive : Bool) (mtp blockTime : UInt32) :
 
 /-- **`bad-txns-nonfinal`** (`validation.cpp:4152-4157`): every tx of the
 block must be final at `(height, cutoff)` — the block-level quantifier
-over W03's `isFinalTx` (INV-011..014), identical fold to X08's
+over `isFinalTx` (INV-011..014), identical fold to the block-validation module's
 `blockFinalityOk` (BLK-068). -/
 @[rule "INV-016"]
 def blockAllFinal (txs : List Tx) (height cutoff : UInt32) : Bool :=
@@ -96,10 +96,10 @@ theorem blockAllFinal_fail_of_nonfinal (txs : List Tx) (height cutoff : UInt32)
 /-! ## INV-021 — EvaluateSequenceLocks -/
 
 /-- `EvaluateSequenceLocks` (`tx_verify.cpp:103-111`): the BIP68 lock
-pair (running maxima over the inputs' height/time lockpoints, X09's
+pair (running maxima over the inputs' height/time lockpoints, the transaction-validation module's
 `calculateSequenceLocks`) passes iff `minH < blockHeight ∧
 minT < blockTime`, where Core's caller passes `nBlockTime =
-MTP(block.prev)`. Identical verdict to X09's `evaluateSequenceLocks`
+MTP(block.prev)`. Identical verdict to the transaction-validation module's `evaluateSequenceLocks`
 (TXV-039). -/
 @[rule "INV-021"]
 def evalSequenceLocks (blockHeight blockTime minH minT : Int) : Bool :=
@@ -162,7 +162,7 @@ example : evalSequenceLocks 100 1600000000 100 1599999488 = false := by rfl
 example : evalSequenceLocks 100 1600000000 99 1600000000 = false := by rfl
 example : evalSequenceLocks 100 1600000000 99 1599999489 = true := by rfl
 
-/-! ## Axiom pins (L3) -/
+/-! ## Axiom pins -/
 
 /-- info: 'Bitcoin.Invariants.RC02.bip113Cutoff_mem' depends on axioms: [propext] -/
 #guard_msgs in #print axioms bip113Cutoff_mem

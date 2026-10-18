@@ -2,28 +2,26 @@ import Bitcoin.Crypto.Field.Interface
 import Bitcoin.Crypto.Curve.Secp
 
 /-!
-# Bitcoin.Crypto.Curve — frozen interface, FILLED by W14 (2B)
+# Bitcoin.Crypto.Curve — frozen interface, FILLED (2B)
 
-Owning workstream     : W14 (2B slot: group law over the field layer)
-Dependent workstreams : W13 (tweak-check EC math for Taproot commitments)
 Core counterpart files: src/crypto/secp256k1/group.h, ecmult_impl.h
-Status                : frozen 2026-10-16 by W01 — MINIMAL STUB: the real
+Status: frozen 2026-10-16 — MINIMAL STUB: the real
                         point representation (mathlib `Affine.Point` in the
                         proofs package vs a core-native affine record) is
-                        W14's first design call; only the consensus-visible
+                        The first design call; only the consensus-visible
                         surface is pinned (B5: taproot commitment check
                         pulls point arithmetic into consensus even for
                         zero-sig spends).
 
-FILL HISTORY (W14b): the three `opaque ... := sorry` placeholders below
+FILL HISTORY: the three `opaque ... := sorry` placeholders below
 were replaced by real implementations over the raw Nat layer
 (`Bitcoin.Crypto.Curve.Secp`), signatures byte-identical. The `opaque`
 wrappers are kept deliberately: the consensus surface stays the frozen
 constants, and `#print axioms` on downstream theorems pins against the
 interface, not the implementation.
 
-FILL NOTE (handoff): `Fe` arithmetic in `Bitcoin.Crypto.Field`
-(feAdd/feMul/feNeg/feInv) is still W14's 2A fill — this module routes
+FILL NOTE (interface): `Fe` arithmetic in `Bitcoin.Crypto.Field`
+(feAdd/feMul/feNeg/feInv) is still 2A fill — this module routes
 around it with the raw `Nat` layer, so it does NOT depend on those stubs.
 -/
 
@@ -39,7 +37,7 @@ def curveA : Fe := feZero
 
 def curveB : Fe := ⟨7, by decide⟩
 
-/-! ### Raw-layer bridge (W14b fill machinery)
+/-! ### Raw-layer bridge (the modular-arithmetic layer fill machinery)
 
 `Fe = {x : Nat // x < P}` already carries the range invariant in its type,
 so the conversion to the raw `Nat` layer is lossless; the way back re-establishes
@@ -59,15 +57,15 @@ private def ofRaw : (p : Secp.RawPoint) → Secp.RawOK p → AffinePoint
   | some (x, y), ⟨hx, hy⟩ => some (⟨x, hx⟩, ⟨y, hy⟩)
 
 /-- Point addition (group law; mathlib has this fully proven for
-Weierstrass curves — the scary layer is borrowed, C2/A4 finding). -/
--- FILL[W14b]: was SORRY[W01] stub; body over the raw Nat layer, signature unchanged.
+Weierstrass curves — the heavy layer is borrowed (the real-verifier criterion). -/
+-- FILL: was SORRY stub; body over the raw Nat layer, signature unchanged.
 opaque pointAdd : AffinePoint → AffinePoint → AffinePoint :=
   fun p q =>
     ofRaw (Secp.addP (toRaw p) (toRaw q))
       (Secp.addP_ok _ _ (toRaw_ok p) (toRaw_ok q))
 
 /-- Scalar multiplication (double-and-add over the group). -/
--- FILL[W14b]: was SORRY[W01] stub; body over the raw Nat layer, signature unchanged.
+-- FILL: was SORRY stub; body over the raw Nat layer, signature unchanged.
 opaque pointMul : Nat → AffinePoint → AffinePoint :=
   fun k p => ofRaw (Secp.mulP k (toRaw p)) (Secp.mulP_ok (toRaw p) (toRaw_ok p) k)
 
@@ -84,7 +82,7 @@ def generator : AffinePoint :=
 
 /-- Taproot tweak check (BIP341: t = tagHash(TapTweak)…; Q = P + tG).
 This is consensus-visible even for key-path-only spends. -/
--- FILL[W14b]: was SORRY[W01] stub; Q = P + t·G with `t` read little-endian
+-- FILL: was SORRY stub; Q = P + t·G with `t` read little-endian
 -- (BIP341: the 32-byte tweak is `le256(t)`), signature unchanged.
 opaque tweakPoint : ByteArray → AffinePoint → AffinePoint :=
   fun t p =>

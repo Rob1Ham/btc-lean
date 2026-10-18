@@ -1,13 +1,13 @@
 import Bitcoin.Script.Tapscript.Delta
 
 /-!
-# X04 conformance — BIP342 tapscript delta vectors (build-time, no IO)
+# the interpreter delta layer conformance — BIP342 tapscript delta vectors (build-time, no IO)
 
 Every pin is a compiler-reduced equality (`native_decide`, Test-scoped
 per the D2 ByteArray.mk #[(0x20:UInt8), (0xd8:UInt8), (0x5a:UInt8), (0x95:UInt8), (0x9b:UInt8), (0x02:UInt8), (0x90:UInt8), (0xbf:UInt8), (0x19:UInt8), (0xbb:UInt8), (0x89:UInt8), (0xed:UInt8), (0x43:UInt8), (0xc9:UInt8), (0x16:UInt8), (0xbe:UInt8), (0x83:UInt8), (0x54:UInt8), (0x75:UInt8), (0xd0:UInt8), (0x13:UInt8), (0xda:UInt8), (0x4b:UInt8), (0x36:UInt8), (0x21:UInt8), (0x17:UInt8), (0x39:UInt8), (0x3e:UInt8), (0x25:UInt8), (0xa4:UInt8), (0x82:UInt8), (0x29:UInt8), (0xb8:UInt8), (0xac:UInt8)] gate) against `executeWitnessScript` from
 `Bitcoin.Interpreter.Defs`, cross-checked against the python reference
 model `ref342.py` (mirrors interpreter.cpp @ cce32b168 tapscript branches;
-verdict table reproduced in the X04 report). Vector scripts: the 11
+verdict table reproduced in the interpreter delta layer report). Vector scripts: the 11
 leaf-version-0xc0 tapleaf scripts extracted from
 `spec/vectors/bips/bip-0341_wallet-test-vectors.json` (signature
 verification is seam-stubbed — `stubChecker` accepts any nonempty

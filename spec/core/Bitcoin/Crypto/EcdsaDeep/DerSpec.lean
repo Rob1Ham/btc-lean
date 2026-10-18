@@ -5,17 +5,16 @@ import Bitcoin.Crypto.Ecdsa.Der
 /-!
 # Bitcoin.Crypto.EcdsaDeep.DerSpec — abstract relational spec of the lax-DER parser
 
-[E05, DEEP-LEAN suite] An ABSTRACT, Core-anchored relational specification of
+The DER layer of the deep-verification suite: an ABSTRACT, Core-anchored relational specification of
 Bitcoin Core's `ecdsa_signature_parse_der_lax` (src/pubkey.cpp:45-185 @
 cce32b168 = cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66, the parent of the
-cce32b168 B-track pin; fetched 2026-10-16, archived in
-spec/db/findings-dl/E05-anchors/), and its PROVED correspondence with the
+cce32b168 pin; fetched 2026-10-16), and its PROVED correspondence with the
 Lean executable parser `Bitcoin.Crypto.Ecdsa.Der.parseDerLax`
-(spec/core/Bitcoin/Crypto/Ecdsa/Der.lean:108-142, read-only for E05).
+(spec/core/Bitcoin/Crypto/Ecdsa/Der.lean:108-142, read-only for the DER module).
 
-Der-layer rung of the E05/E06 proved-ECDSA tower: the relation is pure
+Der-layer rung of the DER and verification-equation layers' proved-ECDSA tower: the relation is pure
 first-order structure (positions, lengths, payload arithmetic) — no
-WF-recursive crypto (R6/D-004 clean), fully kernel-checkable.
+WF-recursive crypto (R6/the no-axiom policy clean), fully kernel-checkable.
 
 ## What the C actually does (pubkey.cpp:45-185 @ cce32b168)
 
@@ -49,8 +48,8 @@ Integer payload + value layer (C 151-184 ↔ Der.lean 135-142):
   post-strip big-endian payload read raw (`readBE`, Der.lean 61-64;
   `DerCoreSig.crs`). The mod-`n` `scalar_set_b32` reduction is NOT in this
   layer — it is in `secp256k1_ecdsa_signature_parse_compact`
-  (src/secp256k1/src/secp256k1.c:407-427) — see `CoreZero` below and
-  db/findings-dl/E05.md **F-E05-001**.
+  (src/secp256k1/src/secp256k1.c:407-427) — see `CoreZero` below; it is
+  recorded as the DER-window note.
 
 ## The relation layer (this file)
 
@@ -69,7 +68,7 @@ with `pos` = tag position (length byte at `pos+1`).
 * `coreLax_exhaustive` (X): `CoreLax b r s ∨ DerRej b`.
 * `coreLax_none`, `derRej_not_coreLax`: the split is a partition.
 
-## Core ground truth, 32-byte `r ≥ n` window (F-E05-001)
+## Core ground truth, 32-byte `r ≥ n` window (the DER-window note)
 
 `CoreZero b r s` = Core's `parse_compact`-overflow value layer
 (secp256k1.c:407-427 + pubkey.cpp:175-183): post-strip rlen/slen ≤ 32 but
@@ -80,7 +79,7 @@ zeroed (pubkey.cpp:178-183) → (r, s) = (0, 0) → `ecdsa_verify`
 `verifyImpl` instead keeps the raw r and reduces `r % n` (Verify.lean:91)
 BEFORE the nonzero check — the two differ exactly on
 `readBE rpos' rlen' ≥ n`, post-strip `rlen' ≤ 32`, `slen' ≤ 32`.
-0/215 battery vectors cover it (E05 python-C oracle, 2026-10-16).
+0/215 battery vectors cover it (the DER-layer python-C oracle, 2026-10-16).
 -/
 
 namespace Bitcoin.Crypto.EcdsaDeep.DerSpec
@@ -211,7 +210,7 @@ inductive DerCoreSig (b : ByteArray) (rpos' rlen' spos' slen' : Nat) :
 
 /-- The accept relation: `CoreLax b r s` = "Core returns 1 with (r, s)"
 (the raw layer = `parseDerLax`'s value layer, BEFORE the mod-n
-`scalar_set_b32` step — see `CoreZero`/F-E05-001). -/
+`scalar_set_b32` step — see `CoreZero`/the DER-window note). -/
 def CoreLax (b : ByteArray) (r s : Nat) : Prop :=
   ∃ p2 rlen rpos slen spos rpos' rlen' spos' slen',
     StrOk b p2 rlen rpos slen spos ∧
@@ -219,7 +218,7 @@ def CoreLax (b : ByteArray) (r s : Nat) : Prop :=
     stripZeros b spos slen = (spos', slen') ∧
     DerCoreSig b rpos' rlen' spos' slen' r s
 
-/-! ## Core's post-`parse_compact` value layer (F-E05-001 window) -/
+/-! ## Core's post-`parse_compact` value layer (DER-window) -/
 
 /-- `secp256k1_ecdsa_signature_parse_compact` (secp256k1.c:407-427) on the
 raw `(r32, s32)` = `readBE` values: `scalar_set_b32` reduces mod `n` AND
