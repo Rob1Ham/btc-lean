@@ -243,7 +243,7 @@ theorem validateBlock_ok_statelessAccepts (raw : ByteArray) (st : CapState)
   obtain ⟨witnessOk, hJP⟩ := unit_precheck_ok _ _ hJP
   have hgc := (checkWitnessCommitment_ok_iff _ _ _).1 witnessOk
   obtain ⟨hg4, hJP⟩ := guard_inv _ _ _ _ hJP      -- BLK-023..026
-  obtain ⟨_, hJP⟩ := guard_pos_inv _ _ _ _ hJP    -- BIP30 (contextual, outside model)
+  obtain ⟨_, hJP⟩ := unit_precheck_ok _ _ hJP    -- actual-hash BIP30
   obtain ⟨q, hbudget, _⟩ := bind_ok_inv
     (applyBlockTransactionsWithSigops none st.height (candidateScriptFlags st.height bh) txs st.utxo) _ r hJP
   obtain ⟨⟨u', k, j⟩, sigops⟩ := q

@@ -1,0 +1,35 @@
+R07d: exact BIP30 repeat/ancestor composition
+Parent3623588e52969b683fc1c0c9a1984f813db93ec5.
+
+The current pristine collision loop is correct; its caller gates by height-only
+bip30Enforced, incorrectly exempting alternate blocks at91842/91880 and any
+branch in the post-BIP34 skip window. Existing bip30EnforcedAtHashes already
+expresses Core's exact height+own-hash repeats and actual BIP34 ancestor pin.
+
+Plan: add checkBip30Pristine(context,height,ownHash,txs,pristineUtxo). No
+collision needs no old history. Otherwise, in the BIP34 skip window require the
+actual ancestor header from the validated parent context; missing data is an
+explicit unavailable-context error. Outside it/at repeat heights use the exact
+own-hash pin. Reuse bip30EnforcedAtHashes, with no assumed canonicality by height.
+Public validator supplies actual header hash and resolved parent context.
+
+Regressions use actual blocks91842(214bytes),91880(472bytes), their real parent
+headers and the real BIP34 activation header. All hashes/PoW were independently
+checked before copying. Funded OP_TRUE UTXOs/collision coins and fake earlier
+MTP windows are conditional state, not historical-chain claims. Reuse block170
+for alternate hashes/crossed heights, and the real-signed Taproot fixture for
+known/missing/noncanonical BIP34 ancestor checks. Public before/after driver
+must run unchanged against the frozen full pre-fix validator and strictly reject
+compiler/setup errors as counterexamples. New helper-only cases can be separate.
+
+Keep existing public height-quiet projection proofs where valid: exact BIP30
+checking is at least as strict as the old canonical-height gate. Add exact
+success/exception/required-context kernel contracts and live public dataflow.
+The old badBip30 theorem's height-enforced hypothesis implies exact enforcement;
+prove that helper relation rather than weakening an already valid claim.
+Replace the old inline if with one ordered Except Unit precheck; update public
+proof inversion to unit_precheck_ok, preserving prelude/witness/weight ordering.
+
+Then scoped builds/complete targeted runtime/probes/gates/references and exact
+ledger/census/report evidence. R07b genesis connection and R08 full matrix
+remain open. T3/T4 legacy contracts are explicitly queued in R08.

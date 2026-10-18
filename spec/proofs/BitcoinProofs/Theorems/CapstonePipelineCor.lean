@@ -473,8 +473,8 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
       obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- gate: weightOk (BLK-024/026), AFTER the commitment gates (BLK-021)
       obtain ⟨hg3, hval⟩ := gate_step _ _ hval
-      -- gate: BIP30 pre-block overlap loop (BLK-096/097/098, TXV-063)
-      obtain ⟨_, hval⟩ := gate_step _ _ hval
+      -- gate: actual-hash BIP30 pre-block overlap check
+      obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- The funded transaction stage; the projection theorem below exposes applyTxs.
       generalize hbudget : applyBlockTransactionsWithSigops none st.height
         (candidateScriptFlags st.height bh) txs st.utxo = q at hval
@@ -599,9 +599,9 @@ theorem validateBlock_ok_bip30_quiet (raw : ByteArray) (st : CapState) (r : CapR
       obtain ⟨_, hval⟩ := unit_precheck_ok _ _ hval
       -- weightOk
       obtain ⟨_, hval⟩ := gate_step _ _ hval
-      -- BIP30 pre-block overlap loop
-      obtain ⟨hbip30, _⟩ := gate_step _ _ hval
-      exact ⟨bh, txs, rfl, hbip30⟩
+      -- The exact gate implies the valid older canonical-height projection.
+      obtain ⟨hbip30, _⟩ := unit_precheck_ok _ _ hval
+      exact ⟨bh, txs, rfl, checkBip30Pristine_ok_height_quiet hbip30⟩
 
 /-- **P16-5 (height corollary)**: on success the reported poststate height
 is EXACTLY the connection height plus one — the pipeline never skips,

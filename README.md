@@ -153,8 +153,8 @@ The candidate tracks a size-bounded corpus subset at `spec/data/`:
 
 | Property | Value |
 |---|---:|
-| Tracked files | 175 |
-| Tracked bytes | 5,051,865 |
+| Tracked files | 181 |
+| Tracked bytes | 5,056,027 |
 | Subset manifest | `spec/data/MANIFEST.sha256` |
 | Release archive | `btc-lean-data-2026.10.17.tar.gz` |
 | Archive bytes | 357,916,214 |

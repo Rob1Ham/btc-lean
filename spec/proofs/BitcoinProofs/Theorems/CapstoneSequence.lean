@@ -286,7 +286,7 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
       obtain ⟨_, h⟩ := unit_precheck_ok _ _ h
       obtain ⟨_, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
       obtain ⟨_, h⟩ := gate_step _ _ h -- weight
-      obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
+      obtain ⟨_, h⟩ := unit_precheck_ok _ _ h -- exact BIP30
       cases ht : applyBlockTransactionsWithSigops (some (ctx, facts)) st.height
           (candidateScriptFlags st.height header) txs st.utxo with
       | error e => simp [ht] at h

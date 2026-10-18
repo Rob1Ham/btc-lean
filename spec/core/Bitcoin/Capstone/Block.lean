@@ -704,6 +704,115 @@ def candidateScriptFlags (height : UInt32) (header : Bitcoin.Chain.BlockHeader) 
   getBlockScriptFlagsP Bitcoin.Activation.mainnetParams
     (hashNatLE (headerHash header)) height
 
+/-- Only the BIP34 skip window needs old ancestor data. Missing supplied
+history is unavailable validation, rather than assumed canonical ancestry. -/
+def resolveBip30AncestorHash (context : Option Bitcoin.Capstone.Context.ChainContext)
+    (height : UInt32) : Except CapError Nat := do
+  if Bitcoin.Ledger.BIP34_HEIGHT < height ∧ height < BIP34_IMPLIES_BIP30_LIMIT then
+    let ctx ← match context with
+      | none => throw (CapError.context (.missingAncestor Bitcoin.Ledger.BIP34_HEIGHT.toNat))
+      | some ctx => pure ctx
+    let header ← match Bitcoin.Capstone.Context.ancestor ctx Bitcoin.Ledger.BIP34_HEIGHT.toNat with
+      | .error e => throw (CapError.context e)
+      | .ok header => pure header
+    pure (hashNatLE (headerHash header))
+  else pure 0
+
+/-- Core's one pristine-view BIP30 check. Both repeat exceptions bind the
+candidate's own hash and height; the later skip binds the actual BIP34
+ancestor. A quiet collision scan needs no irrelevant historical lookup. -/
+@[rule "BLK-096", rule "BLK-097", rule "BLK-098", rule "INV-104"]
+def checkBip30Pristine (context : Option Bitcoin.Capstone.Context.ChainContext)
+    (height : UInt32) (ownHash : Nat) (txs : List Tx) (l : List (OutPoint × Coin)) :
+    Except CapError Unit := do
+  if bip30BlockCollision (viewOf l) txidKey txs height then
+    let ancestorHash ← resolveBip30AncestorHash context height
+    if bip30EnforcedAtHashes height ownHash ancestorHash then
+      throw (CapError.block BlockError.badTxnsBIP30)
+    else pure ()
+  else pure ()
+
+/-- A successful exact gate either found no pristine overlap or resolved
+the actual ancestor input and obtained a disabled hash-aware enforcement bit. -/
+theorem checkBip30Pristine_ok_iff {context height ownHash txs l} :
+    checkBip30Pristine context height ownHash txs l = .ok () ↔
+      bip30BlockCollision (viewOf l) txidKey txs height = false ∨
+      ∃ ancestorHash, resolveBip30AncestorHash context height = .ok ancestorHash ∧
+        bip30EnforcedAtHashes height ownHash ancestorHash = false := by
+  cases hc : bip30BlockCollision (viewOf l) txidKey txs height with
+  | false => simp [checkBip30Pristine, hc, pure, Except.pure]
+  | true =>
+    cases ha : resolveBip30AncestorHash context height with
+    | error e => simp [checkBip30Pristine, hc, ha, Bind.bind, Except.bind]
+    | ok value =>
+      cases he : bip30EnforcedAtHashes height ownHash value <;>
+        simp [checkBip30Pristine, hc, ha, he, Bind.bind, Except.bind, pure, Except.pure]
+
+/-- In the skip window the resolved value is the hash of the actual
+ancestor header returned from the supplied parent-chain lookup. -/
+theorem resolveBip30AncestorHash_window_iff {context height value}
+    (hw : Bitcoin.Ledger.BIP34_HEIGHT < height ∧ height < BIP34_IMPLIES_BIP30_LIMIT) :
+    resolveBip30AncestorHash context height = .ok value ↔
+      ∃ ctx header, context = some ctx ∧
+        Bitcoin.Capstone.Context.ancestor ctx Bitcoin.Ledger.BIP34_HEIGHT.toNat = .ok header ∧
+        hashNatLE (headerHash header) = value := by
+  cases context with
+  | none => simp [resolveBip30AncestorHash, hw, Bind.bind, Except.bind]
+  | some ctx =>
+    cases ha : Bitcoin.Capstone.Context.ancestor ctx Bitcoin.Ledger.BIP34_HEIGHT.toNat <;>
+      simp [resolveBip30AncestorHash, hw, ha, Bind.bind, Except.bind, pure, Except.pure]
+
+/-- The old canonical-height gate is a weaker projection of exact checking:
+where it enforces, the actual hash cannot authorize either exception. -/
+theorem bip30_height_enforced_resolved {context height ownHash}
+    (h : bip30Enforced height = true) :
+    resolveBip30AncestorHash context height = .ok 0 ∧
+      bip30EnforcedAtHashes height ownHash 0 = true := by
+  by_cases ha : height = 91842
+  · subst height
+    have pin : bip30Enforced 91842 = false := by decide
+    rw [pin] at h
+    cases h
+  by_cases hb : height = 91880
+  · subst height
+    have pin : bip30Enforced 91880 = false := by decide
+    rw [pin] at h
+    cases h
+  have hw : ¬ (Bitcoin.Ledger.BIP34_HEIGHT < height ∧ height < BIP34_IMPLIES_BIP30_LIMIT) := by
+    rintro ⟨hlo, hhi⟩
+    simp [bip30Enforced, hlo, hhi] at h
+  have hwb : ((Bitcoin.Ledger.BIP34_HEIGHT < height && height < BIP34_IMPLIES_BIP30_LIMIT) : Bool) = false := by
+    apply Bool.eq_false_iff.mpr
+    intro hyes
+    simp only [Bool.and_eq_true, decide_eq_true_eq] at hyes
+    exact hw hyes
+  constructor
+  · simp [resolveBip30AncestorHash, hw, pure, Except.pure]
+  · simp [bip30EnforcedAtHashes, bip30OwnHashPinned, ha, hb, hwb]
+
+theorem checkBip30Pristine_error_of_height {context height ownHash txs l}
+    (hc : bip30BlockCollision (viewOf l) txidKey txs height = true)
+    (he : bip30Enforced height = true) :
+    checkBip30Pristine context height ownHash txs l =
+      .error (CapError.block BlockError.badTxnsBIP30) := by
+  obtain ⟨resolved, enforced⟩ := bip30_height_enforced_resolved (context := context)
+    (ownHash := ownHash) he
+  simp [checkBip30Pristine, hc, resolved, enforced, Bind.bind, Except.bind]
+
+/-- Preserve the valid old ledger-wrapper projection without assuming that
+its height-only approximation is sufficient for public acceptance. -/
+theorem checkBip30Pristine_ok_height_quiet {context height ownHash txs l}
+    (h : checkBip30Pristine context height ownHash txs l = .ok ()) :
+    (bip30BlockCollision (viewOf l) txidKey txs height && bip30Enforced height) = false := by
+  cases hc : bip30BlockCollision (viewOf l) txidKey txs height with
+  | false => simp [hc]
+  | true =>
+    cases he : bip30Enforced height with
+    | false => simp [he]
+    | true =>
+      rw [checkBip30Pristine_error_of_height hc he] at h
+      cases h
+
 /-- Checks preceding the ConnectBlock sigop budget. Replay omits BIP68;
 the contextual entry uses exactly its resolved parent-chain facts. -/
 def checkBeforeSigops (context : Option (Bitcoin.Capstone.Context.ChainContext ×
@@ -1054,9 +1163,7 @@ def validateBlock (raw : ByteArray) (st : CapState)
   -- fold: if enforcement is on and some tx output recreates a live
   -- outpoint, the block fails `bad-txns-BIP30`. `applyBlockL` already has
   -- this gate; the pipeline must not bypass it.
-  if bip30BlockCollision (viewOf st.utxo) txidKey txs st.height
-        && bip30Enforced st.height then
-    throw (CapError.block BlockError.badTxnsBIP30)
+  checkBip30Pristine (resolved.map (·.1)) st.height (hashNatLE (headerHash h)) txs st.utxo
   -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
   let ((utxo', okN, unjN), sigops) ← applyBlockTransactionsWithSigops resolved st.height
     (candidateScriptFlags st.height h) txs st.utxo
@@ -1258,8 +1365,10 @@ theorem validateBlock_badBip30
   have hbip34' : bip34Ok st.height (txs[0]?.getD dummyTx) = true := by simpa using hbip34
   have witnessOk' : checkWitnessCommitment (SEGWIT_HEIGHT ≤ st.height) txs
       (txs[0]?.getD dummyTx) = .ok () := by simpa using witnessOk
+  have checked := checkBip30Pristine_error_of_height (context := none)
+    (ownHash := hashNatLE (headerHash h)) hcol henf
   unfold validateBlock
   simp [hdec, hstruct, hcbpos, hcblen', hver, hbip34', htarget, hpow, hlink,
-    hmerkle, hmut, witnessOk', hweight, hcol, henf, throw_except_error]
+    hmerkle, hmut, witnessOk', hweight, checked, throw_except_error]
 
 end Bitcoin.Capstone.Block

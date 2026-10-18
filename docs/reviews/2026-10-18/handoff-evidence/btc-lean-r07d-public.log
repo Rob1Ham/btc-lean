@@ -1,0 +1,25 @@
+[PASS] replay canonical repeat 91842: expected=ok, actual=ok
+[PASS] replay canonical repeat 91880: expected=ok, actual=ok
+[PASS] replay crossed repeat hash at 91842: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] replay crossed repeat hash at 91880: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] replay alternate hash collision at 91842: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] replay alternate hash collision at 91880: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] replay alternate no collision at 91842: expected=ok, actual=ok
+[PASS] replay alternate no collision at 91880: expected=ok, actual=ok
+[PASS] replay BIP30 precedes missing input: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] context canonical repeat 91842: expected=ok, actual=ok
+[PASS] context canonical repeat 91880: expected=ok, actual=ok
+[PASS] context crossed repeat hash at 91842: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] context crossed repeat hash at 91880: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] context alternate hash collision at 91842: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] context alternate hash collision at 91880: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] context alternate no collision at 91842: expected=ok, actual=ok
+[PASS] context alternate no collision at 91880: expected=ok, actual=ok
+[PASS] context BIP30 precedes missing input: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] window replay collision needs ancestor: expected=context-missing-ancestor, actual=context-missing-ancestor
+[PASS] window noncanonical ancestor enforces BIP30: expected=bad-txns-BIP30, actual=bad-txns-BIP30
+[PASS] window missing ancestor is unavailable: expected=context-missing-ancestor, actual=context-missing-ancestor
+[PASS] window canonical ancestor permits collision: expected=ok, actual=ok
+[PASS] window replay no collision needs no ancestor: expected=ok, actual=ok
+[PASS] window noncanonical ancestor no collision control: expected=ok, actual=ok
+bip30-public checks=24 failures=0

@@ -135,7 +135,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
       obtain ⟨prelude, h⟩ := unit_precheck_ok _ _ h
       obtain ⟨witness, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
       obtain ⟨_, h⟩ := gate_step _ _ h -- weight
-      obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
+      obtain ⟨_, h⟩ := unit_precheck_ok _ _ h -- exact BIP30
       cases hs : applyBlockTransactionsWithSigops none st.height
           (candidateScriptFlags st.height header) txs st.utxo with
       | error e => simp [hs] at h
@@ -157,7 +157,7 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         obtain ⟨prelude, h⟩ := unit_precheck_ok _ _ h
         obtain ⟨witness, h⟩ := unit_precheck_ok _ _ h -- ordered witness stage
         obtain ⟨_, h⟩ := gate_step _ _ h -- weight
-        obtain ⟨_, h⟩ := gate_step _ _ h -- BIP30
+        obtain ⟨_, h⟩ := unit_precheck_ok _ _ h -- exact BIP30
         cases hs : applyBlockTransactionsWithSigops (some (ctx, facts)) st.height
             (candidateScriptFlags st.height header) txs st.utxo with
         | error e => simp [hs] at h
