@@ -66,38 +66,29 @@ theorem p2shInner_redeem_false (fuel : Nat) (flags : Bitcoin.Activation.ScriptFl
   rw [hparse]
   simp [hpush, hev, hne, hfalse]
 
-/-! ## INV-075 — BIP341 annex parse
+/-! ## INV-075 — BIP341 annex parse -/
 
-**Residual (accepted, disclosed):** `Bitcoin.Interpreter.verifyWitnessProgram`
-(Defs.lean:1247 and the pin at :1632) models the annex digest as
-`hashSha256 annex` — a raw single SHA256 over the annex bytes — whereas
-BIP341 / Core's `HashWriter << Span(annex)` hashes
-`SHA256(CompactSize(len(annex)) ‖ annex)` (interpreter.cpp:1964 +
-1554-1556). The theorem below faithfully mirrors the current `Defs`
-model, so it inherits that model drift; it does NOT establish the Core
-annex digest. The correct computation already exists as
-`Bitcoin.Crypto.Taproot.Program.annexHash` (TPR-006) and is pinned as
-the companion theorem `annexHash_compactSize_correct` below. Closing the
-gap requires changing `Defs.lean`, which is outside this area's write
-scope. -/
-
-/-- INV-075 (CompactSize-correct companion): the TPR-006 annex hash is
-`SHA256(CompactSize(len) ‖ annex)`, including the 0x50 tag byte. This is
-the digest the `Defs` model above should use; it is proved here so the
-row carries a correct, independently checked target as well as the
-faithful model statement. -/
+/-- INV-075 (CompactSize-correct companion): the `Taproot.Program` annex
+hash is `SHA256(CompactSize(len) ‖ annex)`, including the `0x50` tag byte.
+This is the same preimage the interpreter's `annexHash` uses. -/
 @[rule "INV-075"]
 theorem annexHash_compactSize_correct (annex : ByteArray) :
     Bitcoin.Crypto.Taproot.Program.annexHash annex =
       Bitcoin.Crypto.Seam.Hash.Sha256.sha256
         (compactSizeEnc annex.size ++ annex) := rfl
 
+/-- INV-075 (interpreter preimage): the core interpreter's annex digest
+hashes exactly `CompactSize(len(annex)) ‖ annex`, including the `0x50`
+tag byte. -/
+theorem interpreter_annexHash_eq (annex : ByteArray) :
+    Bitcoin.Interpreter.annexHash annex =
+      Bitcoin.Interpreter.hashSha256 (compactSizeEnc annex.size ++ annex) := rfl
+
 /-- INV-075: witness `[sig, annex]` with a nonempty `0x50`-tagged last
-item is an annex spend: the annex is hashed into `ScriptExecutionData`,
-stripped from the stack, and the remaining single item is the key-path
-signature checked against the output key. The digest is the current
-`Defs` model (`hashSha256 annex`), NOT the CompactSize-correct one — see
-the residual note above. -/
+item is an annex spend: the annex is hashed into `ScriptExecutionData`
+as `SHA256(CompactSize(len(annex)) ‖ annex)` (Core's `HashWriter` span
+serialization), stripped from the stack, and the remaining single item
+is the key-path signature checked against the output key. -/
 @[rule "INV-075"]
 theorem verifyWitnessProgram_annex_keypath (fuel : Nat) (sig annex program : ByteArray)
     (flags : Bitcoin.Activation.ScriptFlags) (pol : PolicyFlags) (chk : ScriptChecker)
@@ -107,7 +98,7 @@ theorem verifyWitnessProgram_annex_keypath (fuel : Nat) (sig annex program : Byt
       if chk.base.checkSchnorrSignature sig program SigVersion.taproot
           { (default : ScriptExecutionData) with
             annexInit := true, annexPresent := true,
-            annexHash := hashSha256 annex }
+            annexHash := Bitcoin.Interpreter.annexHash annex }
         then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
   simp [verifyWitnessProgram, htap, h32, hnonempty, htag]
 

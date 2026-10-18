@@ -40,8 +40,8 @@ theorem annexHash_tag_included (rest : ByteArray) :
 /-- TPR-006 (CompactSize boundary regression): a 253-byte annex crosses
 the first `CompactSize` boundary, so the prefix must be the 0xfd marker
 plus the two-byte little-endian length `0x00fd` — not a bare single
-byte. This pins the varint encoding the row claims, independently of
-the raw-`SHA256(annex)` drift in `Interpreter/Defs.lean`. -/
+byte. This pins the varint encoding the row claims and matches the
+interpreter's `annexHash` preimage. -/
 theorem compactSizeEnc_253 :
     compactSizeEnc 253 = serU8 0xfd ++ serU16 (253 : UInt16) := by
   decide

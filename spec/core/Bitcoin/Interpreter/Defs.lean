@@ -1201,6 +1201,13 @@ where
         if st.length ≠ 1 then .fail .cleanstack
         else if castToBool st[0]! then .ok else .fail .evalFalse
 
+/-- BIP341 annex digest (interpreter.cpp:1964 + 1554-1556): `SHA256(
+CompactSize(len(annex)) ‖ annex)`. Core's `HashWriter` serializes the
+annex span with a CompactSize length prefix; the annex includes its
+mandatory `0x50` tag byte. -/
+def annexHash (annex : ByteArray) : ByteArray :=
+  hashSha256 (compactSizeEnc annex.size ++ annex)
+
 /-- `VerifyWitnessProgram` (interpreter.cpp:1827-2008). `unjudged` only
 for taproot script-path spending (CheckTapTweak is outside the seam). -/
 @[rule "SCR-133", rule "SCR-134", rule "SCR-135", rule "SCR-136", rule "SCR-137", rule "SCR-138", rule "SCR-143", rule "SCR-145", rule "SCR-150", rule "SCR-151",
@@ -1248,7 +1255,7 @@ def verifyWitnessProgram (fuel : Nat) (witness : WitnessStack) (version : Nat)
           { edDflt with
             annexInit := true,
             annexPresent := annex,
-            annexHash := (if annex then hashSha256 (witness.getLast!) else edDflt.annexHash) }
+            annexHash := (if annex then annexHash (witness.getLast!) else edDflt.annexHash) }
         if stack.length = 1 then
           -- key path spend
           if chk.base.checkSchnorrSignature stack[0]! program .taproot ed then .ok
@@ -1620,7 +1627,7 @@ theorem p2shInner_redeem_ok (fuel : Nat) (flags : ScriptFlags)
 /-- INV-075 (`interpreter.cpp:1961-1969 @cce32b168`, BIP341): a witness
 `[sig, annex]` with a nonempty `0x50`-tagged last item is parsed as an
 annex, the annex is hashed into `ScriptExecutionData`
-(`annexHash = SHA256(annex)`, `annexPresent = true`, `annexInit =
+(`annexHash = SHA256(CompactSize(len(annex)) ‖ annex)`, `annexPresent = true`, `annexInit =
 true`), stripped from the stack, and the remaining single item is the
 key-path signature checked against the output key. -/
 @[rule "INV-075"]
@@ -1633,7 +1640,7 @@ theorem verifyWitnessProgram_annex_keypath (fuel : Nat)
       if chk.base.checkSchnorrSignature sig program SigVersion.taproot
           { (default : ScriptExecutionData) with
             annexInit := true, annexPresent := true,
-            annexHash := hashSha256 annex }
+            annexHash := annexHash annex }
         then VerifyOutcome.ok else VerifyOutcome.fail .schnorrSig := by
   simp [verifyWitnessProgram, htap, h32, hnonempty, htag]
 

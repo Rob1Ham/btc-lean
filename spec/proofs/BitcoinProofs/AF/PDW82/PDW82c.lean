@@ -14,7 +14,7 @@ open Bitcoin.Interpreter Bitcoin.Data
 
 /-- SCR-143 (positive): `[sig, ann]` with `ann` non-empty and starting
 `0x50` is detected as an annex, leaving `[sig]` (key path) with
-`annexPresent = true` and `annexHash = SHA256(ann)`. -/
+`annexPresent = true` and `annexHash = SHA256(CompactSize(len(ann)) ‖ ann)`. -/
 @[rule "SCR-143"]
 theorem verifyWitnessProgram_annex_detected
     (fuel : Nat) (sig ann program : ByteArray)
@@ -27,7 +27,7 @@ theorem verifyWitnessProgram_annex_detected
         { (default : Bitcoin.Crypto.Seam.ScriptExecutionData) with
           annexInit := true
           annexPresent := true
-          annexHash := hashSha256 ann }
+          annexHash := annexHash ann }
        if chk.base.checkSchnorrSignature sig program .taproot ed then .ok
        else .fail .schnorrSig) := by
   unfold verifyWitnessProgram
@@ -63,7 +63,7 @@ private theorem getLast!_concat {α : Type} [Inhabited α] (l : List α) (a : α
 /-- SCR-143 (general annex detection, interpreter.cpp:1961-1969):
 for ANY witness stack of at least two items whose last item is nonempty
 and begins with `0x50`, the annex is detected. The last item is stripped
-from the stack (`annexPresent = true`, `annexHash = SHA256(ann)`) and the
+from the stack (`annexPresent = true`, `annexHash = SHA256(CompactSize(len(ann)) ‖ ann)`) and the
 remainder follows the key-path or script-path branch according to its
 length. The original `[sig, ann]` theorem is the one-item instance. -/
 @[rule "SCR-143"]
@@ -78,7 +78,7 @@ theorem verifyWitnessProgram_annex_general
         { (default : Bitcoin.Crypto.Seam.ScriptExecutionData) with
           annexInit := true
           annexPresent := true
-          annexHash := hashSha256 ann }
+          annexHash := annexHash ann }
        if pre.length = 1 then
          if chk.base.checkSchnorrSignature pre[0]! program .taproot ed then .ok
          else .fail .schnorrSig
