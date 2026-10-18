@@ -2,7 +2,7 @@
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
 proof tree. It builds the root module plus its 28 direct/transitive local
-imports: **29 modules**, recorded at **1730 jobs**. The package contains **409
+imports: **29 modules**, recorded at **1722 jobs**. The package contains **409
 Lean modules** (410 `.lean` files including `lakefile.lean`); **380 modules are
 outside the default closure**.
 
