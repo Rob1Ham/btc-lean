@@ -2,19 +2,16 @@ import Bitcoin.Activation.Interface
 import Bitcoin.Crypto.Seam.Interface
 
 /-!
-# Bitcoin.Activation.Flags — Core-faithful hash-keyed port + policy catalogue (W06)
+# Bitcoin.Activation.Flags — Core-faithful hash-keyed port + policy catalogue
 
-## Ownership block
+## Interface contract
 
-Owning workstream     : W06 (Consensus flags & activation)
-Dependent workstreams : W09 (flags drive EvalScript/VerifyScript),
-                        W16 (audit of flag vectors)
 Core counterpart files: src/validation.cpp (GetBlockScriptFlags:2249-2288),
                         src/kernel/chainparams.cpp:113-137,
                         src/deploymentstatus.h, src/script/interpreter.cpp
                         (MINIMALIF/CLEANSTACK tapscript semantics),
                         BIP146 (policy flags, never activated on mainnet)
-Status                : implemented + proved 2026-10-16 by W06.
+Status: implemented + proved 2026-10-16.
 
 ## What this module adds over `Bitcoin.Activation.Interface`
 
@@ -25,7 +22,7 @@ Status                : implemented + proved 2026-10-16 by W06.
    `getBlockScriptFlags` is the mainnet specialization, and the
    `mainnet_height_hash_agree_*` theorems prove the two agree (on mainnet
    a height determines its canonical block's hash).
-2. The **policy catalogue** (W06 brief item b): the eight script
+2. The **policy catalogue**: the eight script
    verification flags that are NOT consensus on mainnet (BIP146 was never
    activated; LOW_S/STRICTENC/MINIMALDATA/NULLFAIL/CLEANSTACK/
    CONST_SCRIPTCODE are mempool policy, MINIMALIF applies to v0 witness
@@ -194,7 +191,7 @@ NULLDUMMY) — validation.cpp:2262-2265. -/
 /-- BLK-085: DERSIG is set exactly when BIP66 is active at the block
 (validation.cpp:2266-2269). SWT-061: strict-DER signature encoding is
 CONSENSUS from height 363,725 — the flag flows into `checkSigEncoding`'s
-DER gate (`flags.dersig` term) and W13's seam (`dersig_iff`). SCR-103:
+DER gate (`flags.dersig` term) and seam (`dersig_iff`). SCR-103:
 the BIP66 activation row (validation.cpp:2268-2270). The `hnone`-free
 faces `dersig_flag_flow_any` / `dersig_flag_flow_mainnet_any` cover the
 exception-hash branch too (Core ORs DERSIG after the replacement). -/
@@ -285,7 +282,7 @@ until the buried OR fires. -/
 
 /-- BLK-087: CSV is set exactly when CSV is active (validation.cpp:2276-2278;
 the CSV opcode itself also requires LOCKTIME_VERIFY_SEQUENCE, handled by
-W10's contextual checks — flag selection is this height compare). -/
+contextual checks — flag selection is this height compare). -/
 @[rule "BLK-087", rule "INV-130"] theorem csv_flag_flow (P : ChainParams) (hash : BlockHash)
     (height : UInt32) (hnone : P.scriptFlagExceptions hash = none)
     (hact : P.csvHeight ≤ height) :
@@ -540,7 +537,7 @@ theorem flagBits_singletons :
     flagBits { taproot := true } = 131072 := by
   decide
 
-/-! ## Policy-only flags (NOT consensus — W06 brief item b) -/
+/-! ## Policy-only flags (NOT consensus — the activation layer, item b) -/
 
 /-- The eight script-verification flags that are NOT consensus rules on
 mainnet. BIP146 ("mandatory consensus consistency" — LOW_S, STRICTENC,
@@ -564,7 +561,7 @@ inductive PolicyFlag where
 deriving Repr, DecidableEq, BEq
 
 /-- The full verification-flag view: a consensus `ScriptFlags` set plus a
-policy assignment. W09's `VerifyScript` consumes this; block validation
+policy assignment. `VerifyScript` consumes this; block validation
 consumes only the `consensus` projection. (No DecidableEq: the policy
 field is a function; compare per-flag instead.) -/
 structure FullFlags where

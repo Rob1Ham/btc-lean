@@ -14,7 +14,7 @@ INCLUDES its mandatory 0x50 tag byte (interpreter.cpp:1964 + 1554-1556,
 namespace BitcoinProofs.AF.PDW41
 
 open Bitcoin.Crypto.Taproot.Program
-open Bitcoin.Data (compactSizeEnc serU8)
+open Bitcoin.Data (compactSizeEnc serU8 serU16)
 
 /-- TPR-006 (preimage pin): CompactSize(length) then the annex bytes,
 single SHA256 — no double hash, no trailing data. -/
@@ -36,6 +36,25 @@ theorem annexHash_tag_included (rest : ByteArray) :
       Bitcoin.Crypto.Seam.Hash.Sha256.sha256
         (compactSizeEnc (serU8 0x50 ++ rest).size ++ (serU8 0x50 ++ rest)) :=
   annexHash_row _
+
+/-- TPR-006 (CompactSize boundary regression): a 253-byte annex crosses
+the first `CompactSize` boundary, so the prefix must be the 0xfd marker
+plus the two-byte little-endian length `0x00fd` — not a bare single
+byte. This pins the varint encoding the row claims and matches the
+interpreter's `annexHash` preimage. -/
+theorem compactSizeEnc_253 :
+    compactSizeEnc 253 = serU8 0xfd ++ serU16 (253 : UInt16) := by
+  decide
+
+/-- TPR-006 (CompactSize regression): for an annex of length 253 the
+hashed preimage is exactly `0xfd 0xfd 0x00 ‖ annex`. -/
+@[rule "TPR-006"]
+theorem annexHash_compactSize_253 (annex : ByteArray)
+    (h : annex.size = 253) :
+    annexHash annex =
+      Bitcoin.Crypto.Seam.Hash.Sha256.sha256
+        (serU8 0xfd ++ serU16 (253 : UInt16) ++ annex) := by
+  rw [annexHash_row, h, compactSizeEnc_253, ByteArray.append_assoc]
 
 /-- TPR-006 (cross-layer): the Program-layer `annexHash` and the
 sighash-layer `shaAnnex` are the SAME function — the annex commitment

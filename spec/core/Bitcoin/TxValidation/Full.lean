@@ -3,12 +3,12 @@ import Bitcoin.Interpreter.Interface
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Bitcoin.TxValidation.Full — X09: the full tx-pipeline verdict (script lane)
+# Bitcoin.TxValidation.Full — the transaction-validation module: the full tx-pipeline verdict (script lane)
 
-Composes W10's contextual tier (`TxValidation.Interface`: stateless prefix +
+Composes the contextual tier (`TxValidation.Interface`: stateless prefix +
 HaveInputs + `checkTxInputs`, 131/131 on the tx corpus) with the live script
-lanes (W09's `verifyScriptFull` interpreter, W11 sighash, W14b real ECDSA,
-X02 real BIP340 behind W13's seam) into ONE per-transaction verdict — Core's
+lanes (`verifyScriptFull` interpreter, sighash, real ECDSA,
+the Schnorr module real BIP340 behind seam) into ONE per-transaction verdict — Core's
 `CheckInputScripts` / `CScriptCheck::operator()` slice of `ConnectBlock` +
 `MemPoolAccept` (validation.cpp:2060-2134, 2013-2026).
 
@@ -28,7 +28,7 @@ X02 real BIP340 behind W13's seam) into ONE per-transaction verdict — Core's
 Finality (TXV-027..032) and the time-domain half of BIP68 are deliberately
 NOT in this lane: the tx corpus carries no block context, so they are the
 block/mempool-context layer's verdicts (`Mempool.lean` in this directory,
-W12's `validateTx` caller). This mirrors Core, where `CheckInputScripts`
+`validateTx` caller). This mirrors Core, where `CheckInputScripts`
 runs after the context checks its CALLER performed.
 
 ## The checker
@@ -37,7 +37,7 @@ runs after the context checks its CALLER performed.
 per input with an `Option Amount`: `none` models the checker's missing-data
 state (`amount < 0`, `HandleMissingData` fail-closed, SWT-055) — exactly the
 corpus's `-1` "amount omitted" sentinel. The Schnorr sighash remains the
-fail-closed X03/X04 stand-in (a one-parameter flip at `RealChecker.lean`,
+fail-closed the Taproot and interpreter delta layers stand-in (a one-parameter flip at `RealChecker.lean`,
 the single wiring point).
 -/
 
@@ -70,10 +70,10 @@ def tableAmountsKnown (tx : Tx) (tbl : OutPoint → Option ScriptEntry) : Bool :
 /-! ## The per-input real checker (TXV-058/061) -/
 
 /-- The real signature checker for input `nIn` of `tx` spending `amount`:
-real lax-ECDSA entry (W14b `verifyImpl` over W11's sighash dispatch;
+real lax-ECDSA entry (`verifyImpl` over sighash dispatch;
 `hasAmount = amount.isSome`, so `none` fails closed on WITNESS_V0 sighashes
 exactly as Core's `HandleMissingData`), real BIP340 verifier in the Schnorr
-entry (BIP342 sighash still the fail-closed X03/X04 stand-in), and the real
+entry (BIP342 sighash still the fail-closed Taproot/interpreter-delta stand-in), and the real
 locktime environment (`LocktimeEnv` IC-2: tx version / nLockTime / this
 input's nSequence — the CLTV/CSV opcode lanes, TXV-043..048). -/
 @[rule "TXV-058", rule "TXV-061"]
@@ -132,7 +132,7 @@ def feeOk (tx : Tx) (u : UtxoSet) (spendHeight : UInt32) : Bool :=
 
 /-! ## The full pipeline -/
 
-/-- The full tx-pipeline verdict (X09): W10's contextual tier + the script
+/-- The full tx-pipeline verdict (the transaction-validation module): the transaction-validation layer's contextual tier + the script
 lane. Check order mirrors Core's `PreChecks` → `CheckInputScripts`:
 stateless prefix → coinbase early-exit (TXV-059/072) → prevout resolution
 (TXV-020) → fee slice when adjudicable (TXV-023/024/025) → per-input

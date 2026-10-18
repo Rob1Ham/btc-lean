@@ -1,7 +1,7 @@
 import Bitcoin.Invariants.RC07
 
 /-! # PDW58E.lean — TOP-315: INV-073 BIP341 leaf commitment
-(PDW58, review RC29). Row face for
+(PDW58, RC29). Row face for
 `Bitcoin.Invariants.RC07.tapleafCommitment`
 (interpreter.cpp:VerifyTaprootCommitment:1913-1926 @ cce32b168).
 Route B: zero core writes; the EC `CheckTapTweak` step stays in the X03

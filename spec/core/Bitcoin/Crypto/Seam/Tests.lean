@@ -4,7 +4,7 @@ import Bitcoin.Crypto.Seam.Entry
 import Bitcoin.Crypto.Seam.Mock
 
 /-!
-# Bitcoin.Crypto.Seam.Tests — build-time verified examples (W13)
+# Bitcoin.Crypto.Seam.Tests — build-time verified examples
 
 Every check here is a `decide`-verified `example` (kernel-checked at
 build time, no runtime harness needed). These exercise the DER gate,
@@ -148,7 +148,7 @@ example : (ecdsaEntry (fun _ _ _ => true) (fun _ _ _ => ByteArray.empty) true
 example : (ecdsaEntry (fun _ _ _ => true) (fun _ _ _ => ByteArray.empty) false
     |>.checkECDSASignature vSig pkC (fromHex "51") SigVersion.witnessV0 default) = false := by decide
 
--- ...but the same spend passes once the amount is present.
+--...but the same spend passes once the amount is present.
 example : (ecdsaEntry (fun _ _ _ => true) (fun _ _ _ => ByteArray.empty) true
     |>.checkECDSASignature vSig pkC (fromHex "51") SigVersion.witnessV0 default) = true := by decide
 
@@ -156,7 +156,7 @@ example : (ecdsaEntry (fun _ _ _ => true) (fun _ _ _ => ByteArray.empty) true
 example : (ecdsaEntry (fun _ _ _ => true) (fun _ _ _ => ByteArray.empty) true
     |>.checkECDSASignature vSig (fromHex "05") (fromHex "51") SigVersion.base default) = false := by decide
 
-/-! ## Schnorr entry (Review-3 slot) -/
+/-! ## Schnorr entry -/
 
 def pk32 : ByteArray := fromHex (String.mk (List.replicate 64 '2'))
 def sig64 : ByteArray := fromHex (String.mk (List.replicate 128 '1'))
@@ -201,7 +201,7 @@ example : (schnorrEntry (fun _ _ _ => true) (fun _ _ _ => none)
 -- SIGHASH_DEFAULT is 0.
 example : SIGHASH_DEFAULT = 0 := by decide
 
-/-! ## The Review-2 assembly (txCheckerOf) -/
+/-! ## The checker assembly (txCheckerOf) -/
 
 example : (txCheckerOf (fun _ _ _ => true) (fun _ ht _ => ByteArray.empty.push ht) true
     (fun _ _ _ => true) (fun _ _ _ => some digest32)
@@ -227,7 +227,7 @@ example : (mockChecker table |>.checkSchnorrSignature sigA pkA
 example : (mockChecker [] |>.checkECDSASignature sigA pkA (fromHex "51")
     SigVersion.base default) = false := by decide
 
-/-! ## Frozen stub + seam shape (unchanged from W01's freeze) -/
+/-! ## Frozen stub + seam shape (unchanged from the frozen interface's freeze) -/
 
 example : stubChecker.checkECDSASignature (fromHex "01") pkA (fromHex "51")
     SigVersion.base default = true := by decide

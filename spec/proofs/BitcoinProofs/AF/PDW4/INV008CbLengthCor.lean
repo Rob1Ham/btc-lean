@@ -3,10 +3,9 @@ import Bitcoin.Consensus.TxCheck
 /-!
 # INV008CbLengthCor — T8/INV-008 promotion proof (P12)
 
-PDW4 (proof-promotion review), recovery review 3, 2026-10-17.
 Row INV-008 (coinbase scriptSig length ∈ [2,100],
 `bad-cb-length`; core anchor tx_check.cpp:55-58 @cce32b168).
-Claim: `spec/db/findings-af/PDW4.md` @ 5fe77cf (rank 19 = T8).
+Claim commit 5fe77cf.
 Statement P12 (bound dir) restated 1:1 verbatim from
 `PD03-stmtcheck.lean:97-103` (elaborated green in `PDW4Check.lean`).
 
@@ -68,3 +67,10 @@ theorem checkTransaction_ok_cbLength (tx : Tx)
       have hlt : MIN_CB_LENGTH > i.scriptSig.bytes.size := by omega
       have := hcc.1
       omega))
+
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_cbLength' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_cbLength
+
+end BitcoinProofs.AF.PDW4

@@ -125,9 +125,9 @@ example : sampleCoinbase.isCoinBase = true := by decide
 def check (name : String) (b : Bool) : IO Unit :=
   IO.println s!"[{if b then "PASS" else "FAIL"}] {name}"
 
-/-- W01: each check returns its verdict so `main` can count failures and
-exit non-zero, making `lake test` CI-usable. C1's 13 checks are preserved
-verbatim; W01 adds 3 more. -/
+/-- the frozen interface: each check returns its verdict so `main` can count failures and
+exit non-zero, making `lake test` CI-usable. The original 13 checks are preserved
+verbatim; 3 more were added. -/
 def checkR (name : String) (b : Bool) : IO Bool := do
   check name b
   return b
@@ -197,7 +197,7 @@ def main : IO UInt32 := do
     let b ← checkR "UTXO: spent coin removed" (utxoLookup ledger' op == none)
     return a && b
 
-  -- W01 gate checks (new): CompactSize roundtrip, MoneyRange boundary,
+  -- Additional gate checks: CompactSize roundtrip, MoneyRange boundary,
   -- witness-frame decode placeholder behavior stays stable.
   let r13 := do
     let a ← r12

@@ -3,11 +3,10 @@ import Bitcoin.TxValidation.Interface
 /-!
 # INV009PrevoutCor — T7/INV-009 + TXV-009 promotion proof (P11)
 
-PDW4 (proof-promotion review), recovery review 3, 2026-10-17.
 Rows INV-009 / TXV-009 (non-coinbase: no null prevout,
 `bad-txns-prevout-null`; core anchor tx_check.cpp:62-64
-@cce32b168). Claim: `spec/db/findings-af/PDW4.md` @ 5fe77cf
-(rank 18 = T7). Statement P11 (bound dir) restated 1:1 verbatim
+@cce32b168). Claim commit 5fe77cf.
+Statement P11 (bound dir) restated 1:1 verbatim
 from `PD03-stmtcheck.lean:105-109` (elaborated green in
 `PDW4Check.lean`).
 
@@ -71,5 +70,10 @@ theorem checkTransaction_ok_prevoutNotNull (tx : Tx)
                 intro hcc
                 nomatch hcc
               exact hne hcontra
+
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_prevoutNotNull' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_prevoutNotNull
 
 end BitcoinProofs.AF.PDW4

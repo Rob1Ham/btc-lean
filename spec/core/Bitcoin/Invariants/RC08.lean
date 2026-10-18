@@ -22,12 +22,12 @@ Appendix B §B.7/§B.8 (`validation.cpp::CheckBlock` / `ContextualCheckBlock`,
   BIP141): `SHA256d(witness_root ‖ reserved)` must equal
   `scriptPubKey[6..38]`, with the ACTUAL coinbase reserved value; the
   general digest/accept-reject faces are `witnessCommitmentMatch_digest`
-  and `witnessCommitmentMatch_iff`. Reduces to X05's
+  and `witnessCommitmentMatch_iff`. Reduces to the sigop model's
   `witnessCommitmentOk` (BLK-017) when the reserved value is the 32-byte
   zero.
 * `blockBitsOk` — **INV-094** (`validation.cpp:4096-4097`): the header nBits
   must equal `GetNextWorkRequired(prev)` (`bad-diffbits`), wrapped over
-  X08's `Bitcoin.Block.Pow.nextWorkRequired`.
+  the block-validation module's `Bitcoin.Block.Pow.nextWorkRequired`.
 * `atRetargetBoundary` / `retargetOnlyAtBoundary` — **INV-095**
   (`pow.cpp:20-39`): retargeting happens only at period boundaries; a
   mid-period block must copy the previous block's nBits.
@@ -35,7 +35,7 @@ Appendix B §B.7/§B.8 (`validation.cpp::CheckBlock` / `ContextualCheckBlock`,
   is clamped to `[T/4, 4·T]`; bounds + window-identity theorems.
 
 Vectors: `decide`-pinned block cases (INV-085/086/090) cross-checked by the
-python3 mirror in `spec/db/findings-rc/RC08.md` §Vectors; `#eval` pins for
+python3 mirror in the internal record §Vectors; `#eval` pins for
 the retarget arithmetic (INV-094/095/096) likewise python-mirrored.
 -/
 
@@ -96,7 +96,7 @@ def badVinTx : Tx :=
   { version := 1, vin := [], vout := [{ value := 1000, scriptPubKey := ⟨serU8 0x51⟩ }],
     locktime := 0, witness := [] }
 
-/-- Vector (python-mirrored, findings RC08 §V1): the good coinbase alone
+/-- Vector (python-mirrored, RC08 §V1): the good coinbase alone
 passes the block gate. -/
 theorem checkBlockTxs_cb_ok : checkBlockTxs [cbOk] = none := by decide
 
@@ -128,7 +128,7 @@ theorem signetBlockOk_gate (solutionOk : Bool) :
     (signetBlockOk true true solutionOk = true) ↔ (solutionOk = true) := by
   cases solutionOk <;> simp [signetBlockOk]
 
-/-- Vector (python-mirrored truth table, findings RC08 §V2): the gate. -/
+/-- Vector (python-mirrored truth table, RC08 §V2): the gate. -/
 theorem signetBlockOk_table : signetBlockOk true false true = true ∧
     signetBlockOk true false false = true ∧
     signetBlockOk true true false = false ∧
@@ -140,7 +140,7 @@ theorem signetBlockOk_table : signetBlockOk true false true = true ∧
 present, the coinbase witness must be exactly one 32-byte reserved value
 (INV-089) and `SHA256d(witness_merkle_root ‖ reserved)` must equal
 `scriptPubKey[6..38]` (`bad-witness-merkle-match`). This is Core's check
-with the ACTUAL reserved value; reduces to X05's `witnessCommitmentOk`
+with the ACTUAL reserved value; reduces to the sigop model's `witnessCommitmentOk`
 (BLK-017) in the zero-reserved special case. -/
 @[rule "INV-090"]
 def witnessCommitmentMatch (txs : List Tx) (cb : Tx) : Bool :=
@@ -229,7 +229,7 @@ theorem witnessCommitmentMatch_badNonceSize (txs : List Tx) (cb : Tx)
   rw [h]
   cases ho : witnessCommitmentOutput cb <;> simp [ho, h31]
 
-/-! ## INV-094/095/096: difficulty continuity over X08's pow port -/
+/-! ## INV-094/095/096: difficulty continuity over the block-validation module's pow port -/
 
 /-- **INV-094** (`validation.cpp:4096-4097`, `bad-diffbits`): the header's
 nBits must equal `GetNextWorkRequired(pindexPrev, &block, params)`. -/
@@ -438,7 +438,7 @@ theorem clampedTimespan_window (T raw : Int) (hlo : T / 4 ≤ raw) (hhi : raw �
     · simp only [h1, h2, if_false, if_true]; omega
     · simp only [h1, h2, if_false]
 
-/-! ## Vector pins (python3-mirrored, findings-rc/RC08.md §Vectors) -/
+/-! ## Vector pins (python3-mirrored, RC08 §Vectors) -/
 
 -- V3: commitment digest for the 1-tx block (zero root, zero reserved),
 -- python-mirrored in `RC08-vectors.py`.

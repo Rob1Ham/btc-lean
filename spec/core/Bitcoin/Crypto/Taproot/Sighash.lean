@@ -3,7 +3,7 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.Data.Tx
 
 /-!
-# Bitcoin.Crypto.Taproot.Sighash — the BIP341 signature message (X03, Unit 2)
+# Bitcoin.Crypto.Taproot.Sighash — the BIP341 signature message (the Taproot module)
 
 THE consensus-critical sighash lane (bip-0341.mediawiki §"Signature hashing
 for key and script path spends"), ported EXACTLY from Core
@@ -70,11 +70,11 @@ TPR-033 (field order), TPR-034..038 (sub-hashes), TPR-039 (spend_type),
 TPR-041 (input index), TPR-042 (SINGLE output existence), TPR-046
 (single SHA256), TPR-006 (sha_annex). Wiring note: `realSchnorrEntry`
 (`Capstone/RealChecker.lean`) still holds the fail-closed stand-in —
-flipping it is X04's one-parameter seam change (X10's A4/A5/A6 pins the
+flipping it is the interpreter delta layer's one-parameter seam change (the Schnorr-entry analysis's verdict-equivalence pins the
 current wiring); this module supplies the digest function.
 
-## Status: X03 Unit 2 — all theorems sorry-free, axioms pinned at the
-bottom (footprints ⊆ the standard trio, Unit-1 style). No `sorry`, no
+## Status: the Taproot module — all theorems sorry-free, axioms pinned at the
+bottom (footprints ⊆ the standard trio, the existing style). No `sorry`, no
 `native_decide`. Conformance: `Test/Crypto/TaprootSighashTest.lean`
 (7/7 official wallet-vector key-path sigMsg/sigHash cases + synthetic
 annex/tapscript/SINGLE cases) + `Test/Crypto/taproot_sighash_crosscheck.py`
@@ -93,7 +93,7 @@ open Bitcoin.Crypto.Seam.Hash.Sha256 (sha256)
 
 /-- Outpoint serialization inside the sighash = 32-byte txid AS-IS + 4 LE
 (the same `serTxIn` prevout encoding; `uint256::Serialize` writes the
-bytes in read order, Unit 1 ground truth). -/
+bytes in read order, ground truth). -/
 def serOutPoint (o : OutPoint) : ByteArray := o.hash ++ serU32 o.n
 
 /-- `sha_prevouts` = SHA256 of the serialization of all input outpoints
@@ -227,10 +227,10 @@ def singleSlice (env : TapSighashEnv) (inPos : Nat) (ht : UInt8)
 /-- The BIP342 extension slice (interpreter.cpp:1568-1576): TAPSCRIPT ⇒
 `tapleaf_hash ‖ key_version(0x00) ‖ codesep_pos(4 LE)` (TPR-043/044), with
 the two init flags enforced (Core asserts :1571/:1574 — fail-closed here);
-TAPROOT ⇒ empty. `[SCR3, recovery review 2]` SCR-164 (interpreter.cpp:1570-1576
+TAPROOT ⇒ empty. `[the script-rule work]` SCR-164 (interpreter.cpp:1570-1576
 @cce32b168) A-aliases THIS def — the tapscript sighash ext fields; attribute
-stacked by SCR3, def body X03's verbatim. Gap (X03's, not fixed here):
-extSlice carries no `TPR-044` tag — X03 tagged the seam lane, not this def.
+stacked by the script-rule work, def body the Taproot module's verbatim. Gap (the Taproot module's, not fixed here):
+extSlice carries no `TPR-044` tag — the Taproot module tagged the seam lane, not this def.
 `[TAGFIX]` gap closed: `@[rule "TPR-043", rule "TPR-044"]` stacked below
 (rules.yaml lean_target names extSlice for both rows). -/
 @[rule "SCR-164", rule "TPR-043", rule "TPR-044"]
@@ -284,15 +284,14 @@ def sigMsgTaproot (env : TapSighashEnv) (inPos : Nat) (ht : UInt8)
 /-- The BIP341 sighash: `hash_TapSighash(0x00 ‖ SigMsg(ht, ext_flag))`
 (TPR-032; interpreter.cpp:1533 epoch byte + `ss.GetSHA256()` over
 `HASHER_TAPSIGHASH` = `TaggedHash("TapSighash")`, interpreter.cpp:1466).
-`[SCR3, recovery review 2]` SCR-169 (interpreter.cpp:1490-1580 @cce32b168)
+`[the script-rule work]` SCR-169 (interpreter.cpp:1490-1580 @cce32b168)
 A-aliases THIS def — the full `SigTaprootHash` (BIP341 §signature
-hashing); attribute stacked by SCR3, def body X03's verbatim (e904215).
-Honest gaps (other contributors' frozen lanes, NOT fixed here): the tapscript
-`ed` is not yet threaded from the interpreter into the seam (audit
-F-TS02-008 MOD, X04's one-parameter seam change); the frozen
+hashing); attribute stacked by the script-rule work, def body the Taproot module's verbatim (e904215).
+Honest gaps (other modules' frozen lanes, NOT fixed here): the tapscript
+`ed` is not yet threaded from the interpreter into the seam (the interpreter-audit offset note, MOD severity; the interpreter delta layer's one-parameter seam change); the frozen
 `schnorrVerdict` seam still fail-closes on the none-sighash case
 (SCR-166); `RealChecker.realSchnorrEntry` is the fail-closed stand-in
-(X04's flip; S03's banked dead-contributor `SchnorrEntry2.realSchnorrEntry2`
+(the interpreter delta layer's flip; the Schnorr-entry work's existing unused `SchnorrEntry2.realSchnorrEntry2`
 carries the drop-in). -/
 @[rule "SCR-169"]
 def sighashTaproot (env : TapSighashEnv) (inPos : Nat) (ht : UInt8)
@@ -602,7 +601,7 @@ theorem sigMsgTaproot_body (env : TapSighashEnv) (inPos : Nat) (ht : UInt8)
         ++ e) := by
   simp [sigMsgTaproot, hg, ha, hs, he]
 
-/-! ## Determinism (W14b discipline) -/
+/-! ## Determinism (the modular-arithmetic layer discipline) -/
 
 /-- Determinism / totality: `sigMsgTaproot` is a pure function of
 `(env, inPos, ht, sv, d)` — equal inputs, equal messages. Consensus
@@ -622,7 +621,7 @@ theorem sighashTaproot_congr (env₁ env₂ : TapSighashEnv) (inPos₁ inPos₂ 
     sighashTaproot env₁ inPos₁ ht₁ sv₁ d₁ = sighashTaproot env₂ inPos₂ ht₂ sv₂ d₂ := by
   subst he; subst hi; subst hh; subst hsv; subst hd; rfl
 
-/-! ## Axiom footprints (X02/Unit-1 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the existing modules' style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext, Classical.choice,
 Quot.sound]`. Pinned by the guard block below.

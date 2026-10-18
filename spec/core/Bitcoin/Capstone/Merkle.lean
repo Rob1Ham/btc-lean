@@ -5,7 +5,7 @@ import Bitcoin.Serialization.Interface
 import Bitcoin.Capstone.Pow
 
 /-!
-# Bitcoin.Capstone.Merkle — merkle root + witness commitment (W17 S2b)
+# Bitcoin.Capstone.Merkle — merkle root + witness commitment (S2b)
 
 Direct ports of Core `consensus/merkle.cpp @cce32b168`:
 
@@ -41,7 +41,7 @@ through `merkleMutationOk`: the fold below is the import-cycle bridge to
 `PDW12.merkleMutationFreeCap_eq` proves the bridge is exactly Connect's
 detector; the reject verdict is `bad-txns-duplicate` / `BLOCK_MUTATED`
 (not `BLOCK_CONSENSUS`, BLK-012). The BIP30 cross-block duplicate face
-remains the ledger fold's business (W12).
+remains the ledger fold's business.
 -/
 
 namespace Bitcoin.Capstone.Merkle
@@ -242,7 +242,7 @@ DEPLOYMENT_SEGWIT)` (validation.cpp:4177).
   Core fall-through no-witness rule: witness data is forbidden
   (`unexpected-witness`, SWT-033). In particular pre-activation the
   whole commitment requirement is a **no-op** — a commitment-shaped
-  output without witness data is accepted (block 470000, F-V12-006).
+  output without witness data is accepted (block 470000).
 
 `segwitActive` is `SEGWIT_HEIGHT ≤ blockHeight` (buried
 `DEPLOYMENT_SEGWIT`, kernel/chainparams.cpp:124; `DeploymentActiveAfter`

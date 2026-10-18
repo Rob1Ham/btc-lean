@@ -8,16 +8,14 @@ import Bitcoin.Data.Basic
 
 /-!
 # Z29 dark-corner audit — taproot odd-y lift before tweak + the TapBranch tag
-# (W4 suite)
+#
 
-NEW file, owned by Z29, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z29/` (`gen.py` + printed probes,
+2026-10-16. Python3 probes:
+`gen.py` + printed probes,
 all validated against the OFFICIAL BIP341 wallet vectors
-`spec/vectors/bips/bip-0341_wallet-test-vectors.json`). Findings:
-`spec/db/findings-w4/Z29.md`.
+`spec/vectors/bips/bip-0341_wallet-test-vectors.json`).
 
-Ground truth: Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/`:
+Ground truth: Core @ `cce32b168`:
 * C1: `secp256k1_xonly_pubkey_load` → the tweak ALWAYS runs on the EVEN-y
   lift (`secp256k1_ge_set_xo_var(…, 0)`); `secp256k1_extrakeys_ge_even_y`
   (extrakeys_main_impl.h:95-104) NEGATES an odd-y representative before
@@ -261,13 +259,21 @@ def secC2 : String :=
     chk "c2.diag"         (tapBranch l0 l0 == taggedHash tagTapBranch (l0 ++ l0)) ++
     chk "c2.diag.value"   (tapBranch l0 l0 == diag4) ++
     chk "c2.treeRoot"     (treeMerkleRoot tree4 == some root4) ++
-    chk "c2.spend"        (scriptPathSpend control4 s0 program4
+    chk "c2.spend"        (scriptPathSpend control4 s0 xQ4
                              == some (l0, true, true)) ++
+    chk "c2.commitment.binds"
+      (verifyTaprootCommitment control4 xQ4 l0 == true) ++
+    chk "c2.wrongProgram" (scriptPathSpend control4 s0 xQ0
+                             == some (l0, false, true)) ++
+    chk "c2.wrongLength"  (scriptPathSpend control4 s0 program4
+                             == some (l0, false, true)) ++
+    chk "c2.wrongLength.verdict"
+      (verifyTaprootCommitment control4 program4 l0 == false) ++
     ""
-  if fails == "" then "C2: 10/10 OK"
+  if fails == "" then "C2: 14/14 OK"
   else "FAILURES: " ++ fails
 
-/-- info: "C2: 10/10 OK" -/
+/-- info: "C2: 14/14 OK" -/
 #guard_msgs in #eval secC2
 
 end Bitcoin.Proofs.Audit.Z29

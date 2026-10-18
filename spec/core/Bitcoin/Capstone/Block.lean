@@ -8,12 +8,12 @@ import Bitcoin.Activation.Interface
 import Bitcoin.Interpreter.Interface
 
 /-!
-# Bitcoin.Capstone.Block — validateBlock: the end-to-end pipeline (W17 S2b)
+# Bitcoin.Capstone.Block — validateBlock: the end-to-end pipeline (S2b)
 
 `validateBlock : SerializedBlock → CapState → Except CapError CapState`
-composes every Review-2 layer on real serialized bytes:
+composes every layer on real serialized bytes:
 
-1. **Decode** (W02): `decodeBlock` — header, tx count, txs (BIP144
+1. **Decode**: `decodeBlock` — header, tx count, txs (BIP144
    witness framing per tx).
 2. **Structure** (BLK rows): vtx non-empty (BLK-022), vtx[0] is the
    coinbase and only it (BLK-027/028), coinbase scriptSig 2..100 bytes
@@ -25,12 +25,12 @@ composes every Review-2 layer on real serialized bytes:
 4. **Merkle** (this module): txid tree vs header (BLK-010) + the witness
    commitment gate (BLK-015..020).
 5. **Per tx, in order** (Core ConnectBlock's UTXO-side order):
-   `checkTransaction` (W10, BLK-030) → for non-coinbase
-   `checkTxInputs` (W10/TXV) against the CURRENT fold state → per-input
-   `verifyScriptFull` (W09) with the real checker (W13×W14b wiring,
-   `RealChecker.realCheckerOf`) → `applyTxStepL` (W12 fold step,
+   `checkTransaction` (BLK-030) → for non-coinbase
+   `checkTxInputs` (TXV) against the CURRENT fold state → per-input
+   `verifyScriptFull` with the real checker (ECDSA wiring,
+   `RealChecker.realCheckerOf`) → `applyTxStepL` (fold step,
    BIP30/inputs/maturity/UpdateCoins keyed by the REAL txid
-   — `txidKey`, not W12's test placeholder `txidPreimageKey`).
+   — `txidKey`, not test placeholder `txidPreimageKey`).
 
 ## Depth semantics (HONEST reporting — see report §3)
 
@@ -39,8 +39,8 @@ composes every Review-2 layer on real serialized bytes:
   ECDSA — except inputs whose scriptPubKey is a **v1 witness program**
   (Taproot). Those take the `unjudged` lane: their coin is spent in the
   ledger fold, their script check is recorded `unjudgedTaproot` and does
-  NOT gate the block verdict (W13's schnorrEntry is fail-closed until
-  Review 3 ships BIP340; letting it run would misreport a valid block).
+  NOT gate the block verdict (schnorrEntry is fail-closed until
+  the implementation ships BIP340; letting it run would misreport a valid block).
   Semantics = a documented, per-input assume-valid for Taproot ONLY;
   the 709632 key-path spend count is reported.
 * `.unjudged` from `verifyScriptFull` (taproot script-path spending) is
@@ -76,9 +76,9 @@ without the specialised equation. -/
 plus the header/merkle checks this module owns. -/
 inductive CapError where
   | ser (e : SerError)
-  | txCheck (e : TxCheckError)      -- W10 stateless (BLK-030)
-  | tx (e : TxError)                -- W10 contextual / W12 ledger
-  | block (e : BlockError)          -- W12 fold (BIP30, cb-missing/multiple)
+  | txCheck (e : TxCheckError)      -- the transaction-validation layer stateless (BLK-030)
+  | tx (e : TxError)                -- transaction-validation and ledger context
+  | block (e : BlockError)          -- the ledger layer fold (BIP30, cb-missing/multiple)
   | emptyBlock                      -- BLK-022
   | badCbPosition                   -- BLK-027/BLK-028
   | badCbLength                     -- BLK-029
@@ -135,9 +135,9 @@ structure CapState where
 deriving Repr
 
 /-- **BLK-005-keyed ledger key**: the fold keys coins by the REAL txid —
-`txidKey tx = fun _ k ⇒ ⟨txidOf tx, k⟩` — replacing W12's test
+`txidKey tx = fun _ k ⇒ ⟨txidOf tx, k⟩` — replacing test
 placeholder `txidPreimageKey` (which uses the preimage itself as the key
-hash). All of W12's fold theorems quantify over the general
+hash). All of the fold theorems quantify over the general
 `kf : Tx → Key`, so this substitution is inside the abstracted surface. -/
 @[rule "BLK-005"]
 def txidKey (tx : Tx) : Key := fun _ k => ⟨txidOf tx, k⟩
@@ -227,7 +227,7 @@ def cbPositionOk (txs : List Tx) : Bool :=
 def witnessAt (tx : Tx) (i : Nat) : WitnessStack := tx.witness.getD i []
 
 /-- BIP141 scriptPubKey gate for the unjudged lane: a witness program of
-version ≥ 1 (v0 stays fully adjudicated through the W09 witness paths). -/
+version ≥ 1 (v0 stays fully adjudicated through the witness paths). -/
 def isTaprootProgram (spk : ByteArray) : Bool :=
   match isWitnessProgram spk with
   | some (v, _) => 1 ≤ v
@@ -241,9 +241,9 @@ inductive InputVerdict where
 deriving Repr, DecidableEq
 
 /-- Script check for input `i` of `tx` spending `coin`:
-W09 `verifyScriptFull` (flags = W06 `getBlockScriptFlags` at the block
+`verifyScriptFull` (flags = `getBlockScriptFlags` at the block
 height, policy = consensus default), checker = the REAL seam wiring
-(W13 adapter × W14b verifier × W11 sighash). Fuel = script+witness byte
+(adapter × verifier × sighash). Fuel = script+witness byte
 budget (each opcode consumes ≥ 1 wire byte). A v1-witness (Taproot)
 program routes to the unjudged lane BEFORE the checker can fail-closed.
 SWT-068: mixed-scheme transactions — the dispatch is PER INPUT
@@ -279,7 +279,7 @@ def verifyTxInputs (height : UInt32) (tx : Tx) (txIdx : Nat)
       else
         let prevout := (tx.vin.getD i dummyTxIn).prevout
         match coinLookup u prevout with
-        | none => .ok (okN, unjN)   -- HaveInputs is W12/W10's error lane
+        | none => .ok (okN, unjN)   -- HaveInputs reports through the ledger / transaction-validation error lane
         | some coin =>
           match verifyInput height tx i coin txIdx i with
           | .pass => loop (i+1) (okN+1) unjN
@@ -294,7 +294,7 @@ ConnectBlock loop index). -/
 def applyTx (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l : List (OutPoint × Coin)) :
     Except CapError (List (OutPoint × Coin) × Nat × Nat) := do
-  -- W10 stateless gate (BLK-030).
+  -- stateless gate (BLK-030).
   match checkTransaction tx with
   | some e => throw (CapError.txCheck e)
   | none => pure ()
@@ -302,13 +302,13 @@ def applyTx (height : UInt32) (tx : Tx) (txIdx : Nat)
   let (okN, unjN) ←
     if tx.isCoinBase then pure (0, 0)
     else verifyTxInputs height tx txIdx l
-  -- W12 ledger step: BIP30 → coinbase → inputs → maturity → UpdateCoins.
+  -- ledger step: BIP30 → coinbase → inputs → maturity → UpdateCoins.
   match applyTxStepL l tx (txidKey tx) height with
   | .error e => throw (CapError.block e)
   | .ok l' => pure (l', okN, unjN)
 
 /-- The sequential per-tx fold (tx i+1 sees the UTXO set after tx i,
-B3's same-block spend ordering — W12's `applyBlockL` order, threaded
+B3's same-block spend ordering — `applyBlockL` order, threaded
 through the script layer). Returns the final UTXO list plus the
 script-layer counters. -/
 def applyTxs (height : UInt32) :
@@ -323,18 +323,18 @@ def applyTxs (height : UInt32) :
 structure CapReport where
   state : CapState
   txs : Nat
-  scriptOk : Nat          -- inputs adjudicated PASS (real ECDSA + W09 + W11)
+  scriptOk : Nat          -- inputs adjudicated PASS (real ECDSA + the interpreter layer + the sig-hash layer)
   scriptUnjudged : Nat    -- inputs on the Taproot unjudged lane
   deriving Repr
 
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
-ChainState`, composed of W02 decode → structure checks → header PoW +
-chain link → merkle + witness commitment → per-tx W10/W09/W11/W13/W14b →
-W12 fold. -/
+ChainState`, composed of decode → structure checks → header PoW +
+chain link → merkle + witness commitment → per-tx validation →
+fold. -/
 @[rule "BLK-030", rule "BLK-102"]
 def validateBlock (raw : ByteArray) (st : CapState) :
     Except CapError CapReport := do
-  -- 1. Decode (W02).
+  -- 1. Decode.
   let (h, txs) ← match decodeBlock raw with
     | .error e => throw (CapError.ser e)
     | .ok p => pure p

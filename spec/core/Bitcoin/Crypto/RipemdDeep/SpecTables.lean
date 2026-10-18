@@ -1,9 +1,9 @@
 import Bitcoin.Interpreter.Hashes
 
 /-!
-# Bitcoin.Crypto.RipemdDeep.SpecTables — the clone tables (S06 U2)
+# Bitcoin.Crypto.RipemdDeep.SpecTables — the clone tables (the RIPEMD mirror)
 
-Structural clones (NEW code, S06 home) of the FOUR 80-entry message-word
+Structural clones (NEW code, the RIPEMD mirror home) of the FOUR 80-entry message-word
 selection and rotation tables of the **consensus-path** RIPEMD-160
 (`Bitcoin.Interpreter.Hashes`, `rmdCompress` Hashes.lean:211-224 — the
 OP_RIPEMD160 / OP_HASH160 impl via `Interpreter/Defs.lean:591/594`) plus
@@ -13,9 +13,9 @@ Each clone = `S <name>` (namespace `Bitcoin.Crypto.RipemdDeep`), table
 literals copied entry-by-entry **from the C anchor extraction** (see
 below), and the unit pin: each clone = its in-tree original `by rfl`
 (a `S T = T` literal-clash, one kernel step, zero-information-loss =
-E05's T-L em pin).
+the DER layer's T-L em pin).
 
-C ground truth (S06-anchors/ripemd160.cpp @ cce32b168, PROVENANCE.md):
+C ground truth (the RIPEMD mirror anchors/ripemd160.cpp @ cce32b168, PROVENANCE.md):
 `Transform`'s 80 interleaved R11/R12 call-pairs L64-222. The LEFT line
 (R11..R51 macro calls, k = 0/0x5A827999/0x6ED9EBA1/0x8F1BBCDC/0xA953FD4E
 L45-49) and RIGHT line (R12..R52, k = 0x50A28BE6/0x5C4DD124/
@@ -79,7 +79,7 @@ def S_K1 : Array UInt32 := #[0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA
 
 def S_K2 : Array UInt32 := #[0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000]
 
-/-! ## U2 pins: clones ≡ in-tree originals (E05 T-L em pattern) -/
+/-! ## Clone pins: clones ≡ in-tree originals (the DER-layer T-L em pattern) -/
 
 open Bitcoin.Interpreter (RMD_R1 RMD_R2 RMD_S1 RMD_S2 RMD_K1 RMD_K2)
 

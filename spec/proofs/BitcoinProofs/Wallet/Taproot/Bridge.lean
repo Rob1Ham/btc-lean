@@ -38,8 +38,10 @@ explicit missing-link proposition `VerifyComparesProgram`.
   `programMatches spk program = true`, a script-path spend is judged
   exactly when the commitment verdict accepts
   (`v1Spend_judged_iff_programMatches_and_commitment`).
-* **The gap, as theorems.**  `verifyTaprootCommitment` ignores its
-  `program` argument (`verifyTaprootCommitment_program_irrelevant`) and
+* **The verifier comparison.**  `verifyTaprootCommitment` binds its
+  `program` argument to the recomputed output key
+  (`verifyTaprootCommitment_program_binding`), exactly Core's
+  `q.CheckTapTweak`.  The remaining gap is the capstone:
   `Capstone.Block.verifyInput` routes every v1 witness program to
   `unjudgedTaproot` before script execution
   (`verifyInput_unjudged_of_v1_program`,
@@ -61,36 +63,34 @@ scriptPubKey and every wallet-supplied program, the spend is judged iff
   `commitmentForcesProgramMatch_fails_of_program_mismatch`).
 
 The exact missing obligation is therefore `CommitmentForcesProgramMatch`.
-The verifier-level mechanism that supplies it in Core is
-`VerifyComparesProgram`: an accepting
-`verifyTaprootCommitment control program tapleafHash` must imply that
-`program` is the output key recomputed from the control block and leaf,
-and Core calls it with the spent script's program.  Core performs
-exactly this comparison —
+The verifier-level mechanism that supplies it is `VerifyComparesProgram`:
+an accepting `verifyTaprootCommitment control program tapleafHash`
+implies that `program` is the output key recomputed from the control
+block and leaf.  Core performs exactly this comparison —
 `const XOnlyPubKey q{program};` then `q.CheckTapTweak(p, merkle_root,
 control[0] & 1)` at `src/script/interpreter.cpp:1919-1924` and
-`src/pubkey.cpp:257-263` — whereas the model's verifier is
-`outputKeyOk control (some (scriptPathMerkleRoot control tapleafHash))`
-at `spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90`, which never
-receives or compares `program`.  Supplying that comparison, and having
-the capstone adjudicate the v1 lane instead of returning
+`src/pubkey.cpp:257-263` — and the model's verifier now performs it in
+`Verify.checkTapTweak` (length-checked `program = x(Q)` byte equality),
+so `VerifyComparesProgram` is proved below.  The remaining consensus
+change this bridge waits on is the capstone: it still returns
 `InputVerdict.unjudgedTaproot`
-(`spec/core/Bitcoin/Capstone/Block.lean:218-221`, `:242-245`), is the
-consensus change this wallet bridge is waiting for.
+(`spec/core/Bitcoin/Capstone/Block.lean:218-221`, `:242-245`) instead of
+adjudicating the v1 lane through `verifyScriptFull`.
 
 ## What is not modeled or claimed
 
 * No consensus definition, interpreter arm, capstone dispatch, or model
-  file is modified; this module only proves facts over the executable
-  tree.
+  file is modified by this module; it only proves facts over the
+  executable tree.
 * No secp256k1 arithmetic is added.  The tweak chain is the model's
-  `tweakedKey`/`outputKeyOk`/`tweakPoint`; the wallet comparison is only
-  the equality `committedProgram control leafScript = some program`.
+  `tweakedKey`/`outputKeyOk`/`tweakPoint`; the program comparison is the
+  verifier's `checkTapTweak` and the wallet equality
+  `committedProgram control leafScript = some program`.
 * No wallet spend is proved valid, and no signature, sighash, or
   tapscript execution is modeled.
-* The target is not proved, and cannot be proved while the verifier is
-  program-blind.  The conditional theorem is the strongest proven form
-  in this tree.
+* The target is not proved: the verifier binds `program`, but the
+  capstone still routes the v1 lane to `unjudgedTaproot`, and `spk` is
+  not tied to the definition's `program` argument.
 -/
 
 namespace BitcoinProofs.Wallet.Taproot
@@ -102,10 +102,11 @@ open Bitcoin.Wallet.Taproot
    programMatches_eq_true_iff
    bytesBEq_eq_true bytesBEq_self_eq_true
    taprootSpendJudged_iff_commitment programOf_p2trScript
-   committedProgram)
+   committedProgram commitmentOf_program_binding leafHash)
 open Bitcoin.Crypto.Taproot.Program (controlBlockSizeOk p2trScript)
 open Bitcoin.Crypto.Taproot.Verify
-  (scriptPathSpend scriptPathTapleaf verifyTaprootCommitment)
+  (scriptPathSpend scriptPathTapleaf scriptPathMerkleRoot verifyTaprootCommitment
+   verifyTaprootCommitment_program_eq natToBytesBE)
 
 /-! ## A decision procedure for `programOf` -/
 
@@ -248,9 +249,8 @@ def ScriptPathJudged (control leafScript program : ByteArray) : Prop :=
 
 /-- Model-side judgment: under the control-block size gate, the
 script-path arm is judged exactly when the commitment verdict accepts.
-No program equality appears, because `verifyTaprootCommitment` does not
-inspect its `program` argument
-(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90`). -/
+The verdict itself now binds `program` to `x(Q)`; this equivalence is
+only the arm's success condition. -/
 theorem v1Spend_judged_iff_commitment
     (program control leafScript : ByteArray)
     (hsize : controlBlockSizeOk control = true) :
@@ -262,8 +262,8 @@ theorem v1Spend_judged_iff_commitment
 the spent script's v1 program (`programMatches`), then the script-path
 spend is judged exactly when the commitment verdict accepts.  This is
 the strongest unconditional-in-consensus form available in this tree;
-the `programMatches` premise is what the program-blind verifier cannot
-check for us. -/
+the `programMatches` premise relates `spk` to the definition's `program`
+argument, which the verifier does not see. -/
 theorem v1Spend_judged_iff_programMatches_and_commitment
     (spk : Script) (program control leafScript : ByteArray)
     (hsize : controlBlockSizeOk control = true)
@@ -285,11 +285,12 @@ wallet-supplied program, a script-path spend is judged iff the wallet's
 program matches the spent script's program *and* the commitment verdict
 accepts.
 
-This is false in the executable tree whenever an accepting commitment
-coexists with a mismatched wallet program: the arm's verdict is
-program-blind (`v1Spend_judged_iff_commitment`), so the forward
-direction fails.  It is stated as a `def` so downstream work can name
-the obligation without asserting it. -/
+This is false in the executable tree whenever `spk` names a v1 program
+different from the definition's `program` argument: the arm's verdict
+binds `program` (`verifyTaprootCommitment_program_binding`), but nothing
+ties `spk` to that argument here, so the forward direction fails.  It is
+stated as a `def` so downstream work can name the obligation without
+asserting it. -/
 def V1SpendJudgedTarget : Prop :=
   ∀ (spk : Script) (program control leafScript : ByteArray),
     spk.bytes.size = 34 →
@@ -302,8 +303,9 @@ def V1SpendJudgedTarget : Prop :=
 
 /-- **The exact missing obligation, isolated.**  Every accepting
 commitment must force the wallet's program to be the spent script's v1
-program.  This is the entire forward direction the target lacks; the
-model cannot prove it because `commitmentOf` is program-blind. -/
+program.  This is the entire forward direction the target lacks: the
+verifier binds `program`, but the definition does not relate `spk`'s
+payload to that argument. -/
 def CommitmentForcesProgramMatch : Prop :=
   ∀ (spk : Script) (program control leafScript : ByteArray),
     spk.bytes.size = 34 →
@@ -375,39 +377,34 @@ theorem v1SpendJudgedTarget_fails_of_program_mismatch
     ((v1SpendJudgedTarget_iff_commitmentForcesProgramMatch).mp htarget)
 
 /-- The verifier-level half of the missing link: an accepting commitment
-must imply that its `program` argument is the output key recomputed from
-the control block and leaf script.  Core performs this comparison at
+implies that its `program` argument is the output key recomputed from
+the control block and leaf script.  This is Core's
 `src/script/interpreter.cpp:1919-1924` (`q.CheckTapTweak`) via
-`src/pubkey.cpp:257-263`; the executable model does not.  Core also
-calls the verifier with the *spent script's* program, which is why this
-comparison yields `CommitmentForcesProgramMatch` for a real P2TR
-output. -/
+`src/pubkey.cpp:257-263`, implemented in the model by
+`Verify.checkTapTweak` (length-checked `program = x(Q)` byte equality). -/
 def VerifyComparesProgram : Prop :=
   ∀ (control program leafScript : ByteArray),
     verifyTaprootCommitment control program
         (scriptPathTapleaf control leafScript) = true →
       committedProgram control leafScript = some program
 
-/-- Any accepting verdict with a mismatched recomputed output key refutes
-`VerifyComparesProgram`.  This is a conditional refutation: the module
-does not construct such a verdict (that needs curve arithmetic outside
-this bridge). -/
-theorem verifyComparesProgram_false_of_witness
-    (control program leafScript : ByteArray)
-    (hcommit : verifyTaprootCommitment control program
-      (scriptPathTapleaf control leafScript) = true)
-    (hmismatch : committedProgram control leafScript ≠ some program) :
-    ¬ VerifyComparesProgram := by
-  intro hlink
-  exact hmismatch (hlink control program leafScript hcommit)
+/-- `VerifyComparesProgram` is proved: the verifier's output-key binding
+is exactly the wallet's `committedProgram` equality. -/
+theorem verifyComparesProgram_holds : VerifyComparesProgram := by
+  intro control program leafScript hcommit
+  exact commitmentOf_program_binding control program leafScript (by
+    simpa [commitmentOf, leafHash] using hcommit)
 
-/-- The model's commitment verdict is invariant under its `program`
-argument: the exact statement of the consensus gap, by `rfl`
-(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90`). -/
-theorem verifyTaprootCommitment_program_irrelevant
-    (control p₁ p₂ tapleafHash : ByteArray) :
-    verifyTaprootCommitment control p₁ tapleafHash =
-      verifyTaprootCommitment control p₂ tapleafHash := rfl
+/-- The verifier binds its `program` argument (the re-exported
+program-comparison fact). -/
+theorem verifyTaprootCommitment_program_binding
+    (control program tapleafHash : ByteArray)
+    (h : verifyTaprootCommitment control program tapleafHash = true) :
+    ∃ xQ yQ,
+      Bitcoin.Crypto.Taproot.OutputKey.tweakedKey control
+          (some (scriptPathMerkleRoot control tapleafHash)) = some (xQ, yQ) ∧
+        program = natToBytesBE 32 xQ :=
+  verifyTaprootCommitment_program_eq control program tapleafHash h
 
 /-! ## The v1 lane in the capstone -/
 
@@ -467,8 +464,8 @@ bridge surface. -/
 #print axioms v1SpendJudgedTarget_iff_commitmentForcesProgramMatch
 #print axioms commitmentForcesProgramMatch_fails_of_program_mismatch
 #print axioms v1SpendJudgedTarget_fails_of_program_mismatch
-#print axioms verifyComparesProgram_false_of_witness
-#print axioms verifyTaprootCommitment_program_irrelevant
+#print axioms verifyComparesProgram_holds
+#print axioms verifyTaprootCommitment_program_binding
 #print axioms verifyInput_unjudged_of_v1_program
 #print axioms verifyInput_unjudged_of_v1_34
 

@@ -1,7 +1,7 @@
 import BitcoinProofs.AF.PDW46b.PDW46b
 
 /-! # PDW46bB.lean — items TOP-304..305: OP_CHECKSEQUENCEVERIFY gates/mask
-(PDW46b, review RC28). Row faces for `Bitcoin.Interpreter.checkSequenceDef`
+(PDW46b, RC28). Row faces for `Bitcoin.Interpreter.checkSequenceDef`
 (Defs.lean:267, interpreter.cpp:1791-1848 @ cce32b168). -/
 
 namespace BitcoinProofs.AF.PDW46b

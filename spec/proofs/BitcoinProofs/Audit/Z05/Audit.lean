@@ -6,9 +6,9 @@ import Bitcoin.Activation.Flags
 /-!
 # Z05 dark-corner audit — BIP30 duplicate txids + coin height/coinbase-bit encoding
 
-NEW file, owned by Z05 (Review-4 support suite), 2026-10-16. Python3 probes:
-`build/scratch/build/scratch/scratch/Z05/` (`z05_c1_bip30_probe.py`,
-`z05_c2_coincode_probe.py`). Findings: `spec/db/findings-w4/Z05.md`.
+2026-10-16. Python3 probes:
+`z05_c1_bip30_probe.py`,
+`z05_c2_coincode_probe.py`).
 
 Ground truth: Bitcoin Core @ `cce32b1682d86076ee71c10f9788c48d44458a263`
 (validation.cpp:2401-2471 + 6207-6211; coins.h:52-87), fetched and read
@@ -30,7 +30,7 @@ divergences from Core are pinned below:
    the D2a fix = F-S04-001 / CV07 D2a / X11 FIND-X11-004 / CT02 V2):
    `divergence_227931` below is now repaired to the AGREEMENT pin
    (both sides run at 227931) — the divergence statement is preserved
-   in history (findings-w4/Z05.md F-Z05-001, findings-rc/SWEEP.md).
+   in history (F-Z05-001).
 2. **Hash-pin layer absent from the connect gate** (F-Z05-002): Core's
    `IsBIP30Repeat` also matches the block's OWN hash (6207-6211) and the skip
    is conditional on the chain block@227931 being `BIP34Hash`;
@@ -114,9 +114,9 @@ theorem pre_bip34_neighbors_agree :
 `BIP34_HEIGHT ≤ h` → `< h`): at h = 227931 itself Core's ancestor lookup
 is null ⇒ the check RUNS, and `leanBip30Runs` now agrees (both true).
 HISTORY (pre-fix divergence): `coreBip30RunsCanonical 227931 "x" = true ∧
-leanBip30Runs 227931 = false` — pinned 2026-10-16 (F-Z05-001,
-findings-w4/Z05.md), cross-confirmed by S04 F-S04-001 / CV07 D2a / X11
-FIND-X11-004 / CT02 V2, and fixed by the RC SWEEP 2026-10-17. -/
+leanBip30Runs 227931 = false` — pinned 2026-10-16 (F-Z05-001),
+cross-confirmed by S04 F-S04-001 / CV07 D2a / X11 FIND-X11-004 /
+CT02 V2, and fixed by the RC SWEEP 2026-10-17. -/
 theorem divergence_227931 :
     coreBip30RunsCanonical 227931 "x" = true ∧
     leanBip30Runs 227931 = true := by decide

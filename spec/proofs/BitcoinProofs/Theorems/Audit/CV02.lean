@@ -5,11 +5,11 @@ import Bitcoin.Data.Script
 /-!
 # BitcoinProofs.Theorems.Audit.CV02 — the disabled-opcode audit (CVE-2010-5137)
 
-ANALYSIS-suite probe (contributor CV02). Everything below is READ-ONLY over
-the frozen W05/W09 layers (`Bitcoin.Script.Parser`, `Bitcoin.Interpreter`);
+ANALYSIS-suite probe. Everything below is READ-ONLY over
+the frozen parser/interpreter layers (`Bitcoin.Script.Parser`, `Bitcoin.Interpreter`);
 no definition of those layers is edited.
 
-## Ground truth (Bitcoin Core @ cce32b168, checkout build/scratch/B1)
+## Ground truth (Bitcoin Core @ cce32b168)
 
 `src/script/interpreter.cpp`, `EvalScript` main loop:
 
@@ -66,7 +66,7 @@ CBigNum::ShiftLeft heap-overflowed = remote crash (DoS) ≈ 2010-08. The
 vectors (spec/vectors/incidents/CV02/) pin 80/23/22 = the historical
 crash shapes; C-section pins tapscript-OP_SUCCESS re-arming.
 
-Report: `spec/db/findings-af/CV02.md` (F-CV02-001..004).
+See F-CV02-001..004.
 -/
 
 namespace BitcoinProofs.Theorems.Audit.CV02
@@ -100,7 +100,7 @@ def ba (c : Nat) : ByteArray := ByteArray.mk #[c.toUInt8]
 /-- The fifteen disabled wire bytes, `interpreter.cpp:467-481` @cce32b168
 (script.h:136-168). 4 splice ops, 4 bitwise ops, 2 double ops,
 mul-div-mod, 2 shifts. This is the wire-level table `disabledWire`
-(W09 `Defs.lean:423`), NOT the parser's `isDisabled` (W05) — the
+(`Defs.lean:423`), NOT the parser's `isDisabled` — the
 0x9a/0x99 swap between the two is F-CV02-002 (section E). -/
 def disabled15 : List Nat :=
   [0x7e, 0x7f, 0x80, 0x81, 0x83, 0x84, 0x85, 0x86,
@@ -112,7 +112,7 @@ theorem disabled15_nodup : disabled15.Nodup := by decide
 
 `cv02_setEq`: full 256-byte sweep — Core :467-481 (`script.h:136-168`)
 = `disabledWire` (Defs.lean:423) = `disabled15`. Closed `by decide`
-(Nat-list `==` = decidable membership; W05-`isDisabled`-free). -/
+(Nat-list `==` = decidable membership;-`isDisabled`-free). -/
 
 def cv02_setEq : Bool :=
   (List.range 256).all (fun c => (disabledWire c) == (decide (c ∈ disabled15)))
@@ -128,7 +128,7 @@ theorem cv02_subset_true : cv02_subset = true := by decide
 
 /-! ## B. The main-loop audit — fail, not skip, executed AND unexecuted
 
-The exec face: `evalScriptBytes` (W09) runs `stepBody` per parsed
+The exec face: `evalScriptBytes` runs `stepBody` per parsed
 opcode; `disabledWire` fires as guard 3 (Defs.lean:783), right after
 push-size (guard 1) and the opcount budget (guard 2), and BEFORE the
 `.ast`-dispatch (`stepBody` :769) — i.e. Core :467-482 firing after
@@ -341,15 +341,15 @@ theorem rowD2_tapscript_no_sizegate :
     ¬(SigVersion.tapscript = SigVersion.base ∨
       SigVersion.tapscript = SigVersion.witnessV0) := by decide
 
-/-! ## E. Aux pins (F-CV02-002) — W05 `isDisabled` ≠ W09 `disabledWire`
+/-! ## E. Aux pins (F-CV02-002) — `isDisabled` ≠ `disabledWire`
 
-The parser-level predicate (W05, Parser/Defs.lean:62) and the
-interpreter-level table (W09, Defs.lean:423) disagree on OP_RSHIFT:
+The parser-level predicate (Parser/Defs.lean:62) and the
+interpreter-level table (Defs.lean:423) disagree on OP_RSHIFT:
 `disabledWire 0x99 = true` (Core OP_RSHIFT = 0x99, script.h:168) but
 `isDisabled 0x99 = false`, and dually `isDisabled 0x9a = true` (=
 OP_BOOLAND!, script.h:170) while `disabledWire 0x9a = false`. The
 interpreter/elaborator path uses `disabledWire` only (F-CV02-002
-grep evidence), so NO consensus effect — but W05's own test file
+grep evidence), so NO consensus effect — but its own test file
 pins THE SWAPPED SET as correct (core/Test/Script/Parser/Tests.lean
 :151-175) — F-CV02-002 (read-only divergence pin). -/
 

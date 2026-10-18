@@ -1,6 +1,6 @@
 import Bitcoin.Capstone.Block
 
-/-! # PDW32.lean — proof-promotion review RC25, items TOP-156..160
+/-! # PDW32.lean — RC25, items TOP-156..160
 (PDW32, 2026-10-17). Claim 46712ab.
 
 D-CAPBLK buried-gate band of `Bitcoin/Capstone/Block.lean`:

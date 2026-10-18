@@ -2,7 +2,7 @@ import Bitcoin.Crypto.Taproot.Tree
 import Bitcoin.Crypto.Taproot.OutputKey
 
 /-!
-# Bitcoin.Crypto.Taproot.Verify — the taproot commitment verdict (X03, Unit 4)
+# Bitcoin.Crypto.Taproot.Verify — the taproot commitment verdict (the Taproot module)
 
 The script-path SPEND composition (Core `interpreter.cpp:1976-1990`, the
 `else` arm of `VerifyWitnessProgram`'s taproot branch) and the P2TR
@@ -10,18 +10,21 @@ OUTPUT construction (BIP341 §"Constructing and spending Taproot
 outputs"), assembling the committed primitives:
 
 * `scriptPathTapleaf` — TPR-012's CALLER side: the tapleaf hash under
-  the MASKED leaf version `control[0] & 0xfe` (X06's `leafVersionOf`,
-  TPR-010; Core masks at the call site interpreter.cpp:1983 — Unit-3
-  Verify does the masking, per the Tree-module note).
+  the MASKED leaf version `control[0] & 0xfe` (the witness-structure module's `leafVersionOf`,
+  TPR-010; Core masks at the call site interpreter.cpp:1983 — the verifier
+  does the masking, per the Tree-module note).
 * `pathNodes` / `scriptPathMerkleRoot` — TPR-014's caller side: the
   control block's `m` 32-byte path nodes (`(size − 33) / 32` of them,
   TPR-009 lattice) walked by `taprootMerkleRoot`
   (Core `ComputeTaprootMerkleRoot` interpreter.cpp:1898-1911).
 * `verifyTaprootCommitment` — Core `VerifyTaprootCommitment`
-  (interpreter.cpp:1913-1924) = X06's `outputKeyOk` under the
+  (interpreter.cpp:1913-1924) = `checkTapTweak` under the
   path-recomputed root: internal-key parse (TPR-018) → tweak
-  recomputation `Q = P + int(t)·G` (TPR-016/017) → parity
-  `control[0]&1 =? y(Q)&1` (TPR-011).
+  recomputation `Q = P + int(t)·G` (TPR-016/017) → output-key
+  binding `program = x(Q)` (Core `q.CheckTapTweak`) and parity
+  `control[0]&1 =? y(Q)&1` (TPR-011). The 32-byte program is the
+  x-only output key, so the binding is length-checked and byte-equal —
+  not a `bytesToNatBE` numeric comparison.
 * `scriptPathSpend` — the full arm verdict: the TPR-009 size gate
   (Core :1980-1982 reject), then tapleaf hash + commitment verdict +
   tapscript dispatch (Core :1988: `control[0] & MASK == 0xc0` ⇒
@@ -49,9 +52,15 @@ open Bitcoin.Data (serU8)
 open Bitcoin.Crypto.Curve.Secp (liftX bytesToNatBE RawPoint)
 open Bitcoin.Crypto.Schnorr (append_size)
 open Bitcoin.Crypto.Taproot (tapLeaf tapBranch taprootMerkleRoot tweakPoint)
-open Bitcoin.Crypto.Taproot.OutputKey (outputKeyOk)
+open Bitcoin.Crypto.Taproot.OutputKey (outputKeyOk tweakedKey)
 open Bitcoin.Crypto.Taproot.Program (controlBlockSizeOk controlBlockSizeOk_sizes
   controlBlockSizeOk_minimal leafVersionOf TAPROOT_LEAF_TAPSCRIPT)
+
+/-- `n` as a `width`-byte big-endian string (test/wire helper; BIP341
+x-only keys are 32-byte BE). -/
+def natToBytesBE : Nat → Nat → ByteArray
+  | 0, _ => ByteArray.empty
+  | width + 1, n => natToBytesBE width (n / 256) ++ serU8 ((n % 256).toUInt8)
 
 /-! ## Script path: tapleaf + merkle (interpreter.cpp:1976-1990) -/
 
@@ -61,14 +70,14 @@ def scriptPathTapleaf (control script : ByteArray) : ByteArray :=
   tapLeaf (leafVersionOf control).toUInt8 script
 
 /-- The control block's path-node count: `(size − 33) / 32` (Core
-:1904, `path_len`; the TPR-009 lattice makes this exact). FIX F-X03-1:
+:1904, `path_len`; the TPR-009 lattice makes this exact). FIX:
 was `(size − 65) / 32` (self-consistent with the old 65-constant). -/
 def pathNodeCount (control : ByteArray) : Nat := (control.size - 33) / 32
 
 /-- The `m` path nodes: 32 bytes each, starting at offset 33 (Core
 :1907, `subspan(BASE + NODE·i, NODE)`). Out-of-range extractions
 fail closed to short slices — the TPR-009 gate is the caller.
-FIX F-X03-1: was offset 65 (X06's Program.lean 65-convention). -/
+FIX: was offset 65 (the witness-structure module's Program.lean 65-convention). -/
 def pathNodes (control : ByteArray) : List ByteArray :=
   (List.range (pathNodeCount control)).map
     (fun i => control.extract (33 + 32 * i) (65 + 32 * i))
@@ -80,14 +89,30 @@ def scriptPathMerkleRoot (control tapleafHash : ByteArray) : ByteArray :=
 
 /-! ## The commitment verdict (interpreter.cpp:1913-1924) -/
 
+/-- Core `XOnlyPubKey::CheckTapTweak` as `VerifyTaprootCommitment` calls
+it (interpreter.cpp:1913-1924, pubkey.cpp:255-271): the witness program
+is the x-only output key `q = x(Q)`, so it must be exactly 32 bytes and
+BYTE-EQUAL to the canonical 32-byte big-endian serialization of the
+x-coordinate of `Q = P + int(t)·G`, in addition to the TPR-011 parity
+test on `control[0]`. The length test is explicit: a longer or shorter
+program is never accepted merely because it parses to the same `Nat`
+(`bytesToNatBE` alone would ignore leading bytes). -/
+def checkTapTweak (control program : ByteArray) (root : Option ByteArray) : Bool :=
+  outputKeyOk control root &&
+    (decide (program.size = 32) &&
+      match tweakedKey control root with
+      | none => false
+      | some (xQ, _) => decide (natToBytesBE 32 xQ = program))
+
 /-- `VerifyTaprootCommitment` (interpreter.cpp:1913-1924): the output
-key `q` (from the scriptPubKey program, via X06's `outputKeyOk` internal
-parse/tweak/parity chain) must equal the tweaked internal key under the
-path-recomputed merkle root, with `control[0]&1` the parity of `y(Q)`.
-Core's base-size `assert` ([:1915](interpreter.cpp)) is the caller's
-TPR-009 gate; `outputKeyOk` fails closed below 33 bytes anyway. -/
+key `q` (the scriptPubKey's 32-byte witness program) must equal the
+tweaked internal key under the path-recomputed merkle root, with
+`control[0]&1` the parity of `y(Q)` (Core's `q.CheckTapTweak(p,
+merkle_root, control[0] & 1)`). Core's base-size `assert` (:1915) is
+the caller's TPR-009 gate; `outputKeyOk` fails closed below 33 bytes
+anyway. -/
 def verifyTaprootCommitment (control program tapleafHash : ByteArray) : Bool :=
-  outputKeyOk control (some (scriptPathMerkleRoot control tapleafHash))
+  checkTapTweak control program (some (scriptPathMerkleRoot control tapleafHash))
 
 /-- The script-path spend arm (interpreter.cpp:1976-1990): `none` = the
 TPR-009 size reject (Core :1980-1982); `some (tapleafHash, committed,
@@ -119,12 +144,6 @@ def treeHash : TapTree → ByteArray
 /-- `scriptTree = null` ⇒ `merkleRoot = null` (wallet case 0); a tree
 hashes to its root. -/
 def treeMerkleRoot (t : Option TapTree) : Option ByteArray := t.map treeHash
-
-/-- `n` as a `width`-byte big-endian string (test/wire helper; BIP341
-x-only keys are 32-byte BE). -/
-def natToBytesBE : Nat → Nat → ByteArray
-  | 0, _ => ByteArray.empty
-  | width + 1, n => natToBytesBE width (n / 256) ++ serU8 ((n % 256).toUInt8)
 
 /-- The P2TR output: `0x51 0x20 ‖ x(Q)` where
 `Q = P + hash_TapTweak(P ‖ root)·G` (BIP341 §Constructing, steps 1-5;
@@ -178,17 +197,123 @@ theorem pathNodes_length (control : ByteArray) :
   unfold pathNodes
   simp
 
-/-- The commitment verdict is X06's composite under the recomputed root
-(definitional). -/
+/-- The commitment verdict is the `CheckTapTweak` composite under the
+recomputed root (definitional). -/
 theorem verifyTaprootCommitment_eq (control program tapleafHash : ByteArray) :
     verifyTaprootCommitment control program tapleafHash
-      = outputKeyOk control (some (scriptPathMerkleRoot control tapleafHash)) := rfl
+      = checkTapTweak control program
+          (some (scriptPathMerkleRoot control tapleafHash)) := rfl
+
+/-- TPR-016 (accept ⇒ 32-byte program): an accepted commitment forces the
+witness program to have the canonical x-only key length. -/
+theorem checkTapTweak_program_size (control program : ByteArray)
+    (root : Option ByteArray) (h : checkTapTweak control program root = true) :
+    program.size = 32 := by
+  unfold checkTapTweak at h
+  simp only [Bool.and_eq_true, decide_eq_true_eq] at h
+  exact h.2.1
+
+/-- TPR-016 (accept ⇒ x-coordinate binding): under the recomputed tweaked
+key `Q = (xQ, yQ)`, an accepted commitment forces the program to be
+exactly the canonical 32-byte big-endian encoding of `x(Q)`. This is
+Core's `q.CheckTapTweak` output-key comparison. -/
+theorem checkTapTweak_program_eq (control program : ByteArray)
+    (root : Option ByteArray) (xQ yQ : Nat)
+    (ht : tweakedKey control root = some (xQ, yQ))
+    (h : checkTapTweak control program root = true) :
+    program = natToBytesBE 32 xQ := by
+  unfold checkTapTweak at h
+  rw [ht] at h
+  simp only [Bool.and_eq_true, decide_eq_true_eq] at h
+  exact h.2.2.symm
+
+/-- TPR-016 (accept characterization): an accepted commitment is exactly
+the conjunction of the parity/internal-key lane and a 32-byte program
+equal to the serialized x-coordinate of the recomputed tweaked key. -/
+theorem checkTapTweak_accept_iff (control program : ByteArray)
+    (root : Option ByteArray) :
+    checkTapTweak control program root = true ↔
+      outputKeyOk control root = true ∧ program.size = 32 ∧
+        ∃ xQ yQ, tweakedKey control root = some (xQ, yQ) ∧
+          program = natToBytesBE 32 xQ := by
+  constructor
+  · intro h
+    have hok : outputKeyOk control root = true := by
+      unfold checkTapTweak at h
+      exact (Bool.and_eq_true_iff.mp h).1
+    have hsize : program.size = 32 :=
+      checkTapTweak_program_size control program root h
+    cases ht : tweakedKey control root with
+    | none =>
+        simp [outputKeyOk, ht] at hok
+    | some Q =>
+        obtain ⟨xQ, yQ⟩ := Q
+        exact ⟨hok, hsize, xQ, yQ, rfl,
+          checkTapTweak_program_eq control program root xQ yQ ht h⟩
+  · rintro ⟨hok, hsize, xQ, yQ, ht, hprog⟩
+    unfold checkTapTweak
+    rw [ht]
+    have hbe : decide (natToBytesBE 32 xQ = program) = true := by
+      rw [hprog]
+      simp
+    simp [hok, hsize, hbe]
+
+/-- TPR-016 (accept ⇒ 32-byte program) at the consensus entry point. -/
+theorem verifyTaprootCommitment_program_size (control program tapleafHash : ByteArray)
+    (h : verifyTaprootCommitment control program tapleafHash = true) :
+    program.size = 32 := by
+  rw [verifyTaprootCommitment_eq] at h
+  exact checkTapTweak_program_size control program _ h
+
+/-- TPR-016 (accept ⇒ program = x(Q)) at the consensus entry point: the
+wrong-program case Core rejects at `q.CheckTapTweak`. -/
+theorem verifyTaprootCommitment_program_eq (control program tapleafHash : ByteArray)
+    (h : verifyTaprootCommitment control program tapleafHash = true) :
+    ∃ xQ yQ,
+      tweakedKey control (some (scriptPathMerkleRoot control tapleafHash))
+          = some (xQ, yQ) ∧
+        program = natToBytesBE 32 xQ := by
+  rw [verifyTaprootCommitment_eq] at h
+  have hc := (checkTapTweak_accept_iff control program
+    (some (scriptPathMerkleRoot control tapleafHash))).mp h
+  exact hc.2.2
+
+/-- TPR-016 (negative: wrong program): with the recomputed output key
+fixed at `(xQ, yQ)`, a 32-byte program that is not `x(Q)` is rejected.
+This is the q-binding that makes the commitment program-sensitive. -/
+theorem verifyTaprootCommitment_wrong_program (control program tapleafHash : ByteArray)
+    (xQ yQ : Nat)
+    (ht : tweakedKey control (some (scriptPathMerkleRoot control tapleafHash))
+        = some (xQ, yQ))
+    (hne : program ≠ natToBytesBE 32 xQ) :
+    verifyTaprootCommitment control program tapleafHash = false := by
+  rw [verifyTaprootCommitment_eq]
+  unfold checkTapTweak
+  rw [ht]
+  have hb : decide (natToBytesBE 32 xQ = program) = false := by
+    by_cases heq : decide (natToBytesBE 32 xQ = program) = true
+    · have hEq : natToBytesBE 32 xQ = program := of_decide_eq_true heq
+      exact absurd hEq.symm hne
+    · simpa using heq
+  simp [hb]
+
+/-- TPR-016 (negative: wrong length): a program that is not 32 bytes is
+rejected even if it parses to the same `Nat` as `x(Q)` — the length gate
+that a pure `bytesToNatBE` comparison would miss. -/
+theorem verifyTaprootCommitment_wrong_length (control program tapleafHash : ByteArray)
+    (h : program.size ≠ 32) :
+    verifyTaprootCommitment control program tapleafHash = false := by
+  rw [verifyTaprootCommitment_eq]
+  unfold checkTapTweak
+  have hsz : decide (program.size = 32) = false := by
+    simp [h]
+  simp [hsz]
 
 /-! ## Verdict theorems -/
 
 /-- TPR-009 (reject side, script-path arm): a control block outside the
 size lattice is rejected before any hashing (Core :1980-1982; the spec's
-`TAPROOT_CONTROL_BASE_SIZE = 33` since the F-X03-1 fix — Core's own
+`TAPROOT_CONTROL_BASE_SIZE = 33` since the fix — Core's own
 constant is 33, the pre-fix 65 was the confirmed spec defect). -/
 theorem scriptPathSpend_badSize_none (control script program : ByteArray)
     (h : controlBlockSizeOk control = false) :
@@ -197,7 +322,7 @@ theorem scriptPathSpend_badSize_none (control script program : ByteArray)
   rw [if_neg (by simp [h])]
 
 /-- A 33-byte control block (m = 0) passes the size gate — the minimal
-script-path shape (FIX F-X03-1: was `h : control.size = 65`, the old
+script-path shape (FIX: was `h : control.size = 65`, the old
 65-convention's m = 0). -/
 theorem scriptPathSpend_minimal_some (control script program : ByteArray)
     (h : control.size = 33) :
@@ -252,13 +377,13 @@ theorem p2trOutput_none_badKey (pk : ByteArray) (tree : Option TapTree)
   unfold p2trOutput
   rw [h]
 
-/-- Determinism (W14b discipline): `p2trOutput` is a pure function. -/
+/-- Determinism (the modular-arithmetic layer discipline): `p2trOutput` is a pure function. -/
 theorem p2trOutput_congr (pk₁ pk₂ : ByteArray) (t₁ t₂ : Option TapTree)
     (h₁ : pk₁ = pk₂) (h₂ : t₁ = t₂) :
     p2trOutput pk₁ t₁ = p2trOutput pk₂ t₂ := by
   subst h₁; subst h₂; rfl
 
-/-! ## Axiom footprints (X02/X03/X06 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the existing modules' style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext, Classical.choice,
 Quot.sound]`. Pinned by the guard block below.
@@ -290,6 +415,27 @@ Quot.sound]`. Pinned by the guard block below.
 
 /-- info: 'Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms verifyTaprootCommitment_eq
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.checkTapTweak_program_size' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms checkTapTweak_program_size
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.checkTapTweak_program_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms checkTapTweak_program_eq
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.checkTapTweak_accept_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms checkTapTweak_accept_iff
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_program_size' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms verifyTaprootCommitment_program_size
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_program_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms verifyTaprootCommitment_program_eq
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_wrong_program' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms verifyTaprootCommitment_wrong_program
+
+/-- info: 'Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_wrong_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms verifyTaprootCommitment_wrong_length
 
 /-- info: 'Bitcoin.Crypto.Taproot.Verify.scriptPathSpend_badSize_none' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms scriptPathSpend_badSize_none

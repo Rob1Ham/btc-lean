@@ -13,7 +13,7 @@ disjunct; push-built literal `decide` witnesses; the `txCheckerOf` none-
 elimination bridge) before they are used en masse in
 `FailClosedSeam.lean` / `FailOpenStub.lean`.
 
-Nothing here reduces `verifyImpl`'s EC math (W14 discipline), the
+Nothing here reduces `verifyImpl`'s EC math (reduction discipline), the
 SHA256 layer, or any tagged rule row. No `@[rule]` (nothing is a
 rules.yaml row). New file, CENSUS2-owned, outside the `BitcoinProofs`
 root closure (A18 pattern).

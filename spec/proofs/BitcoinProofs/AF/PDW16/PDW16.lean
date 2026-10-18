@@ -2,8 +2,7 @@ import Bitcoin.Chain.Basic
 import Bitcoin.Capstone.Pow
 import Bitcoin.Block.Params
 
-/-! # PDW16.lean — proof-promotion review, items TOP-76..80
-(PDW16, recovery review RC17, 2026-10-17).
+/-! # PDW16.lean
 
 Five sorry-free promotion theorems, one per claimed rules.yaml row
 (claim v1 = evidence bank 11e3d0d):

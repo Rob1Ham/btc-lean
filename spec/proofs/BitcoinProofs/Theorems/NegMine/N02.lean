@@ -2,7 +2,7 @@ import Bitcoin.TxValidation.Interface
 import Bitcoin.Consensus.TxCheck
 
 /-!
-# BitcoinProofs.Theorems.NegMine.N02 — negative-vector mining, tx validation (W6-N02)
+# BitcoinProofs.Theorems.NegMine.N02 — negative-vector mining, tx validation (N02)
 
 Decide-shaped mutation matrix over `validateTx` (stateless prefix
 `checkTransaction` + finality + BIP68 height gate + `checkTxInputs`),
@@ -11,7 +11,7 @@ Every theorem statement is the *python-predicted* verdict (Core
 tx_check.cpp/tx_verify.cpp @ cce32b168 semantics, documented seams: parent
 MTP = 0 in the BIP68 time domain; witness/script-execution outside the
 validateTx surface). A green build = python and Lean AGREE on every case;
-build failures = candidate divergences (findings F-N02-*).
+build failures = candidate divergences (F-N02-*).
 
 Scaffolding: synthetic coins (50e8 sat, height 100, non-coinbase unless
 stated), spend height 300, BIP113 mtp cutoff 200. Vector seeds:

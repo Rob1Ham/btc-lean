@@ -5,7 +5,7 @@ open Lake DSL
 # `core` package — the zero-dependency Bitcoin consensus specification
 
 Everything under namespace `Bitcoin.*` lives here. NO mathlib, NO FFI,
-`native_decide` only under `Test/`-scoped files (D2 ladder L1 gate).
+`native_decide` only under `Test/`-scoped files (the L1 axiom-pin gate).
 
 Ground truth: Bitcoin Core v32.99 @ `cce32b168` (traceability DB pin; B-track
 line anchors for B2–B5 were taken @ `cce32b168`, re-verify on rebase).
@@ -22,6 +22,6 @@ lean_lib Bitcoin where
 lean_exe btclean where
   root := `Main
 
-/-- W17 capstone runner (compiled): the end-to-end anchor validation. -/
+/-- the capstone runner (compiled): the end-to-end anchor validation. -/
 lean_exe capstone where
   root := `Test.Capstone.Run

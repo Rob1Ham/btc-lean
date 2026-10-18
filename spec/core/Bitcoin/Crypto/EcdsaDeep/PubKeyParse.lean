@@ -6,14 +6,14 @@ import Bitcoin.Crypto.Ecdsa.Verify
 /-!
 # Bitcoin.Crypto.EcdsaDeep.PubKeyParse — pubkey parse, the deep/provable twin
 
-E07, DEEP-LEAN suite. `spec/core/Bitcoin/Crypto/EcdsaDeep/` is new ground
-(rule 4: new files only): this file is the **E07 parse lane** — a
-semantics-identical twin of W14b's `Ecdsa/Verify.parsePubKey` (SGN-105)
-plus the CPubKey-side header matrix, with the structure the E07 proofs
+The pubkey-parse layer of the deep-verification suite. `spec/core/Bitcoin/Crypto/EcdsaDeep/` is
+new ground: this file is the **pubkey-parse lane** — a
+semantics-identical twin of `Ecdsa/Verify.parsePubKey` (SGN-105)
+plus the CPubKey-side header matrix, with the structure the pubkey-parse proofs
 (`spec/proofs/BitcoinProofs/EcdsaDeep/PubKeyCor.lean`) need:
 Core-anchored tag constants, a port of `CPubKey::GetLen`, serializers,
 and the byte/tag/length reject matrix (kernel-reducible, no
-`native_decide` — D-004).
+`native_decide` — the no-axiom policy).
 
 ## Core @ cce32b168 anchors (all read at the full pin
 `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`, 2026-10-15)
@@ -53,7 +53,7 @@ and the byte/tag/length reject matrix (kernel-reducible, no
   src/secp256k1/src/eckey_impl.h (2026 layout: the parse lives in
   `group_impl.h::ge_parse`, the eckey file carries only the tweaks).
 
-## Relationship to W14b's `parsePubKey` (SGN-105)
+## Relationship to `parsePubKey` (SGN-105)
 
 `parsePubKeyDeep` is a byte-identical transliteration of
 `Ecdsa/Verify.parsePubKey` (Verify.lean:47-63) — the 33/65-byte forms,
@@ -63,8 +63,8 @@ and the byte/tag/length reject matrix (kernel-reducible, no
 "negate unless parity matches"), the 65-byte `x,y < P`, the hybrid
 parity rejection (group_impl.h:1094-1096) and `onCurveN`
 (`ge_is_valid_var`). The theorem `parsePubKeyDeep_eq` below pins the
-equality by `rfl`; **`parsePubKey`'s 215/215 W14b conformance battery
-(research/w2-14b-curve-ecdsa.md §2.2) therefore transfers verbatim to
+equality by `rfl`; **`parsePubKey`'s 215/215 conformance battery
+(the curve/ECDSA notes §2.2) therefore transfers verbatim to
 `parsePubKeyDeep`.**
 
 ## The parse matrices (proof-friendly, have-free)
@@ -76,7 +76,7 @@ branches, but with `liftY2`/`sqrtP` inlined — no `let`s — so that
 (Secp.lean:367-443)); `parsePubKeyDeep_spec` pins the def ↔ matrix
 bridge case-exhaustively over every tag/length `Bool` condition.
 
-The E07 proofs proper (round-trips, y-parity, hybrid acceptance
+The pubkey-parse layer proofs proper (round-trips, y-parity, hybrid acceptance
 matrix, `expM ↔ x^e mod P`, Euler/Fermat in `ZMod P`) live in the
 proofs package (`BitcoinProofs.EcdsaDeep.PubKeyCor`) — mathlib is a
 leaf dependency of that package only.
@@ -122,7 +122,7 @@ def uncompressedSize : Nat := 65
 /-- **Port of `CPubKey::GetLen`** (pubkey.h:69-76): the length a header
 byte promises — `2/3 → 33`, `4/6/7 → 65`, else `0` (invalid). Note the
 hybrid tags 06/07 ARE valid CPubKey headers: a hybrid pubkey is a valid
-`CPubKey` (hybrid acceptance at the Core script level, pinned by W14b
+`CPubKey` (hybrid acceptance at the Core script level, pinned
 `pkform-*` vectors). -/
 def pubKeyLen (tag : Nat) : Nat :=
   if tag == 2 || tag == 3 then compressedSize
@@ -141,7 +141,7 @@ The hybrid parity check (group_impl.h:1094-1096), the fe_set_b32_limit
 `x,y < P` checks (1087/1090) and the `ge_set_xo_var` residue acceptance
 (1087 + 370-376) are factored out as `hybridParityOk`/`limitOk65`/
 `sqrtOk` so the 65B matrix is decidable on literals without touching
-`expM` (the R6 fuel-recursion poison — research/w2-14b §2.1 F-W14b-1);
+`expM` (the R6 fuel-recursion poison — the curve/ECDSA notes §2.1, the modular-arithmetic note);
 R6 is confined to the compressed lane's `sqrtP`. -/
 
 /-- The hybrid parity check (group_impl.h:1094-1096): for tags 06/07,
@@ -181,7 +181,7 @@ def parseMatrix65 (tag x y : Nat) : Option (Nat × Nat) :=
 
 /-! ## The parse twin + the `rfl` bridge to SGN-105 -/
 
-/-- The E07 parse twin: a byte-identical transliteration of
+/-- The pubkey-parse layer parse twin: a byte-identical transliteration of
 `Ecdsa/Verify.parsePubKey` (SGN-105) — compressed (02/03) with
 `x < P` + `isSqrt` acceptance + tag-parity root pick (ge_set_xo_var:
 group_impl.h:370-374), uncompressed (04) / hybrid (06/07) with
@@ -207,8 +207,8 @@ def parsePubKeyDeep (b : ByteArray) : RawPoint :=
   else none
 
 /-- The bridge to SGN-105: **`parsePubKeyDeep` is `parsePubKey`**,
-byte for byte (definitional). The 215/215 W14b conformance battery over
-`parsePubKey` (research/w2-14b-curve-ecdsa.md §2.2: 10 `pk-*` negatives
+byte for byte (definitional). The 215/215 conformance battery over
+`parsePubKey` (the curve/ECDSA notes §2.2: 10 `pk-*` negatives
 incl. bad tag / x ≥ P / off-curve / hybrid parity / lengths, 10
 `pkform-*` 04 + 06/07 accept paths) therefore transfers to
 `parsePubKeyDeep` verbatim. -/

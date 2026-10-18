@@ -3,18 +3,18 @@ import Mathlib.NumberTheory.LucasPrimality
 import Mathlib.Tactic.NormNum.Prime
 
 /-!
-# BitcoinProofs.Crypto.CurveZMod — W14b: P-primality + ZMod field bridge
+# BitcoinProofs.Crypto.CurveZMod — P-primality + ZMod field bridge
 
 Mathlib is a LEAF DEPENDENCY of this package ONLY (core stays zero-dep;
-W14b dual-route measurement: see research/w2-14b-curve-ecdsa.md §4).
+dual-route measurement).
 
 ## Part 1 — `Fact (Nat.Prime P)` by a complete Pratt certificate
 
 `lucas_primality` (mathlib) needs, for each level, a witness `a` with
 `a^(m−1) = 1` and `a^((m−1)/q) ≠ 1` for every prime `q ∣ m−1`. The chain
-(sympy-verified, regenerate via research/w2-14b-curve-ecdsa.md §4.2):
+(sympy-verified):
 
-    P−1    = 2 · 3 · 7 · 13441 · Cbig                (Cbig prime, 77 digits)
+    P−1    = 2 · 3 · 7 · 13441 · Cbig                (Cbig prime, 72 digits)
     Cbig−1 = 2 · 3 · 5 · 29² · 31 · 7723 · Rbig · Qtwo
     Rbig−1 = 2 · 3 · Qbig                            (Qbig prime, 23 digits)
     Qbig−1 = 8 · 3 · 5323 · Sbig                     (Sbig prime, 18 digits)
@@ -22,7 +22,7 @@ W14b dual-route measurement: see research/w2-14b-curve-ecdsa.md §4).
 
 Witnesses: P→3, Cbig→10, Qbig→5, Rbig→6, Qtwo→3, Sbig→6.
 
-**The W14 kernel-reduction lesson, applied twice over.** The exponents are
+**The kernel-reduction lesson, applied twice over.** The exponents are
 256-bit, so `a^e` must NEVER be kernel-evaluated through Lean's linear
 `Nat.pow`. v1 of this file routed every exponent through the core's
 `natBitsF 400 e` fuel wrapper; that made each leaf `decide` reduce a
@@ -544,7 +544,7 @@ theorem P_prime : Nat.Prime P :=
 /-- **The secp256k1 field prime is prime** — complete Pratt certificate
 (levels Sbig → Qbig → Rbig → Qtwo → Cbig → P), sorry-free, kernel-decided
 only through the STRUCTURAL `Mod.expBits` square-and-multiply over literal
-bit lists (W14 §5 lesson respected). -/
+bit lists (§5 lesson respected). -/
 instance secp_P_prime : Fact (Nat.Prime P) := ⟨P_prime⟩
 
 end BitcoinProofs.Crypto.CurveZMod

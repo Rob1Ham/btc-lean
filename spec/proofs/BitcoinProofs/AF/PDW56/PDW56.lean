@@ -3,7 +3,7 @@ import Bitcoin.Crypto.Taproot.TapTweak
 import Bitcoin.Crypto.Taproot.Verify
 import Bitcoin.Interpreter.Defs
 
-/-! # PDW56.lean — proof-promotion review RC27, items TOP-276..280
+/-! # PDW56.lean — RC27, items TOP-276..280
 (PDW56, 2026-10-17). Claim 7d94723.
 
 D-TPRTREE / D-TPRTWEAK status-debt band: the BIP341 leaf-hash and
@@ -86,81 +86,71 @@ return q.CheckTapTweak(p, merkle_root, control[0] & 1);
 `CheckTapTweak` (`pubkey.cpp:255-271`) checks BOTH the x-coordinate
 (`secp256k1_memcmp_var(&pk_expected32, tweaked_pubkey32, 32) == 0`) and
 the parity (`secp256k1_fe_is_odd(&pk.y) == tweaked_pk_parity`).  The
-existing `Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment` ignores
-its `program` argument and `OutputKey.outputKeyOk` checks only parity.
-This module adds the faithful check — `program` as the x-coordinate of
-`Q` plus the parity — and proves the row's equation and reject face. -/
+consensus verifier now performs that comparison in
+`Bitcoin.Crypto.Taproot.Verify.checkTapTweak` (a 32-byte length check
+plus `program = x(Q)` byte equality, on top of the parity lane).  This
+module restates it as the TPR-016 row face and proves the accept and
+reject faces. -/
 
-open Bitcoin.Crypto.Taproot.OutputKey (internalKeyBytes parityOk)
-open Bitcoin.Crypto.Curve.Secp (liftX bytesToNatBE)
-open Bitcoin.Crypto.Taproot.Verify (scriptPathMerkleRoot)
+open Bitcoin.Crypto.Taproot.OutputKey (internalKeyBytes parityOk tweakedKey)
+open Bitcoin.Crypto.Taproot.Verify (scriptPathMerkleRoot natToBytesBE
+  verifyTaprootCommitment verifyTaprootCommitment_program_eq
+  verifyTaprootCommitment_program_size verifyTaprootCommitment_wrong_length
+  verifyTaprootCommitment_wrong_program)
 
-/-- TPR-016 (faithful commitment check): parse the control block's
-internal key, recompute `Q = P + int(t)·G` under the script-path merkle
-root, and require BOTH `x(Q) = int(program)` (the scriptPubKey witness
-program is the x-only output key `q`) and `control[0]&1 = y(Q)&1`.
-Fail-closed at every stage. -/
+/-- TPR-016 (faithful commitment check): the consensus verifier itself —
+parse the control block's internal key, recompute `Q = P + int(t)·G`
+under the script-path merkle root, and require BOTH the 32-byte
+`program = x(Q)` equality (the scriptPubKey witness program is the
+x-only output key `q`) and `control[0]&1 = y(Q)&1`. Fail-closed at every
+stage. -/
 def taprootCommitmentOk (control program tapleafHash : ByteArray) : Bool :=
-  if control.size < 33 then false
-  else
-    match liftX (bytesToNatBE (internalKeyBytes control)) with
-    | none => false
-    | some P =>
-      match tweakPoint (internalKeyBytes control) (some P)
-          (some (scriptPathMerkleRoot control tapleafHash)) with
-      | none => false
-      | some (xQ, yQ) => (bytesToNatBE program == xQ) && parityOk control yQ
+  verifyTaprootCommitment control program tapleafHash
+
+theorem taprootCommitmentOk_eq (control program tapleafHash : ByteArray) :
+    taprootCommitmentOk control program tapleafHash =
+      verifyTaprootCommitment control program tapleafHash := rfl
 
 /-- TPR-016 (accept face): a successful faithful check exhibits the
-internal key, the tweaked output key, the x-coordinate equality
-`q = x(P + int(t)·G)` and the parity match. -/
+tweaked output key, the 32-byte program length and the byte equality
+`program = x(P + int(t)·G)` (Core's `q.CheckTapTweak`). -/
 @[rule "TPR-016"]
 theorem taprootCommitmentOk_commitment (control program tapleafHash : ByteArray)
-    (xI yI : Nat)
-    (hp : liftX (bytesToNatBE (internalKeyBytes control)) = some (xI, yI))
     (h : taprootCommitmentOk control program tapleafHash = true) :
     ∃ xQ yQ,
-      tweakPoint (internalKeyBytes control) (some (xI, yI))
-          (some (scriptPathMerkleRoot control tapleafHash)) = some (xQ, yQ) ∧
-      bytesToNatBE program = xQ ∧ parityOk control yQ = true := by
-  unfold taprootCommitmentOk at h
-  by_cases hsize : control.size < 33
-  · rw [if_pos hsize] at h
-    simp at h
-  · rw [if_neg hsize, hp] at h
-    dsimp only at h
-    cases ht : tweakPoint (internalKeyBytes control) (some (xI, yI))
-        (some (scriptPathMerkleRoot control tapleafHash)) with
-    | none =>
-      rw [ht] at h
-      simp at h
-    | some Q =>
-      obtain ⟨xQ, yQ⟩ := Q
-      rw [ht] at h
-      simp [Bool.and_eq_true, beq_iff_eq] at h
-      exact ⟨xQ, yQ, rfl, h.1, h.2⟩
+      tweakedKey control (some (scriptPathMerkleRoot control tapleafHash))
+          = some (xQ, yQ) ∧
+      program.size = 32 ∧ program = natToBytesBE 32 xQ := by
+  have h' : verifyTaprootCommitment control program tapleafHash = true := h
+  obtain ⟨xQ, yQ, ht, hprog⟩ :=
+    verifyTaprootCommitment_program_eq control program tapleafHash h'
+  exact ⟨xQ, yQ, ht,
+    verifyTaprootCommitment_program_size control program tapleafHash h', hprog⟩
 
-/-- TPR-016 (reject face): if the recomputed output key's x-coordinate
-differs from the scriptPubKey program, or the parity differs, the
+/-- TPR-016 (reject face, length): a program that is not 32 bytes is
+rejected even when it parses to the same `Nat` as `x(Q)` — the byte
+length check that a pure `bytesToNatBE` comparison would miss. -/
+@[rule "TPR-016"]
+theorem taprootCommitmentOk_false_of_wrong_length
+    (control program tapleafHash : ByteArray) (h : program.size ≠ 32) :
+    taprootCommitmentOk control program tapleafHash = false := by
+  unfold taprootCommitmentOk
+  exact verifyTaprootCommitment_wrong_length control program tapleafHash h
+
+/-- TPR-016 (reject face, x-coordinate): if the recomputed output key's
+x-coordinate differs from the 32-byte scriptPubKey program, the
 commitment check fails (Core then raises
 `SCRIPT_ERR_WITNESS_PROGRAM_MISMATCH` at interpreter.cpp:1985). -/
 @[rule "TPR-016"]
-theorem taprootCommitmentOk_false_of_mismatch
-    (control program tapleafHash : ByteArray) (xI yI xQ yQ : Nat)
-    (hp : liftX (bytesToNatBE (internalKeyBytes control)) = some (xI, yI))
-    (ht : tweakPoint (internalKeyBytes control) (some (xI, yI))
-        (some (scriptPathMerkleRoot control tapleafHash)) = some (xQ, yQ))
-    (hm : bytesToNatBE program ≠ xQ ∨ parityOk control yQ = false) :
+theorem taprootCommitmentOk_false_of_wrong_program
+    (control program tapleafHash : ByteArray) (xQ yQ : Nat)
+    (ht : tweakedKey control (some (scriptPathMerkleRoot control tapleafHash))
+        = some (xQ, yQ))
+    (hne : program ≠ natToBytesBE 32 xQ) :
     taprootCommitmentOk control program tapleafHash = false := by
   unfold taprootCommitmentOk
-  by_cases hsize : control.size < 33
-  · rw [if_pos hsize]
-  · rw [if_neg hsize, hp]
-    dsimp only
-    rw [ht]
-    rcases hm with hm | hm
-    · simp [beq_iff_eq, hm]
-    · simp [hm]
+  exact verifyTaprootCommitment_wrong_program control program tapleafHash
+    xQ yQ ht hne
 
 /-- TPR-016 (Core's error face): the faithful check as a verifier
 outcome — success, or `SCRIPT_ERR_WITNESS_PROGRAM_MISMATCH` when the

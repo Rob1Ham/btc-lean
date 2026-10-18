@@ -13,7 +13,7 @@ Three escalating `decide` attempts (probe 3, 2026-10-16), all FAILED with
 The v4.35 kernel cannot whnf-reduce the ByteArray/Array-based compression
 (probes 1-2 additionally pinned: `.toList` and `.get!` on a computed
 ByteArray both get stuck — cf. Basic.lean's `ByteArray.toList` note).
-This independently confirms W11 (spec/Test/Sighash) and W13
+This independently confirms (spec/Test/Sighash) and
 (spec/Test/Crypto/SeamHashTest), which use `native_decide` for digest
 vectors. Consequence for the Y08 corpus: ByteArray-returning layers (P/D)
 are `native_decide` build-time checks; the list-vehicle layers (H0/H1:

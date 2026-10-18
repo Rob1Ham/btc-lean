@@ -2,7 +2,7 @@ import Bitcoin.Invariants.RC12
 import Bitcoin.Block.Index
 import BitcoinProofs.AF.PDW30.PDW30b
 
-/-! # PDW29.lean — proof-promotion review RC22, TOP-141..145 (claim 05afbf0)
+/-! # PDW29.lean
 
 Route B (PDW16/PDW27 pattern): zero core writes; `@[rule]` tags ride the
 theorems below; core defs/theorems imported read-only.
@@ -60,7 +60,7 @@ theorem proofEquivalentWork_eq_prefixWork (tipTime : Int32) :
           proofEquivalentWork_eq_prefixWork tipTime rest, h]
       · simp [proofEquivalentWork, h, prefixWork]
 
-/-- INV-142 vector (python3 mirror, findings-rc/RC12.md): boundary-in
+/-- INV-142 vector (python3 mirror): boundary-in
 4295032833, one second out 0, 3-block walk = 2 in + 1 out = 8590065666. -/
 @[rule "INV-142"]
 theorem proofEquivalentWork_row_vector :

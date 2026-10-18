@@ -2,7 +2,7 @@ import Bitcoin.Crypto.Taproot.OutputKey
 import Bitcoin.Crypto.Taproot.Tree
 import Bitcoin.Crypto.Taproot.Sighash
 
-/-! # PDW35.lean — proof-promotion review RC27, items TOP-171..175
+/-! # PDW35.lean — RC27, items TOP-171..175
 (PDW35, 2026-10-17). Claim 6698452.
 
 Taproot-commitment tail (D-TPROUT/D-TPRTREE) + the TPR-030 sighash

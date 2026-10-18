@@ -5,12 +5,12 @@ import BitcoinProofs.Theorems.LedgerCor
 import BitcoinProofs.Theorems.InterpCor
 
 /-!
-# BitcoinProofs.Theorems.Test — executable cross-checks (W15)
+# BitcoinProofs.Theorems.Test — executable cross-checks
 
 Every numeral below is recomputed by Lean from the C1 definitions via
 `decide` (all target functions are structural, so `decide` kernel-reduces
-— the W14 finding bars `decide` only through well-founded recursions).
-The values mirror the vectors used in the W15 report and in the modules'
+— `decide` is barred only through well-founded recursions).
+The values mirror the vectors used in the report and in the modules'
 docstrings; if any definition drifts, the build fails here.
 
 Sections:
@@ -28,7 +28,7 @@ Sections:
 5. Ledger vectors (`checkTransaction`, block sums): the CVE-2018-17144
    duplicate-input rejection, the null-prevout rejection, the
    txout-total overflow, and hand conservation through the block sums.
-6. L3 axiom pins: one headline theorem per W15 module.
+6. L3 axiom pins: one headline theorem per module.
 -/
 
 namespace BitcoinProofs.Theorems.Test
@@ -156,12 +156,12 @@ example : checkTransaction txOverflow = some .txoutTotalTooLarge := by decide
 example : checkTransaction ⟨1, [], [], 0, []⟩ = some .vinEmpty := by decide
 example : checkTransaction ⟨1, [iA], [], 0, []⟩ = some .voutEmpty := by decide
 
-/-- Block-sum conservation instance through W15's arithmetic tier:
+/-- Block-sum conservation instance through arithmetic tier:
 4000 in, 1000 + 1000 out, fee 2000. -/
 example : blockOut [txTest, txTest] = 2000 := by decide
 example : blockIn uTest [txTest] = 4000 := by decide
 
-/-! ## 6. L3 axiom pins: one headline theorem per W15 module -/
+/-! ## 6. L3 axiom pins: one headline theorem per module -/
 
 /--
 info: 'BitcoinProofs.Theorems.ParserCor.parseScript_fuel_indep' depends on axioms: [propext, Quot.sound]

@@ -1,10 +1,10 @@
 import Bitcoin.Activation.Bip9
 
-/-! # PDW26.lean — proof-promotion review RC22, items TOP-126..130
-(PDW26, review RC22, 2026-10-17).
+/-! # PDW26.lean — RC22, items TOP-126..130
+(PDW26, RC22, 2026-10-17).
 
-The D-BIP9 tag-stacked pocket of `Bitcoin.Activation.Bip9.lean` (W06,
-"implemented + proved 2026-10-16"; claim v1 = commit ba6c71b):
+The D-BIP9 tag-stacked pocket of `Bitcoin.Activation.Bip9.lean`
+("implemented + proved 2026-10-16"; claim v1 = commit ba6c71b):
 
 * **INV-123** `bip9_threshold_locks_in` (Bip9.lean:51, versionbits.cpp:
   83-98) — the core tag-twin of PROVEN row BLK-075 (F-PDW26-001:
@@ -39,7 +39,7 @@ sorry/sorryAx. The module is deliberately NOT imported by the
 BitcoinProofs root (PDW12-AF isolation), own-target direct-lean
 built, outside `core/**`. Non-goals: the pocket twins {INV-122
 (BLK-073's own stacked-twin row), BLK-081 (mainnetTestdummy
-dormancy)} + the post-100 next-deep register (findings v1 §Non-goals),
+dormancy)} + the post-100 next-deep register,
 frozen BIP30R-5/CORPUS2/E14/EDGE/L2/PDW17-20 paths. -/
 
 namespace BitcoinProofs.AF.PDW26

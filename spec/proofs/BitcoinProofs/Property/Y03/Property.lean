@@ -1,16 +1,15 @@
 import Bitcoin.Script.Parser.Interface
 
 /-!
-# BitcoinProofs.Property.Y03 — property corpus for Script/parser (W4/Y03)
+# BitcoinProofs.Property.Y03 — property corpus for Script/parser
 
 Random + edge-case program bytes -> parse -> print -> reparse, checked
 by kernel `decide`. Every EXPECTED value below was computed by the
-scratch reference `y03ref.py` (an independent Python port of Core
+reference `y03ref.py` (an independent Python port of Core
 @ cce32b168: script.cpp:313-363 GetScriptOp, script.h:408-427
-AppendDataSize) and CROSS-CHECKED case-for-case against W05's
-`Test/Script/Parser/ref.py` norm_walk (78/78 agree; see
-`spec/db/findings-w4/Y03.md`). Generator: fixed seed 20261016 —
-fully reproducible (`python3 scratch/Y03/gen.py` regenerates this file).
+AppendDataSize) and CROSS-CHECKED case-for-case against the
+`Test/Script/Parser/ref.py` norm_walk (78/78 agree; F-Y03-001).
+Generator: fixed seed 20261016, fully reproducible.
 
 Per canonical valid case (kinds P/R/K):
   P  parse(input) = some ops          — parser agrees with Core walk
@@ -20,11 +19,11 @@ Per canonical valid case (kinds P/R/K):
                                         (instance of the frozen law
                                         parse_serialize_roundtrip)
 FAIL cases pin clean truncation failure (parse = none).
-Checker policy (measured, see findings F-Y03-004): kernel `decide` on
+Checker policy (measured, see F-Y03-004): kernel `decide` on
 ByteArray parse is ~O(n^2) with a large constant (122 s standalone for
 one 255-byte push), so cases with <= 60 bytes are checked by kernel
 `decide` (strongest form) and heavier cases by `native_decide`
-(compiled evaluation, W05 Tests.lean precedent) -- the named theorem
+(compiled evaluation, Tests.lean precedent) -- the named theorem
 below stays kernel-decide, so its axiom pin remains the standard trio.
 -/
 
@@ -536,7 +535,7 @@ def opsSmall : List Opcode :=
    Opcode.op ⟨0xac, by decide⟩]
 
 /-- the WF side is proved by hand: `decide` cannot synthesize a
-Decidable instance for `∀ o ∈ ops, opcodeWF o` (findings F-Y03-005) -/
+Decidable instance for `∀ o ∈ ops, opcodeWF o` (F-Y03-005) -/
 theorem y03_roundtrip_small :
     parseScript ⟨serializeOpcodes opsSmall⟩ = some opsSmall :=
   parse_serialize_roundtrip _ (by

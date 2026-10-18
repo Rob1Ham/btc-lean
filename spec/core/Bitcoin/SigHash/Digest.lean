@@ -20,13 +20,13 @@ Ground truth @ cce32b168 (`src/script/interpreter.cpp`):
       nSequence = 0 for other inputs under SINGLE/NONE, else actual
     - vout count = 0 if NONE, `nIn+1` if SINGLE, else all; each output is a
       NULL `CTxOut` (`nValue = −1` ⇒ 8×0xff, empty script) for
-      `nOutput ≠ nIn` under SINGLE — **not** 8 zero bytes (W11 mirror finding)
+      `nOutput ≠ nIn` under SINGLE — **not** 8 zero bytes (mirror finding)
     - nLockTime
   then the 4-byte LE hashtype, then double-SHA256.
 * Tri-modal SIGHASH_SINGLE out-of-range (`nIn ≥ vout.size`):
   legacy ⇒ `uint256::ONE` (early return BEFORE any vin access;
   interpreter.cpp:1614-1622); BIP143 ⇒ zero `hashOutputs` (:1647-1653);
-  BIP341 ⇒ fail-closed hashtype error (Review 3 — stub point below).
+  BIP341 ⇒ fail-closed hashtype error (stub point below).
 * BIP143 (`WITNESS_V0`, :1633-1670): the 10-field preimage
   version ‖ hashPrevouts ‖ hashSequence ‖ outpoint ‖ scriptCode ‖ amount ‖
   nSequence ‖ hashOutputs ‖ nLockTime ‖ hashtype, double-SHA256'd. The
@@ -34,13 +34,13 @@ Ground truth @ cce32b168 (`src/script/interpreter.cpp`):
   CODESEPARATOR removal — the caller supplies the right subscript).
 * Byte order: `uint256::GetHex()` (how sighash.json prints digests) reverses
   the internal byte array; the consensus digest is the internal
-  (SHA256d-output) order. W11-mirror-validated: 500/500 legacy + 7/7 BIP143.
+  (SHA256d-output) order. mirror-validated: 500/500 legacy + 7/7 BIP143.
 
-Hash floor: W13's seam landed (commit e0b9c05) with real, executable
+Hash floor: the seam landed (commit e0b9c05) with real, executable
 `sha256`/`sha256d` — `dshaL` routes through `Bitcoin.Crypto.Seam.sha256d`
 (one implementation, seam-owned; the interim vendored `SigHash.Hash` copy
 was retired). Everything is defined over the list vehicle (`Bytes`); the
-ByteArray API bridges via W02's proved `bL`/`bytesOfList`.
+ByteArray API bridges through the proved `bL`/`bytesOfList`.
 -/
 
 namespace Bitcoin.SigHash
@@ -73,7 +73,7 @@ def serNullTxOutL : Bytes := serU64L 0xFFFFFFFFFFFFFFFF ++ encCSL 0
 def serTxOutL (o : TxOut) : Bytes :=
   serAmountL o.value ++ encCSL o.scriptPubKey.bytes.size ++ bL o.scriptPubKey.bytes
 
-/-- Double-SHA256 of a list-level preimage, via W13's seam hash floor
+/-- Double-SHA256 of a list-level preimage, via the seam layer's seam hash floor
 (`Bitcoin.Crypto.Seam.sha256d` — real, vector-verified; see Seam/Hash.lean).
 SWT-052: BIP143 digests and sub-hashes are SHA256d (HashWriter::GetHash). -/
 @[rule "SWT-052"]

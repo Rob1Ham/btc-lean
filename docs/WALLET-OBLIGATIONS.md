@@ -180,7 +180,7 @@ a proof claim, and `oblig_*` Props in `Obligations.lean` are restatements, not e
 - **Row summary:** sorted multisig
 - **Core anchor:** `src/script/descriptor.cpp:1376` at `cce32b168`
 - **Existing declaration:** `BitcoinProofs.Wallet.Desc.expand?_multi_consts`
-- **Obligation (PROOF, unproved):** `expand?_multi_consts` requires `hne : ks ≠ []` and covers only all-constant keys; `expand?_multi_xpub_consts` covers one ranged key plus constants. Missing: (i) the empty-list case (`alignedCount [] = none`, so `expand? = .error`); (ii) two or more ranged keys, equal and unequal lengths, and interleaved constants; (iii) the general statement `theorem expand?_multi (d p ks scripts) (h : expand? (.multi t ks sorted) p = .ok scripts) : scripts.length = n ∧ ∀ i < n, scripts[i] = multiScript t (if sorted then sortPubkeys (ithKeys ks i) else ithKeys ks i)`. `multi` order and `sortPubkeys` are exact, so only the theorem is missing.
+- **Obligation (PROOF, unproved):** `expand?_multi_consts` requires `hne : ks ≠ []` and covers only all-constant keys; `expand?_multi_xpub_consts` covers one ranged key plus constants. Missing: (i) the general case with two or more ranged keys, equal and unequal lengths, and interleaved constants; (ii) the general statement `theorem expand?_multi (d p ks scripts) (h : expand? (.multi t ks sorted) p = .ok scripts) : scripts.length = n ∧ ∀ i < n, scripts[i] = multiScript t (if sorted then sortPubkeys (ithKeys ks i) else ithKeys ks i)`. `multi` order and `sortPubkeys` are exact, so only the theorem is missing. `oblig_DESC_025` carries the parser guards `keys ≠ []` and `1 ≤ threshold ≤ keys.length`: the model's `expand?` itself accepts an empty `multi` key list, which Core's parser rejects, so the obligation must not state the empty case as an expansion success.
 
 ### DESC-026 — UNMODELLED / PROOF
 
@@ -444,7 +444,7 @@ a proof claim, and `oblig_*` Props in `Obligations.lean` are restatements, not e
 - **Row summary:** finalisation suppresses partial data
 - **Core anchor:** `src/psbt.h:371` at `cce32b168`
 - **Existing declaration:** `BitcoinProofs.Wallet.Psbt.finalizeInput_hasSigningData_false`
-- **Obligation (MODEL, unproved):** `finalizeInput` suppresses some signing fields, but the four preimage maps (0x0A-0x0D) are neither cleared nor counted by `hasSigningData`, so they are still serialized after finalisation; `finalizeInput_hasSigningData_false` is also unconditional on the final scripts. Obligation: add the preimage maps to the suppression predicate and prove `theorem finalizeInput_preimages (h : inputSigned (finalizeInput i ss ws) = true) : (finalizeInput i ss ws).ripemd160Preimages = [] ∧ (finalizeInput i ss ws).sha256Preimages = [] ∧ (finalizeInput i ss ws).hash160Preimages = [] ∧ (finalizeInput i ss ws).hash256Preimages = []`, plus the guard `(finalScriptSig ≠ "" ∨ finalScriptWitness ≠ null) → hasSigningData = false`. The theorem currently covers partial sigs, sighash, redeem/witness scripts, key paths and taproot fields only.
+- **Obligation (MODEL, unproved):** `finalizeInput` suppresses some signing fields, but the four preimage maps (0x0A-0x0D) are neither cleared nor counted by `hasSigningData`, so they are still serialized after finalisation; `finalizeInput_hasSigningData_false` is also unconditional on the final scripts. The unknown key-value map is deliberately preserved (`finalizeInput_unknown`), matching Core, so proprietary keys are not suppressed and can still carry signing material after finalisation; the obligation explicitly records that preservation. Obligation: add the preimage maps to the suppression predicate and prove `theorem finalizeInput_preimages (h : inputSigned (finalizeInput i ss ws) = true) : (finalizeInput i ss ws).ripemd160Preimages = [] ∧ (finalizeInput i ss ws).sha256Preimages = [] ∧ (finalizeInput i ss ws).hash160Preimages = [] ∧ (finalizeInput i ss ws).hash256Preimages = []`, plus the guard `(finalScriptSig ≠ "" ∨ finalScriptWitness ≠ null) → hasSigningData = false`. The theorem currently covers partial sigs, sighash, redeem/witness scripts, key paths and taproot fields only; it does not claim complete suppression of all signing data.
 
 ### PSBT-014 — PARTIAL / MODEL
 
@@ -764,6 +764,32 @@ a proof claim, and `oblig_*` Props in `Obligations.lean` are restatements, not e
 - **Core anchor:** `src/wallet/fees.cpp:98` at `cce32b168`
 - **Existing declaration:** none
 - **Obligation (MODEL, unproved):** No `GetDiscardRate` or `max(discard, relayDustFee)` floor; `DUST_RELAY_TX_FEE` is only a constant. Obligation: add `def getDiscardRate (estimator : Option FeeRate) (relayDust : FeeRate) : FeeRate := max (estimator.getD relayDust) relayDust` with `theorem getDiscardRate_ge_relayDust : relayDust.getFee 1000 ≤ (getDiscardRate est relayDust).getFee 1000` and the estimator branch. Core anchors `fees.cpp:90-100`; no discard-rate function or floor theorem exists.
+
+## Corrected obligation and proof-surface notes
+
+The following statements were narrowed or corrected after source review; none is
+proved, and the corrections remove cases the models accepted but Core rejects or
+that the stated hypothesis did not support.
+
+* **DESC-025:** `oblig_DESC_025` now carries `keys ≠ []` and
+  `1 ≤ threshold ≤ keys.length`, the parser guards for a well-formed `multi`.
+  The model's `expand?` does not validate them itself, so the unguarded form
+  claimed that an empty `multi` key list expands successfully.
+* **MS-022:** the mixed time/height timelock claim in `oblig_MS_022` now carries
+  `2 ≤ k`.  A `k = 1` threshold satisfies only one branch and therefore cannot
+  mix lock kinds; the model deliberately retains the `k` bit in that case.
+* **PSBT-012:** the obligation and the register now state that `finalizeInput`
+  preserves the unknown key-value map.  Unknown/proprietary keys are not
+  suppressed by finalisation and must not be counted as cleared signing data.
+* **Selection (`Wallet/Spend/Selection.lean`):** the former
+  `largestFirst_deterministic`, `smallestFit_deterministic` and
+  `runSelection_deterministic` theorems were `f x = f x` restatements and have
+  been removed.  Determinism is definitional; the module proves coverage, value
+  bounds, effective value, fee and change laws instead.
+* **Miniscript emission and descriptor expansion:** the former
+  `toScript_total`, `expand?_deterministic` and `expand?_total` tautologies were
+  removed.  `toScript_size` and `expand?_eq_spec` with the fragment theorems are
+  the substantive characterizations.
 
 ## What this wallet layer does and does not prove
 

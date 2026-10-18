@@ -10,7 +10,7 @@ This module supplies the wallet-side predicates that connect a spent
 consensus definition: it imports the executable consensus tree read-only
 and states its facts over the existing types.
 
-## The consensus gap
+## The consensus check
 
 Bitcoin Core's script-path commitment check is
 
@@ -22,28 +22,29 @@ Bitcoin Core's script-path commitment check is
 output key from the spent program (`const XOnlyPubKey q{program};`,
 `:1920`) and compares it with the tweaked internal key (`q.CheckTapTweak`,
 `:1924`; `src/pubkey.cpp:257-263`).  The executable model's
-`verifyTaprootCommitment` declares the same `program` parameter but its
-body is
+`verifyTaprootCommitment` now performs the same comparison through
+`checkTapTweak`:
 
-    outputKeyOk control (some (scriptPathMerkleRoot control tapleafHash))
+    outputKeyOk control root &&
+      decide (program.size = 32) &&
+      decide (natToBytesBE 32 x(Q) = program)
 
-(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90`).  `outputKeyOk`
+(`spec/core/Bitcoin/Crypto/Taproot/Verify.lean`).  `outputKeyOk`
 re-parses the control block's internal key, recomputes the tweak and
-checks the output-key parity (`spec/core/Bitcoin/Crypto/Taproot/OutputKey.lean:164-171`),
-but it never receives or compares `program`.  Consequently the model's
-commitment verdict is invariant under replacement of the program (see
-`commitmentOf_program_irrelevant` and `scriptPathSpend_program_irrelevant`
-below), whereas Core's verdict is not.
+checks the output-key parity (`spec/core/Bitcoin/Crypto/Taproot/OutputKey.lean`),
+and `checkTapTweak` adds Core's length-checked `q == x(Q)` byte
+equality.  Consequently an accepted commitment binds the `program`
+argument (`commitmentOf_program_binding` and
+`scriptPathSpend_program_binding` below).
 
-The capstone makes the second half of the gap explicit.  Every input
-whose prevout is a witness program of version at least one is routed to
-`InputVerdict.unjudgedTaproot` *before* `verifyScriptFull` runs
-(`spec/core/Bitcoin/Capstone/Block.lean:218-221` for the gate,
-`:242-245` for the dispatch).  The interpreter's own script-path arm
-likewise ends in `.unjudged` once the control-block size gate passes
-(`spec/core/Bitcoin/Interpreter/Defs.lean:1258-1263`), so the v1 lane is
-an explicit assume-valid: it records the spend in the ledger fold but
-does not gate the block verdict on the Taproot commitment.
+The capstone still routes every input whose prevout is a witness program
+of version at least one to `InputVerdict.unjudgedTaproot` *before*
+`verifyScriptFull` runs (`spec/core/Bitcoin/Capstone/Block.lean:218-221`
+for the gate, `:242-245` for the dispatch).  The interpreter's own
+script-path arm likewise ends in `.unjudged` once the control-block size
+gate passes (`spec/core/Bitcoin/Interpreter/Defs.lean:1258-1263`), so the
+v1 lane remains an explicit assume-valid at the capstone even though the
+crypto-side commitment verdict is now faithful.
 
 ## The wallet bridge
 
@@ -62,12 +63,12 @@ block and leaf script.
   `outputKeyOk`/`tweakPoint` chain; this module adds no curve arithmetic
   and no new cryptographic assumption.
 * The comparison that Core performs inside
-  `secp256k1_xonly_pubkey_tweak_add_check` is represented only by the
-  wallet-side equality `committedProgram ... = some program`; the
-  consensus verifier in this tree does not perform it.
+  `secp256k1_xonly_pubkey_tweak_add_check` is now performed by the
+  consensus verifier (`commitmentOf_program_binding` below) as well as
+  by the wallet-side equality `committedProgram ... = some program`.
 * No wallet spend is proved valid.  `W1_taprootSpendJudged` is a named
-  target proposition, not a theorem.  It cannot hold in the forward
-  direction while the consensus verifier ignores its program argument.
+  target proposition, not a theorem.  Its remaining gap is the capstone
+  routing to `unjudgedTaproot`, not the crypto-side program comparison.
 * Tapscript execution, sighash construction and signature production are
   outside this module.
 -/
@@ -270,9 +271,8 @@ def committedProgram (control leafScript : ByteArray) : Option ByteArray :=
     (fun Q => natToBytesBE 32 Q.1)
 
 /-- The consensus commitment verdict in wallet vocabulary.  The
-`program` argument is passed through because the consensus signature
-requires it; in this tree the verdict does not inspect it (see
-`commitmentOf_program_irrelevant`). -/
+`program` argument is the x-only output key and is bound by the verdict
+(see `commitmentOf_program_binding`). -/
 def commitmentOf (control program leafScript : ByteArray) : Bool :=
   verifyTaprootCommitment control program (leafHash control leafScript)
 
@@ -321,9 +321,9 @@ theorem spendCommitment_program_size (spk : Script) (program control leafScript 
       exact natToBytesBE_size 32 Q.1
 
 /-- Given the two program facts, `SpendCommitment` is exactly the
-consensus commitment verdict.  This is the Boolean skeleton of the
-wallet bridge; the missing direction is precisely the program comparison
-that the consensus function does not perform. -/
+consensus commitment verdict.  The consensus function now performs the
+program comparison, so `spendCommitment_committedProgram` is a
+consequence of the verdict rather than an extra wallet premise. -/
 theorem spendCommitment_iff_verdict (spk : Script) (program control leafScript : ByteArray)
     (hm : programMatches spk program = true)
     (hc : committedProgram control leafScript = some program) :
@@ -333,26 +333,45 @@ theorem spendCommitment_iff_verdict (spk : Script) (program control leafScript :
   rw [hm, hc]
   simp
 
-/-! ## The program-blindness facts (the gap, as a theorem) -/
+/-! ## The program-binding facts -/
 
-/-- The consensus commitment verdict is invariant under replacement of
-the `program` argument.  Core's `VerifyTaprootCommitment` is not
-(`src/script/interpreter.cpp:1919-1924`): this theorem is the exact
-model-side statement of the gap. -/
-theorem commitmentOf_program_irrelevant (control p₁ p₂ leafScript : ByteArray) :
-    commitmentOf control p₁ leafScript = commitmentOf control p₂ leafScript := rfl
+/-- An accepted consensus commitment binds its `program` argument to the
+output key recomputed from the control block and leaf script: the
+program is exactly the canonical 32-byte `x(Q)` serialization.  This is
+Core's `q.CheckTapTweak` comparison (`src/script/interpreter.cpp:1919-1924`,
+`src/pubkey.cpp:257-263`). -/
+theorem commitmentOf_program_binding (control program leafScript : ByteArray)
+    (h : commitmentOf control program leafScript = true) :
+    committedProgram control leafScript = some program := by
+  unfold commitmentOf at h
+  unfold committedProgram committedMerkleRoot leafHash
+  obtain ⟨xQ, yQ, ht, hprog⟩ :=
+    Bitcoin.Crypto.Taproot.Verify.verifyTaprootCommitment_program_eq
+      control program (scriptPathTapleaf control leafScript) h
+  rw [ht]
+  simp [hprog]
 
-/-- The whole script-path arm is invariant under the `program` argument,
-so a program equality fact cannot change whether the arm accepts. -/
-theorem scriptPathSpend_program_irrelevant
-    (control leafScript p₁ p₂ : ByteArray) :
-    scriptPathSpend control leafScript p₁ =
-      scriptPathSpend control leafScript p₂ := rfl
+/-- An accepted script-path arm likewise binds its `program` argument.
+The control-block size gate is the only precondition for the arm to
+reach the commitment verdict. -/
+theorem scriptPathSpend_program_binding
+    (control leafScript program : ByteArray) (tl : ByteArray) (ts : Bool)
+    (h : scriptPathSpend control leafScript program = some (tl, true, ts)) :
+    committedProgram control leafScript = some program := by
+  unfold scriptPathSpend at h
+  by_cases hg : controlBlockSizeOk control
+  · rw [ite_eq_left hg] at h
+    injection h with h1
+    injection h1 with _ h2
+    injection h2 with hcommit _
+    exact commitmentOf_program_binding control program leafScript (by
+      simpa [commitmentOf, leafHash] using hcommit)
+  · rw [ite_eq_right hg] at h
+    simp at h
 
 /-- Under the control-block size gate, the script-path arm is judged
 (its commitment bit is `true`) exactly when the consensus commitment
-verdict is `true`.  No program equality appears, because the model does
-not consult the program. -/
+verdict is `true`. -/
 theorem taprootSpendJudged_iff_commitment
     (program control leafScript : ByteArray)
     (hsize : controlBlockSizeOk control = true) :
@@ -362,7 +381,7 @@ theorem taprootSpendJudged_iff_commitment
   rw [ite_eq_left hsize]
   simp
 
-/-- **W1 — Taproot spend judgement (target, not proven).**
+/-- **Taproot spend judgement (target, not proven).**
 
 For every spent `scriptPubKey` that really is a Taproot output, every
 wallet-supplied program, every control block and every leaf script, if
@@ -372,15 +391,14 @@ the wallet's program *and* the commitment verdict accepts.
 
 The hypotheses are deliberately minimal: the size gate is the only
 premise, because `scriptPathSpend` fails closed below it.  The
-proposition is not a theorem of this tree.  Its forward direction needs
-`verifyTaprootCommitment` to compare the recomputed output key with the
-`program` taken from the spent scriptPubKey; today that argument is
-unused (`Verify.lean:89-90`) and the capstone routes the whole v1 lane to
-`unjudgedTaproot` (`Capstone/Block.lean:242-245`).  The proven
-conditional form is `spendCommitment_iff_verdict`; until the consensus
-comparison lands, every wallet Taproot spend claim is conditional on
-`SpendCommitment` (or, equivalently here, on `programMatches` together
-with `committedProgram control leafScript = some program`). -/
+proposition is not a theorem of this tree.  The verifier now compares the
+recomputed output key with `program` (`Verify.checkTapTweak`), but `spk`
+is an arbitrary 34-byte v1 scriptPubKey: nothing connects its payload to
+the `program` argument of this definition, and the capstone still routes
+the whole v1 lane to `unjudgedTaproot`
+(`Capstone/Block.lean:242-245`).  The proven conditional form is
+`spendCommitment_iff_verdict`; every wallet Taproot spend claim remains
+conditional on `SpendCommitment`. -/
 def W1_taprootSpendJudged : Prop :=
   ∀ (spk : Script) (program control leafScript : ByteArray),
     controlBlockSizeOk control = true →

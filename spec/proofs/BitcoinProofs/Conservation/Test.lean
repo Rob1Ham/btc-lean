@@ -1,7 +1,7 @@
 import BitcoinProofs.Conservation.Thms
 
 /-!
-# BitcoinProofs.Conservation.Test — executable cross-checks (W08)
+# BitcoinProofs.Conservation.Test — executable cross-checks
 
 Every numeral below was produced by `reference.py` in this directory
 (`python3 reference.py` regenerates and re-asserts all of them); the
@@ -156,7 +156,7 @@ example : coinbaseAmountOk 0 (100 : Amount) (Tx.mk 1 [] [⟨5000000100, Script.e
   decide
 
 /-- The counterexample from `reference.py` §5, as a Lean statement: WITHOUT
-`hle`, the frozen equation alone admits a negative fee — this is why W08
+`hle`, the frozen equation alone admits a negative fee — this is why
 added `hle : totalOut ≤ totalIn` to `single_tx_conservation`. -/
 example : ∃ (vi vo fee : Amount), vi = vo + fee ∧ MoneyRange vi = true ∧
     MoneyRange vo = true ∧ fee < 0 ∧ ¬ (vo ≤ vi) :=

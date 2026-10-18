@@ -13,11 +13,11 @@ program-equality surface.
 
 No new mathematical content is introduced.  In particular the named
 proposition `Bitcoin.Wallet.Taproot.W1_taprootSpendJudged` remains a
-target: the consensus commitment verifier in the pinned tree does not
-compare the recomputed output key with the spent scriptPubKey's program
-(`Bitcoin/Wallet/Taproot/Commit.lean` module note; Core
-`src/script/interpreter.cpp:1913-1925` versus the model's
-`spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90`).
+target: the consensus commitment verifier now compares the recomputed
+output key with its `program` argument (Core
+`src/script/interpreter.cpp:1913-1925`, model `Verify.checkTapTweak`),
+but the capstone still routes the whole v1 lane to `unjudgedTaproot`
+(`Bitcoin/Wallet/Taproot/Commit.lean` module note).
 
 ## What is not modeled
 
@@ -26,7 +26,7 @@ compare the recomputed output key with the spent scriptPubKey's program
 * No consensus claim is strengthened and no contract or interpreter
   definition is modified.
 * Nothing here proves that a wallet-produced Taproot spend is accepted
-  by consensus; that is the W1 target, stated separately.
+  by consensus; that is the target, stated separately.
 -/
 
 namespace BitcoinProofs.Wallet.Taproot
@@ -61,27 +61,27 @@ theorem programMatches_v1_34_true_iff (spk : Script) (program : ByteArray)
       spk.bytes.extract 2 spk.bytes.size = program :=
   programMatches_v1_34_iff spk program h0 h1 hsz
 
-/-- The commitment verdict is invariant under its `program` argument:
-this is the model-side statement of the consensus gap. -/
-theorem commitmentOf_program_irrelevant
-    (control p₁ p₂ leafScript : ByteArray) :
-    commitmentOf control p₁ leafScript = commitmentOf control p₂ leafScript :=
-  Bitcoin.Wallet.Taproot.commitmentOf_program_irrelevant
-    control p₁ p₂ leafScript
+/-- An accepted commitment binds its `program` argument to the recomputed
+output key: Core's `q.CheckTapTweak` comparison. -/
+theorem commitmentOf_program_binding
+    (control program leafScript : ByteArray)
+    (h : commitmentOf control program leafScript = true) :
+    committedProgram control leafScript = some program :=
+  Bitcoin.Wallet.Taproot.commitmentOf_program_binding
+    control program leafScript h
 
-/-- The script-path arm is likewise invariant under its `program`
-argument. -/
-theorem scriptPathSpend_program_irrelevant
-    (control leafScript p₁ p₂ : ByteArray) :
-    scriptPathSpend control leafScript p₁ =
-      scriptPathSpend control leafScript p₂ :=
-  Bitcoin.Wallet.Taproot.scriptPathSpend_program_irrelevant
-    control leafScript p₁ p₂
+/-- An accepted script-path arm binds its `program` argument likewise. -/
+theorem scriptPathSpend_program_binding
+    (control leafScript program : ByteArray) (tl : ByteArray) (ts : Bool)
+    (h : scriptPathSpend control leafScript program = some (tl, true, ts)) :
+    committedProgram control leafScript = some program :=
+  Bitcoin.Wallet.Taproot.scriptPathSpend_program_binding
+    control leafScript program tl ts h
 
 #print axioms programMatches_true_iff
 #print axioms programOf_v1_34_payload
 #print axioms programMatches_v1_34_true_iff
-#print axioms commitmentOf_program_irrelevant
-#print axioms scriptPathSpend_program_irrelevant
+#print axioms commitmentOf_program_binding
+#print axioms scriptPathSpend_program_binding
 
 end BitcoinProofs.Wallet.Taproot

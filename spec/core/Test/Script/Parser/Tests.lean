@@ -1,10 +1,10 @@
 import Bitcoin.Script.Parser.Interface
 
 /-!
-# W05 unit tests — decide-based vectors per opcode class
+# Bitcoin.Script.Parser unit tests — decide-based vectors per opcode class
 
 Every check is a build-time `example … := by decide` or `native_decide`
-(both kernel/compiler-reduced, no IO), mirroring the C1 PoC pattern.
+(both kernel/compiler-reduced, no IO), mirroring the prototype pattern.
 `native_decide` is confined to this Test-scoped file per the D2 L1
 gate; it is used where the kernel's list-backed `Array`/`ByteArray`
 evaluation is quadratic in the payload (≥ 256-byte pushes — `extract`
@@ -13,7 +13,7 @@ budget. Coverage: OP_0, direct pushes (incl. the 75/76 boundary),
 PUSHDATA1/2/4 (incl. length-byte truncation and > 520 acceptance),
 OP_1NEGATE, OP_RESERVED, OP_1..OP_16, high opcodes, all 15 disabled
 opcodes, printer boundaries, truncation failures, and the `opcodeCount`
-hook for W09 (SCR-022/024).
+hook for the interpreter (SCR-022/024).
 -/
 
 namespace Test.Script.Parser.Tests
@@ -181,7 +181,7 @@ example : parseFrom 3 (ByteArray.mk #[(0x7e : UInt8), (0x51 : UInt8)]) 0 =
 
 example : MAX_SCRIPT_ELEMENT_SIZE = 520 := by decide
 
-/-! ## `opcodeCount` — the W09 op-budget hook (SCR-022/024: pushes and
+/-! ## `opcodeCount` — the interpreter layer op-budget hook (SCR-022/024: pushes and
 OP_1NEGATE..OP_16 don't count; `op` bytes > 0x60 do) -/
 
 example : opcodeCount [Opcode.pushBytes (ByteArray.mk #[(0xab : UInt8)]),

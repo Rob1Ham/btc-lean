@@ -1,12 +1,12 @@
 import Bitcoin.Crypto.RipemdDeep.SpecTables
 
 /-!
-# Bitcoin.Crypto.RipemdDeep.Spec — the kernel-decidable C mirror (S06 U3)
+# Bitcoin.Crypto.RipemdDeep.Spec — the kernel-decidable C mirror (the RIPEMD mirror U3)
 
-`Bitcoin.Crypto.RipemdDeep.SpecTables` (U2) pinned the r/s/k tables:
+`Bitcoin.Crypto.RipemdDeep.SpecTables` (the delta layer) pinned the r/s/k tables:
 clones `S_*` = the consensus-path originals `RMD_*` (`Hashes.lean:166-191`)
 = the C `Transform` call-sequence extraction (anchors/ripemd160.cpp
-L64-222), **zero-axiom** rfl-pins + len/spot decide-pins (U2 commit
+L64-222), **zero-axiom** rfl-pins + len/spot decide-pins (the delta layer commit
 8eeaea3), negative-control'd (1 wrong entry breaks the pin).
 
 This file mirrors the two remaining `Transform` layers, C-verbatim:
@@ -19,9 +19,9 @@ This file mirrors the two remaining `Transform` layers, C-verbatim:
   fL rnd b c d + kL rnd + x[rL j]) (sL j)) + e`, `tR` mirrored
   (f2/rR/kR/sR = the C macro mirror R{g+1}1 / R{5-g}2, `f := f_{g+1}`
   left vs `f := f_{5-g}` right), state `(e, tL, b, rolS c 10, d)` per
-  line. f/k/x/r/s notation = the C L37-41 args; our tables = U2 clones.
+  line. f/k/x/r/s notation = the C L37-41 args; our tables = the delta layer clones.
 * `rmdCompressS h block off` = C `Transform` L57-232: x-load = 16 ×
-  `ReadLE32(chunk + 4i)` (L58-61) as a **push-fold** (the F-S06-001
+  `ReadLE32(chunk + 4i)` (L58-61) as a **push-fold** (the kernel-reduction note
   fix: `Array.map` over `List.toArray` = the elaborator-stuck op),
   80-step `rmdRoundS` tower, combine L225-231
   `#[h[1]+c1+d2, h[2]+d1+e2, h[3]+e1+a2, h[4]+a1+b2, h[0]+t?+b1+c2]`
@@ -73,7 +73,7 @@ def rmdRoundS (j : Nat) (x : Array UInt32) (st : RState) : RState :=
 /-- C `Transform(s, chunk)` L57-232. x-load = 16 × `ReadLE32(chunk+4i)`
 (L58-61) as a **push-fold** (NOT `(List.range 16).toArray.map` —
 that Array.map op is the elaborator-stuck op of the impl
-`rmdCompress` (Hashes.lean:212), F-S06-001); 80-step `rmdRoundS`
+`rmdCompress` (Hashes.lean:212), the kernel-reduction note); 80-step `rmdRoundS`
 tower; combine L225-231:
 `t = s[0]; s[0] = s[1]+c1+d2; s[1] = s[2]+d1+e2; s[2] = s[3]+e1+a2;
 s[3] = s[4]+a1+b2; s[4] = t+b1+c2` (C L226-230; `t` = `h[0]`). -/

@@ -1,20 +1,20 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneDecodeCor — W17/P13: decode-layer corollaries feeding the capstone
+# BitcoinProofs.Theorems.CapstoneDecodeCor — P13: decode-layer corollaries feeding the capstone
 
-Corollaries of W02's proved serialization laws (`Bitcoin.Serialization`,
-`research/w2-02-serialization.md`) lifted to the Capstone surface
-(`Bitcoin.Capstone.Block.validateBlock`, W17 S2b). Zero new dependencies:
+Corollaries of proved serialization laws (`Bitcoin.Serialization`)
+lifted to the Capstone surface
+(`Bitcoin.Capstone.Block.validateBlock`, S2b). Zero new dependencies:
 imports only the `core` package via `Bitcoin.Capstone.Block`.
 
-What W02 already proves and this file BUILDS ON (not re-proves):
+What the existing layer already proves and this file BUILDS ON (not re-proves):
 `decU32L_shape`, `decBytesL_shape`, `decBytesL_length`, `decCS_shape`,
 `decTxCore_shape`, `decN_shape`, `bytesOfList_bL`, `bL_bytesOfList`,
 `bL_inj`, `bindE_ok`/`bindE_err`, `hasWitness_false_of_all_getD_empty`,
 `hasWitness_of_witness_mem_nonempty`, `getD_mem`, `decodeBlock`,
 `decodeBlockHeader_encodeBlockHeader` (BLK-001), `decodeBlock_encodeBlock`
-(BLK-002), `decodeTx_encodeTx` (T1).  What W02 did NOT have — and P13
+(BLK-002), `decodeTx_encodeTx` (T1).  What the existing layer did NOT have — and P13
 proves here — is the header-level inversion (`decHeaderL_shape`), the
 block-level consumed-encoding shape (`decodeBlock_shape`), and the
 capstone-facing laws below.
@@ -27,14 +27,14 @@ C4 portfolio linkage:
 | (BLK-003 cor) | `decode_ok_header80'`     | list-layer form of the same fact |
 | (BLK-002 cor) | `decodeBlock_shape`       | a successfully decoded block consumed exactly its canonical encoding (values non-negative) |
 | (BLK-001 aux) | `decHeaderL_shape`        | header-level inversion: decode consumed the canonical 80-byte header |
-| (BLK-006 base) | `encodeTx_no_witness_eq_serTx` | `¬hasWitness ⇒ encodeTx = serTx` (the TX_NO_WITNESS law under W02's `encodeTx`) |
+| (BLK-006 base) | `encodeTx_no_witness_eq_serTx` | `¬hasWitness ⇒ encodeTx = serTx` (the TX_NO_WITNESS law under `encodeTx`) |
 | (BLK-005 cor) | `txidOf_eq_sha256d_encodeTx` | the capstone ledger key's `txidOf` is `SHA256d` of the tx's own canonical encoding |
 | (TXV-013 def) | `hasWitness_eq_true_iff` / `hasWitness_eq_false_iff` / `hasWitness_true_iff_mem` | `HasWitness()` characterized per its definition |
 | (BLK-024 base) | `serTx_size_pos`          | a serialized tx is nonempty (the version field alone is 4 bytes) |
 | (decode totality) | `decodeBlock_total`   | `decodeBlock` returns `.ok` or `.error` — it never crashes |
 | (BLK-030 pipe) | `validateBlock_ok_decode` | a successful `validateBlock` run decoded a real block and its state carries `headerHash h` |
 
-Axiom footprints (checked via `#print axioms` in the W17 scratch area;
+Axiom footprints (checked via `#print axioms` in the scratch area;
 per-theorem notes in the `/-- docstrings -/` below):
 
 | theorem                        | axioms |
@@ -45,7 +45,7 @@ per-theorem notes in the `/-- docstrings -/` below):
 | `list_extract_zero`            | [propext] |
 | `encHeaderL_length`            | [propext] |
 | `decHeaderL_shape`             | [propext, Quot.sound] |
-| `decodeBlock_shape`            | [propext, Classical.choice, Quot.sound] (choice inherited from W02's `decTxCore_shape` layer, itself [propext, Classical.choice, Quot.sound]) |
+| `decodeBlock_shape`            | [propext, Classical.choice, Quot.sound] (choice inherited from the `decTxCore_shape` layer, itself [propext, Classical.choice, Quot.sound]) |
 | `decode_ok_header80`           | [propext, Classical.choice, Quot.sound] (via `decodeBlock_shape`) |
 | `decode_ok_header80'`          | [propext, Quot.sound] |
 | `encodeTx_no_witness_eq_serTx` / `'` | [propext, Quot.sound] |
@@ -53,9 +53,9 @@ per-theorem notes in the `/-- docstrings -/` below):
 | `hasWitness_eq_true_iff` / `hasWitness_eq_false_iff` / `hasWitness_true_iff_mem` | [propext, Quot.sound] |
 | `serTx_size_pos`               | [propext, Quot.sound] |
 | `decodeBlock_total` / `decodeBlockHeader_total` | [propext] |
-| `validateBlock_ok_decode`      | [propext, Classical.choice, Quot.sound] (via W02's `decTxCore_shape` layer) |
+| `validateBlock_ok_decode`      | [propext, Classical.choice, Quot.sound] (via `decTxCore_shape` layer) |
 
-`Classical.choice` appears only where the inherited W02/core layer already
+`Classical.choice` appears only where the inherited core layer already
 uses it (recorded honestly); no theorem here introduces `sorry`, and no
 `native_decide`/`unsafe`/`partial` is used anywhere in the file.
 -/
@@ -65,9 +65,9 @@ namespace BitcoinProofs.Theorems.CapstoneDecode
 open Bitcoin.Serialization Bitcoin.Capstone.Pow Bitcoin.Capstone.Merkle
 open Bitcoin.Data Bitcoin.Chain
 
-/-! ## Byte-array plumbing (W02 auxiliaries restated at this layer) -/
+/-! ## Byte-array plumbing (auxiliaries restated at this layer) -/
 
-/-- `bL` preserves length (W02's `bL` is a projection of `ByteArray.data`).
+/-- `bL` preserves length (`bL` is a projection of `ByteArray.data`).
 Axioms: [propext]. -/
 theorem bL_length (b : ByteArray) : (bL b).length = b.size := by
   simp [bL]
@@ -158,8 +158,8 @@ theorem encHeaderL_length (h : BlockHeader)
     (encHeaderL h).length = 80 := by
   simp [encHeaderL, encU32L, bL_length, hp, hm]
 
-/-- **Header decode inversion** (the decode-side twin of W02's
-`decHeaderL_enc`, which P13 derives from W02's fixed-width shape laws):
+/-- **Header decode inversion** (the decode-side twin of
+`decHeaderL_enc`, which P13 derives from fixed-width shape laws):
 a successful `decHeaderL` read a 32-byte prev hash, a 32-byte merkle root,
 and consumed exactly the canonical 80-byte header encoding.
 Axioms: [propext, Quot.sound]. -/
@@ -265,9 +265,9 @@ private theorem decodeBlock_ok_core (raw : ByteArray) (h : BlockHeader)
       rfl
     · rw [ite_eq_right rempty] at hdec; simp at hdec
 
-/-- Helper (P13, a value-conditioned variant of W02's `decN_shape`): the
+/-- Helper (P13, a value-conditioned variant of `decN_shape`): the
 per-element shape law only needs to hold for elements satisfying `P` —
-which for `decTxCore` is exactly W02's `decTxCore_shape` hypothesis
+which for `decTxCore` is exactly the `decTxCore_shape` hypothesis
 (non-negative output values). Axioms: [propext, Quot.sound]. -/
 private theorem decN_shape_P {α : Type} {dec : Bytes → Except SerError (α × Bytes)}
     {enc : α → Bytes} (P : α → Prop)
@@ -307,12 +307,12 @@ private theorem decN_shape_P {α : Type} {dec : Bytes → Except SerError (α ×
 
 /-- **BLK-002 inversion (the consumed-encoding shape of a decoded block)**:
 if `decodeBlock raw = .ok (h, txs)` and every decoded output value is
-non-negative (true of every real mainnet block; W02's `decTxCore_shape`
+non-negative (true of every real mainnet block; `decTxCore_shape`
 needs the same hypothesis because the raw `u64` lane admits two's-complement
 negatives), then the wire was exactly `header ‖ txcount ‖ txs` in canonical
-form — W02's `encHeaderL`/`encCSL`/`encTxL` encodings, nothing else.
+form — `encHeaderL`/`encCSL`/`encTxL` encodings, nothing else.
 Axioms: [propext, Classical.choice, Quot.sound] (choice inherited from
-W02's `decTxCore_shape` layer). -/
+`decTxCore_shape` layer). -/
 theorem decodeBlock_shape (raw : ByteArray) (h : BlockHeader) (txs : List Tx)
     (hdec : decodeBlock raw = .ok (h, txs))
     (hval : ∀ t ∈ txs, ∀ o ∈ t.vout, 0 ≤ o.value) :
@@ -353,7 +353,7 @@ when `validateBlock`'s step-1 decode succeeds, the returned header `h` has
 raw block, and therefore `headerHash h = SHA256d(raw.extract 0 80)` — the
 block hash is the double-SHA256 of the header bytes actually on the wire.
 Axioms: [propext, Classical.choice, Quot.sound] (choice inherited from
-W02's `decTxCore_shape` layer via `decodeBlock_shape`). -/
+`decTxCore_shape` layer via `decodeBlock_shape`). -/
 theorem decode_ok_header80 (raw : ByteArray) (h : BlockHeader) (txs : List Tx)
     (hdec : decodeBlock raw = .ok (h, txs)) :
     h.hashPrevBlock.size = 32 ∧ h.hashMerkleRoot.size = 32
@@ -387,10 +387,10 @@ theorem decode_ok_header80' (raw : ByteArray) (h : BlockHeader) (txs : List Tx)
 
 /-! ## TX_NO_WITNESS: `encodeTx` agrees with the base encoder -/
 
-/-- **BLK-006 (base form, W02's `encTxL` branch law)**: a tx without a
-witness encodes exactly as the frozen base encoder `serTx` — W02's
+/-- **BLK-006 (base form, `encTxL` branch law)**: a tx without a
+witness encodes exactly as the frozen base encoder `serTx` —
 `encTxL` takes its else-branch, and `bytesOfList ∘ bL = id`
-(`bytesOfList_bL`). This is the ingredient that makes W02's
+(`bytesOfList_bL`). This is the ingredient that makes
 `encodeTxNoWitness = serTx` definition agree with the witness-aware
 `encodeTx` on witness-free txs, i.e. the txid bytes are the extended-format
 bytes whenever there is no witness. Axioms: [propext, Quot.sound]. -/
@@ -420,7 +420,7 @@ theorem txidOf_eq_sha256d_encodeTx (tx : Tx) (hw : hasWitness tx = false) :
 /-! ## `HasWitness()` characterized -/
 
 /-- `hasWitness tx = true` ⟺ some in-range witness slot is nonempty
-(`CTransaction::HasWitness()`, transaction.h — W02's range/`getD` form).
+(`CTransaction::HasWitness()`, transaction.h — range/`getD` form).
 Axioms: [propext, Quot.sound]. -/
 theorem hasWitness_eq_true_iff (tx : Tx) :
     hasWitness tx = true ↔ ∃ i, i < tx.vin.length ∧ tx.witness.getD i [] ≠ ([] : List ByteArray) := by
@@ -447,7 +447,7 @@ theorem hasWitness_eq_true_iff (tx : Tx) :
     | false => rfl
 
 /-- `hasWitness tx = false` ⟺ every in-range witness slot is empty —
-W02's `hasWitness_false_of_all_getD_empty` read as an iff.
+`hasWitness_false_of_all_getD_empty` read as an iff.
 Axioms: [propext, Quot.sound]. -/
 theorem hasWitness_eq_false_iff (tx : Tx) :
     hasWitness tx = false ↔
@@ -462,9 +462,9 @@ theorem hasWitness_eq_false_iff (tx : Tx) :
   · intro hall
     exact hasWitness_false_of_all_getD_empty hall
 
-/-- On W02's well-formed domain (`witness.length = vin.length`),
+/-- On well-formed domain (`witness.length = vin.length`),
 `hasWitness tx = true` ⟺ some witness slot of `tx.witness` itself is
-nonempty — via W02's `hasWitness_of_witness_mem_nonempty` and `getD_mem`.
+nonempty — via `hasWitness_of_witness_mem_nonempty` and `getD_mem`.
 Axioms: [propext, Quot.sound]. -/
 theorem hasWitness_true_iff_mem (tx : Tx) (hwlen : tx.witness.length = tx.vin.length) :
     hasWitness tx = true ↔ ∃ s ∈ tx.witness, s.isEmpty = false := by
@@ -484,7 +484,7 @@ theorem hasWitness_true_iff_mem (tx : Tx) (hwlen : tx.witness.length = tx.vin.le
 
 /-- **BLK-024 (base form)**: a serialized tx is nonempty — the 4-byte
 version field alone forces `4 ≤ (serTx tx).size`, so every summand of
-W17's `strippedSize` is bounded below by 4. Axioms: [propext, Quot.sound]. -/
+`strippedSize` is bounded below by 4. Axioms: [propext, Quot.sound]. -/
 theorem serTx_size_pos (tx : Tx) : 0 < (serTx tx).size := by
   have h : (serTx tx).size
       = (serU32 tx.version.toUInt32).size
@@ -526,7 +526,7 @@ step 1 really decoded a block — `decodeBlock raw = .ok (h, txs)` — and the
 report's new state links forward with `prevHash = headerHash h` (the state
 the next block's chain-link check consumes, exactly Block.lean's step-3
 gate for the following anchor). Axioms: [propext, Classical.choice,
-Quot.sound] (choice inherited from W02's `decTxCore_shape` layer). -/
+Quot.sound] (choice inherited from the `decTxCore_shape` layer). -/
 theorem validateBlock_ok_decode (raw : ByteArray) (st : Bitcoin.Capstone.Block.CapState)
     (rep : Bitcoin.Capstone.Block.CapReport)
     (hv : Bitcoin.Capstone.Block.validateBlock raw st = .ok rep) :

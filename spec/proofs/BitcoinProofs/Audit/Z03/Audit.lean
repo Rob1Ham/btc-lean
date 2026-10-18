@@ -6,14 +6,13 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Z03 dark-corner audit — CVE-2010-5139 class (2010 window) + CVE-2012-2459 merkle asymmetry (W4 suite)
+# Z03 dark-corner audit — CVE-2010-5139 class (2010 window) + CVE-2012-2459 merkle asymmetry
 
-NEW file, owned by Z03, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z03/` (`z03_c1_money_probe.py`,
-`z03_c2_merkle_probe.py`). Findings: `spec/db/findings-w4/Z03.md`.
+2026-10-16. Python3 probes:
+`z03_c1_money_probe.py`,
+`z03_c2_merkle_probe.py`).
 
-Ground truth: Bitcoin Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/`.
+Ground truth: Bitcoin Core @ `cce32b168`.
 
 ## C2 — CVE-2012-2459 (merkle.cpp:51-73, validation.cpp:3845-3868)
 

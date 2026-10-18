@@ -4,10 +4,10 @@ import Bitcoin.Invariants.RC09
 /-!
 # PDW6Bip30 — BLK-096 / BLK-097 / BLK-098 promotion proofs (BIP30 unit)
 
-PDW6 (proof-promotion review 6, TOP-26..30), recovery review 3,
+PDW6 (6, TOP-26..30),
 2026-10-17. Rows BLK-096 / BLK-097 / BLK-098 = the BIP30 unit:
 3 rules.yaml rows over ONE vehicle, `Bitcoin.Ledger.bip30Enforced`
-(Ledger/Interface.lean:354, W12; tags already attr-stacked on the
+(Ledger/Interface.lean:354; tags already attr-stacked on the
 def). Promotion here = PD02 F-PD02-002 "attr+flip" class over the
 read-verified sorry-free vehicle (PDW10Guards / PDW5-BLK-072 /
 RC09-INV-035 attr-on-done-file precedents): constant pins, the

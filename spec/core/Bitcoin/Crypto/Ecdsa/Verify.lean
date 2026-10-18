@@ -9,7 +9,7 @@ Consensus semantics = Core's `CPubKey::Verify` (src/key.cpp @ cce32b168):
 
 1. `parsePubKey` — `secp256k1_ec_pubkey_parse` (`group_impl.h::ge_parse`):
    33-byte compressed (02 even-y / 03 odd-y; y recovered by the p ≡ 3 mod 4
-   square root, W14 §2.3), 65-byte uncompressed (04) and hybrid (06/07,
+   square root, report §2.3), 65-byte uncompressed (04) and hybrid (06/07,
    parity-checked), with `x, y < P` and the on-curve check `y² = x³+7`.
 2. `parseDerLax` — see `Ecdsa.Der`.
 3. **mod-n reduction**: libsecp256k1's `secp256k1_scalar_set_b32` reduces the
@@ -28,9 +28,9 @@ Low-S normalization (`signature_normalize`) is applied by Core before
 normalize step — low-S stays POLICY (`Der.isLowDERSignature`), never
 consensus. This is exactly Core's own comment at key.cpp.
 
-Argument order of the frozen `verifyLax` stub was unnamed (W01); W14b pins
+Argument order of the frozen `verifyLax` stub was unnamed; the implementation pins
 it as `verifyLax sig pubKey msg32` mirroring `CPubKey::Verify(hash, sig)`
-with the pubkey as receiver. W13's seam must pass arguments in this order.
+with the pubkey as receiver. The seam must pass arguments in this order.
 -/
 
 namespace Bitcoin.Crypto.Ecdsa.Verify
@@ -76,7 +76,7 @@ def beBytes32 (x : Nat) : ByteArray :=
 /-! ## The verifier -/
 
 /-- Core `CPubKey::Verify`'s EC part, lax DER semantics. `msg` is the
-32-byte sighash (already composed by the caller — the W13 seam).
+32-byte sighash (already composed by the caller — the seam).
 SGN-107 + SGN-110: compact sig parse mod-n reduction of r,s,msg before zero check. -/
 @[rule "SGN-107", rule "SGN-110"]
 def verifyImpl (sig pk msg : ByteArray) : Bool :=

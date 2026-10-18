@@ -1,17 +1,17 @@
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.Theorems.CapstoneCoinCor — P14 (W17 capstone review): the
+# BitcoinProofs.Theorems.CapstoneCoinCor — P14: the
 proved UTXO-view spec over the REAL assoc-list read path (sorry-free)
 
-Executable-tier counterpart of W12's abstract ledger tier. W17's
+Executable-tier counterpart of the abstract ledger tier.
 `lake exe capstone` runs the real pipeline over 6 mainnet anchor blocks
 (genesis, 74638, 91842, 91880, 481824, 709632): decode → structure →
 PoW/chain-link → merkle/witness-commitment → per-tx script (real ECDSA)
 → ledger fold, 6/6 PASS with 11,825 inputs adjudicated. Every lookup the
 run performs goes through `Bitcoin.Ledger.coinLookup`; the theorems below
 turn its runtime `Option Coin` results into proved statements about the
-REAL assoc-list functions (no new definitions — W12's surface, reused).
+REAL assoc-list functions (no new definitions — the existing surface, reused).
 
 C4/rule-linkage table (axiom footprints verified by the `#guard_msgs`
 pins at the bottom of this file):
@@ -23,19 +23,19 @@ pins at the bottom of this file):
 | (first-match read) | `coinLookup_first_match` | a head whose key `BEq`-matches answers with the head's coin (the first-match-wins semantics `viewOf`/seeds rely on) |
 | (first-match read) | `coinLookup_miss_cons` | a head whose key misses defers to the tail |
 | (HaveInputs miss lane) | `coinLookup_absent` / `coinLookup_absent_cons` | a key absent from every entry looks up to `none` — the `coinLookup = none` arm of `verifyTxInputs` (Capstone/Block.lean:260-261) and of `HaveInputs` (coins.cpp:322-331) |
-| (fold key lemma, INV-111) | `coinLookup_updateCoinsL_hit` | the coin a tx creates for output `j` IS found in `updateCoinsL l tx kf height` (with distinct output keys) — the insert half of the W12 fold |
+| (fold key lemma, INV-111) | `coinLookup_updateCoinsL_hit` | the coin a tx creates for output `j` IS found in `updateCoinsL l tx kf height` (with distinct output keys) — the insert half of the fold |
 | (fold key lemma, INV-111) | `coinLookup_updateCoinsL_isSome` | the same presence fact WITHOUT key-uniqueness (first-match-wins answers with some coin) |
 | (fold key lemma) | `coinLookup_updateCoinsL_fields` | the found coin carries the connection `height` and the tx's coinbase bit (INV-115 data model) |
 | (BEq lawfulness) | `outPoint_beq_self` / `outPoint_eq_of_beq` / `outPoint_ne_of_beq_false` | `OutPoint`'s `BEq` (bytesBEq && n) is reflexive and sound, so lookup misses are meaningful equalities |
 
-Dependencies: W12's proved ledger layer (`Bitcoin.Ledger.Interface` —
+Dependencies: proved ledger layer (`Bitcoin.Ledger.Interface` —
 `coinLookup`, `addedCoins`, `updateCoinsL`, `addedCoins_lookup_eq`,
 `coinLookup_append`, all sorry-free), reached through the capstone's
 `Bitcoin.Capstone.Block` import. No mathlib use.
 
 Axiom note: every theorem here has the UNIFORM footprint
 `[propext, Classical.choice, Quot.sound]` — `Classical.choice` is
-inherited from the W12 layer this package generalizes from (e.g.
+inherited from the layer this package generalizes from (e.g.
 `bytesBEq_eq_of_true`, `addedCoins_lookup_eq`, `coinLookup_some_inv`
 all carry it); no `sorryAx` anywhere (the pins below fail the build on
 any drift). The rfl-level lemmas (`coinLookup_nil/cons`) show the same
@@ -53,7 +53,7 @@ open Bitcoin.Data Bitcoin.Ledger
 the BLK-110 empty view (`viewOf [] = emptyUtxo`). -/
 theorem coinLookup_nil (o : OutPoint) : coinLookup [] o = none := rfl
 
-/-- The cons unfolding of the read path — exactly W12's definition
+/-- The cons unfolding of the read path — exactly the definition
 (first match wins; `List.find?` semantics). -/
 theorem coinLookup_cons (p : OutPoint × Coin) (ps : List (OutPoint × Coin)) (o : OutPoint) :
     coinLookup (p :: ps) o = if p.1 == o then some p.2 else coinLookup ps o := rfl
@@ -84,7 +84,7 @@ the view `BEq`-misses looks up to `none`. This is exactly the
 `coinLookup u prevout = none` arm of the capstone's `verifyTxInputs`
 (Capstone/Block.lean:260-261) — the lane where Core's `HaveInputs`
 (coins.cpp:322-331) routes to `bad-txns-inputs-missingorspent` via
-W12/W10's check — and the `none` lane of every `updateCoins` step. -/
+the coin-update check — and the `none` lane of every `updateCoins` step. -/
 theorem coinLookup_absent (ps : List (OutPoint × Coin)) (o : OutPoint)
     (h : ∀ q ∈ ps, (q.1 == o) = false) :
     coinLookup ps o = none := by
@@ -108,7 +108,7 @@ theorem coinLookup_absent_cons (p : OutPoint × Coin) (ps : List (OutPoint × Co
 /-- **THE FOLD KEY LEMMA (INV-111, insert half).** For a spendable
 in-range output `j` of `tx`, with distinct output keys, the coin the
 executable fold `updateCoinsL l tx kf height` creates is found by
-`coinLookup` at `kf tx j` — with exactly W12's fields: output `j`'s
+`coinLookup` at `kf tx j` — with exactly these fields: output `j`'s
 value and script, the connection `height`, and the tx's coinbase bit.
 Prepended new coins precede the filtered old list, and a head hit wins
 before the tail is consulted, so the pre-state `l` is irrelevant. -/
@@ -185,8 +185,7 @@ theorem outPoint_ne_of_beq_false (a b : OutPoint) (h : (a == b) = false) : a ≠
   exact Bool.noConfusion ((outPoint_beq_self b).symm.trans h)
 
 /-- Lookup-hit soundness: `some c` answers carry a witness entry whose
-key is REALLY `o` and whose coin is REALLY `c` (W12's
-`coinLookup_some_inv`, re-pinned here as the read-path contract). -/
+key is REALLY `o` and whose coin is REALLY `c` (`coinLookup_some_inv`, re-pinned here as the read-path contract). -/
 theorem coinLookup_hit_mem (l : List (OutPoint × Coin)) (o : OutPoint) (c : Coin)
     (h : coinLookup l o = some c) : ∃ p ∈ l, p.1 = o ∧ p.2 = c :=
   coinLookup_some_inv l o c h

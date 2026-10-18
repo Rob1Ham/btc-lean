@@ -4,9 +4,9 @@ import Bitcoin.TxValidation.Mempool
 import Bitcoin.Block.Connect
 
 /-!
-# BitcoinProofs.Bip.B05.Bip68Coverage — Review-5 BIP68 kill-vectors (sorry-free)
+# BitcoinProofs.Bip.B05.Bip68Coverage — BIP68 kill-vectors (sorry-free)
 
-Contributor B05, Review-5 BIP-coverage audit. License of the audited BIP text:
+License of the audited BIP text:
 `bip-0068.mediawiki` (bitcoin/bips, documentation under the repo's
 CC-BY-like terms; this file quotes only rule formulas, no prose).
 
@@ -17,14 +17,14 @@ corpus `spec/vectors/core/tx_{valid,invalid}.json` contains **zero**
 version≥2 transactions with an active — bit31 clear, mask nonzero —
 sequence).  This module lands the missing kill-vectors as concrete
 sorry-free decide-theorems: each instance was computed with
-`scratch/B05/bip68_ref.py` (a faithful transcription of Core's
+an independent python3 reference (a faithful transcription of Core's
 `CalculateSequenceLocks`/`EvaluateSequenceLocks`, tx_verify.cpp
 @cce32b168 ≡ cce32b168, the same code embedded in the BIP text) and is
 chosen so that a mutant violating the clause flips at least one pinned
 verdict (mutation-thinking).
 
 Instance naming: `b68_i<n>_<clause>`.  `prevData` entries are
-`(coinHeight, coinParentMTP)` pairs — W12's caller seam for Core's
+`(coinHeight, coinParentMTP)` pairs — the caller seam for Core's
 `block.GetAncestor(max(coinHeight-1,0)).GetMedianTimePast()`; the
 `blockTime` argument is `MTP(block.pprev)` (BIP113 MTP).
 -/

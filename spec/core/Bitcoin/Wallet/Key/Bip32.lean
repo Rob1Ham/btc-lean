@@ -43,7 +43,7 @@ otherwise tweaks the public key by `I_L`. The HMAC itself is
 `BIP32Hash` (`src/hash.cpp:71-76`): chain code as key, header ‖ 32-byte
 key ‖ `ser32(i)` as data, big-endian index written by `WriteBE32`.
 
-The mission brief for this module mentions "0x00/0x01 ser32 prefixes".
+This module's documentation mentions "0x00/0x01 ser32 prefixes".
 BIP32 has 0x00 for the hardened private-key branch and SEC1 0x02/0x03
 for the public-key branch; no 0x01 appears in CKD. The code follows the
 specification and Core, and the tests below would fail on a 0x01 byte.

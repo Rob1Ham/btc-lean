@@ -3,23 +3,19 @@ import Bitcoin.Data.Tx
 import Bitcoin.Ledger.Utxo
 
 /-!
-# Bitcoin.Conservation — FROZEN INTERFACE (W01)
+# Bitcoin.Conservation — FROZEN INTERFACE
 
-## Ownership block (do not edit outside an interface-change PR)
+## Interface contract (do not edit outside an interface-change PR)
 
-Owning workstream     : W08 (Conservation / T1 start)
-Dependent workstreams : W12 (ledger fold this is stated over),
-                        W10 (validateTx supplies the hypotheses),
-                        W15 (banks the sorry-free theorems)
 Core counterpart files: src/consensus/tx_verify.cpp (CheckTxInputs:170-220
                         — value-in/value-out/fee), src/validation.cpp
                         (ConnectBlock: coinbase subsidy/fee accounting),
                         src/validation.cpp:1833-1844 (GetBlockSubsidy),
                         src/primitives/transaction.cpp (GetValueOut)
-Status                : frozen 2026-10-16 by W01. W08 filled the bodies
-                        (2026-10-16): all five SORRY[W01] placeholders are
-                        gone; theorems below are sorry-free and L3-pinned.
-                        One statement fix, sanctioned by charter §5.6
+Status: frozen 2026-10-16. All five bodies were filled
+                        (2026-10-16): the SORRY placeholders are
+                        gone; theorems below are sorry-free and axiom-pinned.
+                        One statement fix, sanctioned by the interface conventions
                         (statement fidelity): `single_tx_conservation` as
                         frozen was REFUTABLE (take totalIn=5, totalOut=10,
                         fee=-5: the equation holds, MoneyRange holds, yet
@@ -45,7 +41,7 @@ open Bitcoin.Data Bitcoin.Ledger
 
 `MoneyRange` is `decide` of the defining conjunction — the Bool test
 unfolds exactly to `0 ≤ n ≤ MAX_MONEY`. This bridge is the only lemma
-the conservation layer needs about it. (Complements W04's frozen
+the conservation layer needs about it. (Complements the frozen
 `Bitcoin.Numeric.moneyRange_iff`; same content, conservation-side name.) -/
 
 theorem moneyRange_eq_true_iff (n : Amount) :
@@ -57,14 +53,14 @@ theorem moneyRange_eq_true_iff (n : Amount) :
 section InputAuth
 -- `InputAuth` — the one-line crypto abstraction (C4): an ARBITRARY
 -- predicate on inputs. All T1 conservation theorems quantify over it, so
--- they hold for the real script+sighash semantics (W09/W11/W13) *and* for
+-- they hold for the real script+sighash semantics (the interpreter, sighash, and hash layers) *and* for
 -- any weaker/stronger authorization — the crypto tower can land years
 -- later without touching these theorems. It is a parameter, not a fixed
 -- definition.
 variable (InputAuth : TxIn → Prop)
 
 /-- `GetValueOut` (primitives/transaction.cpp): sum of output values.
-Already C1-implemented as `Tx.getValueOut`; restated as the conservation
+Already implemented as `Tx.getValueOut`; restated as the conservation
 layer's entry point. -/
 def totalOut (tx : Tx) : Amount := tx.getValueOut
 
@@ -72,7 +68,7 @@ def totalOut (tx : Tx) : Amount := tx.getValueOut
 (CheckTxInputs' valueIn accumulation, tx_verify.cpp:186-192).
 Core sums *after* `HaveInputs` succeeds; here a missing input contributes
 0 and the error surfaces through `ConservationError.inputMissing`
-(W10 raises it before summing — exactly Core's check order). -/
+(The transaction validator raises it before summing — exactly Core's check order). -/
 def totalIn (u : UtxoSet) (tx : Tx) : Amount :=
   tx.vin.foldl (fun acc i =>
     match u i.prevout with
@@ -90,7 +86,7 @@ deriving Repr, DecidableEq, BEq
 /-- The headline theorem (C4 THM-036): if every input is authorized
 and every spent coin exists, then value in = value out + fee forces a
 non-negative fee. Holds for ANY `InputAuth`.
-(W08 fidelity note: requires Core's `bad-txns-in-belowout` precondition
+(Fidelity note: requires Core's `bad-txns-in-belowout` precondition
 `totalOut ≤ totalIn` as hypothesis `hle`; without it the statement is
 refutable — see the ownership block. tx_verify.cpp:202-205.) -/
 theorem single_tx_conservation (u : UtxoSet) (tx : Tx) (fee : Amount)
@@ -205,7 +201,7 @@ theorem blockSubsidy_zero_ge64 (height : UInt32)
     (h : 64 ≤ halvingsAt height) : blockSubsidy height = 0 := by
   rw [blockSubsidy_eq_shift, if_neg (by omega)]
 
-/-! ## L3 axiom pins (D2): drift on any of these fails the build -/
+/-! ## Axiom pins (D2): drift on any of these fails the build -/
 
 /--
 info: 'Bitcoin.Conservation.subsidy_epoch33_zero' depends on axioms: [propext, Quot.sound]

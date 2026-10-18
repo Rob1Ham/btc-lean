@@ -1,7 +1,9 @@
 import Bitcoin.Interpreter.Defs
 
 /-! PDW79 — SCR-022/025/074/077/090: the `stepBody` opcode-budget,
-stack-depth and numeric-dispatch gates (interpreter.cpp:423-570). -/
+stack-depth and numeric-dispatch gates (interpreter.cpp:423-570). The
+generic row statements are BASE/WITNESS_V0 (the counting pair); TAPSCRIPT
+has explicit arms where the opcode counter differs. -/
 
 namespace BitcoinProofs.AF.PDW79
 open Bitcoin.Interpreter Bitcoin.Numeric
@@ -10,16 +12,20 @@ open Bitcoin.Interpreter Bitcoin.Numeric
 theorem castToBool_encodeScriptNum_zero :
     castToBool (encodeScriptNum 0 false) = false := by decide
 
-/-! ## Support (SCR-022 lane yielded to PDW80): op-count increment/reject -/
+/-! ## Support (SCR-022, PDW80): op-count increment/reject -/
 
 theorem stepBody_opCount_reject {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : 0x60 < op.wire)
-    (hsv : ctx.sv = .base)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0)
     (hoc : MAX_OPS_PER_SCRIPT < st.opCount + 1) :
     stepBody ctx op st = .error .opCount := by
-  rw [stepBody]
-  simp [ha, hw, hsv, hoc]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hoc])
 
+/-- Op-count lane (TAPSCRIPT witness, OP_IFDUP): tapscript does not charge
+the 201-op budget. This is one concrete opcode witness for the counting
+rule, not a claim about every opcode. -/
 theorem stepBody_opCount_tapscript_uncounted {ctx : Ctx} {op : WireOp} {st : State}
     {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x73)
@@ -39,31 +45,33 @@ theorem stepBody_opCount_tapscript_uncounted {ctx : Ctx} {op : WireOp} {st : Sta
 theorem stepBody_opCount_precedes_disabled {ctx : Ctx} {op : WireOp} {st : State}
     {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x7e)
-    (hsv : ctx.sv = .base)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0)
     (hoc : MAX_OPS_PER_SCRIPT < st.opCount + 1) :
     stepBody ctx op st = .error .opCount := by
-  rw [stepBody]
-  simp [ha, hw, hsv, hoc]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hoc])
 
 /-! ## SCR-074 — depth pre-check rejects with INVALID_STACK_OPERATION -/
 
 @[rule "SCR-074"]
 theorem stepBody_depth_check {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x6d)
-    (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hfe : st.vf.all id = true)
     (hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1))
     (hs : st.stack.length < 2) :
     stepBody ctx op st = .error .stackUnderflow := by
-  rw [stepBody]
-  simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
-    Bitcoin.Interpreter.stepBody.dispatchOp]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
+       Bitcoin.Interpreter.stepBody.dispatchOp])
 
 /-! ## SCR-077 — OP_IFDUP duplicates iff CastToBool -/
 
 @[rule "SCR-077"]
 theorem stepBody_ifdup_true {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x73)
-    (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hfe : st.vf.all id = true)
     (hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (hstack : 0 < st.stack.length)
     (hc : castToBool (topAt st.stack 1) = true) :
@@ -71,23 +79,25 @@ theorem stepBody_ifdup_true {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     .ok { st with opCount := st.opCount + 1, stack := topAt st.stack 1 :: st.stack } := by
   have hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by omega
   have hs : ¬ (st.stack.length < 1) := by omega
-  rw [stepBody]
-  simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
-    Bitcoin.Interpreter.stepBody.dispatchOp, hc]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
+       Bitcoin.Interpreter.stepBody.dispatchOp, hc])
 
 @[rule "SCR-077"]
 theorem stepBody_ifdup_false {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
     (ha : op.ast = .op o) (hw : op.wire = 0x73)
-    (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hfe : st.vf.all id = true)
     (hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (hstack : 0 < st.stack.length)
     (hc : castToBool (topAt st.stack 1) = false) :
     stepBody ctx op st = .ok { st with opCount := st.opCount + 1 } := by
   have hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by omega
   have hs : ¬ (st.stack.length < 1) := by omega
-  rw [stepBody]
-  simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
-    Bitcoin.Interpreter.stepBody.dispatchOp, hc]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
+       Bitcoin.Interpreter.stepBody.dispatchOp, hc])
 
 /-! ## SCR-090 — OP_NUMEQUALVERIFY false ⇒ NUMEQUALVERIFY error -/
 
@@ -95,7 +105,7 @@ theorem stepBody_ifdup_false {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256
 theorem stepBody_numequalverify_false {ctx : Ctx} {op : WireOp} {st : State}
     {o : Fin 256} {bn1 bn2 : ScriptNum}
     (ha : op.ast = .op o) (hw : op.wire = 0x9d)
-    (hsv : ctx.sv = .base) (hfe : st.vf.all id = true)
+    (hsv : ctx.sv = .base ∨ ctx.sv = .witnessV0) (hfe : st.vf.all id = true)
     (hbudget : st.opCount + 1 ≤ MAX_OPS_PER_SCRIPT)
     (hstack : 1 < st.stack.length)
     (h1 : decodeNum ctx.pol (topAt st.stack 2) 4 = .ok bn1)
@@ -104,10 +114,11 @@ theorem stepBody_numequalverify_false {ctx : Ctx} {op : WireOp} {st : State}
     stepBody ctx op st = .error .numEqualVerifyFailed := by
   have hb : ¬ (MAX_OPS_PER_SCRIPT < st.opCount + 1) := by omega
   have hs : ¬ (st.stack.length < 2) := by omega
-  rw [stepBody]
-  simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
-    Bitcoin.Interpreter.stepBody.dispatchOp, h1, h2, hne, binOp,
-    castToBool_encodeScriptNum_zero]
+  rcases hsv with hsv | hsv <;>
+    (rw [stepBody]
+     simp [ha, hw, hsv, hfe, hb, hs, disabledWire,
+       Bitcoin.Interpreter.stepBody.dispatchOp, h1, h2, hne, binOp,
+       castToBool_encodeScriptNum_zero])
 
 
 
@@ -222,8 +233,9 @@ version branch: after popping the index it checks `n < 0 || n >=
 stack.size()` against the *remaining* stack, so the same transition runs
 in BASE, WITNESS_V0 and TAPSCRIPT. The only difference is the surrounding
 opcode counter: BASE/WITNESS_V0 count 0x79/0x7a toward the 201-op budget,
-tapscript does not (Defs.lean:793-798). The lemmas below add those arms
-without changing the four base-row declarations. -/
+tapscript does not (Defs.lean:793-798). The four generic row declarations
+above are stated for BASE/WITNESS_V0 (the counting pair); the lemmas below
+add the explicit sigversion arms. -/
 
 @[rule "SCR-075"]
 theorem stepBody_pickroll_oob_witnessV0 {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}

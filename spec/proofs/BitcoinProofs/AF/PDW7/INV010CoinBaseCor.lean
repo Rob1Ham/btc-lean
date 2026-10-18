@@ -3,7 +3,6 @@ import Bitcoin.Data.Tx
 /-!
 # INV010CoinBaseCor — TOP-35/INV-010 promotion proof
 
-PDW7 (proof-promotion review 4, recovery review 4), 2026-10-17.
 Row INV-010 (the coinbase classification rule underlying INV-008/009;
 core anchor primitives/transaction.h:IsCoinBase:347 @cce32b168;
 Satoshi), the D-DATA lane pick.
@@ -24,7 +23,7 @@ tx falls to the `_ => false` arm), `vin[0].prevout.IsNull()` =
 `i.prevout.isNull` (Basic/Tx's `OutPoint.isNull` = the 32-zero-bytes
 + NULL_INDEX conjunction, transaction.h:43).
 
-This file = the proof-promotion tier (route-B, PDW2 4df229b pattern):
+This file = the row-face theorem tier (route-B):
 the classification law — positive (single null-prevout input ⇒
 coinbase) + the two negatives (0-input / 2-input ⇒ NOT coinbase; the
 `vin.size() == 1` half of the Core conjunction) — proofs-side

@@ -1,7 +1,7 @@
 import Bitcoin.Capstone.Merkle
 
 /-!
-# BitcoinProofs.Theorems.CapstoneMerkle — W17 P03: proved merkle-layer spec (sorry-free)
+# BitcoinProofs.Theorems.CapstoneMerkle — P03: proved merkle-layer spec (sorry-free)
 
 Proves the structural laws of the executable merkle layer
 (`Bitcoin.Capstone.Merkle`, the direct port of Core

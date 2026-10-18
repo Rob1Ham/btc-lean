@@ -1,11 +1,10 @@
 import Mathlib
 import Bitcoin.Block.Pow
 
-/-! # PDW31.lean — proof-promotion review, items TOP-151..155
-(PDW31, recovery review RC22, 2026-10-17).
+/-! # PDW31.lean
 
 Twelve sorry-free promotion theorems over five claimed rules.yaml
-rows (recovery review, RC22):
+rows:
 
 * **BLK-043** `nextWorkRequired` (Block/Pow.lean:163) →
   `nextWorkRequired_retarget_boundary` (pow.cpp:56-59 retarget arm:

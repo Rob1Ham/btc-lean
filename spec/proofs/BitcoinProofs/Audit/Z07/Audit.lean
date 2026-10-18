@@ -11,16 +11,14 @@ import Bitcoin.Invariants.RC10
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Z07 dark-corner audit — MEMPOOL_HEIGHT at tx level + OP_1NEGATE (W4 suite)
+# Z07 dark-corner audit — MEMPOOL_HEIGHT at tx level + OP_1NEGATE
 
-NEW file, owned by Z07, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z07/` (`crosscheck.py` — ALL PASS,
-`probe_num.lean`). Findings: `spec/db/findings-w4/Z07.md`.
+2026-10-16. Python3 probes:
+`crosscheck.py` — ALL PASS,
+`probe_num.lean`).
 
-Ground truth: Bitcoin Core @ `cce32b168`, sources vendored at
-`build/scratch/build/scratch/` (validation.cpp) and
-`build/scratch/build/scratch/scratch/{W08,Y15}/`
-(interpreter.cpp, script.h/cpp).
+Ground truth: Bitcoin Core @ `cce32b168` (validation.cpp,
+interpreter.cpp, script.h/cpp).
 
 ## C1 — MEMPOOL_HEIGHT = 0x7FFFFFFF at tx level (Review-1 report 07 §K8/TXV-042)
 
@@ -77,7 +75,7 @@ open Bitcoin.Crypto.Seam (stubChecker)
 set_option maxRecDepth 10000
 set_option maxHeartbeats 4000000
 
--- core 4.35 has no DecidableEq Except (W12/Y07 note); derive it test-locally
+-- core 4.35 has no DecidableEq Except (Y07 note); derive it test-locally
 deriving instance DecidableEq for Except
 
 /-! ## C1 — the MEMPOOL_HEIGHT sentinel at tx level -/
@@ -194,7 +192,7 @@ theorem parse_4f : parseFrom 2 (ByteArray.mk #[(0x4f : UInt8)]) 0 =
 theorem ser_4f : serializeOpcode (Opcode.pushNum 0) =
     ByteArray.mk #[(0x4f : UInt8)] := by decide
 
-/-- The canonical step (W09 `stepBody`, Defs.lean:786): executed
+/-- The canonical step (`stepBody`, Defs.lean:786): executed
 `pushNum 0` pushes exactly `0x81`, opCount unchanged. -/
 def zCtx : Ctx :=
   { flags := {}, pol := default, chk := ⟨stubChecker, default⟩,

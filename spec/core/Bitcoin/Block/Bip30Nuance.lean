@@ -3,7 +3,7 @@ import Bitcoin.Block.Params
 import Bitcoin.Invariants.RC09
 import Bitcoin.Activation.Flags
 
-/-! # S04 / BLK-011 — the mutated-flag row's BIP30-enforcement nuance
+/-! # BLK-011 — the mutated-flag row's BIP30-enforcement nuance
 
 `Bitcoin.Block.Bip30Nuance` (NEW file, core pkg). Landing row BLK-011:
 Core's ACTUAL BIP30 enforcement conditions (validation.cpp
@@ -11,48 +11,48 @@ Core's ACTUAL BIP30 enforcement conditions (validation.cpp
 heights-only simplification in the spec's `bip30Enforced`
 (`Bitcoin.Ledger.Interface`, rows BLK-096/097/098/INV-104).
 
-BlkPkgNaming (S16) compliance: file = Block/, model = Block, rule =
+BlkPkgNaming (the package-naming rule) compliance: file = Block/, model = Block, rule =
 BLK-011. CT02 line-pins cited per definition.
 
 ## Summary
-* **F-S04-001 (D2a)** Core 2461's `pindexBIP34height` is null at
+* **(D2a)** Core 2461's `pindexBIP34height` is null at
   h=227931 (`pprev->GetAncestor(BIP34Height)` on the height-227930
-  parent) — Core ENFORCES. **FIXED (RC SWEEP 2026-10-17):** ours'
+  parent) — Core ENFORCES. **FIXED (the 2026-10-17 repair):** ours'
   elide-window was `[227931, 1983702)`, repaired in
   `Bitcoin.Ledger.bip30Enforced` (Interface.lean `BIP34_HEIGHT ≤ h` →
   `< h`) to the window proper `(227931, 1983702)` — ours now ENFORCES
   at 227931 = Core (see `s04_divergence_core_vs_ours` row 1, now the
   agreement pin). HISTORY (pre-fix, pinned 2026-10-16): ours' elide
   window didn't — the one mainnet divergence.
-* **F-S04-002 (D2b)** 227932..1983701 non-canonical-branch (ancestor
+* **(D2b)** 227932..1983701 non-canonical-branch (ancestor
   at 227931 ≠ BIP34Hash): Core enforces, ours elides
   (bip30Enforced heights-only) — REMAINS a divergence (D2a fixed,
   D2b documented-not-fixed).
-* **F-S04-003 (D2c)** `IsBIP30Repeat` (2401/6205-6210) pins heights
+* **(D2c)** `IsBIP30Repeat` (2401/6205-6210) pins heights
   91842/91880 AND own-hash; ours pins heights only
   (BIP30_DUPLICATE_COINBASE_HEIGHTS) (D2c).
-* **F-S04-004 (D4c)** Core 2466-2475 runs the overlap loop on the
+* **(D4c)** Core 2466-2475 runs the overlap loop on the
   PRISTINE pre-block view, block-pre, unfiltered over vout; ours'
   `bip30Collision` runs per-tx on the EVOLVING fold view, over
   `addedCoins` (unspendable-skipped) — the D4c wrong-accept.
-* **F-S04-005 (D4a)** Core rejects duplicate txids (CheckTxInputs,
+* **(D4a)** Core rejects duplicate txids (CheckTxInputs,
   2466-2475) vs ours' badTxnsBIP30 (error-kind mismatch).
-* **F-S04-006 (D4c)** Core rejects block `[A,B,C]` (B re-creates A's
+* **(D4c)** Core rejects block `[A,B,C]` (B re-creates A's
   spent outpoint x) via 2466-2475 as bad-txns-BIP30; ours'
   applyBlockL accepts (D4c).
-* **F-S04-007** multi-site `@[rule]` tags (X08's
-  Connect.levelHasAdjacentDup + S04's decls) — RCR tag-hygiene lane.
+* **Rule-tag hygiene** — multi-site `@[rule]` tags (the block-validation module's
+  Connect.levelHasAdjacentDup + the BIP30 row set's decls) — rule-closure tag hygiene.
 
 Statements: Eq Bool / Eq Nat ONLY (never Eq ByteArray / Option /
-Except) — the Y10 F-Y10-005 wall (Eq ByteArray/decEq-STUCK) applies
+Except) — the Y10 wall (Eq ByteArray/decEq-STUCK) applies
 only to `decide (x = y)`-Prop forms, NOT the Eq-Bool idiom.
 NO Bitcoin.Consensus.TxCheck import (it shadows OutPoint/Tx/serTx).
 Z05 (spec/proofs/BitcoinProofs/Audit/Z05) already lands
 coreIsBIP30Repeat/coreBip30RunsCanonical/divergence_227931/divergence_f
-ork_91842 — S04 must NOT duplicate Z05's names (this file = core pkg,
+ork_91842 — the BIP30 row set must NOT duplicate Z05's names (this file = core pkg,
 new decls, BLK-011 row-landing).
 Z05 pins D2a + D2c(91842) only; D2b + D2c(91880) + D4c/D4a pins are
-S04's new era rows (CV07 nomenclature). [RC SWEEP 2026-10-17: Z05's
+the BIP30 row set's new era rows (CV07 nomenclature). [the 2026-10-17 repair: Z05's
 `divergence_227931` repaired to the D2a-fix agreement pin (HISTORY in
 its docstring); D2a statements in THIS file repaired likewise — see
 `s04_ours_heights_only_window`, `s04_divergence_core_vs_ours`,
@@ -68,7 +68,7 @@ namespace Bitcoin.Block.Bip30Nuance
 /-! ## §A: Core constants (validation.cpp @cce32b168, CT02 line-pins) -/
 
 /-- CT02 V2: BIP34 activation hash (kernel/chainparams.cpp:119 =
-W06's BLK-070 constant). Height 227931. Same 256-bit Nat pin as
+the BLK-070 constant). Height 227931. Same 256-bit Nat pin as
 `Bitcoin.Activation.bip34ActivationHash`. -/
 def BIP34_ACTIVATION_HASH : Nat :=
   0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8
@@ -210,13 +210,12 @@ private def cbS : Tx :=
 /-! ## §N1: the era grid (Bool-tier, `by decide`)
 
 CV07's A/B/C-era grid + CT02's mirror rows, D-classes per CV07:
-D2a = 227931 off-by-one (Core ON / ours OFF; **FIXED RC SWEEP
-2026-10-17** — ours ON, agreement, see `s04_divergence_core_vs_ours`
+D2a = 227931 off-by-one (Core ON / ours OFF; **FIXED in the 2026-10-17 repair** — ours ON, agreement, see `s04_divergence_core_vs_ours`
 row 1);
 D2b = 227932..1983701 non-canonical-anchor branch (Core ON / ours OFF);
 D2c = repeat-pair {91842, 91880} own-hash pin (fork hash → Core ON).
 Z05 pins D2a + D2c(91842) only — D2b, D2c(91880), and the ours-rows
-are S04's (this file). `0x0DEAD` = a stand-in non-canonical
+are the BIP30 row set's (this file). `0x0DEAD` = a stand-in non-canonical
 anchor@227931 (≠ bip34ActivationHash). -/
 
 /-- A non-canonical anchor at BIP34Height (≠ BIP34Hash). -/
@@ -304,7 +303,7 @@ theorem s04_core_loop_grid :
 BLK-096/097/098/INV-104) is HEIGHTS-ONLY: repeat-pair heights
 (91842/91880) elide with no own-hash pin (D2c), and (post-D2a-fix) the
 window proper (227931, 1983702) elides with no BIP34Hash branch pin
-(D2b; D2a FIXED RC SWEEP 2026-10-17 — 227931 = true = Core; HISTORY
+(D2b; D2a FIXED in the 2026-10-17 repair — 227931 = true = Core; HISTORY
 pre-fix: `[227931, 1983702)` elided, `= false` here). -/
 theorem s04_ours_heights_only_window :
     (Bitcoin.Ledger.bip30Enforced 0 = true ∧
@@ -319,16 +318,15 @@ theorem s04_ours_heights_only_window :
      Bitcoin.Ledger.bip30Enforced 1983701 = false ∧
      Bitcoin.Ledger.bip30Enforced 1983702 = true) := by decide
 
-/-- F-S04-001 (D2a) / F-S04-002 (D2b) / F-S04-003 (D2c): every
+/-- (D2a) / (D2b) / (D2c): every
 Core-ON/ours-OFF divergence class + the agreement rows (pre-window,
 repeat-pair-pinned, canonical window, 2466 re-ON).
 
-RC SWEEP 2026-10-17: row 1 is the D2a-fix AGREEMENT pin (Core ON ∧
+**The 2026-10-17 repair:** row 1 is the D2a-fix AGREEMENT pin (Core ON ∧
 ours ON at 227931) — HISTORY (pre-fix divergence, pinned 2026-10-16):
 `(coreBip30Enforced 227931 FORK_STR 0 = true ∧
 Bitcoin.Ledger.bip30Enforced 227931 = false)`, repaired by the
-Interface.lean `BIP34_HEIGHT ≤ h` → `< h` fix (F-S04-001 / F-Z05-001 /
-CV07 D2a). -/
+Interface.lean `BIP34_HEIGHT ≤ h` → `< h` fix (CV07 D2a). -/
 theorem s04_divergence_core_vs_ours :
     (coreBip30Enforced 227931 FORK_STR 0 = true ∧
      Bitcoin.Ledger.bip30Enforced 227931 = true) ∧
@@ -357,7 +355,7 @@ Core's bad-txns-BIP30 loop (validation.cpp:2466-2475, gated by 2466
 runs on the PRISTINE pre-block coins view, ONCE for the whole block
 (block-pre, BEFORE the per-tx ConnectBlock loop ~2519), over every
 vout index of every tx (UNFILTERED). Ours' `bip30Collision`
-(Interface.lean:361) instead runs per-tx inside the W12 fold on the
+(Interface.lean:361) instead runs per-tx inside the fold on the
 EVOLVING view (D4c) and only over `addedCoins` (unspendable-skipped
 — equivalent only on AddCoin-closed views). `(u op).isSome` =
 Core's `HaveCoin` (spent = none = INV-114). -/
@@ -378,15 +376,15 @@ def coreBip30Rejects (h : Nat) (ownHash : String) (hashAtBip34Height : Nat)
     (u : UtxoSet) (txs : List Tx) (kf : Tx → Key) : Bool :=
   coreBip30LoopRuns h ownHash hashAtBip34Height && bip30OverlapPristine u txs kf
 
-/-! ## §N2: the D-tier pins (X11 2459-shapes + CV07 D-shapes)
+/-! ## §N2: the D-tier pins (the block-vector module's 2459-shapes + CV07 D-shapes)
 
-The P-shapes (CV07's u0/d4cBlock/u0a/d4aBlock/u0d + X11's cbS) +
-X11's blocks.json seed shape (k41/k61 = the 1000/700-sat OP_TRUE
+The P-shapes (CV07's u0/d4cBlock/u0a/d4aBlock/u0d + the block-vector module's cbS) +
+the block-vector module's blocks.json seed shape (k41/k61 = the 1000/700-sat OP_TRUE
 prevout coins, wire-txids 0x41..0x60 / 0x61..0x80). All statements
-Eq Bool / Eq Nat (Y10 F-Y10-005: the Eq-ByteArray/decEq wall hits
+Eq Bool / Eq Nat (Y10: the Eq-ByteArray/decEq wall hits
 only `decide (x = y)`-Prop forms, not the Eq-Bool idiom). -/
 
-/-- X11's blocks.json seed keys (utxo[0] = txid_wire 0x41..0x60,
+/-- the block-vector module's blocks.json seed keys (utxo[0] = txid_wire 0x41..0x60,
 utxo[1] = 0x61..0x80). -/
 private def rngK (b : UInt8) : ByteArray :=
   (List.range 32).foldl (fun acc i => acc.push (b + UInt8.ofNat i)) ByteArray.empty
@@ -395,7 +393,7 @@ private def k61 : OutPoint := ⟨rngK 0x61, 0⟩
 private def u0s : List (OutPoint × Coin) :=
   [ (k41, ⟨1000, 0, false, scriptOf [0x51]⟩),
     (k61, ⟨700, 0, false, scriptOf [0x51]⟩) ]
-/-- X11 base-odd / mut-odd-dup-tail: [cb, t1(→900), t2(→600)] /
+/-- the block-vector module base-odd / mut-odd-dup-tail: [cb, t1(→900), t2(→600)] /
 [cb, t1, t2, t2copy] (t2copy = the CVE-2012-2459 odd-level
 duplication). -/
 private def tA11 : Tx :=
@@ -405,8 +403,8 @@ private def tC11 : Tx :=
   { version := 1, vin := [cvIn k61], vout := [cvOut 600],
     locktime := 0, witness := [] }
 
-/-- F-S04-004 (X11 base-odd, blocks.json case 3): the un-mutated
-odd block ACCEPTs end-to-end (X11's Lean verdict) — no pristine
+/-- (the block-vector module's base-odd, blocks.json case 3): the un-mutated
+odd block ACCEPTs end-to-end (the block-vector module's Lean verdict) — no pristine
 overlap (t1/t2 spend k41/k61, create fresh outpoints), no fold
 error. -/
 theorem s04_x11_base_odd_accepts :
@@ -415,13 +413,13 @@ theorem s04_x11_base_odd_accepts :
     (applyBlockL u0s txidPreimageKey [cbS, tA11, tC11] 1000).isOk = true ∧
     (bip30OverlapPristine (viewOf u0s) [] txidPreimageKey = false) := by decide
 
-/-- F-S04-004 (X11 mut-odd-dup-tail = the CVE proper, blocks.json
+/-- (the block-vector module's mut-odd-dup-tail = the CVE proper, blocks.json
 case 4): the mutated block [cb, t1, t2, t2copy] has the SAME merkle
-root (X11: root-equality mut-odd-dup-tail = true — BLK-010 passes),
+root (the block-vector module: root-equality mut-odd-dup-tail = true — BLK-010 passes),
 and Core's 2466-2475 loop does NOT see the mutation (t2copy's
 outpoint ∉ the PRISTINE pre-block view) — Core rejects EARLIER, at
 CheckBlock via the `mutated` flag (`bad-txns-duplicate` = the
-BLK-011 row). OURS pre-D4c-2 rejected it in the W12 fold via the
+BLK-011 row). OURS pre-D4c-2 rejected it in the fold via the
 EVOLVING-view collision (t2copy's outpoint ∈ the post-t2 fold view)
 as `badTxnsBIP30` — same verdict (REJECT), WRONG RULE + wrong layer.
 D4c REPAIRED (BIP30R 2026-10-17): the per-tx BIP30 branch is gone
@@ -434,7 +432,7 @@ Core's LAYER (per-tx fold) — the remaining divergence vs Core's
 Pins: reject in every era (`isErr` always), never `badTxnsBIP30`
 (post-D4c-2), pristine/Core-2466 never see it. This is the BLK-011
 nuance: rules.yaml's BLK-011 row (mutated-flag /
-`bad-txns-duplicate`) is `planned` (X11's FIND-X11-001). -/
+`bad-txns-duplicate`) is `planned` (the block-vector module). -/
 theorem s04_x11_mut_organic_wrong_rule :
     (bip30OverlapPristine (viewOf u0s) [cbS, tA11, tC11, tC11] txidPreimageKey = false) ∧
     (coreBip30Rejects 1000 FORK_STR 0 (viewOf u0s) [cbS, tA11, tC11, tC11] txidPreimageKey = false) ∧
@@ -446,11 +444,11 @@ theorem s04_x11_mut_organic_wrong_rule :
     (isErr (applyBlockL u0s txidPreimageKey [cbS, tA11, tC11, tC11] 1983702)) = true ∧
     (bip30Collision (viewOf u0s) tC11 (txidPreimageKey tC11) 1000 = false) := by decide
 
-/-- F-S04-004 / F-S04-006 (CV07 D4c): block [A, B=X-twin, C] over u0
+/-- (CV07 D4c): block [A, B=X-twin, C] over u0
 (x = X's old coin, unspent PRE-block): A spends x (1M), B (=X exact
 duplicate, re-creates x) spends 0xE5:0 (90M), C re-spends x (2).
 CORE 2466: the pristine loop sees B's vout-0 (== x) in the pre-block
-view → `bad-txns-BIP30` REJECT (BIP30-ON eras). OURS (W12 fold):
+view → `bad-txns-BIP30` REJECT (BIP30-ON eras). OURS (fold):
 B's per-tx `bip30Collision` runs on the POST-A evolving view (x
 spent) → no collision → WRONG-ACCEPT (D4c) — in EVERY era, even at
 1000/227930 (ours enforced) and 1983702 (2466's `||`-arm re-ON),
@@ -477,7 +475,7 @@ theorem s04_d4c_pristine_vs_fold_1000 :
     (isErr (applyBlockL u0 txidPreimageKey [txA, txC] 1000)) = true ∧
     (isBadBip30 (applyBlockL u0 txidPreimageKey [txA, txC] 1000)) = false := by decide
 
-/-- D4c across the eras (Core 2466 vs the W12 fold). Core REJECTS
+/-- D4c across the eras (Core 2466 vs the ledger layer fold). Core REJECTS
 wherever `coreBip30LoopRuns` (2466) holds: 1000, 227930, 227931
 (D2a Core-ON), 1983702 (`||`-arm), 227932-fork (D2b) — ours isOk (D4c
 wrong-accept) at every one of those. Agreement rows: 91842-pinned +
@@ -487,7 +485,7 @@ ours REJECTS (`.isOk = false`) at every BIP30-ON era Core rejects
 (1000, 227930, 227931, 1983702) = the D4c wrong-accept is gone;
 agreement rows stay (91842/227932 = elide, `.isOk` true). The
 REMAINING divergence row is D2b (NOT D4c): 1983701 `FORK_ANCHOR`
-Core-ON/ours-elide (the `[227932, 1983702)` window, mission D2b) —
+Core-ON/ours-elide (the `[227932, 1983702)` window, the D2b case) —
 plus 227932-`FORK_ANCHOR`/1983702-`FORK_ANCHOR` Core-ON forks. -/
 theorem s04_d4c_eras :
     (applyBlockL u0 txidPreimageKey d4cBlock 1000).isOk = false ∧
@@ -508,7 +506,7 @@ theorem s04_d4c_eras :
     (applyBlockL u0 txidPreimageKey d4cBlock 1983701).isOk = true ∧
     (applyBlockL u0 txidPreimageKey d4cBlock 227930).isOk = false := by decide
 
-/-- F-S04-005 (CV07 D4a): block [A2, A2] (later exact duplicate of a
+/-- (CV07 D4a): block [A2, A2] (later exact duplicate of a
 spent-prevout tx) — the pristine loop does NOT see the duplicate
 (A2's outpoint ∉ the pre-block u0a) → Core rejects at
 CheckTxInputs (`inputs-spent`), NOT at 2466. OURS rejects at the
@@ -541,8 +539,8 @@ coinbase's outpoint) — the pristine loop DOES see this one (cbB's
 vout-0 == yk ∈ u0d) → Core `bad-txns-BIP30` REJECTS wherever the
 2466 gate holds. Ours agrees at 1000 (cbB = fold's first tx →
 collision on u0d) + 1983702 (`||`-arm), elides at 91842-pinned +
-227932-canonical = agree; at 227931 ours NOW agrees too (D2a FIXED
-RC SWEEP 2026-10-17: BIP30-ON → badTxnsBIP30 = Core; HISTORY
+227932-canonical = agree; at 227931 ours NOW agrees too (D2a FIXED in
+the 2026-10-17 repair: BIP30-ON → badTxnsBIP30 = Core; HISTORY
 pre-fix: ours elided while Core REJECTS — the D2a divergence on the
 D4d shape). -/
 theorem s04_d4d_coinbase_twin_eras :
@@ -565,9 +563,9 @@ theorem s04_d4d_coinbase_twin_eras :
     -- D2a FIX: 227931 BIP30-ON (HISTORY: was `= false`)
     (isBadBip30 (applyBlockL u0d txidPreimageKey [txCbB] 227931)) = true := by decide
 
-/-- F-S04-007 (the Y10-wall echo, P7-tier): `Eq (Option Coin)` /
+/-- (the Y10-wall echo, the P7 tier): `Eq (Option Coin)` /
 `==`-idiom decide rows over 32-byte serTx keys — the Y10
-F-Y10-005 Eq-ByteArray wall hits only `decide (x = y)`-Prop forms;
+`Eq-ByteArray` wall hits only `decide (x = y)`-Prop forms;
 the Eq-Bool idiom kernel-reduces. u0[k41]/u0[xk] coin identities
 (90000000-coin at 0xE5:0, 50000000-coin at xk). -/
 theorem s04_decEq_coin_rows :
@@ -580,7 +578,7 @@ theorem s04_decEq_coin_rows :
     (serTx tA11 == serTx tA11) = true := by decide
 
 
-/-! ## §Axioms: the sorry-free pins (F-S04-007)
+/-! ## §Axioms: the sorry-free pins
 
 `#print axioms` per theorem. The §A-pure rows (pairs/enforced/loop —
 String/Nat/Bool only) are axiom-CLEAN. Every row whose statement
@@ -589,7 +587,7 @@ touches the in-tree `Bitcoin.Ledger.Interface` def-graph
 `bip30DisconnectRelaxed`/`bip34Anchored` likewise) inherits the
 standard `[propext, Classical.choice, Quot.sound]` trio from that
 chain's `List.contains`/`decide`-`propDecidable` idiom — inherited
-from the EXISTING spec code, never `sorryAx` (F-S04-007). -/
+from the EXISTING spec code, never `sorryAx`. -/
 
 /-- info: 'Bitcoin.Block.Bip30Nuance.s04_pins_core' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in

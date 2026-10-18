@@ -3,10 +3,10 @@ import Bitcoin.Activation.Flags
 
 /-!
 # Bitcoin.Activation.Taproot — the BIP9 taproot deployment and the
-# always-on flag regime (X06)
+# always-on flag regime (the witness-structure module)
 
 The activation-side TPR rows, pinned as a STANDALONE historical record
-composed from W10's `Bip9Deployment` (Bitcoin.Activation.Bip9) and W06's
+composed from `Bip9Deployment` (Bitcoin.Activation.Bip9) and
 flag port (Bitcoin.Activation.Flags) — no edits to either:
 
 * **TPR-075** — the historical mainnet taproot BIP9 deployment: bit 2,
@@ -16,10 +16,10 @@ flag port (Bitcoin.Activation.Flags) — no edits to either:
   comment era). In CURRENT master @cce32b168 the params table carries
   only testdummy — taproot is buried/always-on (TPR-077), so this
   record is deliberately NOT in `mainnetDeployments`, exactly like
-  W10's precedent `segwitBip9Deployment` (SWT-036).
+  precedent `segwitBip9Deployment` (SWT-036).
 * **TPR-076** — the taproot exception block `…1e395ad` (height 692261)
   validates with P2SH|WITNESS only: `taproot = false` there, keyed by
-  HASH (W06's `mainnetExceptionMap` / `exception_replaces_base`).
+  HASH (`mainnetExceptionMap` / `exception_replaces_base`).
 * **TPR-077** — away from exception blocks {P2SH, WITNESS, TAPROOT} is
   the base set at EVERY height (genesis onward; buried heights only OR
   in DERSIG/CLTV/CSV/NULLDUMMY) — validation.cpp:2256-2260,
@@ -68,7 +68,7 @@ theorem taprootBip9Deployment_values :
 
 /-- The deployment table @cce32b168 does NOT carry the historical
 taproot row (only dormant testdummy) — taproot is always-on there
-(TPR-077), so the W10 dormancy theorems over `mainnetDeployments`
+(TPR-077), so the dormancy theorems over `mainnetDeployments`
 stay faithful. -/
 theorem mainnetDeployments_no_taproot :
     taprootBip9Deployment ∉ mainnetDeployments := by
@@ -82,7 +82,7 @@ theorem mainnetDeployments_no_taproot :
 /-- TPR-076 (chainparams.cpp:117-121 @cce32b168): the taproot-violating
 block `…1e395ad` (height 692,261; hash keyed, ANY height) validates
 with P2SH | WITNESS only — TAPROOT is OFF there, and P2SH/WITNESS are
-on. W06's `exception_replaces_base` + `mainnet_taproot_exception_lookup`
+on. `exception_replaces_base` + `mainnet_taproot_exception_lookup`
 specialized; height is irrelevant because the exception map keys on the
 block hash alone. -/
 @[rule "TPR-076"]
@@ -105,7 +105,7 @@ theorem taproot_exception_block_flags (height : UInt32) :
 /-- TPR-077 (validation.cpp:2256-2260 @cce32b168; "mod exceptions"):
 on current mainnet {P2SH, WITNESS, TAPROOT} is the base flag set at
 EVERY height — genesis onward; the buried heights only ever OR IN
-DERSIG/CLTV/CSV/NULLDUMMY and never drop the base trio. This is W06's
+DERSIG/CLTV/CSV/NULLDUMMY and never drop the base trio. This is
 BLK-083 `base_flags_p2sh_witness_taproot` specialized to mainnet with
 the height universally quantified. -/
 @[rule "TPR-077"]
@@ -177,7 +177,7 @@ theorem deploymentActiveAt_taproot_iff (height : UInt32) :
   unfold TAPROOT_ACTIVATION_HEIGHT
   exact decide_eq_true_iff
 
-/-! ## Axiom footprints (X06 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the witness-structure module style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio.
 -/

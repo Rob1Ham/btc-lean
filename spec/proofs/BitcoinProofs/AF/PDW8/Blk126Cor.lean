@@ -4,8 +4,6 @@ import Bitcoin.Invariants.RC08
 /-!
 # Blk126Cor — BLK-126 promotion proof (PDW8, row TOP-40)
 
-PDW8 → PDW8-2 (proof-promotion review 8, continuation after the 06:40
-mid-proof death; recovery review 4), 2026-10-17.
 Row BLK-126 (signet only: block solution satisfies the challenge,
 BIP325; validation.cpp:3938-3940 @cce32b168): the
 `bad-signet-blk-sig` reject lane.
@@ -13,7 +11,7 @@ BIP325; validation.cpp:3938-3940 @cce32b168): the
 Semantics port (route B): `signetDefaultChallenge`
 (Params.lean:382) is the BIP325 default 1-of-2 CHECKMULTISIG
 challenge script, 71 bytes (kernel/signet.h:20). The theorem here
-pins the full script layout by `decide` (the W12 gold byte-pins,
+pins the full script layout by `decide` (the gold byte-pins,
 verified against the ground-truth `bytesOf` constant): `0x51` OP_1
 (m-of-n), `0x21` push-33 ×2 (the two 33-byte compressed keys, at
 1..35 and 35..69), `0x30`/`0x03` inside the second key's
@@ -23,7 +21,7 @@ on non-signet nets (mainnet et al.) — the mainnet-skip lane.
 Companion to the core `signetDefaultChallenge_shape` (Params.lean:391)
 and `signetCheckApplies_mainnet` (Params.lean:407).
 PDW8-2 build evidence: the tree file was clean FIRST-BUILD RC=0
-(the W7-126 gold assembly, `:= by decide` split across :42/:43
+(the reference assembly, `:= by decide` split across :42/:43
 at the script-shape theorem = the core Params:394 form; contrast
 Blk063Cor which died with the :53/:54 errors).
 

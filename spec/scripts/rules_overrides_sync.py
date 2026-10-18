@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 58, 'test_vector_ids': 26}.
+# 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 59, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 9cbbb1eb422d199e48d7aa428a47228f13236981d39a62b6a16f9905b3650b02
+#   726 rows, sha256 aee676918b2668ac01113cb4b0eb583c734e575dff142648e7fecf59895b0351
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -296,8 +296,8 @@ OVERRIDES_SYNC = {
         'lean_note': None,
     },
     'INV-056': {
-        'summary': "Legacy BASE checksig FindAndDelete step, conditional only: if the model's `findAndDelete scriptCode (pushBytesWire sig)` reports a positive match count and `constScriptCode = false`, the ECDSA checker is invoked on `(findAndDelete ...).2`. No claim is made that the matching signature push is deleted; in the core model a whole-tail match is counted but re-appended (`findAndDelete b b = (1, b)`), whereas Core's FindAndDelete returns `(1, empty)`.",
-        'lean_target': 'BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_sig, BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_whole_tail_retained, BitcoinProofs.AF.PDW59.findAndDelete_self_whole_tail_not_removed, BitcoinProofs.AF.PDW59.findAndDelete_pushBytesWire_self_not_removed, BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged, BitcoinProofs.AF.PDW59.findAndDelete_empty',
+        'summary': "Legacy BASE checksig FindAndDelete step: when the model's `findAndDelete scriptCode (pushBytesWire sig)` reports a positive match count and `constScriptCode = false`, the ECDSA checker is invoked on the result. The matching push is deleted, including the whole-tail case (`findAndDelete b b = (1, empty)`); head/middle suffix behavior is covered by Test/Script/Interpreter/FindAndDeleteTest.lean.",
+        'lean_target': 'BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_sig, BitcoinProofs.AF.PDW59.evalChecksigPreTapscript_base_findAndDelete_whole_tail_deleted, BitcoinProofs.AF.PDW59.findAndDelete_self_removed, BitcoinProofs.AF.PDW59.findAndDelete_pushBytesWire_self_removed, BitcoinProofs.AF.PDW59.findAndDelete_none_unchanged, BitcoinProofs.AF.PDW59.findAndDelete_empty',
         'status': 'proven',
         'lean_note': None,
     },
@@ -1083,9 +1083,11 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-051': {
+        'summary': 'minimal numeric operands under MINIMALDATA (policy, not consensus)',
         'lean_target': 'BitcoinProofs.AF.PDW98.decodeNum_nonminimal, BitcoinProofs.AF.PDW98.stepBody_cltv_nonminimal, BitcoinProofs.AF.PDW98.stepBody_csv_nonminimal, BitcoinProofs.AF.PDW98.checkMultiSig_keycount_nonminimal, BitcoinProofs.AF.PDW98.checkMultiSig_sigcount_nonminimal, BitcoinProofs.AF.PDW98.stepBody_checksigadd_nonminimal',
         'status': 'proven',
-        'notes': None,
+        'consensus': False,
+        'notes': 'BIP342/CLTV/CSV; MINIMALDATA is a policy flag. PDW95/PDW98 prove non-minimal rejection only when pol.minimalData=true; the consensus path accepts non-minimal encodings.',
     },
     'SCR-052': {
         'status': 'proven',
@@ -1268,7 +1270,7 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-091': {
-        'lean_target': 'BitcoinProofs.AF.PDW86.stepBody_size_raw',
+        'lean_target': 'BitcoinProofs.AF.PDW85.stepBody_equal_raw_bytes',
         'status': 'proven',
         'notes': None,
     },
@@ -1548,7 +1550,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-149': {
-        'lean_target': 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok_iff, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_discourage',
+        'lean_target': 'BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_ok_face, BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_discourage_face',
         'status': 'proven',
     },
     'SCR-150': {
@@ -1557,7 +1559,7 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-151': {
-        'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_discourage',
+        'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_discourage, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok_iff, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_discourage',
         'status': 'proven',
         'notes': None,
     },

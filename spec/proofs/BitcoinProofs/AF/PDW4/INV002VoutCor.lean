@@ -3,10 +3,9 @@ import Bitcoin.Consensus.TxCheck
 /-!
 # INV002VoutCor — T6/INV-002 + TXV-002 promotion proofs (P9, P10)
 
-PDW4 (proof-promotion review), recovery review 3, 2026-10-17.
 Rows INV-002 / TXV-002 (`vout` non-empty, `bad-txns-vout-empty`;
 core anchor tx_check.cpp:CheckTransaction:24-25 @cce32b168).
-Claim: `spec/db/findings-af/PDW4.md` @ 5fe77cf (rank 17 = T6).
+Claim commit 5fe77cf.
 Statements P9 (reject) + P10 (bound) restated 1:1 verbatim from
 `PD03-stmtcheck.lean:51-57` (elaborated green in `PDW4Check.lean`).
 
@@ -55,5 +54,13 @@ theorem checkTransaction_ok_vout_ne_nil (tx : Tx)
   split at h
   · exact absurd h (by simp)
   · next _ => exact absurd h (by simp)
+
+/-! ## Axiom pins (expected footprints guarded) -/
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_voutEmpty_reject' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_voutEmpty_reject
+
+/-- info: 'BitcoinProofs.AF.PDW4.checkTransaction_ok_vout_ne_nil' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW4.checkTransaction_ok_vout_ne_nil
 
 end BitcoinProofs.AF.PDW4

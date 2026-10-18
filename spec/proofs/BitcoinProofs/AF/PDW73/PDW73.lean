@@ -2,7 +2,7 @@ import Bitcoin.Interpreter.Defs
 
 /-! # PDW73 — TOP-386..390 row faces (interpreter admission/dispatch)
 
-Route B, zero core writes. Five `@[rule]`-tagged theorems, one per row.
+Route B, zero core writes. Six `@[rule]`-tagged theorems, one per row.
 -/
 
 namespace BitcoinProofs.AF.PDW73
@@ -89,9 +89,9 @@ theorem verifyScriptFull_ok_base_stack
               simp [hb] at hgood ⊢
           simpa using hc
 
-/-- SCR-020: a non-push opcode increments nOpCount; past 201 the step is
+/-- INV-043: a non-push opcode increments nOpCount; past 201 the step is
 rejected with OP_COUNT (BASE/WITNESS_V0 budget). -/
-@[rule "SCR-020"]
+@[rule "INV-043"]
 theorem stepBody_opCount_reject (ctx : Ctx) (op : WireOp) (st : State)
     (hsize : (match op.ast with
       | .pushBytes d => d.size ≤ MAX_SCRIPT_ELEMENT_SIZE

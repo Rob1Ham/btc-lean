@@ -1,6 +1,6 @@
 import Bitcoin.SigHash.Theorems
 
-/-! # PDW64.lean — proof-promotion review RC29, items TOP-341..345
+/-! # PDW64.lean — RC29, items TOP-341..345
 (PDW64, 2026-10-17). Claim 72bf5b4.
 
 D-SHDIG / BIP143 digest status-debt band. Route B: zero core writes,

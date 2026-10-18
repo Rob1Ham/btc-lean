@@ -4,15 +4,13 @@ import Bitcoin.Data.Tx
 import Bitcoin.Invariants.RC08
 
 /-!
-# Z27 dark-corner audit — witness-commitment reserved value + merkle odd-duplication (W4 suite)
+# Z27 dark-corner audit — witness-commitment reserved value + merkle odd-duplication
 
-NEW file, owned by Z27, 2026-10-16. Python3 probe:
-`build/scratch/build/scratch/scratch/Z27/z27_c1_c2_probe.py` (all Lean
-byte-pins below are python3-mirrored there). Findings:
-`spec/db/findings-w4/Z27.md`.
+2026-10-16. Python3 probe:
+`z27_c1_c2_probe.py` (all Lean
+byte-pins below are python3-mirrored there).
 
-Ground truth: Bitcoin Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/` (consensus/merkle.cpp,
+Ground truth: Bitcoin Core @ `cce32b168` (consensus/merkle.cpp,
 validation.cpp CheckWitnessMalleation:3878-3917) + Review-1 report
 `research/08-block-pow-utxo.md` K4/K5, BLK-008/014/017/018.
 
@@ -31,7 +29,7 @@ Core semantics, exactly:
    32-byte element (`bad-witness-nonce-size`) with **unconstrained
    content**.
 
-W17's shipped def `Bitcoin.Capstone.Merkle.witnessCommitmentOk` (**BLK-017**)
+The shipped def `Bitcoin.Capstone.Merkle.witnessCommitmentOk` (**BLK-017**)
 originally captured (1) via `witnessLeaves` but hardcoded the zero reserved
 value in (2) — it compared against `SHA256D(witness_root ‖ 0x00…00)` only.
 Core accepts a block with nonce `0x01…01` and matching commitment; the old

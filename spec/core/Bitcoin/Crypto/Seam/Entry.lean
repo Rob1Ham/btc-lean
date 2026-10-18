@@ -2,13 +2,13 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.Crypto.Seam.Der
 
 /-!
-# Bitcoin.Crypto.Seam.Entry — checker adapters (W13)
+# Bitcoin.Crypto.Seam.Entry — checker adapters
 
 Faithful ports of the two `GenericTransactionSignatureChecker` entry
 points (interpreter.cpp:1701-1752 @cce32b168) as *adapters*: the EC math
 and the BIP340/BIP342 sighash are abstract function parameters, so this
-module has NO dependency on W11's sighash and NO dependency on W14's
-curve work — Review 2 boots with mock/lax verifiers and Review 3 drops the
+module has NO dependency on the sighash layer and NO dependency on
+the curve work — it boots with mock/lax verifiers and drops the
 real ones in without touching this file or the interpreter.
 
 ## What is ported where
@@ -26,9 +26,9 @@ real ones in without touching this file or the interpreter.
   (caller-enforced in Core; fail-closed here), 64/65-byte sigs, 65th
   byte ≠ SIGHASH_DEFAULT, hashtype popped before verify, missing-data
   fail-closed.
-* `txCheckerOf` — the smart constructor W09's interpreter binds the
-  seam to: lax-ECDSA entry (W14 supplies the EC verifier; W11's sighash
-  is threaded through) + Schnorr entry (Review-3 slot).
+* `txCheckerOf` — the smart constructor the interpreter binds the
+  seam to: lax-ECDSA entry (the crypto layer supplies the EC verifier; the sighash
+  is threaded through) + Schnorr entry (slot).
 
 All consensus outcomes are `Bool` — Core's `ScriptError` channel only
 affects reject *reasons*, which the seam does not virtualize (B5).
@@ -60,7 +60,7 @@ def ecdsaVerdict (verify : ByteArray → ByteArray → ByteArray → Bool)
   else verify (sig.extract 0 (sig.size - 1)) pk (sighash code sig[sig.size - 1]! v)
 
 /-- ECDSA adapter packaged as a checker. The Schnorr entry is the
-Review-3 slot: fail-closed (`false`) here, replaced by `schnorrEntry` via
+The Schnorr slot: fail-closed (`false`) here, replaced by `schnorrEntry` via
 `txCheckerOf`. -/
 def ecdsaEntry (verify : ByteArray → ByteArray → ByteArray → Bool)
     (sighash : ByteArray → UInt8 → SigVersion → ByteArray)
@@ -73,7 +73,7 @@ def ecdsaEntry (verify : ByteArray → ByteArray → ByteArray → Bool)
 is consensus-inert — Core's `CheckECDSASignature` takes NO
 ScriptExecutionData (interpreter.cpp:1701-1706 @cce32b168), so a faithful
 adapter's verdict cannot depend on it. Holds definitionally for the
-adapter; W09's interpreter may pass any execdata it has at hand. -/
+adapter; the interpreter may pass any execdata it has at hand. -/
 theorem ecdsaEntry_execData_independent (verify : ByteArray → ByteArray → ByteArray → Bool)
     (sighash : ByteArray → UInt8 → SigVersion → ByteArray) (hasAmount : Bool)
     (sig pk code : ByteArray) (v : SigVersion) (d₁ d₂ : ScriptExecutionData) :
@@ -141,7 +141,7 @@ theorem ecdsaEntry_witnessV0_missing_amount_false
   simp only [ecdsaEntry, ecdsaVerdict]
   rw [if_neg (by simp [hpk]), if_neg (by omega), if_pos (by simp)]
 
-/-! ## Schnorr entry (interpreter.cpp:1726-1752) — Review-3 slot -/
+/-! ## Schnorr entry (interpreter.cpp:1726-1752) -/
 
 /-- `SIGHASH_DEFAULT` (BIP341): the implicit default hashtype for
 key-path/tapscript Schnorr spends. -/
@@ -204,7 +204,7 @@ def schnorrVerdict (verify : ByteArray → ByteArray → ByteArray → Bool)
   else false
 
 /-- Schnorr adapter packaged as a checker. The ECDSA entry is the
-Review-2 slot (fail-closed here); assemble both with `txCheckerOf`. -/
+The ECDSA slot (fail-closed here); assemble both with `txCheckerOf`. -/
 def schnorrEntry (verify : ByteArray → ByteArray → ByteArray → Bool)
     (sighashSchnorr : ScriptExecutionData → UInt8 → SigVersion → Option ByteArray) :
     BaseSignatureChecker :=
@@ -292,7 +292,7 @@ site. They do NOT claim that `Bitcoin.Interpreter.verifyWitnessProgram` /
 constructs a `default` record (plus `validationWeightLeft*`) and does not
 forward `annexInit/annexPresent/annexHash` from the outer call, while
 `tapleafHash`/`codesepPos`/`outputHash` have no writer in the interpreter
-tree at all (audit F-TS02-008; see `Script/Tapscript/LeafVersion.lean`
+tree at all (the interpreter-audit offset note; see `Script/Tapscript/LeafVersion.lean`
 "Honest gaps"). Closing that direction is an interpreter-seam change, not
 a property of this checker adapter. -/
 
@@ -315,11 +315,11 @@ theorem schnorrEntry_pops_hashtype
   simp only [hd]
   exact hok
 
-/-! ## The Review-2 assembly -/
+/-! ## The checker assembly -/
 
-/-- The checker W09's interpreter binds the seam to for Review 2: real
-lax-ECDSA entry parameterized by the EC verifier (W14) and the sighash
-function (W11), plus the Schnorr slot for Review 3. -/
+/-- The checker the interpreter binds the seam to for the checker assembly: real
+lax-ECDSA entry parameterized by the EC verifier and the sighash
+function, plus the Schnorr slot. -/
 def txCheckerOf (verifyEcdsa : ByteArray → ByteArray → ByteArray → Bool)
     (sighash : ByteArray → UInt8 → SigVersion → ByteArray) (hasAmount : Bool)
     (verifySchnorr : ByteArray → ByteArray → ByteArray → Bool)

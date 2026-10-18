@@ -3,23 +3,23 @@ import Bitcoin.Script.Tapscript.LeafVersion
 /-!
 # SCR-148 conformance — the 0xc0 leaf-version dispatch (Test-scoped)
 
-`Bitcoin.Script.Tapscript.LeafVersion`'s Test-side pins, per the D2 gate
+`Bitcoin.Script.Tapscript.LeafVersion`'s Test-side pins, per the axiom-pin gate
 (`native_decide` allowed under `Test/` only):
 
 * the `hops` hypothesis of `dispatch_v1_0xc0_opsuccess_ok` — the one-byte
   script `#[0xbb]` (OP_SUCCESS187) scans as OP_SUCCESSx
   (`opSuccessScan`, `IsOpSuccess` script.cpp:365-371) — pinned here,
   Test-scoped, so the core-file theorem stays kernel-terrified;
-* the dispatch outcome matrix: the 0xc0 arm executing into X04's
+* the dispatch outcome matrix: the 0xc0 arm executing into the interpreter delta layer's
   `executeWitnessScript` tapscript lanes (OP_SUCCESS `.ok` / OP_1 +
   2-item `.fail .cleanstack`) and the :1995-1998 non-0xc0 fall-through
   (DISCOURAGE_UPGRADABLE_TAPROOT_VERSION `.fail` / 0xc2 and 0xfa
   upgradable `.ok`).
 
 No official Core dispatch vectors exist for script-path spends
-(documented in X03's `Crypto/Taproot/Verify.lean` for the same
+(documented in the Taproot module's `Crypto/Taproot/Verify.lean` for the same
 `VerifyWitnessProgram` arm); the matrix is Core-:1988-by-inspection.
-Vector discipline as X04's `Test/Script/Tapscript/Delta.lean`.
+Vector discipline as the interpreter delta layer's `Test/Script/Tapscript/Delta.lean`.
 -/
 
 namespace Test.Script.Tapscript.LeafVersionTest
@@ -87,7 +87,7 @@ theorem dispatch_0xfa_upgradable_ok :
       (ByteArray.mk #[(0x51 : UInt8)]) [] default default default
       = VerifyOutcome.ok := by native_decide
 
-/-! ## Axiom footprints of the core-file pins (X04 style) -/
+/-! ## Axiom footprints of the core-file pins (the interpreter delta layer style) -/
 
 #print axioms Bitcoin.Script.Tapscript.isTapscriptLeaf_c0
 #print axioms Bitcoin.Script.Tapscript.isTapscriptLeaf_c1_parity

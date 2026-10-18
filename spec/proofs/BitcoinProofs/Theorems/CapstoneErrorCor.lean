@@ -3,8 +3,8 @@ import Bitcoin.Capstone.Block
 /-!
 # BitcoinProofs.Theorems.CapstoneError — P11: the proved error taxonomy (sorry-free)
 
-The W17 capstone (`Bitcoin.Capstone.Block`) rejects blocks through the
-`CapError` taxonomy — 19 constructors covering every Review-2 layer — and
+The capstone (`Bitcoin.Capstone.Block`) rejects blocks through the
+`CapError` taxonomy — 19 constructors covering every layer — and
 reports Core's exact reject strings via `CapError.reason`.  This module
 pins that report-level surface as theorems: every reject string is a
 concrete nonempty literal, the index-carrying constructors report their
@@ -17,7 +17,7 @@ C4 portfolio linkage:
 |----------|--------------|-------------------|
 | (ERR-001) | `reason_nonempty` | EVERY constructor reports a nonempty reject string (all 19; none restricted away) |
 | (ERR-002) | `reason_ser` … `reason_scriptFalse` | the 13 locally-owned + 2 index-carrying reject strings, `rfl`-pinned against Core's exact strings |
-| (ERR-003) | `reason_txCheck_vinEmpty` … `reason_block_txError`, `reason_txCheck_routes`, `reason_tx_stateless_routes` | the embedded-layer strings route to W02/W10/W12's own reason tables exactly |
+| (ERR-003) | `reason_txCheck_vinEmpty` … `reason_block_txError`, `reason_txCheck_routes`, `reason_tx_stateless_routes` | the embedded-layer strings route to the embedded modules' own reason tables exactly |
 | (ERR-004) | `reason_scriptFail_ignores_indices` / `reason_scriptFalse_ignores_indices` | the script reject strings do not depend on the tx/input indices (report-level honesty) |
 | (ERR-005) | `scriptFail_index_injectivity` / `scriptFalse_index_injectivity` | the index-carrying constructors are injective |
 | (ERR-006) | `reason_badCbLength_eq_cbLength` | the one string shared across layers ("bad-cb-length") is intentional, matching Core |
@@ -26,15 +26,15 @@ C4 portfolio linkage:
 
 Honesty notes:
 * `reason_nonempty` covers ALL 19 constructors.  The sub-reasons that
-  come from other reviews — `txCheckReason` (W10's 9 stateless strings)
-  and `rejectReason` (W10's 8 contextual strings) — are themselves
+  come from the embedded layers — `txCheckReason` (9 stateless strings)
+  and `rejectReason` (8 contextual strings) — are themselves
   proved nonempty here (`txCheckReason_nonempty`, `rejectReason_nonempty`),
   so no constructor had to be restricted away.
 * `reason` is deliberately NOT injective across layers: `badCbLength`
   (block structure, BLK-029) and `txCheck .cbLength` (stateless, TXV-006)
   both report "bad-cb-length", exactly as Core reuses the string at both
   call sites.  `reason_badCbLength_eq_cbLength` pins this as intended.
-* The taxonomy has 19 constructors (the package brief said 17; the
+* The taxonomy has 19 constructors (the package documentation said 17; the
   freeze in `Bitcoin.Capstone.Block` gained `blockMutated` in BLK-011).
 
 Axiom footprints (audited with `#print axioms`, pinned by `#guard_msgs`
@@ -46,14 +46,14 @@ namespace BitcoinProofs.Theorems.CapstoneError
 open Bitcoin.Capstone.Block Bitcoin.TxValidation Bitcoin.Consensus
 open Bitcoin.Interpreter Bitcoin.Serialization
 
-/-! ## The embedded layers' nonemptiness (W10 sub-taxonomies) -/
+/-! ## The embedded layers' nonemptiness (sub-taxonomies) -/
 
-/-- Every W10 stateless reject string is nonempty (9/9 literals,
+/-- Every stateless reject string is nonempty (9/9 literals,
 consensus/tx_check.cpp:23-68). -/
 theorem txCheckReason_nonempty (e : TxCheckError) : txCheckReason e ≠ "" := by
   cases e <;> simp only [txCheckReason] <;> decide
 
-/-- Every W10 contextual reject string is nonempty (8/8; the `stateless`
+/-- Every contextual reject string is nonempty (8/8; the `stateless`
 arm routes to `txCheckReason`, whose nonemptiness is the theorem above). -/
 theorem rejectReason_nonempty (e : TxError) : rejectReason e ≠ "" := by
   cases e with
@@ -94,7 +94,7 @@ theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
 
 /-! ## ERR-002: the 13 locally-owned strings + the decode/script strings -/
 
-/-- `CapError.ser` (W02 decode) reports Core's decode error. -/
+/-- `CapError.ser` (decode) reports Core's decode error. -/
 theorem reason_ser (e : SerError) :
     CapError.reason (.ser e) = "decode-error" := rfl
 
@@ -147,53 +147,53 @@ theorem reason_badVersion :
 theorem reason_badCbHeight :
     CapError.reason .badCbHeight = "bad-cb-height" := rfl
 
-/-- W09/W13/W14b script failure (real ECDSA checker): Core's
+/-- Script failure (real ECDSA checker): Core's
 script-verify error. -/
 theorem reason_scriptFail (i j : Nat) (e : ExecError) :
     CapError.reason (.scriptFail i j e) = "script-verify-error" := rfl
 
-/-- W09 script evaluated to false. -/
+/-- script evaluated to false. -/
 theorem reason_scriptFalse (i j : Nat) :
     CapError.reason (.scriptFalse i j) = "script-eval-false" := rfl
 
 /-! ## ERR-003: the embedded layers route to their own reason tables -/
 
-/-- W10 stateless routing: `txCheck` errors report `txCheckReason`
+/-- stateless routing: `txCheck` errors report `txCheckReason`
 verbatim. -/
 theorem reason_txCheck_routes (e : TxCheckError) :
     CapError.reason (.txCheck e) = txCheckReason e := rfl
 
-/-- W10 contextual routing: `tx` errors report `rejectReason` verbatim. -/
+/-- contextual routing: `tx` errors report `rejectReason` verbatim. -/
 theorem reason_tx_routes (e : TxError) :
     CapError.reason (.tx e) = rejectReason e := rfl
 
-/-- W12 fold routing: `block .txError` errors report `rejectReason`
+/-- fold routing: `block .txError` errors report `rejectReason`
 verbatim. -/
 theorem reason_block_txError (e : TxError) :
     CapError.reason (.block (.txError e)) = rejectReason e := rfl
 
-/-- W10 stateless errors embedded in `tx` still reach `txCheckReason`
+/-- stateless errors embedded in `tx` still reach `txCheckReason`
 (two-level routing through `rejectReason .stateless`). -/
 theorem reason_tx_stateless_routes (e : TxCheckError) :
     CapError.reason (.tx (.stateless e)) = txCheckReason e := rfl
 
-/-- A representative W10 stateless string through the capstone wrapper
+/-- A representative stateless string through the capstone wrapper
 (CVE-2018-17144's duplicate-input check). -/
 theorem reason_txCheck_inputsDuplicate :
     CapError.reason (.txCheck .inputsDuplicate) = "bad-txns-inputs-duplicate" := rfl
 
-/-- A representative W10 contextual string through the capstone wrapper
+/-- A representative contextual string through the capstone wrapper
 (tx_verify.cpp:174). -/
 theorem reason_tx_inputsMissingOrSpent :
     CapError.reason (.tx .badTxnsInputsMissingOrSpent)
       = "bad-txns-inputs-missingorspent" := rfl
 
-/-- W12's BIP30 string through the capstone wrapper
+/-- BIP30 string through the capstone wrapper
 (validation.cpp:2496-2511). -/
 theorem reason_block_bip30 :
     CapError.reason (.block .badTxnsBIP30) = "bad-txns-BIP30" := rfl
 
-/-- W12's coinbase-missing string through the capstone wrapper
+/-- coinbase-missing string through the capstone wrapper
 (ConnectBlock:2540-2545). -/
 theorem reason_block_cbMissing :
     CapError.reason (.block .badCbMissing) = "bad-cb-missing" := rfl
@@ -217,7 +217,7 @@ theorem reason_scriptFalse_ignores_indices (i i' j j' : Nat) :
 
 /-- **ERR-005**: `scriptFail` is injective — equal structured errors
 carry equal tx indices, equal input indices, and equal `ExecError`
-payloads (constructor injectivity, stronger than the brief's
+payloads (constructor injectivity, stronger than the documented
 index-only statement). -/
 theorem scriptFail_index_injectivity {i i' j j' : Nat} {e e' : ExecError}
     (h : CapError.scriptFail i j e = CapError.scriptFail i' j' e') :

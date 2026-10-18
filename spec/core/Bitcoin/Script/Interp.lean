@@ -4,15 +4,15 @@ import Bitcoin.Data.Script
 # Bitcoin.Script.Interp
 
 A fuel-limited interpreter for the PoC opcode subset.
-Ground truth: `EvalScript` / `src/script/interpreter.cpp` (workstream B2
-owns the complete semantics; this file only demonstrates the
+Ground truth: `EvalScript` / `src/script/interpreter.cpp` (the complete semantics is not modeled here;
+this file only demonstrates the
 architecture: AST in → stack machine out, every failure explicit).
 
 Simplifications vs Core (documented, deliberate):
   * `CScriptNum` here is unsigned LE with minimal encoding (Core: int64,
     little-endian, sign bit, 4-byte default carry limit).
   * `OP_CHECKSIG` is a **stub**: pops `(sig, pubkey)` and pushes `0x01`
-    iff both are nonempty. Real ECDSA/Schnorr is workstream C2.
+    iff both are nonempty. Real ECDSA/Schnorr is not modeled here.
   * No OP_CODESEPARATOR, no if/else branches, no altstack, no P2SH.
 -/
 
@@ -84,7 +84,7 @@ def step : ScriptInstr → Stack → Except InterpError Stack
         .ok (bytesOfNum (a + b) :: rest)
     | _ => .error .stackUnderflow
   | .checkSig, st =>
-    -- STUB: real BIP66 DER + ECDSA/Schnorr verification (workstream C2).
+    -- STUB: real BIP66 DER + ECDSA/Schnorr verification (not modeled here).
     match st with
     | _ :: _ :: rest => .ok (pushBool (st.head!.size ≠ 0 ∧ st.tail!.head!.size ≠ 0) :: rest)
     | _ => .error .stackUnderflow

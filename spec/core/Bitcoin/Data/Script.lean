@@ -27,7 +27,7 @@ instance : BEq Script where
   beq a b := bytesBEq a.bytes b.bytes
 
 /-- Opcodes understood by the PoC interpreter (a strict subset;
-the full opcode model is workstream B2). -/
+the full opcode model is not modeled here). -/
 inductive ScriptInstr where
   | push (data : ByteArray)      -- OP_0 / OP_1..OP_75 direct pushes
   | op1negate                    -- 0x4f

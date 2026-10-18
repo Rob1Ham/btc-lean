@@ -3,7 +3,7 @@ import Bitcoin.Ledger.Interface
 import BitcoinProofs.Theorems.LedgerCor
 
 /-!
-# BitcoinProofs.Theorems.CapstoneConservationCor — P15 (W17): conservation corollaries on the capstone tier (sorry-free)
+# BitcoinProofs.Theorems.CapstoneConservationCor — P15: conservation corollaries on the capstone tier (sorry-free)
 
 Every theorem in this file is an INSTANTIATION or BRIDGE over already
 proved, sorry-free upstream theorems; no new consensus model is
@@ -11,28 +11,28 @@ introduced and no upstream definition is restated.
 
 Upstream (all sorry-free):
 
-* `Bitcoin.Ledger.chainFeesL_le_blockDrawn` (W12/W15, THM-037 upper
+* `Bitcoin.Ledger.chainFeesL_le_blockDrawn` (THM-037 upper
   half, key-generic in `kf : Tx → Key`) — THE conservation law of the
   executable assoc-list tier: the total fees `chainFeesL` certifies
   while connecting `txs` never exceed the value in the starting UTXO
   list plus the value the block's own outputs draw.
 * `Bitcoin.Ledger.chainFees_nonneg` + `chainFees_viewOf` — the fee fold
   is nonnegative (TXV-025 lineage).
-* `Bitcoin.TxValidation.checkTxInputs_ok_conservation` (W10, THM-036
+* `Bitcoin.TxValidation.checkTxInputs_ok_conservation` (THM-036
   executable form) — per tx, an adjudicated fee satisfies
   `totalIn = getValueOut + fee` and `fee ≥ 0`.
-* `BitcoinProofs.Theorems.LedgerCor` (W15) — THM-006 output-MoneyRange
+* `BitcoinProofs.Theorems.LedgerCor` — THM-006 output-MoneyRange
   and TXV-007 no-duplicate-prevouts, used here to discharge the fee
   bound's per-tx hypotheses from the stateless gate that the capstone
   pipeline itself enforces (`BLK-030` inside `applyTx`).
 
 ## C4 / rule-linkage table (axiom footprints audited via `#print axioms`
-in the W17 P15 scratch area; results recorded below)
+in the P15 scratch area; results recorded below)
 
 | source   | theorem here | statement (short) | axioms |
 |----------|--------------|-------------------|--------|
 | BLK-005 keying | `hkey_txidKey` | the fee bound's "key ≠ null" hypothesis at `Bitcoin.Capstone.Block.txidKey` reduces to `txidOf tx ≠ zeroBytes 32` | propext, Classical.choice, Quot.sound |
-| (keying) | `hkey_txidPreimageKey` | same at W12's `txidPreimageKey`, from `serTx tx ≠ zeroBytes 32` | propext, Classical.choice, Quot.sound |
+| (keying) | `hkey_txidPreimageKey` | same at `txidPreimageKey`, from `serTx tx ≠ zeroBytes 32` | propext, Classical.choice, Quot.sound |
 | THM-037↑ | `fees_le_blockDrawn_txidKey` | the conservation/fee bound instantiated at the CAPSTONE keying `txidKey` | propext, Classical.choice, Quot.sound |
 | THM-037↑ | `fees_le_blockDrawn_txidPreimageKey` | the same bound at `txidPreimageKey` | propext, Classical.choice, Quot.sound |
 | THM-037↑ | `fees_le_blockDrawn_keying_independent` | BOTH keyings in one statement: the law is keying-independent | propext, Classical.choice, Quot.sound |
@@ -40,7 +40,7 @@ in the W17 P15 scratch area; results recorded below)
 | TXV-025+THM-037↑ | `capstone_fees_sandwich_txidKey` | `0 ≤ fees ≤ listTotal l + blockDrawn txs` at `txidKey` | propext, Classical.choice, Quot.sound |
 | THM-036  | `tx_conservation_at_view` | per-tx MINT law at the CapState assoc-list view: `sumAtL l (prevouts) = getValueOut + fee ∧ 0 ≤ fee` | propext, Classical.choice, Quot.sound |
 | (bridge) | `applyTxs_ok_checkTx_all` | `applyTxs` success ⇒ every tx passed the BLK-030 stateless gate | propext, Classical.choice, Quot.sound |
-| (bridge) | `applyTxs_ok_applyBlockL` | the CapReport-path UTXO list IS W12's fold: `applyBlockL l txidKey txs height = ok l'` | propext, Classical.choice, Quot.sound |
+| (bridge) | `applyTxs_ok_applyBlockL` | the CapReport-path UTXO list IS fold: `applyBlockL l txidKey txs height = ok l'` | propext, Classical.choice, Quot.sound |
 | (bridge) | `capReport_utxo_value_nonneg` | every coin of the CapReport path has nonneg value (INV-030 lineage) | propext, Classical.choice, Quot.sound |
 | (bridge) | `capReport_utxo_total_le` | `listTotal final ≤ listTotal initial + blockDrawn txs` (conservation, upper half, on the RESULT list) | propext, Classical.choice, Quot.sound |
 | TXV-007  | `hasDupPrevouts_eq_false_nodup` | the boolean dup check implies `List.Nodup` (bridge to the fee bound's hypothesis) | propext, Classical.choice, Quot.sound |
@@ -59,7 +59,7 @@ strongest honest mint law at this tier is the per-tx fee identity
 (`capstone_fees_sandwich_txidKey`). A subsidy-in-fold extension is a
 missing upstream DEFINITION, not a missing proof.
 
-Axiom footprints are checked by `#print axioms` in the W17 scratch area
+Axiom footprints are checked by `#print axioms` in the scratch area
 (NOT pinned in this file, per the P15 work order); the table above
 records the audited results.
 -/
@@ -130,7 +130,7 @@ theorem hkey_txidKey (tx : Tx) (hne : txidOf tx ≠ zeroBytes 32) (k : UInt32) :
         = (bytesBEq (txidOf tx) (zeroBytes 32) && (k == NULL_INDEX)) from rfl,
     hbe, Bool.false_and]
 
-/-- **W12 keying**: at `txidPreimageKey` the key is `⟨serTx tx, k⟩`; same
+/-- **Keying**: at `txidPreimageKey` the key is `⟨serTx tx, k⟩`; same
 reduction from the preimage's collision-freeness. -/
 theorem hkey_txidPreimageKey (tx : Tx) (hne : serTx tx ≠ zeroBytes 32) (k : UInt32) :
     ((txidPreimageKey tx) OutPoint.null k == OutPoint.null) = false := by
@@ -146,7 +146,7 @@ theorem hkey_txidPreimageKey (tx : Tx) (hne : serTx tx ≠ zeroBytes 32) (k : UI
 /-! ## 2. THM-037 (upper half) at the capstone keyings -/
 
 /-- **THM-037 (upper half) at the CAPSTONE keying** (`txidKey` — the real
-txid, the keying W17's anchor run uses): connecting `txs` against the
+txid, the keying anchor run uses): connecting `txs` against the
 UTXO list `l` certifies fees bounded by the list's value plus the value
 the block's own outputs draw. Pure instantiation of the key-generic
 `chainFeesL_le_blockDrawn`. -/
@@ -162,7 +162,7 @@ theorem fees_le_blockDrawn_txidKey (l : List (OutPoint × Coin)) (txs : List Tx)
   intro tx hmem k _k_lt _hus
   exact hkey_txidKey tx (htxid tx hmem) (UInt32.ofNat k)
 
-/-- **THM-037 (upper half) at W12's keying** (`txidPreimageKey`): the
+/-- **THM-037 (upper half) at keying** (`txidPreimageKey`): the
 same conservation bound — the fee law does not care which injective
 keying the fold uses. -/
 theorem fees_le_blockDrawn_txidPreimageKey (l : List (OutPoint × Coin)) (txs : List Tx)
@@ -179,7 +179,7 @@ theorem fees_le_blockDrawn_txidPreimageKey (l : List (OutPoint × Coin)) (txs : 
 
 /-- **Keying independence (P15 item 2)**: under identical structural
 hypotheses, the conservation bound holds at BOTH keyings — the capstone
-`txidKey` (real txid) and the W12 `txidPreimageKey` — in one statement.
+`txidKey` (real txid) and the `txidPreimageKey` — in one statement.
 The only difference between the two instances is the per-key hash
 collision-freeness condition each keying needs. -/
 theorem fees_le_blockDrawn_keying_independent (l : List (OutPoint × Coin)) (txs : List Tx)
@@ -198,7 +198,7 @@ theorem fees_le_blockDrawn_keying_independent (l : List (OutPoint × Coin)) (txs
 /-! ## 3. The fee sandwich (nonneg + upper bound) -/
 
 /-- The executable fee fold is nonnegative, for ANY keying (pure
-instance of W12's `chainFees_nonneg`, transferred to the assoc-list tier
+instance of `chainFees_nonneg`, transferred to the assoc-list tier
 by `chainFees_viewOf`). -/
 theorem chainFeesL_nonneg (l : List (OutPoint × Coin)) (kf : Tx → Key)
     (txs : List Tx) (height : UInt32) : 0 ≤ chainFeesL l kf txs height := by
@@ -223,12 +223,12 @@ theorem capstone_fees_sandwich_txidKey (l : List (OutPoint × Coin)) (txs : List
 
 /-! ## 4. The per-tx mint law at the capstone UTXO view -/
 
-/-- **THM-036 at the capstone tier (per-tx mint law)**: when the W10
+/-- **THM-036 at the capstone tier (per-tx mint law)**: when the
 contextual check adjudicates fee `fee` for `tx` against the assoc-list
 view `viewOf l` (exactly the view `applyTxStepL` consults), the value
 drawn from the list at the tx's prevouts equals the outputs' value plus
 the fee, and the fee is nonnegative. This is `checkTxInputs_ok_conservation`
-transferred to the executable tier by W12's `totalIn_eq_sumAtL` bridge. -/
+transferred to the executable tier's `totalIn_eq_sumAtL` bridge. -/
 theorem tx_conservation_at_view (l : List (OutPoint × Coin)) (tx : Tx) (height : UInt32)
     (fee : Amount) (h : checkTxInputs tx (viewOf l) height = Except.ok fee) :
     sumAtL l (tx.vin.map (·.prevout)) = tx.getValueOut + fee ∧ 0 ≤ fee := by
@@ -236,17 +236,17 @@ theorem tx_conservation_at_view (l : List (OutPoint × Coin)) (tx : Tx) (height 
   rw [totalIn_eq_sumAtL] at hcons
   exact ⟨hcons, hfee⟩
 
-/-! ## 5. Bridge: the CapReport path IS the W12 ledger fold
+/-! ## 5. Bridge: the CapReport path IS the ledger fold
 
 `validateBlock`'s per-tx stage (`applyTxs`) interleaves the script layer
 with the ledger steps `applyTxStepL l tx (txidKey tx) height`. These
-lemmas show that on success the state thread is EXACTLY W12's
+lemmas show that on success the state thread is EXACTLY
 `applyBlockL` fold at the capstone keying — so the CapReport-path UTXO
 list is the assoc list every assoc-tier conservation theorem talks about
 (P15 item 4), and the assoc-tier list invariants transfer to it. -/
 
 /-- Step inversion: `applyTx` success ⇒ the ledger step succeeded with
-exactly W12's `applyTxStepL` at the capstone keying. (Proof: normalize
+exactly `applyTxStepL` at the capstone keying. (Proof: normalize
 the do-block's CPS join points, then split the stateless-gate match, the
 coinbase ite and the script-check Except; every non-ledger path ends in a
 `throw`, contradicting the `ok` hypothesis.) -/
@@ -352,7 +352,7 @@ theorem applyTxs_ok_checkTx_all (height : UInt32) :
       · exact ih (i + 1) (okN + a) (unjN + b) l₁ l' okN' unjN' htail t hmem
 
 /-- **Bridge (P15 item 4, fold form)**: on `applyTxs` success, the final
-UTXO list of the CapReport path is EXACTLY W12's BIP30-free inner fold
+UTXO list of the CapReport path is EXACTLY the BIP30-free inner fold
 `applyBlockFoldL` at the capstone keying `txidKey` — the two tiers run
 the same per-tx computation. -/
 theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
@@ -375,7 +375,7 @@ theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
       exact ih (i + 1) (okN + a) (unjN + b) l₁ l' okN' unjN' htail
 
 /-- **Bridge (P15 item 4)**: on `applyTxs` success and a quiet pre-block
-BIP30 gate, the final UTXO list of the CapReport path is EXACTLY W12's
+BIP30 gate, the final UTXO list of the CapReport path is EXACTLY
 `applyBlockL` fold at the capstone keying `txidKey`. The gate hypothesis
 is REAL post-D4c-2: `applyBlockL` runs Core 2466-2475's pristine
 pre-block overlap check, while the capstone `applyTxs` tier does not
@@ -489,7 +489,7 @@ theorem hasDupPrevouts_eq_false_nodup (vin : List TxIn)
 /-- Per-index form of THM-006's per-output law: passing the stateless
 check puts every output value in MoneyRange, in particular nonnegative
 (CVE-2010-5139 defense, tx_check.cpp:37-38). The private bridge from
-`checkTransaction = none` to the output loop mirrors W15's
+`checkTransaction = none` to the output loop mirrors
 `LedgerCor.checkOutputs_none_of_checkTransaction` (private there;
 dedup candidate). -/
 theorem output_values_nonneg_of_checkTx_none (tx : Tx) (h : checkTransaction tx = none) :
@@ -594,7 +594,7 @@ private theorem validateBlock_ok_inv (raw : ByteArray) (st : CapState) (r : CapR
                                   exact ⟨hd, txs, utxo', okN, unjN, heq, hap, rfl⟩
 
 /-- **Bridge at the full pipeline (P15 item 4)**: a block that
-`validateBlock` accepts has its report UTXO list produced by W12's
+`validateBlock` accepts has its report UTXO list produced by the
 `applyBlockL` fold at the capstone keying `txidKey`, over the txs the
 decoder extracted — the executable capstone tier and the proved ledger
 tier are the same fold. -/

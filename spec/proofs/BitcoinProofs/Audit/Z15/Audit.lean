@@ -3,27 +3,15 @@ import Bitcoin.Ledger.Interface
 import Bitcoin.Capstone.Block
 
 /-!
-# Z15 dark-corner audit — coinbase maturity 99/100 + BIP34 height push (W4 suite)
+# Z15 dark-corner audit — coinbase maturity 99/100 + BIP34 height push
 
-NEW file, owned by Z15 (recovered by kicked continuation Z15-2,
-2026-10-16/17). Recovery note: the Z15 predecessor landed ZERO commits;
-this file was recovered UNCOMMITTED and NEVER-COMPILED (scratch
-build1.log empty; first compile = 2 errors, missing `DecidableEq
-(Except TxError Amount)` — fixed with the suite `instDecEqExcept` shim,
-idiom E01/B07/Y01/Y02/Y13). Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z15/` (`crosscheck.py`; the
-predecessor's final probe looped `range(0, 2**32)` — NEVER completed —
-bounded rerun `run2.log` EXIT=0: push cross-check PASS over 85545
-heights [0..65535 exhaustive + 20k random + edge cases], maturity
-cross-check PASS, 20k-case bip34Ok gate fuzz PASS vs a Core-faithful
-`CScriptNum::getvch` + `CScript::operator<<` mirror).
-Build trail: build2.log = 2 errors (pre-shim); build3.log =
-`lake env lean` LEAN_EXIT=0, 0 output (Y10/RC02 B04-route, flock -w
-timed out 2x, 257-waiter warzone); Audit.olean written green 23:40:38
-by an in-flight holder's lake run, 47s after the last source edit.
-Findings: `spec/db/findings-w4/Z15.md`.
+2026-10-16/17. Python3 probes: `crosscheck.py` — push
+cross-check PASS over 85545 heights [0..65535 exhaustive + 20k random
++ edge cases], maturity cross-check PASS, 20k-case bip34Ok gate fuzz
+PASS vs a Core-faithful `CScriptNum::getvch` + `CScript::operator<<`
+mirror. `lake env lean` LEAN_EXIT=0 with 0 output.
 
-F-Z15-002 (see findings): Core's `CScript() << nHeight`
+F-Z15-002: Core's `CScript() << nHeight`
 (validation.cpp:4162) is `push_int64` (script/script.h:434-448 @
 c50817f): heights {1..16} push a single OP_N OPCODE (0x51..0x60), not
 a length-prefixed CScriptNum push. Lean `cbHeightPush` implements only
@@ -159,7 +147,7 @@ height ≥ 227931, and Lean gates on the same `BIP34_HEIGHT ≤ height`. -/
 example : cbHeightPush 227931 = ([0x03, 0x5B, 0x7A, 0x03] : List UInt8).toByteArray := by
   rfl
 
-/-- Real anchor 481824 (SegWit activation, W17 capstone run). -/
+/-- Real anchor 481824 (SegWit activation, capstone run). -/
 example : cbHeightPush 481824 = ([0x03, 0x20, 0x5A, 0x07] : List UInt8).toByteArray := by
   rfl
 

@@ -1,7 +1,7 @@
 import Bitcoin.Ledger.Interface
 
 /-! # PDW58C.lean — TOP-313: INV-117 disconnect (reverse transition)
-(PDW58, review RC29). Row face for `Bitcoin.Ledger.undoCoins`
+(PDW58, RC29). Row face for `Bitcoin.Ledger.undoCoins`
 (validation.cpp:DisconnectBlock:2178-2247 @ cce32b168).
 Route B: zero core writes. -/
 

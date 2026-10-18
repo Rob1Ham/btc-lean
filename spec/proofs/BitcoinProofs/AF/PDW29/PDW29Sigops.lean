@@ -1,10 +1,19 @@
 import Bitcoin.Block.Sigops
+import Bitcoin.Interpreter.Rules
 
 /-! # PDW29Sigops.lean — TOP-141..145, Sigops pair BLK-033 / BLK-035
 
 Route B: zero core writes; tags ride the theorems below.
 BLK-033 = `GetLegacySigOpCount` (tx_verify.cpp:118-130); BLK-035 =
-`GetTransactionSigOpCost` (tx_verify.cpp:149-168). -/
+`GetTransactionSigOpCost` (tx_verify.cpp:149-168).
+
+Scope note (re-audit): `Bitcoin.Block.Sigops.p2shSigOpCount` and
+`witnessInputSigOps` call the flat `sigOpScan` (`fAccurate = false`).
+Core's P2SH and P2WSH terms call `GetSigOpCount(true)`
+(`Bitcoin.Interpreter.sigOpCount … true`), which decodes the preceding
+`OP_N`. The BLK-035 faces here are therefore the block model's
+decomposition, not an exact Core cost; the divergence is pinned by
+`p2sh_flat_vs_accurate_witness`. -/
 
 namespace BitcoinProofs.AF.PDW29
 
@@ -171,13 +180,29 @@ theorem sigOpWeight_spec :
 
 /-! ## BLK-035 — full sigop cost -/
 
-/-- Cost decomposition: `4 × (legacy + P2SH) + witness` (witness weight 1). -/
+/-- Cost decomposition (block model): `4 × (legacy + P2SH) + witness`
+(witness weight 1). The P2SH/witness terms are the model's flat scans;
+see the scope note and `p2sh_flat_vs_accurate_witness`. -/
 @[rule "BLK-035"]
 theorem txSigOpCost_decompose_row (u : Bitcoin.Ledger.UtxoSet) (tx : Bitcoin.Data.Tx) :
     txSigOpCost u tx =
       4 * (legacySigOpCountTx tx + p2shSigOpCount u tx) + witnessSigOps u tx := by
   rw [txSigOpCost_decompose]
   simp [WITNESS_SCALE_FACTOR]
+
+/-- **BLK-035 residual witness**: the canonical P2SH redeem script
+`OP_1 OP_CHECKMULTISIG` counts 20 under the block model's flat scanner
+(`fAccurate = false`) but 1 under Core's accurate `GetSigOpCount(true)`,
+which decodes the preceding `OP_1`. This is the exact gap between
+`Bitcoin.Block.Sigops.p2shSigOpCount`/`witnessInputSigOps` and Core's
+P2SH/P2WSH terms. -/
+@[rule "BLK-035"]
+theorem p2sh_flat_vs_accurate_witness :
+    legacySigOpCountScript ⟨ByteArray.mk #[0x51, 0xae]⟩ = 20 ∧
+    Bitcoin.Interpreter.sigOpCount
+      ((Bitcoin.Interpreter.parseWire (ByteArray.mk #[0x51, 0xae])).getD [])
+      true = 1 := by
+  decide
 
 /-- Coinbase: P2SH and witness terms are excluded ⇒ exactly 4×legacy. -/
 @[rule "BLK-035"]

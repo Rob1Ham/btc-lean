@@ -4,11 +4,11 @@ import Bitcoin.Ledger.Interface
 import Bitcoin.Capstone.Block
 
 /-!
-# BitcoinProofs.ErrMap.E01.Test — error-taxonomy completeness (Review-6, E01)
+# BitcoinProofs.ErrMap.E01.Test — error-taxonomy completeness (E01)
 
 Core-side scope (pin `cce32b168`, DECISIONS.md D-001): the "Result" enums
 consumed by consensus validation live in `src/consensus/validation.h`
-(NOT `src/consensus.h`, which holds only constants — brief imprecision
+(NOT `src/consensus.h`, which holds only constants — specification imprecision
 F-E01-001):
 
 * `TxValidationResult` — 13 values, `TX_RESULT_UNSET` .. `TX_UNKNOWN`
@@ -21,8 +21,7 @@ Our side: `TxCheckError` (9, `Bitcoin.Consensus.TxCheck`), `TxError`
 
 This file pins, per enum value: the exact Core reject string, and one
 decisive reject vector driving the real validators. Full mapping table
-(with no-row justifications for the mempool/policy-only values) is in
-`spec/db/findings-w6/E01.md`.
+(with no-row justifications for the mempool/policy-only values) is recorded here.
 -/
 
 namespace BitcoinProofs.ErrMap.E01

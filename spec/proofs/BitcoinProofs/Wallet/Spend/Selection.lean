@@ -13,9 +13,11 @@ model supports.
 
 The claims are deliberately limited to that model:
 
-* Selection is a pure function of the target and the offered amount list;
-  there is no RNG, no mutable candidate set and no algorithm parameter
-  other than the two modelled constructors.
+* The two strategies are equations in the target and the offered amount
+  list; there is no RNG, mutable candidate set, or algorithm parameter
+  other than the two modelled constructors.  Determinism is therefore
+  definitional and is not restated as a separate `f x = f x` theorem:
+  the theorems below characterize coverage, sums, fees and change instead.
 * A selection that succeeds (the non-negative target is at most the total
   offered value, which is exactly the precondition of the committed
   `largestFirst_valid` / `smallestFit_valid` theorems) covers the target.
@@ -41,7 +43,7 @@ The claims are deliberately limited to that model:
   (created change is above dust); non-negativity additionally needs
   `0 ≤ minViableChange`.
 
-Core anchors are pinned to `cce32b168` under `build/scratch/btc/core-src`:
+Core anchors are pinned to `cce32b168` at the pinned sources:
 
 * `COutput::effective_value = txout.nValue - fee`, with
   `fee = feerate.GetFee(input_bytes)`:
@@ -93,13 +95,13 @@ private theorem int_add_le_add_left (a b c : Int) (h : b ≤ c) :
 private theorem int_sub_le_sub_right (a b c : Int) (h : a ≤ b) :
     a - c ≤ b - c := by omega
 
-/-! ## Determinism -/
+/-! ## Strategy dispatch -/
 
 /-- Run either committed selection strategy.  This proof-side wrapper does
-not modify the model; it exists so determinism can be stated once for both
-`SelectionAlgorithm` constructors.  Core analogue: the deterministic
-candidate loops of `SelectCoins` are out of scope here; only the two pure
-amount-only strategies are covered. -/
+not modify the model; it lets the coverage and bound theorems below be
+stated once for both `SelectionAlgorithm` constructors.  Core analogue:
+the candidate loops of `SelectCoins` are out of scope here; only the two
+pure amount-only strategies are covered. -/
 def runSelection (alg : SelectionAlgorithm) (target : Amount)
     (coins : List Amount) : List Amount :=
   match alg with
@@ -114,27 +116,9 @@ def runSelection (alg : SelectionAlgorithm) (target : Amount)
     (coins : List Amount) :
     runSelection .smallestFit target coins = smallestFit target coins := rfl
 
-/-- Each strategy is a pure Lean function, so it returns the same selected
-list every time it is called on the same target and pool.  This is the
-model's full determinism claim; it says nothing about Core's RNG-driven
-SRD or about wallet iteration order. -/
-theorem largestFirst_deterministic (target : Amount)
-    (coins : List Amount) :
-    largestFirst target coins = largestFirst target coins := rfl
-
-/-- `smallestFit` is deterministic in the same pure-function sense. -/
-theorem smallestFit_deterministic (target : Amount)
-    (coins : List Amount) :
-    smallestFit target coins = smallestFit target coins := rfl
-
-/-- The wrapper over both algorithms is deterministic. -/
-theorem runSelection_deterministic (alg : SelectionAlgorithm)
-    (target : Amount) (coins : List Amount) :
-    runSelection alg target coins = runSelection alg target coins := rfl
-
 /-- Equal algorithm, target and pool give equal selections.  This is the
-congruence form of determinism used when a caller has already identified
-two inputs extensionally. -/
+congruence form used when a caller has already identified two inputs
+extensionally; it is a rewriting rule, not a determinism claim. -/
 theorem runSelection_congr {alg₁ alg₂ : SelectionAlgorithm}
     {target₁ target₂ : Amount} {coins₁ coins₂ : List Amount}
     (ha : alg₁ = alg₂) (ht : target₁ = target₂) (hc : coins₁ = coins₂) :

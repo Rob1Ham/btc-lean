@@ -2,17 +2,17 @@ import Bitcoin.Crypto.Seam.Hash
 import Bitcoin.Crypto.Ecdsa.Verify
 
 /-!
-# Bitcoin.Crypto.Schnorr.TaggedHash — BIP340/BIP341 tagged hashes (X02)
+# Bitcoin.Crypto.Schnorr.TaggedHash — BIP340/BIP341 tagged hashes (the Schnorr module)
 
 `tagged_hash(tag, msg) = SHA256(SHA256(tag) ‖ SHA256(tag) ‖ msg)`
 (BIP340 §design: "domain separation via tagged hashes"; BIP341 §hash
 computation reuses the same construction for TapTweak/TapLeaf/TapSighash).
 
 Built ON the existing core SHA-256 (`Bitcoin.Crypto.Seam.Hash.sha256`,
-the vendored C2 PoC — W13 proved `sha256_size : … = 32` and verified
-18/18 digests against python hashlib; X02 does NOT reimplement it).
+the vendored prototype — proved `sha256_size : … = 32` and verified
+18/18 digests against python hashlib; the Schnorr module does NOT reimplement it).
 
-The 32-byte integer encodings fed into the challenge hash reuse W14b's
+The 32-byte integer encodings fed into the challenge hash reuse
 `Ecdsa.Verify.beBytes32` (big-endian, `secp256k1_eckey_pubkey_serialize`
 payload convention) — BIP340 writes all integers in these hashes as
 fixed-width big-endian (`bytes(x)`, §design §"Specification").
@@ -39,14 +39,14 @@ completeness — verification itself never uses it). -/
 def tagBip0340Nonce : ByteArray := "BIP0340/nonce".toUTF8
 
 /-- BIP341 output-key tweak tag (bip-0341 §3: `t = hashTapTweak(…)`) —
-X03's entry point into this module. -/
+the Taproot module's entry point into this module. -/
 def tagTapTweak : ByteArray := "TapTweak".toUTF8
 
-/-- BIP341 tapscript-leaf tag (bip-0341 §3: `hashTapLeaf(…)`) — X03/X04. -/
+/-- BIP341 tapscript-leaf tag (bip-0341 §3: `hashTapLeaf(…)`) — the Taproot and interpreter delta layers. -/
 def tagTapLeaf : ByteArray := "TapLeaf".toUTF8
 
 /-- BIP342 signature-message tag (bip-341 §3: `hashTapSighash(…)`) —
-the sighash lane X03/X04 own. -/
+the sighash lane the Taproot and interpreter delta layers own. -/
 def tagTapSighash : ByteArray := "TapSighash".toUTF8
 
 /-! ## The BIP340 challenge: e's preimage -/
@@ -62,7 +62,7 @@ bytes(r) ‖ bytes(P.x) ‖ m)` (bip-0340 step 5); the verifier reduces mod `n`.
 def challengeTagged (r px : Nat) (msg : ByteArray) : ByteArray :=
   taggedHash tagBip0340Challenge (challengePre r px msg)
 
-/-! ## Size contracts (mirror W13's `sha256_size` discipline, B5) -/
+/-! ## Size contracts (mirror the seam layer's `sha256_size` discipline, B5) -/
 
 /-- Concatenation size: `ByteArray` append is elementwise. -/
 theorem append_size (a b : ByteArray) : (a ++ b).size = a.size + b.size := by

@@ -1,7 +1,7 @@
 import Bitcoin.Block.Params
 import Bitcoin.Block.Connect
 
-/-! # PDW49.lean — proof-promotion review RC27, items TOP-161..165
+/-! # PDW49.lean — RC27, items TOP-161..165
 (PDW49, 2026-10-17).
 
 D-PARAMS c-true status-debt head of `Bitcoin/Block/Params.lean`:

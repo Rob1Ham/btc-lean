@@ -96,14 +96,33 @@ theorem blockWeight_ge_header (txs : List Tx) (totalSize : Nat) :
 
 /-! ## SWT-017: BIP141 weight/witness-discount algebra -/
 
-/-- **SWT-017**: `4 × stripped = weight + witnessDiscount`, i.e. weight is
-`4 × base` minus the segwit witness discount `stripped − total`
-(consensus.h:13-15; subtraction-free form, `total ≤ stripped`). -/
+/-- **SWT-017**: for a witness-bearing block (`stripped ≤ total`), the
+BIP141 weight is `4 × stripped + (total − stripped)`
+(consensus.h:13-15; equivalently `3 × stripped + total`).  The old
+statement assumed `total ≤ stripped`, which is the reverse of the witness
+case. -/
 @[rule "SWT-017"]
 theorem blockWeight_witness_discount (txs : List Tx) {totalSize : Nat}
-    (h : totalSize ≤ strippedSize txs) :
-    4 * strippedSize txs = blockWeight txs totalSize
-      + (strippedSize txs - totalSize) := by
+    (h : strippedSize txs ≤ totalSize) :
+    blockWeight txs totalSize =
+      4 * strippedSize txs + (totalSize - strippedSize txs) := by
+  rw [blockWeight_row]; omega
+
+/-- **SWT-017** regression (witness-bearing block): a 100-byte stripped
+block with a 150-byte total size has weight 450 and witness discount 50;
+the corrected identity holds while the old `total ≤ stripped` hypothesis
+does not. -/
+@[rule "SWT-017"]
+theorem blockWeight_witness_discount_regression (txs : List Tx)
+    (h : strippedSize txs = 100) :
+    blockWeight txs 150 = 450 := by
+  rw [blockWeight_row, h]
+
+/-- **SWT-017** legacy (non-witness) face: when total and stripped agree,
+the discount is zero and `weight = 4 × stripped`. -/
+@[rule "SWT-017"]
+theorem blockWeight_no_witness (txs : List Tx) :
+    blockWeight txs (strippedSize txs) = 4 * strippedSize txs := by
   rw [blockWeight_row]; omega
 
 /-! ## INV-093: the 4M weight gate -/

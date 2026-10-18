@@ -3,13 +3,10 @@ import Bitcoin.Interpreter.Defs
 /-!
 # INV045DisabledCor — T12/INV-045 promotion proof (P16)
 
-PDW2 (proof-promotion review 2), recovery review 2, 2026-10-17.
 Row INV-045 (disabled opcodes fail unconditionally,
 CVE-2010-5137; core anchor interpreter.cpp:472-483 @cce32b168).
 
-Statement P16 = `stepBody_disabled_ne_ok`, restated 1:1 verbatim
-from `spec/db/findings-af/PDW2Check.lean` (the PDW2 mirror of the
-PD03 statement registry).
+Statement P16 = `stepBody_disabled_ne_ok`, restated 1:1 verbatim.
 
 Semantics: if `op`'s wire byte is in the `disabledWire` set, then NO
 `stepBody` transition can ever land in `.ok` — every path out of the

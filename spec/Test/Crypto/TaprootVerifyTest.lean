@@ -180,26 +180,34 @@ def checkScriptPath : IO Nat := do
     IO.println "FAIL spk-synth-accept: parity derivation returned none"
     pure 1
   | some control =>
-    -- accept: the minimal 33-byte (m=0) control block over the tree's own leaf
+    -- accept: the minimal 33-byte (m=0) control block over the tree's own leaf.
+    -- The program is Core's x-only output key q = x(Q); the verifier now binds
+    -- q to this argument (the old empty-program vector relied on the gap).
+    let program :=
+      match tweakedKey control (some root1) with
+      | some (xQ, _) => natToBytesBE 32 xQ
+      | none => ByteArray.empty
     let tl := scriptPathTapleaf control script1
     let acceptOk :=
       control.size == 33 &&
       controlBlockSizeOk control &&
-      scriptPathSpend control script1 (fromHex "") ==
+      scriptPathSpend control script1 program ==
         some (tl, true, true)
     unless acceptOk do
       IO.println s!"FAIL spk-synth-accept: {acceptOk}"
     unless acceptOk do fails := fails + 1
-    -- reject: wrong parity bit (control[0] flipped)
+    -- reject: wrong parity bit (control[0] flipped); the program is still the
+    -- correct q, so only the parity half fails.
     let controlWrong := serU8 ((0xc0 + (1 - (control.get! 0).toNat % 2)).toUInt8) ++ pk1
-    let wrongOk := scriptPathSpend controlWrong script1 (fromHex "") ==
+    let wrongOk := scriptPathSpend controlWrong script1 program ==
       some (scriptPathTapleaf controlWrong script1, false, true)
     unless wrongOk do
       IO.println s!"FAIL spk-synth-wrongparity: {wrongOk}"
     unless wrongOk do fails := fails + 1
-    -- reject: one corrupt path node (65 bytes ⇒ m = 1, garbage root)
+    -- reject: one corrupt path node (65 bytes ⇒ m = 1, garbage root). The
+    -- original q no longer matches the path-recomputed output key.
     let controlBad := control ++ fromHex "ff31c8b9e15c4d8a5f2e6b7a0c9d3f410031c8b9e15c4d8a5f2e6b7a0c9d3f41"
-    let badOk := scriptPathSpend controlBad script1 (fromHex "") ==
+    let badOk := scriptPathSpend controlBad script1 program ==
       some (scriptPathTapleaf controlBad script1, false, true)
     unless badOk do
       IO.println s!"FAIL spk-synth-corruptpath: {badOk}"

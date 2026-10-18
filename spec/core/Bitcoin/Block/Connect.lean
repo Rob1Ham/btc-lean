@@ -12,7 +12,7 @@ import Bitcoin.Capstone.Block
 import Bitcoin.Block.Params
 
 /-!
-# Bitcoin.Block.Connect — ConnectBlock-phase semantics (X08)
+# Bitcoin.Block.Connect — ConnectBlock-phase semantics (the block-validation module)
 
 The checks Core performs AT CONNECTION TIME (validation.cpp
 ConnectBlock @cce32b168), in Core's order, as pure functions over the
@@ -29,11 +29,11 @@ decoded block + running view:
   is active, else the block's own time.
 * `blockFinalityOk` — **BLK-068**: every tx final at (height, cutoff).
 * `blockSequenceLocksOk` — **BLK-104**: BIP68 aggregated at block level
-  over W10's `sequenceLocksOk` + W03's field algebra; CSV-gated,
+  over `sequenceLocksOk` + field algebra; CSV-gated,
   coinbase-skipped, enforced only in ConnectBlock.
 * `cbAmountOk` — **BLK-089**: Σ coinbase outputs ≤ fees + subsidy,
-  composing W12's `chainFeesL` (THM-037's executable fee fold) with
-  W12/W08's `blockSubsidy` (BLK-090).
+  composing `chainFeesL` (THM-037's executable fee fold) with
+  `blockSubsidy` (BLK-090).
 * `feeAccumInRange` — **BLK-091**: the accumulated fee must be in
   MoneyRange (`bad-txns-accumulated-fee-outofrange`).
 * `vtxCountWeightOk` — **BLK-023**: vtx.size × 4 ≤ 4,000,000.
@@ -120,13 +120,13 @@ theorem blockFinalityOk_singleton (cb : Tx) (height cutoff : UInt32) :
 /-! ## BLK-104: sequence locks at block level -/
 
 /-- **BLK-104** (validation.cpp:2525-2538 + tx_verify.cpp
-`CalculateSequenceLocks`/`EvaluateSequenceLocks` via W10): BIP68
+`CalculateSequenceLocks`/`EvaluateSequenceLocks` via the transaction validator): BIP68
 aggregated over the block — per tx, the sequence lock evaluated against
 the coin-view's (creation-height, parent-MTP) data; CSV-gated
 (`CHECKSEQUENCEVERIFY` in the block's flags), coinbase-skipped, and
 enforced ONLY here (the mempool cannot know the connect height).
-`prevDataOf` is W12's seam: per tx, the per-input pairs built from the
-running view (W03's TXV-034..038 field algebra underneath). -/
+`prevDataOf` is the seam: per tx, the per-input pairs built from the
+running view (TXV-034..038 field algebra underneath). -/
 @[rule "BLK-104", rule "INV-108"]
 def blockSequenceLocksOk (txs : List Tx) (csvFlag : Bool)
     (prevDataOf : Tx → List (Int × Int)) (blockHeight blockMTP : Int) : Bool :=
@@ -152,7 +152,7 @@ theorem blockSequenceLocksOk_all (txs : List Tx) (csvFlag : Bool)
 
 /-- **BLK-089** (validation.cpp:2608-2612, `bad-cb-amount`): the
 coinbase's total output value must not exceed fees + subsidy. `fees` is
-W12's executable fee fold `chainFeesL` at the REAL view — the exact
+The executable fee fold `chainFeesL` at the REAL view — the exact
 composition point of the THM-037 lane with the issuance schedule
 (BLK-090). -/
 @[rule "BLK-089"]
@@ -198,7 +198,7 @@ theorem chainFeesL_feeAccumInRange (l : List (OutPoint × Coin)) (kf : Tx → Ke
   rw [← chainFees_viewOf kf]
   exact chainFees_nonneg (viewOf l) kf txs height
 
-/-- **The X08 composition headline**: at the real fee fold, the coinbase
+/-- **The block-validation module composition headline**: at the real fee fold, the coinbase
 draw is bounded by subsidy + fees, and the fee side is nonnegative —
 the two halves of `bad-cb-amount`'s economics in one statement. -/
 theorem coinbase_draw_le_subsidy_plus_fees (cb : Tx)
@@ -288,7 +288,7 @@ theorem contextualChecksOrdered_swap (segwitActive : Bool) (txs : List Tx)
   unfold contextualChecksOrdered
   exact Bool.and_comm _ _
 
-/-- **ConnectBlock check order** (validation.cpp:2378-2630), the X08
+/-- **ConnectBlock check order** (validation.cpp:2378-2630), the block-validation module
 normative composite: per-tx finality first, the block-level accumulators
 (cofee? no — coinbase amount + fee range) after the whole loop. Failing
 the per-tx phase fails the composite regardless of the accumulators. -/
@@ -322,7 +322,7 @@ def isGenesisHeader (h : Bitcoin.Chain.BlockHeader) : Bool :=
   bytesBEq (headerHash h) hashGenesisBlock
 
 /-- The pinned mainnet genesis header satisfies the predicate.  The
-digest itself is opaque to the kernel (SHA256d is a W13 seam), so the
+digest itself is opaque to the kernel (SHA256d is a seam), so the
 proof uses byte-equality reflexivity rather than evaluating the hash. -/
 @[rule "BLK-109"]
 theorem isGenesisHeader_genesisHeader :
@@ -434,7 +434,7 @@ theorem connectBlock_nonGenesis (s : ConnectState)
        | Except.ok u => Except.ok { utxo := u, bestBlock := some (headerHash h) }) := by
   simp [connectBlock, hng]
 
-/-! ## Axiom pins (L3) -/
+/-! ## Axiom pins -/
 
 #print axioms vtxCountWeightOk_iff
 #print axioms blockFinalityOk_all

@@ -35,7 +35,7 @@ def TxStatefulOk (l : List (OutPoint × Coin)) (tx : Tx) (height : UInt32) : Pro
   tx.isCoinBase = true ∨
     (inputsAvailable (viewOf l) tx = true ∧ maturityOk (viewOf l) tx height = true)
 
-/-- **Per-step exactness (iff)**: the W12 ledger step succeeds iff the
+/-- **Per-step exactness (iff)**: the ledger step succeeds iff the
 state predicate holds, and then the output is EXACTLY the reference
 `updateCoinsL`. -/
 theorem applyTxStepL_ok_iff (l l' : List (OutPoint × Coin)) (tx : Tx)
@@ -200,7 +200,7 @@ theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
       exact ⟨l₁, a, b, rfl, h⟩
 
 /-- **Pipeline-to-ledger bridge**: a successful capstone `applyTxs` is a
-successful W12 `applyBlockFoldL` at the real `txidKey` with the same list. -/
+successful `applyBlockFoldL` at the real `txidKey` with the same list. -/
 theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin))
       (okN' unjN' : Nat),

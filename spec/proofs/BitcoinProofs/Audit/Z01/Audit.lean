@@ -4,15 +4,13 @@ import Bitcoin.SigHash.Ops
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Z01 dark-corner audit — tri-modal SIGHASH_SINGLE + FindAndDelete (W4 suite)
+# Z01 dark-corner audit — tri-modal SIGHASH_SINGLE + FindAndDelete
 
-NEW file, owned by Z01, 2026-10-16/17. Python3 probes:
-`build/scratch/build/scratch/scratch/Z01/` (`ecdsa_one_probe.py`,
-`fad_probe.py`, `Z01_print_one.cpp` = compiled-Core witness). Findings:
-`spec/db/findings-w4/Z01.md`.
+2026-10-16/17. Python3 probes:
+`ecdsa_one_probe.py`,
+`fad_probe.py`, `Z01_print_one.cpp` = compiled-Core witness).
 
-Ground truth: Bitcoin Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/`.
+Ground truth: Bitcoin Core @ `cce32b168`.
 
 Proof-form note (audit meta-finding F-Z01-004): kernel `decide` through
 the seam's SHA-256 (double compression, UInt32 array folds) does NOT close
@@ -22,7 +20,7 @@ in toolchain v4.35.0 — the tree's own digest pins use `native_decide`
 below is therefore kernel-pure:
   * preimage-level (`legacyMsgL`, list vehicle) for digest facts;
   * digest-level facts are VERIFIED BY EXECUTION (`#eval` + python3
-    cross-check, recorded in the findings file), not as in-file theorems.
+    cross-check), not as in-file theorems.
 The out-of-range-SINGLE arm needs no hashing (early return), so C1's
 digest pins are decide-cheap.
 -/
@@ -74,7 +72,7 @@ def fadTx : Bitcoin.Data.Tx :=
 section C1
 
 /-- **Core's** `uint256::ONE` bytes — compiled-Core witness
-(scratch/Z01_print_one.cpp prints the bytes `hash.begin()` feeds
+(a compiled-Core witness prints the bytes `hash.begin()` feeds
 secp256k1): internal order `01` ‖ 31 zeros (uint256.cpp:35
 `const uint256 uint256::ONE(1);` + ctor `base_blob(uint8_t v) : m_data{v}`,
 uint256.h:40). -/
@@ -111,7 +109,7 @@ example : hashOutputsL txOOR 0 0x03 = zeroHashL := by decide
 -- Bitcoin.Crypto.Taproot.Sighash.sigMsgTaproot_single_no_output_none
 -- (X03 namespace) + Interpreter/Rules.lean `schnorrVerdict_sighash_fail_closed`
 -- (SCR-166): construction `none` ⇒ verdict false. Not restated here
--- (cross-ownership).
+-- (cross-reference).
 
 end C1
 

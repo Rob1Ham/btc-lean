@@ -3,10 +3,10 @@ import Bitcoin.Capstone.Block
 /-!
 # BitcoinProofs.Theorems.CapstoneFold — P07: the capstone fold-agreement theorem
 
-W17's capstone executable (`Test.Capstone.Run.runAnchor`) validates each
+capstone executable (`Test.Capstone.Run.runAnchor`) validates each
 anchor block through `validateBlock` — whose per-tx stage is
 `applyTxs`, the script-layer-interleaved fold — and then cross-checks
-the final UTXO list against W12's pure ledger fold
+the final UTXO list against pure ledger fold
 `applyBlockL seeds txidKey txs height`, reporting `foldAgrees`.
 All 6 anchors printed `foldAgrees=true` on REAL mainnet data.
 
@@ -55,8 +55,8 @@ C4 / rule linkage:
 | (error taxonomy) | `applyTx_error_cases`, `applyTxs_error_refines` | an `applyTxs` failure happens at a specific tx position the pure ledger fold has REACHED; the error is stateless / script-layer / ledger, exactly |
 | (runtime bridge) | `validateBlock_fold_agrees` | `validateBlock raw st = ok rep` + the seeds-view ledger fold ok ⇒ the reported `rep.state.utxo` IS the pure ledger fold's result |
 
-Dependencies: `Bitcoin.Capstone.Block` (W17 core executable tier),
-`Bitcoin.Ledger.Interface` (W12 fold) — both sorry-free.
+Dependencies: `Bitcoin.Capstone.Block` (core executable tier),
+`Bitcoin.Ledger.Interface` (fold) — both sorry-free.
 
 ## Axiom footprints
 
@@ -96,7 +96,7 @@ local macro "exceptSimp" : tactic =>
 
 /-- Inversion of one successful `applyTx` step: the stateless gate
 passed, the script layer either was skipped (coinbase: counters
-hardwired `(0, 0)`) or returned its counters, and the W12 ledger step
+hardwired `(0, 0)`) or returned its counters, and the ledger step
 produced exactly the returned UTXO list. -/
 theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
     {l l' : List (OutPoint × Coin)} {a b : Nat}
@@ -152,7 +152,7 @@ theorem applyTx_ok_inv {height : UInt32} {tx : Tx} {txIdx : Nat}
 
 /-- Inversion of one failing `applyTx` step: the error is exactly one
 of the stateless gate (`txCheck`), the script layer (non-coinbase
-only), or the W12 ledger step (wrapped in `CapError.block`). -/
+only), or the ledger step (wrapped in `CapError.block`). -/
 theorem applyTx_error_cases {height : UInt32} {tx : Tx} {txIdx : Nat}
     {l : List (OutPoint × Coin)} {e : CapError}
     (h : applyTx height tx txIdx l = Except.error e) :
@@ -321,7 +321,7 @@ theorem applyBlockL_gate_quiet {l : List (OutPoint × Coin)} {kf : Tx → Key}
 
 /-- **The capstone fold-agreement theorem (ok path, inner fold)**:
 whenever the script-interleaved capstone fold `applyTxs` runs to
-completion, the W12 pure ledger inner fold `applyBlockFoldL` (same start
+completion, the pure ledger inner fold `applyBlockFoldL` (same start
 list, same REAL `txidKey` keying, same fixed height) succeeds and ends at
 exactly the same UTXO list.
 
@@ -360,7 +360,7 @@ theorem applyTxs_ledgerFold_agrees (height : UInt32) :
 
 /-- **The capstone fold-agreement theorem (ok path, gated wrapper)**:
 whenever `applyTxs` runs to completion and the pre-block BIP30 gate is
-quiet, the W12 ledger fold `applyBlockL` succeeds at the same UTXO list.
+quiet, the ledger fold `applyBlockL` succeeds at the same UTXO list.
 The gate hypothesis is REAL post-D4c-2: `applyBlockL` performs Core
 2466-2475's pristine overlap check while the capstone tier does not, so
 a gate-firing block is a genuine tier divergence and cannot be bridged
@@ -486,7 +486,7 @@ theorem applyBlockL_ok_inv {l : List (OutPoint × Coin)} {kf : Tx → Key}
 
 /-- `ScriptPass height txs i l l' a b`: starting from UTXO list `l` at
 tx index `i`, every tx of `txs` passes the stateless gate (BLK-030),
-its W12 ledger step succeeds, and its script layer either is skipped
+its ledger step succeeds, and its script layer either is skipped
 (coinbase: counters `(0, 0)`) or returns counters `(a, b)` without
 error; the fold ends at `l'` having accumulated script counters
 `a, b`. This is exactly "no script gate fails along the fold", with
@@ -654,7 +654,7 @@ then it fails at a specific tx — the head of the suffix after a prefix
 is `lPre`) — and the error is exactly one of: the stateless gate
 (`txCheck`), the script layer on a non-coinbase tx (a `verifyTxInputs`
 error — the only errors the script layer can ADD on top of
-`applyBlockL`), or the W12 ledger step's own error (wrapped as
+`applyBlockL`), or the ledger step's own error (wrapped as
 `CapError.block`). The script layer never changes the UTXO
 computation — it can only stop the fold earlier. -/
 theorem applyTxs_error_refines (height : UInt32) :

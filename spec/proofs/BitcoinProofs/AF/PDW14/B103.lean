@@ -4,7 +4,7 @@ import Bitcoin.TxValidation.Interface
 `Bitcoin.TxValidation.checkTxInputs` (TxValidation/Interface.lean:232).
 S-evidence: core `checkTxInputs_ok_conservation` (:895), sorry-free,
 `#guard_msgs`-pinned [propext, Classical.choice, Quot.sound] (:1122)
-= the W10 THM-036 fee-contract over the exact gate (PD02 Table-1
+= the THM-036 fee-contract over the exact gate (PD02 Table-1
 BT:352 anchor via CapstoneConservationCor:232) = the promotion target
 (PDW11 F-PD02-002 route). THIS module = the AF companion: the
 bad-txns-in-belowout reject-lane (the row's own error face,

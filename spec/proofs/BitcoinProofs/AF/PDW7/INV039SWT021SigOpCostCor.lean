@@ -3,7 +3,6 @@ import Bitcoin.Interpreter.SigOps
 /-!
 # INV039SWT021SigOpCostCor — TOP-33/INV-039 + TOP-34/SWT-021 promotion proofs
 
-PDW7 (proof-promotion review 4, recovery review 4), 2026-10-17.
 Rows INV-039 + BLK-side alias SWT-021 (the block sigop-cost pair, one
 def: `Bitcoin.Interpreter.SigOps.blockSigOpCostOk`,
 validation.cpp:ConnectBlock:2566-2570 + consensus.h:17 +
@@ -20,7 +19,7 @@ Core anchor (cce32b168): ConnectBlock's gate
 + Σ witness·1 — the segwit discount, exactly our `sigOpCost`
 (SigOps.lean:143, `sigOpCost_eq : 4·(legacy+p2sh) + witness`).
 
-This file = the proof-promotion tier (route-B, PDW2 4df229b pattern):
+This file = the row-face theorem tier (route-B):
 the row's gate + arithmetic-structure laws. The def-side
 `blockSigOpCostOk_iff` (SigOps.lean:169), `blockSigOpCost_append`
 (:184) and `sigOpCost_eq` (:159) are RC04/X05 core theorems left

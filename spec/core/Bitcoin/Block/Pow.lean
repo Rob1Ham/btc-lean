@@ -2,7 +2,7 @@ import Bitcoin.Chain.Basic
 import Bitcoin.RuleAttr
 
 /-!
-# Bitcoin.Block.Pow — retarget machinery (X08: BLK-040..055, 056..058)
+# Bitcoin.Block.Pow — retarget machinery (the block-validation module: BLK-040..055, 056..058)
 
 Faithful ports of Core `pow.cpp @cce32b168` over the minimal index surface
 the retarget formulas actually read (per-height `bits`/`time` of the
@@ -28,7 +28,7 @@ candidate's ancestors — the `CBlockIndex::GetAncestor` spine):
 * `medianTimePast` (BLK-056) + the `time-too-old` (BLK-057) and
   `time-too-new` (BLK-058, 2 h window) gates.
 
-The decode arm is `Bitcoin.Chain.compactTarget` (W17 BLK-037); every
+The decode arm is `Bitcoin.Chain.compactTarget` (BLK-037); every
 function is total — missing ancestors give `none` (Core asserts there).
 -/
 

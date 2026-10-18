@@ -3,7 +3,7 @@ import Bitcoin.Interpreter.Defs
 /-!
 # BitcoinProofs.Theorems.Ops.O04 — per-opcode semantics: stack manipulation
 
-O04 (Review-6). Sorry-free per-opcode semantics theorems over W09's
+O04. Sorry-free per-opcode semantics theorems over
 interpreter tier (`Bitcoin.Interpreter.Defs`, `stepBody.dispatchOp` — the
 `switch (opcode)` of Core's `EvalScript`) for the stack2 group:
 
@@ -14,7 +14,7 @@ Ground truth: Core interpreter.cpp @ `cce32b168`
 (OP_2DUP :715-725, OP_3DUP :727-739, OP_2OVER :741-751, OP_2ROT :753-764,
 OP_2SWAP :766-774, OP_NIP :814-821, OP_OVER :823-831, OP_PICK/OP_ROLL
 :833-849, OP_TUCK :872-880), independently cross-checked by
-`build/scratch/W6suite/scratch/O04/oracle.py` (python3
+an oracle script (`oracle.py`, python3
 transcription of those C++ cases; 25 rows). Lean stacks are HEAD-FIRST
 (head = top), the reverse of Core's `std::vector` (back = top);
 `topAt s k = s[k-1]!` is `stacktop(-k)`.
@@ -376,7 +376,7 @@ theorem pick0_eq_dupTop (ctx : Ctx) (op : WireOp) (fExec : Bool) (st : State)
 `0x01`/`0x02`/`0x03`/`0x04`/`0x05`/`0x06` are the minimal encodings of
 ScriptNums 1..6; `0x81` of -1; the empty byte string of 0; `01 00` is a
 NON-minimal encoding of 1. Each verdict below was computed by
-scratch/O04/oracle.py (verbatim C++ transcription) and is proved in-kernel
+`oracle.py` (verbatim C++ transcription) and is proved in-kernel
 by `decide` (axiom-free). -/
 
 def b0 : ByteArray := ByteArray.empty                  -- minimal 0

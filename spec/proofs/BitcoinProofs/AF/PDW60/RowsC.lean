@@ -1,6 +1,6 @@
 import Bitcoin.Interpreter.Defs
 
-/-! # PDW60 RowsC — replacement rows TOP-321/323/324 (review RC29).
+/-! # PDW60 RowsC — replacement rows TOP-321/323/324 (RC29).
 
 Swap-in rows after concurrent flips of SCR-163/SCR-172/INV-086:
 SCR-150 (v1 anchor program succeeds unexecuted), SCR-151 (upgradable

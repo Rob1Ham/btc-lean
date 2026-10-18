@@ -8,7 +8,14 @@ the flag-conditional statement: the constructor rejects a non-minimal
 vector whenever `pol.minimalData = true` (P3pol). SCR-157's CHECKSIGADD
 `num` operand adds the unconditional 4-byte width bound. The absolute
 "always" reading (i.e. minimal even with the flag off) is FALSE in the
-model and in Core; see the counterexample below. -/
+model and in Core; see the counterexample below.
+
+Disposition: SCR-051 is a **policy-conditional** row, not a consensus
+rule. The rule DB entry currently carries `consensus: true` and the
+"always minimal" summary; that entry overstates the proved statement and
+must be reclassified (`consensus: false`, summary narrowed to
+"MINIMALDATA-gated"). The `@[rule "SCR-051"]` tags here are traceability
+tags on the flag-conditional theorems, not a consensus claim. -/
 
 namespace BitcoinProofs.AF.PDW95
 open Bitcoin.Interpreter Bitcoin.Numeric Bitcoin.Crypto.Seam

@@ -8,7 +8,7 @@ import Bitcoin.Ledger.Interface
 import Bitcoin.Data.Script
 
 /-!
-# BitcoinProofs.Bip.B07.Bip113MTP — BIP113 clause kill-tests (Review-5, B07)
+# BitcoinProofs.Bip.B07.Bip113MTP — BIP113 clause kill-tests
 
 BIP113 "Median time-past as endpoint for lock-time calculations"
 (bip-0113.mediawiki, License: PD — public domain). Consensus clauses:
@@ -23,8 +23,7 @@ BIP113 "Median time-past as endpoint for lock-time calculations"
 * C4  Strict inequality: `nLockTime < cutoff` is final; `nLockTime == cutoff`
   is NOT final. Height domain (< 500,000,000) is unchanged by BIP113.
 
-Every numeral below was computed by `ref_bip113.py`
-(scratch/B07 in the Review-5 suite tree), a python3 mirror of the pinned
+Every numeral below was computed by `ref_bip113.py`, a python3 mirror of the pinned
 Core @ cce32b168 algorithms; `decide` makes Lean recompute from the Lean
 defs, so drift from Core semantics fails the build.
 

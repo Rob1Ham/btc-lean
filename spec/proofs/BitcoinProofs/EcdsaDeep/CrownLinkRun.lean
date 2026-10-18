@@ -2,16 +2,14 @@ import BitcoinProofs.EcdsaDeep.CrownBattery
 
 /-!
 # [CROWNLINK] CrownLinkRun — the runtime layer of the E05-battery ×
-# E06-crown bridge: the 215 verdicts through `verifyImpl` (the W14b
+# E06-crown bridge: the 215 verdicts through `verifyImpl` (the
 # EcdsaTest conformance re-run over the CROWNLINK corpus)
 
-Contributor CROWNLINK (recovery review 5), 2026-10-17. See `CrownBattery.lean`
+CROWNLINK, 2026-10-17. See `CrownBattery.lean`
 (the corpus), `CrownLink.lean` (the bridge theorem), the kernel layer
-`CrownLinkKernel.lean` (17/215 rows kernel-pinned) and
-`db/findings-dl/CROWNLINK.md`.
+`CrownLinkKernel.lean` (17/215 rows kernel-pinned).
 
-**This layer's content**: compiled-interpreter execution (W14b
-`EcdsaTest.lean:297-306` `main` shape, read-only; runner =
+**This layer's content**: compiled-interpreter execution (the `EcdsaTest.lean:297-306` `main` shape, read-only; runner =
 `lake env lean --run`, the `run_ecdsa.sh` route) of the consensus
 verifier `verifyImpl` over all 215 corpus rows, against the battery's
 `expected` verdicts — the verdict-pinning `hv` of `CrownLink.lean`'s
@@ -24,7 +22,7 @@ hypothesis-free pinning of 17 of them.
 
 Verdict discipline: NO `native_decide` (D-004/D2), NO kernel
 `decide` through the WF layer (R6); compiled runtime execution of
-`verifyImpl` = the W14b conformance standard (EcdsaTest.lean:23-25
+`verifyImpl` = the conformance standard (EcdsaTest.lean:23-25
 "deliberately NOT kernel/native_decide"). Exit 0 + `TOTAL 215
 FAILURES 0` = all 215 verdicts = expected = (with `CrownLink`'s
 `crownLink_corpus`) **all 215 battery verdicts pass through the E06

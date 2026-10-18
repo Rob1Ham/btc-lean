@@ -6,13 +6,13 @@ import BitcoinProofs.Crypto.CurveZMod
 /-!
 # BitcoinProofs.EcdsaDeep.VerifyEquation — the ECDSA verify equation (E06)
 
-`Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` (W14b) is the consensus ECDSA
+`Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` is the consensus ECDSA
 verifier: a `Bool`-valued *program* (lax-DER parse → pubkey parse →
 mod-`n` reduction → nonzero gate → `w = invM n s`, `u1 = mulM n z w`,
 `u2 = mulM n r w`, `R = addP (mulP u1 G) (mulP u2 Q)` → `R.x % n == r`).
 
 This module states, and PROVES sorry-free, the **verify-equation**
-reading of that program (the E06 "crown" rung, over the W14b
+reading of that program (the E06 "crown" rung, over the
 `Curve.Secp` raw structure `RawPoint = Option (Nat × Nat)` /
 `addP` / `mulP`):
 
@@ -38,23 +38,23 @@ reading of that program (the E06 "crown" rung, over the W14b
 * **`VerifyEqZMod` + `verifyEq_zmod` + `verifyImpl_zmod`** (VERIFIED,
   *conditional*): under the hypothesis `[Fact (Nat.Prime n)]` on the
   secp256k1 group order `Secp.n` (a 256-bit Pratt certificate is a
-  sibling-lane deliverable; `P`'s is `CurveZMod.P_prime`), the scalars
+  separate module; `P`'s is `CurveZMod.P_prime`), the scalars
   satisfy the textbook ECDSA relation
   `(u1 : ZMod n) = z * s⁻¹`, `(u2 : ZMod n) = r * s⁻¹`, equivalently
   `u1 * s = z`, `u2 * s = r` (mod `n`) with `u1, u2 ≠ 0`.
-  This uses `Mod.invM_correct` (W14b, SGN-102): `(s * w) % n = 1`
+  This uses `Mod.invM_correct` (SGN-102): `(s * w) % n = 1`
   from `Nat.gcd n s = 1`, which follows from primality + `0 < s < n`.
 
 ## Scope honesty (what this theorem does NOT give)
 
-`addP`/`mulP` are the W14b raw affine operations; **`RawOK`
+`addP`/`mulP` are the raw affine operations; **`RawOK`
 preservation (`mulP_ok`, `addP_ok`, `Secp.lean:281-332`) is imported,
 but group-law correctness — that `mulP k (x, y)` computes the actual
 `k`-fold point multiple on the curve `y² = x³ + 7`, i.e. that `R`
 in the equation really is `u1 • G + u2 • Q` in the secp256k1 group —
 is the E03/E05 lane (mathlib `WeierstrassCurve.Affine` transport) and
 is NOT part of this module** (as of 2026-10-16 nothing from that lane
-has landed; see `db/findings-dl/`). Likewise `Nat.Prime n` is a
+has landed). Likewise `Nat.Prime n` is a
 hypothesis of the ZMod bridge, not a proof here. Everything else —
 that acceptance is *exactly* the point equation with `u1 = z s⁻¹`,
 `u2 = r s⁻¹` (mod `n`) and `R.x ≡ r (mod n)` — is proved.
@@ -84,7 +84,7 @@ from "match = some (rx, _)" to the existentially quantified point
 equation `R = some (rx, ry)`. All scalar arithmetic (`z`, `r`, `s`,
 `w`, `u1`, `u2`) is *syntactically* the verifier's own. -/
 
-/-- The ECDSA verify equation, as a proposition over the W14b raw
+/-- The ECDSA verify equation, as a proposition over the raw
 structure. `VerifyEqRaw sig pk msg` says: the lax-DER parse of `sig`
 yields `(r0, s0)` and the pubkey parse of `pk` yields `(qx, qy)`;
 reduced mod `n`, `r = r0 % n`, `s = s0 % n`, `z =
@@ -191,7 +191,7 @@ relations in `ZMod n`: `u1 = z * s⁻¹` and `u2 = r * s⁻¹`. The
 statement itself needs no primality (`⁻¹` is total on `ZMod n`); the
 bridge `verifyImpl_sound_zmod` (acceptance → the ZMod equation) is
 conditional on `[Fact (Nat.Prime n)]` — the 256-bit Pratt certificate
-for `Secp.n` is a sibling-lane deliverable (`P`'s is
+for `Secp.n` is a separate module (`P`'s is
 `CurveZMod.P_prime`). The proof route: Unit 1's `verifyImpl_iff.mp` →
 elimination cascade down to the R-`some` leaf (mirroring Unit 1's
 case structure, `rw`/`dsimp`/`split at h` all the way), where

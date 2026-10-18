@@ -1,6 +1,6 @@
 import Bitcoin.Serialization.Interface
 
-/-! # PDW40.lean — proof-promotion review RC27, items TOP-196..200
+/-! # PDW40.lean — RC27, items TOP-196..200
 
 Claim v1. D-SER BIP144 tx-framing band of
 `Bitcoin/Serialization/Interface.lean` (`decTxCore`, tag site :944):

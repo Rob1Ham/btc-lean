@@ -4,20 +4,19 @@ import Bitcoin.Data.Tx
 /-!
 # BitcoinProofs.Bip.B10.Bip144 — BIP144 consensus-framing reference codec
 
-B10 (Review-5 support suite) reference implementation of the BIP144
-witness-serialization *consensus* clauses, cross-checked (python3,
-`scratch/B10/bip144_ref.py`) against the BIP text (public domain) and
+Reference implementation of the BIP144
+witness-serialization *consensus* clauses, cross-checked (python3)
+against the BIP text (public domain) and
 Bitcoin Core @ cce32b168
 `src/primitives/transaction.h:UnserializeTransaction:212-239` (the
 rules.yaml ground-truth pin).
 
-NEW self-contained module (owned by B10; touches no existing file).
-It is the executable oracle the W02 `decodeTx`/`encodeTx`
+Self-contained module (touches no existing file).
+It is the executable oracle the `decodeTx`/`encodeTx`
 implementations of `Bitcoin.Serialization` (TXV-011..016) must match;
 `Bitcoin.Serialization.Interface` currently ships `SerError` plus
 sorry-stubbed `opaque decodeTx`, so every BIP144 consensus clause is
-COVERED-WEAK/MISSING in the tree today — clause table in
-`spec/db/findings-w5/B10.md`.
+COVERED-WEAK/MISSING in the tree today.
 
 Consensus clauses encoded here (BIP144 §Specification; the P2P-only
 material — NODE_WITNESS, MSG_WITNESS_* inv types, getdata semantics —

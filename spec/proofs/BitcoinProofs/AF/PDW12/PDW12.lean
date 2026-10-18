@@ -2,8 +2,7 @@ import Bitcoin.Block.Pow
 import Bitcoin.Block.Connect
 import Bitcoin.Invariants.RC08
 
-/-! # PDW12.lean — proof-promotion review, items TOP-56..60
-(PDW12, recovery review 5, 2026-10-17).
+/-! # PDW12.lean
 
 Five sorry-free promotion theorems, one per claimed rules.yaml row
 (claim v1 = commit 04c27a7):

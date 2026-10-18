@@ -1,7 +1,7 @@
 import Bitcoin.Invariants.RC10
 import Bitcoin.Activation.Interface
 
-/-! # PDW21.lean — proof-promotion review RC26, items TOP-101..105
+/-! # PDW21.lean — RC26, items TOP-101..105
 (PDW21, 2026-10-17; claim b053a92).
 
 Route B (PDW11..16 pattern): zero core writes; `@[rule]` tags ride
@@ -10,8 +10,13 @@ THESE theorems; old core tags untouched; pins ⊆
 
 * **INV-118** `MEMPOOL_HEIGHT` sentinel: ≠ every real (≤10⁶) height,
   plus both lockpoints faces.
-* **INV-119** `muhashSet` MuHash3072 abstraction: partition +
-  order-invariance (commutative monoid).
+* **INV-119** `muhashSet` — an ADDITIVE ABSTRACTION of the MuHash3072
+  combination law: `muhashSet cf cs = Σ cf c` over `Nat`. It supports
+  the partition/split algebra used by the snapshot lane, but it is NOT
+  the 3072-bit class-group product, NOT a hash, and `snapshotEq` is not
+  the consensus MuHash commitment comparison. The residual is stated in
+  the INV-119 section below; the core `RC10` module carries the same
+  disclosure ("arithmetic PROPOSED").
 * **INV-120** `setBestBlock` / `connectBestBlock`: pointer tracks,
   coins untouched.
 * **INV-121** `bip9Transition`: the FSM edge faces in Core order.
@@ -40,7 +45,24 @@ theorem lockpoints_real_face (h t : UInt32)
     prevHeightOrNext h t = h :=
   prevHeightOrNext_real h t hne
 
-/-! ## INV-119 — MuHash3072 snapshot hash (abstracted) -/
+/-! ## INV-119 — MuHash3072 snapshot hash (additive abstraction)
+
+**Residual (accepted, disclosed):** Core's `MuHash3072` combines coin
+elements by multiplication/division in a 3072-bit class group; the
+snapshot commitment is that group element (kernel/coinstats.cpp:59-112).
+`RC10.muhashSet` replaces the group operation with `Nat` addition and the
+hash-to-group map with an arbitrary per-coin datum `cf`. Consequently:
+
+* the theorems below are true of the additive monoid model only;
+* they do NOT prove that `snapshotEq` equals Core's commitment check, nor
+  that the combination law is collision-resistant;
+* the 3072-bit modular arithmetic and the MuHash serialization are not
+  modelled (zero-FFI core; Review-4 bigint seam).
+
+What IS established is the partition/append algebra the snapshot lane
+uses, plus the exact definition of the local predicate. Treat this row as
+model-level evidence about the additive abstraction, not as a MuHash3072
+correctness proof. -/
 
 @[rule "INV-119"]
 theorem muhashSet_split (cf : Bitcoin.Ledger.Coin → Nat)
@@ -57,13 +79,16 @@ theorem muhashSet_comm (cf : Bitcoin.Ledger.Coin → Nat)
 @[rule "INV-119"]
 theorem muhashSet_nil (cf : Bitcoin.Ledger.Coin → Nat) : muhashSet cf [] = 0 := rfl
 
-/-- **REM-10 — the assumeutxo snapshot equality predicate.**
+/-- **REM-10 — the assumeutxo snapshot equality predicate (additive
+model).**
 
 `CheckUTXOState`/`VerifyUTXOSet` compare the combined MuHash3072 of the
 snapshot's coin set against the expected commitment (coinstats.cpp:59-
-112). Over the RC10 monoid abstraction this is the equality predicate
-between two coin-set hashes; `snapshotEq` is that predicate and the
-theorem below is its exact semantics, not just additivity. -/
+112). `snapshotEq` is the analogous equality predicate for the RC10
+ADDITIVE abstraction `muhashSet`: equality of two natural-number
+summaries, not equality of 3072-bit MuHash group elements. The theorems
+below characterize this local predicate exactly; they do not claim to
+model the consensus commitment (see the INV-119 residual block). -/
 @[rule "INV-119"]
 def snapshotEq (cf : Bitcoin.Ledger.Coin → Nat)
     (a b : List Bitcoin.Ledger.Coin) : Bool :=

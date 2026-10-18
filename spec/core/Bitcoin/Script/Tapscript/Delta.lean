@@ -1,10 +1,10 @@
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Bitcoin.Script.Tapscript.Delta — the BIP342 consensus deltas (X04)
+# Bitcoin.Script.Tapscript.Delta — the BIP342 consensus deltas (the interpreter delta layer)
 
 The tapscript layer of the script interpreter, stated as theorems OVER
-W09's interpreter (`Bitcoin.Interpreter.Defs`, where the delta code lives
+interpreter (`Bitcoin.Interpreter.Defs`, where the delta code lives
 next to its legacy counterparts exactly as Core keeps tapscript branches
 inside `EvalScript`/`ExecuteWitnessScript`).
 
@@ -50,7 +50,7 @@ deriving instance Inhabited for Bitcoin.Activation.ScriptFlags
 
 set_option maxRecDepth 40000
 
-/-! ## U1 — the OP_SUCCESSx redefinition of validation success -/
+/-! ## the abstraction layer — the OP_SUCCESSx redefinition of validation success -/
 
 /-- Success-opcode totality: a tapscript whose byte-decode reaches an
 OP_SUCCESSx passes NO MATTER WHAT the initial stack is — the scan
@@ -211,7 +211,7 @@ theorem executeWitnessScript_disabledWire_shortCircuit
     (ByteArray.mk #[UInt8.ofNat w]) flags pol chk
     (opSuccessScan_disabledWire_singleton w h)
 
-/-! ## U2 — signature-opcode deltas -/
+/-! ## the delta layer — signature-opcode deltas -/
 
 /-- Mode dispatch NEVER conflates: on BASE the dispatch IS the
 pre-tapscript ECDSA path with the budget slot passed through untouched
@@ -370,7 +370,7 @@ is FALSE for every tapscript opcode: the guard's conjunction is what
 makes MAX_OPS_PER_SCRIPT (201) unreachable in tapscript (BIP342 drops
 the 201-opcode limit; interpreter.cpp:459-463 keys `nOpCount` on the
 segv1-negation). TPR-065. [TAGFIX] comment number was TPR-062 (stale
-X04 draft numbering) — yaml lean_target maps this theorem to TPR-065. -/
+the interpreter delta layer draft numbering) — yaml lean_target maps this theorem to TPR-065. -/
 @[rule "TPR-065"]
 theorem tapscript_opcount_guard_off (ctx : Ctx) (op : WireOp)
     (hsv : ctx.sv = SigVersion.tapscript) :
@@ -412,7 +412,7 @@ def ckCsv : ScriptChecker := ⟨stubChecker, ⟨2, 5, 5⟩⟩
 UNCONDITIONAL: it fires even with `minimalIf := false` in the policy
 word — BIP342 re-imports MINIMALIF as consensus (named error
 `SCRIPT_ERR_TAPSCRIPT_MINIMALIF`; interpreter.cpp:524-526). TPR-063.
-[TAGFIX] comment number was TPR-055 (stale X04 draft numbering) — yaml
+[TAGFIX] comment number was TPR-055 (stale the interpreter delta layer draft numbering) — yaml
 lean_target maps this theorem to TPR-063. -/
 @[rule "TPR-063"]
 theorem minimalif_tapscript_unconditional : stepBody ⟨default, default, default, SigVersion.tapscript,
@@ -461,7 +461,7 @@ theorem cltv_satisfied_tapscript : (match stepBody ⟨flCltv, default, ck2, SigV
 
 /-- CSV satisfied passes under tapscript (flag on, env version 2,
 sequence 5). TPR-073 face. [TAGFIX] comment number was TPR-058 (stale
-X04 draft numbering) — yaml TPR-073 lean_target = cltv_negative_tapscript,
+the interpreter delta layer draft numbering) — yaml TPR-073 lean_target = cltv_negative_tapscript,
 this satisfied-pass companion is the same CLTV/CSV-retained face. -/
 theorem csv_satisfied_tapscript : (match stepBody ⟨flCsv, default, ckCsv, SigVersion.tapscript,
     ByteArray.empty, default⟩ csvOp
@@ -485,7 +485,7 @@ theorem csv_flag_off_nop_tapscript : stepBody ⟨default, default, ck2, SigVersi
 witness wrapper fails `.cleanstack` even with every policy bit off
 (`pol.cleanstack = false` here) — witness scripts implicitly require
 cleanstack (BIP342 §Spec step 5 / interpreter.cpp:1878-1881). [TAGFIX] comment number was TPR-063 (stale
-X04 draft numbering) — no TPR row owns these theorems; faces =
+the interpreter delta layer draft numbering) — no TPR row owns these theorems; faces =
 SWT-012 (witness-implicit cleanstack) and SCR-183 (BIP342 §8 tapscript
 consensus re-import). -/
 
@@ -508,7 +508,7 @@ operand fails `.scriptNum` even with MINIMALDATA off (`pol = default`,
 and `pol.minimalData` is never read by the width check — `decodeBE`
 checks `l.length > maxSize` first). BIP342: "If n is larger than 4
 bytes, the script MUST fail". TPR-058. [TAGFIX] comment number was
-TPR-060 (stale X04 draft numbering) — yaml lean_target maps this theorem
+TPR-060 (stale the interpreter delta layer draft numbering) — yaml lean_target maps this theorem
 to TPR-058; TPR-060 (OP_SUCCESSx set) lives on Defs.isOpSuccessWire. -/
 def num5 : ByteArray :=
   ByteArray.mk #[(0x01 : UInt8), (0x01 : UInt8), (0x01 : UInt8), (0x01 : UInt8), (0x01 : UInt8)]

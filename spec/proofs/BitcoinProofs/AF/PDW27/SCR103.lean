@@ -1,7 +1,7 @@
 import Bitcoin.Activation.Flags
 
 /-! # PDW27 SCR-103 — DERSIG from BIP66 height 363725
-(proof-promotion review, items TOP-131..135).
+(items TOP-131..135).
 
 Route = B-verify + drift-fix (PDW15-SCR-101 class): the row's yaml
 lean_target was module-path-drifted (`.Flags.dersig_flag_flow` vs the real

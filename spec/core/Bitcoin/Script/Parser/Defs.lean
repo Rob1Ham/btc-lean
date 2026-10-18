@@ -3,16 +3,16 @@ import Bitcoin.Data.Script
 import Bitcoin.RuleAttr
 
 /-!
-# Bitcoin.Script.Parser — definitions and proof core (W05)
+# Bitcoin.Script.Parser — definitions and proof core
 
 Total bytes→AST parser over the FULL 0x00–0xff opcode table (Core
 `GetScriptOp`, script.cpp:313-363 @ `cce32b168`), the roundtrip printer
 (canonical push encoding — the inverse of `CheckMinimalPush`'s
 canonical forms, script.cpp:373-396), and the parse-level
-opcode-counting hook for W09's 201-opcode budget
+opcode-counting hook for the 201-opcode budget
 (SCR-022/023/024/025).
 
-Design notes (C1 gotchas honored):
+Design notes (the prototype gotchas honored):
 
 * No `ByteArray.toList` anywhere in executable code; the parser walks
   the `ByteArray` by index (`getOpt`) with explicit fuel, structural
@@ -23,7 +23,7 @@ Design notes (C1 gotchas honored):
 * All proofs are axiom-free; `Test/Script/Parser/Tests` pins the axiom
   footprint with `#guard_msgs in #print axioms`.
 
-**`pushNum` encoding convention (AST frozen by W01, convention pinned
+**`pushNum` encoding convention (AST frozen by the interface, convention pinned
 here):** `pushNum n` for `1 ≤ n ≤ 16` is `OP_n` (wire `0x50+n`);
 `pushNum 0` is `OP_1NEGATE` (wire `0x4f`, pushes `0x81` = ScriptNum
 −1; `Nat` cannot carry −1). `OP_0` is `pushBytes ∅` per the interface
@@ -46,7 +46,7 @@ theorem UInt8_toNat_lt_256 (c : UInt8) : c.toNat < 256 := by
 /-- The full opcode model: pushes carry their payload; every non-push
 byte value 0x00-0xff (OP_0 and OP_1..OP_16 are push-shaped but kept as
 `pushNum` for interpreter ergonomics) is a `op` carrying its exact byte.
-W05 attaches the consensus semantics (enabled/disabled, flags) to this
+This module attaches the consensus semantics (enabled/disabled, flags) to this
 representation. -/
 inductive Opcode where
   | pushBytes (data : ByteArray)   -- OP_0 (empty), OP_1..OP_75 direct, PUSHDATA1/2/4
@@ -950,13 +950,13 @@ theorem parseFrom_shape : ∀ (f : Nat) (b : ByteArray) (ops : List Opcode) (i :
       · exact hs.2.2
       · exact ih b ops' i' hops' o' hm'
 
-/-! ## Opcode counting for the interpreter's op-limit (W09 hook) -/
+/-! ## Opcode counting for the interpreter's op-limit (the interpreter layer hook) -/
 
 /-- An opcode counts toward `MAX_OPS_PER_SCRIPT` (201, BASE/WITNESS_V0)
 iff its wire byte is `> OP_16` (0x60): pushes and OP_1NEGATE..OP_16 are
 exempt (interpreter.cpp:462, SCR-024), and disabled opcodes DO count
 (SCR-025). The count is flow-insensitive — it is taken over the whole
-parsed list, executed or not (SCR-023). W09 applies this inside the
+parsed list, executed or not (SCR-023). The interpreter applies this inside the
 eval loop; `opcodeCount` is the parse-level hook. -/
 @[rule "SCR-024"]
 def countsTowardOpLimit (o : Opcode) : Bool :=
@@ -966,7 +966,7 @@ def countsTowardOpLimit (o : Opcode) : Bool :=
   | .op c => 0x60 < c.toNat
 
 /-- Number of op-limit-counting opcodes in a parsed script
-(`nOpCount`, interpreter.cpp:460-464). W09 consumes this over the
+(`nOpCount`, interpreter.cpp:460-464). The interpreter consumes this over the
 `List Opcode` returned by `parseScript`. -/
 def opcodeCount (ops : List Opcode) : Nat := ops.countP countsTowardOpLimit
 

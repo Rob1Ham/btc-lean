@@ -25,14 +25,14 @@ Row map (this module):
 * **TPR-019** — `control[0]&0xfe == 0xc0` executes the script with
   `SigVersion::TAPSCRIPT` (`interpreter.cpp:1988-1993`;
   `interpreter.h:243` `TAPROOT_LEAF_TAPSCRIPT = 0xc0`): the dispatch
-  bit X03's `scriptPathSpend` (Verify.lean:101) returns as its third
+  bit the Taproot module's `scriptPathSpend` (Verify.lean:101) returns as its third
   component `ts = leafVersionOf control = TAPROOT_LEAF_TAPSCRIPT`, and
   `leafVersionSpend` consumes it into the `.tapscript` verdict
   carrying the dispatched script (Core's `execdata.m_script = script`).
 * **TPR-020** — non-`0xc0` leaf versions validate as SUCCESS
   (the softfork hook; `interpreter.cpp:1995-1998`'s else arm, BIP341
   §"Script validation" "if the leaf version is 0xc0, ...; otherwise
-  the the script path succeeds"): the `.success` verdict.
+  the script path succeeds"): the `.success` verdict.
 * **TPR-021** — `DISCOURAGE_UPGRADABLE_TAPROOT_VERSION`
   (`interpreter.cpp:1995-1997`): the policy error on the non-0xc0 lane
   (a policy bit — Core's `SCRIPT_VERIFY` word; modeled by the
@@ -50,46 +50,47 @@ output key fails is a `witnessProgramMismatch` reject REGARDLESS of
 its leaf version — non-`0xc0` is NOT a commitment bypass
 (`leafVersionSpend_commitment_fail` takes `ts` arbitrary). The size
 gate (`:1980-1982`) precedes everything (`scriptPathSpend = none`
-lane = X03's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
+lane = the Taproot module's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
 
 ## Layering / honesty notes
 
-* The composition sits on X03's `scriptPathSpend` (Verify.lean:96-102:
-  size gate → tapleaf hash → `verifyTaprootCommitment` (X06's
-  `outputKeyOk`, TPR-018) → the `0xc0` dispatch bit, in Core's order).
+* The composition sits on the Taproot module's `scriptPathSpend` (Verify.lean:
+  size gate → tapleaf hash → `verifyTaprootCommitment` (the witness-structure module's
+  `outputKeyOk` plus the 32-byte `program = x(Q)` binding, TPR-018) →
+  the `0xc0` dispatch bit, in Core's order).
   This module is the CALLER side of the bit: it turns the `if`-chain
   of Core :1988-1998 into a verdict. The tapscript-arm's EXECUTION
-  (`ExecuteWitnessScript` at `SigVersion::TAPSCRIPT`) is W09's
-  `Bitcoin.Interpreter.executeWitnessScript` (X04's
+  (`ExecuteWitnessScript` at `SigVersion::TAPSCRIPT`) is
+  `Bitcoin.Interpreter.executeWitnessScript` (the interpreter delta layer's
   `Script/Tapscript/Delta.lean` theorems; `evalChecksigTapscript` =
   the `EvalChecksigTapScript` tapscript-CHECKSIG deltas = TPR-023
-  ..027's lane) — `.tapscript script` carries the dispatched script,
+/ TPR-027's lane) — `.tapscript script` carries the dispatched script,
   and TPR-019 pins the DISPATCH (leaf 0xc0 ⇒ the tapscript lane), not
   the execution verdict. This mirrors the Program.lean/Interpreter
-  split (X06's "deliberate layering", Program.lean:32-40).
-* `scriptPathSpend`'s `verifyTaprootCommitment` = `outputKeyOk control
-  (some (scriptPathMerkleRoot ...))` (Verify.lean:89-90): X06/X03's
-  TPR-009/018/016/017/011 chain — internal-key parse → tweak
-  recomputation → parity. Its `program` argument is currently not
-  consumed by `outputKeyOk` (the final
+  split (the witness-structure module's "deliberate layering", Program.lean:32-40).
+* `scriptPathSpend`'s `verifyTaprootCommitment` = `checkTapTweak
+  control program (some (scriptPathMerkleRoot ...))` (Verify.lean):
+  the witness-structure and Taproot modules' TPR-009/018/016/017/011 chain — internal-key parse → tweak
+  recomputation → parity — PLUS the final
   `xonly_pubkey_tweak_add_check` q-equality of Core
-  `pubkey.cpp:255-271` is carried as "the recomputation + parity
-  accept"): an X03-lane simplification, recorded as F-TPRA-002 in
-  findings-rc/TPR-A.md. The dispatch rows (TPR-019/020/021) sit
-  strictly AFTER this check, and the precedence order is exact.
-* `verifyWitnessProgram` (W09's `Bitcoin.Interpreter.Defs:1196`) —
+  `pubkey.cpp:255-271` as a 32-byte length check and
+  `program = x(Q)` byte comparison. The earlier program-blind
+  simplification (the earlier program-blind gap) is closed. The dispatch
+  rows (TPR-019/020/021) sit strictly AFTER this check, and the
+  precedence order is exact.
+* `verifyWitnessProgram` (the interpreter module's `Bitcoin.Interpreter.Defs:1196`) —
   the interpreter-side twin — currently returns `.unjudged` at the
-  tapleaf/CheckTapTweak step (X07's SCR-146 honesty): THIS module is
+  tapleaf/CheckTapTweak step (the interpreter rule layer's SCR-146 honesty): THIS module is
   the Crypto-side closure of the dispatch half.
 * The module imports `Bitcoin.Crypto.Seam.Interface` for `SigVersion`
-  (the frozen W13 seam, `Interface.lean:115-118`): the first
+  (the frozen seam, `Interface.lean:115-118`): the first
   Taproot-lane file to reference it (no cycle — the seam imports only
   `Data.Basic/Data.Tx/Seam.Hash`). It is NOT consumed in a definition
   (the `.tapscript` constructor IS the mode pin); it is used in the
   `execSigVersion` characterization of TPR-019 below.
 
 Conformance: `Test/Crypto/TaprootLeafTest.lean` — NO official BIP341
-script-path SPEND vectors exist (X03's TaprootVerifyTest honesty); the
+script-path SPEND vectors exist (the Taproot module's TaprootVerifyTest honesty); the
 harness anchors the dispatch on the official wallet-vector corpus's
 own leaf-version cases (case 1 single-leaf 0xc0 → `.tapscript`; case 3
 — the two-leaf tree carrying the 0xfa future-version leaf →
@@ -112,7 +113,7 @@ open Bitcoin.Crypto.Seam (SigVersion)
 
 /-- `TAPROOT_LEAF_MASK` (interpreter.h:242) = `0xfe` — the low bit of
 the control byte is the output-key parity (TPR-011, the tweak lane),
-the top 7 bits the leaf version. X06's `leafVersionOf` (TPR-010,
+the top 7 bits are the leaf version. The witness-structure module's `leafVersionOf` (TPR-010,
 Program.lean:449) applies the mask; the constant is restated here for
 the row anchor (`:1988`'s `(control[0] & TAPROOT_LEAF_MASK)`). -/
 def TAPROOT_LEAF_MASK : Nat := 0xfe
@@ -132,7 +133,7 @@ theorem TAPROOT_LEAF_TAPSCRIPT_masked :
 inductive LeafVerdict where
   /-- TPR-019 (Core :1988-1993): masked leaf version `0xc0` —
   `execdata.m_script = script` and the script executes with
-  `SigVersion::TAPSCRIPT` (the W09/X04 execution lane). -/
+  `SigVersion::TAPSCRIPT` (the execution lane). -/
   | tapscript (script : ByteArray)
   /-- TPR-020 (Core :1998): non-`0xc0` leaf version — the script-path
   spend VALIDATES AS SUCCESS, the softfork hook (BIP341 §"Script
@@ -159,7 +160,7 @@ def execSigVersion (v : LeafVerdict) : SigVersion :=
 the paths into `:1988`). -/
 inductive TaprootLeafError where
   /-- Core :1980-1982 — the control-block size gate (the TPR-009
-  `33 + 32m` lattice; X07's `.taprootWrongControlSize`,
+  `33 + 32m` lattice; the interpreter rule layer's `.taprootWrongControlSize`,
   Interpreter/Defs.lean:1244). The `scriptPathSpend = none` lane. -/
   | taprootControlSize
   /-- Core :1985-1987 — the `VerifyTaprootCommitment` reject (the
@@ -173,7 +174,7 @@ inductive TaprootLeafError where
 /-! ## TPR-019 / TPR-020 / TPR-021 — the dispatch -/
 
 /-- The script-path-arm dispatch (Core `interpreter.cpp:1988-1998`,
-composed on X03's `scriptPathSpend` = the `:1976-1988` prefix):
+composed on the Taproot module's `scriptPathSpend` = the `:1976-1988` prefix):
 `none` = the TPR-009 size reject (`:1980-1982`);
 `(tl, ok, ts)` = tapleaf hash, the `VerifyTaprootCommitment` verdict
 (`:1985-1887`) and the `0xc0` dispatch bit (`:1988`);
@@ -199,7 +200,7 @@ def leafVersionSpend (control script program : ByteArray)
 /-- The TPR-009 size gate precedes everything (Core :1980-1982): a
 control block outside the `33 + 32m` lattice is a
 `.taprootControlSize` reject — the `scriptPathSpend = none` lane
-(X03's `scriptPathSpend_badSize_none`). -/
+(the Taproot module's `scriptPathSpend_badSize_none`). -/
 @[rule "TPR-019"]
 theorem leafVersionSpend_badSize (control script program : ByteArray)
     (discourage : Bool)
@@ -227,8 +228,8 @@ theorem leafVersionSpend_commitment_fail (control script program : ByteArray)
 whose masked leaf version is `0xc0` dispatches to the tapscript lane,
 CARRYING THE SPENT SCRIPT (Core :1988-1993:
 `execdata.m_script = script`; `ExecuteWitnessScript` at
-`SigVersion::TAPSCRIPT` — the W09/X04 execution lane). The dispatch
-bit is X03's `scriptPathSpend` third component
+`SigVersion::TAPSCRIPT` — the execution lane). The dispatch
+bit is the Taproot module's `scriptPathSpend` third component
 (`leafVersionOf control = TAPROOT_LEAF_TAPSCRIPT`,
 Verify.lean:101 + `scriptPathSpend_dispatch` :213). -/
 @[rule "TPR-019"]
@@ -302,7 +303,7 @@ theorem leafVersionSpend_success_not_tapscript (control script program : ByteArr
   injection hcon with hver
   exact LeafVerdict.noConfusion hver
 
-/-- Determinism (W14b discipline): equal inputs, equal verdicts. -/
+/-- Determinism (the modular-arithmetic layer discipline): equal inputs, equal verdicts. -/
 theorem leafVersionSpend_congr (control₁ control₂ script₁ script₂
     program₁ program₂ : ByteArray) (pol₁ pol₂ : Bool)
     (h₁ : control₁ = control₂) (h₂ : script₁ = script₂)
@@ -311,7 +312,7 @@ theorem leafVersionSpend_congr (control₁ control₂ script₁ script₂
       = leafVersionSpend control₂ script₂ program₂ pol₂ := by
   subst h₁; subst h₂; subst h₃; subst h₄; rfl
 
-/-! ## Axiom footprints (X02/X03/X06 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the existing modules' style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio `[propext,
 Classical.choice, Quot.sound]`.

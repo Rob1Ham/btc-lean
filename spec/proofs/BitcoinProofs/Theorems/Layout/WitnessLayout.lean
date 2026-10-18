@@ -2,7 +2,7 @@ import Bitcoin.Serialization.Interface
 import Bitcoin.DataLaws.Interface
 
 /-!
-# BitcoinProofs.Theorems.Layout.WitnessLayout — witness framing layout (Review-6, contributor S03)
+# BitcoinProofs.Theorems.Layout.WitnessLayout — witness framing layout
 
 Per-input witness stack serialization layout theorems (BIP144, Core
 `SerializeTransaction` @ `cce32b168`), covering:
@@ -30,7 +30,7 @@ Per-input witness stack serialization layout theorems (BIP144, Core
   conditional on dsha256 injectivity, pinned as an explicit hypothesis
   (`wtxid_eq_txid_iff_of_inj`) rather than assumed globally.
 
-All theorems are sorry-free; axiom footprints audited in `scratch/S03/`.
+All theorems are sorry-free; axiom footprints audited in this file.
 -/
 
 namespace BitcoinProofs.Theorems.Layout

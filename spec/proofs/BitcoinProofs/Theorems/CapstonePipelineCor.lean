@@ -4,8 +4,8 @@ import Bitcoin.Capstone.Block
 # BitcoinProofs.Theorems.CapstonePipelineCor — P16: the proved pipeline-shape spec (sorry-free)
 
 Theorems about the SHAPE of the capstone pipeline (`Bitcoin.Capstone.Block`,
-W17 S2b): what `applyTx` / `applyTxs` / `validateBlock` return, as exact
-`Except`-monad equations. These turn the runtime booleans of the W17 anchor
+S2b): what `applyTx` / `applyTxs` / `validateBlock` return, as exact
+`Except`-monad equations. These turn the runtime booleans of the anchor
 run (6/6 PASS, 11,825 inputs adjudicated) into proved statements: the
 success state's height, parent link, UTXO set, tx count and script counters
 are pinned to the pipeline's actual dataflow.
@@ -132,7 +132,7 @@ theorem gate_step2 (cg aw : Bool) {E₁ E₂ : CapError}
     | true => rfl
 
 /-- The ledger continuation of `applyTx`: given the script layer's counters
-`(okN, unjN)`, run the W12 ledger step and attach the counters to its
+`(okN, unjN)`, run the ledger step and attach the counters to its
 success value. Its error is wrapped as `CapError.block`. -/
 def applyTxCont (height : UInt32) (tx : Tx) (_txIdx : Nat)
     (l : List (OutPoint × Coin)) (x : Nat × Nat) :
@@ -156,10 +156,10 @@ theorem totalVins_cons (tx : Tx) (rest : List Tx) :
 /-! ## The exact `applyTx` equation -/
 
 /-- **P16-3 — the exact `Except`-bind equation for `applyTx`**. Unfolds the
-do-block honestly: the W10 stateless gate (`checkTransaction`) runs first
+do-block honestly: the stateless gate (`checkTransaction`) runs first
 and short-circuits with `CapError.txCheck`; then the script layer —
 skipped entirely for the coinbase, else `verifyTxInputs` against the
-CURRENT utxo `l`; then the W12 ledger step `applyTxStepL` keyed by the
+CURRENT utxo `l`; then the ledger step `applyTxStepL` keyed by the
 real txid, whose error is wrapped as `CapError.block` and whose success
 threads the final utxo together with the script counters. -/
 theorem applyTx_eq (height : UInt32) (tx : Tx) (txIdx : Nat)
@@ -210,7 +210,7 @@ theorem applyTx_coinbase_counters (height : UInt32) (tx : Tx) (txIdx : Nat)
       omega
 
 /-- **P16-3 (ledger-first, non-coinbase)**: the ledger gate runs even when
-the script layer PASSES — if `verifyTxInputs` returns ok and the W12 fold
+the script layer PASSES — if `verifyTxInputs` returns ok and the fold
 step fails with `e`, then `applyTx` fails with exactly
 `CapError.block e` (the ledger error is never swallowed, never reshaped). -/
 theorem applyTx_ledger_first (height : UInt32) (tx : Tx) (txIdx : Nat)
@@ -234,7 +234,7 @@ theorem applyTx_ledger_first_coinbase (height : UInt32) (tx : Tx) (txIdx : Nat)
 
 /-- **P16-3 (script-first, non-coinbase)**: dually, an adjudicated script
 failure of `verifyTxInputs` propagates VERBATIM (it is already a
-`CapError.scriptFail txIdx inputIdx _` by the W13 wiring) — the ledger
+`CapError.scriptFail txIdx inputIdx _` by the wiring) — the ledger
 step is never reached, so a script failure can never be masked by a
 ledger success. -/
 theorem applyTx_script_first (height : UInt32) (tx : Tx) (txIdx : Nat)
@@ -252,7 +252,7 @@ budget `n` (`i + n = tx.vin.length`). The invariant `okN + unjN ≤ i` says
 the counters only ever count inputs actually consumed; the conclusion
 `a + b ≤ tx.vin.length` is the boundedness of the final counters. Inputs
 whose coin is missing from the view (`coinLookup = none`) contribute
-NOTHING — hence boundedness, not exactness (the W12/W10 lanes own that
+NOTHING — hence boundedness, not exactness (the corresponding modules own that
 error). -/
 theorem verifyTxInputs_loop_total (height : UInt32) (tx : Tx) (txIdx : Nat)
     (u : List (OutPoint × Coin)) :
@@ -415,10 +415,10 @@ fold result `(u', k, j)` such that:
 
 The `cbLengthOk` / `bip34Ok` / witness-commitment gates are also enforced
 by the pipeline but mention the module-private `dummyTx` stand-in, so they
-are not nameable here. This is the theorem that turns the W17 anchor run's
+are not nameable here. This is the theorem that turns the anchor run's
 runtime `PASS` into: the reported poststate height is the connection
 height `+ 1`, the reported parent hash is the hash of the DECODED header
-(and hence of the real bytes), and the reported UTXO set is the W12 fold's
+(and hence of the real bytes), and the reported UTXO set is the fold's
 output. -/
 theorem validateBlock_ok_shape (raw : ByteArray) (st : CapState) (r : CapReport)
     (hval : validateBlock raw st = .ok r) :

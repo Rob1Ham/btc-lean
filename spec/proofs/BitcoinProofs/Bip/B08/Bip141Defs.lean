@@ -1,7 +1,7 @@
 /-
 BitcoinProofs.Bip.B08.Bip141Defs — BIP141 (SegWit, consensus layer) clause models.
 
-B08 Review-5 support suite, 2026-10-16. Ground truth: BIP141.mediawiki
+2026-10-16. Ground truth: BIP141.mediawiki
 (public domain) fetched from bitcoin/bips master; Core @ cce32b168 for the
 witness-merkle shape (merkle.cpp:BlockWitnessMerkleRoot) and the BIP9
 segwit deployment constants (deploymentinfo.cpp: threshold 1916).
@@ -9,7 +9,7 @@ segwit deployment constants (deploymentinfo.cpp: threshold 1916).
 Every definition here is pure, computable, axiom-free. The Double-SHA256
 combine of the witness merkle is injected as `combine` (a documented seam);
 its byte-level behaviour is cross-checked in python3
-(scratch/B08/bip141_xcheck.py) against hashlib, mirroring Core's
+against hashlib, mirroring Core's
 MerkleComputation (odd count duplicates the last leaf).
 -/
 
@@ -49,10 +49,22 @@ def dispatchProgram (v : Nat) (prog : List Nat) : WitKind :=
     else .invalidV0Size
   else .future v
 
+/-- Core's `CastToBool` loop (interpreter.cpp:46-59), ported to the
+`List Nat` byte representation: scan from the least-significant (wire-
+first) byte; the first nonzero byte decides, except that a lone `0x80`
+in the most-significant (wire-last) position is negative zero and casts
+to false. This is `Bitcoin.Numeric.castToBool` on `bytesOf`, written as
+the literal Core loop so the B08 suite does not depend on the numeric
+module. -/
+def castToBool : List Nat → Bool
+  | [] => false
+  | b :: rest =>
+      if b != 0 then
+        if rest = [] ∧ b = 0x80 then false else true
+      else castToBool rest
+
 /-- BIP141 footnote (consensus): for any version byte 0..16 the script must
 fail if the witness program's `CastToBool` value is zero. -/
-def castToBool (bytes : List Nat) : Bool := bytes.any (· != 0)
-
 def programMustFailCastToBool (v : Nat) (prog : List Nat) : Bool :=
   decide (v ≤ 16) && !castToBool prog
 
@@ -234,12 +246,15 @@ retarget period; 2016·95/100 floors to 1915, Core pins 1916). -/
 def segwitParams : Bip9Params := ⟨1, 1479168000, 1510704000, 2016, 1916⟩
 
 /-- One retarget-boundary transition (versionbits.cpp:AbstractThreshold-
-ConditionCache, counting abstracted to the boundary sigcount). -/
+ConditionCache, counting abstracted to the boundary sigcount). Core
+tests the SIGNAL COUNT first (`nThreshold >= threshold ⇒ LOCKED_IN`) and
+only then the timeout (`nTime >= timeout ⇒ FAILED`), so a boundary with
+enough signals locks in even at/after the timeout. -/
 def bip9Step (p : Bip9Params) (s : Bip9State) (t sigs : Nat) : Bip9State :=
   match s with
   | .defined => if p.start ≤ t then .started else .defined
-  | .started => if p.timeout ≤ t then .failed
-                else if p.threshold ≤ sigs then .lockedIn else .started
+  | .started => if p.threshold ≤ sigs then .lockedIn
+                else if p.timeout ≤ t then .failed else .started
   | .lockedIn => .active
   | .active => .active
   | .failed => .failed

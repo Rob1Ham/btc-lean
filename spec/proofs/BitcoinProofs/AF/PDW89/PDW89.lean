@@ -3,7 +3,7 @@ import Bitcoin.Activation.Flags
 
 /-! # PDW89 — final promotion push: decodeNum / MINIMALIF / NOP / pubkey-type row faces
 
-Rows: SCR-051, SCR-059, SCR-078, SCR-154, SCR-157, SCR-182. Route B:
+Rows: SCR-051, SCR-059, SCR-078, SCR-071, SCR-157, SCR-182. Route B:
 theorems over existing core definitions; zero core writes. Independently
 reproduced row faces (peer probes PDW96/PDW98 used only as cross-checks). -/
 
@@ -95,12 +95,12 @@ theorem stepBody_drop_empty {ctx : Ctx} {op : WireOp} {st : State} {o : Fin 256}
   simp [ha, hw, hsv, hfe, hbudget, hstack,
     Nat.not_lt.mpr hbudget, Bitcoin.Interpreter.stepBody.dispatchOp, disabledWire]
 
-/-! ## SCR-154 — DISCOURAGE_UPGRADABLE_NOPS policy gate (OP_NOP1/4..10) -/
+/-! ## SCR-071 — DISCOURAGE_UPGRADABLE_NOPS policy gate (OP_NOP1/4..10) -/
 
-/-- SCR-154: an executed OP_NOP1 / OP_NOP4..OP_NOP10 under the policy
+/-- SCR-071: an executed OP_NOP1 / OP_NOP4..OP_NOP10 under the policy
 flag fails with DISCOURAGE_UPGRADABLE_NOPS; without the flag it is a
 no-op. -/
-@[rule "SCR-154"]
+@[rule "SCR-071"]
 theorem stepBody_discourage_nops {ctx : Ctx} {op : WireOp} {st : State}
     {o : Fin 256}
     (ha : op.ast = .op o)

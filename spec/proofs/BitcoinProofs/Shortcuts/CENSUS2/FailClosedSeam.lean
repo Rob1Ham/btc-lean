@@ -27,7 +27,7 @@ fail-closed axis at every production none-wiring site:
   (`InputVerdict`-DecidableEq); non-Taproot inputs inherit
   `verifyScriptFull`'s verdict (`.unjudged` → the same quarantine).
 
-Nothing reduces `verifyImpl`'s EC math (W14 discipline), the SHA256
+Nothing reduces `verifyImpl`'s EC math (reduction discipline), the SHA256
 layer, or any tagged rule row. No `@[rule]` (nothing is a rules.yaml
 row). New file, CENSUS2-owned, outside the `BitcoinProofs` root closure
 (A18 pattern).
@@ -45,7 +45,7 @@ open Bitcoin.Crypto.Seam Bitcoin.Crypto.Seam.Entry
 
 /-- **B01 site 1** (S03-A4 re-proved independently, no EcdsaDeep
 import): the frozen production Schnorr entry — real BIP340 verifier
-behind W13's gates, BIP342 sighash still the `fun _ _ _ => none`
+behind gates, BIP342 sighash still the `fun _ _ _ => none`
 stand-in (`RealChecker.lean:96-98`) — is constantly `false`. The
 shortcut false-REJECTS everything; it can never false-accept. -/
 
@@ -120,7 +120,7 @@ theorem c2s_taproot_routes_unjudged (height : UInt32) (tx : Tx) (i : Nat)
   rw [if_pos h]
 
 /-- Non-Taproot inputs (`Block.lean:244`'s else arm): the verdict is
-exactly `verifyScriptFull`'s under the real checker (W09 flags = W06
+exactly `verifyScriptFull`'s under the real checker (flags =
 `getBlockScriptFlags` at the block height) — in particular the
 interpreter's `.unjudged` verdict (P15-slot) is inherited as the SAME
 quarantine `unjudgedTaproot`, and `.ok`/`.fail` are the only ways to

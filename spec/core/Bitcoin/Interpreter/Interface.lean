@@ -7,33 +7,29 @@ import Bitcoin.Crypto.Seam.Interface
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Bitcoin.Interpreter — FROZEN INTERFACE (W01), bodies filled by W09
+# Bitcoin.Interpreter — FROZEN INTERFACE, bodies filled
 
-## Ownership block
+## Interface contract
 
-Owning workstream     : W09 (Script interpreter core)
-Dependent workstreams : (depends on) W04, W05 — (depended on by)
-                        W10 (ValidateScript step of validateTx),
-                        W13 (checker seam consumer #1), W16 (differential audit)
 Core counterpart files: src/script/interpreter.cpp (EvalScript:406-570,
                         VerifyScript:2012-2111, cast_to_bool, all limits),
                         src/script/interpreter.h (SCRIPT_ERR_* enum)
-Status                : frozen 2026-10-16 by W01; W09 filled the bodies
+Status: frozen 2026-10-16; filled the bodies
                         and proved the three frozen laws (all `rfl`-or-
                         structural, zero axioms — see the axiom probe).
 
-## Interface-change log (W09; the three changes are documented per the
+## Interface-change log (the three changes are documented per the
 frozen-interface policy — each is additive or a type widening at a
-boundary only W09/W10/W13 consume)
+boundary only consumers use)
 
 * **IC-1 — `ExecError` and `Stack` moved to `Bitcoin.Interpreter.Defs`.**
   The full name `Bitcoin.Interpreter.ExecError` is unchanged; the first
-  13 constructors are the W01 freeze in order, and the remaining
+  13 constructors are the frozen interface in order, and the remaining
   constructors complete the interpreter-facing subset of Core's
   SCRIPT_ERR_* enum (script_error.h), appended after the frozen block.
   `Stack := List ByteArray` (head = top of stack) likewise moved; the
   name is unchanged.
-* **IC-2 — checker/parameter widening.** The W01 placeholders took a
+* **IC-2 — checker/parameter widening.** The placeholders took a
   bare `BaseSignatureChecker`; Core's interpreter calls FOUR virtuals
   (CheckECDSASignature, CheckSchnorrSignature, CheckLockTime,
   CheckSequence) and the frozen seam deliberately carries only the two
@@ -43,13 +39,13 @@ boundary only W09/W10/W13 consume)
   `checkSequenceDef` as pure total defs. `verifyScript` additionally
   takes the policy word (`PolicyFlags`) Core folds into its flag
   argument, and its witness parameter is a single `WitnessStack`
-  (Core's `CScriptWitness` is exactly one stack; the W01
+  (Core's `CScriptWitness` is exactly one stack; the
   `List WitnessStack` modeled the whole tx's witnesses, which
   `verifyScript` — a per-input entry — never used).
 * **IC-3 — hash floor.** The five hash opcodes evaluate through
-  `Bitcoin.Interpreter.Hashes` (W09-owned, corpus-validated). W13's
+  `Bitcoin.Interpreter.Hashes` (corpus-validated).
   `Seam/Hash.lean` real-hash supersession path is documented there;
-  until that interface-change lands, W09's defs are the executable
+  until that interface-change lands, the defs are the executable
   truth and no Backend pre-scan is needed (P2WSH/P2WPKH witness paths
   are fully judged; only taproot script-path spending is `unjudged`).
 
@@ -80,7 +76,7 @@ def evalScript :
 
 /-- VerifyScript (interpreter.cpp:2012-2111): scriptSig then scriptPubKey
 on one stack, P2SH wrapper, witness dispatch, CLEANSTACK final check.
-The consensus entry — flags come from W06's `getBlockScriptFlags`, pol
+The consensus entry — flags come from `getBlockScriptFlags`, pol
 from the mempool policy the caller models. Returns `true` iff every
 check passes (`unjudged` taproot script-path outcomes count as `false`
 at this Boolean entry; the full taxonomy is `verifyScriptFull`). -/
@@ -92,7 +88,7 @@ def verifyScript :
     | .ok => true
     | _ => false
 
-/-! ## Frozen laws (W09 exit criteria) -/
+/-! ## Frozen laws (the interpreter layer exit criteria) -/
 
 /-- Determinism: same fuel/flags/program/stack/checker ⇒ same result.
 (The checker must itself be deterministic — see Seam interface.) -/

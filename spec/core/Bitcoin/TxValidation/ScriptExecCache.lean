@@ -6,11 +6,10 @@ import Bitcoin.RuleAttr
 /-!
 # Bitcoin.TxValidation.ScriptExecCache — TXV-062: the script-execution cache
 
-Landing row TXV-062 (F-TXVB-006 unblocked, route B): Core's
+Landing row TXV-062 (the cache-model note unblocked, route B): Core's
 `CheckInputScripts` **script-execution-cache slice** —
 validation.cpp:2076-2083 (key + hit) + 2135-2139 (insert) @cce32b168
-(row pin 2086-2093 drift, F-TXVB-008; evidence-verbatim
-`spec/db/findings-rc/TXV-A-evidence/cce32b168_validation.cpp` md5
+(row pin 2086-2093 drift, the field-order note; evidence md5
 6562d845):
 
 ```cpp
@@ -33,7 +32,7 @@ if (cacheFullScriptStore && !pvChecks) {                          // :2135
 
 The row's own text marks the layer "(optimization, provably
 transparent)" = a NON-CONSENSUS CuckooCache perf layer; this file is
-the honest model F-TXVB-006 asked for: a cache map + the cached-hit ⇒
+the honest model the cache-model note asked for: a cache map + the cached-hit ⇒
 same-verdict transparency law.
 
 ## What is modeled (Core-faithful)
@@ -59,16 +58,16 @@ same-verdict transparency law.
   - **executed** (:2122-2132): miss + `!pvChecks` ⇒ the executed
     verdict `exec k`; a PASS (`exec k = some true`) stores the key iff
     `cacheFullScriptStore` (:2135-2139) — a FAIL, an `unjudged`
-    (X09's taproot-EC `none`) or a deferred run NEVER stores.
+    (the transaction-validation module's taproot-EC `none`) or a deferred run NEVER stores.
   `exec : Key → Option Bool` is the model's honesty precondition for
   the transparency (Core's :2106-2111 CScriptCheck comment: "we very
   carefully only pass in things to CScriptCheck which are clearly
   committed to by tx' witness hash" + `assert(!coin.IsSpent())` :2091
   — only key-committed data enters the executed verdict): the would-be
-  `Full.scriptLaneTx` verdict (X09's `Option Bool` idiom) as a
+  `Full.scriptLaneTx` verdict (the transaction-validation module's `Option Bool` idiom) as a
   function of the key alone.
 
-## What is deliberately out of model (F-TXVB-006's scope note)
+## What is deliberately out of model (the cache-model note's scope note)
 
 * CuckooCache randomized eviction, epoch/erasure locking (the
   `contains`'s second arg `!cacheFullScriptStore`, the
@@ -77,7 +76,7 @@ same-verdict transparency law.
 * `cacheSigStore`/`m_signature_cache` (scriptcache.h, the per-signature
   `CScriptCheck` cache) = a different cache;
 * the `CheckInputsFromMempoolAndCache` re-run channel (:1176-1181 =
-  TXV-061) and the error-KIND split (:2126-2131 = F-TXVB-005).
+  TXV-061) and the error-KIND split (:2126-2131 = the error-kind note).
 
 ## The laws (all sorry-free, axiom pins at the file end)
 
@@ -109,7 +108,7 @@ structure ScriptExecCacheKey where
   wtxid : ByteArray
   flags : ScriptFlags
 
-/-! `BEq` = the W12 `OutPoint` pattern (`Data/Tx.lean:42`:
+/-! `BEq` follows the ledger `OutPoint` pattern (`Data/Tx.lean:42`:
 `bytesBEq hash && n == n`): the byte-eq on the wtxid half, the
 (derived `DecidableEq`) decide on the flags half. -/
 instance : BEq ScriptExecCacheKey where
@@ -152,7 +151,7 @@ def emptyCache : ScriptExecCache := fun _ => false
 /-- One `CheckInputScripts` run over the script-execution cache.
 `exec k` = the EXECUTED verdict for the key's `(wtxid, flags)` (the
 :2106-2111 wtxid-commitment precondition; `some true` = every input
-verified (X09 `scriptLane` `.ok`), `some false` = a script failure
+verified (the transaction-validation module `scriptLane` `.ok`), `some false` = a script failure
 (`:2126-2131` `state.Invalid`), `none` = the unjudged taproot-EC
 queue). `store = cacheFullScriptStore`, `pv = pvChecks ≠ null`.
 Returns the run's verdict and the resulting cache. -/
@@ -235,7 +234,7 @@ theorem checkInputScriptsCached_fail_closed (c : ScriptExecCache)
       · exact absurd hhit (by simpa [hmiss] using hhit)
 
 /-- Never cache what you cannot adjudicate: the unjudged queue (`none`
-= X09's taproot-EC outside-seam verdict) propagates and stores
+= the transaction-validation module's taproot-EC outside-seam verdict) propagates and stores
 nothing. -/
 @[rule "TXV-062"]
 theorem checkInputScriptsCached_unjudged_propagate (c : ScriptExecCache)
@@ -309,7 +308,7 @@ def cacheAfter (c : ScriptExecCache) (k : ScriptExecCacheKey)
     (exec : ScriptExecCacheKey → Option Bool) (store pv : Bool) :
     ScriptExecCache := (checkInputScriptsCached c k exec store pv).2
 
-/-- The insert-discipline invariant (the `(a)`-half of the F-TXVB-006
+/-- The insert-discipline invariant (the `(a)`-half of the cache-model note
 transparency argument): `GoodCache exec store c` = `c` is reachable
 from the empty cache by `checkInputScriptsCached` runs, every store
 being a miss + !pvChecks + store + PASS insert (the `hins` step is
@@ -367,7 +366,7 @@ theorem checkInputScriptsCached_consensus_invisible (c : ScriptExecCache)
       (by simpa [hhit] using hhit) hnpv
 
 /-! ## Vectors (the arm grid; `Eq Bool` statements only, the
-F-S04-007 / Y10 Eq-Bool idiom; `P4b`-style constructor-kind
+ / Y10 Eq-Bool idiom; `P4b`-style constructor-kind
 projections for the `Option Bool` verdicts) -/
 
 private def isAcc (r : Option Bool) : Bool :=

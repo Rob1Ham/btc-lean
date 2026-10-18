@@ -3,7 +3,7 @@ import Bitcoin.Ledger.Interface
 import Bitcoin.DataLaws.Interface
 
 /-!
-# Bitcoin.TxValidation.Mempool — X09: the mempool-context tx layer
+# Bitcoin.TxValidation.Mempool — the transaction-validation module: the mempool-context tx layer
 
 The tx corpus carries NO block context, so the context-domain TXV rows
 (finality-at-tip, sequence-locks-at-tip, the `MEMPOOL_HEIGHT` sentinel,
@@ -11,7 +11,7 @@ same-block spend ordering, wtxid identity) live above the stateless and
 script slices: this module is Core's `CheckFinalTxAtTip` /
 `CheckSequenceLocksAtTip` / mempool side of `ConnectBlock`'s `UpdateCoins`
 loop (validation.cpp:156-175, 255-270, 2571-2606; txmempool.h:51;
-transaction.cpp:86-93), expressed over the frozen W10/W12 algebra.
+transaction.cpp:86-93), expressed over the frozen algebra.
 
 ## What is proven here (all sorry-free; axiom pins at the file end)
 
@@ -89,7 +89,7 @@ theorem finalAtTip_finalAtNext (tx : Tx) (tipH tipMtp : UInt32)
 height-projection verdict evaluated against the NEXT block height
 (`tipHeight + 1`; `CalculatePrevHeights` feeds per-input coin heights
 from the view). Time-domain locks are `sequenceLocksOk`'s business
-(W12's seam carries the parent-MTP chain); this is the height-domain
+(seam carries the parent-MTP chain); this is the height-domain
 half the tip context determines. -/
 @[rule "TXV-041"]
 def checkSequenceLocksAtTip (tx : Tx) (u : UtxoSet) (csvFlag : Bool) (tipH : UInt32) : Bool :=

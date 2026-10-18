@@ -4,7 +4,7 @@ import Bitcoin.Ledger.Utxo
 import Bitcoin.Conservation.Interface
 
 /-!
-# BitcoinProofs.Conservation.Thms — W08's T1 theorem tier (sorry-free)
+# BitcoinProofs.Conservation.Thms — T1 theorem tier (sorry-free)
 
 Zero-dependency (imports only the `core` package; mathlib is NOT needed for
 any theorem here, so this file also builds where mathlib resolution is slow).
@@ -19,7 +19,7 @@ any theorem here, so this file also builds where mathlib resolution is slow).
 We are NOT assuming:
 
 * anything about signatures, hashes, ECDSA or Schnorr — the crypto tower
-  (W13 seam / W14 curve) plugs in **under** this abstraction by
+  (seam / curve) plugs in **under** this abstraction by
   instantiating `InputAuth := fun i => VerifyScript ... i ...`;
 * that `InputAuth` is decidable, deterministic, sound, or complete;
 * that the inputs exist — existence is the separate `hexists` hypothesis
@@ -43,11 +43,11 @@ that 31/55 portfolio theorems need zero crypto.
 | THM-040  | `supplyAt` + `supplyAt_le_cap`      | VERIFIED (schedule tier) |
 | rules INV-030/TXV-025 | `fee_moneyRange`, `moneyRange_add` | VERIFIED |
 
-Block-level conservation (C4 THM-037) and the chain-level cap over W12's
-`applyBlock` fold are W12/W15 deliverables — deliberately NOT stated here
-(see the W08 report, "handed to W12"); no `sorry` is carried for them.
+Block-level conservation (C4 THM-037) and the chain-level cap over
+`applyBlock` fold are deliberately NOT stated here; no `sorry` is
+carried for them.
 
-## Lean-toolchain note (W08 finding, keep for future reviews)
+## Lean-toolchain note (keep for future reference)
 
 `omega` in Lean 4.34.1 cannot process facts/goals whose `HAdd`/`Eq`/literal
 applications carry the `Amount` abbrev (=`Int`) as their type argument — it
@@ -203,7 +203,7 @@ theorem totalIn_eq (u : UtxoSet) (tx : Tx) : totalIn u tx = totalInVin u tx.vin 
 
 theorem totalInVin_nil (u : UtxoSet) : totalInVin u [] = 0 := rfl
 
-/-- `totalIn` is additive over concatenating input lists (the shape W12's
+/-- `totalIn` is additive over concatenating input lists (the shape
 `updateCoins` fold needs). -/
 theorem totalInVin_append (u : UtxoSet) (a b : List TxIn) :
     totalInVin u (a ++ b) = totalInVin u a + totalInVin u b := by
@@ -229,7 +229,7 @@ theorem totalInVin_nonneg (u : UtxoSet) : ∀ (l : List TxIn),
       exact intSumNonneg _ _ hnn (h i List.mem_cons_self)
 
 /-- Each spent coin's value is covered by the input sum (the per-coin
-lemma W12's UTXO-value bookkeeping needs; CVE-2010-5137 lineage). -/
+lemma UTXO-value bookkeeping needs; CVE-2010-5137 lineage). -/
 theorem totalInVin_ge_contrib (u : UtxoSet) : ∀ (l : List TxIn),
     (∀ i ∈ l, 0 ≤ contrib u i) → ∀ (i : TxIn), i ∈ l → contrib u i ≤ totalInVin u l := by
   intro l
@@ -379,7 +379,7 @@ def totalIssuance : Nat := issuanceThrough 33
 theorem totalIssuance_exact : totalIssuance = 2099999997690000 := by
   decide
 
-/-- THM-039: the total supply is under the 21M cap with 231,000 sats to
+/-- THM-039: the total supply is under the 21M cap with 2,310,000 sats to
 spare — the "geometric bookkeeping" bound. -/
 theorem totalIssuance_le_cap : totalIssuance ≤ 21000000 * 100000000 := by
   decide
@@ -454,7 +454,7 @@ def coinbaseAmountOk (height : UInt32) (fees : Amount) (cb : Tx) : Bool :=
 
 /-- THM-038: a coinbase claiming exactly subsidy + fees passes the check.
 (The full "no inflation" statement — that Σfees really is the recyclable
-surplus of the block's txs — is C4 THM-037 and lands with W12's
+surplus of the block's txs — is C4 THM-037 and lands with
 `updateCoins` fold; handed off, not sorry-carried.) -/
 theorem coinbase_cap_exact (cb : Tx) (height : UInt32) (fees : Amount)
     (_hfees : 0 ≤ fees)

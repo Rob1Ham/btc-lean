@@ -3,7 +3,7 @@ import Bitcoin.Block.Index
 import Bitcoin.Block.Params
 import Bitcoin.Invariants.RC12
 
-/-! # PDW46.lean — proof-promotion review RC27, items TOP-226..230
+/-! # PDW46.lean — RC27, items TOP-226..230
 (PDW46, 2026-10-17; claim 2f2008c).
 
 D-POW difficulty transitions + testnet walk-back
@@ -298,12 +298,12 @@ theorem assumevalidSkipped_below_guard (a h : Nat) (hlt : h < a) :
   simp only [assumevalidSkipped, Option.map_some, Option.getD_some]
   rw [ite_eq_left (by simp [hlt])]
 
-/-- **BLK-123** (full characterization): with an assumevalid pin `a`, the
-skip holds iff the input is STRICTLY below the ancestor AND the
-equivalent-time guard `g` holds. The guard is an explicit trust parameter
-(the caller supplies the 2-week equivalent-time result); no skip is
-possible without it. This quantifies over both the trust parameter and the
-guard, not just the `h < a` instance. -/
+/-- **BLK-123** (height projection): the shared
+`Bitcoin.Block.Params.assumevalidSkipped` model skips iff the input is
+strictly below the ancestor AND the guard bit holds.  This is only the
+height projection; `assumevalidSkippedCore` below adds Core's hash,
+ancestor, best-header, and chainwork gates and uses `h ≤ a`, so the
+assumevalid block's own height is included. -/
 @[rule "BLK-123"]
 theorem assumevalidSkipped_some_iff (a h : Nat) (g : Bool) :
     assumevalidSkipped (some a) h g = true ↔ h < a ∧ g = true := by
@@ -398,6 +398,104 @@ theorem assumevalidGuard_iff (tipWork ancestorWork tipBlockWork
   unfold assumevalidGuard
   rw [equivTimeGuard_iff]
   exact Int.ofNat_lt
+
+/-! ## BLK-123 — the full `ConnectBlock` assumevalid gate set
+
+`Bitcoin.Block.Params.assumevalidSkipped` is the height projection only.
+Core `CChainState::ConnectBlock` (validation.cpp:2239-2266) additionally
+requires, before it even evaluates the equivalent-time guard:
+
+* the configured assumevalid hash is present in the block index
+  (`m_blockman.m_block_index.find(AssumedValidBlock()) != end()`);
+* the candidate is an ancestor of the assumevalid block at the candidate
+  height (`it->second.GetAncestor(pindex->nHeight) == pindex`);
+* the candidate is an ancestor of the best header at the same height
+  (`m_best_header->GetAncestor(pindex->nHeight) == pindex`);
+* `m_best_header->nChainWork >= MinimumChainWork()`.
+
+The height boundary is `h ≤ a`, so the assumevalid block itself is
+eligible.  The model below makes all five gates explicit. -/
+
+/-- BLK-123: the configured assumevalid hash is only a pin when the hash
+is found in the block index; an unknown hash yields no pin (Core's
+`find(...) == end()` branch). -/
+@[rule "BLK-123"]
+def assumevalidPinHeight (configured : Option ByteArray)
+    (lookup : ByteArray → Option Nat) : Option Nat :=
+  configured.bind lookup
+
+/-- BLK-123: an unindexed assumevalid hash supplies no height pin. -/
+@[rule "BLK-123"]
+theorem assumevalidPinHeight_none_of_missing (hash : ByteArray)
+    (lookup : ByteArray → Option Nat) (h : lookup hash = none) :
+    assumevalidPinHeight (some hash) lookup = none := by
+  simp [assumevalidPinHeight, h]
+
+/-- **BLK-123** (full Core gate): `hashFound` is the block-index lookup,
+`onAssumeValidChain` / `onBestHeaderChain` are the two `GetAncestor`
+checks, and `bestHeaderWork`/`minimumChainWork` are the anti-DoS work
+comparison.  `equivTimeGuard` is Core's strict two-week test. -/
+@[rule "BLK-123"]
+def assumevalidSkippedCore (a h : Nat) (hashFound onAssumeValidChain
+    onBestHeaderChain : Bool) (bestHeaderWork minimumChainWork : Nat)
+    (equivTime : Int) : Bool :=
+  decide (h ≤ a) && hashFound && onAssumeValidChain && onBestHeaderChain &&
+    decide (minimumChainWork ≤ bestHeaderWork) && equivTimeGuard equivTime
+
+/-- **BLK-123** (full characterization): every Core gate is necessary and
+sufficient for the skip. -/
+@[rule "BLK-123"]
+theorem assumevalidSkippedCore_iff (a h : Nat) (hashFound onAssumeValidChain
+    onBestHeaderChain : Bool) (bestHeaderWork minimumChainWork : Nat)
+    (equivTime : Int) :
+    assumevalidSkippedCore a h hashFound onAssumeValidChain onBestHeaderChain
+        bestHeaderWork minimumChainWork equivTime = true ↔
+      h ≤ a ∧ hashFound = true ∧ onAssumeValidChain = true ∧
+        onBestHeaderChain = true ∧ minimumChainWork ≤ bestHeaderWork ∧
+        1209600 < equivTime := by
+  unfold assumevalidSkippedCore
+  simp only [Bool.and_eq_true, decide_eq_true_eq, equivTimeGuard_iff]
+  simp [and_assoc, and_left_comm, and_comm]
+
+/-- **BLK-123** (boundary): at the assumevalid block's own height the full
+gate can still skip.  The old `h < a` projection excluded exactly this
+height. -/
+@[rule "BLK-123"]
+theorem assumevalidSkippedCore_at_pin (a : Nat) (hashFound onAssumeValidChain
+    onBestHeaderChain : Bool) (bestHeaderWork minimumChainWork : Nat)
+    (equivTime : Int) :
+    assumevalidSkippedCore a a hashFound onAssumeValidChain onBestHeaderChain
+        bestHeaderWork minimumChainWork equivTime = true ↔
+      hashFound = true ∧ onAssumeValidChain = true ∧
+        onBestHeaderChain = true ∧ minimumChainWork ≤ bestHeaderWork ∧
+        1209600 < equivTime := by
+  rw [assumevalidSkippedCore_iff]
+  simp
+
+/-- **BLK-123** (boundary): above the assumevalid block nothing is
+skipped, regardless of the other gates. -/
+@[rule "BLK-123"]
+theorem assumevalidSkippedCore_above_pin (a h : Nat) (hgt : a < h)
+    (hashFound onAssumeValidChain onBestHeaderChain : Bool)
+    (bestHeaderWork minimumChainWork : Nat) (equivTime : Int) :
+    assumevalidSkippedCore a h hashFound onAssumeValidChain onBestHeaderChain
+        bestHeaderWork minimumChainWork equivTime = false := by
+  have hle : ¬ h ≤ a := by omega
+  unfold assumevalidSkippedCore
+  simp [hle]
+
+/-- **BLK-123** regression (gates and boundary): missing hash, either
+ancestor relation, or enough best-header work blocks the skip; the
+assumevalid height itself is included. -/
+@[rule "BLK-123"]
+theorem assumevalid_gate_regression :
+    assumevalidSkippedCore 100 50 false true true 1000 0 1209601 = false ∧
+    assumevalidSkippedCore 100 50 true false true 1000 0 1209601 = false ∧
+    assumevalidSkippedCore 100 50 true true false 1000 0 1209601 = false ∧
+    assumevalidSkippedCore 100 50 true true true 0 1000 1209601 = false ∧
+    assumevalidSkippedCore 966143 966143 true true true 1 0 1209601 = true ∧
+    assumevalidSkippedCore 966143 966144 true true true 1 0 1209601 = false := by
+  decide
 
 /-- **BLK-123** (boundary vector): one difficulty period (2016 blocks at
 600 s) is exactly two weeks, so it is NOT enough; one more block clears

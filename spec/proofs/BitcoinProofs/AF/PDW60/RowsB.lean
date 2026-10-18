@@ -1,6 +1,6 @@
 import Bitcoin.Interpreter.Rules
 
-/-! # PDW60 RowsB — TOP-323/324: SCR-163, SCR-172 (review RC29).
+/-! # PDW60 RowsB — TOP-323/324: SCR-163, SCR-172 (RC29).
 Route B status-debt promotion on the BIP341/342 hashtype and
 disabled→OP_SUCCESS predicates; zero core writes. -/
 

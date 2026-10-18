@@ -4,14 +4,13 @@ import Bitcoin.Chain.Basic
 import Bitcoin.Capstone.Pow
 
 /-!
-# Z11 dark-corner audit — null-prevout empty-vs-32-byte + UInt32 target truncation (W4 suite)
+# Z11 dark-corner audit — null-prevout empty-vs-32-byte + UInt32 target truncation
 
-NEW file, owned by Z11, 2026-10-16. Python3 probes: scratch
-`build/scratch/build/scratch/scratch/Z11/` (`z11_c1_nullprevout_probe.py`,
-`z11_c2_setcompact_probe.py`). Findings: `spec/db/findings-w4/Z11.md`.
+2026-10-16. Python3 probes:
+`z11_c1_nullprevout_probe.py`,
+`z11_c2_setcompact_probe.py`).
 
-Ground truth: Bitcoin Core @ `cce32b168`, vendored at
-`build/scratch/W02/bitcoin/src/`.
+Ground truth: Bitcoin Core @ `cce32b168`.
 
 ## C1 — Null prevout: empty-vs-32-byte distinction (Review-1 C1 bug)
 
@@ -55,7 +54,7 @@ F-Z11-003 (closed): Core's `fNegative` arm (`arith_uint256.cpp:188`:
 word ≠ 0 ∧ bit 0x00800000 set → reject at `pow.cpp:155`) is now applied by
 `targetOk` through `Bitcoin.Capstone.Pow.setCompactFull`. The sign-bit
 encoding `0x03800123` is REJECTED, matching Core; the pin below records the
-corrected result. Owner: BLK-037/038 (W17/X08 decode-gate rows).
+corrected result (BLK-037/038, X08 decode-gate rows).
 -/
 
 namespace Bitcoin.Proofs.Audit.Z11

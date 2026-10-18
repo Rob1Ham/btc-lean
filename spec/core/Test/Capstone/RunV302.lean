@@ -6,26 +6,26 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Test.Capstone.RunV302 — Review-6 anchor expansion round 4, contributor V3-02
+# Test.Capstone.RunV302 — anchor expansion
 
-Self-contained copy of the W17 capstone runner machinery (`Test.Capstone.Run`
-via the W4 `Test.Capstone.RunV01` copy: runAnchor/probeTx/seedCoins verbatim —
+Self-contained copy of the capstone runner machinery (`Test.Capstone.Run`
+via the `Test.Capstone.RunV01` copy: runAnchor/probeTx/seedCoins verbatim —
 ZERO consensus code changed) so the run executes via read-only `lean --run`
 with an explicit LEAN_PATH (shared `.lake` build dir and global build lock
 untouched; no existing runner file edited).
 
 Validates THREE real mainnet blocks (2011–2012 sweep, all pre-BIP34,
-pre-segwit) through the exact Review-2 capstone pipeline `validateBlock`:
+pre-segwit) through the exact capstone pipeline `validateBlock`:
 
   123456 · 150000 · 200000
 
-Reads (contributor-owned corpus, header-hash-verified at fetch):
+Reads (externally supplied corpus, header-hash-verified at fetch):
   spec/vectors/anchors4/V3-02/<H>.raw     — serialized block
   spec/vectors/anchors4/V3-02/<H>.parent  — REAL parent hash (display hex)
   spec/vectors/anchors4/V3-02/<H>.seeds   — `<wire txid> <height> <raw tx hex>`
 
 Seeds are the PRE-BLOCK UTXO view: same-block prevouts are excluded at fetch
-time (F-V01-001 lesson — pre-BIP34 heights enforce BIP30; the fold re-creates
+time (note: pre-BIP34 heights enforce BIP30; the fold re-creates
 same-block coins itself).
 
 Run (read-only, lock-free):
@@ -172,13 +172,13 @@ where
 
 /-! ## V3-02 expansion anchors -/
 
-/-- The Review-6 V3-02 expansion blocks (2011–2012 sweep, pre-BIP34/pre-segwit). -/
+/-- The 2011–2012 expansion blocks (pre-BIP34/pre-segwit). -/
 def anchorsV302 : List Nat := [123456, 150000, 200000]
 
 /-- Per-tx adjudication trace (recorded even on PASS). Sequential fold: each
 tx is probed against the state after txs 0..i-1 — the state `validateBlock`
 actually sees (RunV01 semantics, avoids the raw-seed probe artifact of
-Run.lean / F-V01-002). -/
+Run.lean). -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do
   let raw ← IO.FS.readBinFile s!"{dir}/{height}.raw"
   let seedLines ←

@@ -32,7 +32,7 @@ are recorded as `no obligation: unmodelled` in
 vacuous or invented predicates.
 
 Core anchors are line numbers in the pinned tree
-`build/scratch/core-build/src` at commit `cce32b168`.  When that tree is
+`src` at commit `cce32b168`.  When that tree is
 absent, the same anchors are the `core_ref` values in
 `spec/db/rules-wallet.yaml`.
 -/
@@ -246,10 +246,14 @@ def oblig_DESC_023 : Prop :=
 /-- **DESC-025.** `multi` preserves the supplied key order, while
 `sortedmulti` first sorts the keys by Core's serialized-key ordering.
 Core anchor: `src/script/descriptor.cpp:1366-1395` and
-`src/pubkey.h:133-137`.  Does not claim that a threshold or key count is
-valid, nor that the resulting script satisfies any policy. -/
+`src/pubkey.h:133-137`.  The hypotheses are Core's parser guards for a
+well-formed `multi`: at least one key and `1 ≤ threshold ≤ keys.length`.
+Without them the model's `expand?` would also accept an empty key list,
+whereas Core rejects `multi(0)` and `multi(t)` with no keys.  Does not
+claim that the resulting script satisfies any policy. -/
 def oblig_DESC_025 : Prop :=
   ∀ (threshold : Nat) (keys : List ByteArray),
+    keys ≠ [] → 1 ≤ threshold → threshold ≤ keys.length →
     expand? (.multi threshold
         (keys.map (fun k => .const none k false "")) false) (fun _ => []) =
       .ok [multiScript threshold keys] ∧
@@ -536,10 +540,13 @@ def oblig_MS_021 : Prop :=
         calcType .p2wsh (.multiA k keys) = MSType.empty
 
 /-- **MS-022.** `THRESH` requires its first child to have `B,d,u` and
-every later child `W,d,u`; when that holds it carries `B,d,u`, and its
-`k` bit is absent whenever two branches mix height and time locks.  Core
-anchor: `src/script/miniscript.cpp:242`.  Does not claim satisfaction
-cardinality or branch selection. -/
+every later child `W,d,u`; when that holds it carries `B,d,u`.  For
+`k ≥ 2` its `k` bit is absent whenever two branches mix height and time
+locks.  The `k ≥ 2` guard is essential: Core applies the mixing test only
+when more than one branch is satisfied, so with `k = 1` the type keeps
+`k` even if the tree contains both kinds of timelock.  Core anchor:
+`src/script/miniscript.cpp:242`.  Does not claim satisfaction cardinality
+or branch selection. -/
 def oblig_MS_022 : Prop :=
   ∀ (ctx : MiniscriptContext) (k : Nat) (x0 : Node) (rest : List Node),
     1 ≤ k → k ≤ (x0 :: rest).length →
@@ -551,12 +558,13 @@ def oblig_MS_022 : Prop :=
           ∀ x : Node, x ∈ rest →
             (calcType ctx x).Sub (ty [.W, .d, .u]) = true) →
         (calcType ctx (.thresh k (x0 :: rest))).Sub (ty [.B, .d, .u]) = true) ∧
-      (∀ (a b : Node), a ∈ x0 :: rest → b ∈ x0 :: rest →
-        (((calcType ctx a).has .g = true ∧ (calcType ctx b).has .h = true) ∨
-          ((calcType ctx a).has .h = true ∧ (calcType ctx b).has .g = true) ∨
-          ((calcType ctx a).has .i = true ∧ (calcType ctx b).has .j = true) ∨
-          ((calcType ctx a).has .j = true ∧ (calcType ctx b).has .i = true)) →
-        (calcType ctx (.thresh k (x0 :: rest))).has .k = false)
+      (2 ≤ k →
+        ∀ (a b : Node), a ∈ x0 :: rest → b ∈ x0 :: rest →
+          (((calcType ctx a).has .g = true ∧ (calcType ctx b).has .h = true) ∨
+            ((calcType ctx a).has .h = true ∧ (calcType ctx b).has .g = true) ∨
+            ((calcType ctx a).has .i = true ∧ (calcType ctx b).has .j = true) ∨
+            ((calcType ctx a).has .j = true ∧ (calcType ctx b).has .i = true)) →
+          (calcType ctx (.thresh k (x0 :: rest))).has .k = false)
 
 /-- **MS-023.** `ToScript` emits `PK_K` as the key push alone and `PK_H`
 as `OP_DUP OP_HASH160 <keyhash> OP_EQUALVERIFY`.  Core anchor:
@@ -827,12 +835,16 @@ def oblig_PSBT_011 : Prop :=
 
 /-- **PSBT-012.** Finalizing a non-empty scriptSig or witness clears the
 serialized partial signatures, sighash type, redeem/witness scripts, key
-paths and taproot signing fields.  Core anchor: `src/psbt.h:371`.  The
-preimage maps are not cleared by the committed `finalizeInput`, so their
-suppression is not claimed. -/
+paths and taproot signing fields, and preserves the unknown key-value
+map.  Core anchor: `src/psbt.h:371`.  The preimage maps are not cleared by
+the committed `finalizeInput`, so their suppression is not claimed.  The
+unknown map is also deliberately preserved: Core keeps proprietary pairs
+after finalization, so signing material stored under a proprietary key is
+outside this obligation and can survive. -/
 def oblig_PSBT_012 : Prop :=
   ∀ (i : PsbtInput) (scriptSig : ByteArray) (witness : List ByteArray),
     (scriptSig.isEmpty = false ∨ witness.isEmpty = false) →
+      (finalizeInput i scriptSig witness).unknown = i.unknown ∧
       entriesOfType IN_PARTIAL_SIG (inputKVs (finalizeInput i scriptSig witness)) = [] ∧
       entriesOfType IN_SIGHASH (inputKVs (finalizeInput i scriptSig witness)) = [] ∧
       entriesOfType IN_REDEEMSCRIPT (inputKVs (finalizeInput i scriptSig witness)) = [] ∧

@@ -3,7 +3,7 @@ import Bitcoin.Crypto.Schnorr.TaggedHash
 
 /-!
 # Bitcoin.Crypto.Taproot.TapTweak — the TapTweak tweak and output-key
-# equation (X03, Unit 1)
+# equation (the Taproot module)
 
 BIP341's output-key derivation, the consensus lane of the taproot
 commitment (bip-0341.mediawiki §"Script validation rules" items
@@ -14,10 +14,10 @@ pubkey.cpp:257-263, extrakeys_main_impl.h:142-161 @cce32b168).
 
 ## What is ported where
 
-* `tagTapBranch` — the one TapRoot tag X02 did not need
+* `tagTapBranch` — the one TapRoot tag the Schnorr module did not need
   ("TapBranch"; `HASHER_TAPBRANCH` interpreter.cpp:1887-1896, the only
   Core tag constant without a `Schnorr/TaggedHash.lean` home). Lives HERE,
-  beside the X02-owned tags in the importing relationship: `TapTweak.lean`
+  beside the Schnorr module-owned tags in the importing relationship: `TapTweak.lean`
   imports `Schnorr/TaggedHash.lean` and never edits it.
 * `taptweak` (TPR-015/TPR-083) — `ComputeTapTweakHash` EXACTLY:
   `taggedHash "TapTweak" (p ‖ root)` with `p` the 32 raw internal-key
@@ -61,7 +61,7 @@ pubkey.cpp:257-263, extrakeys_main_impl.h:142-161 @cce32b168).
   Validation-side `P` = `liftX(int(p))` (BIP341:69) — the even-y lift
   (`xonly_pubkey_parse` = `fe_set_b32_limit` + `ge_set_xo_var(0)` =
   even-y + subgroup check, extrakeys_main_impl.h:29-49) — is the
-  caller's job (Unit 3: `VerifyTaprootCommitment`), NOT this def's: the
+  caller's job (`VerifyTaprootCommitment`), NOT this def's: the
   ''negate before tweak for odd y'' dance is signing-side only
   (`keypair_xonly_tweak_add` negates sk for odd-y pk);
   `secp256k1_xonly_pubkey_load` here works on the even-y point.
@@ -70,12 +70,12 @@ pubkey.cpp:257-263, extrakeys_main_impl.h:142-161 @cce32b168).
 
 TPR-015 (TapTweak hash), TPR-017 (tweak range check),
 TPR-083 (null-root tweak) live on this module's defs;
-TPR-016 (commitment equation) is pinned by Unit 3
+TPR-016 (commitment equation) is pinned by the verifier module
 (`Taproot/Verify.lean`).
 
-## Status: X03 Unit 1 — all theorems sorry-free, axioms pinned at the
+## Status: the Taproot module — all theorems sorry-free, axioms pinned at the
 bottom (footprints ⊆ the standard trio `[propext, Classical.choice,
-Quot.sound]`, X02 style). No `sorry`, no `native_decide`.
+Quot.sound]`, the Schnorr module style). No `sorry`, no `native_decide`.
 -/
 
 namespace Bitcoin.Crypto.Taproot
@@ -86,10 +86,10 @@ open Bitcoin.Crypto.Schnorr (taggedHash tagTapTweak taggedHash_size append_size)
 /-! ## The TapBranch tag -/
 
 /-- BIP341 TapBranch tag (bip-0341 §3, `ComputeTapbranchHash`;
-`HASHER_TAPBRANCH` interpreter.cpp:1887-1896). The one taproot tag X02's
-`Schnorr/TaggedHash.lean` does not carry (X02 needed
+`HASHER_TAPBRANCH` interpreter.cpp:1887-1896). The one taproot tag the Schnorr module's
+`Schnorr/TaggedHash.lean` does not carry (the Schnorr module needed
 TapTweak/TapLeaf/TapSighash for its lanes; TapBranch is first used by
-X03 Unit 2's merkle walk). -/
+the Taproot module's merkle walk). -/
 def tagTapBranch : ByteArray := "TapBranch".toUTF8
 
 /-! ## TapTweak (TPR-015 / TPR-083) -/
@@ -128,7 +128,7 @@ collapsed onto the point at infinity:
   group order);
 * `addP P (mulP (tweakScalar p root) G) = none` (i.e. `P + t·G = ∞`)
   → `none` (the `gej_is_infinity` reject, eckey_impl.h:28-30);
-* otherwise `some Q` with `Q = P + int(t)·G` — Unit 3 compares
+* otherwise `some Q` with `Q = P + int(t)·G` — the verifier module compares
   `x(Q) =? q` and `y(Q) parity =? c[0] & 1` (the `memcmp + fe_is_odd`
   pair, extrakeys_main_impl.h:159-160).
 
@@ -143,7 +143,7 @@ def tweakPoint (p : ByteArray) (P : RawPoint) (root : Option ByteArray) :
 
 /-! ## Size/domain theorems -/
 
-/-- The tweak hash is a 32-byte digest (composition of X02's
+/-- The tweak hash is a 32-byte digest (composition of the Schnorr module's
 `taggedHash_size`; TPR-015's hash-domain size contract). -/
 theorem taptweak_size (p : ByteArray) (root : Option ByteArray) :
     (taptweak p root).size = 32 := by
@@ -229,7 +229,7 @@ theorem tweakPoint_zero (p : ByteArray) (P : RawPoint)
 /-- The `RawPoint` coordinate invariant is preserved: `tweakPoint`'s
 output is either `none` (invariant trivially) or a canonical
 representative pair (`addP`/`mulP` outputs, `Curve.Secp.addP_ok` /
-`mulP_ok`; `G` is on-curve with `Gx < P`, `Gy < P`). W14 discipline:
+`mulP_ok`; `G` is on-curve with `Gx < P`, `Gy < P`). Coding discipline:
 no primality, no `sorryAx` — representative bookkeeping only. -/
 theorem tweakPoint_ok (p : ByteArray) (P : RawPoint)
     (root : Option ByteArray) (hp : RawOK P) :
@@ -239,7 +239,7 @@ theorem tweakPoint_ok (p : ByteArray) (P : RawPoint)
   · exact trivial
   · exact addP_ok P _ hp (mulP_ok _ (RawOK.some Gx_lt Gy_lt) _)
 
-/-- Determinism / totality (W14b discipline): `tweakPoint` is a pure
+/-- Determinism / totality (the modular-arithmetic layer discipline): `tweakPoint` is a pure
 function of `(p, P, root)` — equal inputs, equal verdicts. Consensus
 requirement (BIP341 §design): the taproot commitment check is
 completely specified at the byte level. -/
@@ -249,10 +249,10 @@ theorem tweakPoint_congr (p₁ p₂ : ByteArray) (P₁ P₂ : RawPoint)
     tweakPoint p₁ P₁ root₁ = tweakPoint p₂ P₂ root₂ := by
   subst hp; subst hP; subst hr; rfl
 
-/-! ## Axiom footprints (X02 style: `#guard_msgs in #print axioms`)
+/-! ## Axiom footprints (the Schnorr module style: `#guard_msgs in #print axioms`)
 
 All sorry-free; footprints ⊆ the standard trio
-`[propext, Classical.choice, Quot.sound]` (X10 convention: `choice`
+`[propext, Classical.choice, Quot.sound]` (the Schnorr-entry analysis convention: `choice`
 inherited from the generalized layers — `simp`/`omega`-closured
 structural proofs), pinned by the guard block below.
 -/

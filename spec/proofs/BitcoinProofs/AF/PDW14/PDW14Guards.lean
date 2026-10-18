@@ -12,7 +12,7 @@ Expected lines = the g2.out pass-2 output verbatim (the
 (BLK-103) additionally rides the CORE pin
 `Bitcoin.TxValidation.checkTxInputs_ok_conservation` =
 [propext, Classical.choice, Quot.sound] (Interface.lean:1122,
-`#guard_msgs`-pinned W10), its promotion target. -/
+`#guard_msgs`-pinned), its promotion target. -/
 
 /-- info: 'BitcoinProofs.AF.PDW14.commitmentGate_forces_binding' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW14.commitmentGate_forces_binding

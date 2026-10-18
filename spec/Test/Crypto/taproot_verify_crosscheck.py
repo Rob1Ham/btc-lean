@@ -190,10 +190,11 @@ print(f"crosscheck: {ok2} official output-case literals re-derived from the "
 
 # ---------- 3. mirror the 4 synthetic script-path verdicts ----------
 
-def script_path_spend(control, script):
+def script_path_spend(control, script, program):
     """Mirror of Verify.scriptPathSpend: spec TPR-009 lattice
     (TAPROOT_CONTROL_BASE_SIZE = 33), path nodes at
-    33 + 32i, masked tapleaf, tweak+parity commitment, 0xc0 dispatch."""
+    33 + 32i, masked tapleaf, tweak+parity commitment with Core's
+    q == x(Q) 32-byte program binding, 0xc0 dispatch."""
     if not (33 <= len(control) <= 33 + 128 * 32
             and (len(control) - 33) % 32 == 0):
         return None
@@ -206,7 +207,8 @@ def script_path_spend(control, script):
     q = tweak_key(internal, k)
     if q is None: return (tl, False, (control[0] & 0xfe) == 0xc0)
     parity_ok = (control[0] & 1) == (q[1] & 1)
-    return (tl, parity_ok, (control[0] & 0xfe) == 0xc0)
+    program_ok = len(program) == 32 and program == q[0].to_bytes(32, 'big')
+    return (tl, parity_ok and program_ok, (control[0] & 0xfe) == 0xc0)
 
 def def_hex(name):
     m = re.search(r'def %s : ByteArray :=\s*fromHex "([0-9a-f]+)"' % name, src)
@@ -224,12 +226,13 @@ q1 = pt_add(lift_x(int.from_bytes(pk1, 'big')), pt_mul(t, G))
 parity = q1[1] & 1
 control = bytes([0xc0 | parity]) + pk1
 assert len(control) == 33
+program = q1[0].to_bytes(32, 'big')
 
 verdicts = {
-    'accept':       script_path_spend(control, script1),
-    'wrongparity':  script_path_spend(bytes([0xc0 | (1 - parity)]) + pk1, script1),
-    'corruptpath':  script_path_spend(control + garbage, script1),
-    'badsize':      script_path_spend(control + b'\x00', script1),
+    'accept':       script_path_spend(control, script1, program),
+    'wrongparity':  script_path_spend(bytes([0xc0 | (1 - parity)]) + pk1, script1, program),
+    'corruptpath':  script_path_spend(control + garbage, script1, program),
+    'badsize':      script_path_spend(control + b'\x00', script1, program),
 }
 assert verdicts['accept'] == (tapleaf(0xc0, script1), True, True), \
     f"accept: {verdicts['accept']}"

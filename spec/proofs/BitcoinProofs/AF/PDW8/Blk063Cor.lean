@@ -3,8 +3,6 @@ import Bitcoin.Block.Params
 /-!
 # Blk063Cor — BLK-063 promotion proof (PDW8, row TOP-36)
 
-PDW8 → PDW8-2 (proof-promotion review 8, continuation after the 06:40
-mid-proof death; recovery review 4), 2026-10-17.
 Row BLK-063 (`prev-blk-not-found`, validation.cpp:4237-4245 @cce32b168):
 the parent must be a known header.
 
@@ -15,7 +13,7 @@ here pin its exact `Option`-index semantics — the accept verdict
 verdict (`= false`, the `prev-blk-not-found` lane) holds iff the
 lookup misses. No mathlib, no decide, no induction; pure
 `cases hh : idx h`-substitution + `nomatch` contradiction + `rfl`
-(iota) — PDW8-2 fix: the `W2a'`/`W6`-gold halves of the false-iff
+(iota) — PDW8-2 fix: the two reference halves of the false-iff
 none-case (PDW8's `intro _; exact hh` / `intro he; exact he` at
 :53/:54 both die on the `cases`-substituted goal — `hh : idx h =
 none` stays in the context while the goal-RHS becomes `none = none`
@@ -23,7 +21,7 @@ and the goal-LHS `(match none …) = false` closes by `rfl` via the
 matcher reduction, cf. the `rw [hn]`-closes-theorem-3 evidence).
 
 Axiom-pinned in-file (D2 L3); zero sorryAx — all 3 theorems
-AXIOM-FREE (PDW8-2 probe W13: the cases/nomatch/rfl-iota route never
+AXIOM-FREE (PDW8-2 probe: the cases/nomatch/rfl-iota route never
 enters the axiom-backed match-motive machinery that gives PDW7's
 INV010 `show`/`rw`-herd its [propext, Classical.choice,
 Quot.sound] set).
@@ -73,7 +71,7 @@ theorem prevHeaderKnown_notFound (idx : Nat → Option Bitcoin.Block.Params.Inde
   unfold Bitcoin.Block.Params.prevHeaderKnown; rw [hn]
 
 /-! ## L3 axiom pins (D2): drift on any of these fails the build.
-All 3 theorems sorry-free AXIOM-FREE (PDW8-2 probe W13) — the
+All 3 theorems sorry-free AXIOM-FREE (PDW8-2 probe) — the
 `cases hh : idx h` + `nomatch` + `rfl`-iota route never enters the
 axiom-backed match-motive machinery (PDW2 F-PDW2-002 class) that
 gives PDW7's INV010 `show`/`rw`-herd its full legal pin-set. Every

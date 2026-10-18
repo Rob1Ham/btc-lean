@@ -4,8 +4,10 @@ import Bitcoin.DataLaws.Interface
 
 /-! # PDW94 — final-push row faces
 
-* **SCR-078** — every executed stack-pop opcode with an empty stack fails
-  with `stackUnderflow`; `popstack`'s `UNKNOWN_ERROR` is unreachable.
+* **SCR-078** — the 19 stack-shuffling opcodes below fail with
+  `stackUnderflow` on an empty stack; this is a named subset, not every
+  consuming opcode (`popstack`'s `UNKNOWN_ERROR` is unreachable on this
+  lane). See the core theorem header for the uncovered families.
 * **TXV-012** — CompactSize `0xfd` non-minimal rejection + canonical
   roundtrip (re-exported from the core serialization bank).
 * **SWT-067** — BIP144 per-input witness framing (definitional faces).
@@ -17,10 +19,11 @@ namespace BitcoinProofs.AF.PDW94
 
 open Bitcoin.Interpreter Bitcoin.Numeric
 
-/-- **SCR-078**: on an empty stack, every executed stack-manipulation
-opcode that consumes an item pre-checks depth and returns
-`SCRIPT_ERR_INVALID_STACK_OPERATION` — the evaluator never reaches a
-throwing `popstack` (Core's `UNKNOWN_ERROR` is unreachable). -/
+/-- **SCR-078 (stack-shuffling subset)**: on an empty stack, the 19
+stack-shuffling opcodes listed in `hw` pre-check depth and return
+`SCRIPT_ERR_INVALID_STACK_OPERATION`. Numeric, hash, control-flow and
+checksig consumers are separate rows: this theorem is not a claim about
+"every consuming opcode". -/
 @[rule "SCR-078"]
 theorem stepBody_stackop_empty_underflow (ctx : Ctx) (op : WireOp) (st : State)
     (c : Fin 256) (ha : op.ast = .op c)

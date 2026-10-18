@@ -2,7 +2,7 @@ import Bitcoin.Consensus.TxCheck
 
 /-! # PDW59b.lean — TOP-318..320: `checkOutputs` value-loop checks
 
-PDW59 (review RC29), claim `da681d5`. Route B, zero core writes.
+PDW59 (RC29), claim `da681d5`. Route B, zero core writes.
 Row faces for `checkTransaction.checkOutputs` (TxCheck.lean:101,
 `tx_check.cpp:31-42` @ cce32b168): per-output non-negativity
 (`bad-txns-vout-negative`, CVE-2010-5139), per-output MAX_MONEY bound

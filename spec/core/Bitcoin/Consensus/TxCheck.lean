@@ -44,7 +44,7 @@ def hasDupPrevouts : List TxIn → Bool
   | [] => false
   | i :: rest => rest.any (fun j => j.prevout == i.prevout) || hasDupPrevouts rest
 
-/-- BIP141 weight model, replicated from the frozen W01 interface to keep
+/-- BIP141 weight model, replicated from the frozen interface to keep
 this module below `DataLaws` in the import graph. `txWeightL tx` is
 *definitionally* `Bitcoin.DataLaws.txWeight tx` (same subterms: `serTx`
 from `Bitcoin.Data.Tx`, the BIP144 framing of `serWitnessStack` /
@@ -82,7 +82,7 @@ def txStrippedWeightL (tx : Tx) : Nat :=
 Traceability: this single function implements the stateless-check rows
 INV-001..009 and TXV-001..009 of the rule DB (`spec/db/rules.yaml`);
 INV-003/TXV-003 (oversize) use Core's stripped-size gate
-`4 * serTxSize tx > MAX_BLOCK_WEIGHT` (`txStrippedWeightL`, F-TS04-001).
+`4 * serTxSize tx > MAX_BLOCK_WEIGHT` (`txStrippedWeightL`).
 The BIP141 transaction weight `txWeightL = 3·base + total` is kept for
 block-weight consumers and is no longer the stateless gate. -/
 @[rule "INV-001", rule "INV-002", rule "INV-004", rule "INV-005",

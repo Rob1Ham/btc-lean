@@ -6,26 +6,26 @@ import Bitcoin.Capstone.Merkle
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# V08Run — Review-4 support suite, contributor V08: mainnet anchor expansion
+# V08Run — support suite: mainnet anchor expansion
 
-Review-4 anchor expansion for blocks **320000 / 333000 / 340000** (2014-2015
-era-boundary points the 6 original W17 anchors miss: pre-BIP66-menu
+anchor expansion for blocks **320000 / 333000 / 340000** (2014-2015
+era-boundary points the 6 original anchors miss: pre-BIP66-menu
 flexibility era, heavy P2SH/P2PK mix, 1MB-limit blocks).
 
-The validation logic is a verbatim reuse of the W17 capstone runner
+The validation logic is a verbatim reuse of the capstone runner
 `spec/core/Test/Capstone/Run.lean` (`seedCoins`, `probeTx`, `runAnchor`,
 `BlockResult` — copied into this NEW file because `Run.lean` fixes the
 anchor list and vector dir, and V08 must not edit existing files).
-Pipeline per block is unchanged: W02 decode → BLK-022..029 structure →
+Pipeline per block is unchanged: decode → BLK-022..029 structure →
 BLK-060/061/062 version gates → BLK-069 BIP34 → PoW (BLK-037..039) →
 chain-link vs the REAL parent hash → merkle (BLK-005..020) + witness
-commitment gate → per-tx W10 checkTransaction + checkTxInputs →
-per-input W09 verifyScriptFull with the REAL W13×W14b ECDSA checker →
-W12 applyTxStepL fold keyed by the REAL txid + foldAgrees cross-check.
+commitment gate → per-tx checkTransaction + checkTxInputs →
+per-input verifyScriptFull with the REAL ECDSA checker →
+applyTxStepL fold keyed by the REAL txid + foldAgrees cross-check.
 
-Vector dir: `spec/vectors/anchors2/V08/` (V08-owned; X12 owns other
-anchors2 subtrees). Files per block: `<H>.raw`, `<H>.hash`, `<H>.parent`,
-`<H>.seeds` (format identical to the W17 anchors: `<wire-order txid>
+Vector dir: `spec/vectors/anchors2/V08/` (the V08 corpus;
+other anchors2 subtrees are separate). Files per block: `<H>.raw`, `<H>.hash`, `<H>.parent`,
+`<H>.seeds` (format identical to the anchors: `<wire-order txid>
 <height> <raw tx hex>`).
 
 Run (compiled, from spec/core/):

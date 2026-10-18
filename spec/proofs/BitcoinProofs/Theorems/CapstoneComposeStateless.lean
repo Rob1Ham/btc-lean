@@ -31,10 +31,10 @@ Row list (all `@[rule]`-backed in core, context-free):
 `versionOk`/`bip34Ok` take the connection `height`: Core classes them as
 contextual, but they are context-free w.r.t. the UTXO view and are part of
 this model's assumed context.  The chain link (`hashPrevBlock = st.prevHash`),
-script execution against spent coins, and the W12 ledger fold are
+script execution against spent coins, and the ledger fold are
 deliberately **outside** this theorem.  Sigops are likewise not part of the
 Capstone pipeline (no `GetBlockSigOpsCost` gate exists there), so they are
-NOT claimed here — see `spec/db/findings-af/CAPSTONE1.md`.
+NOT claimed here.
 -/
 
 namespace BitcoinProofs.Theorems.CapstoneComposeStateless

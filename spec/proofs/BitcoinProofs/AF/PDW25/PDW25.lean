@@ -1,7 +1,7 @@
 import Bitcoin.Crypto.Taproot.Program
 
-/-! # PDW25.lean — proof-promotion review RC22, items TOP-121..125
-(PDW25, recovery review RC22, 2026-10-17; claim v1 = `6ff8ca6`).
+/-! # PDW25.lean — RC22, items TOP-121..125
+(PDW25, RC22, 2026-10-17; claim v1 = `6ff8ca6`).
 
 Five sorry-free promotion theorems (11 theorems / 5 rows), one per
 claimed rules.yaml row — the D-TPRPRG c-true thm+attr+flip five of
@@ -16,8 +16,11 @@ claimed rules.yaml row — the D-TPRPRG c-true thm+attr+flip five of
   `taprootLane_gate_off` (P11 flag-off: without
   SCRIPT_VERIFY_TAPROOT the v1-32-native spend is not routed to
   the taproot lane = Core's `set_success`, interpreter.cpp:1959) +
-  `taprootLane_consensus_pure` (P11: the gate is the only flag
-  input — no policy leakage into lane selection).
+  `taprootLane_true_iff` (P11: an exact characterization — the lane is
+  entered iff the flag is on, the version is 1, the program is 32 bytes
+  and the spend is native; no policy input). The earlier
+  `taprootLane_consensus_pure` congruence only restated equal inputs ⇒
+  equal outputs and is replaced by this characterization.
 * **TPR-005** `isAnnex` (Program.lean:219) → `isAnnex_def`
   (P2 def-mirror: ≥2 items ∧ last nonempty ∧ last[0]=0x50,
   interpreter.cpp:1961-1969) + `isAnnex_empty_stack` +
@@ -99,16 +102,21 @@ theorem taprootLane_gate_off (version : Nat) (program : ByteArray)
   Bitcoin.Crypto.Taproot.Program.taprootLane_off version program
     isP2SH
 
-/-- TPR-002 (P11, consensus-purity): the gate is the ONLY flag
-input — the lane classification is consensus-pure (no policy
-leakage into lane selection). -/
+/-- TPR-002 (P11, exact lane characterization): the taproot lane is
+entered **iff** the TAPROOT flag is on, the witness version is 1, the
+program is exactly 32 bytes and the spend is native (not P2SH-wrapped).
+This states the actual gate predicate rather than the earlier vacuous
+"equal inputs ⇒ equal outputs" congruence; it is the Core
+`if (flags & SCRIPT_VERIFY_TAPROOT) && version == 1 && program.size() ==
+32 && !p2sh` condition of interpreter.cpp:1957-1959. -/
 @[rule "TPR-002"]
-theorem taprootLane_consensus_pure (v₁ v₂ : Nat) (p₁ p₂ : ByteArray)
-    (i₁ i₂ : Bool) (hv : v₁ = v₂) (hp : p₁ = p₂) (hi : i₁ = i₂)
-    (f : Bool) :
-    taprootLane f v₁ p₁ i₁ = taprootLane f v₂ p₂ i₂ :=
-  Bitcoin.Crypto.Taproot.Program.taprootLane_pure v₁ v₂ p₁ p₂ i₁ i₂
-    hv hp hi f
+theorem taprootLane_true_iff (f : Bool) (version : Nat)
+    (program : ByteArray) (isP2SH : Bool) :
+    taprootLane f version program isP2SH = true ↔
+      f = true ∧ version = 1 ∧ program.size = 32 ∧ isP2SH = false := by
+  unfold taprootLane p2trProgram
+  cases f <;> cases isP2SH <;>
+    by_cases h : version = 1 ∧ program.size = 32 <;> simp [h]
 
 /-! ## TPR-005 (P2) — annex detection.
 

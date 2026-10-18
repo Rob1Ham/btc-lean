@@ -3,7 +3,6 @@ import Bitcoin.Interpreter.Defs
 /-!
 # BitcoinProofs.AF.PDW17 — TPR-060 (OP_SUCCESSx set law)
 
-PDW17 (proof-promotion review, recovery RC21/RC22), 2026-10-17.
 Claim `4d864b8`. Row **TPR-060** (P9 WIRE-DECIDE, d1, c-true):
 `opcodes {80, 98, 126-129, 131-134, 137-138, 141-142, 149-153,
 187-254}` — Core `script.cpp:IsOpSuccess:365-371@cce32b168`

@@ -1,6 +1,6 @@
 import Bitcoin.Consensus.TxCheck
 
-/-! # PDW22.lean — proof-promotion review, items TOP-106..110
+/-! # PDW22.lean — items TOP-106..110
 D-STEP TxCheck statement-grade head (claim 5b22617). Route B: zero core
 writes, row-face theorems tagged on this file, axiom pins ⊆ charter trio. -/
 

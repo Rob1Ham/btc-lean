@@ -5,7 +5,13 @@ import Bitcoin.Interpreter.Defs
 Row faces on `Bitcoin.Interpreter.Defs` only (route B, zero core writes):
 SCR-048 (MINIMALDATA push canonicality), SCR-049 (fExec-gated push
 checks), SWT-048 (scriptCode = witnessScript from last executed
-OP_CODESEPARATOR). -/
+OP_CODESEPARATOR).
+
+Disposition: SCR-051 faces below are **policy-conditional**
+(`pol.minimalData = true`). The rule DB entry currently says
+`consensus: true` / "numeric operands always minimal"; that is
+over-broad and must be reclassified (`consensus: false`). The tags here
+are traceability tags on flag-conditional theorems. -/
 
 namespace BitcoinProofs.AF.PDW98
 

@@ -3,14 +3,12 @@ import Bitcoin.Block.Pow
 /-!
 # INV101TimeNotTooNewCor — T9/INV-101 promotion proof (P13)
 
-PDW3 (proof-promotion review 3), recovery review 3, 2026-10-17.
 Row INV-101 (`time-too-new`, Satoshi; validation.cpp:4116-4118 @cce32b168):
 block time ≤ node-now + 7200 (MAX_FUTURE_BLOCK_TIME).
 
-Statement P13 = `timeNotTooNew_le`, restated 1:1 verbatim from the
-PD03 statement registry (`spec/db/findings-af/PD03-stmtcheck.lean`,
-statement P13) — the only PDW3 item in the T9 score row (V=54, d2,
-CV08 ×8 timewarp-CVE-class audit row). Semantics: acceptance of
+Statement P13 = `timeNotTooNew_le`, restated 1:1 verbatim.  This is the
+only PDW3 item in the T9 score row (V=54, d2, CV08 ×8
+timewarp-CVE-class audit row). Semantics: acceptance of
 `Bitcoin.Block.Pow.timeNotTooNew` (BLK-058) bounds `blockTime.toNat`
 by `now.toNat + 7200`. The def is
 `timeNotTooNew bt now := decide (bt.toNat ≤ now.toNat + 7200)`

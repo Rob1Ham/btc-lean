@@ -12,8 +12,7 @@ Route B, zero core writes.
   (`span` law). The full row face is **false of the current core model**:
   the final `fdLastPc2` tail copy re-appends the last deleted segment, so
   a match that reaches the script end is counted but not removed. The
-  abstract divergence theorem records the exact failure shape; see
-  findings PDW84 §3. -/
+  abstract divergence theorem records the exact failure shape. -/
 
 namespace BitcoinProofs.AF.PDW84
 

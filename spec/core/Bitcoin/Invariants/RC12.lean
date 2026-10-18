@@ -5,10 +5,10 @@ import Bitcoin.RuleAttr
 /-!
 # Bitcoin.Invariants.RC12 — acceptance-spine invariants INV-134/INV-142 (RC12)
 
-Rule-Closure suite contributor RC12. Ground truth: research/05-core-inventory.md
+Rule-Closure suite. Ground truth: research/05-core-inventory.md
 (rows INV-134, INV-142; Core pin @cce32b168). Sister rows INV-133/135/136/138
-are aliased onto existing declarations (see `spec/db/findings-rc/RC12.md`);
-INV-139/140/141/143/144 live in X08's Block-layer files (blocked-on-X08 for
+are aliased onto existing declarations;
+INV-139/140/141/143/144 live in the block-validation module's Block-layer files (blocked-on-the block-validation module for
 the attribute alias); INV-137 is non-consensus (obsolete).
 
 ## INV-134 — BIP113 MTP gate on CSV deployment
@@ -25,7 +25,7 @@ Post-CSV the block's script flags carry `LOCKTIME_MEDIAN_TIME_PAST`
 (buried at `CSV_HEIGHT = 419328`, `getBlockScriptFlagsP` csv arm), so the
 cutoff is the PREVIOUS block's median-time-past; before CSV it is the
 block's own time. Values cross-checked with a Python mirror of the exact
-Core lines (see `spec/db/findings-rc/RC12.md`).
+Core lines.
 
 ## INV-142 — GetBlockProofEquivalentTime (assumevalid 2-week guard)
 
@@ -33,7 +33,7 @@ Core lines (see `spec/db/findings-rc/RC12.md`).
 used from validation.cpp:2363 for the assumevalid sanity check) returns
 **signed seconds**: `|to.nChainWork − from.nChainWork| * nPowTargetSpacing
 / GetBlockProof(tip)`, saturated at `int64_t::max`. It is not a time-window
-work sum. The work terms reuse X08's `Bitcoin.Block.Index.workOf`
+work sum. The work terms reuse the block-validation module's `Bitcoin.Block.Index.workOf`
 (BLK-113, `GetBlockProof` port) — imported, not edited. A historical
 `proofEquivalentWork` walk is retained below as a separate auxiliary.
 -/
@@ -62,7 +62,7 @@ theorem bip113Cutoff_pre (blockTime prevMtp : UInt32) :
   unfold bip113Cutoff
   rw [if_neg (by decide : ¬ ((Bitcoin.Activation.CSV_HEIGHT : UInt32) ≤ 419327))]
 
-/-- INV-134 vector (python3 mirror cross-check, findings-rc/RC12.md):
+/-- INV-134 vector (python3 mirror cross-check, RC12):
 cutoff grid `(height, blockTime, prevMtp) ↦ cutoff` for the heights
 419327 / 419328 / 500000 with (1000, 900) — `blockTime, prevMtp, prevMtp`. -/
 theorem bip113Cutoff_vector :
@@ -272,7 +272,7 @@ theorem proofEquivalentWork_outside (tipTime : Int32) (bits : UInt32)
         else 0) = 0
   rw [if_neg (Int32.not_le.mpr h)]
 
-/-- INV-142 vector (python3 mirror cross-check, findings-rc/RC12.md):
+/-- INV-142 vector (python3 mirror cross-check, RC12):
 difficulty-1 blocks (`0x1d00ffff`) around tip time 1463184400
 (window opens at 1461974800): the boundary block counts
 `workOf 0x1d00ffff = 4295032833`, one second lower does not, and a

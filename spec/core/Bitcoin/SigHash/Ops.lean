@@ -4,8 +4,8 @@ import Bitcoin.Serialization.Interface
 /-!
 # Bitcoin.SigHash.Ops — `GetOp` walk, `FindAndDelete`, and scriptCode re-serialization
 
-The proof vehicle is the list layer (`Bytes := List UInt8`, W02's pattern); the
-ByteArray API at the bottom bridges through W02's proved `bL`/`bytesOfList` laws.
+The proof vehicle is the list layer (`Bytes := List UInt8` pattern); the
+ByteArray API at the bottom bridges through proved `bL`/`bytesOfList` laws.
 
 Ground truth @ cce32b168:
   * `GetOp`                     — `script/script.cpp:313-363` (`GetScriptOp`)
@@ -13,7 +13,7 @@ Ground truth @ cce32b168:
   * `SerializeScriptCode`       — `script/interpreter.cpp:1281-1302`
     (CTransactionSignatureSerializer: "skipping OP_CODESEPARATORs")
 
-Consensus semantics captured here (B2-verified, W11-mirror-validated):
+Consensus semantics captured here (B2-verified, mirror-validated):
 
 * **GetOp** parses one opcode: bytes `0x00..0x4e` are the push family (direct
   push / PUSHDATA1/2/4, each carrying a length prefix and a payload that is
@@ -35,7 +35,7 @@ Consensus semantics captured here (B2-verified, W11-mirror-validated):
   `CompactSize(scriptCode.size − #OP_CODESEPARATOR)` followed by the script
   bytes with each parsed 1-byte OP_CODESEPARATOR spliced out. This is a
   *splice of raw bytes* — pushes are NOT canonically re-encoded (correcting
-  the W01 interface docstring's "pushes re-encoded canonically"; the B2
+  the interface docstring's "pushes re-encoded canonically"; the B2
   report's "1-byte opcodes spliced out" is the accurate description).
 -/
 
@@ -372,7 +372,7 @@ theorem getOpAt_mono2 {l l' : Bytes} {i i' v len : Nat}
           subst hlen
           rfl
 
-/-! ## FindAndDelete idempotency (`scriptCodeOf` closure law, W11 S3) -/
+/-! ## FindAndDelete idempotency (`scriptCodeOf` closure law, the sig-hash theorem tier) -/
 
 /-! ## The clean-walk predicate -/
 
@@ -520,7 +520,7 @@ theorem dropCsAux_invariant (b : Bytes) : ∀ fuel f' i,
         · rw [if_neg hcs, if_neg hcs]
           rw [ih f'' (i + len) (by omega) (by omega)]
 
-/-! ## C1: on a clean walk, the drop-CS walk is the identity tail -/
+/-! ## The prototype: on a clean walk, the drop-CS walk is the identity tail -/
 
 theorem dropCsAux_of_clean {b : Bytes} {i : Nat} (h : CleanFrom b i) :
     ∀ fuel, b.length ≤ i + fuel → dropCsAux b fuel i = b.drop i := by
@@ -570,7 +570,7 @@ theorem CleanFrom.append {b c : Bytes} {j : Nat} (h : CleanFrom b j) :
       rw [Nat.add_assoc]
       exact ih
 
-/-! ## C2: the output of the drop-CS walk is always clean -/
+/-! ## The prototype: the output of the drop-CS walk is always clean -/
 
 theorem dropCsAux_clean (b : Bytes) : ∀ fuel i, b.length ≤ i + fuel →
     CleanFrom (dropCsAux b fuel i) 0 := by

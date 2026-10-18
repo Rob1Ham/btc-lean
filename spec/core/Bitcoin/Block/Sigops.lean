@@ -4,7 +4,7 @@ import Bitcoin.Ledger.Utxo
 import Bitcoin.Interpreter.Defs
 
 /-!
-# Bitcoin.Block.Sigops — signature-operation accounting (X08)
+# Bitcoin.Block.Sigops — signature-operation accounting (the block-validation module)
 
 The block-level sigop budget (`src/policy/policy.cpp` `GetLegacySigOpCount`
 / `GetP2SHSigOpCount`, `src/consensus/tx_verify.cpp`

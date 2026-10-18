@@ -2,7 +2,7 @@ import Bitcoin.Consensus.TxCheck
 
 /-! # PDW59.lean — TOP-316/317: stateless `CheckTransaction` empty-vector gates
 
-PDW59 (review RC29), claim `da681d5`. Route B, zero core writes.
+PDW59 (RC29), claim `da681d5`. Route B, zero core writes.
 Row faces for `Bitcoin.Consensus.checkTransaction`
 (TxCheck.lean:85, `tx_check.cpp:22-27` @ cce32b168): gate 1 rejects
 `vin = []` with `bad-txns-vin-empty`; gate 2 rejects `vout = []` with

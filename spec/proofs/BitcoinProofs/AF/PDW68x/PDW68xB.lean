@@ -1,7 +1,7 @@
 import Bitcoin.Interpreter.Defs
 
 /-! # PDW68xB.lean — TOP-364..365: pubkey-encoding gates
-(PDW68, review RC29). Claim `94fac5e`. Route B, zero core writes.
+(PDW68, RC29). Claim `94fac5e`. Route B, zero core writes.
 Row faces for `Bitcoin.Interpreter.checkPubKeyEncoding`
 (Defs.lean:380, interpreter.cpp:225-234 @ cce32b168);
 SCR-106 STRICTENC, SCR-107 WITNESS_PUBKEYTYPE. -/

@@ -3,10 +3,9 @@ import Bitcoin.Crypto.Ecdsa.Verify
 import Bitcoin.Crypto.Ecdsa.Interface
 
 /-!
-# Z25 dark-corner audit — SGN-107 mod-n reduction / SGN-108 high-S (W4 suite)
+# Z25 dark-corner audit — SGN-107 mod-n reduction / SGN-108 high-S
 
-NEW file, owned by Z25, 2026-10-16. Probes (all VERIFIED, logs in scratch
-`build/scratch/build/scratch/scratch/Z25/`):
+2026-10-16. Probes (all VERIFIED):
 
 * `oracle.py`      — python port of Core @ `cce32b168` lax-verify semantics;
                      agrees 215/215 with `spec/Test/Crypto/EcdsaTest.lean`.
@@ -20,7 +19,7 @@ NEW file, owned by Z25, 2026-10-16. Probes (all VERIFIED, logs in scratch
 * `lean_probe.lean` — runs tree `verifyLax` on the same bytes (`lake env lean
                      --run`, flock-ruled).
 
-## Corner verdicts (details in spec/db/findings-w4/Z25.md)
+## Corner verdicts
 
 **C1 (SGN-107) PARTIAL — confirmed divergence.** Core's compact parse treats
 `scalar_set_b32` overflow (value ≥ n, not just > 32 bytes) as parse FAILURE:
@@ -42,7 +41,7 @@ raw libsecp `ecdsa_verify` demands `!scalar_is_high`; the normalize is
 verdict-invariant, so the observable behavior — high-S accepted — matches.)
 
 Kernel-decidable facts below pin the Der-layer half of each corner; the
-end-to-end verdicts live in the IO probes (mulP is WF-recursive, see W14b §5).
+end-to-end verdicts live in the IO probes (mulP is WF-recursive, see §5).
 -/
 
 namespace Bitcoin.Proofs.Audit.Z25

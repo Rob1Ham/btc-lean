@@ -38,7 +38,7 @@ open Bitcoin.Data Bitcoin.DataLaws Bitcoin.Consensus
 
 /-- INV-003: Core's stripped-size oversize gate as a standalone predicate —
 `bad-txns-oversize` iff `4 · baseSize(tx) > MAX_BLOCK_WEIGHT`, computed by
-W02/W03's faithful `baseSize` (witness excluded). -/
+the faithful `baseSize` (witness excluded). -/
 @[rule "INV-003"]
 def weightCheck (tx : Tx) : Option TxCheckError :=
   if baseSize tx * Bitcoin.Consensus.WITNESS_SCALE_FACTOR > MAX_BLOCK_WEIGHT then
@@ -87,7 +87,7 @@ theorem weightCheck_none_iff (tx : Tx) :
 
 -- Accept vector: the DataLaws segwit sample (base 61 B) →
 -- stripped weight 4·61 = 244 ≤ 4,000,000 (sizes python3-cross-checked in
--- research/w2-03-type-laws.md Appendix A). Its BIP141 weight is 250,
+-- the type-law notes' Appendix A). Its BIP141 weight is 250,
 -- which is the separate BLOCK metric.
 #guard_msgs in
 example : txWeight sampleSegwitTx = 250 := by decide

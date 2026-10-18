@@ -8,9 +8,7 @@ Row faces on `Bitcoin.Interpreter` (route B, zero core writes):
 * SCR-174 executed OP_INVALIDOPCODE (0xff) → BAD_OPCODE default;
 * SCR-155 tapscript is outside the BASE/WITNESS_V0 MAX_OPS budget;
 * SCR-158 tapscript pubkey-size rules (0 / 32 / upgradable);
-* SCR-004 empty scriptPubKey spendable.
-
-Residuals are recorded in `spec/db/findings-af/PDW91.md`. -/
+* SCR-004 empty scriptPubKey spendable. -/
 
 namespace BitcoinProofs.AF.PDW91
 open Bitcoin.Interpreter Bitcoin.Activation Bitcoin.Crypto.Seam Bitcoin.Numeric
