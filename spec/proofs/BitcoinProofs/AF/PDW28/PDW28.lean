@@ -11,7 +11,9 @@ theorems, pins ⊆ [propext, Classical.choice, Quot.sound].
 * **BLK-023** `vtxCountWeightOk` (Connect.lean:58, CheckBlock:3955):
   the count·4 ≤ MAX_BLOCK_WEIGHT gate iff + the ≤1,000,000 bound +
   absurd-count reject.
-* **BLK-040** `powLimitMainnet` (Pow.lean:62): 0xFFFF·256^26 pin.
+* **BLK-040** `powLimitMainnetFull` (Core chainparams): the all-ones
+  `2^224 − 1` mainnet limit; `powLimitMainnet` is the compact genesis
+  target `0xFFFF·256^26 = 2^224 − 2^208`, pinned as such.
 * **BLK-041** `powLimitSignet` (Pow.lean:71) + `powLimitRegtest`
   (Pow.lean:75): signet 0x377ae·256^27 / regtest 2^255−1 pins.
 * **BLK-051** `permittedDifficultyTransition` (Pow.lean:189,
@@ -54,14 +56,30 @@ theorem vtxCountWeightOk_reject (txs : List Bitcoin.Data.Tx)
 
 /-! ## BLK-040/041: the powLimit constant pins (chainparams.cpp) -/
 
-@[rule "BLK-040"]
+/-- BLK-040 (genesis target, **not** the mainnet `powLimit`): the live
+`Bitcoin.Block.Pow.powLimitMainnet` constant is the compact genesis target
+`0xffff * 256^26 = 2^224 - 2^208`.  Core's mainnet `powLimit` is the
+all-ones `00000000ffff…ff = 2^224 - 1`, pinned below as
+`powLimitMainnetFull`.  The shared definition is left untouched; this
+theorem records exactly what it is and `powLimitMainnet_not_full` records
+that it is not the consensus limit. -/
 theorem powLimitMainnet_pin : powLimitMainnet = 0xffff * 256 ^ 26 := by decide
+
+/-- BLK-040 (genesis target arithmetic): the compact genesis bound is
+`2^224 - 2^208`, i.e. the genesis header's decoded target. -/
+theorem powLimitMainnet_genesis_target :
+    powLimitMainnet = 2 ^ 224 - 2 ^ 208 := by decide
+
+/-- BLK-040 (genesis nBits): the genesis header's `0x1d00ffff` decodes to
+the compact target pinned by `powLimitMainnet`. -/
+theorem genesisBits_target_pin :
+    Bitcoin.Chain.compactTarget 0x1d00ffff = powLimitMainnet := by decide
 
 /-- BLK-040 (corrected mainnet proof-of-work limit).  Core
 `kernel/chainparams.cpp:126 @cce32b168` pins
 `consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}`
 (and testnet at :257 has the same value) — the full 224-bit all-ones
-target `2^224 - 1`, not the compact `0xffff * 256^26` value in
+target `2^224 - 1`, not the compact `0xffff * 256^26` genesis target in
 `powLimitMainnet`.  The old definition is left untouched; this is the
 faithful constant the row summary spells out. -/
 @[rule "BLK-040"] def powLimitMainnetFull : Nat :=
@@ -75,6 +93,11 @@ theorem powLimitMainnetFull_pin :
       0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff ∧
     powLimitMainnetFull = 2 ^ 224 - 1 :=
   ⟨rfl, by decide⟩
+
+/-- BLK-040 regression: the mainnet limit and the genesis target are
+different by exactly `2^208 - 1`. -/
+theorem powLimitMainnetFull_sub_genesis :
+    powLimitMainnetFull - powLimitMainnet = 2 ^ 208 - 1 := by decide
 
 /-- BLK-040 divergence witness: `powLimitMainnet` (the old compact
 constant `0xffff * 256^26`, with 26 trailing zero bytes) is NOT the
