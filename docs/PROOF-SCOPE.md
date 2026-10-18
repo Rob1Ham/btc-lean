@@ -8,13 +8,13 @@ This page is the static scope index for the Lean proof package at `spec/proofs`.
 
 | Metric | Count |
 |---|---:|
-| Tracked `.lean` files under `spec/proofs` | 417 |
-| Lean modules | 416 |
+| Tracked `.lean` files under `spec/proofs` | 418 |
+| Lean modules | 417 |
 | Non-module `.lean` files | 1 (`lakefile.lean`) |
-| Modules in the default `BitcoinProofs` closure | 36 |
+| Modules in the default `BitcoinProofs` closure | 37 |
 | Modules outside the default closure | 380 |
 
-The package has 417 tracked `.lean` files: 416 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
+The package has 418 tracked `.lean` files: 417 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
 
 ## Module-count convention
 
@@ -28,9 +28,10 @@ The **default closure** is the root module plus every module reachable through `
 
 ## Default closure
 
-The root has 35 direct imports. Their transitive local closure is 36 modules:
+The root has 36 direct imports. Their transitive local closure is 37 modules:
 
 - `BitcoinProofs`
+- `BitcoinProofs.Bip.B42.Bip42`
 - `BitcoinProofs.Conservation.Test`
 - `BitcoinProofs.Conservation.Thms`
 - `BitcoinProofs.Crypto.CurveZMod`
@@ -77,7 +78,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 | `AF` | 249 | 0 | 249 |
 | `Activation` | 1 | 0 | 1 |
 | `Audit` | 18 | 0 | 18 |
-| `Bip` | 15 | 0 | 15 |
+| `Bip` | 16 | 1 | 15 |
 | `Conservation` | 2 | 2 | 0 |
 | `Crypto` | 2 | 2 | 0 |
 | `EcdsaDeep` | 20 | 0 | 20 |
@@ -91,7 +92,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 | `Theorems` | 54 | 30 | 24 |
 | `Trivial` | 1 | 1 | 0 |
 | `Wallet` | 22 | 0 | 22 |
-| **Total** | **416** | **36** | **380** |
+| **Total** | **417** | **37** | **380** |
 
 <details><summary><code>(root)</code> — 1 modules (1 in closure)</summary>
 
@@ -382,7 +383,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 
 </details>
 
-<details><summary><code>Bip</code> — 15 modules (0 in closure)</summary>
+<details><summary><code>Bip</code> — 16 modules (1 in closure)</summary>
 
 - `BitcoinProofs.Bip.B03.B03Subsidy`
 - `BitcoinProofs.Bip.B04.Bip66Coverage`
@@ -399,6 +400,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.Bip.B14.Tests`
 - `BitcoinProofs.Bip.B15.Bip94Ax`
 - `BitcoinProofs.Bip.B15.Bip94Tests`
+- `BitcoinProofs.Bip.B42.Bip42`
 
 </details>
 

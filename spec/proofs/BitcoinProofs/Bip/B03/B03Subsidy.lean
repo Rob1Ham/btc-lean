@@ -102,7 +102,7 @@ theorem one_le_shift_of_le_32 : ∀ k ≤ 32, 1 ≤ 5000000000 >>> k := by
   apply Nat.div_pos
   · calc 2 ^ k ≤ 2 ^ 32 := Nat.pow_le_pow_right (by decide) hk
       _ ≤ 5000000000 := two32_le_subsidy_seed
-  · decide
+  · exact Nat.pow_pos (by decide)
 
 theorem shift_zero_of_ge_33 : ∀ k ≥ 33, 5000000000 >>> k = 0 := by
   intro k hk
@@ -154,8 +154,9 @@ theorem subsidy_pos_iff_lt_epoch33 (h : Nat) :
     0 < getBlockSubsidy h ↔ h < 33 * 210000 := by
   constructor
   · intro hpos
-    by_contra hcon
-    have h0 := subsidy_zero_of_ge_epoch33 h (by omega)
+    apply Nat.lt_of_not_ge
+    intro hge
+    have h0 := subsidy_zero_of_ge_epoch33 h hge
     omega
   · exact fun hh => subsidy_pos_of_lt_epoch33 h hh
 
@@ -175,18 +176,17 @@ theorem subsidy_epoch32_one : ∀ h, halvingsAt h = 32 → getBlockSubsidy h = 1
   intro h hh
   rw [subsidy_eq_shift h (by unfold halvingsAt at hh ⊢; omega), hh]
   rw [Nat.shiftRight_eq_div_pow]
-  decide
 
 theorem subsidy_epoch33_zero : ∀ h, halvingsAt h = 33 → getBlockSubsidy h = 0 := by
   intro h hh
   rw [subsidy_eq_shift h (by unfold halvingsAt at hh ⊢; omega), hh]
   rw [Nat.shiftRight_eq_div_pow]
-  decide
 
 /-! ## C4 — the BIP-42 guard: `halvings ≥ 64 → 0`, and the UB-mutant it kills -/
 
-/-- C4 (verbatim BIP-42/Core guard): beyond halving 63 the subsidy is 0,
-forever — the supply is finite. -/
+/-- C4 (verbatim BIP-42/Core guard): beyond halving 63 the subsidy is 0.
+The supply is already finite at epoch 33 (`shift_zero_of_ge_33`); this guard
+closes the shift-count corner. -/
 theorem subsidy_zero_of_guard : ∀ h, 64 ≤ halvingsAt h → getBlockSubsidy h = 0 :=
   subsidy_eq_zero
 
@@ -232,7 +232,7 @@ theorem totalSupply_exact : totalSupply = 2099999997690000 := by decide
 /-- C5 (cap): exactly 2_310_000 sats short of 21M — the cap is approached,
 never reached. -/
 theorem totalSupply_shortfall : totalSupply + 2310000 = 2100000000000000 := by
-  rw [totalSupply_exact]; decide
+  rw [totalSupply_exact]
 
 /-- C5 (cap): total supply is strictly below the tree's `MAX_MONEY`. -/
 theorem totalSupply_lt_MAX_MONEY : (totalSupply : Int) < Bitcoin.Data.MAX_MONEY := by
@@ -262,7 +262,7 @@ theorem epochSubsidyTotal_le_MAX_MONEY : ∀ k < 33,
     Nat.mul_le_mul_left _ hshift
   have hval : 210000 * 5000000000 = 1050000000000000 := by decide
   rw [hval] at hmono
-  decide
+  omega
 
 /-! ## C8 — monotonicity: the subsidy schedule never inflates -/
 
