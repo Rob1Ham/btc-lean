@@ -19,8 +19,9 @@ following are trusted:
 The theorem package is the only package allowed to depend on mathlib. The
 `spec/core` model has no Lake dependencies. A successful default
 `BitcoinProofs` build means the 29-module import closure elaborates; the other
-381 proof modules are outside that closure (361 build individually, 20 do not;
-see [`PROOF-BUILD.md`](PROOF-BUILD.md)). It does not mean the statements are the
+380 proof modules are outside that closure (a fresh per-name run gives 365
+builds and 15 failures, none cited; see [`PROOF-BUILD.md`](PROOF-BUILD.md)).
+It does not mean the statements are the
 right statements, and it does not compare Lean with C++ execution.
 
 ## 2. Axioms and `sorry`
@@ -50,7 +51,7 @@ proof of correctness; it is a hygiene gate.
 Core anchor, and a Lean target. The kernel checks the target; it does not
 prove that the target's conclusion is a faithful paraphrase of the summary.
 
-Statement fidelity is a review obligation. Twenty-six rows have a known gap
+Statement fidelity is a review obligation. Twenty-seven rows have a known gap
 between the cited target and the row summary; they are listed with the missing
 link in [`RESIDUALS.md`](RESIDUALS.md). A `proven` status is therefore not a
 claim that every relevant Bitcoin behaviour is modelled, and it is not a count

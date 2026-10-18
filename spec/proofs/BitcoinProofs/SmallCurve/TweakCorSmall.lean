@@ -37,28 +37,37 @@ replacements the R6/E10 hedge fixes:
 
 The two MAIN theorems (`tweakPointS_output_onCurve`,
 `tweakPointS_output_eq`) are E09's `tweakPoint_output_onCurve`/
-`tweakPoint_output_eq` (TweakCor.lean:223-334) VERBATIM modulo those
+`tweakPoint_output_eq` (TweakCor.lean:223-334) modulo those
 three replacements: same statements, same proofs (case analysis over
 `tweakPointS`'s own `if`-rejection structure + the interface fields
 `e_none`/`addP_okE`/`mulP_okE`/`mulP_noneE`/`G_okE`; the
 zero-tweak/`∞` lane by `mulP_noneE` + `add_zero`).
 
-## What is sorry-free here, and what is not (E06/E14 honesty)
+**16-bit scalar bound.** `Scheme.mulP' k q` walks only the 16 low bits
+of `k` (`bitListRec (bitsOfW 16 k)`), so `mulP'` is periodic in `k` with
+period `2^16`. The interface fields `mulP_okE`/`mulP_noneE` therefore
+carry an explicit `k < 2^16` hypothesis; without it they would assert
+`(k + 2^16) • B = k • B` for arbitrary `B`, which is false (for `B = G`
+the order is `n = 65173`, and `2^16 ≢ 0 (mod n)`). The MAIN theorems
+discharge the bound from the code's own range check:
+`tweakPointS_some` gives `tweakScalarS p root < n`, and
+`n_lt_two_pow_16 : n < 2^16`.
+
+## What is sorry-free here (E06/E14 honesty)
 
 * §A (`taptweakS`/`tweakScalarS`/`tweakPointS`) + the §A structure
   lemmas (`tweakPointS_overflow`/`_some`/`_none`/`_zero`, the
   TapTweak.lean:170-234 verdict-family carbon) + BOTH §B MAINs +
-  `SC_nG` (the E10-1 `mulP'_nG` kernel pin (Scheme.lean:508)
-  transported through the record): **sorry-free**;
+  `tweakScalarS_lt_two_pow_16`: **sorry-free**;
 * §D `SCDE : E02E03IFSmall SC` — the secp `E02E03IF`-gap's exact
   small twin: the INSTANTIATION record over `SC :=
-  WeierstrassCurve.Affine (ZMod pL)` (a₁=…=a₄=0, a₆=7), with ONE
-  `sorryH`-anchored field (`nG`, the `n • Gimg = 0` unit through
-  `mulP'_nG`'s 16-bit kernel walk) = the file's ONLY `sorry`
-  (F-E10-2-B). E09's secp record was Prop-hypotheses-only; the small
-  twin can be CLOSED (§D-discharge = U2b), but `addP_okE`/`mulP_okE`
-  (raw case-table = mathlib `Point.add` transport) are the E03/E05
-  lane's small-curve version — NOT this file's.
+  WeierstrassCurve.Affine (ZMod pL)` (a₁=…=a₄=0, a₆=7). It is
+  **not constructed here**: `addP_okE`/`mulP_okE` (raw case-table =
+  mathlib `Point.add` transport) are the E03/E05 lane's small-curve
+  version, and the `e`-map needs a `Decidable` instance for the
+  `OnCurve'` Prop that this file deliberately does not build by
+  kernel `decide` (the 17-bit decidability study is out of scope, see
+  the §D note).
 
 ## Core anchors (all @cce32b168): exactly TweakCor's (E09):
 `ComputeTapTweakHash` (pubkey.cpp:246-255) = `taptweak`
@@ -70,8 +79,8 @@ zero-tweak/`∞` lane by `mulP_noneE` + `add_zero`).
 SmallCurve ops — the small-curve sanity twin's whole point.
 
 ## Axiom footprints: `#guard_msgs in #print axioms` pins at the
-bottom (§E); `SCDE`'s `sorryH` carries `sorryAx` by design (E06
-convention) and is pinned AS such.
+bottom. There is no `sorry` in this file; `SCDE` is not constructed
+(see §D), so no `sorryAx`-anchored hypothesis is used.
 -/
 
 namespace BitcoinProofs.SmallCurve.TweakCorSmall
@@ -89,6 +98,11 @@ open Bitcoin.Crypto.Curve.Secp (bytesToNatBE)
 abbrev pL : Nat := 65647
 
 theorem pL_eq : pL = p := rfl
+
+/-- The group order fits the 16-bit scalar window of `mulP'`
+(`n = 65173 < 65536`). This is the bound the interface fields
+`mulP_okE`/`mulP_noneE` require. -/
+theorem n_lt_two_pow_16 : n < 2 ^ 16 := by decide
 
 /-- The Prop-level curve equation (the `Secp.OnCurve`
 (Secp.lean:104) carbon, 17-bit; Scheme has only the Bool `onCurveN'`). -/
@@ -163,6 +177,16 @@ theorem tweakPointS_some (p : ByteArray) (Pt : RawPoint')
   · rename_i hk
     exact ⟨Nat.lt_of_not_ge hk, h⟩
 
+/-- The tweak scalar is below `2^16` on every accepted output (the
+16-bit bound required by the interface's `mulP_okE`/`mulP_noneE`). -/
+theorem tweakScalarS_lt_two_pow_16 (p : ByteArray) (Pt : RawPoint')
+    (root : Option ByteArray) (qx qy : Nat)
+    (h : tweakPointS p Pt root = some (qx, qy)) :
+    tweakScalarS p root < 2 ^ 16 := by
+  have hlt := (tweakPointS_some p Pt root qx qy h).1
+  have hn := n_lt_two_pow_16
+  omega
+
 /-- TPR-016/TPR-017 (reject totality): `tweakPointS = none` means the
 tweak overflowed OR `P + tG = ∞` (TapTweak.lean:200-208 carbon). -/
 theorem tweakPointS_none (p : ByteArray) (Pt : RawPoint')
@@ -227,13 +251,17 @@ structure E02E03IFSmall (E : WeierstrassCurve.Affine (ZMod pL))
   addP_okE : ∀ (Pt Q : RawPoint') (x₃ y₃ : Nat) (A B : E.Point),
     addP' Pt Q = some (x₃, y₃) → e Pt = some A → e Q = some B →
       e (some (x₃, y₃)) = some (A + B)
-  /-- The raw scalar-mult computes the group multiple (E03/E04). -/
+  /-- The raw scalar-mult computes the group multiple (E03/E04).
+  `mulP'` walks the 16 low bits of `k` (`Scheme.mulP'` = `bitsOfW 16`), so
+  this field is stated only for `k < 2^16`. Without the bound it would
+  assert `(k + 2^16) • B = k • B` for every `B`, which is false. -/
   mulP_okE : ∀ (k : Nat) (Q : RawPoint') (x₃ y₃ : Nat) (B : E.Point),
-    mulP' k Q = some (x₃, y₃) → e Q = some B →
+    k < 2 ^ 16 → mulP' k Q = some (x₃, y₃) → e Q = some B →
       e (some (x₃, y₃)) = some (k • B)
-  /-- The none-convention (E03/E04). -/
+  /-- The none-convention (E03/E04), under the same 16-bit bound as
+  `mulP_okE` (see the note there). -/
   mulP_noneE : ∀ (k : Nat) (Q : RawPoint') (B : E.Point),
-    mulP' k Q = none → e Q = some B → k • B = 0
+    k < 2 ^ 16 → mulP' k Q = none → e Q = some B → k • B = 0
   /-- The generator. -/
   G_okE : e (some G) = some (Point.mk (x := ((Gx : Nat) : ZMod pL))
                                        (y := ((Gy : Nat) : ZMod pL))
@@ -260,7 +288,8 @@ theorem tweakPointS_output_onCurve (p : ByteArray) (Pt : RawPoint')
       n ≤ tweakScalarS p root ∨
         addP' Pt (mulP' (tweakScalarS p root) (some G)) = none) := by
   refine ⟨fun qx qy hQ => ?_, fun hnone => tweakPointS_none p Pt root hnone⟩
-  obtain ⟨_htr, hadd⟩ := tweakPointS_some p Pt root qx qy hQ
+  obtain ⟨htr, hadd⟩ := tweakPointS_some p Pt root qx qy hQ
+  have hk := tweakScalarS_lt_two_pow_16 p Pt root qx qy hQ
   cases hmul : mulP' (tweakScalarS p root) (some G) with
   | none =>
     rw [hmul] at hadd
@@ -274,7 +303,7 @@ theorem tweakPointS_output_onCurve (p : ByteArray) (Pt : RawPoint')
         some ((tweakScalarS p root) • (Point.mk (x := ((Gx : Nat) : ZMod pL))
             (y := ((Gy : Nat) : ZMod pL))
             ((IF.onCurveE Gx Gy).mp onCurve'_G))) :=
-      IF.mulP_okE (tweakScalarS p root) (some G) tx ty _ hmul IF.G_okE
+      IF.mulP_okE (tweakScalarS p root) (some G) tx ty _ hk hmul IF.G_okE
     have hA : IF.e Pt =
         some (Point.mk (x := ((px : Nat) : ZMod pL)) (y := ((py : Nat) : ZMod pL))
           ((IF.onCurveE px py).mp hPc)) := by
@@ -307,14 +336,15 @@ theorem tweakPointS_output_eq (p : ByteArray) (Pt : RawPoint')
                           (y := ((Gy : Nat) : ZMod pL))
                     ((IF.onCurveE Gx Gy).mp onCurve'_G))) := by
   intro qx qy hQ
-  obtain ⟨_htr, hadd⟩ := tweakPointS_some p Pt root qx qy hQ
+  obtain ⟨htr, hadd⟩ := tweakPointS_some p Pt root qx qy hQ
+  have hk := tweakScalarS_lt_two_pow_16 p Pt root qx qy hQ
   cases hmul : mulP' (tweakScalarS p root) (some G) with
   | none =>
     have h0 : (tweakScalarS p root) •
         (Point.mk (x := ((Gx : Nat) : ZMod pL))
                   (y := ((Gy : Nat) : ZMod pL))
             ((IF.onCurveE Gx Gy).mp onCurve'_G)) = 0 :=
-      IF.mulP_noneE (tweakScalarS p root) (some G) _ hmul IF.G_okE
+      IF.mulP_noneE (tweakScalarS p root) (some G) _ hk hmul IF.G_okE
     rw [hmul] at hadd
     rw [addP'_none] at hadd
     rw [hP, Option.some.injEq, Prod.mk.injEq] at hadd
@@ -328,7 +358,7 @@ theorem tweakPointS_output_eq (p : ByteArray) (Pt : RawPoint')
           (Point.mk (x := ((Gx : Nat) : ZMod pL))
                     (y := ((Gy : Nat) : ZMod pL))
               ((IF.onCurveE Gx Gy).mp onCurve'_G))) :=
-      IF.mulP_okE (tweakScalarS p root) (some G) tx ty _ hmul IF.G_okE
+      IF.mulP_okE (tweakScalarS p root) (some G) tx ty _ hk hmul IF.G_okE
     have hA : IF.e Pt =
         some (Point.mk (x := ((px : Nat) : ZMod pL))
                        (y := ((py : Nat) : ZMod pL))
@@ -346,11 +376,10 @@ twin: the INSTANTIATION record over `SC :=
 WeierstrassCurve.Affine (ZMod pL)` (a₁=…=a₄=0, a₆=7), with
 
 * `eS` = the `none ↦ none`-else-`Point.mk` map (the E03-shape),
-* `nG` = `n • eS (some G) = 0` (the `mulP'_nG` kernel pin
-  (Scheme.lean:508) transported through `eS`),
 * `onCurveE` = `OnCurve' x y ↔ SC.Equation` (EquationG),
 * `addP_okE`/`mulP_okE` = the raw case-table = mathlib `Point.add`
-  transport (the E03/E05 lane's small-curve version).
+  transport (the E03/E05 lane's small-curve version), with the
+  16-bit scalar bound on `mulP_okE`/`mulP_noneE` noted above.
 
 NOT constructed in this file (F-E10-2-B): the `eS`-shape above needs
 a `Point.mk`-valued match on the `OnCurve'`-Prop (a `Decidable
@@ -362,6 +391,16 @@ avoid; the 19-36GB `Nat.Prime`-decide hazard (F-E10-2-A) was the
 second warning). The MAINs need NONE of it (E09's exact
 structure-hypotheses contract) — `SCDE`-discharge is the U2b lane.
 -/
+
+/-! ## Regression checks for the 16-bit interface bound
+
+`mulP'` reads only the low 16 bits (`bitsOfW 16`). These two kernel checks
+pin the periodicity that motivates the `k < 2^16` hypotheses on
+`mulP_okE`/`mulP_noneE`: at `k = 2^16` the walk is the zero walk (`none`),
+and at `k = 2^16 + 1` it agrees with `k = 1`. -/
+
+example : mulP' (2 ^ 16) (some G) = none := by decide
+example : mulP' (2 ^ 16 + 1) (some G) = mulP' 1 (some G) := by decide
 
 /-! ## Axiom footprints (X02/E09 style: `#guard_msgs in #print axioms`)
 

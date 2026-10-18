@@ -1,26 +1,26 @@
 # Consensus residuals
 
 The consensus census has 726 rows: 676 `proven`, 50 `obsolete`, 0
-`implemented`, and 0 `planned`. Twenty-six of the proven rows are **explicit
+`implemented`, and 0 `planned`. Twenty-seven of the proven rows are **explicit
 model residuals**: the row's one-line claim is true of Bitcoin Core, but the
 current Lean model does not yet entail it. They are not counted as fully proved
 against Core.
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 29-module closure; the historical per-name census
-covers 381 outside-closure entries (380 modules plus `lakefile.lean`), of which
-361 build individually and 20 do not. `SCR-100`'s cited target,
-`Theorems.Ops.O07.step_codesep_const_dead`, is in the failing set; its other
-tag carriers build. The status does not by itself mean that the target's
+`BitcoinProofs` target is a 29-module closure; a fresh per-name run covers the
+380 outside-closure modules (381 `.lean` entries including the non-module
+`lakefile.lean`), of which 365 build individually and 15 do not. No cited
+target is in the failing set: `SCR-100`'s cited target,
+`Theorems.Ops.O07.step_codesep_const_dead`, now builds. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
-fidelity, and these 26 rows are where the review found a gap.
+fidelity, and these 27 rows are where the review found a gap.
 
 This document is generated from the latest per-row review action. The
 authoritative row records remain in `spec/db/rules.yaml`; this page exists so
 the gaps are visible without depending on unpublished review notes.
 
-**Residual rows: 26 / 726.**
+**Residual rows: 27 / 726.**
 
 The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
 The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
@@ -99,6 +99,14 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - core: `validation.cpp:DisconnectBlock:2178–2247@cce32b168`
 - target: `BitcoinProofs.AF.PDW58.undoCoins_restore_wins`
 - missing link: The summary is true of Core: DisconnectBlock unwinds transactions in reverse order, checks each output against the spent coin (value/script, height, coinbase), restores inputs from undo data, and exempts the two historical BIP30 duplicate-coinbase blocks (validation.cpp:2194-2247). The cited target undoCoins_restore_wins (PDW58C.lean:48-53) proves only restore-priority for a spent coin (`coinLookup spent o = some c => undoCoins ... = some c`). Local pieces are real but not the full row: undoCoins_restore (:14-21), undoCoins_blank_added (:24-32), undoCoins_keep (:35-45), undoCoins_roundtrip (:69-74); the block layer has reverse-order replay replayUndos (Block/Params.lean:159-164), disconnectBlock zipping txs.reverse with undos.reverse (:238-244), and disconnectBlock_three (:271-284). The BIP30 disconnect pair is carried separately by BLK-099/BLK-106. Still missing: one INV-117 theorem covering output/height/coinbase match plus the BIP30 case. Open proof obligation.
+
+### INV-119
+
+- claim: UTXO snapshot hash (MuHash3072)
+- core: `coinstats.cpp:59–112@cce32b168`
+- target: `BitcoinProofs.AF.PDW21.muhashSet_split`
+- missing link: The summary names MuHash3072, Core's commutative multiset hash over a 3072-bit class group (`MuHash3072::Insert/Remove` multiply/divide, coinstats.cpp:59-112). The model's `muhashSet` (spec/core/Bitcoin/Invariants/RC10.lean:230) is a plain `Nat` sum of a per-coin `cf` datum, and the PDW21 theorems (`muhashSet_split`, `muhashSet_comm`, `snapshotEq_eq_true_iff`) prove only the partition/order-invariance laws of that additive monoid. The 3072-bit modular arithmetic, the class-group quotient, and the actual digest are not modelled, so the target does not entail Core's MuHash3072. Accepted residual: the algebraic abstraction is kept and tagged, but the row is not a claim that the model implements MuHash3072; implementing the group (or an FFI-free bigint model) is the missing piece.
+
 
 ### INV-130
 

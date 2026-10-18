@@ -46,10 +46,10 @@ lake build BitcoinProofs
 # 29-module default import closure, not all 409 proof modules.
 ```
 
-Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-historical per-name census covers 381 outside-closure `.lean` entries (380
-modules plus `lakefile.lean`): 361 build and 20 do not;
-see [`PROOF-BUILD.md`](PROOF-BUILD.md).
+Do not run `lake update`; the committed `lake-manifest.json` is the pin. A
+fresh per-name run covers the 380 outside-closure modules (381 `.lean` entries
+when the non-module `lakefile.lean` is counted): 365 build and 15 do not; none
+of the failures is a cited target. See [`PROOF-BUILD.md`](PROOF-BUILD.md).
 
 ## 4. Wallet layer
 

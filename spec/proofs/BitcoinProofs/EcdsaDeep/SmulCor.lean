@@ -5,7 +5,7 @@ import Bitcoin.Crypto.Curve.Mod
 # BitcoinProofs.EcdsaDeep.SmulCor (E04)
 
 Scalar-multiplication correctness for the secp256k1 executable group law
-(`Bitcoin.Crypto.Curve.Secp` — read-only here): the double-and-add
+(`Bitcoin.Crypto.Curve.Secp`, W14b — read-only here): the double-and-add
 scalar mult `smulBits` (STRUCTURAL over the little-endian bit list, the
 R6/D-004 kernel-reducible mirror of the WF-recursive `mulP`, exactly the
 `expBits`-over-`expM` pattern of `Curve/Mod.lean:138-205` / F-W14-1) equals
@@ -19,28 +19,19 @@ multiple `n • p` by `bitsVal bs`.
    double-and-add over `bs` IS the WF `mulP` at the integer `bitsVal bs`.
    Induction is structural in `bs`; the `k`-descent lemmas `mulP_two_mul` /
    `mulP_two_mul_add_one` (`Mod.lean`-style, over the `mulP.eq_2` equation
-   lemma) are the blessed route through WF definitions (proof shape of
+   lemma) are the W14-blessed route through WF definitions (proof shape of
    `Mod.expM_lt` / `Secp.mulP_ok`). Because `smulBits` is structural,
    `decide`/`rfl` reduce through it (R6 evidence: `SmulCor.kcheck` below).
-2. **Rung 2 (§E, raw layer, zero mathlib) + the group lane
-   (`SmulCorIF`, NEW proofs file)**: "smul correctness vs repeated
-   addition". The raw layer (§E): `smulAdd k p` = the
+2. **Rung 2 (§E, raw layer, zero mathlib)**: "smul correctness vs
+   repeated addition". The raw layer (§E): `smulAdd k p` = the
    repeated-addition walk (`0 ↦ none = 𝒪`, `(k+1) p ↦ addP p (smulAdd
    k p)` — `p` on the LEFT, `mulP`'s odd-lane shape), plus `addP_self`
    (`addP p p = doubleP p` — the ONE zero-hypothesis group-law rung:
    `addRaw`'s `x₁ = x₂ ∧ y₁ = y₂` branch fires at `p = p` by `Nat.beq`
    reflexivity). `smulAdd k p = mulP k p` is NOT zero-hypothesis —
    the double-and-add vs repeated-addition identity is the
-   chord/tangent associativity = E02/E05's `OnCurve` layer (F-E04-002)
-   — so the group rung lives as a CONDITIONAL theorem in the proofs
-   package: `BitcoinProofs.EcdsaDeep.SmulCorIF.MulPIF` (mathlib) takes
-   a monoid hom `φ : RawPoint → M` (`φ none = 0`,
-   `φ (addP p q) = φ p + φ q`) and proves `mulP_okφ`/`mulP_noneφ`
-   (WF `mulP` = the group multiple `k • φ p` — the E04 discharge of
-   `E02E03IF`'s `mulP_okE`/`mulP_noneE` fields, TweakCor.lean) +
-   `smulAdd_okφ`/`smulBits_okφ` (the ladder: repeated addition = WF
-   `mulP` = structural `smulBits` = `bitsVal bs • φ p`, all three
-   rungs conditional on `addP_okφ` alone).
+   chord/tangent associativity = E02/E05's `OnCurve` layer (F-E04-002).
+
    **Correction (F-E04-004)**: the 57848b3 docstring's rung-2 claim
    ("`smulBits_eq_smul` (group rung) ... over `RawGroup` = the
    `RawPoint` additive Monoid ... mathlib `nsmul`, associativity/
@@ -48,15 +39,17 @@ multiple `n • p` by `bitsVal bs`.
    that `addP` is associative exists (that is E05's on-curve
    chord/tangent content), so an honest `Monoid RawPoint` with
    `add := addP`, `zero := none` cannot be landed zero-hypothesis
-   (the Wall 2 decide-wall also blocks a concrete counterexample check);
+   (the W2 decide-wall also blocks a concrete counterexample check).
    `smulBits_eq_smul` as a zero-hypothesis group-rung statement is
-   not landable; the monoid
-   lives in the hom-IMAGE (`M` under `MulPIF`'s `φ`), not on
-   `RawPoint`, and the group-rung statement becomes
-   `smulBits_okφ`/`smulAdd_okφ` (conditional). The `RawGroup`-
-   `PointCor` bridge point (the E03-`PointCor` @[rule] hook) is
-   unchanged — none landed (see `F-E04-003`); SmulCorIF.lean carries
-   that side for E04.
+   not landable.
+
+   **The conditional group lane is not in this tree.** Earlier
+   revisions of this header referred to a `SmulCorIF.lean` module
+   providing `MulPIF`/`SmulIF` (`mulP_okφ`, `mulP_noneφ`,
+   `smulAdd_okφ`, `smulBits_okφ` over a monoid hom). No such module
+   exists, so those claims are removed here rather than left
+   dangling. The hom-image formulation remains an open proof
+   obligation and is recorded in `docs/RESIDUALS.md`.
 
 ## Scope notes (honest)
 
@@ -64,8 +57,8 @@ multiple `n • p` by `bitsVal bs`.
   it is the equation-preservation layer = E02/E03's mapping + E05's
   add-correctness (the chord/tangent algebra needs `P` primality =
   `CurveZMod.P_prime`). This file proves the raw SCALAR-TOWER
-  correctness (structural = WF = repeated addition, the last equation
-  conditional on the hom — SmulCorIF). See `F-E04-002`.
+  correctness (structural = WF); the conditional group rung over a
+  monoid hom is not formalized here. See `F-E04-002`.
 - `smulAdd k p = mulP k p` (double-and-add = repeated addition) is NOT
   zero-hypothesis either — same OnCurve layer (F-E04-002): `mulP 2 p =
   doubleP p = addP p p = smulAdd 2 p` holds (zero-hyp), but the k ≥ 4
@@ -74,8 +67,7 @@ multiple `n • p` by `bitsVal bs`.
   `Secp.liftX_onCurve` (TPR-049) + E08; not touched (OFF-LIMITS files).
 - No `sorry`, no `native_decide`, no new axioms (prints below).
 - OFF-LIMITS respected: no existing file edited (the E04 unit = this
-  file + the NEW `SmulCorIF.lean` (both mine); modules listed in the
-  unit commit messages per earlier plan §3).
+  file).
 -/
 
 namespace BitcoinProofs.EcdsaDeep.SmulCor
@@ -118,7 +110,7 @@ theorem smulBits_cons_true (bs : List Bool) (p : RawPoint) :
 unfold its recursion directly; we route through the **equation lemma**
 `mulP.eq_2` (auto-generated, carries the match + the ite condition
 `((k'+1) % 2 == 0) = true` as a Prop) — the same discipline as
-`Mod.expBits_eq_pow_mod` / `Secp.mulP_ok` (the way: one `simp only
+`Mod.expBits_eq_pow_mod` / `Secp.mulP_ok` (the W14b way: one `simp only
 [mulP]`-free step through `.eq_2`, everything else `Nat`-arithmetic
 (`omega`, `% 2` facts) + the existing `mulP_zero`/`mulP_one`/`addP_none`/
 `doubleP_none` closure lemmas (`Secp.lean:259-273`).
@@ -255,19 +247,12 @@ What is NOT here (honest scope, F-E04-002): `smulAdd k p = mulP k p`
 beyond the k ≤ 2 diagonal — the double-and-add vs repeated-addition
 identity needs `p + (p + s) = (p + p) + (p + p)`-shaped associativity
 of the raw law = the OnCurve chord/tangent layer (E02/E05), NOT
-zero-hypothesis. So the group rung ("smul = the monoid multiple") is a
-CONDITIONAL theorem over a monoid hom in the proofs package:
-`SmulCorIF.MulPIF` (new module) takes `φ : RawPoint → M` with
-`φ none = 0` and `φ (addP p q) = φ p + φ q` (E3h) and proves, from
-`addP_okφ` + `addP_self` + the §B k-descent lemmas ALONE:
-`mulP_okφ : φ (mulP k p) = k • φ p` (E2), `mulP_noneφ`,
-`smulAdd_okφ : φ (smulAdd k p) = k • φ p` (E4) — so
-`φ (smulAdd k p) = φ (mulP k p)` and `φ (smulBits bs p) =
-bitsVal bs • φ p` (the full ladder, F-E04-005), plus the
-`E02E03IF`-connection: `SmulIF` (= `MulPIF` over `E.Point` + the
-`e`-splitting lanes) DISCHARGES E02E03IF's two E04-marked fields
-`mulP_okE`/`mulP_noneE` (TweakCor.lean) from `addP_okE`'s φ-form.
-See `SmulCorIF.lean` for the E04/E03 contract split. -/
+zero-hypothesis. A conditional group rung over a monoid hom
+`φ : RawPoint → M` (with `φ none = 0`, `φ (addP p q) = φ p + φ q`) is
+therefore the right shape, but it is **not formalized in this tree**:
+the `SmulCorIF.lean`/`MulPIF`/`SmulIF` module referred to by earlier
+revisions does not exist. That is an open proof obligation recorded in
+`docs/RESIDUALS.md`, not a result of this file. -/
 
 /-- **E0 (the diagonal).** `addP p p = doubleP p` — `addRaw`'s first
 branch fires at `(p, p)` by `Nat.beq` reflexivity (the one
@@ -311,9 +296,9 @@ checks — every `decide`/`rfl` below closes WITHOUT `native_decide`
 (D-004 clean). The empirical map, probed in scratch (`dprobe.lean`,
 2026-10-17) — TWO decide-walls, both WF-recursive (`termination_by`):
 
-* **Wall 1** — `mulP` itself (WF, `Secp.lean:248`): the wall R6 was written
+* **W1** — `mulP` itself (WF, `Secp.lean:248`): the wall R6 was written
   for; the structural `smulBits` is the fix (D-1/D-2 below reduce).
-* **Wall 2** — `egcd` (WF, `Mod.lean:211`), inside `invP = invM P d`
+* **W2** — `egcd` (WF, `Mod.lean:211`), inside `invP = invM P d`
   (`Secp.lean:169`), i.e. inside every *real* (non-vertical, non-`none`)
   `doubleRaw`/`addRaw` step: 2-step real-point walks blow "maximum
   recursion depth" even at `maxRecDepth 100000` + `maxHeartbeats
@@ -324,7 +309,7 @@ checks — every `decide`/`rfl` below closes WITHOUT `native_decide`
 D-1 walk structure; D-2 structural `bitsVal`; D-3 REAL mod-p arithmetic
 deciding (branch table + `negN`, incl. negative controls); D-4 negative
 control that the walk `decide`s are not vacuous; D-5 bridge — structural
-= WF *via the theorems, not the kernel* (the kernel cannot, Wall 1). -/
+= WF *via the theorems, not the kernel* (the kernel cannot, W1). -/
 
 section kcheck
 
@@ -363,7 +348,7 @@ example : smulBits [true, false] kc3 ≠ none := by decide
 -- D-5: bridge sanity — structural = WF at 1 *through the theorems*
 -- (D-2's `bitsVal` + rung 1; `mulP_one` and D-1's `smulBits [true] kc2
 -- = kc2` collapse the two sides to `kc2` separately); the kernel alone
--- cannot (Wall 1)
+-- cannot (W1)
 example : smulBits [true] kc2 = mulP 1 kc2 := by
   have hb : bitsVal [true] = 1 := by decide
   rw [smulBits_eq_mulP, hb]
@@ -383,8 +368,8 @@ example : addP (some (5, 0)) (some (5, 0)) = none := by decide
 
 -- The TWO decide-walls (NOT includable as failing examples; pinned in
 -- F-E04-001 with the scratch reproduction `dprobe.lean` P2/P4):
--- Wall 1:  `example : mulP 1 kc2 = kc2 := by decide` — WF `mulP`.
--- Wall 2:  `example : kc2 ≠ doubleP kc2 := by decide` and
+-- W1:  `example : mulP 1 kc2 = kc2 := by decide` — WF `mulP`.
+-- W2:  `example : kc2 ≠ doubleP kc2 := by decide` and
 --      `example : smulBits [true] kc2 ≠ doubleP kc2 := by decide` and
 --      `example : smulBits [true, true] kc3 = addP kc3 (doubleP (addP kc3
 --        (doubleP none))) := by decide` — real `doubleRaw`/`addRaw` =

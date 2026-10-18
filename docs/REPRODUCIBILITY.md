@@ -144,7 +144,7 @@ lake test
 |---|---|---:|---|
 | Lean core | `Bitcoin` | 72 | success |
 | Proof root | `BitcoinProofs` | 1722 | success (29-module closure) |
-| Proof modules outside default closure | exact module names | — | 361 pass / 20 fail; see `docs/PROOF-BUILD.md` |
+| Proof modules outside default closure | exact module names | — | 365 pass / 15 fail (380 modules); see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
 
@@ -199,6 +199,6 @@ git-lfs is used.
 * The forty tagged wallet rows include three with partial obligations; 99 rows
   are in the obligation register. See `docs/WALLET.md` and
   `docs/WALLET-OBLIGATIONS.md`.
-* Twenty-six consensus rows are explicit model residuals. See
+* Twenty-seven consensus rows are explicit model residuals. See
   `docs/RESIDUALS.md`.
 * No external security audit or certification is claimed.
