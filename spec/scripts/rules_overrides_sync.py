@@ -9,7 +9,7 @@
 # 726 rows; field census {'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 58, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 9cbbb1eb422d199e48d7aa428a47228f13236981d39a62b6a16f9905b3650b02
+#   726 rows, sha256 8f2eaef7fb515afd52fe84977cedf129df16972d03fb0445696f41ad27ca5755
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -1268,7 +1268,7 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-091': {
-        'lean_target': 'BitcoinProofs.AF.PDW86.stepBody_size_raw',
+        'lean_target': 'BitcoinProofs.AF.PDW85.stepBody_equal_raw_bytes',
         'status': 'proven',
         'notes': None,
     },
