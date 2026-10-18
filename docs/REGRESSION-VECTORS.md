@@ -5,6 +5,29 @@ fixes tracked by the source audit. The model changes themselves belong to the
 modules that own each definition; this page keeps the vectors and the intended
 test locations in one place so a fix is not accepted without a witness.
 
+The shared static sigop counters have 36 executable checks in
+`spec/core/Test/Capstone/Sigops.lean` (`make test-capstone-sigops`). They
+cover per-CHECKMULTISIG lookback, inaccurate cost twenty, skipped push
+data, retained valid prefixes on malformed pushes, push-only P2SH
+scriptSigs, native/wrapped witness programs, absent witness stacks,
+independent input indexing and activation flags. These are resource
+accounting checks; malformed scripts need not execute successfully.
+
+`spec/scripts/check_sigops_core.py` extracts and compiles nine actual Core
+functions from the immutable `src/script/script.cpp` and
+`src/script/interpreter.cpp` files. Pass them with `--script` and
+`--interpreter`, and pass the Lean runner's saved stdout with `--lean-log`.
+The script verifies the full input-file hashes against either supported
+Core pin before compiling. All 28 raw/per-input reference cases agree at
+both pins; eight further Lean checks cover transaction wrappers. This is
+a source-function harness, with container/type shims, rather than a whole
+bitcoind integration test or an equivalence proof. The before-repair
+reproduction command is
+`python3 docs/reviews/2026-10-18/reproduce_sigops.py`; it requires exactly
+18 named failures and 10 passing controls at the recorded pre-fix commit.
+Commands, hashes and proof scope are recorded in
+`docs/reviews/2026-10-18/validation-sigops.json`.
+
 The proof-surface repairs are already exercised in-file:
 
 * `SmallCurve/TweakCorSmall.lean`: `mulP' (2^16) G = none` and

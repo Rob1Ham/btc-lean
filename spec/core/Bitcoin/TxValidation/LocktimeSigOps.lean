@@ -40,19 +40,16 @@ transaction weight (`3·base + total`, which remains the block metric).
   `SEQUENCE_LOCKTIME_TYPE_FLAG | SEQUENCE_LOCKTIME_MASK` (bit 22 |
   0xffff) before the same-domain comparison, and the verdict is
   `nMasked ≤ txMasked`.
-* **TXV-049** — for scripts that parse, `txLegacySigOps` is exactly the
-  Σ of the model's non-accurate per-script counts over the scriptSigs
-  and scriptPubKeys. The model's `parseWire = none` lane contributes 0
-  and its non-accurate CHECKMULTISIG charges 1, whereas Core returns
-  the already-counted prefix on a decode failure and charges 20; both
-  gaps are recorded as residual below (not claimed).
+* **TXV-049** — `txLegacySigOps` is exactly the sum of the shared
+  inaccurate per-script counts over every scriptSig and scriptPubKey,
+  preserving the valid prefix when a malformed push stops parsing.
 * **TXV-052** — the sigop cost scales the legacy + P2SH counts by
   `WITNESS_SCALE_FACTOR` = 4 and the witness term by 1, additively.
 * **TXV-054** — the ACCURATE-mode multisig constant: a CHECKMULTISIG
   with no preceding OP_N push falls back to
   `MAX_PUBKEYS_PER_MULTISIG` = 20 (script.h:35) and every per-op
-  accurate contribution is ≤ 20. The NON-accurate 20 charge is not
-  modelled here (`sigOpCount ... false` is flat); residual below.
+  accurate contribution is ≤ 20. Inaccurate mode always charges twenty
+  for CHECKMULTISIG, including after OP_N.
 * **TXV-066** — the consensus output loop is BLIND to scriptPubKey
   content (any spk allowed — OP_RETURN outputs included; the value
   rules are the only checks; spending an OP_RETURN output fails later,
@@ -235,7 +232,8 @@ theorem txLegacySigOps_one_in_out (tx : Bitcoin.Data.Tx) (i : TxIn) (o : TxOut)
     txLegacySigOps { tx with vin := [i], vout := [o] } =
       sigOpCount sOps false + sigOpCount pOps false := by
   unfold txLegacySigOps
-  simp [hs, hp]
+  simp [SigOps.scriptSigOpCount, SigOps.parseWirePrefix_of_parse _ _ hs,
+    SigOps.parseWirePrefix_of_parse _ _ hp, sigOpCount]
 
 /-- `+`-fold as the sum of the mapped values (the general Σ shape). -/
 private theorem foldl_add_map_sum {α : Type} (l : List α) (f : α → Nat) :
@@ -249,20 +247,19 @@ private theorem foldl_add_map_sum {α : Type} (l : List α) (f : α → Nat) :
 
 /-- TXV-049 (general): `GetLegacySigOpCount` is exactly the Σ of the
 non-accurate per-script counts — one summand for EVERY input's scriptSig
-and EVERY output's scriptPubKey (unparsable scripts contributing the empty
-count, as Core's `GetSigOpCount` on the empty op stream). -/
+and EVERY output's scriptPubKey, retaining each valid prefix if parsing stops. -/
 @[rule "TXV-049"]
 theorem txLegacySigOps_eq_sum (tx : Bitcoin.Data.Tx) :
     txLegacySigOps tx =
       (tx.vin.map (fun i =>
-        sigOpCount ((parseWire i.scriptSig.bytes).getD []) false)).sum +
+        SigOps.scriptSigOpCount i.scriptSig.bytes false)).sum +
       (tx.vout.map (fun o =>
-        sigOpCount ((parseWire o.scriptPubKey.bytes).getD []) false)).sum := by
+        SigOps.scriptSigOpCount o.scriptPubKey.bytes false)).sum := by
   unfold txLegacySigOps
   rw [foldl_add_map_sum tx.vin
-        (fun i => sigOpCount ((parseWire i.scriptSig.bytes).getD []) false) 0,
+        (fun i => SigOps.scriptSigOpCount i.scriptSig.bytes false) 0,
       foldl_add_map_sum tx.vout
-        (fun o => sigOpCount ((parseWire o.scriptPubKey.bytes).getD []) false) 0]
+        (fun o => SigOps.scriptSigOpCount o.scriptPubKey.bytes false) 0]
   simp
 
 /-- TXV-052: the cost law in `WITNESS_SCALE_FACTOR` form — legacy and
@@ -328,38 +325,21 @@ theorem sigOpStep_multisig_fallback (prev : Option Bitcoin.Script.Parser.Opcode)
   unfold sigOpStep
   rw [if_neg (by simp [hncs]), if_pos (by simp [hms]), hno]
 
-/-- TXV-054, non-accurate half: `GetSigOpCount(false)` charges exactly
-**1** per `CHECKMULTISIG`/`CHECKMULTISIGVERIFY` — the `20` constant is the
-accurate-mode fallback only. -/
+/-- TXV-054: inaccurate CHECKMULTISIG always costs twenty, including
+when no OP_N precedes it. -/
 @[rule "TXV-054"]
 theorem sigOpCount_inaccurate_checkmultisig (op : WireOp)
     (hms : isCheckMultiSigWire op.wire = true) :
-    sigOpCount [op] false = 1 := by
-  have hsig : isSigOpWire op.wire = true := by
-    simp only [isSigOpWire, Bool.or_eq_true, decide_eq_true_eq]
+    sigOpCount [op] false = 20 := by
+  have hn : isCheckSigWire op.wire = false := by
     simp only [isCheckMultiSigWire, Bool.or_eq_true, decide_eq_true_eq] at hms
-    rcases hms with h | h
-    · exact Or.inr (Or.inr (Or.inl h))
-    · exact Or.inr (Or.inr (Or.inr h))
-  simp [sigOpCount, hsig]
+    rcases hms with h | h <;> simp [isCheckSigWire, h]
+  simp [sigOpCount, SigOps.sigOpCount, SigOps.inaccurateSigOpCount, hn, hms,
+    Bitcoin.Interpreter.MAX_PUBKEYS_PER_MULTISIG]
 
-/-! ## Residuals (FIX-P-DROWS re-audit, explicit — not claimed)
-
-* **TXV-049.** `txLegacySigOps_eq_sum` replaces an unparsable script by
-  `[]` and hence contributes 0. Core's
-  `CScript::GetSigOpCount(false)` breaks on the first `GetOp` failure and
-  returns the prefix already counted (script.cpp:159-181), so a script
-  with a valid CHECKMULTISIG prefix followed by a truncated push has a
-  nonzero Core count and 0 here. Also, this file's
-  `sigOpCount ... false` charges 1 per CHECKMULTISIG while Core charges
-  `MAX_PUBKEYS_PER_MULTISIG` = 20 (script.cpp:173-181). Both are model
-  gaps in `Interpreter/Rules.lean` (`sigOpCount`), which is outside this
-  lane; only the parse-success, flat-count statement is claimed.
-* **TXV-054.** `sigOpStep` is the accurate-mode counter only. The
-  non-accurate (`GetSigOpCount(false)`) 20-per-CHECKMULTISIG charge is
-  not modelled in this module; the row summary is narrowed to the
-  accurate-mode bound and fallback.
--/
+/-! The raw counters now retain valid prefixes on malformed pushes and
+charge twenty in inaccurate mode. Activation and the evolving block budget
+are caller-side obligations, distinct from these counting theorems. -/
 
 /-! ## TXV-066: OP_RETURN outputs are consensus-valid (value rules only) -/
 

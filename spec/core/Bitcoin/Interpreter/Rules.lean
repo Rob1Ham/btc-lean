@@ -1,4 +1,5 @@
 import Bitcoin.Interpreter.Interface
+import Bitcoin.Interpreter.SigOps
 import Bitcoin.Activation.Flags
 import Bitcoin.Crypto.Seam.Entry
 import Bitcoin.Crypto.Schnorr.TaggedHash
@@ -167,47 +168,16 @@ OP_CHECKMULTISIGVERIFY) — each counts as 1 sigop in `GetSigOpCount`. -/
 def isSigOpWire (w : Nat) : Bool :=
   w = 0xac ∨ w = 0xad ∨ w = 0xae ∨ w = 0xaf
 
-/-- The DecodeOP_N tail contribution: when the LAST opcode is OP_N
-(wire 0x50+N, N ∈ 1..16), the accurate count adds N — BIP16's
-`<N> <keys…> N CHECKMULTISIG` redeem shape. -/
-def decodeOpN (last : Option WireOp) : Nat :=
-  match last with
-  | some o => if 0x51 ≤ o.wire ∧ o.wire ≤ 0x60 then o.wire - 0x50 else 0
-  | none => 0
-
-/-- `CScript::GetSigOpCount(fAccurate)` (script.cpp:173-177): one sigop
-per signature-checking opcode; in ACCURATE mode (the P2SH/witness
-subscript convention) the DecodeOP_N tail adds its N. -/
+/-- Core's static counter over parsed opcodes: CHECKSIG costs one;
+CHECKMULTISIG costs the preceding OP_1..OP_16 value in accurate mode,
+and twenty otherwise. A trailing OP_N has no independent cost. -/
 @[rule "SCR-033"]
 def sigOpCount (ops : List WireOp) (accurate : Bool) : Nat :=
-  (ops.filter (fun o => isSigOpWire o.wire)).length +
-    (if accurate then decodeOpN ops.getLast? else 0)
+  SigOps.sigOpCount ops accurate
 
-/-- Accurate counting never under-counts: the DecodeOP_N tail only adds. -/
-theorem sigOpCount_accurate_ge (ops : List WireOp) :
-    sigOpCount ops false ≤ sigOpCount ops true := by
-  unfold sigOpCount
-  rw [ite_eq_right (by decide : ¬((false : Bool) = true)),
-    ite_eq_left (by decide : (true : Bool) = true)]
-  omega
-
-/-- The DecodeOP_N value of a present OP_N tail is exactly N. -/
-theorem decodeOpN_some (o : WireOp) (n : Nat) (hn : o.wire = 0x50 + n)
-    (h1 : 1 ≤ n) (h16 : n ≤ 16) : decodeOpN (some o) = n := by
-  have hcond' : (0x51 ≤ 0x50 + n ∧ 0x50 + n ≤ 0x60) := by omega
-  simp only [decodeOpN, hn, hcond', true_and, ite_true]
-  omega
-
-/-- The DecodeOP_N law itself: when the last opcode is OP_N, the
-accurate count is the plain count plus N. -/
-theorem sigOpCount_last_decodeOPN (ops : List WireOp) (o : WireOp) (n : Nat)
-    (hlast : ops.getLast? = some o) (hn : o.wire = 0x50 + n) (h1 : 1 ≤ n) (h16 : n ≤ 16) :
-    sigOpCount ops true = sigOpCount ops false + n := by
-  unfold sigOpCount
-  rw [ite_eq_left (by decide : (true : Bool) = true),
-      ite_eq_right (by decide : ¬((false : Bool) = true)),
-      hlast, decodeOpN_some o n hn h1 h16]
-  omega
+/-- A single opcode has no preceding OP_N, so both modes agree. -/
+theorem sigOpCount_single (op : WireOp) :
+    sigOpCount [op] true = sigOpCount [op] false := rfl
 
 /-- `CScript::GetSigOpCount(scriptSig)` (script.cpp:183-205): the P2SH
 side — the subscript is the LAST PUSH of scriptSig (Core's `GetOp`
@@ -217,15 +187,7 @@ with the ACCURATE convention. The caller gates on
 `scriptPubKey.IsPayToScriptHash()` (tx_verify.cpp:132-146). -/
 @[rule "SCR-034"]
 def p2shSigOpCount (scriptSig : ByteArray) : Nat :=
-  match parseWire scriptSig with
-  | none => 0
-  | some ops =>
-    match ops.getLast? with
-    | none => 0
-    | some last =>
-      match last.ast with
-      | .pushBytes d => sigOpCount ((parseWire (Bitcoin.Script.Parser.pushBytesWire d)).getD []) true
-      | _ => 0   -- non-push tail: Core's cleared vchRet ⇒ empty subscript
+  SigOps.p2shScriptSigOps scriptSig
 
 /-- `WitnessSigOps` (interpreter.cpp:2133-2147): witness v0 — program 20
 (P2WPKH) = 1 sigop; program 32 (P2WSH) = the ACCURATE sigop count of
@@ -238,9 +200,7 @@ def witnessSigOps (version : Nat) (program : ByteArray) (witness : WitnessStack)
       match witness.getLast? with
       | none => 0
       | some script =>
-        match parseWire script with
-        | none => 0
-        | some ops => sigOpCount ops true
+        SigOps.witnessScriptSigOps script
     else 0
   else 0
 
@@ -300,16 +260,25 @@ sigop count of every scriptSig and scriptPubKey (no P2SH subscripting,
 no witness extension). -/
 def txLegacySigOps (tx : Bitcoin.Data.Tx) : Nat :=
   tx.vin.foldl (fun acc i =>
-    acc + sigOpCount ((parseWire i.scriptSig.bytes).getD []) false) 0 +
+    acc + SigOps.scriptSigOpCount i.scriptSig.bytes false) 0 +
   tx.vout.foldl (fun acc o =>
-    acc + sigOpCount ((parseWire o.scriptPubKey.bytes).getD []) false) 0
+    acc + SigOps.scriptSigOpCount o.scriptPubKey.bytes false) 0
 
 /-- `GetP2SHSigOpCount` (tx_verify.cpp:132-146): for every input whose
 prevout scriptPubKey is a P2SH script, the accurate sigop count of the
 redeem script (the last scriptSig push). -/
+def txP2shSigOpsFrom (spkOf : Nat → ByteArray) : List Bitcoin.Data.TxIn → Nat → Nat
+  | [], _ => 0
+  | input :: rest, n =>
+    (if isPayToScriptHash (spkOf n) then p2shSigOpCount input.scriptSig.bytes else 0) +
+      txP2shSigOpsFrom spkOf rest (n+1)
+
 def txP2shSigOps (tx : Bitcoin.Data.Tx) (spkOf : Nat → ByteArray) : Nat :=
-  tx.vin.foldl (fun acc i =>
-    acc + (if isPayToScriptHash (spkOf 0) then p2shSigOpCount i.scriptSig.bytes else 0)) 0
+  if tx.isCoinBase then 0 else txP2shSigOpsFrom spkOf tx.vin 0
+
+theorem txP2shSigOps_coinbase (tx : Bitcoin.Data.Tx) (spkOf : Nat → ByteArray)
+    (h : tx.isCoinBase = true) : txP2shSigOps tx spkOf = 0 := by
+  simp [txP2shSigOps, h]
 
 /-- `GetTransactionSigOpCost` (tx_verify.cpp:149-168): legacy and P2SH
 sigops each weigh `WITNESS_SCALE_FACTOR` (4) cost units; the

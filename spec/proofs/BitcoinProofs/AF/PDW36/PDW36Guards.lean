@@ -11,11 +11,11 @@ Collected from `#print axioms` on the row-face theorems. -/
 /-- info: 'BitcoinProofs.AF.PDW36.flagsComboOk_witness_requires_p2sh' depends on axioms: [propext] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW36.flagsComboOk_witness_requires_p2sh
 
-/-- info: 'BitcoinProofs.AF.PDW36.sigOpCount_eq' does not depend on any axioms -/
+/-- info: 'BitcoinProofs.AF.PDW36.sigOpCount_eq' depends on axioms: [propext] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW36.sigOpCount_eq
 
-/-- info: 'BitcoinProofs.AF.PDW36.sigOpCount_no_tail' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs in #print axioms BitcoinProofs.AF.PDW36.sigOpCount_no_tail
+/-- info: 'BitcoinProofs.AF.PDW36.sigOpCount_single' depends on axioms: [propext] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW36.sigOpCount_single
 
 /-- info: 'BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed

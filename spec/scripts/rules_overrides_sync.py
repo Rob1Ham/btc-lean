@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 59, 'test_vector_ids': 26}.
+# 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 60, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 aee676918b2668ac01113cb4b0eb583c734e575dff142648e7fecf59895b0351
+#   726 rows, sha256 bfdb2fb1f7b1b68dde07628d6af630f8c33e89a8475eccb0df08656a7c7888f2
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -1004,13 +1004,14 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-033': {
-        'lean_target': 'BitcoinProofs.AF.PDW36.sigOpCount_eq',
+        'summary': 'accurate CHECKMULTISIG uses the immediately preceding OP_1..OP_16 value at each site',
+        'lean_target': 'BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig',
         'status': 'proven',
     },
     'SCR-034': {
-        'summary': "for a push-only scriptSig (every opcode ≤ OP_16), the last push is the redeem script and its accurate sigops are counted; a non-push scriptSig needs Core's all-ops `> OP_16 ⇒ 0` guard, which the current `p2shSigOpCount` model does not implement (explicit residual)",
+        'summary': "malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately",
         'core_ref': 'script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly',
+        'lean_target': 'BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly',
         'status': 'proven',
     },
     'SCR-035': {

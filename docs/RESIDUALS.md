@@ -1,7 +1,7 @@
 # Consensus residuals
 
 The consensus census has 726 rows: 676 `proven`, 50 `obsolete`, 0
-`implemented`, and 0 `planned`. Twenty-seven of the proven rows are **explicit
+`implemented`, and 0 `planned`. Twenty-six of the proven rows are **explicit
 model residuals**: the row's one-line claim is true of Bitcoin Core, but the
 current Lean model does not yet entail it. They are not counted as fully proved
 against Core.
@@ -15,13 +15,13 @@ is in the proof surface and carries the row's tag. The default
 target in that failure set: `SCR-100`'s cited target,
 `Theorems.Ops.O07.step_codesep_const_dead`, now builds. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement
-fidelity, and these 27 rows are where the review found a gap.
+fidelity, and these 26 rows are where the review found a gap.
 
 This document is generated from the latest per-row review action. The
 authoritative row records remain in `spec/db/rules.yaml`; this page exists so
 the gaps are visible without depending on unpublished review notes.
 
-**Residual rows: 27 / 726.**
+**Residual rows: 26 / 726.**
 
 The machine-readable ledger is [`spec/db/residuals.yaml`](../spec/db/residuals.yaml).
 The generated evidence matrix is [`RESIDUALS-EVIDENCE.md`](RESIDUALS-EVIDENCE.md);
@@ -145,13 +145,6 @@ both are rebuilt by `python3 spec/scripts/residuals_index.py`.
 - core: `interpreter.cpp:EvalScript:1232@cce32b168`
 - target: `Bitcoin.Interpreter.Defs.evalScriptBytes_ok_stack_bound`
 - missing link: The summary (stack + altstack combined check) is true of Core: the guard is `if (stack.size() + altstack.size() > MAX_STACK_SIZE) return SCRIPT_ERR_STACK_SIZE` after every opcode (:1231-1233). The cited `evalScriptBytes_ok_stack_bound` (Defs.lean:1482-1500) concludes only `st'.length <= MAX_STACK_SIZE` on the main stack (:1486). The combined guard is present per step (`stepChecked`, Defs.lean:1098-1103; `stepChecked_ok_bound`, :1396-1408), and `evalFrom_ok_stack_bound` (:1411-1438) also bounds only `st'.length`. No eval-level theorem bounds `st'.length + st'.alt.length`. Missing piece: `evalFrom_ok_stack_alt_bound` / `evalScriptBytes_ok_stack_alt_bound` preserving the combined invariant. Open proof obligation; claim kept, not narrowed.
-
-### SCR-033
-
-- claim: last opcode OP_1..OP_16 ⇒ DecodeOP_N
-- core: `script.cpp:GetSigOpCount(true):173-177@cce32b168`
-- target: `BitcoinProofs.AF.PDW36.sigOpCount_eq`
-- missing link: The summary is true of Core: `GetSigOpCount(true)` tracks `lastOpcode` and, for every CHECKMULTISIG(VERIFY), adds `DecodeOP_N(lastOpcode)` when that immediately preceding opcode is OP_1..OP_16, else `MAX_PUBKEYS_PER_MULTISIG` (:171-178). The cited `PDW36.sigOpCount_eq` (PDW36.lean:51-55) is `rfl` for `Rules.sigOpCount`, whose `decodeOpN ops.getLast?` (Rules.lean:173-184) reads the script's final opcode once, not the opcode preceding each CMS. `Bitcoin.Interpreter.SigOps.sigOpStep` (SigOps.lean:69-74) models the correct per-CMS lookback, but there is no named theorem for its OP_N positive branch (`sigOpStep_multisig_fallback`, LocktimeSigOps.lean:323-328, covers only the fallback 20). Missing piece: a theorem `sigOpStep (some OP_N) CMS = N` for the accurate branch, tied to `accurateSigOpCount`. Open proof obligation; the Core claim is kept, not narrowed.
 
 ### SCR-040
 

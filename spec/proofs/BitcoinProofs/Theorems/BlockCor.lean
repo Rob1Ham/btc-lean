@@ -83,7 +83,8 @@ witness (BLK-035 edge). -/
 theorem txSigOpCost_emptyTx (u : UtxoSet) :
     txSigOpCost u (Tx.mk 0 [] [] 0 []) = 0 := by
   unfold txSigOpCost legacySigOpCountTx p2shSigOpCount witnessSigOps
-  simp
+  simp [Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTx,
+    Bitcoin.TxValidation.SigOpsCost.witnessSigOpsTxFrom]
 
 /-- A coinbase's sigop cost is EXACTLY 4× its legacy count: both the P2SH
 and witness terms exclude the coinbase by design (BLK-035 ∘ BLK-033). -/

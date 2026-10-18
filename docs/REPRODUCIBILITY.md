@@ -173,7 +173,7 @@ wallet static battery, and the tracked-data subset. `make gate-repro` is a
 separate reproducibility check: it verifies the reference/generator scripts
 cited by the test runners and scans tracked shell/Python files for absolute
 checkout paths. The consensus dynamic probe
-re-elaborates 250 consensus axiom entries; the wallet probe covers 838
+re-elaborates 270 consensus axiom entries; the wallet probe covers 838
 theorem/lemma declarations. The wallet script also covers the 140-anchor census when
 `CORE_SRC` is supplied, and runs the dynamic wallet axiom probe unless
 `WALLET_SKIP_PROBE=1`. Neither dynamic probe is part of CI.
@@ -199,6 +199,6 @@ git-lfs is used.
 * The forty tagged wallet rows include three with partial obligations; 99 rows
   are in the obligation register. See `docs/WALLET.md` and
   `docs/WALLET-OBLIGATIONS.md`.
-* Twenty-seven consensus rows are explicit model residuals. See
+* Twenty-six consensus rows are explicit model residuals. See
   `docs/RESIDUALS.md`.
 * No external security audit or certification is claimed.

@@ -6,7 +6,7 @@ prefixes and statuses mean. It is a layout note, not a proof claim. The proof
 claims are the tagged declarations and the census in `spec/db/rules.yaml`.
 
 Snapshot: 2026-10-17. The census has 726 rows: 676 `proven`, 50 `obsolete`,
-0 `implemented`, 0 `planned`. Twenty-seven of the proven rows remain explicit
+0 `implemented`, 0 `planned`. Twenty-six of the proven rows remain explicit
 model residuals ([`RESIDUALS.md`](RESIDUALS.md)). Counts describe rule rows,
 not Lean theorem declarations.
 
@@ -257,7 +257,7 @@ an ID is never reused.
 | `planned` | catalogued from the Core inventory; no Lean declaration assigned yet |
 | `stubbed` | a Lean signature or definition exists, but the row statement is not yet closed |
 | `implemented` | the executable definition or declaration exists and carries the `@[rule]` tag, but the entailment is not proved |
-| `proven` | a tagged theorem exists, builds, and its conclusion is the row's cited Lean target; its axiom footprint is pinned and within the permitted set. Twenty-seven rows have a known target-to-summary gap and are listed in [`RESIDUALS.md`](RESIDUALS.md) |
+| `proven` | a tagged theorem exists, builds, and its conclusion is the row's cited Lean target; its axiom footprint is pinned and within the permitted set. Twenty-six rows have a known target-to-summary gap and are listed in [`RESIDUALS.md`](RESIDUALS.md) |
 | `obsolete` | retired: duplicate, policy/availability boundary, or outside the modelled consensus surface. The row remains in the denominator and keeps its ID |
 
 Current census: 676 `proven`, 50 `obsolete`, 0 `implemented`, 0 `planned`.

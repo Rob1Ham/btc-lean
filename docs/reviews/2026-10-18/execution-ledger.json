@@ -4,7 +4,7 @@
   "branch": "codex/audit-remediation",
   "review_baseline": "57607451faa168497d971e2d50e91dae7dafdafe",
   "implementation_baseline": "ccd075db15442a119bacd93b30571df0e46e0327",
-  "updated_at_utc": "2026-10-18T15:44:16.496120+00:00",
+  "updated_at_utc": "2026-10-18T16:02:42.982970+00:00",
   "upstream_refresh": {
     "open_issues": [
       4,
@@ -18,7 +18,7 @@
       "merged_at": "2026-10-18T14:32:52Z",
       "note": "Merged after review snapshot; source fast-forwarded before local implementation. Native-decide trust and verification review remain required."
     },
-    "main": "32e8463a47022307f4dc3e337bfdbb10999b7bcc",
+    "main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
     "pr19": {
       "state": "MERGED",
       "head": "617ede6d62a2db282ffaadb1e67850e74912e2c7",
@@ -31,7 +31,16 @@
       "commit": "32e8463a47022307f4dc3e337bfdbb10999b7bcc",
       "reported_outside_pass": 372,
       "reported_outside_fail": 8,
-      "status": "reviewed; retained as upstream snapshot; full remediation-head module matrix remains pending"
+      "status": "reviewed; retained as upstream snapshot; full remediation-head module matrix remains pending",
+      "latest_merge": "51b3b95c2e28543a8620854ecd34a152a6128206",
+      "note": "Preserved upstream historical 1722-job claim for its 29-module closure; current branch has 32-module closure. Included stronger sentinel theorem and dynamically probed it."
+    },
+    "issue4_latest": {
+      "updated_at": "2026-10-18T15:29:17Z",
+      "checked": 57,
+      "total": 57,
+      "snapshot": "issue4-upstream-refresh.json",
+      "assessment": "Upstream checkbox completion is recorded; independent live-budget, exception, census and evidence obligations remain open."
     }
   },
   "toolchain": {
@@ -1062,9 +1071,31 @@
       "title": "P2SH/witness sigop counting is not Core's.",
       "description": "**P2SH/witness sigop counting is not Core's.** `AF/PDW29/PDW29Sigops.lean:176-178` uses flat-20 `legacySigOpCountScript`/`sigOpScan`, omitting push-only and accurate P2WSH handling. Reuse `accurateSigOpCount`/`countWitnessSigOps`.",
       "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence",
-      "status": "requires_current_head_validation",
-      "changed_files": [],
-      "verification": []
+      "status": "static_counter_fixes_verified; live_block_budget_pending",
+      "changed_files": [
+        "spec/core/Bitcoin/Interpreter/SigOps.lean",
+        "spec/core/Bitcoin/Interpreter/Rules.lean",
+        "spec/core/Bitcoin/Block/Sigops.lean",
+        "spec/core/Bitcoin/TxValidation/SigOpsCost.lean",
+        "spec/core/Bitcoin/TxValidation/LocktimeSigOps.lean",
+        "spec/core/Test/Capstone/Sigops.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW29/PDW29Sigops.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW33/PDW33b.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW36/PDW36.lean",
+        "spec/proofs/BitcoinProofs/AF/PDW36/PDW36Guards.lean",
+        "spec/proofs/BitcoinProofs/Theorems/BlockCor.lean",
+        "spec/scripts/check_sigops_core.py",
+        "spec/scripts/axiom_probe.lean",
+        "spec/db/axiom-manifest.txt",
+        "spec/db/rules.yaml",
+        "spec/scripts/rules_overrides_sync.py",
+        "spec/scripts/residuals_index.py",
+        "docs/reviews/2026-10-18/reproduce_sigops.py"
+      ],
+      "verification": [
+        "validation-sigops.json"
+      ],
+      "evidence": "36 static/wrapper checks, 28 exact source-function comparisons at both Core pins, 18 old failures reproduced; weighted-count and malformed-prefix proofs rebuilt."
     },
     {
       "id": "I4-21",
@@ -1493,11 +1524,15 @@
     "Primary replay false-green on empty/missing input fixed; current default proof closure 31 of 411 modules; outside matrix remains pending.",
     "R03 contextual absolute finality and both BIP68 domains wired and verified, retaining one checked-input pass before scripts and exact fee/ledger dataflow.",
     "89 distinct runtime regressions, core test/build, 32-module default plus affected proof build, 250 consensus and 838 wallet dynamic axiom entries pass; all 53 wallet probe imports build.",
-    "Recorded all 726 row progress states separately from the snapshot; reopened live powLimit constant use and confirmed genesis UTXO composition gap R07b."
+    "Recorded all 726 row progress states separately from the snapshot; reopened live powLimit constant use and confirmed genesis UTXO composition gap R07b.",
+    "Merged upstream main 80bf09b via 51b3b95, preserving current proof scope and historical upstream counts. Issue 4 now reports 57/57 checked; independent review still requires the remaining work.",
+    "Repaired shared static sigop semantics, P2SH push-only/redeem parsing, native/wrapped witness indexing and explicit flag gates. Corrected the neighboring spkOf(0) reuse for every input.",
+    "Reproduced 18 named sigop failures with 10 passing controls. All 36 new checks pass; 28 raw/per-input cases agree with nine identical extracted Core functions at both exact pins.",
+    "Rebuilt the 32-module default proof closure plus affected consumers and all 53 wallet imports. Dynamic axiom checks pass for 270 consensus and 838 wallet entries. Closed the SCR-033 missing-link residual with a per-CMS continuation proof; 26 explicit residual rows remain."
   ],
   "external_blockers": [],
   "next_actions": [
-    "Wire faithful live sigop accounting and the 80000 budget, first repairing the known malformed-prefix/P2SH counting discrepancies.",
+    "Wire the shared flag-aware sigop costs and cumulative 80,000 limit into the actual block validator, using evolving UTXO state and actual candidate-hash flags; test boundaries and ordering, and prove the live success bound.",
     "Wire actual-hash genesis and other historical exceptions (R07/R07b); correct live full-powLimit constant use (I4-43).",
     "Repair witness commitment semantics and explicit Taproot adjudication (R05/R06).",
     "Complete CI/full build/declaration coverage, all census classifications and metadata, wallet row review, archive and evidence reproducibility."
@@ -1524,6 +1559,10 @@
       "tests": 10,
       "static_gates": 0,
       "dynamic_consensus_axioms": 0
+    },
+    {
+      "artifact": "validation-sigops.json",
+      "status": "scoped checks pass; full required matrix and remaining goal work pending"
     }
   ],
   "sessions": {},
@@ -1563,6 +1602,18 @@
         "INV-107"
       ],
       "next_action": "Wire the actual-hash genesis exception into the real validator/report dataflow. Recheck legacy funding proofs and migrate the R02 public halving fixture from genesis to real block 1, so genesis special treatment is not mistaken for ordinary coinbase funding."
+    },
+    {
+      "id": "R17",
+      "priority": "P1",
+      "title": "Static sigop counter discrepancies and absent live 80000-unit resource budget",
+      "status": "static_counter_semantics_fixed_and_verified; live cumulative block budget remains open",
+      "verification_artifact": "validation-sigops.json",
+      "next_action": [
+        "Wire the 80000 cumulative limit through the actual serialized-block validator against the evolving UTXO view, before scripts.",
+        "Use actual candidate-hash script flags consistently in the validator and resource accounting.",
+        "Test exact budget boundaries, coinbase, same-block spends and public error ordering; derive live success bound in kernel proofs."
+      ]
     }
   ]
 }

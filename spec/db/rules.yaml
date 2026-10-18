@@ -2321,22 +2321,22 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-033
-  summary: "last opcode OP_1..OP_16 ⇒ DecodeOP_N"
+  summary: "accurate CHECKMULTISIG uses the immediately preceding OP_1..OP_16 value at each site"
   check: "Accurate CMS sigop count"
   core_ref: "script.cpp:GetSigOpCount(true):173-177@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "BitcoinProofs.AF.PDW36.sigOpCount_eq"
+  lean_target: "BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig"
   test_vector_ids: []
   status: proven
   difficulty: 2
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-034
-  summary: "for a push-only scriptSig (every opcode ≤ OP_16), the last push is the redeem script and its accurate sigops are counted; a non-push scriptSig needs Core's all-ops `> OP_16 ⇒ 0` guard, which the current `p2shSigOpCount` model does not implement (explicit residual)"
+  summary: "malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately"
   check: "P2SH sigop count"
   core_ref: "script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168"
   bip_cve: "BIP16"
-  lean_target: "BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly"
+  lean_target: "BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly"
   test_vector_ids: []
   status: proven
   difficulty: 3

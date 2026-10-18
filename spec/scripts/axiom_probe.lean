@@ -29,6 +29,10 @@ import BitcoinProofs.Crypto.CurveZMod
 import BitcoinProofs.Theorems.CapstoneFunding
 import BitcoinProofs.Theorems.CapstoneContext
 import BitcoinProofs.Theorems.CapstoneSequence
+import BitcoinProofs.AF.PDW29.PDW29Sigops
+import BitcoinProofs.AF.PDW36.PDW36Guards
+import BitcoinProofs.AF.PDW21.PDW21
+import Bitcoin.TxValidation.LocktimeSigOps
 
 /-!
 # Axiom probe — the input of the axiom-manifest gate
@@ -343,3 +347,27 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms BitcoinProofs.Theorems.CapstoneSequence.applyContextualBlockTransactions_funding
 #print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_stages
 #print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_locks
+
+-- Static sigop counting repairs and upstream sentinel strengthening.
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_length_le
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_of_parse
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefix_of_parse
+#print axioms Bitcoin.Interpreter.SigOps.inaccurateSigOpCount_le
+#print axioms Bitcoin.Interpreter.SigOps.scriptSigOpCount_inaccurate_le
+#print axioms Bitcoin.Interpreter.SigOps.witnessScriptSigOps_of_parse
+#print axioms Bitcoin.TxValidation.LocktimeSigOps.sigOpCount_inaccurate_checkmultisig
+#print axioms Bitcoin.TxValidation.LocktimeSigOps.txLegacySigOps_eq_sum
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_nonpush
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_push_redeem
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_redeem_parsed
+#print axioms Bitcoin.Block.Sigops.witnessSigOps_none
+#print axioms BitcoinProofs.AF.PDW29.legacySigOpCountScript_eq_counts
+#print axioms BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig
+#print axioms BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush
+#print axioms BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly
+#print axioms BitcoinProofs.AF.PDW21.sentinel_ne_height_below_sentinel
+
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase
+
+#print axioms Bitcoin.Interpreter.txP2shSigOps_coinbase

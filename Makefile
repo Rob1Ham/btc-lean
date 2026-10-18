@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -31,6 +31,7 @@ help:
 	@echo "make test-capstone-funding # block reward and fee regressions (needs Lean)"
 	@echo "make test-capstone-context # contextual header regressions (needs Lean)"
 	@echo "make test-capstone-finality # absolute/BIP68 contextual regressions (needs Lean)"
+	@echo "make test-capstone-sigops # static sigop counter regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -98,3 +99,7 @@ test-capstone-context:
 
 test-capstone-finality:
 	@cd $(SPEC)/core && lake env lean --run Test/Capstone/Finality.lean
+
+# Static counting includes malformed scripts, independent of execution validity.
+test-capstone-sigops:
+	cd spec/core && lake env lean --run Test/Capstone/Sigops.lean

@@ -1,0 +1,320 @@
+{
+  "finding": "R17 / I4-20 / SCR-033 / SCR-034",
+  "status": "static_counter_semantics_fixed_and_verified; live cumulative block budget remains open",
+  "verified_at_utc": "2026-10-18T16:02:42.982970+00:00",
+  "implementation_parent": "51b3b95c2e28543a8620854ecd34a152a6128206",
+  "upstream_main": "80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2",
+  "toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": "cfc55fc58714a59dc06e6e79edc6d1d95140d3c2",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "resource_limits": {
+    "baseline_build_timeout_seconds": 180,
+    "baseline_test_timeout_seconds": 120,
+    "build_scheduler": "default Lake scheduler",
+    "new_proof_heartbeat_overrides": false,
+    "additional_OS_memory_cap": null
+  },
+  "behavior_changes": [
+    "Shared accurate/inaccurate raw-script counter preserves valid prefixes on malformed pushes.",
+    "Accurate CMS uses the immediately preceding OP_1..16; inaccurate CMS always costs 20.",
+    "P2SH counts the redeem bytes directly, requiring a completely parsed push-only scriptSig.",
+    "Native and P2SH-wrapped witness accounting visits every input, with absent witness stack interpreted as empty.",
+    "Rule-layer P2SH prevout lookup advances with the input index and exempts coinbase.",
+    "Explicit transaction-cost API gates P2SH and witness terms on actual supplied flags; legacy always counts."
+  ],
+  "core_reference": {
+    "method": "Compile nine unmodified extracted functions with CScript container/opcode/LE-reader shims; not whole bitcoind execution or a formal C++/Lean equivalence theorem.",
+    "source_urls": [
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66/src/script/script.cpp",
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66/src/script/interpreter.cpp",
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/9be056a8a72b624dae9623b2f7bded92c2a21c91/src/script/script.cpp",
+      "https://raw.githubusercontent.com/bitcoin/bitcoin/9be056a8a72b624dae9623b2f7bded92c2a21c91/src/script/interpreter.cpp"
+    ],
+    "source_pair_hash_check": "Checker refuses every file pair except the two recorded immutable pins.",
+    "identical_function_bodies_at_both_pins": true,
+    "normative_result": {
+      "kind": "extracted_pinned_core_function_harness",
+      "core_commit": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+      "compiler": "c++",
+      "functions_sha256": {
+        "bool GetScriptOp(": "3a889176e8822845a154498458fa2d3f92aaa95a233a1ab8e54ce310d73073f7",
+        "unsigned int CScript::GetSigOpCount(bool": "afb06ed1fbacd431a357a7bf0194da92feff0f61a09cb579256db0d39676bc09",
+        "unsigned int CScript::GetSigOpCount(const CScript&": "6ed1afe6722f30d12e2e2ae0bb1e19e8ebc94efd10774644d2770f6c142264d9",
+        "bool CScript::IsPayToScriptHash()": "6e6e58d8f141c7d95b87fd197c78d0668767160edc7b4acdfb118cc4fdb29d78",
+        "bool CScript::IsWitnessProgram(": "598094a054cf35e55b52ad8a0d56c2b178393010b30c9a3f66cd1db5c4ea2310",
+        "bool CScript::IsPushOnly(const_iterator": "91a57b3dab8d00722109f93ae23b233bd25465c1e78fdee806452c5579b8b71a",
+        "bool CScript::IsPushOnly()": "65ac8df6de241cdfefcb04a017a522e47b9c2e2fe6d1b4d2550c0f54e137b534",
+        "size_t static WitnessSigOps(": "1a49bf3fa1d2908a0f62c29fd92b8a125a3479394960e16cd3c65df27faf6412",
+        "size_t CountWitnessSigOps(": "0e36e8000d104b390929df888a4e0117118b47a768f8ffc450679052ead1059a"
+      },
+      "source_sha256": {
+        "/tmp/btc-lean-core-script.cpp": "210b1720acce295de54c6a08c76b97fa4cfe835f64e0ff7e0730c57ebebb8c55",
+        "/tmp/btc-lean-core-interpreter.cpp": "57a6f328c7e6202f499e48366a86eb26e09c8ebb78e92eef7e839207230be333"
+      },
+      "checks": {
+        "accurate per-CMS lookback": 5,
+        "inaccurate CMS is twenty": 40,
+        "trailing OP_N adds nothing": 1,
+        "intervening opcode clears lookback": 20,
+        "pushed sigops are data": 1,
+        "truncated direct push retains prefix": 1,
+        "truncated PUSHDATA1 length retains prefix": 1,
+        "truncated PUSHDATA1 payload retains prefix": 2,
+        "truncated PUSHDATA2 length retains prefix": 1,
+        "truncated PUSHDATA4 length retains prefix": 20,
+        "P2SH redeem bytes are counted directly": 2,
+        "P2SH valid redeem prefix survives": 1,
+        "P2SH non-push prefix is rejected": 0,
+        "rule P2SH non-push prefix is rejected": 0,
+        "block P2SH non-push prefix is rejected": 0,
+        "P2SH truncated scriptSig returns zero": 0,
+        "block truncated scriptSig returns zero": 0,
+        "small-int tail clears redeem data": 0,
+        "OP_RESERVED tail clears redeem data": 0,
+        "witness P2WSH retains valid prefix": 1,
+        "wrapped witness requires push-only": 0,
+        "wrapped P2WPKH counts without witness": 1,
+        "native P2WPKH counts without witness": 1,
+        "wrapped P2WSH accurate count": 2,
+        "native P2WSH accurate count": 2,
+        "empty witness P2WSH counts zero": 0,
+        "future witness counts zero": 0,
+        "legacy malformed script retains prefix": 20
+      },
+      "lean_results_compared": true
+    },
+    "audit16_result": {
+      "kind": "extracted_pinned_core_function_harness",
+      "core_commit": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+      "compiler": "c++",
+      "functions_sha256": {
+        "bool GetScriptOp(": "3a889176e8822845a154498458fa2d3f92aaa95a233a1ab8e54ce310d73073f7",
+        "unsigned int CScript::GetSigOpCount(bool": "afb06ed1fbacd431a357a7bf0194da92feff0f61a09cb579256db0d39676bc09",
+        "unsigned int CScript::GetSigOpCount(const CScript&": "6ed1afe6722f30d12e2e2ae0bb1e19e8ebc94efd10774644d2770f6c142264d9",
+        "bool CScript::IsPayToScriptHash()": "6e6e58d8f141c7d95b87fd197c78d0668767160edc7b4acdfb118cc4fdb29d78",
+        "bool CScript::IsWitnessProgram(": "598094a054cf35e55b52ad8a0d56c2b178393010b30c9a3f66cd1db5c4ea2310",
+        "bool CScript::IsPushOnly(const_iterator": "91a57b3dab8d00722109f93ae23b233bd25465c1e78fdee806452c5579b8b71a",
+        "bool CScript::IsPushOnly()": "65ac8df6de241cdfefcb04a017a522e47b9c2e2fe6d1b4d2550c0f54e137b534",
+        "size_t static WitnessSigOps(": "1a49bf3fa1d2908a0f62c29fd92b8a125a3479394960e16cd3c65df27faf6412",
+        "size_t CountWitnessSigOps(": "0e36e8000d104b390929df888a4e0117118b47a768f8ffc450679052ead1059a"
+      },
+      "source_sha256": {
+        "/tmp/btc-lean-core-audit16-script.cpp": "6f71c729ce7bb49706d394a0c25d112dbb24703f6b571419f2859af5cc0c8fe3",
+        "/tmp/btc-lean-core-audit16-interpreter.cpp": "858d409164ac071eb1ec038330b8c1dca43f5e9edd9f6092e49895258c7edb56"
+      },
+      "checks": {
+        "accurate per-CMS lookback": 5,
+        "inaccurate CMS is twenty": 40,
+        "trailing OP_N adds nothing": 1,
+        "intervening opcode clears lookback": 20,
+        "pushed sigops are data": 1,
+        "truncated direct push retains prefix": 1,
+        "truncated PUSHDATA1 length retains prefix": 1,
+        "truncated PUSHDATA1 payload retains prefix": 2,
+        "truncated PUSHDATA2 length retains prefix": 1,
+        "truncated PUSHDATA4 length retains prefix": 20,
+        "P2SH redeem bytes are counted directly": 2,
+        "P2SH valid redeem prefix survives": 1,
+        "P2SH non-push prefix is rejected": 0,
+        "rule P2SH non-push prefix is rejected": 0,
+        "block P2SH non-push prefix is rejected": 0,
+        "P2SH truncated scriptSig returns zero": 0,
+        "block truncated scriptSig returns zero": 0,
+        "small-int tail clears redeem data": 0,
+        "OP_RESERVED tail clears redeem data": 0,
+        "witness P2WSH retains valid prefix": 1,
+        "wrapped witness requires push-only": 0,
+        "wrapped P2WPKH counts without witness": 1,
+        "native P2WPKH counts without witness": 1,
+        "wrapped P2WSH accurate count": 2,
+        "native P2WSH accurate count": 2,
+        "empty witness P2WSH counts zero": 0,
+        "future witness counts zero": 0,
+        "legacy malformed script retains prefix": 20
+      },
+      "lean_results_compared": true
+    },
+    "command_template": "SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk python3 spec/scripts/check_sigops_core.py --script <pinned script.cpp> --interpreter <pinned interpreter.cpp> --lean-log /tmp/btc-lean-sigops-after-final.log --output <report.json>",
+    "compiler": "Apple clang 17.0.0 (clang-1700.3.19.1), C++17 -O2",
+    "environment_repair": "Default macOS27 SDK failed with installed linker TAPI architecture mismatch; compatible installed macOS14.4 SDK worked. No system setting or installation changed.",
+    "negative_control": {
+      "command": "same harness with --lean-log /tmp/btc-lean-sigops-reproduction.log",
+      "exit_code": 1,
+      "meaning": "Rejects the 18 mismatched old Lean results; setup/compilation failure was not accepted as evidence."
+    }
+  },
+  "verification": [
+    {
+      "command": "lake build Bitcoin Bitcoin.TxValidation.LocktimeSigOps",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "jobs": 75,
+      "log": "/tmp/btc-lean-sigops-core-final.log"
+    },
+    {
+      "command": "lake test",
+      "cwd": "spec/core",
+      "exit_code": 0,
+      "checks": 16,
+      "log": "/tmp/btc-lean-sigops-core-test.log"
+    },
+    {
+      "command": "make test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-sigops",
+      "exit_code": 0,
+      "distinct_checks": 125,
+      "logs": [
+        "/tmp/btc-lean-sigops-regressions.log",
+        "/tmp/btc-lean-sigops-after-final.log"
+      ],
+      "note": "First log covers 89 existing cases plus an earlier 34-case sigop run; final sigop run supersedes that with 36 cases. Count is 89+36, not 123+36."
+    },
+    {
+      "command": "python3 docs/reviews/2026-10-18/reproduce_sigops.py",
+      "exit_code": 0,
+      "old_lean_exit": 1,
+      "expected_failures": 18,
+      "passing_controls": 10,
+      "log": "/tmp/btc-lean-sigops-reproduction.log"
+    },
+    {
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.CapstoneComposePipeline BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.AF.PDW61.PDW61b BitcoinProofs.AF.PDW53.PDW53 BitcoinProofs.AF.PDW36.PDW36Guards BitcoinProofs.AF.PDW33.PDW33b BitcoinProofs.AF.PDW29.PDW29Sigops BitcoinProofs.AF.PDW21.PDW21 Bitcoin.TxValidation.LocktimeSigOps",
+      "cwd": "spec/proofs",
+      "exit_code": 0,
+      "jobs": 1739,
+      "log": "/tmp/btc-lean-sigops-proof-final.log",
+      "scope": "32-module default proof closure plus explicitly named affected consumers; not full package matrix"
+    },
+    {
+      "command": "lake build <53 exact wallet imports>",
+      "cwd": "spec/proofs",
+      "targets": {
+        "core": [
+          "Bitcoin.Wallet.Crypto.Hmac",
+          "Bitcoin.Wallet.Crypto.Sha512",
+          "Bitcoin.Wallet.Descriptor",
+          "Bitcoin.Wallet.Descriptor.Ast",
+          "Bitcoin.Wallet.Descriptor.Checksum",
+          "Bitcoin.Wallet.Descriptor.Expand",
+          "Bitcoin.Wallet.Descriptor.Parse",
+          "Bitcoin.Wallet.Encoding",
+          "Bitcoin.Wallet.Encoding.Base58",
+          "Bitcoin.Wallet.Encoding.Bech32",
+          "Bitcoin.Wallet.Key.Bip32",
+          "Bitcoin.Wallet.Key.Origin",
+          "Bitcoin.Wallet.Miniscript",
+          "Bitcoin.Wallet.Miniscript.Node",
+          "Bitcoin.Wallet.Miniscript.Satisfy",
+          "Bitcoin.Wallet.Miniscript.Script",
+          "Bitcoin.Wallet.Miniscript.Tests",
+          "Bitcoin.Wallet.Miniscript.Type",
+          "Bitcoin.Wallet.Psbt.Decode",
+          "Bitcoin.Wallet.Psbt.Encode",
+          "Bitcoin.Wallet.Psbt.Laws",
+          "Bitcoin.Wallet.Psbt.Model",
+          "Bitcoin.Wallet.Psbt.Psbt",
+          "Bitcoin.Wallet.Psbt.Tests",
+          "Bitcoin.Wallet.RuleAttr",
+          "Bitcoin.Wallet.Spend",
+          "Bitcoin.Wallet.Spend.Fee",
+          "Bitcoin.Wallet.Spend.Funding",
+          "Bitcoin.Wallet.Spend.Laws",
+          "Bitcoin.Wallet.Spend.Selection",
+          "Bitcoin.Wallet.Taproot.Commit"
+        ],
+        "proofs": [
+          "BitcoinProofs.Wallet.Desc.Checksum",
+          "BitcoinProofs.Wallet.Desc.Expand",
+          "BitcoinProofs.Wallet.Desc.Parse",
+          "BitcoinProofs.Wallet.Encoding.Base58Props",
+          "BitcoinProofs.Wallet.Encoding.Bech32Props",
+          "BitcoinProofs.Wallet.Encoding.Laws",
+          "BitcoinProofs.Wallet.Key.Laws",
+          "BitcoinProofs.Wallet.Key.Serialize",
+          "BitcoinProofs.Wallet.Miniscript.Interp",
+          "BitcoinProofs.Wallet.Miniscript.SatShape",
+          "BitcoinProofs.Wallet.Miniscript.ScriptExact",
+          "BitcoinProofs.Wallet.Miniscript.TypeSound",
+          "BitcoinProofs.Wallet.Obligations",
+          "BitcoinProofs.Wallet.Psbt.Canonical",
+          "BitcoinProofs.Wallet.Psbt.Invariants",
+          "BitcoinProofs.Wallet.Psbt.Lifecycle",
+          "BitcoinProofs.Wallet.Psbt.RoundTrip",
+          "BitcoinProofs.Wallet.Sign.Bridge",
+          "BitcoinProofs.Wallet.Sign.Spec",
+          "BitcoinProofs.Wallet.Spend.Selection",
+          "BitcoinProofs.Wallet.Taproot.Bridge",
+          "BitcoinProofs.Wallet.Taproot.Program"
+        ]
+      },
+      "exit_code": 0,
+      "jobs": 3238,
+      "log": "/tmp/btc-lean-sigops-wallet-build.log"
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "exit_code": 0,
+      "entries": 270,
+      "physical_lines": 326,
+      "log": "/tmp/btc-lean-sigops-axiom-check.log",
+      "reviewed_change": "Exactly 20 new standard-axiom footprints; no change to the prior 250 entries"
+    },
+    {
+      "command": "bash spec/scripts/wallet_axiom_manifest.sh --probe",
+      "exit_code": 0,
+      "declarations": 838,
+      "log": "/tmp/btc-lean-sigops-wallet-axiom.log"
+    },
+    {
+      "command": "make gates gate-repro",
+      "exit_code": 0,
+      "log": "/tmp/btc-lean-sigops-gates-final.log",
+      "scope": "9 static gates, proof-gate negative tests, reference-input/local-path check"
+    },
+    {
+      "command": "python spec/scripts/theorem_index.py --check; python spec/scripts/residuals_index.py --check; python spec/scripts/proof_scope.py --check",
+      "exit_code": 0,
+      "counts": {
+        "census": 726,
+        "wallet_rows": 140,
+        "residuals": 26,
+        "proof_modules": 412,
+        "default_closure": 32,
+        "outside_closure": 380
+      }
+    },
+    {
+      "command": "shasum -a 256 -c spec/data/MANIFEST.sha256",
+      "exit_code": 0,
+      "payloads": 164,
+      "log": "/tmp/btc-lean-sigops-data.log"
+    }
+  ],
+  "source_sha256": {
+    "spec/core/Bitcoin/Interpreter/SigOps.lean": "c5f26c0889c9f4e4956b5eb21e531c76eb571fd060d66780928f02bbc1040cd3",
+    "spec/core/Bitcoin/Interpreter/Rules.lean": "69d5da6554e78978ae4e77b0cb336bd88befa0c8849b9fb31298faf09b2fdf7a",
+    "spec/core/Bitcoin/Block/Sigops.lean": "43b7cb9a068009109f5a6961014baf5b41fc47c5aad8717ad2c2f1b43feda392",
+    "spec/core/Bitcoin/TxValidation/SigOpsCost.lean": "fbc1b813bec96a7cd7d5653e4659208f05f3d5b91f4e5a1358eefb0a9d580e18",
+    "spec/core/Bitcoin/TxValidation/LocktimeSigOps.lean": "47da9ef118934c6fb7402c14fe4373e1d7c640ed9c936d32e99372edf8c784ad",
+    "spec/core/Test/Capstone/Sigops.lean": "78eb766992e0e338710d74756bd6b5b6cfd3ad1a1d3a16d4e603f20343a861c6",
+    "spec/proofs/BitcoinProofs/AF/PDW29/PDW29Sigops.lean": "74eee40c49d3b771c005abfab028ed74c122f91afda85da34c8ad19062d9632c",
+    "spec/proofs/BitcoinProofs/AF/PDW33/PDW33b.lean": "295816b08b8d26985a4514aad550058a81fc8bbe4663a79095dd4eb568e524a0",
+    "spec/proofs/BitcoinProofs/AF/PDW36/PDW36.lean": "b084bab27e63218bdd753d9cfb853a9a53c4cb3e2947eea2ee5329319d4fbdf2",
+    "spec/proofs/BitcoinProofs/AF/PDW36/PDW36Guards.lean": "acd2cc3e401b2b491d8e0af528b738548e165ca8a617a0df992dffed7dc2e32a",
+    "spec/proofs/BitcoinProofs/Theorems/BlockCor.lean": "b6ae393aee644aec39406e05614753f2bed6905a16abe38cb3bd996f69ffc96f",
+    "spec/scripts/check_sigops_core.py": "1084c7db28b4f0faee4e753aa26f10154e517a3a843ec86c40545b4c60403016",
+    "spec/scripts/axiom_probe.lean": "f999c6847138e939c05a7cb827f086141c588e7d95db199df21ae9bb9a9bb068",
+    "spec/db/axiom-manifest.txt": "4e5fa3fedf3b825e9242689c447bc5ca8f0485c464fc6a7198446a5d1033f04a",
+    "spec/db/rules.yaml": "bfdb2fb1f7b1b68dde07628d6af630f8c33e89a8475eccb0df08656a7c7888f2",
+    "spec/scripts/rules_overrides_sync.py": "9bbbe7a51aa03408cd620fd2791c5d01f7d2e5ec27b3b7ff95d107a14722b6ad",
+    "spec/scripts/residuals_index.py": "e1813ce3a3d1c19ac410168116bea9481aa410d3e0e3d406af4791506335b91e",
+    "docs/reviews/2026-10-18/reproduce_sigops.py": "dc280c4c844dba68dcda8c4fef27ea9d80b43dfbd6282ebbf41bab55ee768af4"
+  },
+  "remaining": [
+    "Wire the 80000 cumulative limit through the actual serialized-block validator against the evolving UTXO view, before scripts.",
+    "Use actual candidate-hash script flags consistently in the validator and resource accounting.",
+    "Test exact budget boundaries, coinbase, same-block spends and public error ordering; derive live success bound in kernel proofs.",
+    "Reconcile full row-target/evidence coverage; changed static counters do not prove the block connector enforces the budget.",
+    "Full fresh module matrix, remaining accepted/residual proof obligations, other R01-R16 tasks and the complete 726-row census audit remain required.",
+    "Full released anchor replay remains unavailable/unrun; no chain-wide verification claimed."
+  ]
+}

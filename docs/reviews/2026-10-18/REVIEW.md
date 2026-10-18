@@ -8,6 +8,23 @@ This review was initially prepared before implementation. The user subsequently 
 
 The review covers architecture, live validation call paths, proof/build scope, issue and PR evidence, selected wallet/serialization boundaries, release handling and gate enforcement. It is not an exhaustive independent verification of every theorem or the cryptographic arithmetic.
 
+The next reviewed repair unifies the static sigop counters across the
+interpreter, transaction and block layers. Thirty-six new checks pass;
+28 raw/per-input cases also match nine actual Core functions extracted
+and compiled at both immutable pins. The old source reproduces 18 named
+failures and 10 passing controls. Accurate multisig lookback, malformed
+prefix counting, P2SH push-only checks, witness indexing and explicit flag
+gates are repaired. SCR-033's stated missing proof now exists, reducing
+the explicit residual register from 27 to 26. The cumulative 80,000-unit
+check is still absent from the live block validator. See
+[validation-sigops.json](validation-sigops.json).
+
+Upstream `main` at `80bf09b5dd7de4f6f879671cc0b93c30a4e89dc2` has all
+57 issue-4 checkboxes checked and no open PRs. Its source and count
+follow-ups are reconciled in local merge `51b3b95`. These upstream states
+do not close this audit's independently confirmed remaining work. The
+original issue/PR snapshot below is preserved as historical evidence.
+
 ## Deliverables
 
 - [GOAL-PROMPT.txt](GOAL-PROMPT.txt): complete `/goal` command and completion contract used by the active goal.
@@ -19,7 +36,7 @@ The review covers architecture, live validation call paths, proof/build scope, i
 
 The goal has been activated using `GOAL-PROMPT.txt` as its detailed specification. Its outcome, evidence, constraints and completion conditions follow the [official Codex Goals guidance](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex). The original GitHub and validation snapshots remain historical evidence; use the execution ledger for subsequent results.
 
-## Open GitHub work
+## GitHub work at the initial review snapshot
 
 | Item | Current state and assessment |
 |---|---|
@@ -179,3 +196,28 @@ target boundaries and the actual constant wiring still require verification.
 [census-progress.tsv](census-progress.tsv) now tracks all 726 IDs separately
 from the preserved historical attachment snapshot. R03 adds live block-finality
 and sequence-lock evidence; unreconciled census fields remain explicitly open.
+
+### R17 — Static sigop accounting and the missing live resource budget
+
+**P1, counters repaired; public block budget still open.** The additional
+review found that `Rules.sigOpCount` charged one per multisig and added a
+trailing OP_N, P2SH rule counting re-serialized the redeem script as pushed
+data, malformed witness/redeem scripts lost valid-prefix counts, and the
+block's witness fold truncated at an absent witness stack. Several helper
+theorems certified these incorrect behaviors. A neighboring rule-layer
+P2SH loop also reused input zero's prevout script for every input.
+
+The repaired code shares one accurate/inaccurate raw-script counter,
+requires push-only P2SH scriptSigs, counts native and wrapped witness
+programs for every input, and provides a flag-aware transaction-cost API.
+The affected symbolic bounds and weighted-count proofs build, with only
+the permitted standard axioms. The reference harness verifies exact
+source-file hashes before extracting Core functions; its C++ execution is
+runtime evidence, separate from the Lean kernel proofs.
+
+The next required change is to accumulate those costs against the evolving
+UTXO view in the actual validator, using the real candidate hash's script
+flags, and reject totals above 80,000 before script execution. Tests must
+cover the exact boundary, coinbase legacy sigops, same-block spends and
+error ordering. None of the current counter/helper evidence establishes
+that missing public-path check.
