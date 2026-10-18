@@ -292,13 +292,13 @@ def checkInternalKeyRejects : IO Nat := do
   return fails
 
 /-- TPR-022 + TPR-071: the official key-path witness weighs
-1(CSize) + 65(sig+hashtype) = 66 → budget 66 + 50 WU; appending an
-annex adds its CSize + size to the weight (the annex COUNTS toward
-validation weight). -/
+1 (stack-count CSize) + 1 (item-length CSize) + 65 (sig+hashtype) = 67
+→ budget 67 + 50 = 117 WU; appending an annex adds its CSize + size to
+the weight (the annex COUNTS toward validation weight). -/
 def checkValidationWeight : IO Nat := do
   let mut fails := 0
-  if validationWeightInit [kp0Sig] != 66 + 50 then
-    fails := fails + 1; IO.println s!"FAIL: kp-0 weight {validationWeightInit [kp0Sig]} != 116"
+  if validationWeightInit [kp0Sig] != 67 + 50 then
+    fails := fails + 1; IO.println s!"FAIL: kp-0 weight {validationWeightInit [kp0Sig]} != 117"
   let annex := ByteArray.empty.push 0x50 ++ mkZeros 3
   let expect := validationWeightInit [kp0Sig] + Int.ofNat ((compactSizeEnc annex.size).size + annex.size)
   if validationWeightInit [kp0Sig, annex] != expect then
@@ -378,7 +378,7 @@ def runAll : IO Unit := do
   fails := fails + (← checkInternalKeyRejects)
   IO.println "TPR-018 internal-key rejects: x>=p / non-QR / short done"
   fails := fails + (← checkValidationWeight)
-  IO.println "TPR-022/071 validation weight: 116 WU + annex done"
+  IO.println "TPR-022/071 validation weight: 117 WU + annex done"
   fails := fails + (← checkP2A)
   IO.println "TPR-004 P2A: template + discrimination done"
   fails := fails + (← checkRecognitionNegatives)

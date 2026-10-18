@@ -536,7 +536,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-047
   summary: "balanced conditionals"
@@ -591,7 +591,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-052
   summary: "when DERSIG/STRICTENC"
@@ -613,11 +613,11 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-054
-  summary: "pubkey encoding check (STRICTENC / tapscript x-only)"
-  check: "pubkey encoding check (STRICTENC / tapscript x-only)"
+  summary: "tapscript x-only pubkey size rules: a zero-length pubkey fails, a 32-byte pubkey takes the Schnorr lane, and any other non-empty size succeeds as an upgradable pubkey type. The legacy STRICTENC/WITNESS_PUBKEYTYPE encoding check is policy (SCR-106) and does not abort a block."
+  check: "tapscript x-only pubkey size rules"
   core_ref: "interpreter.cpp:CheckPubKeyEncoding@cce32b168"
   bip_cve: "BIP62/342"
   lean_target: "BitcoinProofs.AF.PDW81.checkPubKeyEncoding_none_iff, BitcoinProofs.AF.PDW91.evalChecksigTapscript_pubkey_size_rules"
@@ -625,10 +625,11 @@ rules:
   status: proven
   difficulty: 2
   consensus: true
+  notes: "The cited CheckPubKeyEncoding theorem is the policy characterization; the consensus x-only size rule is also carried on SCR-158 and SCR-159."
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-055
-  summary: "hashtype ∈ defined set"
-  check: "sighash type valid (ALL/NONE/SINGLE/ANYONECANPAY)"
+  summary: "tapscript signature hashtypes are 0x00..0x03 and 0x81..0x83. The legacy defined-hashtype requirement (ALL/NONE/SINGLE with optional ANYONECANPAY) is the STRICTENC policy check (SCR-105) and does not reject a legacy signature in a block."
+  check: "tapscript hashtype validity"
   core_ref: "interpreter.cpp:OP_CHECKSIG:1167–1171@cce32b168"
   bip_cve: "Satoshi"
   lean_target: "Bitcoin.SigHash.isDefinedHashtype_iff_defined_set, Bitcoin.SigHash.htBase_cover"
@@ -636,6 +637,7 @@ rules:
   status: proven
   difficulty: 2
   consensus: true
+  notes: "The cited defined-set theorem is the STRICTENC policy characterization; tapscript hashtype validity is carried on SCR-163."
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-056
   summary: "Legacy BASE checksig FindAndDelete step: when the model's `findAndDelete scriptCode (pushBytesWire sig)` reports a positive match count and `constScriptCode = false`, the ECDSA checker is invoked on the result. The matching push is deleted, including the whole-tail case (`findAndDelete b b = (1, empty)`); head/middle suffix behavior is covered by Test/Script/Interpreter/FindAndDeleteTest.lean."
@@ -660,8 +662,8 @@ rules:
   consensus: true
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-058
-  summary: "numeric encoding rule"
-  check: "CScriptNum ≤ 4-byte (5 for CLTV/CSV) minimal encoding"
+  summary: "CScriptNum width cap: an operand longer than 4 bytes, or longer than 5 bytes for OP_CHECKLOCKTIMEVERIFY and OP_CHECKSEQUENCEVERIFY, is a consensus failure. The minimal-padding test (BIP62 rule 4) is SCRIPT_VERIFY_MINIMALDATA policy (SCR-050/SCR-051) and does not reject a padded operand inside the width cap."
+  check: "CScriptNum width: 4 bytes (5 for CLTV/CSV)"
   core_ref: "interpreter.cpp:CScriptNum class@cce32b168"
   bip_cve: "BIP62 rule 4"
   lean_target: "BitcoinProofs.AF.PDW93.decodeNum_width_four, BitcoinProofs.AF.PDW93.decodeNum_width_five, BitcoinProofs.AF.PDW93.checksigAddStep_num_width_four, BitcoinProofs.AF.PDW93.stepBody_cltv_operand_width_five, BitcoinProofs.AF.PDW93.stepBody_csv_operand_width_five, BitcoinProofs.AF.PDW93.stepBody_opAdd_operand_width_four"
@@ -671,8 +673,8 @@ rules:
   consensus: true
   source: "05-core-inventory.md:AppendixB §B.5 Script interpreter (entry + global limits) — `script/interpreter.cpp` (B2 owns details)"
 - id: INV-059
-  summary: "IF argument minimal"
-  check: "MINIMALIF (witness v0, flag) / mandatory in tapscript"
+  summary: "tapscript MINIMALIF: the IF/NOTIF argument must be either the empty vector or exactly 0x01. Witness-v0 MINIMALIF is policy (SCR-059), so a non-minimal v0 IF operand does not reject a block."
+  check: "tapscript MINIMALIF ([] or 0x01)"
   core_ref: "interpreter.cpp:620–639@cce32b168"
   bip_cve: "BIP141/BIP342"
   lean_target: "BitcoinProofs.AF.PDW88.stepBody_tapscript_minimalif_reject, BitcoinProofs.AF.PDW96.stepBody_minimalif_witnessv0"
@@ -745,7 +747,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.6 VerifyScript / witness dispatch — `script/interpreter.cpp:2012–2111, 1842–2010`"
 - id: INV-066
   summary: "P2SH: redeemScript = last scriptSig element, evaluated"
@@ -836,8 +838,8 @@ rules:
   consensus: true
   source: "05-core-inventory.md:AppendixB §B.6 VerifyScript / witness dispatch — `script/interpreter.cpp:2012–2111, 1842–2010`"
 - id: INV-074
-  summary: "tapscript leaf version 0xc0; unknown versions discouraged"
-  check: "tapscript leaf version 0xc0; unknown versions discouraged"
+  summary: "tapscript leaf version 0xc0 selects the tapscript execution path; any other leaf version succeeds in a block. DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is policy (TPR-021), so the discouragement does not turn unknown-version success into a block reject."
+  check: "tapscript leaf version 0xc0; unknown versions succeed"
   core_ref: "src/script/interpreter.cpp:1988-1998@cce32b168"
   bip_cve: "BIP342"
   lean_target: "BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_c0, BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_unknown_discouraged, BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_unknown_ok"
@@ -845,6 +847,7 @@ rules:
   status: proven
   difficulty: 2
   consensus: true
+  notes: "The cited unknown-version-discouraged theorem is the policy arm; block validation leaves the discourage flag off and accepts unknown leaf versions."
   source: "05-core-inventory.md:AppendixB §B.6 VerifyScript / witness dispatch — `script/interpreter.cpp:2012–2111, 1842–2010`"
 - id: INV-075
   summary: "annex parsing + hash into sighash"
@@ -866,7 +869,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.6 VerifyScript / witness dispatch — `script/interpreter.cpp:2012–2111, 1842–2010`"
 - id: INV-077
   summary: "WITNESS implies P2SH; unexpected witness data fails"
@@ -899,7 +902,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-080
   summary: "compact encoding sanity"
@@ -910,7 +913,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-081
   summary: "merkle root matches tx list"
@@ -921,7 +924,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-082
   summary: "merkle mutation detection (dup pairs at every level)"
@@ -932,7 +935,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-083
   summary: "size limits"
@@ -943,7 +946,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-084
   summary: "first tx is coinbase; no other"
@@ -954,7 +957,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-085
   summary: "CheckTransaction for every tx (incl. INV-007 dup inputs)"
@@ -976,7 +979,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-087
   summary: "defensive"
@@ -987,7 +990,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.7 Block structure — `validation.cpp::CheckBlockHeader:3836`, `CheckBlock:3926–3991`"
 - id: INV-088
   summary: "36-byte OP_RETURN, last matching output"
@@ -1130,7 +1133,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.8 Block context — `ContextualCheckBlockHeader:4088–4129`, `ContextualCheckBlock:4137–4192`"
 - id: INV-101
   summary: "time-too-new; env-clock param"
@@ -1328,7 +1331,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.9 UTXO transition — `validation.cpp::UpdateCoins:1998`, `coins.cpp`"
 - id: INV-119
   summary: "snapshot equality predicate"
@@ -1537,7 +1540,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.10 Activation machinery — `versionbits*`, `consensus/params.h`, `deploymentinfo.cpp`"
 - id: INV-138
   summary: "API surface"
@@ -1559,7 +1562,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.10 Activation machinery — `versionbits*`, `consensus/params.h`, `deploymentinfo.cpp`"
 - id: INV-140
   summary: "work comparison"
@@ -1573,8 +1576,8 @@ rules:
   consensus: true
   source: "05-core-inventory.md:AppendixB §B.11 Chain selection & reorg (spec-level rules, impl-flavored)"
 - id: INV-141
-  summary: "work function"
-  check: "GetBlockProof from nBits compact"
+  summary: "GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 for a nonzero decode; it returns 0 only when SetCompact flags the compact as negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. It does not clamp targets above powLimit; target <= powLimit is a separate header-validity rule (BLK-038/BLK-040)."
+  check: "GetBlockProof from compact nBits"
   core_ref: "chain.h:305–308 → chain.cpp:GetBitsProof@cce32b168"
   bip_cve: "Satoshi"
   lean_target: "BitcoinProofs.AF.PDW24.workOf_pos_of_inRange"
@@ -1582,6 +1585,7 @@ rules:
   status: proven
   difficulty: 3
   consensus: true
+  notes: "Residual: the local `workOf` currently zero-checks only the decoded target, so negative and overflow compact encodings still receive positive work; the cited `workOf_pos_of_inRange` proves only the nonzero-decode direction. The missing sign and overflow gate remains an open proof obligation."
   source: "05-core-inventory.md:AppendixB §B.11 Chain selection & reorg (spec-level rules, impl-flavored)"
 - id: INV-142
   summary: "GetBlockProofEquivalentTime (for assumevalid 2wk check)"
@@ -1636,7 +1640,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "05-core-inventory.md:AppendixB §B.11 Chain selection & reorg (spec-level rules, impl-flavored)"
 - id: INV-147
   summary: "anti-DoS, NOT consensus"
@@ -1647,7 +1651,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
+  notes: "Audit: INV-147 not consensus; summary itself says anti-DoS."
   source: "05-core-inventory.md:AppendixB §B.11 Chain selection & reorg (spec-level rules, impl-flavored)"
 - id: INV-148
   summary: "trust option; other checks still enforced"
@@ -2054,7 +2059,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript"
 - id: SCR-009
   summary: "Flag combination constraint"
@@ -2065,7 +2070,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
+  notes: "Witness and tapscript clean-stack remain consensus on SWT-012 and SCR-183."
   source: "06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript"
 - id: SCR-010
   summary: "scriptSig push-only before eval (pol.)"
@@ -2076,7 +2082,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript"
 - id: SCR-011
   summary: "scriptSig == ∅ for bare witness programs"
@@ -2321,7 +2327,7 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-033
-  summary: "accurate CHECKMULTISIG uses the immediately preceding OP_1..OP_16 value at each site"
+  summary: "accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site"
   check: "Accurate CMS sigop count"
   core_ref: "script.cpp:GetSigOpCount(true):173-177@cce32b168"
   bip_cve: "BIP16"
@@ -2376,7 +2382,7 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-038
-  summary: "cumulative block sigop cost limit"
+  summary: "cumulative block sigop cost <= MAX_BLOCK_SIGOPS_COST (80,000)"
   check: "MAX_BLOCK_SIGOPS_COST=80000"
   core_ref: "src/consensus/consensus.h:17; src/validation.cpp:2566-2569@cce32b168"
   bip_cve: "BIP141"
@@ -2395,10 +2401,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.2 Limits & accounting"
 - id: SCR-040
-  summary: budget = serialized witness size + 50 WU
+  summary: "budget = serialized witness stack size (including the CompactSize item count) + 50 WU"
   check: Tapscript validation weight budget
   core_ref: interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168
   bip_cve: BIP342
@@ -2498,7 +2504,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.3 Push & encoding rules"
 - id: SCR-049
   summary: "fExec-gated (unexecuted non-minimal pushes OK)"
@@ -2509,7 +2515,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.3 Push & encoding rules"
 - id: SCR-050
   summary: "top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal)"
@@ -2520,7 +2526,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.3 Push & encoding rules"
 - id: SCR-051
   summary: "minimal numeric operands under MINIMALDATA (policy, not consensus)"
@@ -2620,7 +2626,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.4 Control flow"
 - id: SCR-060
   summary: "no stack pop when skipped"
@@ -2744,8 +2750,8 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.4 Control flow"
 - id: SCR-071
-  summary: "no-op; DISCOURAGE_UPGRADABLE_NOPS = pol. fails them"
-  check: "NOP1,4-10 / DISCOURAGE"
+  summary: "OP_NOP1 and OP_NOP4..OP_NOP10 are no-ops and succeed in a block"
+  check: "OP_NOP1, OP_NOP4..OP_NOP10"
   core_ref: "interpreter.cpp:EvalScript:605-611@cce32b168"
   bip_cve: "BIP65-era convention"
   lean_target: "BitcoinProofs.AF.PDW69.nopClass_discourage_row"
@@ -2753,6 +2759,7 @@ rules:
   status: proven
   difficulty: 1
   consensus: true
+  notes: "DISCOURAGE_UPGRADABLE_NOPS is a policy flag and is not a block-consensus reject; there is no separate census row for it."
   source: "06-script-interpreter.md:AppendixB §B.4 Control flow"
 - id: SCR-072
   summary: "without flags they are plain NOPs"
@@ -3043,7 +3050,7 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-098
-  summary: "byte-level removal of serialized sig push from scriptCode"
+  summary: "byte-level removal of each matched serialized sig push from scriptCode, continuing after the match"
   check: "FindAndDelete (BASE only)"
   core_ref: "interpreter.cpp:239-265,339-343@cce32b168"
   bip_cve: "legacy"
@@ -3062,7 +3069,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-100
   summary: "BASE, even unexecuted (pol.)"
@@ -3073,7 +3080,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-101
   summary: "1-byte opcodes removed from serialization"
@@ -3117,7 +3124,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-105
   summary: "last byte & ~0x80 ∈ {1,2,3} (pol.)"
@@ -3128,7 +3135,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-106
   summary: "33B 02/03 or 65B 04 (pol.)"
@@ -3139,7 +3146,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-107
   summary: "v0 witness pubkeys compressed (pol.)"
@@ -3150,7 +3157,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-108
   summary: "∅ sig bypasses DER checks"
@@ -3183,7 +3190,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-111
   summary: "ANYONECANPAY bit passed through"
@@ -3197,8 +3204,8 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-112
-  summary: "invalid CPubKey => the script aborts with the pubkey-encoding error (a script failure, not a false check verdict); the proved theorem covers sv ≠ BASE, so the BASE arm (with its FindAndDelete/CONST_SCRIPTCODE side condition) remains uncovered"
-  check: "Pubkey validity"
+  summary: "an invalid pubkey makes CHECKSIG push false and continue in a block; the pubkey-encoding abort is policy (STRICTENC on SCR-106, WITNESS_PUBKEYTYPE on SCR-107), and tapscript x-only size rules stay on SCR-158/SCR-159"
+  check: "Pubkey validity (false verdict under block flags)"
   core_ref: "interpreter.cpp:1704-1706@cce32b168 (CheckPubKeyEncoding interpreter.cpp:228-237)"
   bip_cve: "—"
   lean_target: BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_pk_invalid
@@ -3206,6 +3213,7 @@ rules:
   status: proven
   difficulty: 2
   consensus: true
+  notes: "The cited `evalChecksigPreTapscript_pk_invalid` theorem is the policy-gate arm; it fires only when a policy flag is set. Under block flags the gate does not fire and CHECKSIG's false verdict is the consensus behavior."
   source: "06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)"
 - id: SCR-113
   summary: "each executed op counts 1 toward 201"
@@ -3527,7 +3535,7 @@ rules:
   consensus: true
   source: "06-script-interpreter.md:AppendixB §B.11 SegWit v0"
 - id: SCR-142
-  summary: "without flag, v1-32 non-P2SH spends succeed silently (activation)"
+  summary: "TAPROOT gate: with the flag, a v1-32 non-P2SH spend is not anyone-can-spend; without the flag it succeeds silently only pre-activation (height 709632, except block 692261)"
   check: "TAPROOT flag gate"
   core_ref: "interpreter.cpp:1959@cce32b168"
   bip_cve: "BIP341"
@@ -3535,7 +3543,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-143
   summary: "≥2 items, last non-empty, first byte 0x50"
@@ -3546,10 +3554,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-144
-  summary: "CheckSchnorrSignature(TAPROOT)"
+  summary: "Key path: exactly one item is a BIP340 signature checked against the 32-byte output key"
   check: "Key path: 1 item = schnorr vs program"
   core_ref: "interpreter.cpp:1970-1975@cce32b168"
   bip_cve: "BIP341"
@@ -3557,7 +3565,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-145
   summary: "33+32k bytes, k≤128 ⇒ TAPROOT_WRONG_CONTROL_SIZE"
@@ -3568,7 +3576,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-146
   summary: "TaggedHash(\"TapLeaf\", leaf_ver, CompactSize, script); leaf_ver = control[0]&0xfe"
@@ -3579,18 +3587,18 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-147
-  summary: "q == tweak(p, merkle_root, parity=control[0]&1)"
-  check: "Tap tweak commitment"
+  summary: "32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key"
+  check: "Tap tweak commitment and output-key program binding"
   core_ref: "interpreter.cpp:1913-1925@cce32b168"
   bip_cve: "BIP341"
   lean_target: "Bitcoin.Interpreter.taprootCommitment_iff, Bitcoin.Interpreter.tweakPoint_determined"
   test_vector_ids: []
   status: proven
   difficulty: 5
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-148
   summary: "control[0]&0xfe == 0xc0 ⇒ TAPSCRIPT eval"
@@ -3601,10 +3609,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-149
-  summary: "upgradable; DISCOURAGE flag = pol."
+  summary: "Unknown leaf versions succeed (upgradable); the DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM flag is policy"
   check: "Other leaf versions succeed"
   core_ref: "interpreter.cpp:1995-1998@cce32b168"
   bip_cve: "BIP341"
@@ -3612,7 +3620,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-150
   summary: "v1 2-byte 4e73 program ⇒ success, no execution"
@@ -3623,7 +3631,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-151
   summary: "v2-v16 / wrong-size v1 / P2SH-wrapped v1 ⇒ success (upgradable)"
@@ -3634,7 +3642,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-152
   summary: "{80,98,126-129,131-134,137-138,141-142,149-153,187-254}"
@@ -3645,7 +3653,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-153
   summary: "overrides all later checks (incl. size limits)"
@@ -3656,7 +3664,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-154
   summary: "pol. flag fails them"
@@ -3678,7 +3686,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-156
   summary: "(sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript"
@@ -3689,7 +3697,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-157
   summary: "CScriptNum(fRequireMinimal)"
@@ -3711,10 +3719,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-159
-  summary: "TAPSCRIPT_EMPTY_PUBKEY (before sig check? after weight?) — after weight decrement"
+  summary: "TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement"
   check: "Tapscript empty pubkey immediate fail"
   core_ref: "interpreter.cpp:377-378@cce32b168"
   bip_cve: "BIP342"
@@ -3722,10 +3730,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-160
-  summary: "success=false; no schnorr verification; no weight consumed"
+  summary: "An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged"
   check: "Tapscript empty sig = failed check, continue"
   core_ref: "interpreter.cpp:367-368@cce32b168"
   bip_cve: "BIP342"
@@ -3733,7 +3741,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-161
   summary: "else SCHNORR_SIG_SIZE"
@@ -3744,7 +3752,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-162
   summary: "SIGHASH_DEFAULT invalid as explicit byte"
@@ -3755,7 +3763,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-163
   summary: "≤0x03 or 0x81..0x83 else fail"
@@ -3766,7 +3774,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-164
   summary: "tapleaf hash, key_version=0, codeseparator_pos"
@@ -3777,7 +3785,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 4
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-165
   summary: "only for 64-byte key-path sigs"
@@ -3788,7 +3796,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-166
   summary: "in_pos ≥ vout.size ⇒ construction fails ⇒ SCHNORR_SIG_HASHTYPE"
@@ -3799,10 +3807,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-167
-  summary: "Executed OP_CODESEPARATOR records the uint32 instruction index (opcode_pos, 0-based) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:444-445,1065). The Lean interpreter's State.codeSep instead records the byte offset op.next and initializes to 0; codesepPosFold is the faithful UInt32 index model."
+  summary: "Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065). The candidate's State.codeSepPos is a UInt32 initialized to 0xFFFFFFFF and set to the current 0-based instruction index on each executed separator; the byte offset in State.codeSep remains for the legacy scriptCode path."
   check: "codeseparator_pos recorded per executed CODESEPARATOR"
   core_ref: "interpreter.cpp:1065,444-445@cce32b168"
   bip_cve: "BIP342"
@@ -3810,7 +3818,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-168
   summary: "budget may reach exactly 0"
@@ -3821,7 +3829,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
+  notes: "Residual, not this row's comparator: SCR-040's serialized witness size previously omitted the stack-count CompactSize, leaving the initial budget short. Audit item 10 tracks that separately."
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-169
   summary: "epoch 0; spend_type; annex hash"
@@ -3832,7 +3841,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 5
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript"
 - id: SCR-170
   summary: "CAT,SUBSTR,LEFT,RIGHT,INVERT,AND,OR,XOR,2MUL,2DIV,MUL,DIV,MOD,LSHIFT,RSHIFT ⇒ DISABLED_OPCODE in base/witness-v0, even unexecuted, unless the 201-op budget is already exhausted (OP_COUNT then preempts). Tapscript treats these bytes as OP_SUCCESSx, so they never reach stepBody there."
@@ -3843,7 +3852,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.13 Disabled opcodes"
 - id: SCR-171
   summary: "after op-count, before fExec"
@@ -3854,7 +3863,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.13 Disabled opcodes"
 - id: SCR-172
   summary: "same bytes become success in tapscript"
@@ -3865,7 +3874,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.13 Disabled opcodes"
 - id: SCR-173
   summary: "name table; unknown ⇒ \"OP_UNKNOWN\""
@@ -3887,7 +3896,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: false
+  consensus: true
   source: "06-script-interpreter.md:AppendixB §B.13 Disabled opcodes"
 - id: TXV-001
   summary: "`vin ≠ ∅` else `bad-txns-vin-empty`"
@@ -4250,7 +4259,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
+  notes: "Node procedure; block finality stays on TXV-032."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-034
   summary: "enforce iff `version ≥ 2 ∧ LOCKTIME_VERIFY_SEQUENCE`"
@@ -4338,7 +4348,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
+  notes: "Block BIP68 sequence-lock rules are unaffected."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-042
   summary: "unconfirmed coins carry height 0x7FFFFFFF"
@@ -4349,7 +4360,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
+  notes: "Mempool accounting only."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-043
   summary: "operand and tx.nLockTime same kind (< / ≥ 500M)"
@@ -4558,7 +4570,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
+  notes: "Per-block flag selection and script checks are governed by the consensus flag rows."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-062
   summary: "cache keyed by witness hash + flags (optimization, provably transparent)"
@@ -4638,8 +4651,8 @@ rules:
   consensus: true
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-069
-  summary: "all value arithmetic in i64, checked incrementally"
-  check: "CAmount = int64 satoshis"
+  summary: "each input value, the running input sum, and the fee satisfy MoneyRange (0 ≤ x ≤ MAX_MONEY); outputs are bounded separately"
+  check: "per-input, running input-sum, and fee MoneyRange"
   core_ref: "amount.h:12–15@cce32b168"
   bip_cve: "CVE-2010-5137"
   lean_target: "Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_i64Range, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_no_overflow, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_i64Fold_agrees, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_zero_i64Fold_agrees"
@@ -4647,6 +4660,7 @@ rules:
   status: proven
   difficulty: 2
   consensus: true
+  notes: "Core CAmount is int64, but the model's Amount is an unbounded Int; this row states the MoneyRange bounds, not a global int64 type. The cited i64-range/fold targets cover the checked output-value fold only."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-070
   summary: "coinbase of N passes the maturity gate at caller-supplied spend height S iff N + 100 ≤ S; the block caller uses the block height, and Core's mempool caller passes tip + 1, but the local theorems do not model or prove the mempool caller convention"
@@ -4690,7 +4704,8 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
+  notes: "In-block witness identity is the txid for the merkle root and the wtxid for the witness merkle root; those separate consensus rules stay."
   source: "07-tx-validation.md:AppendixB §?"
 - id: TXV-074
   summary: "`checkTransaction = ok ⇒ GetValueOut` terminates in range (lemma)"
@@ -4825,7 +4840,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-011
-  summary: "reject if any level contains two adjacent equal hashes (`bad-txns-duplicate`)"
+  summary: "reject if any merkle level contains two equal hashes at pair-aligned positions (Core's pos += 2 scan), including a duplicated tail that lands at a pair-aligned position; an unaligned equal pair such as [A,B,B] is accepted (`bad-txns-duplicate`)"
   check: "Merkle mutation detection"
   core_ref: "M:ComputeMerkleRoot:55-63 + V:3853-3864@cce32b168"
   bip_cve: "CVE-2012-2459"
@@ -4891,7 +4906,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-017
-  summary: "SHA256d(witness_root ‖ reserved_value) == scriptPubKey[6..38]"
+  summary: "committed value = SHA256d(witness_merkle_root ‖ reserved_value), where reserved_value is the first (32-byte) coinbase witness stack item, compared to scriptPubKey[6..38]; the item is hashed as present, not replaced by 32 zero bytes"
   check: "Witness commitment equation"
   core_ref: "src/validation.cpp:3898-3907@cce32b168"
   bip_cve: "BIP141"
@@ -5089,7 +5104,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-035
-  summary: "under block flags: 4×(legacy + enabled P2SH) + enabled witness; coinbase contributes legacy only"
+  summary: "under block flags: cost = 4×(legacy + enabled P2SH) + enabled witness; the P2SH and P2WSH legs use Core GetSigOpCount(true) (preceding OP_1..OP_16 before each CHECKMULTISIG, else 20), and the coinbase contributes legacy only"
   check: "Full sigop cost"
   core_ref: "TV:GetTransactionSigOpCost:149-168@cce32b168"
   bip_cve: "BIP16/141"
@@ -5100,7 +5115,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-036
-  summary: "cumulative sigop cost ≤ 80,000 during ConnectBlock (`bad-blk-sigops`)"
+  summary: "cumulative block sigop cost from BLK-035 ≤ MAX_BLOCK_SIGOPS_COST (80,000) during ConnectBlock (`bad-blk-sigops`); the block validator applies the bound with the accurate count"
   check: "Full sigop budget in connect"
   core_ref: "V:2560-2568@cce32b168"
   bip_cve: "—"
@@ -5111,7 +5126,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-037
-  summary: "nBits → (mantissa&0x007fffff) << (8×(exp−3)) for exp>3, >>8×(3−exp) else; sign bit = 0x00800000 valid only with nonzero mantissa; overflow iff mantissa≠0 ∧ (exp>34 ∨ (m>0xff ∧ exp>33) ∨ (m>0xffff ∧ exp>32))"
+  summary: "nBits magnitude decode matches Core SetCompact: (mantissa & 0x007fffff) << 8×(exp−3) for exp>3, >> 8×(3−exp) otherwise; sign bit 0x00800000 is the negative flag only when mantissa≠0; overflow iff mantissa≠0 and (exp>34 or (m>0xff and exp>33) or (m>0xffff and exp>32)). The bound uses Core mainnet powLimit 2^224−1 (BLK-038/BLK-040)."
   check: "PoW target decode"
   core_ref: "AU:SetCompact:176-194@cce32b168"
   bip_cve: "—"
@@ -5122,7 +5137,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-038
-  summary: "decode must be non-negative, non-overflow, nonzero, ≤ powLimit"
+  summary: "decode must be non-negative (SetCompact sign flag clear), non-overflow, nonzero, and ≤ Core mainnet powLimit 2^224−1"
   check: "PoW target bounds"
   core_ref: "P:DeriveTarget:146-159@cce32b168"
   bip_cve: "—"
@@ -5163,7 +5178,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-042
   summary: "header nBits must equal GetNextWorkRequired(prev, header) (`bad-diffbits`)"
@@ -5229,7 +5244,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-048
   summary: "the pre-encoding new target is min(newT, powLimit) and therefore capped at powLimit"
@@ -5317,10 +5332,10 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-056
-  summary: "MTP is the median of the last <=11 block times including the index itself (validator MTP(prev) excludes the candidate block); definedness, window-determination and the empty-window case are proved"
+  summary: "MTP is the upper median (index n/2) of the last ≤11 block times including the index itself (validator MTP(prev) excludes the candidate block); definedness, window-determination and the empty-window case are proved"
   check: "MTP definition"
   core_ref: "CH:GetMedianTimePast:233-244@cce32b168"
   bip_cve: "BIP113"
@@ -5331,7 +5346,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-057
-  summary: "blockTime > MTP(prev) (`time-too-old`)"
+  summary: "blockTime > MTP(prev) (`time-too-old`), with the strict `>` retained and MTP taken from the upper median of BLK-056"
   check: "time-too-old"
   core_ref: "V:4100-4102@cce32b168"
   bip_cve: "BIP113"
@@ -5760,7 +5775,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-096
-  summary: "any output of the new block already in UTXO ⇒ invalid (`bad-txns-BIP30`)"
+  summary: "BIP30 no-overwrite: when enforced (outside the 91842/91880 repeat exceptions and the post-BIP34 pre-1983702 skip), any output of the new block already in the pre-block UTXO ⇒ invalid (`bad-txns-BIP30`); the block validator runs the gate before the per-tx fold"
   check: "BIP30 no-overwrite"
   core_ref: "src/validation.cpp:2467-2472@cce32b168"
   bip_cve: "BIP30, CVE-2012-1909"
@@ -5848,7 +5863,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-104
-  summary: "BIP68 block gate: every non-coinbase tx is BIP68-final against a caller-supplied `prevDataOf` (per-input entry height/time pairs); the gate is a conjunct of the proof-local `connectBlockChecks` and is not wired to the real ConnectBlock router; Core enforces BIP68 both in ConnectBlock and at mempool admission (`CheckSequenceLocksAtTip`, `non-BIP68-final`)"
+  summary: "BIP68 block gate: with CSV active, every non-coinbase transaction must be BIP68-final against caller-supplied per-input prevout height/time pairs (CalculateSequenceLocks at the block height and the prior block's median time); a non-final transaction is rejected (`bad-txns-nonfinal`)."
   check: "BIP68 sequence locks"
   core_ref: "V:2525-2538 + TV:CalculateSequenceLocks:45+@cce32b168"
   bip_cve: "BIP68"
@@ -5857,6 +5872,7 @@ rules:
   status: proven
   difficulty: 4
   consensus: true
+  notes: "The contextual block-connect path evaluates this gate for every non-coinbase transaction; the mempool tip+1 convention is a separate node procedure (TXV-041)."
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-105
   summary: "CTxUndo stores prior Coin per spent input, in input order"
@@ -5947,7 +5963,7 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-113
-  summary: "work(nBits) = (~target/(target+1)) + 1; 0 for invalid decode"
+  summary: "GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 when the compact decode is nonzero, non-negative, and non-overflowing; returns 0 when SetCompact flags it negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. There is no powLimit clamp; target ≤ powLimit is a separate header-validity rule."
   check: "Work function"
   core_ref: "chain.cpp:120-133@cce32b168 (GetBitsProof / SetCompact fNegative); Chain/Basic.lean:47-52"
   bip_cve: "—"
@@ -6054,7 +6070,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-123
   summary: "script checks skippable below assumevalid ancestor with 2-week equivalent-time guard; trust-parameterized"
@@ -6076,7 +6092,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-125
   summary: "coinbase-less block with a 64-byte tx ⇒ mutated (relay-path only)"
@@ -6087,7 +6103,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-126
   summary: "signet only: block solution satisfies challenge (BIP325); non-mainnet"
@@ -6098,7 +6114,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 3
-  consensus: true
+  consensus: false
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-127
   summary: "fChecked/m_checked_* are memoization only, no rule content"
@@ -6296,7 +6312,7 @@ rules:
   test_vector_ids: ["sc-1150"]
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-015
   summary: "non-null witness on a non-witness-program output fails (WITNESS flag on)"
@@ -6362,7 +6378,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-021
   summary: "Σ sigop-cost ≤ 80,000 per block"
@@ -6420,7 +6436,7 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-026
-  summary: "accurate sigop count of the last witness item (witnessScript)"
+  summary: "P2WSH witness-script sigop count is Core `GetSigOpCount(true)` over the last witness item: count the valid opcode prefix up to the first malformed push, with CHECKSIG/CHECKSIGVERIFY = 1 and CHECKMULTISIG = the preceding OP_1..OP_16 value (20 if absent)."
   check: "P2WSH sigop counting"
   core_ref: "interpreter.cpp:2139-2142@cce32b168"
   bip_cve: "141"
@@ -6464,7 +6480,7 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-030
-  summary: "committed value = SHA256d(witness_merkle_root ‖ reserved_value), compared to scriptPubKey[6..38]"
+  summary: "committed value = SHA256d(witness_merkle_root ‖ reserved_value), where reserved_value is the first (32-byte) coinbase witness stack item, compared to scriptPubKey[6..38]; the item is hashed as present, not replaced by 32 zero bytes."
   check: "Commitment value"
   core_ref: "validation.cpp:CheckWitnessMalleation:3898-3906@cce32b168"
   bip_cve: "141"
@@ -6758,7 +6774,7 @@ rules:
   test_vector_ids: ["sc-1165", "sc-1167", "sc-1168"]
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-057
   summary: "Obsolete/non-consensus: witness-reserved-value plumbing is mining-only (node/miner.cpp; rpc/mining.cpp default_witness_commitment); no consensus rule and no Lean declaration, not proven."
@@ -6769,7 +6785,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-058
   summary: "low-S rule = policy only (flag LOW_S absent from GetBlockScriptFlags)"
@@ -6780,7 +6796,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-059
   summary: "failing sigs must be empty — policy only"
@@ -6791,7 +6807,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-060
   summary: "defined-hashtype check = policy only"
@@ -6802,7 +6818,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-061
   summary: "strict-DER sig encoding enforced from height 363,725"
@@ -6824,7 +6840,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.1 SegWit (SWT)"
 - id: SWT-063
   summary: "NULLDUMMY active exactly with segwit (buried height)"
@@ -6948,7 +6964,7 @@ rules:
   consensus: true
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-006
-  summary: "sha_annex = SHA256(CSize(len)‖annex incl. 0x50); enters sighash iff present"
+  summary: "sha_annex = SHA256(CompactSize(len(annex)) ‖ annex incl. 0x50); the taproot sighash includes sha_annex iff an annex is present, and the digest covers the CompactSize length prefix, not the bare annex bytes."
   check: "Annex hash"
   core_ref: "interpreter.cpp:1964, 1554-1556@cce32b168"
   bip_cve: "341"
@@ -7121,7 +7137,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-022
   summary: budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)`
@@ -7146,7 +7162,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-024
   summary: "empty signature: success=false, no decrement, script continues"
@@ -7157,7 +7173,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-025
   summary: "pubkey size 0 ⇒ script failure"
@@ -7168,7 +7184,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-026
   summary: "size ∉ {0,32} ⇒ counted but always-successful sigop"
@@ -7179,7 +7195,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-027
   summary: "optional error for unknown pubkey sizes"
@@ -7190,7 +7206,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-028
   summary: "otherwise SCHNORR_SIG_SIZE"
@@ -7201,7 +7217,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-029
   summary: "last byte popped as hashtype; 0x00 rejected in 65-byte form"
@@ -7212,7 +7228,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-030
   summary: "hash_type ≤ 3 or 0x81..0x83, else failure"
@@ -7234,7 +7250,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-032
   summary: "message = tag_TapSighash(0x00 ‖ SigMsg(...))"
@@ -7575,7 +7591,7 @@ rules:
   test_vector_ids: []
   status: proven
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-063
   summary: "OP_IF/NOTIF operand must be ∅ or 0x01 (consensus in tapscript)"
@@ -7663,10 +7679,10 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-071
-  summary: annex included in witness serialization ⇒ weight & budget base
+  summary: "the annex is included in the witness stack serialization that seeds the tapscript validation-weight budget; the serialized stack is the CompactSize item count plus each item's CompactSize length and bytes, with the annex present, before it is popped for spend classification."
   check: Annex counts toward weight
   core_ref: interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168
   bip_cve: '341'
@@ -7676,8 +7692,7 @@ rules:
   difficulty: 2
   consensus: true
   source: 09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)
-  notes: ' R06: count-prefix defect fixed and full encoder/budget bridge proved. Signed annex paths pass. Transaction-weight
-    composition theorem remains an explicit residual; this growth target alone does not discharge that whole row.'
+  notes: "The full stack serialization, including the stack-count CompactSize, is the budget base; omitting that prefix understates the BIP342 budget and can accept a tapscript spend Core rejects. The transaction-weight composition theorem remains a separate residual."
 - id: TPR-072
   summary: "ScriptExecutionData handed to the Schnorr checker entry reaches sighashSchnorr unchanged and its digest is passed verbatim to verify; interpreter-side population of tapleafHash/codesepPos/outputHash and script-path annex forwarding are residual (F-TS02-008)"
   check: "ScriptExecutionData plumbing"
@@ -7764,7 +7779,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-080
   summary: "consensus path verifies each Schnorr sig individually"
@@ -7775,7 +7790,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-081
   summary: "nonce/aux derivation outside validation"
@@ -7786,7 +7801,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-082
   summary: "H = lift_x(0x50929b74…) construction is wallet guidance"
@@ -7797,7 +7812,7 @@ rules:
   test_vector_ids: []
   status: obsolete
   difficulty: 1
-  consensus: true
+  consensus: false
   source: "09-segwit-taproot.md:AppendixB §B.2 Taproot (TPR)"
 - id: TPR-083
   summary: "t = tag_TapTweak(p) with no merkle root (key-only outputs still tweakable)"
@@ -7995,7 +8010,7 @@ rules:
   test_vector_ids: ["highS-000", "highS-001", "highS-002", "highS-003", "highS-004", "highS-005", "highS-006", "highS-007", "highS-008", "highS-009"]
   status: proven
   difficulty: 2
-  consensus: true
+  consensus: false
   source: "w2-14b-curve-ecdsa.md:§3.3 low-S policy split"
 - id: SGN-109
   summary: "lax DER signature parse (pre-BIP66 consensus grammar): long-form seq-len skipped unchecked, zero-skip inside long-form int lengths (<4), negative-DER payloads, leading-zero padding, trailing garbage ignored"

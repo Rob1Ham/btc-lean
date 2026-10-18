@@ -10,6 +10,7 @@ Mutation-thinking: each example is chosen so that mutating the modelled
 clause flips the result (noted per-check).
 -/
 
+import Bitcoin.Numeric.Interface
 import BitcoinProofs.Bip.B08.Bip141Defs
 
 /- The 10,000-byte P2WSH pins below evaluate a `List` of that length in the
@@ -18,6 +19,8 @@ the other byte-level audits in this tree). No statement is affected. -/
 set_option maxRecDepth 100000
 
 namespace BitcoinProofs.Bip.B08
+
+open Bitcoin.Numeric (bytesFromLE castToBool)
 
 /-! ## C3 — witness program grammar -/
 
@@ -73,23 +76,26 @@ theorem v0_bad_size_fails (prog : List Nat)
     dispatchProgram 0 prog = .invalidV0Size := by
   simp [dispatchProgram, h20, h32]
 
-/-! ## C9 footnote — zero CastToBool program must fail -/
+/-! ## C9 — CastToBool and the witness-program verdict -/
 
-example : programMustFailCastToBool 1 [0, 0, 0] = true := by decide
-example : programMustFailCastToBool 0 (List.replicate 20 0) = true := by decide
-example : programMustFailCastToBool 16 (List.replicate 32 0) = true := by decide
-example : programMustFailCastToBool 1 (List.replicate 2 0 ++ [1]) = false := by decide
+-- Core's CastToBool (interpreter.cpp:46-59), pinned through the real
+-- numeric model. Negative zero is false; a non-final 0x80 is true.
+example : castToBool (bytesFromLE []) = false := by decide
+example : castToBool (bytesFromLE [0x00]) = false := by decide
+example : castToBool (bytesFromLE [0x00, 0x80]) = false := by decide
+example : castToBool (bytesFromLE [0x80, 0x00]) = true := by decide
+example : castToBool (bytesFromLE [0x00, 0x80, 0x00]) = true := by decide
+example : castToBool (bytesFromLE [0x01]) = true := by decide
 
--- CastToBool negative zero (Core interpreter.cpp:46-59): a lone 0x80 in
--- the wire-last byte is false, while a 0x80 followed by another byte is
--- true. The old `bytes.any (· != 0)` model got both wrong.
-example : castToBool [0x00, 0x80] = false := by decide
-example : castToBool [0x80] = false := by decide
-example : castToBool [0x00, 0x81] = true := by decide
-example : castToBool [0x80, 0x00] = true := by decide
-example : castToBool [0x00, 0x00] = false := by decide
-example : programMustFailCastToBool 1 [0x00, 0x80] = true := by decide
-example : programMustFailCastToBool 1 [0x00, 0x81] = false := by decide
+-- A witness program is not rejected for a zero-valued program: v0/20 is
+-- a valid P2WPKH template and v0/32 is a valid P2WSH template.
+example : dispatchProgram 0 (List.replicate 20 0) = .p2wpkh := by decide
+example : dispatchProgram 0 (List.replicate 32 0) = .p2wsh := by decide
+example : nativeWitnessOk ([0x00, 0x14] ++ List.replicate 20 0) [] = some .p2wpkh := by decide
+example : nativeWitnessOk ([0x00, 0x20] ++ List.replicate 32 0) [] = some .p2wsh := by decide
+-- Versions 1..16 are future programs: their bytes are not interpreted.
+example : dispatchProgram 1 (List.replicate 2 0) = .future 1 := by decide
+example : nativeWitnessOk [0x60, 0x02, 0, 0] [] = some (.future 16) := by decide
 
 /-! ## C6 — P2WPKH witness stack shape -/
 

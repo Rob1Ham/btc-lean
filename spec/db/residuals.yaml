@@ -37,9 +37,15 @@ residuals:
     (validation.cpp:2277-2280) and `LOCKTIME_VERIFY_SEQUENCE` for the BIP68 sequence-lock gate (validation.cpp:2477-2481).
     The cited `csv_flag_flow` (spec/core/Bitcoin/Activation/Flags.lean:289-293) requires `hnone` and proves only `.csv = true`;
     it says nothing about the separate `LOCKTIME_VERIFY_SEQUENCE` contextual flag, and the exception/below-height arms are
-    absent. The model has the constant `LOCKTIME_VERIFY_SEQUENCE` (spec/core/Bitcoin/DataLaws/Laws.lean:74) but no activation-flow
-    theorem linking it to CSV. Missing pieces: an `hnone`-free CSV flag theorem and a CSV-active => LOCKTIME_VERIFY_SEQUENCE
-    theorem (or a composed row claim). Open proof obligation; the summary is kept.'
+    absent. The model has the constant `LOCKTIME_VERIFY_SEQUENCE` (spec/core/Bitcoin/DataLaws/Laws.lean:74). The contextual
+    pipeline now applies BIP68 through `checkSequenceContext` (spec/core/Bitcoin/Capstone/Block.lean:654-668) for every non-coinbase
+    BIP68-enabled transaction, reading each spent coin from the UTXO view and the relevant parent median-time-past through
+    `sequenceInputData` (spec/core/Bitcoin/Capstone/Context.lean:126-145). That gate is conditional on caller-supplied prevout
+    data: `validateBlock ... (some ctx)` receives the `ChainContext` and starts from the caller''s `CapState.utxo`, rather
+    than deriving the spent outputs from the serialized block, and the context-free `replayBlock` skips BIP68 and reports
+    `sequenceLocksChecked := false` (Capstone/Block.lean:1093,1179-1180). Missing pieces: an `hnone`-free CSV flag theorem,
+    a CSV-active => LOCKTIME_VERIFY_SEQUENCE theorem (or a composed row claim), and a prevout-data derivation or explicit
+    well-formedness premise tying the supplied view to the block history. Open proof obligation; the summary is kept.'
 - id: INV-022
   section: INV
   claim: script-level finality lock (5-byte CScriptNum; both tx-level finality AND lock satisfied)
@@ -174,15 +180,17 @@ residuals:
   core: '`chain.h:305–308 → chain.cpp:GetBitsProof@cce32b168`'
   target: '`BitcoinProofs.AF.PDW24.workOf_pos_of_inRange`'
   missing_link: 'The summary is true of Core''s work function: GetBlockProof uses GetBitsProof, which rejects a negative compact
-    decode (`fNegative`), overflow, or zero target and returns 0, otherwise `(~target/(target+1))+1` (chain.cpp:120-132; chain.h:305-308).
-    The cited target workOf_pos_of_inRange (PDW24.lean:166-169) proves `0 < workOf bits` from `0 < compactTarget bits` and
-    `compactTarget bits <= powLimit`, but `compactTarget` masks `0x007fffff` (Chain/Basic.lean:28-35), discarding the compact
-    sign bit; core `workOf` (Block/Index.lean:50-53) only rejects zero/above-powLimit decodes and has no `compactNegative`
-    gate. Thus a negative nBits with non-zero mantissa decodes as a positive target and the target proves positive work where
-    Core returns 0. The local divergence witness workOf_negative_diverges (PDW24.lean:150-154) states `compactNegative 0x04801234
-    = true /\ workOfSigned 0x04801234 = 0 /\ workOf 0x04801234 != 0`; workOfSigned is only a proofs-side model and the core
-    workOf remains unrepaired. Missing piece: repair `workOf` with the compact sign/negative gate and prove positivity only
-    under that gate. Open proof obligation; the true Core claim is not narrowed.'
+    decode (`fNegative`), an overflowing decode, or a zero target and returns 0, otherwise `(~target/(target+1))+1` (chain.cpp:120-132;
+    chain.h:305-308). The cited target workOf_pos_of_inRange (PDW24.lean:220-222) proves `0 < workOf bits` from `0 < compactTarget
+    bits`. The current core `workOf` (Block/Index.lean:54-56) returns 0 only when `compactTarget bits = 0`; it applies no
+    `powLimit` clamp, and a target above `powLimit` correctly carries positive work (`workOf_above_powLimit_pos`, Block/Index.lean:73-75).
+    The divergence is the missing compact sign/overflow gate: `compactTarget` masks `0x007fffff` (Chain/Basic.lean:28-35),
+    discarding the sign bit, and does not reject an oversized exponent. Thus a sign-flagged or overflowing nBits decodes as
+    a positive target and the model proves positive work where Core returns 0. The local witness workOf_negative_diverges
+    (PDW24.lean:168-172) states `compactNegative 0x04801234 = true /\ workOfSigned 0x04801234 = 0 /\ workOf 0x04801234 !=
+    0`; workOfSigned is only a proofs-side model and the core workOf remains unrepaired. Missing piece: add the compact sign
+    and overflow rejection to `workOf` and prove positivity only under that gate. Open proof obligation; the true Core claim
+    is not narrowed.'
 - id: SCR-008
   section: SCR
   claim: Exactly 1 element after all evaluation (flag; pol.; implicit in witness)
@@ -271,12 +279,15 @@ residuals:
   core: '`interpreter.cpp:2139-2142@cce32b168`'
   target: '`BitcoinProofs.AF.PDW19.witnessSigOps_p2wsh`'
   missing_link: 'The summary is true of Core: `WitnessSigOps` routes a v0-32 program to `witness.stack.back().GetSigOpCount(true)`
-    (src/script/interpreter.cpp:2133-2145), and `CScript::GetSigOpCount(true)` breaks at the first malformed opcode and returns
-    the count accumulated over the valid prefix (src/script/script.cpp:159-179). The local counter `witnessScriptSigOps` (spec/core/Bitcoin/Interpreter/SigOps.lean:90-99)
-    is all-or-nothing: `parseWire script = none` returns 0, and `witnessSigOps_p2wsh` (spec/proofs/BitcoinProofs/AF/PDW19/PDW19.lean:149-160)
-    merely restates that branch. No local definition implements a prefix-count witnessScript counter, so the target does not
-    cover Core''s unparseable-script semantics. The true Core claim is kept rather than narrowed; the missing piece is open
-    proof obligation. The row note''s `parse-failure -> 0` records the model, not Core.'
+    (src/script/interpreter.cpp:2133-2145), and `CScript::GetSigOpCount(true)` walks opcodes with `GetOp` and returns the
+    count over the valid prefix, stopping at the first decode failure (src/script/script.cpp:159-179). The local `witnessScriptSigOps`
+    (spec/core/Bitcoin/Interpreter/SigOps.lean:176-178) now counts that prefix via `parseWirePrefix` instead of returning
+    0 on a parse failure, and `witnessSigOps_p2wsh` (spec/proofs/BitcoinProofs/AF/PDW19/PDW19.lean:196-208) states the v0-32
+    last-item count. A model gap remains: `parseWirePrefix` uses `getOp` (spec/core/Bitcoin/Script/Parser/Defs.lean:206-233),
+    whose PUSHDATA2/PUSHDATA4 arms accept payloads larger than Core''s 520-byte `MAX_SCRIPT_ELEMENT_SIZE`; Core''s `GetScriptOp`
+    rejects such a push (script.cpp:313-363), so Core stops counting at that opcode while the model continues past it. Missing
+    piece: enforce the push-size limit in the counting parse (or use a size-bounded parser), then restate the prefix-count
+    equality. Open proof obligation; the true Core claim is kept rather than narrowed.'
 - id: TPR-007
   section: TPR
   claim: exactly 1 element (post-annex) ⇒ single BIP340 sig against output key q
@@ -293,13 +304,17 @@ residuals:
   claim: annex included in witness serialization ⇒ weight & budget base
   core: '`interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168`'
   target: '`Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included`'
-  missing_link: 'The R06 repair includes the stack-count CompactSize and makes the interpreter use that canonical full size.
-    `WitnessSerialization.witnessSerSize_eq_encoder`, `interpreter_size_eq_encoder`, `validationWeightInit_eq_encoder` and
-    `executeWitnessScript_encoder_budget` prove the full encoder/size/budget connection. A real script-path transaction at
-    the exact 150-byte / 200-WU / four-signature boundary now passes, and signed annex paths pass. The remaining obligation
-    is transaction-weight composition: prove that adding the annex to the actual transaction witness changes the transaction-weight
-    serialization by the corresponding bytes. The full weight-and-budget row remains residual until that theorem is supplied.
-    The old item-only-size defect is fixed; it is no longer the missing link.'
+  missing_link: 'the summary is true of Core. Core computes the budget over the whole witness stack before the annex pop (interpreter.cpp:1991
+    vs :1961-1969), and the transaction weight adds `::GetSerializeSize(txin.scriptWitness.stack)` (consensus/validation.h:147-150),
+    which includes the annex. The cited theorem proves strict growth of the serialized witness size: `witnessSerSize (items
+    ++ [annex]) > witnessSerSize ((items ++ [annex]).dropLast)` under `isAnnex ... = true` (Program.lean:652-664). The size
+    model now includes the stack-count CompactSize, and `WitnessSerialization.witnessSerSize_eq_encoder`, `validationWeightInit_eq_encoder`,
+    and `executeWitnessScript_exact_seed` connect that size to the BIP144 encoder and the interpreter''s initial budget. The
+    remaining obligation is transaction-weight composition: no theorem states that adding the annex to the actual transaction
+    witness changes the transaction-weight serialization by the corresponding bytes. The full weight-and-budget row remains
+    residual until that theorem is supplied; the earlier item-only-size defect is fixed and is no longer the missing link.
+    The summary is left unchanged because the Core claim is true; narrowing it would weaken a true Core claim merely because
+    the model is incomplete.'
 - id: TXV-069
   section: TXV
   claim: all value arithmetic in i64, checked incrementally
@@ -307,8 +322,8 @@ residuals:
   target: '`Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_i64Range,
     Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_no_overflow, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_i64Fold_agrees,
     Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_zero_i64Fold_agrees`'
-  missing_link: 'TXV-069''s summary says all value arithmetic is i64, but the frozen model''s Amount is abbrev Int (spec/core/Bitcoin/Data/Basic.lean:107),
-    and the new FIX-R-TXV069 theorems cover only the checked output-value fold: they prove every accepted output partial sum
+  missing_link: 'TXV-069''s summary says all value arithmetic is i64, but the model''s Amount is abbrev Int (spec/core/Bitcoin/Data/Basic.lean:107),
+    and the checked-output theorems cover only the checked output-value fold: they prove every accepted output partial sum
     is in i64 range and that the wrapping i64 fold agrees with the unbounded Int fold on that path. Input-value sums, the
     fee computation (CheckTxInputs), and the block-level fee accumulator are still unbounded Int and have no i64 fold model.
     The additive theorems are retained, but the row remains a residual against Core''s int64 CAmount semantics; no narrowing
