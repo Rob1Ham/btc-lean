@@ -1,0 +1,103 @@
+name: release-verify
+
+# Manual only: the release archive is about 358 MB, so this job is not run on
+# push or pull_request. It downloads the published assets into the runner's
+# temporary directory; nothing is committed or written back to the release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to verify"
+        required: true
+        default: "data-2026.10.17"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    name: verify published release assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Validate release tag
+        run: |
+          case "$RELEASE_TAG" in
+            data-?*) : ;;
+            *)
+              echo "release tag must start with 'data-': $RELEASE_TAG" >&2
+              exit 1
+              ;;
+          esac
+          case "$RELEASE_TAG" in
+            *[!A-Za-z0-9._-]*)
+              echo "release tag contains unsupported characters: $RELEASE_TAG" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Download release assets
+        run: |
+          release_dir="$RUNNER_TEMP/release"
+          archive="btc-lean-data-${RELEASE_TAG#data-}.tar.gz"
+          rm -rf "$release_dir"
+          mkdir -p "$release_dir"
+          gh release download "$RELEASE_TAG" \
+            --dir "$release_dir" \
+            --pattern 'assets.sha256' \
+            --pattern 'manifest.sha256' \
+            --pattern "$archive"
+
+      - name: Check downloaded asset names
+        run: |
+          release_dir="$RUNNER_TEMP/release"
+          archive="btc-lean-data-${RELEASE_TAG#data-}.tar.gz"
+          printf '%s\n' assets.sha256 manifest.sha256 "$archive" \
+            | LC_ALL=C sort > "$RUNNER_TEMP/expected-assets.txt"
+          find "$release_dir" -maxdepth 1 -type f -printf '%f\n' \
+            | LC_ALL=C sort > "$RUNNER_TEMP/actual-assets.txt"
+          if ! diff -u "$RUNNER_TEMP/expected-assets.txt" \
+                       "$RUNNER_TEMP/actual-assets.txt"; then
+            echo "downloaded asset set is not exactly the expected three assets" >&2
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/actual-assets.txt"
+
+      - name: Verify release assets against the tracked pin
+        run: |
+          pin="$(sha256sum -- release/assets.sha256 | cut -d' ' -f1)"
+          downloaded="$(sha256sum -- "$RUNNER_TEMP/release/assets.sha256" | cut -d' ' -f1)"
+          if [ "$pin" != "$downloaded" ]; then
+            echo "downloaded assets.sha256 ($downloaded) does not match the" \
+                 "source-controlled pin ($pin)" >&2
+            exit 1
+          fi
+          echo "source-controlled assets.sha256 pin: $pin"
+          bash scripts/verify_release.sh \
+            --release "$RUNNER_TEMP/release" \
+            --assets-sha256 "$pin"
+
+      - name: Smoke-check fetch_data dry run
+        run: bash scripts/fetch_data.sh --dry-run
+
+      - name: Summary
+        if: success()
+        run: |
+          {
+            echo "### Release assets verified"
+            echo ""
+            echo "- Tag: \`$RELEASE_TAG\`"
+            echo "- Pin source: tracked \`release/assets.sha256\`"
+            echo "- \`scripts/verify_release.sh\` and \`scripts/fetch_data.sh --dry-run\` passed"
+          } >> "$GITHUB_STEP_SUMMARY"
