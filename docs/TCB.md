@@ -36,7 +36,7 @@ propext, Classical.choice, Quot.sound
 The committed static manifest is checked by
 `bash spec/scripts/axiom_manifest.sh --check-static`; the dynamic probe
 `bash spec/scripts/axiom_manifest.sh` re-elaborates the probed declarations
-and prints their footprints. The consensus manifest has 318 entries (413
+and prints their footprints. The consensus manifest has 326 entries (421
 physical lines). The wallet layer has its own 836-declaration manifest and
 accepts the same three axioms.
 

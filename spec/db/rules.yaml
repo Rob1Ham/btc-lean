@@ -5144,11 +5144,11 @@ rules:
   consensus: true
   source: "08-block-pow-utxo.md:AppendixB §?"
 - id: BLK-040
-  summary: "0x00000000ffffffff…ff"
+  summary: "Mainnet/testnet3/testnet4 powLimit is 2^224 - 1 (0x00000000ffffffff…ff). Live retarget, target-validity and chain-work bounds share this value."
   check: "powLimit mainnet/testnet"
-  core_ref: "src/kernel/chainparams.cpp:126@cce32b168"
+  core_ref: "src/kernel/chainparams.cpp:126,257,364@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW28.powLimitMainnetFull_pin"
+  lean_target: "Bitcoin.Block.Pow.powLimitMainnet_eq, BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full, Bitcoin.Capstone.Pow.powLimit_eq_mainnet, Bitcoin.Block.Index.powLimit_eq_mainnet, Bitcoin.Block.Pow.powLimitMainnet_compact, Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet"
   test_vector_ids: []
   status: proven
   difficulty: 1

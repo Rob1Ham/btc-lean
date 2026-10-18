@@ -201,7 +201,7 @@ local checkout paths in tracked shell/Python files.
 
 The static axiom check validates the committed manifest without invoking
 Lean. Two dynamic checks are separate from the nine static gates and require
-the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 318 consensus
+the Lean build: `bash spec/scripts/axiom_manifest.sh` probes 326 consensus
 axiom entries, and `bash spec/scripts/wallet_axiom_manifest.sh --probe` probes
 836 wallet declarations.
 

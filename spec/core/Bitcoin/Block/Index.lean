@@ -1,3 +1,4 @@
+import Bitcoin.Block.Pow
 import Bitcoin.Chain.Basic
 import Bitcoin.RuleAttr
 
@@ -41,8 +42,10 @@ open Bitcoin.Chain
 
 /-- Mainnet-class `powLimit` (the gating decode bound; same constant as
 `Bitcoin.Block.Pow.powLimitMainnet`). -/
-def powLimit : Nat :=
-  0x00000000FFFF0000000000000000000000000000000000000000000000000000
+def powLimit : Nat := Bitcoin.Block.Pow.powLimitMainnet
+
+/-- Share the exact chain parameter used by the retarget machinery. -/
+theorem powLimit_eq_mainnet : powLimit = Bitcoin.Block.Pow.powLimitMainnet := rfl
 
 /-- **BLK-113**: `GetBlockProof` — `(~target / (target+1)) + 1`; 0 when
 the decode is out of the consensus range (zero or above powLimit). -/
@@ -633,3 +636,7 @@ theorem connectHeight_succ (h : Nat) : connectHeight h = h + 1 := rfl
 #print axioms connectHeight_succ
 
 end Bitcoin.Block.Index
+
+-- R07c exact footprint guards.
+/-- info: 'Bitcoin.Block.Index.powLimit_eq_mainnet' does not depend on any axioms -/
+#guard_msgs in #print axioms Bitcoin.Block.Index.powLimit_eq_mainnet

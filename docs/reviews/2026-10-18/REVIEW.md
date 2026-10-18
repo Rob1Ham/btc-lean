@@ -194,11 +194,16 @@ is confirmed open and belongs with the remaining hash-aware exception wiring.
 The R02 public subsidy fixture must also use a non-genesis block when that
 exception is wired.
 
-Issue **I4-43** remains open at the live definition level: Core uses
-`2^224-1`, while the two core PoW paths still use the compact genesis target.
-The corrected PDW28 theorem does not change those definitions. No behavioral
-acceptance difference is inferred merely from that numeric mismatch; encoded
-target boundaries and the actual constant wiring still require verification.
+Issue **I4-43 / R07c** exposed a live parameter discrepancy: three core
+copies used the rounded genesis target while Core uses `2^224-1`. They now
+share the full retarget parameter. Repaired proof statements distinguish the
+exact genesis target and its strict bound below that limit. Five parameter
+failures and seven controls were reproduced; the twelve focused checks now
+pass. Both pinned Core encoders agree on 57 generated cases plus three network
+controls, including the full limit and limit+1. This is a parameter/encoding
+repair; it does not assert a new block acceptance difference from the numeric
+mismatch alone. See [validation-r07c.json](validation-r07c.json). The separate
+chain-work sign/overflow residual remains open.
 
 [census-progress.tsv](census-progress.tsv) now tracks all 726 IDs separately
 from the preserved historical attachment snapshot. R03 adds live block-finality

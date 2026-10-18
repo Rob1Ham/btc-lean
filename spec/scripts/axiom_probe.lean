@@ -1,3 +1,8 @@
+import BitcoinProofs.AF.PDW28.PDW28Guards
+import Bitcoin.Block.Pow
+import Bitcoin.Block.Index
+import BitcoinProofs.Theorems.BlockCor
+import BitcoinProofs.Theorems.CapstonePowCor
 import Bitcoin.Interpreter.Rules
 import Bitcoin.Data.Basic
 import Bitcoin.Chain.Basic
@@ -438,3 +443,14 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms Bitcoin.Interpreter.checkSequenceDef_version_gate
 #print axioms Bitcoin.Interpreter.checkSequenceDef_wire_congr
 #print axioms Bitcoin.Interpreter.checkSequenceDef_high_bit_versions
+
+-- R07c full-limit and exact difficulty-one contracts.
+#print axioms Bitcoin.Block.Pow.powLimitMainnet_eq
+#print axioms Bitcoin.Block.Pow.powLimitMainnet_compact
+#print axioms Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet
+#print axioms Bitcoin.Capstone.Pow.powLimit_eq_mainnet
+#print axioms Bitcoin.Block.Index.powLimit_eq_mainnet
+#print axioms BitcoinProofs.Theorems.BlockCor.genesis_pow_target_exact
+#print axioms BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit
+
+#print axioms BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full

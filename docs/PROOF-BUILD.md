@@ -72,6 +72,17 @@ results and resource limits are in
 [validation-r18.json](reviews/2026-10-18/validation-r18.json). The complete
 core/proof/cited-target matrix remains R08 work.
 
+I4-43/R07c consolidates the full mainnet proof-of-work limit across the
+retarget, capstone and chain-work modules. Exact genesis-target and
+strict-below-limit claims replace false equalities with the compact target.
+The Y11 generator reproduces 137 kernel-decided cases and five named theorem
+instances; 57 encoder cases and three network controls agree with both exact
+Core revisions. The scoped build includes 125 named targets (9271 Lake jobs),
+including PDW16/28/31, BIP94 and Y11. Eight new exact footprint guards are
+included in the 326-entry consensus probe. Full matrix coverage and the
+independent chain-work decode-sign/overflow residual remain open. See
+[validation-r07c.json](reviews/2026-10-18/validation-r07c.json).
+
 The outside-closure results below are the upstream audit snapshot from before
 PR 18 merged and before the remediation changes. They remain historical
 results until the full module matrix is rerun under R08; the counts and failure

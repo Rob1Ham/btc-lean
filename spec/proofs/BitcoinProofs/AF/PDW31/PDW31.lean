@@ -589,7 +589,7 @@ private theorem compactTarget_getCompact_le_of_lt (t : Nat) (ht : t < 2^256) :
   · exact compactTarget_getCompact_le_of_lt_pos t h0 ht
 
 /-- Mainnet's `powLimit` satisfies the round-trip domain side
-condition (`0xffff * 256^26 < 2^240`). -/
+condition (`2^224 - 1 < 2^256`). -/
 theorem mainnetParams_powLimit_lt_two_pow_256 :
     mainnetParams.powLimit < 2^256 := by
   unfold mainnetParams powLimitMainnet

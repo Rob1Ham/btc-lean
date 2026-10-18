@@ -1,3 +1,4 @@
+import Bitcoin.Block.Pow
 import Bitcoin.Chain.Basic
 import Bitcoin.Crypto.Seam.Hash
 import Bitcoin.Serialization.Interface
@@ -42,9 +43,12 @@ def hashNatLE (b : ByteArray) : Nat :=
 
 /-- **BLK-037+BLK-038**: `CheckProofOfWork`'s target decode gate —
 magnitude decode (Bitcoin.Chain.compactTarget), nonzero, ≤ powLimit
-(mainnet `powLimit` = 0x00000000FFFF0000…FF, chainparams.cpp:109 @cce32b168). -/
+(mainnet `powLimit` = 2^224 − 1, chainparams.cpp:126 @cce32b168). -/
 @[rule "BLK-037", rule "BLK-038"]
-def powLimit : Nat := 0x00000000FFFF0000000000000000000000000000000000000000000000000000
+def powLimit : Nat := Bitcoin.Block.Pow.powLimitMainnet
+
+/-- Share the exact chain parameter used by the retarget machinery. -/
+theorem powLimit_eq_mainnet : powLimit = Bitcoin.Block.Pow.powLimitMainnet := rfl
 
 /-! ## Full `SetCompact` result (`fNegative`, `fOverflow`)
 
@@ -173,3 +177,7 @@ def powOk (h : BlockHeader) : Bool :=
   targetOk h.bits && hashNatLE (headerHash h) ≤ compactTarget h.bits
 
 end Bitcoin.Capstone.Pow
+
+-- R07c exact footprint guards.
+/-- info: 'Bitcoin.Capstone.Pow.powLimit_eq_mainnet' does not depend on any axioms -/
+#guard_msgs in #print axioms Bitcoin.Capstone.Pow.powLimit_eq_mainnet

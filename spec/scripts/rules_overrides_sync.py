@@ -6,10 +6,10 @@
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
 # committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'check': 1, 'consensus': 1, 'core_ref': 86, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 219, 'notes_extra': 1, 'status': 642, 'summary': 62, 'test_vector_ids': 26}.
+# 726 rows; field census {'check': 1, 'consensus': 1, 'core_ref': 86, 'difficulty': 1, 'lean_note': 155, 'lean_target': 620, 'notes': 219, 'notes_extra': 1, 'status': 642, 'summary': 63, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 e6f4506f76e8b0ba17b33a0465a4cb17db0975e40ed1bbe3d16d95840426fbdb
+#   726 rows, sha256 a902f095737266e34572501b093c7b411e658f980a242619c20267ec68de46c5
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -2156,8 +2156,9 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-040': {
-        'core_ref': 'src/kernel/chainparams.cpp:126@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW28.powLimitMainnetFull_pin',
+        'summary': 'Mainnet/testnet3/testnet4 powLimit is 2^224 - 1 (0x00000000ffffffff…ff). Live retarget, target-validity and chain-work bounds share this value.',
+        'core_ref': 'src/kernel/chainparams.cpp:126,257,364@cce32b168',
+        'lean_target': 'Bitcoin.Block.Pow.powLimitMainnet_eq, BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full, Bitcoin.Capstone.Pow.powLimit_eq_mainnet, Bitcoin.Block.Index.powLimit_eq_mainnet, Bitcoin.Block.Pow.powLimitMainnet_compact, Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet',
         'status': 'proven',
     },
     'BLK-041': {

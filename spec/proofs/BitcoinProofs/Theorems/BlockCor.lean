@@ -17,7 +17,7 @@ Highlights:
 
 | theorem | statement |
 |---|---|
-| `genesis_pow_target_cap`  | the genesis nBits decodes to EXACTLY the mainnet powLimit (Params ∘ Pow) |
+| `genesis_pow_target_cap`  | the genesis target is strictly below the full mainnet powLimit (Params ∘ Pow) |
 | `genesis_header_well_formed` | full genesis field pin + non-null (Params) |
 | `workOf_genesis_eq`       | genesis work = the difficulty-1 GetBlockProof value (Index ∘ Params) |
 | `txSigOpCost_ge_legacy`   | the full cost dominates 4× legacy (Sigops) |
@@ -46,12 +46,18 @@ open Bitcoin.Block.Params
 
 /-! ## Genesis block composition (Params ∘ Pow / Index) -/
 
-/-- The genesis nBits decodes to EXACTLY the mainnet powLimit — the
-difficulty-1 target IS the consensus pow floor (BLK-040 ∘ BLK-111). -/
+/-- Genesis uses the rounded difficulty-one target, strictly below the full
+mainnet consensus limit (BLK-040 ∘ BLK-111). -/
 theorem genesis_pow_target_cap :
-    Bitcoin.Chain.compactTarget genesisHeader.bits = Bitcoin.Block.Pow.powLimitMainnet := by
+    Bitcoin.Chain.compactTarget genesisHeader.bits < Bitcoin.Block.Pow.powLimitMainnet := by
   rw [genesis_header_bits]
-  exact Bitcoin.Block.Pow.powLimitMainnet_eq
+  exact Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet
+
+/-- Exact difficulty-one magnitude, distinct from the full chain parameter. -/
+theorem genesis_pow_target_exact :
+    Bitcoin.Chain.compactTarget genesisHeader.bits = 0xffff * 256 ^ 26 := by
+  rw [genesis_header_bits]
+  decide
 
 /-- The full genesis header pin: version 1, the Times timestamp,
 difficulty-1 nBits, the famous nonce — and not a null header (BLK-111 ∘
@@ -305,3 +311,7 @@ theorem merklePathRoot_empty (leaf : ByteArray) :
 #print axioms blockSigOpCostOk_eq_false_iff
 
 end BitcoinProofs.Theorems.BlockCor
+
+-- R07c exact footprint guards.
+/-- info: 'BitcoinProofs.Theorems.BlockCor.genesis_pow_target_exact' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.Theorems.BlockCor.genesis_pow_target_exact

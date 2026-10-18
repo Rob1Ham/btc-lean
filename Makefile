@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-csv test-capstone-sigops test-capstone-sigop-budget test-capstone-witness test-capstone-taproot help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-csv test-capstone-pow-limit test-capstone-sigops test-capstone-sigop-budget test-capstone-witness test-capstone-taproot help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -31,6 +31,7 @@ help:
 	@echo "make test-capstone-funding # block reward and fee regressions (needs Lean)"
 	@echo "make test-capstone-context # contextual header regressions (needs Lean)"
 	@echo "make test-capstone-finality # absolute/BIP68 contextual regressions (needs Lean)"
+	@echo "make test-capstone-pow-limit # full parameter and rounded compact target checks (needs Lean)"
 	@echo "make test-capstone-csv # unsigned wire-version CSV regressions (needs Lean)"
 	@echo "make test-capstone-sigops # static sigop counter regressions (needs Lean)"
 	@echo "make test-capstone-sigop-budget # live block resource-boundary regressions (needs Lean)"
@@ -111,6 +112,9 @@ test-capstone-finality:
 # CSV compares unsigned transaction version bits at the public transaction stage.
 test-capstone-csv:
 	cd spec/core && lake env lean --run Test/Capstone/CsvVersion.lean
+
+test-capstone-pow-limit:
+	cd spec/core && lake env lean --run Test/Capstone/PowLimit.lean
 
 # Static counting includes malformed scripts, independent of execution validity.
 test-capstone-sigops:

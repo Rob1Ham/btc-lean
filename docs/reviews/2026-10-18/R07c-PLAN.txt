@@ -1,0 +1,52 @@
+I4-43/R07c: full mainnet proof-of-work limit
+
+Parent b1051aeea547e026c3ed738aaa567a1c80260d85.
+Three executable constants (Block.Pow, Capstone.Pow, Block.Index) used the
+rounded genesis target 2^224-2^208. Exact Core chainparams literals at both
+pins use 2^224-1 for mainnet/testnet3/testnet4. Five parameter-value failures
+and seven passing encoding/control checks reproduced by shared public-library
+driver PowLimit.lean. Durable reproduce_pow_limit.py compiles the unchanged
+three old modules in renamed namespaces; compile/setup failures are rejected.
+
+Current repair: single full constant in Block.Pow, aliases in Capstone.Pow
+and Block.Index. Separate exact difficulty-one target and strict-below-full
+claims replace the old false equality/divergence statements. Core and default
+proof scope stay unchanged. Index.workOf still has the independent documented
+negative/overflow defect (BLK-113 residual); do not mark that defect fixed.
+
+The Y11 Python reference now uses the full network limit, retains its separate
+DIFFICULTY_ONE target, regenerates 137 kernel-decided cases and updates the
+named encode_powLimit theorem to exercise the actual live parameter. D15/D16
+now cover the full limit and full+1. Encoder cases must execute with actual
+pinned Core bits/right-shift/GetCompact functions, using check_pow_limit_core.py.
+Core's alternative GetCompact body uses (bits()+7)/8 rather than CeilDiv;
+record the different body hashes and identical measured results. Do not claim
+all Core functions are byte-identical or claim a block-verdict difference from
+a parameter-value regression.
+
+Cached exact sources:
+/tmp/btc-lean-core[-audit16]-chainparams.cpp
+/tmp/btc-lean-core[-audit16]-arith_uint256.cpp
+Source pair hashes are enforced by check_pow_limit_core.py.
+
+First scoped build failed because CapstonePowCor still asserted genesis
+compactTarget = full powLimit. Old log and receipt preserved as
+/tmp/btc-lean-r07c-initial-proofs.log and -initial-receipts.json; this is not a
+passing check. Claim corrected to exact genesis magnitude plus strict bound.
+Current /tmp/btc-lean-r07c-scoped.py serial build/test retry is in progress;
+/tmp/btc-lean-r07c-scoped-progress.log and -scoped-receipts.json record results.
+
+Next: exact footprint probes/guards and primary manifest; pinned-Core reference
+execution at both pins; final scoped affected/probe/wallet and default builds,
+core build/test, runtime checks, all static/repro/scope/residual/checksum gates.
+Then update ledger, I4-43/BLK-040 row progress, validation report and local commit.
+R07 actual-hash script/BIP30/genesis fixes and complete R08 matrix remain open.
+
+FINAL SCOPED DISPOSITION
+All15 serial checks and5 post-format/generator refresh checks pass.
+125 named targets/9271 Lake jobs,275 runtime checks,16 core tests,
+326 consensus/836 wallet probes, all static/generated/checksum gates pass.
+Both pinned Core encoders agree on57 corpus encodings and3network controls.
+The137-case Y11 corpus plus5named theorem instances builds with kernel decide
+and regenerates byte-identically. See validation-r07c.json. R07/R07b and the
+complete module/census matrix remain open.
