@@ -1,11 +1,10 @@
 import Bitcoin.Block.Index
 import Bitcoin.Capstone.Pow
 
-/-! # PDW24.lean — items TOP-116..120
-(PDW24, RC22, 2026-10-17; claim v1 = 5f12442).
+/-! # PDW24.lean — chainwork and tip-selection row faces
 
 Five sorry-free promotion theorems, one per claimed rules.yaml
-row — the **X08-B3 chainwork/tip band** (workOf / chainWork /
+row — the **chainwork/tip band** (workOf / chainWork /
 mostWork?, core `Bitcoin/Block/Index.lean`):
 
 * **BLK-113** `workOf` (Index.lean:50) → `workOf_zero_invalid`

@@ -54,8 +54,8 @@ lane = the Taproot module's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
 
 ## Layering / honesty notes
 
-* The composition sits on X03's `scriptPathSpend` (Verify.lean:
-  size gate → tapleaf hash → `verifyTaprootCommitment` (X06's
+* The composition sits on the Taproot module's `scriptPathSpend` (Verify.lean:
+  size gate → tapleaf hash → `verifyTaprootCommitment` (the witness-structure module's
   `outputKeyOk` plus the 32-byte `program = x(Q)` binding, TPR-018) →
   the `0xc0` dispatch bit, in Core's order).
   This module is the CALLER side of the bit: it turns the `if`-chain
@@ -67,18 +67,18 @@ lane = the Taproot module's `scriptPathSpend_badSize_none`, `Verify.lean:193`).
 / TPR-027's lane) — `.tapscript script` carries the dispatched script,
   and TPR-019 pins the DISPATCH (leaf 0xc0 ⇒ the tapscript lane), not
   the execution verdict. This mirrors the Program.lean/Interpreter
-  split (X06's "deliberate layering", Program.lean:32-40).
+  split (the witness-structure module's "deliberate layering", Program.lean:32-40).
 * `scriptPathSpend`'s `verifyTaprootCommitment` = `checkTapTweak
   control program (some (scriptPathMerkleRoot ...))` (Verify.lean):
-  X06/X03's TPR-009/018/016/017/011 chain — internal-key parse → tweak
+  the witness-structure and Taproot modules' TPR-009/018/016/017/011 chain — internal-key parse → tweak
   recomputation → parity — PLUS the final
   `xonly_pubkey_tweak_add_check` q-equality of Core
   `pubkey.cpp:255-271` as a 32-byte length check and
   `program = x(Q)` byte comparison. The earlier program-blind
-  simplification (F-TPRA-002 / SCR-147 gap) is closed. The dispatch
+  simplification (the earlier program-blind gap) is closed. The dispatch
   rows (TPR-019/020/021) sit strictly AFTER this check, and the
   precedence order is exact.
-* `verifyWitnessProgram` (W09's `Bitcoin.Interpreter.Defs:1196`) —
+* `verifyWitnessProgram` (the interpreter module's `Bitcoin.Interpreter.Defs:1196`) —
   the interpreter-side twin — currently returns `.unjudged` at the
   tapleaf/CheckTapTweak step (the interpreter rule layer's SCR-146 honesty): THIS module is
   the Crypto-side closure of the dispatch half.
