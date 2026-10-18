@@ -3,94 +3,16 @@ import Bitcoin.Crypto.Taproot.Program
 import Bitcoin.Script.Tapscript.Delta
 
 /-!
-# Bitcoin.Script.Tapscript.LeafVersion — the 0xc0 leaf-version dispatch
-# (SCR-148)
+# Standalone Taproot leaf-version dispatch contracts
 
-Core `VerifyWitnessProgram`'s script-path TAIL, interpreter.cpp @
-`cce32b168` **:1988-1994** (row pin @cce32b168 :1988-1994 — line-verified
-identical at the suite ground truth `cce32b168`; the cce32b168 pins are
-stale-commit-labels only, cf. the interpreter-audit note):
+These wrappers prove the 0xc0 execution versus upgradable-leaf policy split.
+The live dispatcher in Interpreter.Defs additionally verifies the real
+control/program commitment and supplies annex/tapleaf execution data to
+executeWitnessScript. These standalone wrappers retain default execution
+data; their generic checker contracts do not certify a real signed spend.
 
-    if ((control[0] & TAPROOT_LEAF_MASK) == TAPROOT_LEAF_TAPSCRIPT) {
-        // Tapscript (leaf version 0xc0)
-        exec_script = CScript(script.begin(), script.end());      // :1990
-        execdata.m_validation_weight_left =
-            ::GetSerializeSize(witness.stack) + VALIDATION_WEIGHT_OFFSET;  // :1991
-        execdata.m_validation_weight_left_init = true;            // :1992
-        return ExecuteWitnessScript(stack, exec_script, flags,
-                                    SigVersion::TAPSCRIPT, checker,
-                                    execdata, serror);             // :1993
-    }
-
-`control[0] & 0xfe == 0xc0` ⇒ the popped script executes as TAPSCRIPT.
-Every other (even) leaf version leaves this arm — the upgradable
-`else` tail :1995-1998, which is **SCR-149's** ground
-(`verifyWitnessProgram_upgradable_leaf_ok`, the interpreter rule layer) and is pinned here as
-the fall-through only.
-
-## Disposition: B (implement), the interpreter rule layer's wrapper-over-seam idiom
-
-This row's three blocked-origin neighbours closed WITHOUT touching
-`verifyWitnessProgram` (still `.unjudged` at the CheckTapTweak EC
-step, Defs.lean:1245): SCR-146/147 = wrapper pins over the Schnorr module's
-`taggedHash`/the Taproot module's `tweakPoint` (Interpreter/Rules.lean §11), SCR-149 =
-the wrapper theorem over the def. This module pins the last blocked
-piece the same way — **the 0xc0 dispatch** — as
-`verifyTaprootLeafDispatch`, with:
-
-* the leaf-version test = the witness-structure module's `leafVersionOf`
-  (`control[0] & 0xfe`, TPR-010, `@[rule "TPR-010"]` in
-  `Crypto/Taproot/Program.lean`) compared to `TAPROOT_LEAF_TAPSCRIPT`
-  (interpreter.h:243 = 0xc0) — Core's exact `:1988` expression, nothing
-  re-implemented;
-* the executed script = the popped `script` param (:1990
-  `exec_script = CScript(script)`);
-* the validation weight = `witnessSerSize witness` over the **FULL**
-  witness stack (:1991 `GetSerializeSize(witness.stack)` — annex,
-  control block, script and stack items included; Defs.lean:1142
-  `witnessSerSize` = the same CompactSize-per-item fold) — the `:1992`
-  init lands inside `executeWitnessScript` (the interpreter delta layer's SCR-040 wiring,
-  Defs.lean:1170-1174);
-* `SigVersion.tapscript` (:1993) — the one-parameter mode switch that
-  turns on the whole interpreter delta layer (OP_SUCCESSx pre-scan, budget,
-  MINIMALIF, …) inside `executeWitnessScript`.
-
-The CheckTapTweak commitment verdict (Core :1983-1987) is OUTSIDE this
-row (SCR-146/147 = the wrapper pins; stays `.unjudged` at that EC
-step): `verifyTaprootLeafDispatch` composes with it downstream exactly
-as the Taproot module's Crypto-side `Taproot/Verify.scriptPathSpend` (the verifier module) exposes
-the same dispatch as its third `Bool` (`ts = leafVersionOf control =
-TAPROOT_LEAF_TAPSCRIPT`, `scriptPathSpend_dispatch` @ :1988) — the
-Crypto lane's verdict bit vs this module's Interpreter-lane execution
-wiring, one Core line each side of the seam.
-
-Honest gaps carried in the row notes (NOT fixed here, other modules'
-frozen lanes): (a) `verifyWitnessProgram`'s own script-path arm still
-returns `.unjudged` (the interpreter rule layer/SCR-146 protocol) — this def is the faithful
-`:1988-1994` arm, not yet wired into the interpreter definition; (b) the interpreter-audit offset note
-(MOD): the tapscript `ed` (`tapleafHashInit`/`codesepPosInit`/
-`codesepPos`) is not threaded from `VerifyWitnessProgram`/
-`EvalScript` into the sighash seam (Core :444-445 init 0xFFFFFFFF /
-:1065 records `opcode_pos` = the INSTRUCTION index — vs SCR-167's
-`op.next` byte-offset recording; TPR-045 = the index semantics) —
-the interpreter delta layer's one-parameter seam change; (c) `realSchnorrEntry`
-(Capstone/RealChecker.lean) still holds the fail-closed
-`fun _ _ _ => none` sighash stand-in (the interpreter delta layer's flip; the Schnorr-entry work's existing
-unused `EcdsaDeep/SchnorrEntry2.realSchnorrEntry2` carries the
-drop-in).
-
-Conformance: `Test/Script/Tapscript/LeafVersionTest.lean`
-(Test-scoped, native_decide per the axiom-pin gate) — the 0xc0/0xc1/0xc2/
-0x00/0x80/0xbf/0xfa/0xfe/0xff leaf-version matrix, the 0xc0-arm
-executing into the interpreter delta layer's `executeWitnessScript` tapscript lanes
-(OP_SUCCESS `.ok` / OP_1 `.ok` / 2-item `.fail .cleanstack`), and the
-`:1995-1998` fall-through (discourage `.fail` / default `.ok`).
-No official Core dispatch vectors exist for script-path spends
-(documented in the Taproot module's Verify.lean for the same arm); the matrix is
-Core-:1988-by-inspection.
-
-No `sorry`, no `native_decide` (this file); axiom pins at the bottom,
-footprints ⊆ the standard trio.
+The budget size is the full witness encoder size, including item count,
+script, control and annex. WitnessSerialization proves the encoder bridge.
 -/
 
 namespace Bitcoin.Script.Tapscript
@@ -126,9 +48,8 @@ included; the `:1992` init + `VALIDATION_WEIGHT_OFFSET` live inside
 stack AFTER the annex strip and the control/script pops (Core's `stack`
 at :1993). The non-0xc0 arm is the `:1995-1998` upgradable fall-through
 (SCR-149's ground): DISCOURAGE_UPGRADABLE_TAPROOT_VERSION policy fail
-else success. The CheckTapTweak verdict (Core :1983-1987) enters
-downstream of this row — def stays `.unjudged` at that EC step
-(SCR-146/147 protocol). -/
+else success. The live Interpreter.Defs dispatcher performs CheckTapTweak before this
+leaf-version split; this standalone wrapper assumes that prerequisite. -/
 @[rule "SCR-148"]
 def verifyTaprootLeafDispatch (fuel : Nat) (items : WitnessStack)
     (control script : ByteArray) (witness : WitnessStack)

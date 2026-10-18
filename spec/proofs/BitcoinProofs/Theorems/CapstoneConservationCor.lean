@@ -1,3 +1,5 @@
+import BitcoinProofs.Theorems.CapstonePipelineCor
+import BitcoinProofs.Theorems.CapstoneFoldAgree
 import Bitcoin.Capstone.Block
 import Bitcoin.Ledger.Interface
 import BitcoinProofs.Theorems.LedgerCor
@@ -50,14 +52,13 @@ in the P15 scratch area; results recorded below)
 | (bridge) | `validateBlock_ok_utxo_total_le` | … and its total value is `≤ initial + blockDrawn` | propext, Classical.choice, Quot.sound |
 | THM-037↑ | `validateBlock_ok_fees_le` | the fee bound for the DECODED txs of a validated block, per-tx hypotheses derived from the pipeline's own gates | propext, Classical.choice, Quot.sound |
 
-Honest scope note (what is deliberately NOT claimed): the coinbase
-"mints exactly fee + subsidy" half of THM-037. The capstone fold
-(`applyTxStepL`/`updateCoinsL`, hence `chainFeesL`) carries no subsidy
-term, so no upstream theorem provides a subsidy-bearing statement; the
-strongest honest mint law at this tier is the per-tx fee identity
-(`tx_conservation_at_view`) plus the sandwich
-(`capstone_fees_sandwich_txidKey`). A subsidy-in-fold extension is a
-missing upstream DEFINITION, not a missing proof.
+The standalone ledger fold (`applyTxStepL`/`updateCoinsL`, hence
+`chainFeesL`) has no subsidy gate. The funded public pipeline now uses
+`applyBlockTransactions`: `CapstoneFunding.validateBlock_funding` proves
+its checked-fee range and coinbase ≤ fees + subsidy bound on the actual
+reported state. Equality is not required: miners may leave reward unclaimed.
+The algebraic `chainFeesL`/THM-037 results below remain separate from that
+live checked accumulator and do not establish full int64 arithmetic fidelity.
 
 Axiom footprints are checked by `#print axioms` in the scratch area
 (NOT pinned in this file, per the P15 work order); the table above
@@ -65,6 +66,9 @@ records the audited results.
 -/
 
 namespace BitcoinProofs.Theorems.CapstoneConservation
+
+-- Script flags are threaded uniformly through every compared execution.
+variable {flags : Bitcoin.Activation.ScriptFlags}
 
 open Bitcoin.Data Bitcoin.Ledger
 open Bitcoin.Consensus (checkTransaction hasDupPrevouts)
@@ -252,40 +256,15 @@ coinbase ite and the script-check Except; every non-ledger path ends in a
 `throw`, contradicting the `ok` hypothesis.) -/
 private theorem applyTx_ok_step (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l₁ : List (OutPoint × Coin)) (a b : Nat)
-    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = Except.ok (l₁, a, b)) :
+    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l flags = Except.ok (l₁, a, b)) :
     applyTxStepL l tx (txidKey tx) height = Except.ok l₁ := by
-  unfold Bitcoin.Capstone.Block.applyTx at h
-  simp only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-  · split at h
-    · split at h
-      · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-      · rename_i l'' heqO
-        have hinj : l'' = l₁ ∧ (0 : Nat) = a ∧ (0 : Nat) = b := by
-          have h2 : Except.ok (l'', (0, 0)) = Except.ok (l₁, a, b) := h
-          simp only [Except.ok.injEq, Prod.mk.injEq] at h2
-          exact h2
-        rw [heqO, hinj.1]
-    · cases hv : Bitcoin.Capstone.Block.verifyTxInputs height tx txIdx l with
-      | error ea => rw [hv] at h; have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-      | ok p =>
-          obtain ⟨a', b'⟩ := p
-          rw [hv] at h
-          split at h
-          · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-          · rename_i l'' heqO
-            have hinj : l'' = l₁ ∧ a' = a ∧ b' = b := by
-              have h2 : Except.ok (l'', a', b') = Except.ok (l₁, a, b) := h
-              simp only [Except.ok.injEq, Prod.mk.injEq] at h2
-              exact h2
-            rw [heqO, hinj.1]
+  exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).2.2
 
 /-- Step inversion: `applyTx` success ⇒ the new state is exactly
 `updateCoinsL`'s (both `applyTxStepL` success branches return it). -/
 private theorem applyTx_ok_updateCoins (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l₁ : List (OutPoint × Coin)) (a b : Nat)
-    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = Except.ok (l₁, a, b)) :
+    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l flags = Except.ok (l₁, a, b)) :
     l₁ = updateCoinsL l tx (txidKey tx) height := by
   have hs : applyTxStepL l tx (txidKey tx) height = Except.ok l₁ :=
     applyTx_ok_step height tx txIdx l l₁ a b h
@@ -302,14 +281,9 @@ private theorem applyTx_ok_updateCoins (height : UInt32) (tx : Tx) (txIdx : Nat)
 stateless gate passed. -/
 private theorem applyTx_ok_checkTx' (height : UInt32) (tx : Tx) (txIdx : Nat)
     (l l₁ : List (OutPoint × Coin)) (a b : Nat)
-    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l = Except.ok (l₁, a, b)) :
+    (h : Bitcoin.Capstone.Block.applyTx height tx txIdx l flags = Except.ok (l₁, a, b)) :
     checkTransaction tx = none := by
-  unfold Bitcoin.Capstone.Block.applyTx at h
-  simp only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok (l₁, a, b) := h; nomatch h'
-  · rename_i heqN
-    exact heqN
+  exact (BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h).1
 
 /-- The workhorse inversion: one successful `applyTxs` cons step
 decouples into the stateless gate, the ledger step (`applyTxStepL` at
@@ -317,14 +291,14 @@ the capstone keying), the `updateCoinsL` state equation, and the
 recursive success. -/
 private theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
     (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat)
-    (h : applyTxs height (tx :: rest) i l okN unjN = Except.ok (l', okN', unjN')) :
+    (h : applyTxs height (tx :: rest) i l okN unjN flags = Except.ok (l', okN', unjN')) :
     ∃ l₁ a b,
       checkTransaction tx = none
       ∧ applyTxStepL l tx (txidKey tx) height = Except.ok l₁
       ∧ l₁ = updateCoinsL l tx (txidKey tx) height
-      ∧ applyTxs height rest (i + 1) l₁ (okN + a) (unjN + b) = Except.ok (l', okN', unjN') := by
+      ∧ applyTxs height rest (i + 1) l₁ (okN + a) (unjN + b) flags = Except.ok (l', okN', unjN') := by
   unfold applyTxs at h
-  cases hap : Bitcoin.Capstone.Block.applyTx height tx i l with
+  cases hap : Bitcoin.Capstone.Block.applyTx height tx i l flags with
   | error e => rw [hap] at h; simp at h
   | ok p =>
       obtain ⟨l₁, a, b⟩ := p
@@ -338,7 +312,7 @@ private theorem applyTxs_cons_inv (height : UInt32) (tx : Tx) (rest : List Tx)
 passed the BLK-030 stateless gate. -/
 theorem applyTxs_ok_checkTx_all (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       ∀ tx ∈ txs, checkTransaction tx = none := by
   intro txs
   induction txs with
@@ -357,7 +331,7 @@ UTXO list of the CapReport path is EXACTLY the BIP30-free inner fold
 the same per-tx computation. -/
 theorem applyTxs_ok_applyBlockFoldL (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       applyBlockFoldL l txidKey txs height = Except.ok l' := by
   intro txs
   induction txs with
@@ -385,7 +359,7 @@ without the hypothesis. -/
 theorem applyTxs_ok_applyBlockL (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
       (bip30BlockCollision (viewOf l) txidKey txs height && bip30Enforced height) = false →
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       applyBlockL l txidKey txs height = Except.ok l' := by
   intro txs i okN unjN l l' okN' unjN' hg h
   rw [applyBlockL, ite_eq_right (by simp [hg])]
@@ -398,7 +372,7 @@ theorem capReport_utxo_value_nonneg (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
       (∀ p ∈ l, 0 ≤ p.2.value) →
       (∀ tx ∈ txs, ∀ k < tx.vout.length, 0 ≤ (tx.vout.getD k ⟨0, Script.empty⟩).value) →
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       ∀ p ∈ l', 0 ≤ p.2.value := by
   intro txs
   induction txs with
@@ -430,7 +404,7 @@ theorem capReport_utxo_total_le (height : UInt32) :
     ∀ (txs : List Tx) (i okN unjN : Nat) (l l' : List (OutPoint × Coin)) (okN' unjN' : Nat),
       (∀ p ∈ l, 0 ≤ p.2.value) →
       (∀ tx ∈ txs, ∀ k < tx.vout.length, 0 ≤ (tx.vout.getD k ⟨0, Script.empty⟩).value) →
-      applyTxs height txs i l okN unjN = Except.ok (l', okN', unjN') →
+      applyTxs height txs i l okN unjN flags = Except.ok (l', okN', unjN') →
       listTotal l' ≤ listTotal l + blockDrawn txs := by
   intro txs
   induction txs with
@@ -530,68 +504,12 @@ private theorem validateBlock_ok_inv (raw : ByteArray) (st : CapState) (r : CapR
     (h : validateBlock raw st = Except.ok r) :
     ∃ hd txs utxo' okN unjN,
       Bitcoin.Serialization.decodeBlock raw = Except.ok (hd, txs)
-      ∧ applyTxs st.height txs 0 st.utxo 0 0 = Except.ok (utxo', okN, unjN)
+      ∧ applyTxs st.height txs 0 st.utxo 0 0 (Bitcoin.Capstone.Block.candidateScriptFlags st.height hd) = Except.ok (utxo', okN, unjN)
       ∧ r.state.utxo = utxo' := by
-  unfold validateBlock at h
-  simp (config := { zeta := false }) only [] at h
-  split at h
-  · have h' : Except.error _ = Except.ok r := h; nomatch h'
-  · rename_i p heq
-    obtain ⟨hd, txs⟩ := p
-    -- Peel the leading `let __x ← pure (hd, txs)` bind, instantiate the
-    -- peeled witness with the decoded pair, and let the join-point lets
-    -- (`have __do_jp := fun __r => ...`, i.e. `letFun`) resolve.  With
-    -- `zeta := false` the CPS skeleton stays linear; one `letFun` pass
-    -- then expands it into the plain gate-`if` chain.
-    obtain ⟨w, hw, hcont⟩ := peelOk _ _ _ h
-    have hwe : w = (hd, txs) := (Except.ok.inj hw).symm
-    rw [hwe] at hcont
-    simp (config := { zeta := false }) only [] at hcont
-    simp only [letFun] at hcont
-    -- Each structural/header/merkle gate: on the error path the whole
-    -- do-block is one `throw`-bind (contradicting `= Except.ok r`); on the
-    -- pass path continue with the next gate.  `backward.split false` keeps
-    -- `split`'s internal simp neutral, which is essential on the big
-    -- expanded term.
-    split at hcont
-    · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-    · split at hcont
-      · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-      · split at hcont
-        · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-        · split at hcont
-          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-          · split at hcont
-            · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-            · split at hcont
-              · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-              · split at hcont
-                · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                · split at hcont
-                  · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                  · split at hcont
-                    · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                    · split at hcont
-                      · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                      · split at hcont
-                        · -- cGate error arm: inner anyWitness if; both
-                          -- arms are `do throw _; _` ≡ `Except.error _`
-                          split at hcont
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                        · split at hcont
-                          · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                          · split at hcont
-                            · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                            · split at hcont
-                              · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                              · split at hcont
-                                · have h' : Except.error _ = Except.ok r := hcont; nomatch h'
-                                · obtain ⟨q, hap, hfin⟩ := peelOk _ _ _ hcont
-                                  obtain ⟨utxo', okN, unjN⟩ := q
-                                  simp only [] at hfin
-                                  obtain ⟨rfl⟩ := Except.ok.inj hfin
-                                  exact ⟨hd, txs, utxo', okN, unjN, heq, hap, rfl⟩
+  obtain ⟨header, txs, utxo', okN, unjN, hdec, _, _, _, _, _, _, _, _, hfold,
+    hstate, _, _, _⟩ :=
+    BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_shape raw st r h
+  exact ⟨header, txs, utxo', okN, unjN, hdec, hfold, by simp only [hstate]⟩
 
 /-- **Bridge at the full pipeline (P15 item 4)**: a block that
 `validateBlock` accepts has its report UTXO list produced by the

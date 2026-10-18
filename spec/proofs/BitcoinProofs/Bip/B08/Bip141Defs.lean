@@ -49,25 +49,6 @@ def dispatchProgram (v : Nat) (prog : List Nat) : WitKind :=
     else .invalidV0Size
   else .future v
 
-/-- Core's `CastToBool` loop (interpreter.cpp:46-59), ported to the
-`List Nat` byte representation: scan from the least-significant (wire-
-first) byte; the first nonzero byte decides, except that a lone `0x80`
-in the most-significant (wire-last) position is negative zero and casts
-to false. This is `Bitcoin.Numeric.castToBool` on `bytesOf`, written as
-the literal Core loop so the B08 suite does not depend on the numeric
-module. -/
-def castToBool : List Nat → Bool
-  | [] => false
-  | b :: rest =>
-      if b != 0 then
-        if rest = [] ∧ b = 0x80 then false else true
-      else castToBool rest
-
-/-- BIP141 footnote (consensus): for any version byte 0..16 the script must
-fail if the witness program's `CastToBool` value is zero. -/
-def programMustFailCastToBool (v : Nat) (prog : List Nat) : Bool :=
-  decide (v ≤ 16) && !castToBool prog
-
 /-! ## C6/C7 — v0 witness stack shape clauses -/
 
 def MAX_SCRIPT_ELEMENT_SIZE : Nat := 520

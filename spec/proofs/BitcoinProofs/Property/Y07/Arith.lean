@@ -65,7 +65,7 @@ includes MINIMALDATA; the consensus-default record leaves it off). -/
 def minPol : PolicyFlags := { minimalData := true }
 
 /-- The corpus checker: frozen stub EC seam + default tx env. -/
-def tchk : ScriptChecker := ⟨stubChecker, default⟩
+def tchk : ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- EvalScript from an empty initial stack, base sigversion, 64 fuel.
 The scripts are ≤ 7 opcodes, well inside every budget. -/

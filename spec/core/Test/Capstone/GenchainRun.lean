@@ -10,7 +10,7 @@ import Bitcoin.Capstone.RealChecker
 
 Feeds a synthetic chain (G01's genchain corpus, or the G02 fallback 50-block
 coinbase-only chain) through the capstone pipeline
-`validateBlock : SerializedBlock → CapState → Except CapError CapReport`,
+`replayBlock : SerializedBlock → CapState → Except CapError CapReport`,
 **threading** the sequential state (height, prevHash, UTXO list) from block
 to block — unlike `Test.Capstone.Run`, which validates anchor blocks against
 materialized `.seeds` prevout views.
@@ -21,7 +21,7 @@ own header `hashPrevBlock` field, utxo = ∅}.
 
 Output (stdout): one `GBLOCK` line per block (per-block validate ms), a
 `PROBE` + `GDIAG` line per failure (first offending tx; per-gate verdicts
-over the public gate defs — validateBlock itself untouched), and a final
+over the public gate defs — replayBlock itself untouched), and a final
 `GSUMMARY` with wall clock. Exit 0 iff every block validated.
 
 Run: `lake env lean --run Test/Capstone/GenchainRun.lean`
@@ -88,7 +88,7 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
   let t0 ← IO.monoMsNow
   let decoded := decodeBlock raw
   let res :=
-    match validateBlock raw st with
+    match replayBlock raw st with
     | .error e => Sum.inl (CapError.reason e)
     | .ok rep =>
         let txsL : List Tx :=
@@ -112,7 +112,7 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
               (fun i => probeTx st.height (txs.getD i dummyTx) i st.utxo))
       IO.println s!"GBLOCK {idx} ok=false reason={reason} ms={t1 - t0} height={st.height.toNat}"
       IO.println s!"PROBE {idx}: {probe}"
-      -- per-gate diagnosis over the public gate defs (validateBlock untouched)
+      -- per-gate diagnosis over the public gate defs (replayBlock untouched)
       let diag :=
         match decoded with
         | .error e => s!"decode={repr e}"
@@ -126,8 +126,12 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
       IO.println s!"GDIAG {idx}: {diag}"
       pure (none, false, false, t1 - t0)
   | .inr (rep, agree) =>
-      IO.println s!"GBLOCK {idx} ok=true reason= ms={t1 - t0} txs={rep.txs} scriptOk={rep.scriptOk} scriptUnjudged={rep.scriptUnjudged} foldAgrees={agree} height→{rep.state.height.toNat} utxo={rep.state.utxo.length}"
-      pure (some rep.state, true, agree, t1 - t0)
+      let complete := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0
+      let ok := complete && agree
+      let reason := if !complete then "script-data-unavailable"
+        else if !agree then "ledger-fold-mismatch" else ""
+      IO.println s!"GBLOCK {idx} ok={ok} reason={reason} ms={t1 - t0} txs={rep.txs} scriptOk={rep.scriptOk} scriptUnjudged={rep.scriptUnjudged} scriptAdjudication={rep.scriptAdjudication.label} foldAgrees={agree} height→{rep.state.height.toNat} utxo={rep.state.utxo.length}"
+      pure (if ok then some rep.state else none, ok, agree, t1 - t0)
 
 def driverMain : IO Unit := do
   let path ← match (← IO.getEnv "GENCHAIN_HEX") with

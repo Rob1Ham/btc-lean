@@ -5,11 +5,11 @@
 # from the pre-OVRBACK generator state (report row | HAND_ROWS literal
 # + the hand OVERRIDES table). Merge precedence in extract_rules.py's
 # build_row(): this layer WINS over the hand table — it mirrors the
-# committed yaml = the curation record. 718 entries over
-# 726 rows; field census {'consensus': 1, 'core_ref': 83, 'difficulty': 1, 'lean_note': 155, 'lean_target': 619, 'notes': 216, 'notes_extra': 1, 'status': 642, 'summary': 59, 'test_vector_ids': 26}.
+# committed yaml = the curation record. 719 entries over
+# 726 rows; field census {'check': 11, 'consensus': 101, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 622, 'notes': 231, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 aee676918b2668ac01113cb4b0eb583c734e575dff142648e7fecf59895b0351
+#   726 rows, sha256 a58d0b48c198310edde87c0c4e429a186266f1b84d211e4f47b95c135eb465b1
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -18,8 +18,8 @@
 # A regen without this layer is the 04:35 clobber: extract_rules.py
 # refuses (see its docstring) unless --force.
 #
-# At generation time: 583 stale hand-table entries shadowed
-# (INV-001.status, INV-001.lean_target, INV-002.status, INV-002.lean_target, INV-003.status, INV-003.lean_target, INV-003.notes, INV-004.status, INV-004.lean_target, INV-005.status, INV-005.lean_target, INV-006.status, INV-006.lean_target, INV-007.status, INV-007.lean_target, INV-008.status, INV-008.lean_target, INV-009.status, INV-009.lean_target, INV-010.notes, INV-011.notes, INV-025.notes, INV-026.notes, INV-029.notes, INV-030.notes, INV-031.notes, INV-032.notes, INV-033.lean_target, INV-033.notes, INV-034.notes, INV-035.status, INV-035.lean_target, INV-035.notes, INV-036.lean_target, INV-036.notes, INV-037.status, INV-037.lean_target, INV-037.notes, INV-038.status, INV-038.lean_target, INV-038.notes, INV-039.lean_target, INV-039.notes, INV-040.status, INV-040.lean_target, INV-040.notes, INV-041.status, INV-041.lean_target, INV-041.notes, INV-042.status, INV-042.lean_target, INV-042.notes, INV-043.status, INV-043.lean_target, INV-043.notes, INV-044.status, INV-044.lean_target, INV-044.notes, INV-045.status, INV-045.lean_target, INV-045.notes, INV-046.status, INV-046.lean_target, INV-046.notes, INV-047.status, INV-047.lean_target, INV-047.notes, INV-048.status, INV-048.lean_target, INV-048.notes, INV-052.notes, INV-129.notes, INV-132.notes, SCR-001.status, SCR-001.lean_target, SCR-001.notes, SCR-002.status, SCR-002.lean_target, SCR-002.notes, SCR-003.status, SCR-003.lean_target, SCR-003.notes, SCR-004.status, SCR-004.lean_target, SCR-004.notes, SCR-005.status, SCR-005.lean_target, SCR-005.notes, SCR-006.status, SCR-006.lean_target, SCR-006.notes, SCR-007.status, SCR-007.lean_target, SCR-007.notes, SCR-008.status, SCR-008.lean_target, SCR-008.notes, SCR-010.status, SCR-010.notes, SCR-011.status, SCR-011.lean_target, SCR-011.notes, SCR-012.status, SCR-012.lean_target, SCR-012.notes, SCR-013.status, SCR-013.lean_target, SCR-013.notes, SCR-015.status, SCR-015.lean_target, SCR-015.notes, SCR-016.lean_target, SCR-016.notes, SCR-017.status, SCR-017.lean_target, SCR-017.notes, SCR-018.status, SCR-018.lean_target, SCR-018.notes, SCR-019.status, SCR-019.lean_target, SCR-019.notes, SCR-020.status, SCR-020.lean_target, SCR-020.notes, SCR-021.status, SCR-021.lean_target, SCR-021.notes, SCR-022.status, SCR-022.lean_target, SCR-022.notes, SCR-023.status, SCR-023.lean_target, SCR-023.notes, SCR-024.notes, SCR-025.status, SCR-025.lean_target, SCR-025.notes, SCR-026.status, SCR-026.lean_target, SCR-026.notes, SCR-027.status, SCR-027.lean_target, SCR-027.notes, SCR-028.status, SCR-028.lean_target, SCR-028.notes, SCR-029.lean_target, SCR-029.notes, SCR-030.notes, SCR-032.status, SCR-032.lean_target, SCR-032.notes, SCR-045.notes, SCR-046.status, SCR-046.notes, SCR-047.lean_target, SCR-047.notes, SCR-048.status, SCR-048.lean_target, SCR-048.notes, SCR-049.status, SCR-049.lean_target, SCR-049.notes, SCR-050.status, SCR-050.lean_target, SCR-050.notes, SCR-051.status, SCR-051.lean_target, SCR-051.notes, SCR-052.status, SCR-052.notes, SCR-053.status, SCR-053.notes, SCR-054.status, SCR-054.notes, SCR-055.status, SCR-055.notes, SCR-056.status, SCR-056.lean_target, SCR-056.notes, SCR-057.notes, SCR-058.status, SCR-058.lean_target, SCR-058.notes, SCR-059.status, SCR-059.lean_target, SCR-059.notes, SCR-060.status, SCR-060.lean_target, SCR-060.notes, SCR-061.status, SCR-061.lean_target, SCR-061.notes, SCR-062.status, SCR-062.notes, SCR-063.status, SCR-063.lean_target, SCR-063.notes, SCR-064.status, SCR-064.notes, SCR-065.status, SCR-065.lean_target, SCR-065.notes, SCR-066.status, SCR-066.lean_target, SCR-066.notes, SCR-067.status, SCR-067.lean_target, SCR-067.notes, SCR-068.status, SCR-068.lean_target, SCR-068.notes, SCR-069.status, SCR-069.lean_target, SCR-069.notes, SCR-071.status, SCR-071.lean_target, SCR-071.notes, SCR-072.status, SCR-072.lean_target, SCR-072.notes, SCR-073.status, SCR-073.lean_target, SCR-073.notes, SCR-074.status, SCR-074.lean_target, SCR-074.notes, SCR-075.status, SCR-075.lean_target, SCR-075.notes, SCR-076.status, SCR-076.lean_target, SCR-076.notes, SCR-077.status, SCR-077.lean_target, SCR-077.notes, SCR-078.status, SCR-078.lean_target, SCR-078.notes, SCR-079.lean_target, SCR-079.notes, SCR-080.lean_target, SCR-080.notes, SCR-081.status, SCR-081.lean_target, SCR-081.notes, SCR-082.notes, SCR-083.notes, SCR-084.lean_target, SCR-084.notes, SCR-085.lean_target, SCR-085.notes, SCR-086.notes, SCR-087.status, SCR-087.lean_target, SCR-087.notes, SCR-088.status, SCR-088.lean_target, SCR-088.notes, SCR-089.status, SCR-089.lean_target, SCR-089.notes, SCR-090.status, SCR-090.lean_target, SCR-090.notes, SCR-091.status, SCR-091.lean_target, SCR-091.notes, SCR-093.status, SCR-093.lean_target, SCR-093.notes, SCR-094.status, SCR-094.lean_target, SCR-094.notes, SCR-095.status, SCR-095.lean_target, SCR-095.notes, SCR-096.status, SCR-096.lean_target, SCR-096.notes, SCR-097.status, SCR-097.lean_target, SCR-097.notes, SCR-098.status, SCR-098.lean_target, SCR-098.notes, SCR-099.status, SCR-099.lean_target, SCR-099.notes, SCR-100.status, SCR-100.lean_target, SCR-100.notes, SCR-102.status, SCR-102.lean_target, SCR-102.notes, SCR-104.status, SCR-104.lean_target, SCR-104.notes, SCR-105.status, SCR-105.lean_target, SCR-105.notes, SCR-106.status, SCR-106.lean_target, SCR-106.notes, SCR-107.status, SCR-107.lean_target, SCR-107.notes, SCR-108.status, SCR-108.notes, SCR-109.status, SCR-109.lean_target, SCR-109.notes, SCR-110.status, SCR-110.lean_target, SCR-110.notes, SCR-112.status, SCR-112.lean_target, SCR-112.notes, SCR-113.status, SCR-113.lean_target, SCR-113.notes, SCR-114.status, SCR-114.lean_target, SCR-114.notes, SCR-115.status, SCR-115.lean_target, SCR-115.notes, SCR-116.status, SCR-116.lean_target, SCR-116.notes, SCR-117.status, SCR-117.lean_target, SCR-117.notes, SCR-118.status, SCR-118.lean_target, SCR-118.notes, SCR-119.status, SCR-119.lean_target, SCR-119.notes, SCR-120.status, SCR-120.lean_target, SCR-120.notes, SCR-121.status, SCR-121.lean_target, SCR-121.notes, SCR-122.status, SCR-122.lean_target, SCR-122.notes, SCR-123.status, SCR-123.lean_target, SCR-123.notes, SCR-124.status, SCR-124.lean_target, SCR-124.notes, SCR-125.status, SCR-125.lean_target, SCR-125.notes, SCR-126.status, SCR-126.lean_target, SCR-126.notes, SCR-127.status, SCR-127.lean_target, SCR-127.notes, SCR-129.status, SCR-129.lean_target, SCR-129.notes, SCR-130.status, SCR-130.lean_target, SCR-130.notes, SCR-131.status, SCR-131.lean_target, SCR-131.notes, SCR-133.status, SCR-133.lean_target, SCR-133.notes, SCR-134.status, SCR-134.lean_target, SCR-134.notes, SCR-135.status, SCR-135.lean_target, SCR-135.notes, SCR-136.status, SCR-136.lean_target, SCR-136.notes, SCR-137.status, SCR-137.notes, SCR-138.status, SCR-138.lean_target, SCR-138.notes, SCR-139.status, SCR-139.notes, SCR-143.status, SCR-143.lean_target, SCR-143.notes, SCR-145.status, SCR-145.lean_target, SCR-145.notes, SCR-150.status, SCR-150.lean_target, SCR-150.notes, SCR-151.status, SCR-151.lean_target, SCR-151.notes, SCR-152.status, SCR-152.lean_target, SCR-152.notes, SCR-153.status, SCR-153.lean_target, SCR-153.notes, SCR-154.status, SCR-154.lean_target, SCR-154.notes, SCR-155.status, SCR-155.lean_target, SCR-155.notes, SCR-156.status, SCR-156.lean_target, SCR-156.notes, SCR-157.status, SCR-157.lean_target, SCR-157.notes, SCR-159.status, SCR-159.lean_target, SCR-159.notes, SCR-160.status, SCR-160.lean_target, SCR-160.notes, SCR-170.status, SCR-170.lean_target, SCR-170.notes, SCR-171.status, SCR-171.lean_target, SCR-171.notes, SCR-174.status, SCR-174.lean_target, SCR-174.notes, TXV-001.status, TXV-001.lean_target, TXV-002.status, TXV-002.lean_target, TXV-003.status, TXV-003.lean_target, TXV-003.notes, TXV-004.status, TXV-004.lean_target, TXV-005.status, TXV-005.lean_target, TXV-006.status, TXV-006.lean_target, TXV-007.status, TXV-007.lean_target, TXV-008.status, TXV-008.lean_target, TXV-009.status, TXV-009.lean_target, TXV-010.status, TXV-017.status, TXV-017.lean_target, TXV-017.notes, TXV-018.status, TXV-018.lean_target, TXV-018.notes, TXV-019.lean_target, TXV-019.notes, TXV-020.status, TXV-020.notes, TXV-021.status, TXV-021.lean_target, TXV-021.notes, TXV-022.lean_target, TXV-022.notes, TXV-023.status, TXV-023.lean_target, TXV-023.notes, TXV-024.lean_target, TXV-024.notes, TXV-025.notes, TXV-028.lean_target, TXV-028.notes, TXV-031.status, TXV-031.lean_target, TXV-031.notes, TXV-032.status, TXV-032.lean_target, TXV-032.notes, TXV-034.status, TXV-034.notes, TXV-035.lean_target, TXV-035.notes, TXV-036.lean_target, TXV-036.notes, TXV-037.lean_target, TXV-037.notes, TXV-038.lean_target, TXV-038.notes, TXV-039.notes, TXV-040.status, TXV-040.lean_target, TXV-040.notes, TXV-041.status, TXV-041.lean_target, TXV-041.notes, TXV-042.status, TXV-042.lean_target, TXV-042.notes, TXV-067.lean_target, TXV-067.notes, TXV-068.notes, TXV-070.lean_target, TXV-070.notes, TXV-071.status, TXV-071.lean_target, TXV-071.notes, TXV-072.status, TXV-072.lean_target, TXV-072.notes, TXV-074.notes, BLK-072.notes, BLK-073.status, BLK-073.lean_target, BLK-074.lean_target, BLK-075.lean_target, BLK-076.lean_target, BLK-077.notes, BLK-078.lean_target, BLK-079.lean_target, BLK-079.notes, BLK-080.lean_target, BLK-081.status, BLK-081.lean_target, BLK-081.notes, BLK-084.notes, BLK-085.lean_target, BLK-088.lean_target, BLK-088.notes, BLK-090.lean_target, BLK-090.notes, SWT-011.lean_target, SWT-011.notes, SWT-018.status, SWT-018.lean_target, SWT-018.notes, SWT-019.lean_target, SWT-019.notes, SWT-021.notes, SWT-053.notes, SWT-054.notes, SWT-055.notes, TPR-019.notes, TPR-020.notes, TPR-021.notes, TPR-023.notes, TPR-024.notes, TPR-025.notes, TPR-026.notes, TPR-027.status, TPR-027.lean_target, TPR-027.notes, TPR-028.notes, TPR-029.notes, TPR-031.notes, TPR-072.lean_target, TPR-072.notes, SCR-183.lean_target, SCR-183.notes, SCR-175.status, SCR-175.lean_target, SCR-175.notes, SCR-176.status, SCR-176.lean_target, SCR-177.status, SCR-177.lean_target, SCR-178.status, SCR-178.lean_target, SCR-179.status, SCR-179.lean_target, SCR-180.status, SCR-180.lean_target, SCR-181.status, SCR-181.lean_target, SCR-182.status, SCR-182.lean_target);
+# At generation time: 586 stale hand-table entries shadowed
+# (INV-001.status, INV-001.lean_target, INV-002.status, INV-002.lean_target, INV-003.status, INV-003.lean_target, INV-003.notes, INV-004.status, INV-004.lean_target, INV-005.status, INV-005.lean_target, INV-006.status, INV-006.lean_target, INV-007.status, INV-007.lean_target, INV-008.status, INV-008.lean_target, INV-009.status, INV-009.lean_target, INV-010.notes, INV-011.notes, INV-025.notes, INV-026.notes, INV-029.notes, INV-030.notes, INV-031.notes, INV-032.notes, INV-033.lean_target, INV-033.notes, INV-034.notes, INV-035.status, INV-035.lean_target, INV-035.notes, INV-036.lean_target, INV-036.notes, INV-037.status, INV-037.lean_target, INV-037.notes, INV-038.status, INV-038.lean_target, INV-038.notes, INV-039.lean_target, INV-039.notes, INV-040.status, INV-040.lean_target, INV-040.notes, INV-041.status, INV-041.lean_target, INV-041.notes, INV-042.status, INV-042.lean_target, INV-042.notes, INV-043.status, INV-043.lean_target, INV-043.notes, INV-044.status, INV-044.lean_target, INV-044.notes, INV-045.status, INV-045.lean_target, INV-045.notes, INV-046.status, INV-046.lean_target, INV-046.notes, INV-047.status, INV-047.lean_target, INV-047.notes, INV-048.status, INV-048.lean_target, INV-048.notes, INV-052.notes, INV-129.notes, INV-132.notes, SCR-001.status, SCR-001.lean_target, SCR-001.notes, SCR-002.status, SCR-002.lean_target, SCR-002.notes, SCR-003.status, SCR-003.lean_target, SCR-003.notes, SCR-004.status, SCR-004.lean_target, SCR-004.notes, SCR-005.status, SCR-005.lean_target, SCR-005.notes, SCR-006.status, SCR-006.lean_target, SCR-006.notes, SCR-007.status, SCR-007.lean_target, SCR-007.notes, SCR-008.status, SCR-008.lean_target, SCR-008.notes, SCR-010.status, SCR-010.notes, SCR-011.status, SCR-011.lean_target, SCR-011.notes, SCR-012.status, SCR-012.lean_target, SCR-012.notes, SCR-013.status, SCR-013.lean_target, SCR-013.notes, SCR-015.status, SCR-015.lean_target, SCR-015.notes, SCR-016.lean_target, SCR-016.notes, SCR-017.status, SCR-017.lean_target, SCR-017.notes, SCR-018.status, SCR-018.lean_target, SCR-018.notes, SCR-019.status, SCR-019.lean_target, SCR-019.notes, SCR-020.status, SCR-020.lean_target, SCR-020.notes, SCR-021.status, SCR-021.lean_target, SCR-021.notes, SCR-022.status, SCR-022.lean_target, SCR-022.notes, SCR-023.status, SCR-023.lean_target, SCR-023.notes, SCR-024.notes, SCR-025.status, SCR-025.lean_target, SCR-025.notes, SCR-026.status, SCR-026.lean_target, SCR-026.notes, SCR-027.status, SCR-027.lean_target, SCR-027.notes, SCR-028.status, SCR-028.lean_target, SCR-028.notes, SCR-029.lean_target, SCR-029.notes, SCR-030.notes, SCR-032.status, SCR-032.lean_target, SCR-032.notes, SCR-045.notes, SCR-046.status, SCR-046.notes, SCR-047.lean_target, SCR-047.notes, SCR-048.status, SCR-048.lean_target, SCR-048.notes, SCR-049.status, SCR-049.lean_target, SCR-049.notes, SCR-050.status, SCR-050.lean_target, SCR-050.notes, SCR-051.status, SCR-051.lean_target, SCR-051.notes, SCR-052.status, SCR-052.notes, SCR-053.status, SCR-053.notes, SCR-054.status, SCR-054.notes, SCR-055.status, SCR-055.notes, SCR-056.status, SCR-056.lean_target, SCR-056.notes, SCR-057.notes, SCR-058.status, SCR-058.lean_target, SCR-058.notes, SCR-059.status, SCR-059.lean_target, SCR-059.notes, SCR-060.status, SCR-060.lean_target, SCR-060.notes, SCR-061.status, SCR-061.lean_target, SCR-061.notes, SCR-062.status, SCR-062.notes, SCR-063.status, SCR-063.lean_target, SCR-063.notes, SCR-064.status, SCR-064.notes, SCR-065.status, SCR-065.lean_target, SCR-065.notes, SCR-066.status, SCR-066.lean_target, SCR-066.notes, SCR-067.status, SCR-067.lean_target, SCR-067.notes, SCR-068.status, SCR-068.lean_target, SCR-068.notes, SCR-069.status, SCR-069.lean_target, SCR-069.notes, SCR-071.status, SCR-071.lean_target, SCR-071.notes, SCR-072.status, SCR-072.lean_target, SCR-072.notes, SCR-073.status, SCR-073.lean_target, SCR-073.notes, SCR-074.status, SCR-074.lean_target, SCR-074.notes, SCR-075.status, SCR-075.lean_target, SCR-075.notes, SCR-076.status, SCR-076.lean_target, SCR-076.notes, SCR-077.status, SCR-077.lean_target, SCR-077.notes, SCR-078.status, SCR-078.lean_target, SCR-078.notes, SCR-079.lean_target, SCR-079.notes, SCR-080.lean_target, SCR-080.notes, SCR-081.status, SCR-081.lean_target, SCR-081.notes, SCR-082.notes, SCR-083.notes, SCR-084.lean_target, SCR-084.notes, SCR-085.lean_target, SCR-085.notes, SCR-086.notes, SCR-087.status, SCR-087.lean_target, SCR-087.notes, SCR-088.status, SCR-088.lean_target, SCR-088.notes, SCR-089.status, SCR-089.lean_target, SCR-089.notes, SCR-090.status, SCR-090.lean_target, SCR-090.notes, SCR-091.status, SCR-091.lean_target, SCR-091.notes, SCR-093.status, SCR-093.lean_target, SCR-093.notes, SCR-094.status, SCR-094.lean_target, SCR-094.notes, SCR-095.status, SCR-095.lean_target, SCR-095.notes, SCR-096.status, SCR-096.lean_target, SCR-096.notes, SCR-097.status, SCR-097.lean_target, SCR-097.notes, SCR-098.status, SCR-098.lean_target, SCR-098.notes, SCR-099.status, SCR-099.lean_target, SCR-099.notes, SCR-100.status, SCR-100.lean_target, SCR-100.notes, SCR-102.status, SCR-102.lean_target, SCR-102.notes, SCR-104.status, SCR-104.lean_target, SCR-104.notes, SCR-105.status, SCR-105.lean_target, SCR-105.notes, SCR-106.status, SCR-106.lean_target, SCR-106.notes, SCR-107.status, SCR-107.lean_target, SCR-107.notes, SCR-108.status, SCR-108.notes, SCR-109.status, SCR-109.lean_target, SCR-109.notes, SCR-110.status, SCR-110.lean_target, SCR-110.notes, SCR-112.status, SCR-112.lean_target, SCR-112.notes, SCR-113.status, SCR-113.lean_target, SCR-113.notes, SCR-114.status, SCR-114.lean_target, SCR-114.notes, SCR-115.status, SCR-115.lean_target, SCR-115.notes, SCR-116.status, SCR-116.lean_target, SCR-116.notes, SCR-117.status, SCR-117.lean_target, SCR-117.notes, SCR-118.status, SCR-118.lean_target, SCR-118.notes, SCR-119.status, SCR-119.lean_target, SCR-119.notes, SCR-120.status, SCR-120.lean_target, SCR-120.notes, SCR-121.status, SCR-121.lean_target, SCR-121.notes, SCR-122.status, SCR-122.lean_target, SCR-122.notes, SCR-123.status, SCR-123.lean_target, SCR-123.notes, SCR-124.status, SCR-124.lean_target, SCR-124.notes, SCR-125.status, SCR-125.lean_target, SCR-125.notes, SCR-126.status, SCR-126.lean_target, SCR-126.notes, SCR-127.status, SCR-127.lean_target, SCR-127.notes, SCR-129.status, SCR-129.lean_target, SCR-129.notes, SCR-130.status, SCR-130.lean_target, SCR-130.notes, SCR-131.status, SCR-131.lean_target, SCR-131.notes, SCR-133.status, SCR-133.lean_target, SCR-133.notes, SCR-134.status, SCR-134.lean_target, SCR-134.notes, SCR-135.status, SCR-135.lean_target, SCR-135.notes, SCR-136.status, SCR-136.lean_target, SCR-136.notes, SCR-137.status, SCR-137.notes, SCR-138.status, SCR-138.lean_target, SCR-138.notes, SCR-139.status, SCR-139.notes, SCR-143.status, SCR-143.lean_target, SCR-143.notes, SCR-145.status, SCR-145.lean_target, SCR-145.notes, SCR-150.status, SCR-150.lean_target, SCR-150.notes, SCR-151.status, SCR-151.lean_target, SCR-151.notes, SCR-152.status, SCR-152.lean_target, SCR-152.notes, SCR-153.status, SCR-153.lean_target, SCR-153.notes, SCR-154.status, SCR-154.lean_target, SCR-154.notes, SCR-155.status, SCR-155.lean_target, SCR-155.notes, SCR-156.status, SCR-156.lean_target, SCR-156.notes, SCR-157.status, SCR-157.lean_target, SCR-157.notes, SCR-159.status, SCR-159.lean_target, SCR-159.notes, SCR-160.status, SCR-160.lean_target, SCR-160.notes, SCR-170.status, SCR-170.lean_target, SCR-170.notes, SCR-171.status, SCR-171.lean_target, SCR-171.notes, SCR-174.status, SCR-174.lean_target, SCR-174.notes, TXV-001.status, TXV-001.lean_target, TXV-002.status, TXV-002.lean_target, TXV-003.status, TXV-003.lean_target, TXV-003.notes, TXV-004.status, TXV-004.lean_target, TXV-005.status, TXV-005.lean_target, TXV-006.status, TXV-006.lean_target, TXV-007.status, TXV-007.lean_target, TXV-008.status, TXV-008.lean_target, TXV-009.status, TXV-009.lean_target, TXV-010.status, TXV-017.status, TXV-017.lean_target, TXV-017.notes, TXV-018.status, TXV-018.lean_target, TXV-018.notes, TXV-019.lean_target, TXV-019.notes, TXV-020.status, TXV-020.notes, TXV-021.status, TXV-021.lean_target, TXV-021.notes, TXV-022.lean_target, TXV-022.notes, TXV-023.status, TXV-023.lean_target, TXV-023.notes, TXV-024.lean_target, TXV-024.notes, TXV-025.notes, TXV-028.lean_target, TXV-028.notes, TXV-031.status, TXV-031.lean_target, TXV-031.notes, TXV-032.status, TXV-032.lean_target, TXV-032.notes, TXV-034.status, TXV-034.notes, TXV-035.lean_target, TXV-035.notes, TXV-036.lean_target, TXV-036.notes, TXV-037.lean_target, TXV-037.notes, TXV-038.lean_target, TXV-038.notes, TXV-039.notes, TXV-040.status, TXV-040.lean_target, TXV-040.notes, TXV-041.status, TXV-041.lean_target, TXV-041.notes, TXV-042.status, TXV-042.lean_target, TXV-042.notes, TXV-067.lean_target, TXV-067.notes, TXV-068.notes, TXV-070.lean_target, TXV-070.notes, TXV-071.status, TXV-071.lean_target, TXV-071.notes, TXV-072.status, TXV-072.lean_target, TXV-072.notes, TXV-074.notes, BLK-072.notes, BLK-073.status, BLK-073.lean_target, BLK-074.lean_target, BLK-075.lean_target, BLK-076.lean_target, BLK-077.notes, BLK-078.lean_target, BLK-079.lean_target, BLK-079.notes, BLK-080.lean_target, BLK-081.status, BLK-081.lean_target, BLK-081.notes, BLK-083.lean_target, BLK-084.lean_target, BLK-084.notes, BLK-085.lean_target, BLK-088.lean_target, BLK-088.notes, BLK-090.lean_target, BLK-090.notes, SWT-011.lean_target, SWT-011.notes, SWT-018.status, SWT-018.lean_target, SWT-018.notes, SWT-019.lean_target, SWT-019.notes, SWT-021.lean_target, SWT-021.notes, SWT-053.notes, SWT-054.notes, SWT-055.notes, TPR-019.notes, TPR-020.notes, TPR-021.notes, TPR-023.notes, TPR-024.notes, TPR-025.notes, TPR-026.notes, TPR-027.status, TPR-027.lean_target, TPR-027.notes, TPR-028.notes, TPR-029.notes, TPR-031.notes, TPR-072.lean_target, TPR-072.notes, SCR-183.lean_target, SCR-183.notes, SCR-175.status, SCR-175.lean_target, SCR-175.notes, SCR-176.status, SCR-176.lean_target, SCR-177.status, SCR-177.lean_target, SCR-178.status, SCR-178.lean_target, SCR-179.status, SCR-179.lean_target, SCR-180.status, SCR-180.lean_target, SCR-181.status, SCR-181.lean_target, SCR-182.status, SCR-182.lean_target);
 # hand table is historical/advisory since OVRBACK.
 
 OVERRIDES_SYNC = {
@@ -203,12 +203,12 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'INV-039': {
-        'lean_target': 'Bitcoin.Interpreter.SigOps.blockSigOpCost_eq_sum, Bitcoin.Interpreter.SigOps.blockSigOpCost_gate',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget',
         'lean_note': None,
         'notes': None,
     },
     'INV-040': {
-        'lean_target': 'BitcoinProofs.AF.PDW74.legacySigOpBudgetOk_iff',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget',
         'status': 'proven',
         'lean_note': None,
         'notes': None,
@@ -246,6 +246,7 @@ OVERRIDES_SYNC = {
     'INV-046': {
         'lean_target': 'BitcoinProofs.AF.PDW81.checkMinimalPush_iff',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
         'notes': None,
     },
@@ -274,6 +275,7 @@ OVERRIDES_SYNC = {
     'INV-051': {
         'lean_target': 'BitcoinProofs.AF.PDW18.cmsCleanup_nullFail_fires, BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_nullfail',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-052': {
@@ -283,16 +285,23 @@ OVERRIDES_SYNC = {
     'INV-053': {
         'lean_target': 'BitcoinProofs.AF.PDW81.checkLowS_iff',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-054': {
+        'summary': 'tapscript x-only pubkey size rules: a zero-length pubkey fails, a 32-byte pubkey takes the Schnorr lane, and any other non-empty size succeeds as an upgradable pubkey type. The legacy STRICTENC/WITNESS_PUBKEYTYPE encoding check is policy (SCR-106) and does not abort a block.',
+        'check': 'tapscript x-only pubkey size rules',
         'lean_target': 'BitcoinProofs.AF.PDW81.checkPubKeyEncoding_none_iff, BitcoinProofs.AF.PDW91.evalChecksigTapscript_pubkey_size_rules',
         'status': 'proven',
+        'notes': 'The cited CheckPubKeyEncoding theorem is the policy characterization; the consensus x-only size rule is also carried on SCR-158 and SCR-159.',
         'lean_note': None,
     },
     'INV-055': {
+        'summary': 'tapscript signature hashtypes are 0x00..0x03 and 0x81..0x83. The legacy defined-hashtype requirement (ALL/NONE/SINGLE with optional ANYONECANPAY) is the STRICTENC policy check (SCR-105) and does not reject a legacy signature in a block.',
+        'check': 'tapscript hashtype validity',
         'lean_target': 'Bitcoin.SigHash.isDefinedHashtype_iff_defined_set, Bitcoin.SigHash.htBase_cover',
         'status': 'proven',
+        'notes': 'The cited defined-set theorem is the STRICTENC policy characterization; tapscript hashtype validity is carried on SCR-163.',
         'lean_note': None,
     },
     'INV-056': {
@@ -307,11 +316,15 @@ OVERRIDES_SYNC = {
         'lean_note': None,
     },
     'INV-058': {
+        'summary': 'CScriptNum width cap: an operand longer than 4 bytes, or longer than 5 bytes for OP_CHECKLOCKTIMEVERIFY and OP_CHECKSEQUENCEVERIFY, is a consensus failure. The minimal-padding test (BIP62 rule 4) is SCRIPT_VERIFY_MINIMALDATA policy (SCR-050/SCR-051) and does not reject a padded operand inside the width cap.',
+        'check': 'CScriptNum width: 4 bytes (5 for CLTV/CSV)',
         'lean_target': 'BitcoinProofs.AF.PDW93.decodeNum_width_four, BitcoinProofs.AF.PDW93.decodeNum_width_five, BitcoinProofs.AF.PDW93.checksigAddStep_num_width_four, BitcoinProofs.AF.PDW93.stepBody_cltv_operand_width_five, BitcoinProofs.AF.PDW93.stepBody_csv_operand_width_five, BitcoinProofs.AF.PDW93.stepBody_opAdd_operand_width_four',
         'status': 'proven',
         'lean_note': None,
     },
     'INV-059': {
+        'summary': 'tapscript MINIMALIF: the IF/NOTIF argument must be either the empty vector or exactly 0x01. Witness-v0 MINIMALIF is policy (SCR-059), so a non-minimal v0 IF operand does not reject a block.',
+        'check': 'tapscript MINIMALIF ([] or 0x01)',
         'lean_target': 'BitcoinProofs.AF.PDW88.stepBody_tapscript_minimalif_reject, BitcoinProofs.AF.PDW96.stepBody_minimalif_witnessv0',
         'status': 'proven',
         'lean_note': None,
@@ -344,6 +357,7 @@ OVERRIDES_SYNC = {
     'INV-065': {
         'lean_target': 'BitcoinProofs.AF.PDW62b.verifyScriptFull_sigPushOnly_nonpush_fail',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-066': {
@@ -388,9 +402,12 @@ OVERRIDES_SYNC = {
         'lean_note': None,
     },
     'INV-074': {
+        'summary': 'tapscript leaf version 0xc0 selects the tapscript execution path; any other leaf version succeeds in a block. DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is policy (TPR-021), so the discouragement does not turn unknown-version success into a block reject.',
+        'check': 'tapscript leaf version 0xc0; unknown versions succeed',
         'core_ref': 'src/script/interpreter.cpp:1988-1998@cce32b168',
         'lean_target': 'BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_c0, BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_unknown_discouraged, BitcoinProofs.AF.PDW42B.tapscriptLeafDispatch_unknown_ok',
         'status': 'proven',
+        'notes': 'The cited unknown-version-discouraged theorem is the policy arm; block validation leaves the discourage flag off and accepts unknown leaf versions.',
         'lean_note': None,
     },
     'INV-075': {
@@ -401,6 +418,7 @@ OVERRIDES_SYNC = {
     'INV-076': {
         'core_ref': 'src/script/interpreter.cpp:2110-2118@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-077': {
@@ -417,26 +435,32 @@ OVERRIDES_SYNC = {
     },
     'INV-079': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-080': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-081': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-082': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-083': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-084': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-085': {
@@ -447,10 +471,12 @@ OVERRIDES_SYNC = {
     'INV-086': {
         'lean_target': 'BitcoinProofs.AF.PDW70.signetBlockOk_param_gate_row, BitcoinProofs.AF.PDW70.signetBlockOk_skip_row, BitcoinProofs.AF.PDW70.signetBlockOk_gate_row',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-087': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-088': {
@@ -517,6 +543,7 @@ OVERRIDES_SYNC = {
     'INV-100': {
         'lean_target': 'BitcoinProofs.AF.PDW3.timewarpOk_reject',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-101': {
@@ -607,6 +634,7 @@ OVERRIDES_SYNC = {
     'INV-118': {
         'lean_target': 'BitcoinProofs.AF.PDW21.sentinel_ne_real_height',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-119': {
@@ -700,6 +728,7 @@ OVERRIDES_SYNC = {
     },
     'INV-137': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-138': {
@@ -710,6 +739,7 @@ OVERRIDES_SYNC = {
     'INV-139': {
         'lean_target': 'BitcoinProofs.AF.PDW66.calculateNextWorkRequired_noRetarget, BitcoinProofs.AF.PDW66.calculateNextWorkRequired_bip94_lastBits_irrel',
         'status': 'proven',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-140': {
@@ -718,8 +748,11 @@ OVERRIDES_SYNC = {
         'lean_note': None,
     },
     'INV-141': {
+        'summary': 'GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 for a nonzero decode; it returns 0 only when SetCompact flags the compact as negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. It does not clamp targets above powLimit; target <= powLimit is a separate header-validity rule (BLK-038/BLK-040).',
+        'check': 'GetBlockProof from compact nBits',
         'lean_target': 'BitcoinProofs.AF.PDW24.workOf_pos_of_inRange',
         'status': 'proven',
+        'notes': 'Residual: the local `workOf` currently zero-checks only the decoded target, so negative and overflow compact encodings still receive positive work; the cited `workOf_pos_of_inRange` proves only the nonzero-decode direction. The missing sign and overflow gate remains an open proof obligation.',
         'lean_note': None,
     },
     'INV-142': {
@@ -745,11 +778,14 @@ OVERRIDES_SYNC = {
     },
     'INV-146': {
         'status': 'obsolete',
+        'consensus': False,
         'lean_note': None,
     },
     'INV-147': {
         'lean_target': 'BitcoinProofs.AF.PDW49.minChainWorkOk_iff',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'Audit: INV-147 not consensus; summary itself says anti-DoS.',
         'lean_note': None,
     },
     'INV-148': {
@@ -888,14 +924,18 @@ OVERRIDES_SYNC = {
     'SCR-008': {
         'lean_target': 'BitcoinProofs.AF.PDW90.verifyScriptFull_cleanstack_fails',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-009': {
         'lean_target': 'BitcoinProofs.AF.PDW33.flagsComboOk_consensus_row',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'Witness and tapscript clean-stack remain consensus on SWT-012 and SCR-183.',
     },
     'SCR-010': {
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-011': {
@@ -918,7 +958,9 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-015': {
-        'lean_target': 'BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq',
+        'summary': 'Away from named hash exceptions, P2SH/WITNESS/TAPROOT are enabled; DERSIG/CLTV/CSV/NULLDUMMY are added at buried heights. Scripts and costs use actual candidate flags.',
+        'core_ref': 'src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168',
+        'lean_target': 'BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags',
         'status': 'proven',
         'notes': None,
     },
@@ -1004,13 +1046,14 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-033': {
-        'lean_target': 'BitcoinProofs.AF.PDW36.sigOpCount_eq',
+        'summary': 'accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site',
+        'lean_target': 'BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig',
         'status': 'proven',
     },
     'SCR-034': {
-        'summary': "for a push-only scriptSig (every opcode ≤ OP_16), the last push is the redeem script and its accurate sigops are counted; a non-push scriptSig needs Core's all-ops `> OP_16 ⇒ 0` guard, which the current `p2shSigOpCount` model does not implement (explicit residual)",
+        'summary': "malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately",
         'core_ref': 'script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly',
+        'lean_target': 'BitcoinProofs.AF.PDW36.p2shSigOpCount_malformed, BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush, BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly',
         'status': 'proven',
     },
     'SCR-035': {
@@ -1026,6 +1069,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-038': {
+        'summary': 'cumulative block sigop cost <= MAX_BLOCK_SIGOPS_COST (80,000)',
         'core_ref': 'src/consensus/consensus.h:17; src/validation.cpp:2566-2569@cce32b168',
         'lean_target': 'BitcoinProofs.AF.PDW33.blockSigOpsCostOk_iff',
         'status': 'proven',
@@ -1033,10 +1077,13 @@ OVERRIDES_SYNC = {
     'SCR-039': {
         'lean_target': 'BitcoinProofs.AF.PDW74.MAX_STANDARD_TX_SIGOPS_COST_eq',
         'status': 'proven',
+        'consensus': False,
     },
     'SCR-040': {
-        'lean_target': 'Bitcoin.Interpreter.Defs.executeWitnessScript',
+        'summary': 'budget = serialized witness stack size (including the CompactSize item count) + 50 WU',
+        'lean_target': 'BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed',
         'status': 'proven',
+        'notes': ' R06: live interpreter aliases the count-prefixed full witness size. Kernel encoder/seed bridge and exact150byte200WUfour-signature public regression pass; original count-prefix omission is fixed. Exact live-execution theorem shows EvalScript receives the full encoder length +50 while caller annex/tapleaf data is preserved, under the actual early size/success gates.',
     },
     'SCR-041': {
         'lean_target': 'Bitcoin.Interpreter.Defs.evalChecksigTapscript',
@@ -1070,16 +1117,19 @@ OVERRIDES_SYNC = {
     'SCR-048': {
         'lean_target': 'BitcoinProofs.AF.PDW98.stepBody_pushBytes_nonminimal',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-049': {
         'lean_target': 'BitcoinProofs.AF.PDW98.stepBody_pushBytes_unexec_ok',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-050': {
         'lean_target': 'BitcoinProofs.AF.PDW80.scr050_minimal_reject, BitcoinProofs.AF.PDW80.minimalOkBE_reverse_iff, BitcoinProofs.AF.PDW80.scr050_minimal_iff',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-051': {
@@ -1121,6 +1171,7 @@ OVERRIDES_SYNC = {
     'SCR-059': {
         'lean_target': 'BitcoinProofs.AF.PDW89.stepBody_minimalif_witnessv0, BitcoinProofs.AF.PDW72.scr056_if_witnessV0_minimalIf_ok, BitcoinProofs.AF.PDW72.scr056_notif_witnessV0_minimalIf_ok, BitcoinProofs.AF.PDW98.stepBody_if_v0_nonminimal_policy_off',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-060': {
@@ -1176,9 +1227,11 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-071': {
+        'summary': 'OP_NOP1 and OP_NOP4..OP_NOP10 are no-ops and succeed in a block',
+        'check': 'OP_NOP1, OP_NOP4..OP_NOP10',
         'lean_target': 'BitcoinProofs.AF.PDW69.nopClass_discourage_row',
         'status': 'proven',
-        'notes': None,
+        'notes': 'DISCOURAGE_UPGRADABLE_NOPS is a policy flag and is not a block-consensus reject; there is no separate census row for it.',
     },
     'SCR-072': {
         'lean_target': 'BitcoinProofs.AF.PDW73.stepBody_cltv_csv_noflag_nop',
@@ -1306,6 +1359,7 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'SCR-098': {
+        'summary': 'byte-level removal of each matched serialized sig push from scriptCode, continuing after the match',
         'lean_target': 'BitcoinProofs.AF.PDW83.findAndDelete_empty_needle',
         'status': 'proven',
         'notes': None,
@@ -1313,11 +1367,13 @@ OVERRIDES_SYNC = {
     'SCR-099': {
         'lean_target': 'BitcoinProofs.AF.PDW83.evalChecksigPreTapscript_constScriptCode_row',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-100': {
         'lean_target': 'BitcoinProofs.Theorems.Ops.O07.step_codesep_const_dead',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-101': {
@@ -1337,21 +1393,25 @@ OVERRIDES_SYNC = {
     'SCR-104': {
         'lean_target': 'BitcoinProofs.AF.PDW89c.checkLowS_row',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-105': {
         'lean_target': 'BitcoinProofs.AF.PDW81.isDefinedHashtype_iff',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-106': {
         'lean_target': 'BitcoinProofs.AF.PDW68x.pubkey_strictenc_reject',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-107': {
         'lean_target': 'BitcoinProofs.AF.PDW68x.witness_pubkeytype_reject',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-108': {
@@ -1366,6 +1426,7 @@ OVERRIDES_SYNC = {
     'SCR-110': {
         'lean_target': 'BitcoinProofs.AF.PDW87.evalChecksigPreTapscript_nullfail',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'SCR-111': {
@@ -1373,11 +1434,12 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-112': {
-        'summary': 'invalid CPubKey => the script aborts with the pubkey-encoding error (a script failure, not a false check verdict); the proved theorem covers sv ≠ BASE, so the BASE arm (with its FindAndDelete/CONST_SCRIPTCODE side condition) remains uncovered',
+        'summary': 'an invalid pubkey makes CHECKSIG push false and continue in a block; the pubkey-encoding abort is policy (STRICTENC on SCR-106, WITNESS_PUBKEYTYPE on SCR-107), and tapscript x-only size rules stay on SCR-158/SCR-159',
+        'check': 'Pubkey validity (false verdict under block flags)',
         'core_ref': 'interpreter.cpp:1704-1706@cce32b168 (CheckPubKeyEncoding interpreter.cpp:228-237)',
         'lean_target': 'BitcoinProofs.AF.PDW62b.evalChecksigPreTapscript_pk_invalid',
         'status': 'proven',
-        'notes': None,
+        'notes': "The cited `evalChecksigPreTapscript_pk_invalid` theorem is the policy-gate arm; it fires only when a policy flag is set. Under block flags the gate does not fire and CHECKSIG's false verdict is the consensus behavior.",
     },
     'SCR-113': {
         'core_ref': 'src/script/interpreter.cpp:460-464@cce32b168',
@@ -1520,57 +1582,74 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SCR-142': {
+        'summary': 'TAPROOT gate: with the flag, a v1-32 non-P2SH spend is not anyone-can-spend; without the flag it succeeds silently only pre-activation (height 709632, except block 692261)',
         'lean_target': 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_taproot_gate_silent_ok',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-143': {
         'lean_target': 'BitcoinProofs.AF.PDW82c.verifyWitnessProgram_annex_general',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-144': {
+        'summary': 'Key path: exactly one item is a BIP340 signature checked against the 32-byte output key',
         'lean_target': 'BitcoinProofs.AF.PDW19.verifyWitnessProgram_keypath',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-145': {
         'lean_target': 'BitcoinProofs.AF.PDW83.verifyWitnessProgram_taproot_control_bad',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-146': {
         'lean_target': 'BitcoinProofs.AF.PDW58.tapLeafHash_preimage_row, BitcoinProofs.AF.PDW58.tapLeafHash_size_row',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-147': {
+        'summary': '32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key',
+        'check': 'Tap tweak commitment and output-key program binding',
         'lean_target': 'Bitcoin.Interpreter.taprootCommitment_iff, Bitcoin.Interpreter.tweakPoint_determined',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-148': {
         'lean_target': 'BitcoinProofs.AF.PDW67.verifyTaprootLeafDispatch_c0_row',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-149': {
+        'summary': 'Unknown leaf versions succeed (upgradable); the DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM flag is policy',
         'lean_target': 'BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_ok_face, BitcoinProofs.AF.PDW19.verifyTaprootLeafDispatch_upgradable_discourage_face',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-150': {
         'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_anchor_ok',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-151': {
         'lean_target': 'BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_ok, BitcoinProofs.AF.PDW59.verifyWitnessProgram_future_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_wrong_size_discourage, BitcoinProofs.AF.PDW59.verifyWitnessProgram_v1_p2sh_discourage, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok_iff, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_ok, BitcoinProofs.AF.PDW19.verifyWitnessProgram_upgradable_leaf_discourage',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-152': {
         'lean_target': 'Bitcoin.Interpreter.isOpSuccessWire, BitcoinProofs.AF.PDW93.isOpSuccessWire_iff',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-153': {
         'lean_target': 'BitcoinProofs.AF.PDW82b.executeWitnessScript_opSuccess_ok',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-154': {
@@ -1582,11 +1661,13 @@ OVERRIDES_SYNC = {
         'summary': 'the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_V0 an over-budget counting opcode instead returns OP_COUNT',
         'lean_target': 'BitcoinProofs.AF.PDW91.stepBody_nop_tapscript_overbudget, BitcoinProofs.AF.PDW80.scr022_budget_exceeded',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-156': {
         'lean_target': 'Bitcoin.Script.Tapscript.checksigadd_stepBody_tapscript, Bitcoin.Script.Tapscript.checksigadd_stepBody_tapscript_stack_effect, Bitcoin.Script.Tapscript.checksigadd_outside_tapscript_versions',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-157': {
@@ -1597,68 +1678,86 @@ OVERRIDES_SYNC = {
     'SCR-158': {
         'lean_target': 'BitcoinProofs.AF.PDW90b.evalChecksigTapscript_empty_pubkey_fails, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_empty_pubkey_fails_empty_sig, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_32_is_schnorr, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_32_schnorr_ok, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_upgradable, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_upgradable_empty_sig, BitcoinProofs.AF.PDW90b.evalChecksigTapscript_upgradable_discouraged',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-159': {
+        'summary': 'TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement',
         'lean_target': 'BitcoinProofs.AF.PDW82.evalChecksigTapscript_weight_before_pubkey, BitcoinProofs.AF.PDW91.evalChecksigTapscript_empty_pubkey',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-160': {
+        'summary': 'An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged',
         'lean_target': 'BitcoinProofs.AF.PDW82.evalChecksigTapscript_empty_sig_no_weight',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-161': {
         'lean_target': 'BitcoinProofs.AF.PDW47.schnorrVerdict_size_gate, BitcoinProofs.AF.PDW47.schnorrCheckCore_size_gate, BitcoinProofs.AF.PDW47.schnorrCheckCore_empty_size_gate',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-162': {
         'lean_target': 'BitcoinProofs.AF.PDW47.schnorrVerdict_65_default_rejected',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-163': {
         'lean_target': 'BitcoinProofs.AF.PDW58.isValidBip341Hashtype_valid_iff',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-164': {
         'lean_target': 'BitcoinProofs.AF.PDW89b.extSlice_tapscript_ext',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-165': {
         'lean_target': 'BitcoinProofs.AF.PDW47.schnorrVerdict_default_64, BitcoinProofs.AF.PDW47.schnorrCheckCore_default_64, BitcoinProofs.AF.PDW47.schnorrHashtype_default_iff',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-166': {
         'lean_target': 'BitcoinProofs.AF.PDW47.schnorrVerdict_sighash_fail_closed, BitcoinProofs.AF.PDW47.schnorrCheckCore_65_default, BitcoinProofs.AF.PDW47.schnorrCheckCore_sighash_none, BitcoinProofs.AF.PDW47.schnorrCheckCore_single_overflow',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-167': {
-        'summary': "Executed OP_CODESEPARATOR records the uint32 instruction index (opcode_pos, 0-based) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:444-445,1065). The Lean interpreter's State.codeSep instead records the byte offset op.next and initializes to 0; codesepPosFold is the faithful UInt32 index model.",
+        'summary': "Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065). The candidate's State.codeSepPos is a UInt32 initialized to 0xFFFFFFFF and set to the current 0-based instruction index on each executed separator; the byte offset in State.codeSep remains for the legacy scriptCode path.",
         'lean_target': 'BitcoinProofs.AF.PDW47.codesepPosFold_nil, BitcoinProofs.AF.PDW47.codesep_index_vs_byteoffset_witness, BitcoinProofs.AF.PDW47.codesep_byteoffset_witness',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-168': {
         'lean_target': 'Bitcoin.Interpreter.Rules.evalChecksigTapscript_budget_exactly_zero',
         'status': 'proven',
+        'consensus': True,
+        'notes': "Residual, not this row's comparator: SCR-040's serialized witness size previously omitted the stack-count CompactSize, leaving the initial budget short. Audit item 10 tracks that separately.",
     },
     'SCR-169': {
         'lean_target': 'BitcoinProofs.AF.PDW83.sighashTaproot_epoch_row',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-170': {
         'summary': 'CAT,SUBSTR,LEFT,RIGHT,INVERT,AND,OR,XOR,2MUL,2DIV,MUL,DIV,MOD,LSHIFT,RSHIFT ⇒ DISABLED_OPCODE in base/witness-v0, even unexecuted, unless the 201-op budget is already exhausted (OP_COUNT then preempts). Tapscript treats these bytes as OP_SUCCESSx, so they never reach stepBody there.',
         'lean_target': 'BitcoinProofs.AF.PDW60.stepBody_disabled_budget_exhausted, BitcoinProofs.AF.PDW60.stepBody_disabled_or_opCount, BitcoinProofs.AF.PDW60.stepBody_disabled',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-171': {
         'lean_target': 'BitcoinProofs.AF.PDW60.stepBody_disabled_or_opCount, BitcoinProofs.AF.PDW60.stepBody_disabled_budget_exhausted',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'SCR-172': {
         'lean_target': 'BitcoinProofs.AF.PDW58.disabledWire_tapscript_success_row, BitcoinProofs.AF.PDW58.disabledWire_successx_matrix_row',
         'status': 'proven',
+        'consensus': True,
     },
     'SCR-173': {
         'lean_target': 'BitcoinProofs.AF.PDW68.opNameWire, BitcoinProofs.AF.PDW68.opNameWire_table, BitcoinProofs.AF.PDW68.opNameWireKnown, BitcoinProofs.AF.PDW68.opNameWireKnown_iff, BitcoinProofs.AF.PDW68.opNameWire_unknown_check, BitcoinProofs.AF.PDW68.opNameWire_unknown_iff, BitcoinProofs.AF.PDW68.opNameWire_known_not_unknown, BitcoinProofs.AF.PDW68.opNameWire_unknown_push, BitcoinProofs.AF.PDW68.opNameKnown_push_gap, BitcoinProofs.AF.PDW68.opNameKnown_not_core_table',
@@ -1667,6 +1766,7 @@ OVERRIDES_SYNC = {
     'SCR-174': {
         'lean_target': 'BitcoinProofs.AF.PDW91.stepBody_invalidopcode',
         'status': 'proven',
+        'consensus': True,
         'notes': None,
     },
     'TXV-001': {
@@ -1797,6 +1897,8 @@ OVERRIDES_SYNC = {
     'TXV-033': {
         'lean_target': 'Bitcoin.TxValidation.Mempool.checkFinalTxAtTip',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'Node procedure; block finality stays on TXV-032.',
     },
     'TXV-034': {
         'status': 'proven',
@@ -1829,12 +1931,14 @@ OVERRIDES_SYNC = {
     'TXV-041': {
         'lean_target': 'Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTip, Bitcoin.TxValidation.Mempool.prevHeightAtTip, Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTipMem, Bitcoin.TxValidation.Mempool.prevHeightAtTip_mempool, Bitcoin.TxValidation.Mempool.prevHeightAtTip_confirmed, Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTipMem_spec, Bitcoin.TxValidation.Mempool.checkSequenceLocksAtTip_eq_mem',
         'status': 'proven',
-        'notes': None,
+        'consensus': False,
+        'notes': 'Block BIP68 sequence-lock rules are unaffected.',
     },
     'TXV-042': {
         'lean_target': 'Bitcoin.TxValidation.Mempool.mempoolAddedCoins, Bitcoin.TxValidation.Mempool.mempoolAddCoins, Bitcoin.TxValidation.Mempool.mempoolAddedCoins_spec, Bitcoin.TxValidation.Mempool.mempoolAddedCoins_height, Bitcoin.TxValidation.Mempool.mempoolAddedCoins_lookup_height, Bitcoin.TxValidation.Mempool.mempoolAddedCoins_lookup_value, Bitcoin.TxValidation.Mempool.mempoolAddCoins_lookup_mem, Bitcoin.TxValidation.Mempool.mempoolAddCoins_lookup_sentinel, Bitcoin.TxValidation.Mempool.mempoolAddCoins_empty_height, Bitcoin.TxValidation.Mempool.mempoolAddCoins_empty_value, Bitcoin.TxValidation.Mempool.prevHeightData_mempool, Bitcoin.TxValidation.Mempool.prevHeightData_mempool_entry, Bitcoin.TxValidation.Mempool.mempoolAddCoins_prevHeightAtTip',
         'status': 'proven',
-        'notes': None,
+        'consensus': False,
+        'notes': 'Mempool accounting only.',
     },
     'TXV-043': {
         'lean_target': 'Bitcoin.TxValidation.LocktimeSigOps.checkLockTime_domain_mismatch_fails',
@@ -1895,11 +1999,15 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'TXV-055': {
-        'lean_target': 'BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row',
+        'summary': 'Flags are the hash-selected base plus buried-deployment flags; the selected flags reach every script in public validation.',
+        'core_ref': 'src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168',
+        'lean_target': 'BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags',
         'status': 'proven',
     },
     'TXV-056': {
-        'lean_target': 'Bitcoin.Activation.exception_replaces_base',
+        'summary': 'The two named hashes select reduced base flag sets; public script checks use those flags and retain subsequent buried flags.',
+        'core_ref': 'src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168',
+        'lean_target': 'Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags',
         'status': 'proven',
     },
     'TXV-057': {
@@ -1924,6 +2032,8 @@ OVERRIDES_SYNC = {
     'TXV-061': {
         'lean_target': 'Bitcoin.TxValidation.Full.scriptRecheckAtTip_eq, Bitcoin.TxValidation.Full.scriptRecheckAtTip_true_all_ok, Bitcoin.TxValidation.Full.scriptRecheckAtTip_reject, Bitcoin.TxValidation.Full.mempoolConsensusScriptCheck, Bitcoin.TxValidation.Full.mempoolScriptAdmission, Bitcoin.TxValidation.Full.standardScriptFlags, Bitcoin.TxValidation.Full.mempoolScriptAdmission_after_policy_pass, Bitcoin.TxValidation.Full.mempoolConsensusScriptCheck_fail_fatal, Bitcoin.TxValidation.Full.mempoolScriptAdmission_recheck_fail',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'Per-block flag selection and script checks are governed by the consensus flag rows.',
     },
     'TXV-062': {
         'core_ref': 'src/validation.cpp:2076-2082@cce32b168',
@@ -1954,8 +2064,11 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'TXV-069': {
+        'summary': 'each input value, the running input sum, and the fee satisfy MoneyRange (0 ≤ x ≤ MAX_MONEY); outputs are bounded separately',
+        'check': 'per-input, running input-sum, and fee MoneyRange',
         'lean_target': 'Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_i64Range, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_no_overflow, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_i64Fold_agrees, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_zero_i64Fold_agrees',
         'status': 'proven',
+        'notes': "Core CAmount is int64, but the model's Amount is an unbounded Int; this row states the MoneyRange bounds, not a global int64 type. The cited i64-range/fold targets cover the checked output-value fold only.",
     },
     'TXV-070': {
         'summary': "coinbase of N passes the maturity gate at caller-supplied spend height S iff N + 100 ≤ S; the block caller uses the block height, and Core's mempool caller passes tip + 1, but the local theorems do not model or prove the mempool caller convention",
@@ -1977,6 +2090,8 @@ OVERRIDES_SYNC = {
     'TXV-073': {
         'lean_target': 'Bitcoin.TxValidation.Mempool.mempoolKey, Bitcoin.TxValidation.Mempool.mempoolKey_eq_iff, Bitcoin.TxValidation.Mempool.mempoolDedup, Bitcoin.TxValidation.Mempool.mempoolDedup_iff, Bitcoin.TxValidation.Mempool.mempoolKey_txid_separate, Bitcoin.TxValidation.Mempool.mempoolKey_no_witness_eq_txid',
         'status': 'proven',
+        'consensus': False,
+        'notes': 'In-block witness identity is the txid for the merkle root and the wtxid for the witness merkle root; those separate consensus rules stay.',
     },
     'TXV-074': {
         'notes': None,
@@ -2027,6 +2142,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-011': {
+        'summary': "reject if any merkle level contains two equal hashes at pair-aligned positions (Core's pos += 2 scan), including a duplicated tail that lands at a pair-aligned position; an unaligned equal pair such as [A,B,B] is accepted (`bad-txns-duplicate`)",
         'lean_target': 'Bitcoin.Capstone.Merkle.levelHasAdjacentDupCap, Bitcoin.Capstone.Merkle.merkleMutationFreeCap, Bitcoin.Capstone.Merkle.merkleMutationOk, Bitcoin.Capstone.Block.validateBlock_badMutated, BitcoinProofs.AF.PDW12.merkleMutationFreeCap_eq, BitcoinProofs.AF.PDW12.merkleMutationOk_eq, BitcoinProofs.AF.PDW12.validateBlock_badMutated_of_adjacent_eq, BitcoinProofs.Theorems.CapstonePipelineCor.validateBlock_ok_mutationFree',
         'status': 'proven',
     },
@@ -2048,26 +2164,31 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-016': {
-        'summary': "GenerateCoinbaseCommitment creates the commitment output with nValue = 0 (generation only); block validation does not require nValue = 0 on an existing commitment output, and the model's `commitmentValueZero` checks every 38-byte `6a24aa21a9ed`-matching output, not only the last selected one",
-        'core_ref': 'src/validation.cpp:4013@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW41b.commitmentValueZero_eq_true_iff',
+        'summary': 'Witness commitment validation is independent of output amounts; ordinary amount and coinbase reward checks still apply',
+        'check': 'Commitment output amount independence',
+        'core_ref': 'src/validation.cpp:3878-3924@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values',
         'status': 'proven',
     },
     'BLK-017': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_eq_true, BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_iff',
+        'summary': 'committed value = SHA256d(witness_merkle_root ‖ reserved_value), where reserved_value is the first (32-byte) coinbase witness stack item, compared to scriptPubKey[6..38]; the item is hashed as present, not replaced by 32 zero bytes',
+        'core_ref': 'src/validation.cpp:3898-3907@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-018': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.commitmentNonceOk_eq_true',
+        'core_ref': 'src/validation.cpp:3885-3893@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-019': {
-        'lean_target': 'BitcoinProofs.AF.PDW13.commitmentGate_unexpected_witness',
+        'core_ref': 'src/validation.cpp:3913-3921@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error, BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-020': {
-        'core_ref': 'src/validation.cpp:3913-3920@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW14.commitmentGate_forces_binding',
+        'core_ref': 'src/validation.cpp:3878-3924@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness',
         'status': 'proven',
     },
     'BLK-021': {
@@ -2124,22 +2245,27 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-034': {
-        'lean_target': 'BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpBudgetOk_eq_false_iff, BitcoinProofs.Theorems.BlockCor.legacySigOpCountScript_le_20_per_byte, BitcoinProofs.Theorems.BlockCor.witnessInputSigOps_future_version_zero',
+        'summary': 'legacy sigops ×4 ≤ 80000 in CheckBlock; input-dependent costs are added in ConnectBlock',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget',
         'status': 'proven',
     },
     'BLK-035': {
-        'lean_target': 'BitcoinProofs.AF.PDW29.txSigOpCost_decompose_row, BitcoinProofs.AF.PDW29.txSigOpCost_coinbase_legacy',
+        'summary': 'under block flags: cost = 4×(legacy + enabled P2SH) + enabled witness; the P2SH and P2WSH legs use Core GetSigOpCount(true) (preceding OP_1..OP_16 before each CHECKMULTISIG, else 20), and the coinbase contributes legacy only',
+        'lean_target': 'Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose, Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled, Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase',
         'status': 'proven',
     },
     'BLK-036': {
-        'lean_target': 'BitcoinProofs.Theorems.BlockCor.blockSigOpCost_fold_eq_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_iff_sum, BitcoinProofs.Theorems.BlockCor.blockSigOpCostOk_eq_false_iff',
+        'summary': 'cumulative block sigop cost from BLK-035 ≤ MAX_BLOCK_SIGOPS_COST (80,000) during ConnectBlock (`bad-blk-sigops`); the block validator applies the bound with the accurate count',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget',
         'status': 'proven',
     },
     'BLK-037': {
+        'summary': 'nBits magnitude decode matches Core SetCompact: (mantissa & 0x007fffff) << 8×(exp−3) for exp>3, >> 8×(3−exp) otherwise; sign bit 0x00800000 is the negative flag only when mantissa≠0; overflow iff mantissa≠0 and (exp>34 or (m>0xff and exp>33) or (m>0xffff and exp>32)). The bound uses Core mainnet powLimit 2^224−1 (BLK-038/BLK-040).',
         'lean_target': 'Bitcoin.Capstone.Pow.setCompactFull, Bitcoin.Capstone.Pow.compactTarget_eq_setCompactFull_target, Bitcoin.Capstone.Pow.setCompactFull_sign_witness, BitcoinProofs.AF.PDW16.compactTarget_eq, BitcoinProofs.AF.PDW16.setCompactFull_spec, BitcoinProofs.AF.PDW16.compactTarget_eq_setCompactFull_target, BitcoinProofs.AF.PDW16.setCompactFull_sign_witness, BitcoinProofs.AF.PDW16.compactTarget_sign_bit_witness',
         'status': 'proven',
     },
     'BLK-038': {
+        'summary': 'decode must be non-negative (SetCompact sign flag clear), non-overflow, nonzero, and ≤ Core mainnet powLimit 2^224−1',
         'lean_target': 'Bitcoin.Capstone.Pow.targetOk, Bitcoin.Capstone.Pow.targetOk_eq, Bitcoin.Capstone.Pow.targetOk_iff_full, Bitcoin.Capstone.Pow.targetOk_negative_reject, Bitcoin.Capstone.Pow.targetOk_overflow_reject, Bitcoin.Capstone.Pow.targetOk_negative_witness, BitcoinProofs.AF.PDW16.targetOk_eq, BitcoinProofs.AF.PDW16.targetOkFull_iff, BitcoinProofs.AF.PDW16.targetOkFull_spec, BitcoinProofs.AF.PDW16.targetOk_eq_targetOkFull, BitcoinProofs.AF.PDW16.targetOk_full_vs_live_sign_witness',
         'status': 'proven',
     },
@@ -2148,14 +2274,16 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-040': {
-        'core_ref': 'src/kernel/chainparams.cpp:126@cce32b168',
-        'lean_target': 'BitcoinProofs.AF.PDW28.powLimitMainnetFull_pin',
+        'summary': 'Mainnet/testnet3/testnet4 powLimit is 2^224 - 1 (0x00000000ffffffff…ff). Live retarget, target-validity and chain-work bounds share this value.',
+        'core_ref': 'src/kernel/chainparams.cpp:126,257,364@cce32b168',
+        'lean_target': 'Bitcoin.Block.Pow.powLimitMainnet_eq, BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full, Bitcoin.Capstone.Pow.powLimit_eq_mainnet, Bitcoin.Block.Index.powLimit_eq_mainnet, Bitcoin.Block.Pow.powLimitMainnet_compact, Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet',
         'status': 'proven',
     },
     'BLK-041': {
         'core_ref': 'src/kernel/chainparams.cpp:522,603@cce32b168',
         'lean_target': 'BitcoinProofs.AF.PDW28.powLimitSignet_pin, BitcoinProofs.AF.PDW28.powLimitRegtest_pin',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-042': {
         'lean_target': 'BitcoinProofs.AF.PDW12.nextWorkRequired_nonboundary_const',
@@ -2181,6 +2309,7 @@ OVERRIDES_SYNC = {
     'BLK-047': {
         'lean_target': 'BitcoinProofs.AF.PDW43.calculateNextWorkRequired_bip94_base',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-048': {
         'summary': 'the pre-encoding new target is min(newT, powLimit) and therefore capped at powLimit',
@@ -2219,13 +2348,15 @@ OVERRIDES_SYNC = {
     'BLK-055': {
         'lean_target': 'BitcoinProofs.AF.PDW13.timewarpOk_true_iff',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-056': {
-        'summary': 'MTP is the median of the last <=11 block times including the index itself (validator MTP(prev) excludes the candidate block); definedness, window-determination and the empty-window case are proved',
+        'summary': 'MTP is the upper median (index n/2) of the last ≤11 block times including the index itself (validator MTP(prev) excludes the candidate block); definedness, window-determination and the empty-window case are proved',
         'lean_target': 'BitcoinProofs.AF.PDW31.medianTimePast_eleven_some, BitcoinProofs.AF.PDW31.medianTimePast_congr, BitcoinProofs.AF.PDW31.medianTimePast_none',
         'status': 'proven',
     },
     'BLK-057': {
+        'summary': 'blockTime > MTP(prev) (`time-too-old`), with the strict `>` retained and MTP taken from the upper median of BLK-056',
         'lean_target': 'BitcoinProofs.AF.PDW13.timeNotTooOld_eq',
         'status': 'proven',
     },
@@ -2320,7 +2451,15 @@ OVERRIDES_SYNC = {
         'lean_target': 'BitcoinProofs.AF.PDW16.testnet4_testdummy_table, BitcoinProofs.AF.PDW16.regtest_testdummy_table',
         'status': 'proven',
     },
+    'BLK-083': {
+        'summary': 'Outside named hash exceptions, P2SH/WITNESS/TAPROOT remain enabled at every height and reach live script execution.',
+        'core_ref': 'src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168',
+        'lean_target': 'Bitcoin.Activation.base_flags_p2sh_witness_taproot, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags',
+    },
     'BLK-084': {
+        'summary': 'Named hashes replace base flags (BIP16: NONE; Taproot: P2SH|WITNESS); buried-deployment flags are then ORed in.',
+        'core_ref': 'src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168',
+        'lean_target': 'Bitcoin.Activation.exception_replaces_base, BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags',
         'notes': None,
     },
     'BLK-085': {
@@ -2360,6 +2499,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-096': {
+        'summary': 'BIP30 no-overwrite: when enforced (outside the 91842/91880 repeat exceptions and the post-BIP34 pre-1983702 skip), any output of the new block already in the pre-block UTXO ⇒ invalid (`bad-txns-BIP30`); the block validator runs the gate before the per-tx fold',
         'core_ref': 'src/validation.cpp:2467-2472@cce32b168',
         'lean_target': 'BitcoinProofs.Theorems.CapstoneBip30Loop.applyBlockU_loop_iff',
         'status': 'proven',
@@ -2396,9 +2536,10 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-104': {
-        'summary': 'BIP68 block gate: every non-coinbase tx is BIP68-final against a caller-supplied `prevDataOf` (per-input entry height/time pairs); the gate is a conjunct of the proof-local `connectBlockChecks` and is not wired to the real ConnectBlock router; Core enforces BIP68 both in ConnectBlock and at mempool admission (`CheckSequenceLocksAtTip`, `non-BIP68-final`)',
+        'summary': "BIP68 block gate: with CSV active, every non-coinbase transaction must be BIP68-final against caller-supplied per-input prevout height/time pairs (CalculateSequenceLocks at the block height and the prior block's median time); a non-final transaction is rejected (`bad-txns-nonfinal`).",
         'lean_target': 'BitcoinProofs.AF.PDW14.blockSequenceLocksOk_iff, BitcoinProofs.AF.PDW14.blockSequenceLocksOk_spec, BitcoinProofs.AF.PDW14.connectBlockChecks_seqLocks_reject',
         'status': 'proven',
+        'notes': 'The contextual block-connect path evaluates this gate for every non-coinbase transaction; the mempool tip+1 convention is a separate node procedure (TXV-041).',
     },
     'BLK-105': {
         'lean_target': 'Bitcoin.Ledger.spentUndo_layout',
@@ -2434,6 +2575,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'BLK-113': {
+        'summary': 'GetBlockProof: work(nBits) = (~target / (target + 1)) + 1 when the compact decode is nonzero, non-negative, and non-overflowing; returns 0 when SetCompact flags it negative (`fNegative`) or overflowing (`fOverflow`), or when the decoded target is zero. There is no powLimit clamp; target ≤ powLimit is a separate header-validity rule.',
         'core_ref': 'chain.cpp:120-133@cce32b168 (GetBitsProof / SetCompact fNegative); Chain/Basic.lean:47-52',
         'lean_target': 'BitcoinProofs.AF.PDW24.compactNegative, BitcoinProofs.AF.PDW24.workOfSigned, BitcoinProofs.AF.PDW24.workOfSigned_negative_zero, BitcoinProofs.AF.PDW24.workOfSigned_eq_workOf_of_nonneg, BitcoinProofs.AF.PDW24.workOfSigned_valid_formula, BitcoinProofs.AF.PDW24.workOfSigned_eq, BitcoinProofs.AF.PDW24.workOf_negative_diverges',
         'status': 'proven',
@@ -2476,6 +2618,7 @@ OVERRIDES_SYNC = {
         'core_ref': 'src/validation.cpp:4237-4240@cce32b168',
         'lean_target': 'BitcoinProofs.AF.PDW8.headerIndexDecision_below_lowWork, BitcoinProofs.AF.PDW8.headerIndexDecision_at_or_above_indexed, BitcoinProofs.AF.PDW8.headerIndexDecision_eq_lowWork_iff, BitcoinProofs.AF.PDW8.headerIndexDecision_eq_indexed_iff, BitcoinProofs.AF.PDW8.valid_header_below_not_indexed, BitcoinProofs.AF.PDW8.minChainWorkOk_true_iff, BitcoinProofs.AF.PDW8.minChainWorkOk_too_little',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-123': {
         'core_ref': 'validation.cpp:2348,2363-2364@cce32b168; chain.cpp:135-150@cce32b168; kernel/chainparams.cpp:142@cce32b168',
@@ -2485,14 +2628,17 @@ OVERRIDES_SYNC = {
     'BLK-124': {
         'lean_target': 'BitcoinProofs.AF.PDW49.scriptVerdicts_serial',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-125': {
         'lean_target': 'Bitcoin.Block.Params.mutated64ByteTx',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-126': {
         'lean_target': 'BitcoinProofs.AF.PDW8.signetDefaultChallenge_script_shape',
         'status': 'proven',
+        'consensus': False,
     },
     'BLK-127': {
         'lean_target': 'Bitcoin.Block.Params.memoVerdict',
@@ -2582,6 +2728,7 @@ OVERRIDES_SYNC = {
         'lean_target': 'Bitcoin.Interpreter.Defs.verifyWitnessProgram',
         'test_vector_ids': ['sc-1150'],
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-015': {
         'lean_target': 'BitcoinProofs.AF.PDW90.verifyScriptFull_witness_unexpected, BitcoinProofs.AF.PDW52.witnessUnexpected_p2shNonWitness',
@@ -2609,9 +2756,11 @@ OVERRIDES_SYNC = {
         'core_ref': 'src/policy/policy.cpp:395-398@cce32b168',
         'lean_target': 'Bitcoin.DataLaws.Interface.vsize',
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-021': {
         'core_ref': 'src/consensus/consensus.h:17; src/consensus/tx_verify.cpp:149-168; src/validation.cpp:2567@cce32b168',
+        'lean_target': 'BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget',
         'notes': None,
     },
     'SWT-022': {
@@ -2631,6 +2780,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SWT-026': {
+        'summary': 'P2WSH witness-script sigop count is Core `GetSigOpCount(true)` over the last witness item: count the valid opcode prefix up to the first malformed push, with CHECKSIG/CHECKSIGVERIFY = 1 and CHECKMULTISIG = the preceding OP_1..OP_16 value (20 if absent).',
         'lean_target': 'BitcoinProofs.AF.PDW19.witnessSigOps_p2wsh',
         'status': 'proven',
     },
@@ -2648,6 +2798,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'SWT-030': {
+        'summary': 'committed value = SHA256d(witness_merkle_root ‖ reserved_value), where reserved_value is the first (32-byte) coinbase witness stack item, compared to scriptPubKey[6..38]; the item is hashed as present, not replaced by 32 zero bytes.',
         'lean_target': 'BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_iff, BitcoinProofs.AF.PDW13.witnessCommitmentOkReserved_eq_true',
         'status': 'proven',
     },
@@ -2758,24 +2909,29 @@ OVERRIDES_SYNC = {
         'lean_target': 'BitcoinProofs.AF.PDW93.witnessPubkeyType_off',
         'test_vector_ids': ['sc-1165', 'sc-1167', 'sc-1168'],
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-057': {
         'summary': 'Obsolete/non-consensus: witness-reserved-value plumbing is mining-only (node/miner.cpp; rpc/mining.cpp default_witness_commitment); no consensus rule and no Lean declaration, not proven.',
         'core_ref': 'src/node/miner.cpp:95,208@cce32b168',
         'lean_target': 'null',
         'status': 'obsolete',
+        'consensus': False,
     },
     'SWT-058': {
         'lean_target': 'Bitcoin.Interpreter.Defs.checkSigEncoding',
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-059': {
         'lean_target': 'BitcoinProofs.AF.PDW66.cmsCleanup_no_nullfail, BitcoinProofs.AF.PDW66.cmsCleanup_nullfail_error',
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-060': {
         'lean_target': 'Bitcoin.Interpreter.Defs.checkSigEncoding',
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-061': {
         'lean_target': 'Bitcoin.Activation.dersig_flag_flow_any, Bitcoin.Activation.dersig_flag_flow_mainnet_any',
@@ -2784,6 +2940,7 @@ OVERRIDES_SYNC = {
     'SWT-062': {
         'lean_target': 'BitcoinProofs.AF.PDW98.stepBody_if_v0_nonminimal_policy_off, BitcoinProofs.AF.PDW98.stepBody_if_tapscript_minimalIf',
         'status': 'proven',
+        'consensus': False,
     },
     'SWT-063': {
         'core_ref': 'validation.cpp:2280-2285@cce32b168',
@@ -2833,6 +2990,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'TPR-006': {
+        'summary': 'sha_annex = SHA256(CompactSize(len(annex)) ‖ annex incl. 0x50); the taproot sighash includes sha_annex iff an annex is present, and the digest covers the CompactSize length prefix, not the bare annex bytes.',
         'lean_target': 'BitcoinProofs.AF.PDW41.annexHash_row',
         'status': 'proven',
     },
@@ -2894,34 +3052,43 @@ OVERRIDES_SYNC = {
         'notes': None,
     },
     'TPR-021': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-022': {
         'summary': "budget = Σ per-item witness serialization (CompactSize(item length) + item bytes) + 50 WU; Core's `GetSerializeSize(witness.stack)` additionally serializes the stack-count CompactSize (1/3/5/9 WU), which `witnessSerSize` omits (F-Y15-001)",
         'lean_target': 'BitcoinProofs.AF.PDW41.validationWeightInit_row',
         'status': 'proven',
+        'notes': ' R06: full count-prefixed witness size; empty witness budget51; append law includes stack-count prefix growth. Exact encoder bridge in WitnessSerialization; live150byte200WUfour-signature boundary passes.',
     },
     'TPR-023': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-024': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-025': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-026': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-027': {
         'lean_target': 'BitcoinProofs.AF.PDW74.evalChecksigTapscript_unknown_pubkey_discouraged',
         'status': 'proven',
+        'consensus': False,
         'notes': None,
     },
     'TPR-028': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-029': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-030': {
@@ -2929,6 +3096,7 @@ OVERRIDES_SYNC = {
         'status': 'proven',
     },
     'TPR-031': {
+        'consensus': False,
         'notes': None,
     },
     'TPR-032': {
@@ -3070,6 +3238,7 @@ OVERRIDES_SYNC = {
     'TPR-062': {
         'lean_target': 'Bitcoin.Script.Tapscript.executeWitnessScript_success_discourage',
         'status': 'proven',
+        'consensus': False,
     },
     'TPR-063': {
         'lean_target': 'Bitcoin.Script.Tapscript.minimalif_tapscript_unconditional',
@@ -3102,10 +3271,13 @@ OVERRIDES_SYNC = {
     'TPR-070': {
         'core_ref': 'src/script/interpreter.cpp:2133-2146; src/script/interpreter.cpp:2149-2175@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
     },
     'TPR-071': {
+        'summary': "the annex is included in the witness stack serialization that seeds the tapscript validation-weight budget; the serialized stack is the CompactSize item count plus each item's CompactSize length and bytes, with the annex present, before it is popped for spend classification.",
         'lean_target': 'Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included',
         'status': 'proven',
+        'notes': 'The full stack serialization, including the stack-count CompactSize, is the budget base; omitting that prefix understates the BIP342 budget and can accept a tapscript spend Core rejects. The transaction-weight composition theorem remains a separate residual.',
     },
     'TPR-072': {
         'summary': 'ScriptExecutionData handed to the Schnorr checker entry reaches sighashSchnorr unchanged and its digest is passed verbatim to verify; interpreter-side population of tapleafHash/codesepPos/outputHash and script-path annex forwarding are residual (F-TS02-008)',
@@ -3143,18 +3315,22 @@ OVERRIDES_SYNC = {
     'TPR-079': {
         'core_ref': 'src/kernel/chainparams.cpp:132-139; src/validation.cpp:2259-2261@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
     },
     'TPR-080': {
         'core_ref': 'src/script/interpreter.cpp:1695-1699@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
     },
     'TPR-081': {
         'core_ref': 'src/secp256k1/src/modules/schnorrsig/main_impl.h:40-94@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
     },
     'TPR-082': {
         'core_ref': 'src/pubkey.cpp:187-198; src/pubkey.h:241-244@cce32b168',
         'status': 'obsolete',
+        'consensus': False,
     },
     'TPR-083': {
         'lean_target': 'BitcoinProofs.AF.PDW56.taptweak_none_face',
@@ -3247,6 +3423,7 @@ OVERRIDES_SYNC = {
         'core_ref': 'src/pubkey.cpp:294-296,393@cce32b168',
         'lean_target': 'BitcoinProofs.AF.PDW74.isLowDERSignature_true_iff, BitcoinProofs.AF.PDW74.checkSigEncoding_no_highS_of_lowS_false, BitcoinProofs.AF.PDW74.checkSigEncoding_highS_policy_off, BitcoinProofs.AF.PDW74.checkSigEncoding_highS_policy_on',
         'status': 'proven',
+        'consensus': False,
     },
     'SGN-109': {
         'lean_target': 'BitcoinProofs.AF.PDW58.parseDerLax_longSeqLength_skipped_row, BitcoinProofs.AF.PDW58.parseDerLax_longFormInt_zeroSkip_row, BitcoinProofs.AF.PDW58.parseDerLax_leadingZero_negative_trailing_row, BitcoinProofs.AF.PDW58.parseDerLax_negativePayload_row, BitcoinProofs.AF.PDW58.parseDerLax_tag_none, BitcoinProofs.AF.PDW58.parseDerLax_empty_row',

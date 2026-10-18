@@ -40,7 +40,7 @@ theorem evalChecksigTapscript_32_is_schnorr
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hbad : chk.base.checkSchnorrSignature sig pk .tapscript ed = false)
+    (hbad : checkSchnorrWithContext chk sig pk .tapscript ed = .error .schnorrSig)
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw = .error .schnorrSig := by
   simp [evalChecksigTapscript, hsig, hpk, hbad,
@@ -54,7 +54,7 @@ theorem evalChecksigTapscript_32_schnorr_ok
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk .tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk .tapscript ed = .ok ())
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw =
       .ok (true, some ((vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED)) := by

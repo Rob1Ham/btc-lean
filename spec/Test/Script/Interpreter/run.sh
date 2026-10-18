@@ -8,7 +8,7 @@
 #   STACK_SIZE theorem instances, and axiom pins for the theorem
 #   portfolio (mirrored in scripts/axiom_probe.lean / the manifest).
 set -euo pipefail
-CORE="$(cd "$(dirname "$0")/../../core" && pwd)"
+CORE="$(cd "$(dirname "$0")/../../../core" && pwd)"
 cd "$CORE"
 
 echo "== lake build interpreter modules =="

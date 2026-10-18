@@ -1,3 +1,5 @@
+import Bitcoin.Block.Pow
+import Bitcoin.Capstone.Pow
 import Bitcoin.Chain.Basic
 import Bitcoin.RuleAttr
 
@@ -8,9 +10,10 @@ The `CBlockIndex` chain-score layer, at rule-DB fidelity:
 
 * `workOf` — **BLK-113**: `GetBlockProof` (chain.cpp:70-85),
   `work(nBits) = (~target / (target+1)) + 1` over 256-bit two's
-  complement (`~t = 2^256 − 1 − t`); 0 for an out-of-range decode (the
-  rule text pins the gated form — Core's `nChainWork` only accumulates
-  over validated blocks in practice).
+  complement (`~t = 2^256 − 1 − t`); 0 for a negative-flagged,
+  overflowing, or zero decode (`SetCompact`'s full result). Positive
+  targets above `powLimit` are not clamped: that bound gates
+  `CheckProofOfWork`, not `GetBlockProof`.
 * `chainWork` — **BLK-114**: `nChainWork` = fold of per-block work from
   genesis; genesis = own work (accumulator starts at 0).
 * `Tip`/`mostWork?` — **BLK-115/BLK-116**: `CBlockIndexWorkComparator`
@@ -39,28 +42,46 @@ open Bitcoin.Chain
 
 /-! ## BLK-113: the work function -/
 
-/-- Mainnet-class `powLimit` (the gating decode bound; same constant as
-`Bitcoin.Block.Pow.powLimitMainnet`). -/
-def powLimit : Nat :=
-  0x00000000FFFF0000000000000000000000000000000000000000000000000000
+/-- Mainnet-class `powLimit` (the network proof-of-work limit; same
+constant as `Bitcoin.Block.Pow.powLimitMainnet`). -/
+def powLimit : Nat := Bitcoin.Block.Pow.powLimitMainnet
 
-/-- **BLK-113**: `GetBlockProof` — `(~target / (target+1)) + 1`; 0 when
-the decode is out of the consensus range (zero or above powLimit). -/
+/-- Share the exact chain parameter used by the retarget machinery. -/
+theorem powLimit_eq_mainnet : powLimit = Bitcoin.Block.Pow.powLimitMainnet := rfl
+
+/-- **BLK-113**: `GetBlockProof` — `(~target / (target+1)) + 1` for every
+non-negative, non-overflowing, nonzero decode; 0 for a negative-flagged,
+overflowing, or zero decode. Targets above `powLimit` are not clamped
+(Core has no such gate in `GetBlockProof`). -/
 @[rule "BLK-113", rule "INV-141"]
 def workOf (bits : UInt32) : Nat :=
-  if compactTarget bits = 0 ∨ powLimit < compactTarget bits then 0
+  let r := Bitcoin.Capstone.Pow.setCompactFull bits
+  if r.negative = true ∨ r.overflow = true ∨ compactTarget bits = 0 then 0
   else (2 ^ 256 - 1 - compactTarget bits) / (compactTarget bits + 1) + 1
 
 /-- Difficulty-1 (genesis, nBits 0x1d00ffff) carries positive work. -/
 theorem workOf_difficulty_one_pos : 0 < workOf 0x1d00ffff := by decide
 
-/-- An in-range nonzero decode always carries positive work (the
-division's successor always clears zero). -/
+/-- A non-negative, non-overflowing, nonzero decode always carries
+positive work (the division's successor always clears zero), regardless
+of `powLimit`. -/
 theorem workOf_pos_of_valid (bits : UInt32) (h : 0 < compactTarget bits)
-    (hl : compactTarget bits ≤ powLimit) : 0 < workOf bits := by
+    (hn : (Bitcoin.Capstone.Pow.setCompactFull bits).negative = false)
+    (ho : (Bitcoin.Capstone.Pow.setCompactFull bits).overflow = false) :
+    0 < workOf bits := by
   unfold workOf
-  rw [if_neg (by omega)]
+  rw [if_neg (by simp [Nat.pos_iff_ne_zero.mp h, hn, ho])]
   exact Nat.succ_le_succ (Nat.zero_le _)
+
+/-- **BLK-113**: `0x1d7fffff` is a non-negative, non-overflowing compact
+encoding whose target `2^231 − 2^208` exceeds the mainnet `powLimit`
+`2^224 − 1`; it still carries positive work (Core only rejects zero,
+negative-flagged, and overflowing decodes). -/
+theorem workOf_above_powLimit_pos :
+    (Bitcoin.Capstone.Pow.setCompactFull 0x1d7fffff).negative = false ∧
+    (Bitcoin.Capstone.Pow.setCompactFull 0x1d7fffff).overflow = false ∧
+    powLimit < compactTarget 0x1d7fffff ∧ 0 < workOf 0x1d7fffff := by
+  decide
 
 /-! ## BLK-114: chainwork accumulation -/
 
@@ -622,6 +643,7 @@ theorem connectHeight_succ (h : Nat) : connectHeight h = h + 1 := rfl
 
 #print axioms workOf_difficulty_one_pos
 #print axioms workOf_pos_of_valid
+#print axioms workOf_above_powLimit_pos
 #print axioms chainWork_append
 #print axioms chainWork_snoc
 #print axioms mostWork_work_ge
@@ -633,3 +655,7 @@ theorem connectHeight_succ (h : Nat) : connectHeight h = h + 1 := rfl
 #print axioms connectHeight_succ
 
 end Bitcoin.Block.Index
+
+-- R07c exact footprint guards.
+/-- info: 'Bitcoin.Block.Index.powLimit_eq_mainnet' does not depend on any axioms -/
+#guard_msgs in #print axioms Bitcoin.Block.Index.powLimit_eq_mainnet

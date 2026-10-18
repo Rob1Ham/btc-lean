@@ -120,6 +120,7 @@ and compiles mathlib and may take a long time and several GiB:
 cd spec/proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
+# validated on 2026-10-18: 1,731 jobs.
 ```
 
 Do not use a bare `lake build`: it builds the default target and makes the
@@ -143,7 +144,8 @@ lake test
 | Build | Target | Jobs | Result |
 |---|---|---:|---|
 | Lean core | `Bitcoin` | 72 | success |
-| Proof root | `BitcoinProofs` | 1722 | success (29-module closure) |
+| Proof root (historical) | `BitcoinProofs` | 1722 | success (29-module closure at that build) |
+| Proof root | `BitcoinProofs` | 1,731 jobs | validated 2026-10-18 (36-module closure) |
 | Proof modules outside default closure | exact module names | — | 372 pass / 8 fail (380 modules); see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
@@ -180,8 +182,8 @@ theorem/lemma declarations. The wallet script also covers the 140-anchor census 
 
 ## 5. Data
 
-The repository tracks a 161-file, 4,852,246-byte curated subset under
-`spec/data/` with a `sha256` manifest. The data-only corpus and anchor blocks
+The repository tracks an 181-file, 5,056,063-byte (4.82 MiB) curated subset
+under `spec/data/` with a `sha256` manifest. The data-only corpus and anchor blocks
 are release assets, not git objects: the archive is
 `btc-lean-data-2026.10.17.tar.gz` (357,916,214 bytes; SHA-256
 `1ac846bdc24740cfdcf599c3ccf357e48bed50d7fd32071efae605d2a84168b8`), and the
@@ -199,6 +201,6 @@ git-lfs is used.
 * The forty tagged wallet rows include three with partial obligations; 99 rows
   are in the obligation register. See `docs/WALLET.md` and
   `docs/WALLET-OBLIGATIONS.md`.
-* Twenty-seven consensus rows are explicit model residuals. See
+* Twenty-five consensus rows are explicit model residuals. See
   `docs/RESIDUALS.md`.
 * No external security audit or certification is claimed.

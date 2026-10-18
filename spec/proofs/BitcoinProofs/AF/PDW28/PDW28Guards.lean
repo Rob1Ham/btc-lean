@@ -25,3 +25,6 @@ Every pin ⊆ [propext, Classical.choice, Quot.sound]; zero `sorryAx`. -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW28.nextWorkRequired_minDiff_slow
 /-- info: 'BitcoinProofs.AF.PDW28.nextWorkRequired_minDiff_fast' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW28.nextWorkRequired_minDiff_fast
+
+/-- info: 'BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full' does not depend on any axioms -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full

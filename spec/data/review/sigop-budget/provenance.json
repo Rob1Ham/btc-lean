@@ -1,0 +1,32 @@
+{
+  "kind": "locally generated synthetic mainnet difficulty-one height-one forks; not canonical-chain blocks",
+  "parent": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+  "candidate_height": 1,
+  "bits": "1d00ffff",
+  "time": 1231006506,
+  "coinbase": "version1, null prevout, scriptSig0101, zero-valued output, locktime0",
+  "output_scripts": "1000 OP_CHECKMULTISIG opcodes; over-limit appends one OP_CHECKSIG. Legacy counting costs 4 per CHECKSIG and 80 per CHECKMULTISIG. Outputs are not executed.",
+  "generation": "python3 spec/scripts/generate_sigop_blocks.py; --check compares byte-for-byte and verifies actual SHA256d target",
+  "mining": "Local eight-worker CommonCrypto SHA256d nonce search. No consensus parameter override, PoW bypass or cryptographic assumption added. Recorded search elapsed 96.1368s and 35.154s; regeneration uses the found nonces.",
+  "independent_checks": "Python hashlib header/Merkle serialization, Lean public decoder/PoW/validation, and exact extracted Core sigop functions/budget site at both pins. The Core reference harness covers resource accounting, not a whole bitcoind validation run.",
+  "fixtures": [
+    {
+      "file": "at-limit.raw",
+      "bytes": 1145,
+      "sigop_cost": 80000,
+      "nonce": 2773634077,
+      "sha256": "50d9dc92dfc8841e76c96cfdcf3f7c0cd0f95d87584c079d18c411ddbebecd03",
+      "block_hash": "00000000f090606b7d57ed39f925aeba573ab276f2a194c84f89d47c7c8ada21",
+      "expected_consensus_result": "accept"
+    },
+    {
+      "file": "over-limit.raw",
+      "bytes": 1146,
+      "sigop_cost": 80004,
+      "nonce": 955046782,
+      "sha256": "2c52938f14b4a113f09fe2a173b967d2360665e56d79db81642d55187b20ac8e",
+      "block_hash": "0000000024828824b85c8b87fa1765cedb43a73977e75b83cdaea80aeee29f35",
+      "expected_consensus_result": "bad-blk-sigops"
+    }
+  ]
+}

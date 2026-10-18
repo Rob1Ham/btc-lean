@@ -7,15 +7,16 @@ Five sorry-free promotion theorems, one per claimed rules.yaml
 row — the **chainwork/tip band** (workOf / chainWork /
 mostWork?, core `Bitcoin/Block/Index.lean`):
 
-* **BLK-113** `workOf` (Index.lean:50) → `workOf_zero_invalid`
-  (invalid-decode → 0) + `workOf_difficulty_one` (genesis
-  nBits 0x1d00ffff carries positive work).
-* **BLK-114** `chainWork` (Index.lean:70) →
+* **BLK-113** `workOf` (Index.lean:55) → `workOf_zero_invalid`
+  (negative/overflow/zero decode → 0) + `workOf_powLimit_positive`
+  (an above-limit positive target still carries work) +
+  `workOf_difficulty_one` (genesis nBits 0x1d00ffff carries positive work).
+* **BLK-114** `chainWork` (Index.lean:75) →
   `chainWork_cons_eq` (the nChainWork fold equation) +
   `chainWork_genesis` (genesis = own work, accumulator-0).
 * **INV-141** `workOf` (chain.h:305→GetBitsProof) →
-  `workOf_zero_invalid` + `workOf_pos_of_inRange` (the
-  GetBlockProof-compact bounds→positive-work law).
+  `workOf_zero_invalid` + `workOf_pos_of_inRange` (the nonzero
+  decode → positive-work law).
 * **INV-140** `mostWork?` (V:3199) →
   `mostWork?_pair_maximality` (the 2-candidate
   ActivateBestChainStep work-comparison verdict).
@@ -35,42 +36,55 @@ namespace BitcoinProofs.AF.PDW24
 open Bitcoin.Block.Index
 open Bitcoin.Chain
 
+/-- Core `SetCompact`'s `fNegative` flag (`arith_uint256.cpp:188`):
+`nWord != 0 && (nCompact & 0x00800000) != 0`, where `nWord` is the
+post-right-shift word.  Testing the unshifted mantissa would flag
+`0x02800001` as negative even though Core's shifted `nWord` is zero. -/
+@[rule "BLK-113"]
+def compactNegative (bits : UInt32) : Bool :=
+  (Bitcoin.Capstone.Pow.setCompactFull bits).negative
+
+/-- Core `SetCompact`'s `fOverflow` flag (`arith_uint256.cpp:190-192`). -/
+@[rule "BLK-113"]
+def compactOverflow (bits : UInt32) : Bool :=
+  (Bitcoin.Capstone.Pow.setCompactFull bits).overflow
+
 /-! ## BLK-113 / INV-141: the work function (GetBitsProof) -/
 
-/-- **BLK-113**: an out-of-range decode (zero or above-powLimit
-compact target) carries zero work (chain.cpp:127's
-`negative || overflow || target == 0` → 0 gate). -/
+/-- **BLK-113**: a negative-flagged, overflowing, or zero decode carries
+zero work, exactly Core's `GetBlockProof` gate. -/
 @[rule "BLK-113"]
 theorem workOf_zero_invalid (bits : UInt32)
-    (h : compactTarget bits = 0 ∨ powLimit < compactTarget bits) :
+    (h : (Bitcoin.Capstone.Pow.setCompactFull bits).negative = true ∨
+      (Bitcoin.Capstone.Pow.setCompactFull bits).overflow = true ∨
+      compactTarget bits = 0) :
     workOf bits = 0 := by
   unfold workOf
-  split
-  · rfl
-  · next hg => exact absurd h hg
+  dsimp only
+  rw [if_pos h]
 
-/-- **BLK-113** (valid-decode branch): in range, the work is exactly
-`(~target / (target + 1)) + 1`, where `~target = 2^256 − 1 − target`. -/
+/-- **BLK-113** (valid-decode branch): a non-negative, non-overflowing,
+nonzero target has exactly `(~target / (target + 1)) + 1`, where
+`~target = 2^256 − 1 − target`. There is no `powLimit` condition. -/
 @[rule "BLK-113"]
 theorem workOf_valid_formula (bits : UInt32)
-    (h0 : compactTarget bits ≠ 0) (hl : ¬ powLimit < compactTarget bits) :
+    (h0 : compactTarget bits ≠ 0)
+    (hn : (Bitcoin.Capstone.Pow.setCompactFull bits).negative = false)
+    (ho : (Bitcoin.Capstone.Pow.setCompactFull bits).overflow = false) :
     workOf bits =
       (2 ^ 256 - 1 - compactTarget bits) / (compactTarget bits + 1) + 1 := by
-  have hv : ¬ (compactTarget bits = 0 ∨ powLimit < compactTarget bits) := by
-    intro h
-    rcases h with h | h
-    · exact h0 h
-    · exact hl h
   unfold workOf
-  rw [ite_eq_right hv]
+  dsimp only
+  rw [if_neg (by simp [h0, hn, ho])]
 
 /-- **BLK-113** (full row): unconditional two-branch form of
-`GetBlockProof` — zero for an invalid decode, the complement-division
-formula otherwise. -/
+`GetBlockProof` — zero for a negative-flagged, overflowing, or zero
+decode, the complement-division formula otherwise. -/
 @[rule "BLK-113"]
 theorem workOf_eq (bits : UInt32) :
     workOf bits =
-      (if compactTarget bits = 0 ∨ powLimit < compactTarget bits then 0
+      (if compactNegative bits = true ∨ compactOverflow bits = true ∨
+          compactTarget bits = 0 then 0
        else (2 ^ 256 - 1 - compactTarget bits) / (compactTarget bits + 1) + 1) := rfl
 
 /-! ## BLK-113 — the sign-aware decode (`fNegative`) and full GetBlockProof
@@ -82,26 +96,9 @@ target == 0` before applying `(~target / (target + 1)) + 1`.  It does
 **not** compare the decoded target against `powLimit`; that comparison
 belongs to `CheckProofOfWork`.
 
-`workOfSigned` below is the Core-faithful model.  The imported
-`Bitcoin.Block.Index.workOf` retains an extra `powLimit` gate, so the two
-agree only under the hypotheses of
-`workOfSigned_eq_workOf_of_nonneg`, and `workOf_powLimit_diverges` records
-the residual divergence.  Keeping the corrected model here (rather than
-rewriting the shared core definition) preserves the rest of the index
-surface. -/
-
-/-- Core `SetCompact`'s `fNegative` flag (`arith_uint256.cpp:188`):
-`nWord != 0 && (nCompact & 0x00800000) != 0`, where `nWord` is the
-post-right-shift word.  Testing the unshifted mantissa would flag
-`0x02800001` as negative even though Core's shifted `nWord` is zero. -/
-@[rule "BLK-113"]
-def compactNegative (bits : UInt32) : Bool :=
-  Bitcoin.Capstone.Pow.setCompactWord bits != 0 && (bits &&& 0x00800000) != 0
-
-/-- Core `SetCompact`'s `fOverflow` flag (`arith_uint256.cpp:190-192`). -/
-@[rule "BLK-113"]
-def compactOverflow (bits : UInt32) : Bool :=
-  (Bitcoin.Capstone.Pow.setCompactFull bits).overflow
+`workOfSigned` below is the explicit flag model; `workOf` uses the same
+`SetCompact` flags, so the two coincide on every encode (including
+negative and overflow decodes).  No `powLimit` divergence remains. -/
 
 /-- **BLK-113**: `GetBlockProof` (chain.cpp:120-133) — zero for a
 negative-flagged, overflowing, or zero compact target; the
@@ -128,22 +125,11 @@ theorem workOfSigned_overflow_zero (bits : UInt32)
   unfold workOfSigned
   rw [if_pos (Or.inr (Or.inl h))]
 
-/-- **BLK-113** (agreement with the gated projection): when the decode is
-non-negative, non-overflowing, and at most `powLimit`, the faithful model
-equals the imported `workOf`.  The extra `powLimit` hypothesis is exactly
-the gate the core projection adds. -/
+/-- **BLK-113** (agreement): the explicit flag model and `workOf` are the
+same function; both use Core's `SetCompact` negative/overflow flags. -/
 @[rule "BLK-113"]
-theorem workOfSigned_eq_workOf_of_nonneg (bits : UInt32)
-    (hn : compactNegative bits = false)
-    (ho : compactOverflow bits = false)
-    (hl : compactTarget bits ≤ powLimit) : workOfSigned bits = workOf bits := by
-  have hpl : ¬ powLimit < compactTarget bits := Nat.not_lt.mpr hl
-  unfold workOfSigned workOf
-  rw [hn, ho]
-  simp only [Bool.false_eq_true, false_or]
-  by_cases h0 : compactTarget bits = 0
-  · simp [h0]
-  · simp [h0, hpl]
+theorem workOfSigned_eq_workOf (bits : UInt32) : workOfSigned bits = workOf bits := by
+  rfl
 
 /-- **BLK-113** (valid branch): a non-negative, non-overflowing, nonzero
 decode has the complement-division work `(~target / (target + 1)) + 1`. -/
@@ -171,14 +157,13 @@ theorem workOfSigned_eq (bits : UInt32) :
           compactTarget bits = 0 then 0
        else (2 ^ 256 - 1 - compactTarget bits) / (compactTarget bits + 1) + 1) := rfl
 
-/-- **BLK-113** witnesses the sign divergence: `0x04801234` has a nonzero
-post-shift word and the compact sign bit set (`fNegative`), so Core returns
-0 while the core `workOf` (which masks the sign) computes positive work. -/
+/-- **BLK-113**: a negative-flagged decode returns zero work, exactly
+Core's `fNegative ⇒ 0`; the core `workOf` and the explicit flag model
+agree here. -/
 @[rule "BLK-113"]
-theorem workOf_negative_diverges :
-    compactNegative 0x04801234 = true ∧ workOfSigned 0x04801234 = 0 ∧
-      workOf 0x04801234 ≠ 0 := by
-  refine ⟨by decide, workOfSigned_negative_zero _ (by decide), ?_⟩
+theorem workOf_negative_zero :
+    compactNegative 0x04801234 = true ∧ workOf 0x04801234 = 0 ∧
+      workOfSigned 0x04801234 = 0 := by
   decide
 
 /-- **BLK-113** regression (shifted mantissa): `0x02800001` has the sign
@@ -192,26 +177,31 @@ theorem compactNegative_shifted_word_regression :
   decide
 
 /-- **BLK-113** regression (negative target): a sign-flagged nonzero word
-is rejected before the division. -/
+is rejected before the division in both models. -/
 @[rule "BLK-113"]
 theorem workOfSigned_negative_regression :
     compactNegative 0x03800123 = true ∧ workOfSigned 0x03800123 = 0 ∧
-      workOf 0x03800123 ≠ 0 := by
+      workOf 0x03800123 = 0 := by
   decide
 
 /-- **BLK-113** regression (overflow): an exponent above 34 sets
-`fOverflow`, so the work is zero regardless of the magnitude. -/
+`fOverflow`, so the work is zero regardless of the magnitude in both
+models. -/
 @[rule "BLK-113"]
 theorem workOfSigned_overflow_regression :
-    compactOverflow 0x23000001 = true ∧ workOfSigned 0x23000001 = 0 := by
+    compactOverflow 0x23000001 = true ∧ workOfSigned 0x23000001 = 0 ∧
+      workOf 0x23000001 = 0 := by
   decide
 
-/-- **BLK-113** regression (no `powLimit` gate): `0x1f00ffff` decodes to a
-target above mainnet's `powLimit`.  Core's `GetBlockProof` still computes
-positive work; the gated `workOf` projection returns zero. -/
+/-- **BLK-113** (no `powLimit` gate): `0x1f00ffff` is non-negative,
+non-overflowing, and decodes to a target above mainnet's `powLimit`.
+Core's `GetBlockProof` still computes positive work, and the sign-aware
+model agrees. -/
 @[rule "BLK-113"]
-theorem workOf_powLimit_diverges :
-    workOf 0x1f00ffff = 0 ∧ 0 < workOfSigned 0x1f00ffff := by
+theorem workOf_powLimit_positive :
+    compactNegative 0x1f00ffff = false ∧ compactOverflow 0x1f00ffff = false ∧
+      powLimit < compactTarget 0x1f00ffff ∧ 0 < workOf 0x1f00ffff ∧
+        workOfSigned 0x1f00ffff = workOf 0x1f00ffff := by
   decide
 
 /-- **INV-141**: difficulty-1 (genesis, nBits 0x1d00ffff)
@@ -221,13 +211,16 @@ division face). -/
 theorem workOf_difficulty_one : 0 < workOf 0x1d00ffff := by
   exact workOf_difficulty_one_pos
 
-/-- **INV-141**: an in-range nonzero decode (the GetBlockProof
-compact bounds) always carries positive work. -/
+/-- **INV-141**: a non-negative, non-overflowing, nonzero decode always
+carries positive work; the `workOf` projection does not impose a
+`powLimit` bound. -/
 @[rule "INV-141"]
 theorem workOf_pos_of_inRange (bits : UInt32)
     (h : 0 < compactTarget bits)
-    (hl : compactTarget bits ≤ powLimit) : 0 < workOf bits := by
-  exact workOf_pos_of_valid bits h hl
+    (hn : (Bitcoin.Capstone.Pow.setCompactFull bits).negative = false)
+    (ho : (Bitcoin.Capstone.Pow.setCompactFull bits).overflow = false) :
+    0 < workOf bits := by
+  exact workOf_pos_of_valid bits h hn ho
 
 /-! ## BLK-114: chainwork accumulation (nChainWork) -/
 

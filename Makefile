@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset gate-repro wallet-gates help
+        gate-subset gate-repro wallet-gates test-capstone-values test-capstone-funding test-capstone-context test-capstone-finality test-capstone-csv test-capstone-script-flags test-capstone-pow-limit test-capstone-sigops test-capstone-sigop-budget test-capstone-witness test-capstone-taproot help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -27,6 +27,17 @@ help:
 	@echo "make gate-subset         # 9: 2-5 MiB data subset, no git-lfs"
 	@echo "make gate-repro          # reproducibility scripts + local-path scan"
 	@echo "make wallet-gates        # wallet gates (set CORE_SRC for anchors)"
+	@echo "make test-capstone-values # live capstone monetary regressions (needs Lean)"
+	@echo "make test-capstone-funding # block reward and fee regressions (needs Lean)"
+	@echo "make test-capstone-context # contextual header regressions (needs Lean)"
+	@echo "make test-capstone-finality # absolute/BIP68 contextual regressions (needs Lean)"
+	@echo "make test-capstone-script-flags # actual-hash P2SH/Taproot flags and public regressions (needs Lean)"
+	@echo "make test-capstone-pow-limit # full parameter and rounded compact target checks (needs Lean)"
+	@echo "make test-capstone-csv # unsigned wire-version CSV regressions (needs Lean)"
+	@echo "make test-capstone-sigops # static sigop counter regressions (needs Lean)"
+	@echo "make test-capstone-sigop-budget # live block resource-boundary regressions (needs Lean)"
+	@echo "make test-capstone-witness # witness commitment/nonce/value regressions (needs Lean)"
+	@echo "make test-capstone-taproot # real key/script-path, cache and budget regressions (needs Lean)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
        gate-overrides gate-pin gate-wallet gate-subset
@@ -35,6 +46,7 @@ gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
 gate-sorry:
 	@echo "== gate 1: sorry lint =="
 	@bash $(SCRIPTS)/sorry_lint.sh
+	@$(PYTHON) -m unittest discover -s $(SCRIPTS)/tests -p 'test_proof_gates.py'
 
 gate-cross:
 	@echo "== gate 2: rule cross-check =="
@@ -78,6 +90,52 @@ gate-subset:
 gate-repro:
 	@echo "== reproducibility: reference scripts and local-path scan =="
 	@$(PYTHON) $(SCRIPTS)/check_reproducibility.py
+	@$(PYTHON) $(SCRIPTS)/generate_sigop_blocks.py --check
+	@$(PYTHON) $(SCRIPTS)/generate_witness_commitment_block.py --check
+	@$(PYTHON) $(SCRIPTS)/generate_taproot_validation.py --check
+	@$(PYTHON) $(SCRIPTS)/test_capstone_report.py
 
 wallet-gates:
 	@bash $(SCRIPTS)/wallet_gates.sh
+
+test-capstone-values:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/ValueChecks.lean
+
+test-capstone-funding:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/BlockFunding.lean
+
+test-capstone-context:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/HeaderContext.lean
+
+test-capstone-finality:
+	@cd $(SPEC)/core && lake env lean --run Test/Capstone/Finality.lean
+
+# CSV compares unsigned transaction version bits at the public transaction stage.
+test-capstone-csv:
+	cd spec/core && lake env lean --run Test/Capstone/CsvVersion.lean
+
+test-capstone-script-flags:
+	cd spec/core && lake build CapstoneTestSupport
+	cd spec/core && lake env lean --run Test/Capstone/ScriptFlags.lean
+
+test-capstone-pow-limit:
+	cd spec/core && lake env lean --run Test/Capstone/PowLimit.lean
+
+# Static counting includes malformed scripts, independent of execution validity.
+test-capstone-sigops:
+	cd spec/core && lake env lean --run Test/Capstone/Sigops.lean
+
+test-capstone-sigop-budget:
+	cd spec/core && lake env lean --run Test/Capstone/SigopBudget.lean
+
+test-capstone-witness:
+	cd spec/core && lake env lean --run Test/Capstone/WitnessCommitment.lean
+	cd spec/core && lake env lean --run Test/Capstone/WitnessStage.lean
+
+# Support library is explicit; runtime drivers remain outside the model library.
+test-capstone-taproot:
+	cd spec/core && lake build CapstoneTestSupport Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
+	cd spec/core && lake env lean --run Test/Capstone/WitnessInputs.lean
+	cd spec/core && lake env lean --run Test/Capstone/TaprootInputs.lean
+	cd spec/core && lake env lean --run Test/Capstone/TaprootBlocks.lean
+	cd spec/core && lake env lean --run Test/Capstone/SchnorrAssembly.lean

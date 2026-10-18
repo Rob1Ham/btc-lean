@@ -24,7 +24,8 @@ Direct ports of Core `consensus/merkle.cpp @cce32b168`:
   the other leaves are the `wtxid`s.
 * `witnessCommitmentOutput` — **BLK-015**: a commitment output is a
   coinbase output ≥ 38 bytes whose script starts `6a24aa21a9ed`; the last
-  one counts. **BLK-016**: its value is 0.
+  one counts. Its amount is unconstrained by witness validation;
+  **BLK-016** states amount independence; zero is only the generator's default.
 * `witnessCommitmentOk` — **BLK-017**:
   `SHA256d(witnessRoot ‖ reserved) = scriptPubKey[6..38]`, where the
   32-byte item is the coinbase witness reserved value (the
@@ -173,8 +174,9 @@ def witnessCommitmentOutput (tx : Tx) : Option ByteArray :=
   | some o => some o.scriptPubKey.bytes
   | none => none
 
-/-- **BLK-016**: every commitment output's value is 0 (BIP141). -/
-@[rule "BLK-016"]
+/-- Historical generator/reference predicate that every matching output
+has value zero. This is not a block-validity requirement: Core's witness
+check ignores output values, subject to the ordinary amount/reward gates. -/
 def commitmentValueZero (tx : Tx) : Bool :=
   (tx.vout.filter (fun o =>
       38 ≤ o.scriptPubKey.bytes.size &&
@@ -226,6 +228,29 @@ def commitmentNonceOk (cb : Tx) : Bool :=
   match cb.witness.getD 0 [] with
   | [nonce] => nonce.size = 32
   | _ => false
+
+/-- A selected reserved item has exactly the required witness-stack shape. -/
+theorem witnessReservedValue_nonce {cb : Tx} {reserved : ByteArray}
+    (hr : witnessReservedValue cb = some reserved) : commitmentNonceOk cb = true := by
+  unfold witnessReservedValue at hr
+  split at hr
+  · rename_i nonce heq
+    split at hr
+    · rename_i hs
+      simp only [commitmentNonceOk, heq, hs, decide_true]
+    · contradiction
+  · contradiction
+
+/-- Binding the actual reserved value already requires the correct nonce
+shape. This links the Boolean predicate to the ordered verdict stage. -/
+theorem witnessCommitmentOk_nonce {txs : List Tx} {cb : Tx}
+    (h : witnessCommitmentOk txs cb = true) : commitmentNonceOk cb = true := by
+  unfold witnessCommitmentOk at h
+  cases ho : witnessCommitmentOutput cb <;> simp only [ho] at h
+  · contradiction
+  · cases hr : witnessReservedValue cb <;> simp only [hr] at h
+    · contradiction
+    · exact witnessReservedValue_nonce hr
 
 /-- Some tx in the block carries witness data (BIP144 framing). -/
 def anyWitness (txs : List Tx) : Bool := txs.any hasWitness

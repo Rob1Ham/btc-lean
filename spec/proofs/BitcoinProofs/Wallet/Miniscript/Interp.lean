@@ -521,14 +521,14 @@ theorem eval_wrapC_pkK (key sig : ByteArray) (hkey : key.size = 33)
         Bitcoin.Interpreter.MAX_SCRIPT_ELEMENT_SIZE, MAX_STACK_SIZE, MAX_OPS_PER_SCRIPT,
         finAC_toNat, fin172_toNat,
         wireOfAst, serializeOpcode, pushBytesWire, lenBytes, checkMinimalPush,
-        topAt, evalChecksigDispatch, evalChecksigPreTapscript,
+        topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript,
         hkey, hne, h75, henc, hpk, hchk', pushBoolV, vchTrue, disabledWire, hmin,
         ByteArray.append_assoc, serializeOpcodes]
       rw [show (↑(172 : Fin 256) : Nat) = 172 from rfl]
       simp [evalFrom, stepChecked, stepBody, stepBody.dispatchOp, finalStack, wireOpsFrom,
         Bitcoin.Interpreter.MAX_SCRIPT_ELEMENT_SIZE, MAX_STACK_SIZE, MAX_OPS_PER_SCRIPT,
         wireOfAst, serializeOpcode, pushBytesWire, lenBytes, checkMinimalPush,
-        topAt, evalChecksigDispatch, evalChecksigPreTapscript,
+        topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript,
         hkey, hne, h75, henc, hpk, hchk', pushBoolV, vchTrue, disabledWire, hmin,
         ByteArray.append_assoc, serializeOpcodes]
     · intro o ho
@@ -594,7 +594,7 @@ theorem eval_wrapC_pkH (key keyHash sig : ByteArray) (hkey : key.size = 33) (hkh
   · rw [parseWire_serializeOpcodes]
     · simp [evalFrom, stepChecked, stepBody, stepBody.dispatchOp, finalStack, wireOpsFrom,
         Bitcoin.Interpreter.MAX_SCRIPT_ELEMENT_SIZE, MAX_OPS_PER_SCRIPT, MAX_STACK_SIZE,
-        wireOfAst, hashForOp, checkMinimalPush, topAt, evalChecksigDispatch, evalChecksigPreTapscript,
+        wireOfAst, hashForOp, checkMinimalPush, topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript,
         hkey, hne, hkh, hneKH, hhash, henc, hpk, hchk'', pushBoolV, vchTrue, disabledWire, hmin,
         ByteArray.append_assoc, hbeq]
       rw [show (↑(118 : Fin 256) : Nat) = 118 from rfl,
@@ -603,7 +603,7 @@ theorem eval_wrapC_pkH (key keyHash sig : ByteArray) (hkey : key.size = 33) (hkh
           show (↑(172 : Fin 256) : Nat) = 172 from rfl]
       simp [evalFrom, stepChecked, stepBody, stepBody.dispatchOp, finalStack, wireOpsFrom,
         Bitcoin.Interpreter.MAX_SCRIPT_ELEMENT_SIZE, MAX_OPS_PER_SCRIPT, MAX_STACK_SIZE,
-        wireOfAst, hashForOp, checkMinimalPush, topAt, evalChecksigDispatch, evalChecksigPreTapscript,
+        wireOfAst, hashForOp, checkMinimalPush, topAt, signatureExecutionData, evalChecksigDispatch, evalChecksigPreTapscript,
         hkey, hne, hkh, hneKH, hhash, henc, hpk, hchk'', pushBoolV, vchTrue, disabledWire, hmin,
         ByteArray.append_assoc, hbeq]
       simp [hchk3, hchk'', Bool.true_eq_false, Bool.false_eq_true, pushBoolV, vchTrue, serU8, vchFalse]

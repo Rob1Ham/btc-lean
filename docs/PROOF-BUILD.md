@@ -1,10 +1,11 @@
 # Proof build scope and status
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
-proof tree. It builds the root module plus its 28 direct/transitive local
-imports: **29 modules**, recorded at **1722 jobs**. The package contains **409
-Lean modules** (410 `.lean` files including `lakefile.lean`); **380 modules are
-outside the default closure**.
+proof tree. It builds the root module plus its 35 direct/transitive local
+imports: **36 modules**. The historical baseline recorded **1722 jobs**; the
+current validated build reports **1,731 jobs** (2026-10-18).
+The package contains **416 Lean modules** (417 `.lean` files including
+`lakefile.lean`); **380 modules are outside the default closure**.
 
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
 
@@ -30,7 +31,7 @@ current outside-closure status is **372 passes and 8 failures**.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
-| Default `BitcoinProofs` closure | 29 modules | 29 | 0 |
+| Default `BitcoinProofs` closure | 36 modules | 36 | 0 |
 | Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 372 | 8 |
 | — `AF` namespace | 249 | 249 | 0 |
 | — `Theorems` namespace | 24 | 22 | 2 |
@@ -47,11 +48,13 @@ current outside-closure status is **372 passes and 8 failures**.
 | — `Activation` namespace | 1 | 1 | 0 |
 | — `Interpreter` namespace | 1 | 1 | 0 |
 
-The 409 modules include the 29 in the default closure. The outside-closure
+The 416 modules include the 36 in the default closure. The outside-closure
 table has 381 entries because it includes the non-module `lakefile.lean`, which
 the static index excludes; `lakefile.lean` is the Lake build configuration, not
 a module, so it is not built by name and the builds-plus-failures total is the
-380 modules. The namespace rows are the post-audit partition of those 380 modules,
+380 modules. The candidate adds seven modules to the default closure without
+changing the 380-module outside-closure count, so the recorded 372/8 status is
+unchanged. The namespace rows are the post-audit partition of those 380 modules,
 not a re-use of the earlier five-way census categories.
 
 ## Failing modules
@@ -94,11 +97,11 @@ and `BitcoinProofs.Property.Y15.WitnessProps`.
 
 ## What a clean build means
 
-`BitcoinProofs` building means that the 29 default-closure modules elaborate
+`BitcoinProofs` building means that the 36 default-closure modules elaborate
 against the pinned Lean toolchain, mathlib revision, and core package. It does
-**not** mean that all 409 proof modules were rebuilt, that every cited row
+**not** mean that all 416 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
-Core. Statement fidelity is a separate review obligation, with the 27 known
+Core. Statement fidelity is a separate review obligation, with the 25 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
 proof-surface reductions in [`AUDIT-RESIDUALS.md`](AUDIT-RESIDUALS.md).
 

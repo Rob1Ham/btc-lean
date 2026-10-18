@@ -6,8 +6,9 @@ import Bitcoin.Block.Pow
 
 Independent reference implementation generated from the cited Bitcoin Core semantics.
 
-Ground truth: Bitcoin Core `arith_uint256.cpp` @ `c50817f` (v32.99 master
-pin; fetched from github.com/bitcoin/bitcoin at that commit):
+Ground truth: Bitcoin Core `arith_uint256.cpp` @ `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`:
+Encoding cases also run against the unchanged Core bodies at the alternative
+issue-16 pin via `spec/scripts/check_pow_limit_core.py`.
 `arith_uint256::SetCompact` (arith_uint256.cpp:176-194 — exponent byte,
 0x007fffff mantissa, `nSize <= 3` right-shift arm, sign/overflow flags),
 `base_uint::bits()` (:155-168), `arith_uint256::GetCompact` (:196-215 —
@@ -135,8 +136,8 @@ example : getCompact 18374686479671623680 = 0x0900ff00 := by decide
 example : getCompact 1766820104831717178943502833727831496196810259731196417549125097682370560 = 0x1f00ffff := by decide
 example : getCompact 452305946836919597809536725434324863026383426491186282892576025006686863360 = 0x2000ffff := by decide
 example : getCompact 904611893673839195619073450868649726052766852982372565785152050013373726720 = 0x2001fffe := by decide
-example : getCompact 26959535291011309493156476344723991336010898738574164086137773096960 = 0x1d00ffff := by decide
-example : getCompact 26959535291011309493156476344723991336010898738574164086137773096961 = 0x1d00ffff := by decide
+example : getCompact 26959946667150639794667015087019630673637144422540572481103610249215 = 0x1d00ffff := by decide
+example : getCompact 26959946667150639794667015087019630673637144422540572481103610249216 = 0x1d010000 := by decide
 example : getCompact 1766847064778384329583297500742918515827483896875618958121606201292619776 = 0x1f010000 := by decide
 example : getCompact 452312848583266388373324160190187140051835877600158453279131187530910662655 = 0x2000ffff := by decide
 example : getCompact 57896044618658097711785492504343953926634992332820282019728792003956564819968 = 0x21008000 := by decide
@@ -240,7 +241,7 @@ theorem anchor_roundtrip_genesis :
 
 /-- Encode edge: mainnet powLimit re-encodes to difficulty-1 nBits (case D15). -/
 theorem encode_powLimit :
-    getCompact (0xffff * 256 ^ 26) = (0x1d00ffff : UInt32) := by
+    getCompact powLimitMainnet = (0x1d00ffff : UInt32) := by
   decide
 
 /-- Negative space: the 0x23000001 overflow divergence, Lean side pinned as a

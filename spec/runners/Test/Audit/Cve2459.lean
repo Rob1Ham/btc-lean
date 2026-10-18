@@ -17,14 +17,14 @@ validator `Bitcoin.Capstone.Block.validateBlock` and asserts:
      the merkle-ROOT-MISMATCH gate rejects — BLK-010);
    * `base-odd`   [cb, t1, t2]                → OK
    * `mut-odd-dup-tail` [cb, t1, t2, t2copy] under the base-odd header
-     → `bad-txns-BIP30`. THE CVE-2012-2459 MUTANT: its merkle root is
+     → `bad-txns-duplicate`. THE CVE-2012-2459 MUTANT: its merkle root is
      EQUAL to the base's (assert 2 below — the odd level's last-element
      duplication, BLK-008, folds the duplicate pair identically), so
      the root-mismatch gate alone would ACCEPT it. The Lean pipeline
-     still rejects — via the BIP30 duplicate-outpoint gate in the W12
-     fold. Core rejects EARLIER, at CheckBlock, via the `mutated` flag
-     (`bad-txns-duplicate`, BLK-011 — planned in rules.yaml, see
-     FIND-X11-001).
+     rejects at the CheckMerkleRoot mutation scan (BLK-011), the same
+     place Core sets its `mutated` flag. The BIP30 duplicate-outpoint
+     gate would also see the duplicate, but the mutation check runs
+     first.
 2. **The CVE property, computed in Lean with the REAL sha256d seam**:
    `merkleRootOfBlock` over the mutated odd-base tx list EQUALS the
    un-mutated twin's root (root-equality vulnerability present), while

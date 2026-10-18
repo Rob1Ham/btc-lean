@@ -41,7 +41,7 @@ open Bitcoin.Crypto.Seam.Entry
 set_option maxRecDepth 40000
 
 /-- The all-accepting checker (X04's `ckGood`). -/
-def ckGood : ScriptChecker := ⟨stubChecker, default⟩
+def ckGood : ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- 64-byte nonempty signature (stub verdict `true`). -/
 def sig64 : ByteArray := ByteArray.mk (Array.replicate 64 (0xab : UInt8))

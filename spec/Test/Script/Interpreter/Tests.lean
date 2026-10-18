@@ -67,11 +67,11 @@ def cflags : ScriptFlags := { cltv := true, csv := true }
 
 /-- The corpus checker: frozen stub EC/Schnorr seam + default
 transaction environment (version 1, nLockTime 0, nSequence FINAL). -/
-def tchk : ScriptChecker := ⟨stubChecker, default⟩
+def tchk : ScriptChecker := ⟨stubChecker, default, none⟩
 
 /-- Checker with spendable locktime gates: nVersion ≥ 2 and a
 non-FINAL input sequence (Core returns false for CLTV/CSV otherwise). -/
-def chk2 : ScriptChecker := ⟨stubChecker, { txSequence := 4, txVersion := 2 }⟩
+def chk2 : ScriptChecker := ⟨stubChecker, { txSequence := 4, txVersion := 2 }, none⟩
 
 /-- Run a script from empty stack, base sigversion, no flags. -/
 def run (b : ByteArray) (fuel : Nat := 64) : Except ExecError Stack :=
@@ -203,6 +203,28 @@ example : run (hex "6c") = .error .invalidAltstackOperation := by decide
 
 -- CODESEPARATOR executes as a no-op on the stack (SCR-096/097)
 example : run (hex "51ab") = .ok [hex "01"] := by decide
+
+/-! ### CODESEPARATOR index vs legacy byte offset (SCR-167)
+
+Two 4-byte pushes and `OP_0` occupy 11 bytes, so the fourth instruction
+`OP_CODESEPARATOR` is opcode index 3, while the legacy byte offset just past
+it (`op.next`) is 12. -/
+def codesepIndexScript : ByteArray := hex "04aaaaaaaa04bbbbbbbb00ab"
+
+def codesepIndexState : Option (Nat × UInt32) :=
+  match parseWire codesepIndexScript with
+  | none => none
+  | some ops =>
+      match evalFrom
+          { flags := noflags, pol := default, chk := tchk, sv := .tapscript,
+            bytes := codesepIndexScript, ed := default }
+          (ops.length + 1) ops
+          { stack := [], alt := [], vf := [], opCount := 0, codeSep := 0, vwLeft := none } with
+      | .ok st => some (st.codeSep, st.codeSepPos)
+      | .error _ => none
+
+-- (legacy byte offset, tapscript opcode index) = (12, 3), not (12, 12)
+example : codesepIndexState = some (12, 3) := by native_decide
 
 -- upgradable NOPs pass by default (SCR-071/072)
 example : run (hex "b9") = .ok [] := by decide

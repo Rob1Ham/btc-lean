@@ -79,16 +79,16 @@ private theorem foldl_add_int (g : ByteArray → Int) (l : List ByteArray) (k : 
     rw [ih (k + g d), ih (0 + g d)]
     omega
 
-/-- SCR-040 (size face): `witnessSerSize` adds, per witness item, the
-CompactSize length prefix plus the item bytes — exactly Core's
-`GetSerializeSize(witness.stack)` used to seed the BIP342 budget
-(interpreter.cpp:1991; script.h:62-65). -/
+/-- Prepending an item includes any growth of the stack-count CompactSize. -/
 @[rule "SCR-040"]
 theorem witnessSerSize_cons (d : ByteArray) (rest : List ByteArray) :
-    witnessSerSize (d :: rest)
-      = witnessSerSize rest + Int.ofNat ((compactSizeEnc d.size).size + d.size) := by
-  unfold witnessSerSize
-  simp only [List.foldl_cons]
+    witnessSerSize (d :: rest) = witnessSerSize rest +
+      (Int.ofNat (compactSizeEnc (rest.length+1)).size -
+        Int.ofNat (compactSizeEnc rest.length).size) +
+      Int.ofNat ((compactSizeEnc d.size).size + d.size) := by
+  unfold witnessSerSize Bitcoin.Crypto.Taproot.Program.witnessSerSize
+    Bitcoin.Crypto.Taproot.Program.witnessPayloadSize
+  simp only [List.foldl_cons, List.length_cons]
   rw [foldl_add_int (fun d => Int.ofNat ((compactSizeEnc d.size).size + d.size))]
   omega
 
@@ -111,7 +111,7 @@ theorem evalChecksigTapscript_decrements_50_row
     (pol : PolicyFlags) (chk : ScriptChecker) (ed : ScriptExecutionData)
     (sig pk : ByteArray) (vw : Option Int)
     (hsig : sig.size ≠ 0) (hpk : pk.size = 32)
-    (hok : chk.base.checkSchnorrSignature sig pk SigVersion.tapscript ed = true)
+    (hok : checkSchnorrWithContext chk sig pk SigVersion.tapscript ed = .ok ())
     (hvw : 0 ≤ (vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED) :
     evalChecksigTapscript pol chk ed sig pk vw
       = .ok (true, some ((vw.getD 0) - VALIDATION_WEIGHT_PER_SIGOP_PASSED)) :=
@@ -133,7 +133,9 @@ theorem checksigAddStep_row
 
 end BitcoinProofs.AF.PDW73b
 
-/-- info: 'BitcoinProofs.AF.PDW73b.verifyScriptFull_sigPushOnly_parseFail' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'BitcoinProofs.AF.PDW73b.verifyScriptFull_sigPushOnly_parseFail' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
 #guard_msgs in
 #print axioms BitcoinProofs.AF.PDW73b.verifyScriptFull_sigPushOnly_parseFail
 /-- info: 'BitcoinProofs.AF.PDW73b.executeWitnessScript_stackgate_row' depends on axioms: [propext, Quot.sound] -/

@@ -21,7 +21,7 @@ the coinbase's total output value must not exceed fees + subsidy. -/
 theorem cbAmountOk_iff (cb : Tx) (fees : Amount) (height : UInt32) :
     cbAmountOk cb fees height = true ↔
       cb.getValueOut ≤ fees + blockSubsidy height := by
-  simp [cbAmountOk]
+  simp [cbAmountOk, coinbaseRewardOk]
 
 /-! ## BLK-104: BIP68 block aggregation (validation.cpp:2525-2538) —
 per-tx exemption-or-lock ⇒ block gate passes. -/

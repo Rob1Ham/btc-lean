@@ -53,7 +53,7 @@ def case_mut_odd_dup_tail : Cve2459Case :=
     height := (100 : UInt32),
     prevHash := bytes #[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10],
     utxo := cve2459Utxo,
-    expected := "bad-txns-BIP30",
+    expected := "bad-txns-duplicate",
     twinBlock := some blk_base_odd, rootEqual := some true }
 
 /-- (id, block, state, expected) cases for the driver. -/

@@ -7,13 +7,12 @@ Route B: zero core writes; tags ride the theorems below.
 BLK-033 = `GetLegacySigOpCount` (tx_verify.cpp:118-130); BLK-035 =
 `GetTransactionSigOpCost` (tx_verify.cpp:149-168).
 
-Scope note (re-audit): `Bitcoin.Block.Sigops.p2shSigOpCount` and
-`witnessInputSigOps` call the flat `sigOpScan` (`fAccurate = false`).
-Core's P2SH and P2WSH terms call `GetSigOpCount(true)`
-(`Bitcoin.Interpreter.sigOpCount … true`), which decodes the preceding
-`OP_N`. The BLK-035 faces here are therefore the block model's
-decomposition, not an exact Core cost; the divergence is pinned by
-`p2sh_flat_vs_accurate_witness`. -/
+The interpreter, transaction and block layers share the raw script
+counter. Malformed scripts retain their valid prefix; P2SH scriptSigs
+must parse fully and be push-only; witness input indexing does not
+truncate at a missing witness stack. Activation flags and the live
+cumulative block budget remain separate caller-side checks.
+-/
 
 namespace BitcoinProofs.AF.PDW29
 
@@ -52,13 +51,8 @@ theorem legacySigOpCountTx_row_vector :
 
 /-- The wire opcodes actually visited by the `GetOp`-shaped scan, in order
 (push payloads are skipped). -/
-def scanOps (b : ByteArray) : Nat → Nat → List Nat
-  | 0, _ => []
-  | fuel + 1, i =>
-      if b.size ≤ i then []
-      else
-        let op := (b.get! i).toNat
-        op :: scanOps b fuel (i + min (scanAdv b op i) (b.size - i))
+def scanOps (b : ByteArray) (fuel i : Nat) : List Nat :=
+  (Bitcoin.Interpreter.SigOps.parseWirePrefixFrom fuel b i).map (·.wire)
 
 /-- Flat sigop weight of one scanned opcode (`CountSigOps`,
 policy.cpp:83-93): CHECKSIG/CHECKSIGVERIFY = 1,
@@ -72,51 +66,29 @@ def sigOpWeight (op : Nat) : Nat :=
 
 theorem MAX_PUBKEYS_PER_MULTISIG_eq : MAX_PUBKEYS_PER_MULTISIG = 20 := rfl
 
-theorem scanAcc_eq_add_weight (op acc : Nat) :
-    scanAcc op acc = acc + sigOpWeight op := by
-  unfold scanAcc sigOpWeight
-  by_cases h1 : op = 0xac <;> by_cases h2 : op = 0xad <;>
-    by_cases h3 : op = 0xae <;> by_cases h4 : op = 0xaf <;>
-    simp [h1, h2, h3, h4, MAX_PUBKEYS_PER_MULTISIG]
-
-/-- The executable scan is exactly a fold of `scanAcc` over the visited
-opcode bytes. -/
-theorem sigOpScan_eq_foldl_scanAcc (b : ByteArray) :
-    ∀ fuel i acc,
-      sigOpScan b fuel i acc =
-        (scanOps b fuel i).foldl (fun a op => scanAcc op a) acc := by
-  intro fuel
-  induction fuel with
-  | zero => intro i acc; rfl
-  | succ f ih =>
-    intro i acc
-    simp only [sigOpScan, scanOps]
-    split
-    · rfl
-    · rw [List.foldl_cons, ih]
-
-theorem foldl_scanAcc_eq (ls : List Nat) (acc : Nat) :
-    ls.foldl (fun a op => scanAcc op a) acc =
-      acc + ls.foldl (fun a op => a + sigOpWeight op) 0 := by
-  induction ls generalizing acc with
-  | nil => simp
-  | cons x xs ih =>
-    rw [List.foldl_cons, List.foldl_cons, ih (scanAcc x acc),
-      scanAcc_eq_add_weight]
-    rw [show xs.foldl (fun a op => a + sigOpWeight op) (0 + sigOpWeight x)
-        = (0 + sigOpWeight x) + xs.foldl (fun a op => a + sigOpWeight op) 0
-        from foldl_add_split xs _ _]
-    omega
+private theorem inaccurate_eq_weight_fold (ops : List Bitcoin.Interpreter.WireOp) :
+    Bitcoin.Interpreter.SigOps.inaccurateSigOpCount ops =
+      (ops.map (·.wire)).foldl (fun a op => a + sigOpWeight op) 0 := by
+  induction ops with
+  | nil => rfl
+  | cons o rest ih =>
+    simp only [Bitcoin.Interpreter.SigOps.inaccurateSigOpCount, List.map_cons, List.foldl_cons]
+    rw [foldl_add_split]
+    rw [ih]
+    simp only [Nat.zero_add]
+    unfold sigOpWeight Bitcoin.Interpreter.SigOps.isCheckSigWire
+      Bitcoin.Interpreter.SigOps.isCheckMultiSigWire
+    by_cases h1 : o.wire = 0xac <;> by_cases h2 : o.wire = 0xad <;>
+      by_cases h3 : o.wire = 0xae <;> by_cases h4 : o.wire = 0xaf <;>
+      simp [h1, h2, h3, h4, Bitcoin.Interpreter.MAX_PUBKEYS_PER_MULTISIG]
 
 /-- One script's legacy count is the total flat weight of its scanned
 opcodes. -/
 theorem legacySigOpCountScript_eq_weight_sum (s : Bitcoin.Data.Script) :
     legacySigOpCountScript s =
-      (scanOps s.bytes s.bytes.size 0).foldl
+      (scanOps s.bytes (s.bytes.size+1) 0).foldl
         (fun a op => a + sigOpWeight op) 0 := by
-  unfold legacySigOpCountScript
-  rw [sigOpScan_eq_foldl_scanAcc, foldl_scanAcc_eq]
-  simp
+  exact inaccurate_eq_weight_fold (Bitcoin.Interpreter.SigOps.parseWirePrefix s.bytes)
 
 /-- Number of occurrences of one wire byte among the scanned opcodes. -/
 def countOp (op : Nat) : List Nat → Nat
@@ -149,10 +121,10 @@ opcode-lookalikes inside pushes are not counted. -/
 @[rule "BLK-033"]
 theorem legacySigOpCountScript_eq_counts (s : Bitcoin.Data.Script) :
     legacySigOpCountScript s =
-      countOp 0xac (scanOps s.bytes s.bytes.size 0) +
-      countOp 0xad (scanOps s.bytes s.bytes.size 0) +
-      20 * (countOp 0xae (scanOps s.bytes s.bytes.size 0) +
-            countOp 0xaf (scanOps s.bytes s.bytes.size 0)) := by
+      countOp 0xac (scanOps s.bytes (s.bytes.size+1) 0) +
+      countOp 0xad (scanOps s.bytes (s.bytes.size+1) 0) +
+      20 * (countOp 0xae (scanOps s.bytes (s.bytes.size+1) 0) +
+            countOp 0xaf (scanOps s.bytes (s.bytes.size+1) 0)) := by
   rw [legacySigOpCountScript_eq_weight_sum, foldl_weight_eq_counts]
 
 /-- **BLK-033** (tx level): the same weighted count, independently over
@@ -161,15 +133,15 @@ every scriptSig and every scriptPubKey of the transaction. -/
 theorem legacySigOpCountTx_eq_counts (tx : Bitcoin.Data.Tx) :
     legacySigOpCountTx tx =
       (tx.vin.foldl (fun a i =>
-        a + (countOp 0xac (scanOps i.scriptSig.bytes i.scriptSig.bytes.size 0) +
-             countOp 0xad (scanOps i.scriptSig.bytes i.scriptSig.bytes.size 0) +
-             20 * (countOp 0xae (scanOps i.scriptSig.bytes i.scriptSig.bytes.size 0) +
-                   countOp 0xaf (scanOps i.scriptSig.bytes i.scriptSig.bytes.size 0)))) 0) +
+        a + (countOp 0xac (scanOps i.scriptSig.bytes (i.scriptSig.bytes.size+1) 0) +
+             countOp 0xad (scanOps i.scriptSig.bytes (i.scriptSig.bytes.size+1) 0) +
+             20 * (countOp 0xae (scanOps i.scriptSig.bytes (i.scriptSig.bytes.size+1) 0) +
+                   countOp 0xaf (scanOps i.scriptSig.bytes (i.scriptSig.bytes.size+1) 0)))) 0) +
       (tx.vout.foldl (fun a o =>
-        a + (countOp 0xac (scanOps o.scriptPubKey.bytes o.scriptPubKey.bytes.size 0) +
-             countOp 0xad (scanOps o.scriptPubKey.bytes o.scriptPubKey.bytes.size 0) +
-             20 * (countOp 0xae (scanOps o.scriptPubKey.bytes o.scriptPubKey.bytes.size 0) +
-                   countOp 0xaf (scanOps o.scriptPubKey.bytes o.scriptPubKey.bytes.size 0)))) 0) := by
+        a + (countOp 0xac (scanOps o.scriptPubKey.bytes (o.scriptPubKey.bytes.size+1) 0) +
+             countOp 0xad (scanOps o.scriptPubKey.bytes (o.scriptPubKey.bytes.size+1) 0) +
+             20 * (countOp 0xae (scanOps o.scriptPubKey.bytes (o.scriptPubKey.bytes.size+1) 0) +
+                   countOp 0xaf (scanOps o.scriptPubKey.bytes (o.scriptPubKey.bytes.size+1) 0)))) 0) := by
   unfold legacySigOpCountTx
   simp only [legacySigOpCountScript_eq_counts]
 

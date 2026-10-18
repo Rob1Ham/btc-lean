@@ -1,3 +1,11 @@
+import BitcoinProofs.AF.PDW27.SCR015INV133
+import BitcoinProofs.AF.PDW84.PDW84e
+import BitcoinProofs.AF.PDW28.PDW28Guards
+import Bitcoin.Block.Pow
+import Bitcoin.Block.Index
+import BitcoinProofs.Theorems.BlockCor
+import BitcoinProofs.Theorems.CapstonePowCor
+import Bitcoin.Interpreter.Rules
 import Bitcoin.Data.Basic
 import Bitcoin.Chain.Basic
 import Bitcoin.Crypto.Seam.Interface
@@ -25,6 +33,20 @@ import BitcoinProofs.Theorems.LedgerCor
 import BitcoinProofs.Theorems.InterpCor
 -- W14b: curve group law + ECDSA-lax (ZMod Pratt certificate lives proofs-side).
 import BitcoinProofs.Crypto.CurveZMod
+
+import BitcoinProofs.Theorems.CapstoneFunding
+import BitcoinProofs.Theorems.CapstoneContext
+import BitcoinProofs.Theorems.CapstoneSequence
+import BitcoinProofs.Theorems.CapstoneSigops
+import BitcoinProofs.Theorems.CapstoneWitness
+import BitcoinProofs.AF.PDW29.PDW29Sigops
+import BitcoinProofs.AF.PDW36.PDW36Guards
+import BitcoinProofs.AF.PDW21.PDW21
+import Bitcoin.TxValidation.LocktimeSigOps
+
+import BitcoinProofs.Theorems.CapstoneTaproot
+
+import Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
 
 /-!
 # Axiom probe — the input of the axiom-manifest gate
@@ -306,3 +328,142 @@ tree. It now imports exactly the modules owning the pinned theorems.)
 #print axioms Bitcoin.Interpreter.finalStack_ok
 #print axioms Bitcoin.Interpreter.evalScriptBytes_ok_stack_bound
 #print axioms Bitcoin.Interpreter.evalScriptBytes_fuel_mono
+
+-- R02: checked fees and subsidy bounds on the live serialized-block path.
+#print axioms Bitcoin.Capstone.Block.applyTx_unfold
+#print axioms Bitcoin.Capstone.Block.applyTxWithFeeCheck_ok
+#print axioms Bitcoin.Capstone.Block.applyTxsWithFees_ok
+#print axioms Bitcoin.Capstone.Block.applyBlockTransactions_ok
+#print axioms BitcoinProofs.Theorems.CapstonePipeline.validateBlock_ok_funded_shape
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyTxWithFeeCheck_fee
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyTxsWithFees_range
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.applyBlockTransactions_funding
+#print axioms BitcoinProofs.Theorems.CapstoneFunding.validateBlock_funding
+
+-- R04: public contextual header rules and complete MTP ancestor windows.
+#print axioms Bitcoin.Capstone.Context.ContextError.reason_nonempty
+#print axioms BitcoinProofs.Theorems.CapstoneContext.requireMtpWindow_complete
+#print axioms BitcoinProofs.Theorems.CapstoneContext.medianTimePastStrict_complete
+#print axioms BitcoinProofs.Theorems.CapstoneContext.checkHeaderContext_ok
+#print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header
+#print axioms BitcoinProofs.Theorems.CapstoneContext.validateBlockInContext_header_rules
+
+-- R03: single checked-input pass, actual contextual lock trace and public funding.
+#print axioms Bitcoin.Capstone.Block.applyTxWithFeeCheck_unfold
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.contextualFinality_eq
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_checked
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxWithChecks_fee_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.sequenceInputData_length
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.checkSequenceContext_ok
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.checkContextualTx_ok
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_fee_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyTxsInContext_trace
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.applyContextualBlockTransactions_funding
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_stages
+#print axioms BitcoinProofs.Theorems.CapstoneSequence.validateBlockInContext_locks
+
+-- Static sigop counting repairs and upstream sentinel strengthening.
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_length_le
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefixFrom_of_parse
+#print axioms Bitcoin.Interpreter.SigOps.parseWirePrefix_of_parse
+#print axioms Bitcoin.Interpreter.SigOps.inaccurateSigOpCount_le
+#print axioms Bitcoin.Interpreter.SigOps.scriptSigOpCount_inaccurate_le
+#print axioms Bitcoin.Interpreter.SigOps.witnessScriptSigOps_of_parse
+#print axioms Bitcoin.TxValidation.LocktimeSigOps.sigOpCount_inaccurate_checkmultisig
+#print axioms Bitcoin.TxValidation.LocktimeSigOps.txLegacySigOps_eq_sum
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_nonpush
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_push_redeem
+#print axioms Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_redeem_parsed
+#print axioms Bitcoin.Block.Sigops.witnessSigOps_none
+#print axioms BitcoinProofs.AF.PDW29.legacySigOpCountScript_eq_counts
+#print axioms BitcoinProofs.AF.PDW36.sigOpCount_accurate_multisig
+#print axioms BitcoinProofs.AF.PDW36.p2shSigOpCount_nonpush
+#print axioms BitcoinProofs.AF.PDW36.p2shSigOpCount_pushOnly
+#print axioms BitcoinProofs.AF.PDW21.sentinel_ne_height_below_sentinel
+
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_enabled
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_coinbase
+
+#print axioms Bitcoin.Interpreter.txP2shSigOps_coinbase
+
+-- Actual block resource budgets: early stateless/legacy and evolving contextual cost.
+#print axioms Bitcoin.Capstone.Block.checkBlockStateless_error
+#print axioms Bitcoin.Capstone.Block.checkBlockPrelude_error
+#print axioms Bitcoin.Capstone.Block.checkBlockStateless_ok
+#print axioms Bitcoin.Capstone.Block.checkBlockPrelude_ok
+#print axioms Bitcoin.Capstone.Block.unit_precheck_ok
+#print axioms Bitcoin.Capstone.Block.applyTxWithChecks_checks_ok
+#print axioms Bitcoin.Capstone.Block.applyTxWithChecks_replace
+#print axioms Bitcoin.Capstone.Block.checkSigopTotal_ok
+#print axioms Bitcoin.Capstone.Block.applyTxsWithSigops_projection
+#print axioms Bitcoin.Capstone.Block.applyBlockTransactionsWithSigops_projection
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.SigopTrace_nondecreasing
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_bounded
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_trace
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_fold
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_stage
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_legacy_budget
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_sigop_budget
+
+#print axioms Bitcoin.Block.Sigops.txSigOpCostWithFlags_decompose
+
+-- R05: exact witness verdict stage and amount independence.
+#print axioms Bitcoin.Capstone.Merkle.witnessReservedValue_nonce
+#print axioms Bitcoin.Capstone.Merkle.witnessCommitmentOk_nonce
+#print axioms Bitcoin.Capstone.Block.checkWitnessCommitment_ok_iff
+#print axioms Bitcoin.Capstone.Block.checkWitnessCommitment_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_nonce_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_hash_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_unexpected_error
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.witnessCommitmentOutput_values
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_values
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.validateBlock_witness
+#print axioms BitcoinProofs.Theorems.CapstoneWitness.checkWitnessCommitment_coinbase_values
+
+-- R06: actual prevout cache, full serialized budget and explicit status.
+#print axioms Bitcoin.Capstone.Block.collectSpentOutputs_spec
+#print axioms Bitcoin.Capstone.Block.collectSpentOutputs_complete
+#print axioms Bitcoin.Capstone.Block.checkTxInputs_spentOutputs
+#print axioms Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size
+#print axioms Bitcoin.Crypto.Taproot.Program.compactSizeEnc_size_mono
+#print axioms Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_single
+#print axioms Bitcoin.Crypto.Taproot.Program.witnessSerSize_append_strict
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.witnessSerSize_eq_encoder
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.interpreter_size_eq_encoder
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_script_status
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_complete_iff
+#print axioms BitcoinProofs.Theorems.CapstoneTaproot.validateBlock_scripts_incomplete_iff
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.validationWeightInit_eq_encoder
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_encoder_budget
+
+#print axioms BitcoinProofs.Theorems.WitnessSerialization.executeWitnessScript_exact_seed
+
+-- R19: unconditional ECDSA preservation in the Boolean compatibility assembly.
+#print axioms Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq
+
+-- R18: unsigned wire-version CSV gate and high-bit boundaries.
+#print axioms Bitcoin.Interpreter.checkSequenceDef_version_gate
+#print axioms Bitcoin.Interpreter.checkSequenceDef_wire_congr
+#print axioms Bitcoin.Interpreter.checkSequenceDef_high_bit_versions
+
+-- R07c full-limit and exact difficulty-one contracts.
+#print axioms Bitcoin.Block.Pow.powLimitMainnet_eq
+#print axioms Bitcoin.Block.Pow.powLimitMainnet_compact
+#print axioms Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet
+#print axioms Bitcoin.Capstone.Pow.powLimit_eq_mainnet
+#print axioms Bitcoin.Block.Index.powLimit_eq_mainnet
+#print axioms BitcoinProofs.Theorems.BlockCor.genesis_pow_target_exact
+#print axioms BitcoinProofs.Theorems.CapstonePow.compactTarget_genesis_lt_limit
+
+#print axioms BitcoinProofs.AF.PDW28.powLimitMainnet_eq_full
+
+-- R07a: actual-hash flags used by scripts and cost accounting.
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyTxsWithSigops_script_flags
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.applyBlockTransactionsWithSigops_script_flags
+#print axioms BitcoinProofs.Theorems.CapstoneSigops.validateBlock_script_flags
+
+-- R07a: retained selector/exception targets cited by the five repaired rows.
+#print axioms BitcoinProofs.AF.PDW27.getBlockScriptFlagsP_eq
+#print axioms BitcoinProofs.AF.PDW84.getBlockScriptFlagsP_row
+#print axioms Bitcoin.Activation.exception_replaces_base
+#print axioms Bitcoin.Activation.base_flags_p2sh_witness_taproot

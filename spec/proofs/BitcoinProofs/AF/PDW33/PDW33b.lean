@@ -34,7 +34,7 @@ theorem witnessSigOps_v0_32 (witness : WitnessStack) (prog script : ByteArray)
     (hlast : witness.getLast? = some script) (hparse : parseWire script = some ops) :
     witnessSigOps 0 prog witness = sigOpCount ops true := by
   unfold witnessSigOps
-  simp [h32, hlast, hparse]
+  simp [h32, hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse, sigOpCount, SigOps.sigOpCount]
 
 theorem witnessSigOps_v0_other_zero (witness : WitnessStack) (prog : ByteArray)
     (h20 : prog.size ≠ 20) (h32 : prog.size ≠ 32) :

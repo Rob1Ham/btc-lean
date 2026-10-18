@@ -4,101 +4,19 @@ import Bitcoin.Crypto.Schnorr.Verify
 import Bitcoin.Capstone.RealChecker
 
 /-!
-# Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2 — the BIP341/342 sighash flip
-# (Schnorr-entry module, EcdsaDeep; real-wiring revisit)
+# Boolean BIP341/BIP340 compatibility assembly
 
-## What this file is
+This module proves the generic Boolean seam with real `sighashTaproot` and
+BIP340 `verifyImpl`. Its definitional slot equations, correspondence with the
+historical missing-sighash entry and failure/size contracts remain useful
+compatibility facts. The official sighash and signature corpora are finite
+conformance checks, separate from these symbolic proofs.
 
-The Taproot module's `Bitcoin.Crypto.Taproot.Sighash.sighashTaproot` has landed
-(e904215; TPR-032, 7/7 official wallet vectors + the independent
-hashlib mirror), but the production Schnorr wiring was NOT flipped:
-`Bitcoin.Capstone.RealChecker.realSchnorrEntry` (RealChecker.lean:96-100)
-still carries the fail-closed stand-in `sighashSchnorr := fun _ _ _ =>
-none`, so `schnorrVerdict` still returns `false` before BIP340's
-`verifyImpl` is ever called (the Schnorr-entry analysis's real-verifier criterion: the lane is constantly false).
-
-**Verified against the tree:**
-`grep -rn 'sighashSchnorr' spec/core/Bitcoin/Capstone/` shows
-RealChecker.lean:100 `(fun _ _ _ => none)  -- BIP342 sighash: the Taproot and interpreter delta layers
-slot (fail-closed stand-in)`. The flip has not landed. This file adds
-the flip as a **parallel entry `realSchnorrEntry2`** in a new module, leaving the frozen seam
-untouched: `realSchnorrEntry2` is the `schnorrEntry` of the Schnorr module's real
-BIP340 verifier with **the Taproot module's real `sighashTaproot`** in the
-`sighashSchnorr` slot, and `realCheckerFullOf2` is the corresponding
-`txCheckerOf` assembly. Nothing in `spec/core/**` outside this file
-references them; zero existing verdicts change.
-
-## The one-parameter flip, pinned
-
-`sighashSchnorr` is the single verdict-visible change point of the
-Schnorr lane (the Schnorr-entry analysis): both `verify` (the Schnorr module, 19/19
-official vectors) and every gate (sigversion / 32-byte key /
-64-65-byte sig / 65th-byte ≠ SIGHASH_DEFAULT, SCR-160..162) were
-already real. `realSchnorrEntry2` instantiates exactly that one
-parameter:
-
-    schnorrEntry Bitcoin.Crypto.Schnorr.Verify.verifyImpl
-                 (sighashSchnorrTap env inPos)          -- THE FLIP
-
-where `sighashSchnorrTap env inPos d ht v = sighashTaproot env inPos
-ht v d` is the seam-slot shape (`ScriptExecutionData → UInt8 →
-SigVersion → Option ByteArray`) over the Taproot module's `TapSighashEnv` — Core's
-`GenericTransactionSignatureChecker::CheckSchnorrSignature` calling
-`SignatureHashSchnorr` (interpreter.cpp:1747 → :1493-1578). The
-`TapSighashEnv` (the spending tx + `m_spent_outputs` cache) is the
-Core counterpart of the checker's own `txdata`; the caller-side
-coherence `env.tx = tx` (same contract as Core's checker sharing the
-tx with its `PrecomputedTransactionData`) is a parameter of the
-assembly, `realCheckerFullOf2 env …`.
-
-## Fail-closed equivalence (the seam is untouched)
-
-`realSchnorrEntry2_agrees_old_none`: **the flip is verdict-invisible
-exactly when the BIP341 construction fails** — for a fixed `(ht, v, d)`
-with `sighashTaproot env inPos ht v d = none` (bad hashtype TPR-030,
-SIGHASH_SINGLE with no output TPR-042, missing extdata init TPR-043,
-ACP cache miss SCR-169, non-Taproot sigversion SCR-160), the flipped
-entry and the frozen `realSchnorrEntry` give the SAME verdict
-(both `false`). This is the honest split the flip buys:
-
-* **fail side** — unchanged: every gate that made the real-verifier criterion true without the
-  EC math (SCR-161/162/166) still fails closed at the real wiring
-  (`realSchnorrEntry2_size_gate`, `_65_default_rejected`,
-  `_sighash_fail_closed`, `_bad_msg_fail_closed`);
-* **accept side** — was vacuous, now meaningful: the real-verifier criterion's
-  "constantly `false`" becomes "the gates ∨ the BIP341 construction
-  gates ∨ the real `verifyImpl`" (`realSchnorrEntry2_verdict_eq_verify`,
-  `realSchnorrEntry2_keypath_accept`) — the exact form requested by the
-  real-verifier criterion, to be restated once a real sighash lands (the
-  criterion's lines 95-98: the old
-  `…_execData_independent` "must not be read as a Core fact"; its
-  meaningful form, `realSchnorrEntry2_execData_plumbed`, is now the
-  real TPR-072 plumbing at the real wiring).
-
-## VERIFIED vs PROPOSED
-
-* VERIFIED (this file, sorry-free, axiom-pinned in-module): the flip
-  def family + the fail-closed/equivalence theorem set above. All
-  proofs are gate congruences or `none`-eliminations at the
-  `schnorrVerdict`/`sighashTaproot` level — nothing reduces
-  `verifyImpl` (either lane) or the SHA256 layer (discipline).
-* PROPOSED (NOT here): flipping the *production* binding — replacing
-  `realSchnorrEntry`/`realCheckerFullOf` in `Capstone/RealChecker.lean`
-  (and/or `TxValidation/Full.lean:80`) by this entry, i.e. making
-  `realCheckerFullOf2` the checker `validateBlock` binds. That edit belongs to the
-  frozen-seam interface; this file is the proved, drop-in
-  replacement with the one-line diff (seam slot only) it rests on.
-  Until then every existing verdict is unchanged (grep-clean).
-
-## Off-limit discipline
-
-No existing file is touched. `Bitcoin.Crypto.Taproot.Sighash`,
-`Bitcoin.Crypto.Seam.Entry`, `Bitcoin.Capstone.RealChecker`,
-`Bitcoin.Crypto.Schnorr.Verify` are IMPORT-ONLY (the Taproot and Schnorr module lanes). Interpreter/Rules.lean (the interpreter rule layer's SCR rows) is also
-import-free here on purpose: the SCR-161/162/166 rows it proves over
-the abstract `sighashSchnorr` parameter are re-proved here over the
-real wiring (same proof terms, `_realSchnorrEntry2_` names) so this
-module depends only on the frozen seam + the landed sighash.
+Production now uses `Capstone.RealChecker.realCheckerWithTaproot` and its
+typed `checkSchnorrForInput` callback. That assembly uses the same crypto
+primitives and preserves exact signature errors and unavailable-data outcomes.
+The Boolean factories here retain their fail-closed missing-data contract;
+this module alone does not prove a complete transaction or block valid.
 -/
 
 namespace Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
@@ -131,7 +49,7 @@ verdict-visible parameter flipped: the Schnorr module's real BIP340 `verifyImpl`
 in the `sighashSchnorr` slot (was `fun _ _ _ => none`). Every gate
 upstream of the digest (sigversion, 32-byte key, 64/65-byte sig,
 65th-byte ≠ SIGHASH_DEFAULT) is the frozen `schnorrVerdict`'s, so this
-is the production entry the moment `RealChecker.lean` adopts it —
+is a Boolean compatibility entry; production uses the typed adapter —
 nothing else in the seam moves. -/
 @[rule "TPR-050", rule "TPR-051", rule "TPR-052", rule "TPR-072"]
 def realSchnorrEntry2 (env : Bitcoin.Crypto.Taproot.TapSighashEnv)
@@ -147,11 +65,18 @@ Core's coherence contract (`env.tx` IS the checker's tx). -/
 def realCheckerFullOf2 (env : Bitcoin.Crypto.Taproot.TapSighashEnv)
     (nIn inPos : Nat) (amount : Amount) :
     Bitcoin.Interpreter.ScriptChecker :=
-  { base := txCheckerOf verifyImpl (sighashDispatch env.tx nIn amount) true
+  { base := txCheckerOf Bitcoin.Crypto.Ecdsa.Verify.verifyImpl (sighashDispatch env.tx nIn amount) true
         Bitcoin.Crypto.Schnorr.Verify.verifyImpl (sighashSchnorrTap env inPos)
     env := { txVersion := env.tx.version
              txLockTime := env.tx.locktime
              txSequence := (env.tx.vin.getD nIn dummyTxIn).sequence } }
+
+/-- The compatibility assembly preserves the real ECDSA slot for every
+transaction/cache, independently of the Schnorr construction's outcome. -/
+theorem realCheckerFullOf2_ecdsa_eq
+    (env : Bitcoin.Crypto.Taproot.TapSighashEnv) (nIn inPos : Nat) (amount : Amount) :
+    (realCheckerFullOf2 env nIn inPos amount).base.checkECDSASignature =
+      (realCheckerFullOf env.tx nIn amount).base.checkECDSASignature := rfl
 
 /-! ## The flip is the only change: definitional pins -/
 
@@ -194,7 +119,7 @@ re-visits. Same proof term as the Schnorr-entry analysis's real-verifier criteri
 restated here so the equivalence below is in-module and the proofs
 package is not a dependency (core-only module). -/
 
-/-- **the real-verifier criterion (replayed, unchanged fact)**: the FROZEN production entry —
+/-- **the real-verifier criterion (replayed, unchanged fact)**: the historical Boolean compatibility entry —
 the Schnorr module's real `verifyImpl` behind gates, BIP342 sighash still the
 `none` stand-in — is constantly `false`. THE hypothesis the flip
 removes: with a real digest in the slot, the `some h` branch survives
@@ -373,7 +298,7 @@ the Taproot module's `none` set (the digest-none pins, the revisit form). -/
 
 /-- **the real-verifier criterion″ (pointwise equivalence)**: whenever the BIP341 construction
 fails for the popped hashtype, the flipped entry and the FROZEN
-production entry give the same verdict (both `false`) — the one
+compatibility entry give the same verdict (both `false`) — the one
 verdict-visible parameter of the flip is `sighashTaproot … = none`.
 Corollary form over ALL hashtypes:
 `realSchnorrEntry2_agrees_old_none` below. -/
@@ -395,8 +320,7 @@ theorem realSchnorrEntry2_agrees_old
       | some p =>
         cases p with
         | mk body ht =>
-          rw [hnone ht]
-          exact match none with | none => rfl | some _ => rfl
+          simp [hnone ht]
     · rw [if_neg hP]
   · rw [if_neg hV]
 
@@ -443,3 +367,9 @@ theorem realCheckerFullOf2_noninterference_none
       (fun ht => hnone ht v d))
 
 end Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2
+
+/-- info: 'Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms Bitcoin.Crypto.EcdsaDeep.SchnorrEntry2.realCheckerFullOf2_ecdsa_eq

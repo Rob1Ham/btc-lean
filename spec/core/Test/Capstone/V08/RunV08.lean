@@ -120,6 +120,7 @@ structure BlockResult where
   ms : Nat := 0
   foldAgrees : Bool := true
   probe : String := ""
+  scriptAdjudication : ScriptAdjudication := .incomplete
   deriving Repr
 
 def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
@@ -135,9 +136,9 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
     | txt => pure ((txt.splitOn "\n").filter (fun l => !(trimStr l).isEmpty))
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
-  let res :=
-    match validateBlock raw st with
-    | .error e => BlockResult.mk height "" false (CapError.reason e) 0 0 0 0 true ""
+  let res : BlockResult :=
+    match replayBlock raw st with
+    | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
           match decodeBlock raw with
@@ -148,7 +149,12 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
           match folded with
           | .ok l' => bytesBEqList l' rep.state.utxo
           | .error _ => false
-        BlockResult.mk height "" true "" rep.txs rep.scriptOk rep.scriptUnjudged 0 agree ""
+        { height := height, blockHash := "",
+          ok := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0 && agree,
+          reason := if rep.scriptAdjudication != .complete || rep.scriptUnjudged != 0 then
+            "script-data-unavailable" else if !agree then "ledger-fold-mismatch" else "",
+          txs := rep.txs, scriptOk := rep.scriptOk, scriptUnjudged := rep.scriptUnjudged,
+          foldAgrees := agree, scriptAdjudication := rep.scriptAdjudication }
   let t1 ← IO.monoMsNow
   let hashDisp := match decodeBlock raw with
     | .ok (h, _) => (bL (headerHash h)).reverse
@@ -176,7 +182,7 @@ def main : IO Unit := do
   let mut results := []
   for h in anchors do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
   let allOk := results.all (·.ok)

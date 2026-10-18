@@ -242,27 +242,10 @@ theorem applyTx_ok_noncb (height : UInt32) (tx : Tx) (txIdx : Nat)
     checkTransaction tx = none ∧
     verifyTxInputs height tx txIdx l = .ok (a, b) ∧
     applyTxStepL l tx (txidKey tx) height = .ok l' := by
-  rw [applyTx_eq] at h
-  split at h
-  · simp [ethrow] at h
-  · rename_i hchk
-    split at h
-    · rename_i hcbc
-      rw [hcbc] at hcb; simp at hcb
-    · cases hsv : verifyTxInputs height tx txIdx l with
-      | error e' => rw [hsv] at h; simp at h
-      | ok c =>
-        obtain ⟨x, y⟩ := c
-        rw [hsv] at h
-        simp only [ebind_ok] at h
-        rw [applyTxCont] at h
-        split at h
-        · rename_i hl
-          simp at h
-        · rename_i hl
-          simp only [Except.ok.injEq, Prod.mk.injEq] at h
-          obtain ⟨h1, h2, h3⟩ := h
-          exact ⟨hchk, by rw [h2, h3], by rw [hl, h1]⟩
+  have hi := BitcoinProofs.Theorems.CapstoneFold.applyTx_ok_inv h
+  rcases hi.2.1 with ⟨hc, _, _⟩ | ⟨_, _, hv⟩
+  · simp [hcb] at hc
+  · exact ⟨hi.1, hv, hi.2.2⟩
 
 /-- **C1b**: the whole fold's success inverts PER TX (by list
 position): every non-coinbase tx of the list ran its `verifyTxInputs`

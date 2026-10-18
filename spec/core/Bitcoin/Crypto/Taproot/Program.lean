@@ -273,6 +273,21 @@ theorem compactSizeEnc_size_pos (n : Nat) : 0 < (compactSizeEnc n).size := by
       · rw [ite_eq_right h1, ite_eq_right h2, ite_eq_left h3]; exact hser _ _
       · rw [ite_eq_right h1, ite_eq_right h2, ite_eq_right h3]; exact hser _ _
 
+/-- CompactSize's wire length, including its marker. -/
+theorem compactSizeEnc_size (n : Nat) :
+    (compactSizeEnc n).size =
+      (if n < 0xfd then 1 else if n ≤ 0xffff then 3 else if n ≤ 0xffffffff then 5 else 9) := by
+  unfold compactSizeEnc
+  split
+  · simp_all [serU8, ByteArray.size_push]
+  · split
+    · simp_all [serU8, Bitcoin.Data.serU16, ByteArray.size_append, ByteArray.size_push]
+    · split <;> simp_all [serU8, Bitcoin.Data.serU32, Bitcoin.Data.serU64, ByteArray.size_append, ByteArray.size_push]
+theorem compactSizeEnc_size_mono {m n : Nat} (h : m ≤ n) :
+    (compactSizeEnc m).size ≤ (compactSizeEnc n).size := by
+  simp only [compactSizeEnc_size]
+  repeat first | omega | split
+
 /-- `sha_annex` (interpreter.cpp:1964 + 1554-1556): `SHA256(CSize(len) ‖
 annex)` — the HashWriter serializes the SPAN of the annex (its
 CompactSize length, then the bytes INCLUDING the 0x50 tag). TPR-006's
@@ -580,12 +595,40 @@ theorem taggedHash_unfold (tag msg : ByteArray) :
 
 /-! ## TPR-022 / TPR-071 — the BIP342 validation weight budget -/
 
-/-- Witness-serialized size of a stack (Core
-`::GetSerializeSize(witness.stack)` — per item CompactSize(length) +
-bytes; same def as `Bitcoin.Interpreter.Defs.witnessSerSize`,
-restated here as the Crypto-side pin for TPR-071). -/
-def witnessSerSize (items : List ByteArray) : Int :=
+/-- Serialized witness items, excluding only the stack-count prefix. -/
+def witnessPayloadSize (items : List ByteArray) : Int :=
   items.foldl (fun acc d => acc + Int.ofNat ((compactSizeEnc d.size).size + d.size)) 0
+
+/-- Core GetSerializeSize(witness.stack): stack-count CompactSize, then
+each item's CompactSize length and bytes. The interpreter uses this exact
+implementation; annex data is included before spend-path classification. -/
+def witnessSerSize (items : List ByteArray) : Int :=
+  Int.ofNat (compactSizeEnc items.length).size + witnessPayloadSize items
+
+/-- Appending an item includes any growth of the stack-count prefix. -/
+theorem witnessSerSize_append_single (items : List ByteArray) (item : ByteArray) :
+    witnessSerSize (items ++ [item]) = witnessSerSize items +
+      (Int.ofNat (compactSizeEnc (items.length+1)).size -
+        Int.ofNat (compactSizeEnc items.length).size) +
+      Int.ofNat ((compactSizeEnc item.size).size + item.size) := by
+  have payload : witnessPayloadSize (items ++ [item]) = witnessPayloadSize items +
+      Int.ofNat ((compactSizeEnc item.size).size + item.size) := by
+    unfold witnessPayloadSize
+    rw [List.foldl_append]
+    simp
+  simp only [witnessSerSize, List.length_append, List.length_singleton, payload]
+  omega
+
+/-- Even an empty appended item contributes bytes, and CompactSize count
+length cannot decrease. -/
+theorem witnessSerSize_append_strict (items : List ByteArray) (item : ByteArray) :
+    witnessSerSize items < witnessSerSize (items ++ [item]) := by
+  rw [witnessSerSize_append_single]
+  have hm := compactSizeEnc_size_mono (Nat.le_succ items.length)
+  have hmi := Int.ofNat_le.mpr hm
+  have hp := compactSizeEnc_size_pos item.size
+  simp only [Int.ofNat_eq_natCast, Nat.succ_eq_add_one] at *
+  omega
 
 /-- VALIDATION_WEIGHT_OFFSET (interpreter.h; BIP342 §Resource limits). -/
 def VALIDATION_WEIGHT_OFFSET : Int := 50
@@ -616,22 +659,7 @@ theorem validationWeightInit_annex_included (items : List ByteArray)
   have hdrop : ((items ++ [annex]).dropLast) = items := by
     simp [List.dropLast_append, hlen]
   rw [hdrop]
-  have happend : witnessSerSize (items ++ [annex]) =
-      witnessSerSize items + Int.ofNat ((compactSizeEnc annex.size).size + annex.size) := by
-    unfold witnessSerSize
-    rw [List.foldl_append]
-    simp
-  have hposNat : 0 < (compactSizeEnc annex.size).size + annex.size := by
-    have h1 : 0 < (compactSizeEnc annex.size).size :=
-      compactSizeEnc_size_pos _
-    omega
-  rw [happend]
-  have hb : (0:Int) < Int.ofNat ((compactSizeEnc annex.size).size + annex.size) :=
-    Int.ofNat_lt.mpr hposNat
-  have h2 : 0 + witnessSerSize items <
-      Int.ofNat ((compactSizeEnc annex.size).size + annex.size) + witnessSerSize items :=
-    Int.add_lt_add_right hb (witnessSerSize items)
-  omega
+  exact witnessSerSize_append_strict items annex
 
 /-! ## Axiom footprints (the Schnorr and Taproot modules style: `#guard_msgs in #print axioms`)
 

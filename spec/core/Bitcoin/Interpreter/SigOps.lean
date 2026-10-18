@@ -87,14 +87,119 @@ def accurateSigOpCountFrom : Option Opcode → List WireOp → Nat
 def accurateSigOpCount (ops : List WireOp) : Nat :=
   accurateSigOpCountFrom none ops
 
-/-- **SWT-026/022 core counter**: sigops of a witness script, parsed from
-wire bytes (0 when the parse fails — Core's `GetSigOpCount(true, …)` on
-an unparseable witnessScript; the 10,000-byte gate is upstream). -/
+/-- Inaccurate mode always charges twenty for CHECKMULTISIG, regardless
+of the preceding opcode. -/
+def inaccurateSigOpCount : List WireOp → Nat
+  | [] => 0
+  | op :: rest =>
+    (if isCheckSigWire op.wire then 1
+     else if isCheckMultiSigWire op.wire then MAX_PUBKEYS_PER_MULTISIG else 0)
+      + inaccurateSigOpCount rest
+
+/-- Both static counting modes, shared by the interpreter rule layer. -/
+def sigOpCount (ops : List WireOp) (accurate : Bool) : Nat :=
+  if accurate then accurateSigOpCount ops else inaccurateSigOpCount ops
+
+/-- Core's GetOp loop stops at the first malformed push and retains the
+already parsed prefix. Unlike EvalScript's parser, this is not all-or-nothing. -/
+def parseWirePrefixFrom : Nat → ByteArray → Nat → List WireOp
+  | 0, _, _ => []
+  | f+1, b, i =>
+    if b.size ≤ i then []
+    else match getOp b i with
+      | none => []
+      | some (o, i') =>
+        { ast := o, wire := b[i]!.toNat, next := i' } :: parseWirePrefixFrom f b i'
+
+def parseWirePrefix (b : ByteArray) : List WireOp :=
+  parseWirePrefixFrom (b.size + 1) b 0
+
+theorem parseWirePrefixFrom_length_le (f : Nat) (b : ByteArray) (i : Nat) :
+    (parseWirePrefixFrom f b i).length ≤ b.size - i := by
+  induction f generalizing i with
+  | zero => simp [parseWirePrefixFrom]
+  | succ f ih =>
+    by_cases hi : b.size ≤ i
+    · simp [parseWirePrefixFrom, hi]
+    · cases hg : getOp b i with
+      | none => simp [parseWirePrefixFrom, hi, hg]
+      | some pair =>
+        rcases pair with ⟨o, j⟩
+        have hj := getOp_spec hg
+        have ht := ih j
+        simp only [parseWirePrefixFrom, hi, ↓reduceIte, hg, List.length_cons]
+        omega
+
+theorem inaccurateSigOpCount_le (ops : List WireOp) :
+    inaccurateSigOpCount ops ≤ 20 * ops.length := by
+  induction ops with
+  | nil => simp [inaccurateSigOpCount]
+  | cons o rest ih =>
+    simp only [inaccurateSigOpCount, List.length_cons, Nat.mul_add, Nat.mul_one]
+    split <;> (try split) <;> (try simp only [MAX_PUBKEYS_PER_MULTISIG]) <;> omega
+
+theorem parseWirePrefixFrom_of_parse (f : Nat) (b : ByteArray) (i : Nat)
+    (ops : List WireOp) (h : parseWireFrom f b i = some ops) :
+    parseWirePrefixFrom f b i = ops := by
+  induction f generalizing i ops with
+  | zero => simp [parseWireFrom] at h
+  | succ f ih =>
+    by_cases hi : b.size ≤ i
+    · simpa [parseWireFrom, parseWirePrefixFrom, hi] using h.symm
+    · cases hg : getOp b i with
+      | none => simp [parseWireFrom, hi, hg] at h
+      | some pair =>
+        rcases pair with ⟨o, j⟩
+        cases ht : parseWireFrom f b j with
+        | none => simp [parseWireFrom, hi, hg, ht] at h
+        | some tail =>
+          simp only [parseWireFrom, hi, ↓reduceIte, hg, ht, Option.map_some,
+            Option.some.injEq] at h
+          simpa [parseWirePrefixFrom, hi, hg, ih j tail ht] using h
+
+@[simp] theorem parseWirePrefix_of_parse (b : ByteArray) (ops : List WireOp)
+    (h : parseWire b = some ops) : parseWirePrefix b = ops :=
+  parseWirePrefixFrom_of_parse (b.size + 1) b 0 ops h
+
+/-- Raw-script counter: malformed pushes terminate the loop, preserving
+the count of preceding opcodes. Static counting does not execute a script. -/
+def scriptSigOpCount (script : ByteArray) (accurate : Bool) : Nat :=
+  sigOpCount (parseWirePrefix script) accurate
+
+theorem scriptSigOpCount_inaccurate_le (b : ByteArray) :
+    scriptSigOpCount b false ≤ 20 * b.size := by
+  have hl := parseWirePrefixFrom_length_le (b.size+1) b 0
+  have hc := inaccurateSigOpCount_le (parseWirePrefix b)
+  have hm := Nat.mul_le_mul_left 20 hl
+  simpa [scriptSigOpCount, sigOpCount, parseWirePrefix] using Nat.le_trans hc hm
+
+/-- **SWT-026/022**: accurate counting of the witnessScript's valid prefix. -/
 @[rule "SWT-026"]
 def witnessScriptSigOps (script : ByteArray) : Nat :=
-  match parseWire script with
+  scriptSigOpCount script true
+
+@[simp] theorem witnessScriptSigOps_of_parse (b : ByteArray) (ops : List WireOp)
+    (h : parseWire b = some ops) : witnessScriptSigOps b = accurateSigOpCount ops := by
+  simp [witnessScriptSigOps, scriptSigOpCount, sigOpCount, parseWirePrefix_of_parse b ops h]
+
+/-- The final GetOp data register, only when the entire scriptSig parses
+and every opcode is at most OP_16. Small integers/OP_RESERVED clear it. -/
+def pushOnlyLastData (scriptSig : ByteArray) : Option ByteArray :=
+  match parseWire scriptSig with
+  | none => none
+  | some ops =>
+    if isPushOnlyWire ops then
+      match ops.getLast? with
+      | none => none
+      | some op => some (match op.ast with
+          | .pushBytes d => d
+          | _ => ByteArray.empty)
+    else none
+
+def p2shScriptSigOps (scriptSig : ByteArray) : Nat :=
+  match pushOnlyLastData scriptSig with
   | none => 0
-  | some ops => accurateSigOpCount ops
+  | some d => witnessScriptSigOps d
 
 /-- `WitnessSigOps` (interpreter.cpp:2133-2147): the witness sigops of
 one input with witness program `(version, program)` and stack `witness`.
@@ -118,16 +223,11 @@ program, its witness sigops count (×1, joining the witness term); when
 the scriptSig is not push-only or has no pushes, 0. -/
 @[rule "SWT-027"]
 def p2shWitnessSigOps (scriptSig : ByteArray) (witness : List ByteArray) : Nat :=
-  match parseWire scriptSig with
+  match pushOnlyLastData scriptSig with
   | none => 0
-  | some ops =>
-    match ops.getLast? with
-    | some op =>
-      match isWitnessProgram (match op.ast with
-        | .pushBytes d => d
-        | _ => ByteArray.empty) with
-      | some (v, prog) => witnessSigOps v prog witness
-      | none => 0
+  | some d =>
+    match isWitnessProgram d with
+    | some (v, prog) => witnessSigOps v prog witness
     | none => 0
 
 /-- The per-input sigop decomposition (`GetTransactionSigOpCost`'s three

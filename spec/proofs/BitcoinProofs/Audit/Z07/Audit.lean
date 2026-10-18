@@ -195,7 +195,7 @@ theorem ser_4f : serializeOpcode (Opcode.pushNum 0) =
 /-- The canonical step (`stepBody`, Defs.lean:786): executed
 `pushNum 0` pushes exactly `0x81`, opCount unchanged. -/
 def zCtx : Ctx :=
-  { flags := {}, pol := default, chk := ⟨stubChecker, default⟩,
+  { flags := {}, pol := default, chk := ⟨stubChecker, default, none⟩,
     sv := .base, bytes := ByteArray.empty, ed := default }
 
 def zSt : State := { stack := [], alt := [], vf := [], opCount := 0, codeSep := 0, vwLeft := none }

@@ -2,95 +2,22 @@ import BitcoinProofs.Wallet.Taproot.Program
 import Bitcoin.Capstone.Block
 
 /-!
-# Wallet Taproot program bridge (`PEER-TAPROOT2`)
+# Wallet Taproot program and commitment bridge
 
-This module proves the wallet-local bridge between a spent P2TR
-`scriptPubKey` and the Taproot script-path commitment.  The predicates
-`programOf` and `programMatches` already live in the executable model at
-`spec/core/Bitcoin/Wallet/Taproot/Commit.lean:119-137`; they are reused
-here unchanged (no model file is edited and no predicate is duplicated
-under a different meaning).  The only new definitions are a decision
-procedure for `programOf` (`programOfEq`), a named "judged" proposition
-(`ScriptPathJudged`), the unproven target `V1SpendJudgedTarget`, and the
-explicit missing-link proposition `VerifyComparesProgram`.
+Proves exact v1 program decoding, wallet program equality and real verifier
+output-key binding. The conditional wallet spend theorem requires the
+supplied wallet program to match the spent script. The standalone target
+`V1SpendJudgedTarget` quantifies over an unrelated wallet program and script;
+its equivalent missing premise is isolated below. That logical target is
+not a consensus-validator claim.
 
-## What is proved
-
-* **34-byte v1 exactness.**  If a 34-byte scriptPubKey has the wire shape
-  `0x51 0x20` followed by 32 bytes, then `programOf` returns a unique
-  32-byte program, namely `spk.bytes.extract 2 spk.bytes.size`
-  (`programOf_v1_34_exact`, `programOf_v1_34_unique`).  This is the
-  model's `isWitnessProgram` decoder
-  (`spec/core/Bitcoin/Interpreter/Defs.lean:489-501`), which mirrors
-  Core `CScript::IsWitnessProgram`, `src/script/script.cpp:250-264` at
-  pinned `cce32b168` (the model docstring cites `script/script.h`;
-  the implementation is in `script.cpp`).
-* **Program equality.**  For any `spk` whose decoder returns
-  `some (1, payload)`, `programMatches spk program = true` is equivalent
-  to `payload = program` (`programMatches_iff_payload`); the 34-byte
-  corollary identifies the payload with the trailing 32 bytes
-  (`programMatches_v1_34_payload_iff`).
-* **Decidability.**  `programOf spk = some (version, program)` is decided
-  by `programOfEq` (`programOfEq_eq_true_iff`,
-  `decidable_programOf_eq`); `ProgramMatches spk program` is decided by
-  the model's Boolean predicate (`decidable_programMatches`).
-* **Conditional spend theorem.**  Under the wallet premise
-  `programMatches spk program = true`, a script-path spend is judged
-  exactly when the commitment verdict accepts
-  (`v1Spend_judged_iff_programMatches_and_commitment`).
-* **The verifier comparison.**  `verifyTaprootCommitment` binds its
-  `program` argument to the recomputed output key
-  (`verifyTaprootCommitment_program_binding`), exactly Core's
-  `q.CheckTapTweak`.  The remaining gap is the capstone:
-  `Capstone.Block.verifyInput` routes every v1 witness program to
-  `unjudgedTaproot` before script execution
-  (`verifyInput_unjudged_of_v1_program`,
-  `verifyInput_unjudged_of_v1_34`).
-
-## The unproven target and the exact missing link
-
-`V1SpendJudgedTarget` is the unconditional claim: for every 34-byte v1
-scriptPubKey and every wallet-supplied program, the spend is judged iff
-`programMatches` holds *and* the commitment verdict accepts.  It is a
-`def : Prop`, not a theorem.  The module proves
-
-* it is exactly `CommitmentForcesProgramMatch`: every accepting
-  commitment must force `programMatches`
-  (`v1SpendJudgedTarget_iff_commitmentForcesProgramMatch`), and
-* it is false as soon as an accepting commitment coexists with a
-  mismatched wallet program
-  (`v1SpendJudgedTarget_fails_of_program_mismatch`,
-  `commitmentForcesProgramMatch_fails_of_program_mismatch`).
-
-The exact missing obligation is therefore `CommitmentForcesProgramMatch`.
-The verifier-level mechanism that supplies it is `VerifyComparesProgram`:
-an accepting `verifyTaprootCommitment control program tapleafHash`
-implies that `program` is the output key recomputed from the control
-block and leaf.  Core performs exactly this comparison —
-`const XOnlyPubKey q{program};` then `q.CheckTapTweak(p, merkle_root,
-control[0] & 1)` at `src/script/interpreter.cpp:1919-1924` and
-`src/pubkey.cpp:257-263` — and the model's verifier now performs it in
-`Verify.checkTapTweak` (length-checked `program = x(Q)` byte equality),
-so `VerifyComparesProgram` is proved below.  The remaining consensus
-change this bridge waits on is the capstone: it still returns
-`InputVerdict.unjudgedTaproot`
-(`spec/core/Bitcoin/Capstone/Block.lean:218-221`, `:242-245`) instead of
-adjudicating the v1 lane through `verifyScriptFull`.
-
-## What is not modeled or claimed
-
-* No consensus definition, interpreter arm, capstone dispatch, or model
-  file is modified by this module; it only proves facts over the
-  executable tree.
-* No secp256k1 arithmetic is added.  The tweak chain is the model's
-  `tweakedKey`/`outputKeyOk`/`tweakPoint`; the program comparison is the
-  verifier's `checkTapTweak` and the wallet equality
-  `committedProgram control leafScript = some program`.
-* No wallet spend is proved valid, and no signature, sighash, or
-  tapscript execution is modeled.
-* The target is not proved: the verifier binds `program`, but the
-  capstone still routes the v1 lane to `unjudgedTaproot`, and `spk` is
-  not tied to the definition's `program` argument.
+The public capstone now runs `verifyScriptFull` with a typed real Schnorr
+adapter and all spent outputs from the current UTXO view. The old two
+unconditional claims that every v1 input is unjudged have been removed:
+they are false after that repair. Public integration and cache/status proofs
+live in the capstone regression/proof modules. This wallet module does not
+claim full spend validity, signature correctness or script execution from
+program matching alone.
 -/
 
 namespace BitcoinProofs.Wallet.Taproot
@@ -340,8 +267,8 @@ theorem v1SpendJudgedTarget_iff_commitmentForcesProgramMatch :
 
 /-- **Conditional refutation of the exact missing obligation.**  An
 accepting commitment with a mismatched wallet program refutes
-`CommitmentForcesProgramMatch` outright.  The model admits exactly this
-witness; Core's program comparison would reject it. -/
+`CommitmentForcesProgramMatch` outright.  The logical target supplies no relation between the independently
+quantified spent script and wallet program. -/
 theorem commitmentForcesProgramMatch_fails_of_program_mismatch
     (spk : Script) (program control leafScript : ByteArray)
     (hsz : spk.bytes.size = 34)
@@ -359,9 +286,8 @@ theorem commitmentForcesProgramMatch_fails_of_program_mismatch
 
 /-- **Conditional refutation of the target.**  If some accepting
 commitment has a wallet program that does not match the spent script,
-then `V1SpendJudgedTarget` is false.  The hypotheses are exactly the
-witness Core's program comparison would exclude; the model admits it
-because `verifyTaprootCommitment` ignores `program`. -/
+then `V1SpendJudgedTarget` is false.  The hypotheses expose the absent script/program relation in this
+standalone logical target; the actual verifier binds its program argument. -/
 theorem v1SpendJudgedTarget_fails_of_program_mismatch
     (spk : Script) (program control leafScript : ByteArray)
     (hsz : spk.bytes.size = 34)
@@ -408,9 +334,8 @@ theorem verifyTaprootCommitment_program_binding
 
 /-! ## The v1 lane in the capstone -/
 
-/-- A scriptPubKey whose decoder returns a v1 program is a Taproot
-program for the capstone gate (`isTaprootProgram`,
-`spec/core/Bitcoin/Capstone/Block.lean:217-221`). -/
+/-- A v1 decoded program satisfies the historical recognition helper.
+The public validator no longer uses this helper as a bypass gate. -/
 theorem isTaprootProgram_of_programOf {spk : Script} {program : ByteArray}
     (h : programOf spk = some (1, program)) :
     Bitcoin.Capstone.Block.isTaprootProgram spk.bytes = true := by
@@ -419,33 +344,6 @@ theorem isTaprootProgram_of_programOf {spk : Script} {program : ByteArray}
     simpa [Bitcoin.Wallet.Taproot.programOf] using h
   rw [h']
   simp
-
-/-- Every v1 spend is routed to the unjudged lane before script
-execution (`verifyInput`, `spec/core/Bitcoin/Capstone/Block.lean:242-245`).
-This is the second half of the consensus gap: even the program-blind
-commitment verdict is not consulted for a v1 input in this tree. -/
-theorem verifyInput_unjudged_of_v1_program
-    (height : UInt32) (tx : Bitcoin.Data.Tx) (i : Nat) (coin : Bitcoin.Ledger.Coin)
-    (txIdx inputIdx : Nat) (program : ByteArray)
-    (h : programOf coin.scriptPubKey = some (1, program)) :
-    Bitcoin.Capstone.Block.verifyInput height tx i coin txIdx inputIdx =
-      Bitcoin.Capstone.Block.InputVerdict.unjudgedTaproot := by
-  unfold Bitcoin.Capstone.Block.verifyInput
-  rw [ite_eq_left (isTaprootProgram_of_programOf h)]
-
-/-- The same routing from the 34-byte wire shape, without naming the
-extracted program. -/
-theorem verifyInput_unjudged_of_v1_34
-    (height : UInt32) (tx : Bitcoin.Data.Tx) (i : Nat) (coin : Bitcoin.Ledger.Coin)
-    (txIdx inputIdx : Nat)
-    (h0 : (coin.scriptPubKey.bytes.get! 0).toNat = 0x51)
-    (h1 : (coin.scriptPubKey.bytes.get! 1).toNat = 32)
-    (hsz : coin.scriptPubKey.bytes.size = 34) :
-    Bitcoin.Capstone.Block.verifyInput height tx i coin txIdx inputIdx =
-      Bitcoin.Capstone.Block.InputVerdict.unjudgedTaproot :=
-  verifyInput_unjudged_of_v1_program height tx i coin txIdx inputIdx
-    (coin.scriptPubKey.bytes.extract 2 coin.scriptPubKey.bytes.size)
-    (programOf_v1_34 coin.scriptPubKey h0 h1 hsz)
 
 /-! ## Axiom footprints
 
@@ -466,7 +364,5 @@ bridge surface. -/
 #print axioms v1SpendJudgedTarget_fails_of_program_mismatch
 #print axioms verifyComparesProgram_holds
 #print axioms verifyTaprootCommitment_program_binding
-#print axioms verifyInput_unjudged_of_v1_program
-#print axioms verifyInput_unjudged_of_v1_34
 
 end BitcoinProofs.Wallet.Taproot

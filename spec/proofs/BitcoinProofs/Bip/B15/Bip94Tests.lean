@@ -36,6 +36,7 @@ avoid it (#print axioms below).
 
 import Bitcoin.Chain.Basic
 import Bitcoin.Block.Pow
+import Bitcoin.Capstone.Pow
 import Bitcoin.Block.Index
 
 namespace BitcoinProofs.Bip.B15
@@ -249,15 +250,24 @@ example : workOf 0x1c3fffc0 = 4 * workOf 0x1d00ffff := by native_decide
 -- at the period's actual difficulty — why min-diff blocks lose reorg races.
 example : chainWork [0x1d00ffff, 0x1d00ffff] < chainWork [0x1c3fffc0] := by native_decide
 
--- Out-of-range decode ⇒ zero work (chain.cpp:126-127).
-example : workOf 0xff123456 = 0 := by native_decide
+-- Out-of-range decode ⇒ zero work (chain.cpp:126-127): overflow, negative,
+-- and zero-target encodings.
+example : workOf 0xff123456 = 0 := by decide
+example : workOf 0x04801234 = 0 := by decide
 
-/-- **BLK-113 formula pin**: for an in-range decode, `workOf` is exactly
-Core's `(~target / (target+1)) + 1` over 256-bit two's complement. -/
+-- A positive above-powLimit decode still carries work: GetBlockProof has
+-- no powLimit gate.
+example : 0 < workOf 0x1d7fffff := by decide
+
+/-- **BLK-113 formula pin**: for a non-negative, non-overflowing, nonzero
+decode, `workOf` is exactly Core's `(~target / (target+1)) + 1` over
+256-bit two's complement. -/
 theorem workOf_eq_formula (bits : UInt32) (h0 : compactTarget bits ≠ 0)
-    (hl : compactTarget bits ≤ powLimit) :
+    (hn : (Bitcoin.Capstone.Pow.setCompactFull bits).negative = false)
+    (ho : (Bitcoin.Capstone.Pow.setCompactFull bits).overflow = false) :
     workOf bits = (2 ^ 256 - 1 - compactTarget bits) / (compactTarget bits + 1) + 1 := by
   unfold workOf
-  rw [if_neg (by omega)]
+  dsimp only
+  rw [if_neg (by simp [h0, hn, ho])]
 
 end BitcoinProofs.Bip.B15

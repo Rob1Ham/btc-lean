@@ -88,7 +88,7 @@ def retOp : WireOp := ⟨.op ⟨0x6a, by decide⟩, 0x6a, 1⟩
 def nopOp : WireOp := ⟨.op ⟨0x61, by decide⟩, 0x61, 1⟩
 
 /-- The empty machine state. -/
-def st0 : State := ⟨[], [], [], 0, 0, none⟩
+def st0 : State := ⟨[], [], [], 0, 0, none, 0, 0xffffffff⟩
 
 /-- Nonempty-lists have positive length (feeds the underflow guards). -/
 theorem len_pos {l : List ByteArray} (h : l ≠ []) : 0 < l.length := by

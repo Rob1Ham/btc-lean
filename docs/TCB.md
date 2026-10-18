@@ -51,7 +51,7 @@ proof of correctness; it is a hygiene gate.
 Core anchor, and a Lean target. The kernel checks the target; it does not
 prove that the target's conclusion is a faithful paraphrase of the summary.
 
-Statement fidelity is a review obligation. Twenty-seven rows have a known gap
+Statement fidelity is a review obligation. Twenty-five rows have a known gap
 between the cited target and the row summary; they are listed with the missing
 link in [`RESIDUALS.md`](RESIDUALS.md). A `proven` status is therefore not a
 claim that every relevant Bitcoin behaviour is modelled, and it is not a count
@@ -61,6 +61,47 @@ The consensus model is also not a network node. It does not implement peer
 discovery, mempool policy, wallet behaviour, chain selection under adversarial
 network conditions, or live consensus. The capstone replay is an offline
 replay of serialized blocks, not a live-node test.
+
+### 3.1 Candidate consensus-pipeline interfaces
+
+The integrated candidate corrects four places where the model had drifted
+from Core. Each statement below is about the Lean definitions, and each
+cited theorem is checked by the kernel within the axiom policy of §2; the
+C++ anchor, conformance data, and the translation between them remain
+outside the kernel, as described above.
+
+* **Proof of work.** `Bitcoin.Block.Pow.powLimitMainnet` is the full mainnet
+  limit `2^224 - 1` (`powLimitMainnet_eq`), not the genesis target
+  `2^224 - 2^208`; re-encoding gives `0x1d00ffff`
+  (`powLimitMainnet_compact`), and the genesis target is strictly smaller
+  (`difficultyOne_lt_powLimitMainnet`). `Bitcoin.Block.Index.powLimit` is the
+  same definition by `rfl` (`powLimit_eq_mainnet`). The chain-work
+  function returns 0 only for a zero decode and does not clamp above
+  `powLimit`; that bound gates `CheckProofOfWork`, not work accumulation.
+  The identification with `chainparams.cpp` is a source mapping, not a
+  theorem about C++.
+* **Sigop counting.** Static counting follows Core's
+  `CScript::GetSigOpCount` loop over `GetOp`: `parseWirePrefix` stops at the
+  first malformed push and keeps the prefix already parsed, rather than
+  returning zero for the whole script. Accurate and inaccurate modes are
+  separate; an accurate multisig count takes the preceding `OP_1..OP_16`
+  value and otherwise charges 20. Prefix length and the inaccurate bound are
+  proved. Equality with Core's C++ parser is supported by source mapping and
+  decide-checked examples, not by a kernel theorem.
+* **BIP68 prevout data.** `Bitcoin.Capstone.Context.sequenceInputData`
+  builds one `(coin height, parent MTP)` pair per input from the supplied
+  `ChainContext` and the current UTXO view. This is an interface, not a
+  reconstruction of chain history: a missing coin or ancestor is a context
+  error (unavailable validation), never an accepted sequence lock. The
+  block-level sequence theorems are conditional on the supplied data.
+* **Removed BIP141 helper.** The non-consensus predicate
+  `programMustFailCastToBool` and its tests are gone; BIP141 witness
+  programs are judged by `Bitcoin.Numeric.castToBool` on the final stack
+  item, the predicate the interpreter already uses. No new theorem is
+  claimed beyond the existing `castToBool` laws.
+
+These corrections do not widen what a `proven` row means and do not
+substitute for comparison with Bitcoin Core execution.
 
 ## 4. Cryptographic seams
 

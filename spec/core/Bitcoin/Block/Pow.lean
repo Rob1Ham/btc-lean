@@ -61,9 +61,9 @@ def difficultyAdjustmentInterval (P : PowParams) : Nat :=
 (chainparams.cpp:109/263 — the same 0x00000000ffff… constant). -/
 @[rule "BLK-040"]
 def powLimitMainnet : Nat :=
-  0x00000000FFFF0000000000000000000000000000000000000000000000000000
+  0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-theorem powLimitMainnet_eq : powLimitMainnet = 0xffff * 256 ^ 26 := by
+theorem powLimitMainnet_eq : powLimitMainnet = 2 ^ 224 - 1 := by
   decide
 
 /-- **BLK-041**: signet `powLimit` (chainparams.cpp:654-ish:
@@ -112,6 +112,15 @@ def getCompact (t : Nat) : UInt32 :=
   (((m &&& 0x007fffff) ||| (sz <<< 24)) : Nat).toUInt32
 
 /-! ## GetNextWorkRequired / CalculateNextWorkRequired -/
+
+/-- Core's full limit encodes to the rounded difficulty-one bits. -/
+theorem powLimitMainnet_compact : getCompact powLimitMainnet = 0x1d00ffff := by
+  decide
+
+/-- The genesis target is strictly below the full network limit. -/
+theorem difficultyOne_lt_powLimitMainnet :
+    Bitcoin.Chain.compactTarget 0x1d00ffff < powLimitMainnet := by
+  decide
 
 /-- **BLK-044/045/046/047/048/049**: `CalculateNextWorkRequired`
 (pow.cpp:62-84). `lastBits`/`lastTime` = `pindexLast`; `firstTime` =
@@ -249,3 +258,13 @@ def timeNotTooNew (blockTime now : UInt32) : Bool :=
   blockTime.toNat ≤ now.toNat + 7200
 
 end Bitcoin.Block.Pow
+
+-- R07c exact footprint guards.
+/-- info: 'Bitcoin.Block.Pow.powLimitMainnet_eq' does not depend on any axioms -/
+#guard_msgs in #print axioms Bitcoin.Block.Pow.powLimitMainnet_eq
+
+/-- info: 'Bitcoin.Block.Pow.powLimitMainnet_compact' depends on axioms: [propext] -/
+#guard_msgs in #print axioms Bitcoin.Block.Pow.powLimitMainnet_compact
+
+/-- info: 'Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms Bitcoin.Block.Pow.difficultyOne_lt_powLimitMainnet

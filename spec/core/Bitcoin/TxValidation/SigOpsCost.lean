@@ -14,69 +14,17 @@ and **TXV-051** (witness sigop count); the accounting aggregation (×4 scaling, 
 is the sigop model's `Bitcoin.Interpreter.SigOps` (TXV-052 / INV-038 / INV-039 /
 SWT-021..028), which this file deliberately does not duplicate.
 
-## Design decisions (against two open audit issues)
+## Shared counting semantics
 
-The tree currently has **two** models of the sigop counters, and both
-carry an open interpreter-audit issue:
+The accurate raw-script counter is shared with `Interpreter.SigOps` and
+`Interpreter.Rules`. A malformed redeem/witness script retains its valid
+prefix count; a malformed or non-push-only scriptSig contributes no P2SH
+redeem count. These are static resource checks, independent of the later
+script execution verdict. Missing prevout coins contribute zero here;
+CheckTxInputs must reject them before the block resource gate.
 
-* the interpreter rule layer's `Bitcoin.Interpreter.Rules.sigOpCount` (SCR-033) diverges from
-  Core `GetSigOpCount(fAccurate)` (**the interpreter-audit note, HIGH**: non-accurate
-  CMS +1 vs +20; last-of-list vs per-CMS lookback). The audit's verdict:
-  the sigop model's `Bitcoin.Interpreter.SigOps.accurateSigOpCount` (per-CMS
-  preceding-opcode lookback, script.cpp:159-181) "**is** the
-  Core-faithful model". Every count in THIS file therefore goes through
-  the sigop model's `accurateSigOpCount` / `witnessSigOps` — never the interpreter rule layer's
-  `sigOpCount`.
-* the sigop model's `Bitcoin.Interpreter.SigOps.p2shWitnessSigOps` (SWT-027) is
-  missing the `IsPushOnly` gate of Core `CountWitnessSigOps`
-  interpreter.cpp:2162 (**the interpreter-audit note, MODERATE**: a parseable but
-  non-push-only scriptSig ending in a witness-program push counts its
-  witness sigops in Lean where Core returns 0). `countWitnessSigOps`
-  below is the repaired shape (Core :2160-2182 verbatim,
-  the audit's quote): the gate is `isPushOnlyWire` (the sigop model's own SCR-052
-  model of `CScript::IsPushOnly`, script.cpp:266-282: bare opcodes
-  ≤ OP_16 incl. OP_RESERVED count as push, parse failure → false ⇒ 0).
-
-the interpreter rule layer's `p2shSigOpCount` (SCR-034) re-parses `pushBytesWire d` (the push
-*wrapper* `len ++ d`, a one-push script) where the redeemScript is the
-pushed **data** `d` itself (Core `CScript(vchRet)`, and the sigop model's own
-SWT-027 shape `isWitnessProgram d`; B2/SCR-034: "accurate count of the
-redeemScript"). `p2shScriptSigSigOps` below parses `d` — recorded here
-as a tree discrepancy; the `Bitcoin.Interpreter.Rules` definition itself
-is outside these rows.
-
-## Faithfulness notes (dead states, caller-side gates)
-
-* `p2shScriptSigSigOps` = `CScript::GetSigOpCount(scriptSig)`
-  (script.cpp:183-205): parse-fail ⇒ 0 (Core `:188
-  if (!scriptSig.GetOp(…)) return 0;`); non-push tail ⇒ the
-  `GetOp` walk's data register cleared ⇒ empty subscript ⇒ 0; the
-  subscript (last push data) counted with `GetSigOpCount(true)` =
-  `accurateSigOpCount`; a subscript that itself fails to parse ⇒ 0
-  (Core's partial loop = dead state: unparseable ⇒ script
-  validation fails ⇒ block invalid).
-* `spkTbl : OutPoint → Option ByteArray` resolves the prevout's
-  scriptPubKey (Core: `inputs.AccessCoin(prevout).out.scriptPubKey`).
-  `none` = the null Coin (Core's `AccessCoin` on a missing entry) =
-  empty scriptPubKey = not P2SH / not a witness program ⇒ 0; in the
-  validation pipeline `HaveCoins`/`CheckTxInputs` (TXV-020/021) run
-  before the sigop gate, so `none` is a dead state (the audit's
-  convention).
-* `p2shSigOpsTx` (TXV-050) = `GetP2SHSigOpCount`
-  (tx_verify.cpp:132-147): **coinbase ⇒ 0** (B3/07-row text), per input
-  only P2SH prevouts contribute; the caller-side `SCRIPT_VERIFY_P2SH`
-  gate (GetTransactionSigOpCost:156) is the sigop model's `sigOpCost` lane.
-* `witnessSigOpsTx` (TXV-051) = `GetWitnessSigOpCount`
-  (tx_verify.cpp:160-167): the per-input loop over
-  `CountWitnessSigOps(scriptSig, prevout.scriptPubKey, scriptWitness,
-  flags)`. The `SCRIPT_VERIFY_WITNESS` gate (Core :2160) and the
-  `assert(SCRIPT_VERIFY_P2SH)` (:2161) are caller-side invariants
-  (GetTransactionSigOpCost's flag word; the block path's flag word is
-  `GetBlockScriptFlags` = TXV-055) — the *counting arms* are what this
-  row owns. No coinbase check in the loop (the B3 row is silent here,
-  unlike TXV-050's explicit `coinbase = 0`; GetTransactionSigOpCost
-  early-returns legacy-only on coinbase, so a coinbase never reaches
-  the witness term in the cost path).
+The P2SH and WITNESS activation flags are caller-side gates. Coinbase
+transactions return legacy-only from GetTransactionSigOpCost.
 
 Everything is `Nat`/`List`/`ByteArray` arithmetic — sorry-free by
 construction (no `sorry`, no `native_decide`).
@@ -89,27 +37,10 @@ open Bitcoin.Interpreter.SigOps (accurateSigOpCount witnessSigOps)
 
 /-! ## script.cpp:183-205 — `GetSigOpCount(scriptSig)`, the P2SH arm -/
 
-/-- `CScript::GetSigOpCount(const CScript& scriptSig)`
-(script.cpp:183-205): the P2SH-arm counter — the subscript is the
-scriptSig's LAST push (the redeemScript), counted with
-`GetSigOpCount(true)` = `accurateSigOpCount`. `GetOp` parse failure ⇒ 0
-(Core :188); non-push tail ⇒ the data register cleared ⇒ empty
-subscript ⇒ 0; unparseable subscript ⇒ 0 (dead state). Called only with
-`scriptPubKey.IsPayToScriptHash()` (tx_verify.cpp:132-147's caller
-gate, p2shSigOpsTx below).-/
+/-- The shared P2SH-arm counter: require a completely parsed push-only
+scriptSig, then count the final data register's valid script prefix. -/
 def p2shScriptSigSigOps (scriptSig : ByteArray) : Nat :=
-  match parseWire scriptSig with
-  | none => 0
-  | some ops =>
-    match ops.getLast? with
-    | none => 0
-    | some last =>
-      match last.ast with
-      | .pushBytes d =>
-        match parseWire d with
-        | none => 0
-        | some rops => accurateSigOpCount rops
-      | _ => 0
+  Bitcoin.Interpreter.SigOps.p2shScriptSigOps scriptSig
 
 /-! ## tx_verify.cpp:132-147 — `GetP2SHSigOpCount` (TXV-050) -/
 
@@ -270,43 +201,37 @@ theorem p2shSigOpsTx_coinbase_zero (tx : Tx) (spkTbl : OutPoint → Option ByteA
   unfold p2shSigOpsTx
   rw [if_pos hcb]
 
-/-- script.cpp:188: an unparseable scriptSig counts 0 (Core's
-`GetOp`-failure early return).-/
+/-- A malformed scriptSig returns zero before counting its redeem script. -/
 theorem p2shScriptSigSigOps_parse_fail (ss : ByteArray)
-    (h : parseWire ss = none) :
-    p2shScriptSigSigOps ss = 0 := by
-  simp only [p2shScriptSigSigOps, h]
+    (h : parseWire ss = none) : p2shScriptSigSigOps ss = 0 := by
+  simp [p2shScriptSigSigOps, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData, h]
 
-/-- The non-push-tail law: a parseable scriptSig whose last op is not
-a data push counts 0 (Core's `GetOp` walk clears the data register on
-non-push opcodes ⇒ empty subscript).-/
-theorem p2shScriptSigSigOps_nonpush_tail (ss : ByteArray) (ops : List WireOp)
-    (hp : parseWire ss = some ops) (last : WireOp)
-    (hl : ops.getLast? = some last) (hnp : (∀ d, last.ast ≠ .pushBytes d)) :
+/-- Every opcode in the scriptSig must be at most OP_16. -/
+theorem p2shScriptSigSigOps_nonpush (ss : ByteArray) (ops : List WireOp)
+    (hp : parseWire ss = some ops) (hn : isPushOnlyWire ops = false) :
     p2shScriptSigSigOps ss = 0 := by
-  simp only [p2shScriptSigSigOps, hp, hl]
+  simp [p2shScriptSigSigOps, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData, hp, hn]
 
-/-- The redeem law (B2/SCR-034): for a P2SH prevout whose scriptSig's
-last push carries the redeemScript `d` (itself parsing as `rops`), the
-input's whole contribution is `GetSigOpCount(d, true)` =
-`accurateSigOpCount rops` — the accurate count of the redeemScript
-(BIP16).-/
+/-- A push-only scriptSig's final data push is counted directly, including
+any valid prefix before a malformed redeem-script push. -/
 theorem p2shScriptSigSigOps_push_redeem (ss : ByteArray) (ops : List WireOp)
-    (hp : parseWire ss = some ops) (last : WireOp) (d : ByteArray)
+    (hp : parseWire ss = some ops) (hpush : isPushOnlyWire ops = true)
+    (last : WireOp) (d : ByteArray)
+    (hl : ops.getLast? = some last) (hast : last.ast = .pushBytes d) :
+    p2shScriptSigSigOps ss = SigOps.witnessScriptSigOps d := by
+  simp [p2shScriptSigSigOps, SigOps.p2shScriptSigOps, SigOps.pushOnlyLastData,
+    hp, hpush, hl, hast]
+
+/-- For a completely parsed redeem script, the prefix count is its whole
+accurate count. -/
+theorem p2shScriptSigSigOps_redeem_parsed (ss : ByteArray) (ops : List WireOp)
+    (hp : parseWire ss = some ops) (hpush : isPushOnlyWire ops = true)
+    (last : WireOp) (d : ByteArray) (rops : List WireOp)
     (hl : ops.getLast? = some last) (hast : last.ast = .pushBytes d)
     (hd : parseWire d = some rops) :
     p2shScriptSigSigOps ss = accurateSigOpCount rops := by
-  simp only [p2shScriptSigSigOps, hp, hl, hast, hd]
-
-/-- The dead-state law: an unparseable redeemScript counts 0 (Core's
-partial `GetSigOpCount(true)` loop on the subscript = dead state,
-the audit).-/
-theorem p2shScriptSigSigOps_redeem_parse_fail (ss : ByteArray) (ops : List WireOp)
-    (hp : parseWire ss = some ops) (last : WireOp) (d : ByteArray)
-    (hl : ops.getLast? = some last) (hast : last.ast = .pushBytes d)
-    (hd : parseWire d = none) :
-    p2shScriptSigSigOps ss = 0 := by
-  simp only [p2shScriptSigSigOps, hp, hl, hast, hd]
+  rw [p2shScriptSigSigOps_push_redeem ss ops hp hpush last d hl hast]
+  exact SigOps.witnessScriptSigOps_of_parse d rops hd
 
 /-- The P2SH-gate law (tx_verify.cpp:132-147): for a non-coinbase
 one-input tx whose prevout is NOT P2SH (or unresolved = null Coin),
@@ -504,14 +429,14 @@ section Pins
 /-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_parse_fail' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms p2shScriptSigSigOps_parse_fail
 
-/-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_nonpush_tail' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs in #print axioms p2shScriptSigSigOps_nonpush_tail
+/-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_nonpush' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms p2shScriptSigSigOps_nonpush
 
 /-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_push_redeem' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms p2shScriptSigSigOps_push_redeem
 
-/-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_redeem_parse_fail' depends on axioms: [propext, Quot.sound] -/
-#guard_msgs in #print axioms p2shScriptSigSigOps_redeem_parse_fail
+/-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps_redeem_parsed' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms p2shScriptSigSigOps_redeem_parsed
 
 /-- info: 'Bitcoin.TxValidation.SigOpsCost.p2shSigOpsTx_coinbase_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms p2shSigOpsTx_coinbase_zero

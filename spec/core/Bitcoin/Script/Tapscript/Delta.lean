@@ -266,11 +266,8 @@ theorem evalChecksigTapscript_invalid_sig_fails
       { base := { checkECDSASignature := fun _ _ _ _ _ => true
                   checkSchnorrSignature := checkSchnorr } }
       ed sig pk vw = .error ExecError.schnorrSig := by
-  simp only [evalChecksigTapscript, VALIDATION_WEIGHT_PER_SIGOP_PASSED] at hvw ⊢
-  simp only [if_pos hsig, if_neg (by omega : ¬(vw.getD 0 - 50 < 0)),
-    if_neg (by omega : ¬(pk.size = 0)), if_pos hpk,
-    if_pos (show (!checkSchnorr sig pk SigVersion.tapscript ed) = true by
-      rw [hbad]; rfl)]
+  simp [evalChecksigTapscript, checkSchnorrWithContext, hsig, hpk, hbad,
+    show ¬(vw.getD 0 - VALIDATION_WEIGHT_PER_SIGOP_PASSED < 0) by omega]
 
 /-- CHECKSIGADD stack arithmetic: a successful step pushes exactly
 `n` or `n + 1`, where `n` is the decoded `num` operand — the
@@ -404,9 +401,9 @@ def flCltv : ScriptFlags := { cltv := true }
 def flCsv : ScriptFlags := { csv := true }
 /-- Checker environment: tx version 2, locktime 5, input NOT final —
 so `CheckLockTime(5)` and `CheckSequence(5)` both pass. -/
-def ck2 : ScriptChecker := ⟨stubChecker, ⟨2, 5, 0⟩⟩
+def ck2 : ScriptChecker := ⟨stubChecker, ⟨2, 5, 0⟩, none⟩
 /-- CSV variant: sequence 5 (disable bit clear, height-type, ≥ operand 5). -/
-def ckCsv : ScriptChecker := ⟨stubChecker, ⟨2, 5, 5⟩⟩
+def ckCsv : ScriptChecker := ⟨stubChecker, ⟨2, 5, 5⟩, none⟩
 
 /-- Under tapscript the IF-operand minimal-encoding check is
 UNCONDITIONAL: it fires even with `minimalIf := false` in the policy
@@ -633,7 +630,7 @@ theorem checksigadd_stepBody_tapscript {ctx : Ctx} {op : WireOp} {st : State}
     (hsv : ctx.sv = SigVersion.tapscript) (hfe : st.vf.all id = true)
     (h3 : 3 ≤ st.stack.length) :
     stepBody ctx op st =
-      (match checksigAddStep ctx.pol ctx.chk ctx.ed
+      (match checksigAddStep ctx.pol ctx.chk (signatureExecutionData ctx st)
           (topAt st.stack 3) (topAt st.stack 2) (topAt st.stack 1) st.vwLeft with
        | .error e => .error e
        | .ok (r, vw') => .ok { st with vwLeft := vw', stack := encodeScriptNum r false :: st.stack.drop 3 }) := by
@@ -644,8 +641,9 @@ theorem checksigadd_stepBody_tapscript {ctx : Ctx} {op : WireOp} {st : State}
   rw [stepBody]
   simp only [ha, hw, hfe, h3', disabledWire,
     Bitcoin.Interpreter.stepBody.dispatchOp]
-  cases checksigAddStep pol chk ed (topAt st.stack 3) (topAt st.stack 2)
-    (topAt st.stack 1) st.vwLeft <;> rfl
+  simp only [signatureExecutionData]
+  cases checksigAddStep pol chk { ed with codesepPosInit := true, codesepPos := st.codeSepPos }
+    (topAt st.stack 3) (topAt st.stack 2) (topAt st.stack 1) st.vwLeft <;> rfl
 
 /-- **TPR-056 (stack effect)**: a successful 0xba step decodes the `num`
 operand with the 4-byte bound FIRST and leaves exactly one stack element
@@ -661,7 +659,7 @@ theorem checksigadd_stepBody_tapscript_stack_effect {ctx : Ctx} {op : WireOp}
       (r = n ∨ r = n + 1) ∧
       st' = { st with vwLeft := vw', stack := encodeScriptNum r false :: st.stack.drop 3 } := by
   rw [checksigadd_stepBody_tapscript ha hw hsv hfe h3] at h
-  cases hc : checksigAddStep ctx.pol ctx.chk ctx.ed
+  cases hc : checksigAddStep ctx.pol ctx.chk (signatureExecutionData ctx st)
       (topAt st.stack 3) (topAt st.stack 2) (topAt st.stack 1) st.vwLeft with
   | error e => rw [hc] at h; simp at h
   | ok p =>
@@ -669,7 +667,7 @@ theorem checksigadd_stepBody_tapscript_stack_effect {ctx : Ctx} {op : WireOp}
     rw [hc] at h
     simp only [Except.ok.injEq] at h
     obtain ⟨n, hn, hr⟩ :=
-      Bitcoin.Script.Tapscript.checksigAddStep_result ctx.pol ctx.chk ctx.ed
+      Bitcoin.Script.Tapscript.checksigAddStep_result ctx.pol ctx.chk (signatureExecutionData ctx st)
         (topAt st.stack 3) (topAt st.stack 2) (topAt st.stack 1) st.vwLeft (by rw [hc])
     exact ⟨n, r, vw', hn, hr, h.symm⟩
 

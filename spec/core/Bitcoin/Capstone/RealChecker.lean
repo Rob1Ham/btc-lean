@@ -1,6 +1,7 @@
 import Bitcoin.Crypto.Seam.Entry
 import Bitcoin.Crypto.Ecdsa.Verify
 import Bitcoin.Crypto.Schnorr.Verify
+import Bitcoin.Crypto.Taproot.Sighash
 import Bitcoin.SigHash.Interface
 import Bitcoin.Data.Tx
 import Bitcoin.Interpreter.Defs
@@ -8,10 +9,10 @@ import Bitcoin.Interpreter.Defs
 /-!
 # Bitcoin.Capstone.RealChecker — S2a: the crypto wiring
 
-THE one remaining wiring point: instantiate the
-abstract `verify` parameter of `ecdsaEntry` with the real verifier
-`Bitcoin.Crypto.Ecdsa.Verify.verifyImpl` (215/215 conformance, lax
-semantics = Core `CPubKey::Verify`), leaving `Entry.lean` untouched.
+The ECDSA base adapter instantiates `ecdsaEntry` with the real lax verifier
+`Bitcoin.Crypto.Ecdsa.Verify.verifyImpl`. Production extends that adapter
+with typed BIP341 hashing and BIP340 verification in `realCheckerWithTaproot`;
+the frozen `Entry.lean` Boolean seam remains available for compatibility.
 
 ## Flag gate (BIP66 strict / lax)
 
@@ -40,11 +41,11 @@ of `tx` spending a coin of `amount`:
   (BIP143, amount-carrying), else `SignatureHash` legacy. The
   `scriptCode`/hashtype reach it from the interpreter, which has
   already constructed the P2WPKH/P2WSH scriptCode.
-* Schnorr entry: `schnorrEntry` with the fail-closed stub
-  (`verify := fun _ _ _ => false`, `sighashSchnorr := fun _ _ _ =>
-  none`) — Taproot spends cannot verify; the Capstone block layer
-  routes v1-witness inputs to an explicit "unjudged" lane instead of
-  letting them fail-closed (documented depth semantics, report §3).
+* `realCheckerOf` retains the historical Boolean-only compatibility seam.
+  Production uses `realCheckerWithTaproot`, which installs the typed
+  `checkSchnorrForInput` callback with the exact transaction and complete
+  ordered spent outputs. It performs real BIP341 hashing and BIP340 verification;
+  missing data is an explicit unavailable result, not a false signature.
 * `hasAmount = true`: the Capstone ledger always supplies the spent
   coin, so SWT-055's missing-data path is dead for anchor runs.
 
@@ -78,20 +79,12 @@ def sighashDispatch (tx : Tx) (nIn : Nat) (amount : Amount) :
 slot stays the fail-closed stub. -/
 @[rule "SGN-107", rule "SGN-110"]
 def realEcdsaEntry (tx : Tx) (nIn : Nat) (amount : Amount) : BaseSignatureChecker :=
-  ecdsaEntry verifyImpl (sighashDispatch tx nIn amount) true
+  ecdsaEntry Bitcoin.Crypto.Ecdsa.Verify.verifyImpl (sighashDispatch tx nIn amount) true
 
-/-- **THE SCHNORR WIRING (the Schnorr module)**: `schnorrEntry` with the REAL BIP340
-verifier `Bitcoin.Crypto.Schnorr.Verify.verifyImpl` (19/19 official
-vectors incl. negatives). The gates are untouched — `schnorrVerdict`
-still enforces, upstream of the EC math: the taproot/tapscript sigversion
-restriction (fail-closed otherwise), the 32-byte key gate, the 64/65-byte
-signature size gate with the SIGHASH_DEFAULT 65th-byte rule
-(`schnorrHashtype`), and the missing-txdata fail-closed path. The BIP342
-sighash function itself (`sighashSchnorr`) is the Taproot and interpreter delta layers' lane and REMAINS
-the fail-closed `none` stand-in here — flipping it is a one-parameter
-change with this file as the single wiring point, exactly as the
-frozen interface prescribed. Until then, key-path spends reach `verifyImpl` only
-once a real sighash lands; every gate above it is already real. -/
+/-- Historical Boolean Schnorr compatibility entry: real BIP340 verifier,
+with unavailable sighash data represented by none. Production installs the
+typed `checkSchnorrForInput` callback through `realCheckerWithTaproot`, which
+preserves exact errors and explicit unavailable-context outcomes. -/
 @[rule "TPR-050", rule "TPR-051", rule "TPR-052"]
 def realSchnorrEntry : BaseSignatureChecker :=
   schnorrEntry Bitcoin.Crypto.Schnorr.Verify.verifyImpl
@@ -102,7 +95,7 @@ real lax-ECDSA + real-BIP340-verifier Schnorr + the real locktime
 environment. -/
 def realCheckerFullOf (tx : Tx) (nIn : Nat) (amount : Amount) :
     Bitcoin.Interpreter.ScriptChecker :=
-  { base := txCheckerOf verifyImpl (sighashDispatch tx nIn amount) true
+  { base := txCheckerOf Bitcoin.Crypto.Ecdsa.Verify.verifyImpl (sighashDispatch tx nIn amount) true
         Bitcoin.Crypto.Schnorr.Verify.verifyImpl (fun _ _ _ => none)
     env := { txVersion := tx.version
              txLockTime := tx.locktime
@@ -118,5 +111,44 @@ def realCheckerOf (tx : Tx) (nIn : Nat) (amount : Amount) :
     env := { txVersion := tx.version
              txLockTime := tx.locktime
              txSequence := (tx.vin.getD nIn dummyTxIn).sequence } }
+
+/-- Typed production Schnorr adapter. Shape and hashtype failures are
+adjudicable without transaction caches. Missing prevout/execution data is
+explicitly unavailable, never an assumed pass or an invalid-signature verdict.
+The supplied outputs are in vin order and belong to this exact transaction. -/
+def checkSchnorrForInput (tx : Tx) (nIn : Nat) (spentOutputs : Option (List TxOut))
+    (sig pk : ByteArray) (sv : SigVersion) (ed : ScriptExecutionData) :
+    Except Bitcoin.Interpreter.ExecError Unit := do
+  if ¬(sv = .taproot ∨ sv = .tapscript) ∨ pk.size ≠ 32 then
+    throw Bitcoin.Interpreter.ExecError.schnorrSig
+  if sig.size ≠ 64 ∧ sig.size ≠ 65 then
+    throw Bitcoin.Interpreter.ExecError.schnorrSigSize
+  let (body, ht) ← match schnorrHashtype sig with
+    | none => throw Bitcoin.Interpreter.ExecError.schnorrSigHashtype
+    | some value => pure value
+  if !Bitcoin.Crypto.Taproot.hashtypeValid ht then
+    throw Bitcoin.Interpreter.ExecError.schnorrSigHashtype
+  if Bitcoin.Crypto.Taproot.htSingle ht && nIn ≥ tx.vout.length then
+    throw Bitcoin.Interpreter.ExecError.schnorrSigHashtype
+  let outputs ← match spentOutputs with
+    | none => throw Bitcoin.Interpreter.ExecError.taprootDataUnavailable
+    | some outputs => pure outputs
+  if outputs.length ≠ tx.vin.length ∨ nIn ≥ tx.vin.length then
+    throw Bitcoin.Interpreter.ExecError.taprootDataUnavailable
+  if !ed.annexInit || (sv = .tapscript && (!ed.tapleafHashInit || !ed.codesepPosInit)) then
+    throw Bitcoin.Interpreter.ExecError.taprootDataUnavailable
+  let digest ← match Bitcoin.Crypto.Taproot.sighashTaproot ⟨tx, outputs⟩ nIn ht sv ed with
+    | none => throw Bitcoin.Interpreter.ExecError.schnorrSigHashtype
+    | some digest => pure digest
+  if !Bitcoin.Crypto.Schnorr.Verify.verifyImpl body pk digest then
+    throw Bitcoin.Interpreter.ExecError.schnorrSig
+
+/-- The existing real ECDSA/environment assembly plus a typed BIP340/341
+adapter. A partial caller can supply none; a live caller supplies every spent
+output from its current ledger, before any of this transaction's inputs spend. -/
+def realCheckerWithTaproot (tx : Tx) (nIn : Nat) (amount : Amount)
+    (spentOutputs : Option (List TxOut)) : Bitcoin.Interpreter.ScriptChecker :=
+  { realCheckerOf tx nIn amount with
+    checkSchnorrTyped := some (checkSchnorrForInput tx nIn spentOutputs) }
 
 end Bitcoin.Capstone.RealChecker
