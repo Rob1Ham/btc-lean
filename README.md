@@ -160,7 +160,9 @@ transport checksums. The transport checksums are not signatures.
 
 The candidate passes **9/9 static gates**. They do not build Lean and do not
 download mathlib. They require Python 3.12 and PyYAML. `make gates` is the CI
-equivalent and prints `gates: all nine static gates passed`.
+equivalent and prints `gates: all nine static gates passed`. `make gate-repro`
+then checks the reference scripts used by the conformance runners and rejects
+local checkout paths in tracked shell/Python files.
 
 | # | Gate | Command |
 |---:|---|---|

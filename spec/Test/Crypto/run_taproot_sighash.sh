@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_taproot_sighash.sh — X03 Unit-2 test runner: builds the BIP341 sighash
+# run_taproot_sighash.sh — BIP341 sighash test runner: builds the BIP341 sighash
 # module and runs the conformance harness (compiled runtime execution of
 # sigMsgTaproot/sighashTaproot over the 7 official wallet-vector key-path
 # cases + 3 synthetic annex/tapscript cases + 2 rejects), then the
@@ -17,4 +17,4 @@ lake env lean --run ../Test/Crypto/TaprootSighashTest.lean
 echo "== crosscheck (independent hashlib mirror re-derives every literal) =="
 python3 ../Test/Crypto/taproot_sighash_crosscheck.py
 
-echo "X03 Unit-2 tests: harness + crosscheck exited 0"
+echo "BIP341 sighash tests: harness + crosscheck exited 0"

@@ -12,6 +12,7 @@ Python 3.12+ with PyYAML is enough for the static gates:
 ```sh
 python3 -m pip install PyYAML==6.0.2
 make gates
+make gate-repro
 ```
 
 This checks the nine static gates: the core sorry/hazard lint, the `@[rule]`/census
@@ -19,6 +20,8 @@ cross-check, the static axiom manifest, the `rules.yaml` regeneration fixed
 point, the 726-row census, the override mirror, the single Core anchor pin, the
 wallet static battery, and the tracked-data subset. It does not build Lean. The
 candidate passes 9/9 and prints `gates: all nine static gates passed`.
+`make gate-repro` is a separate, Lean-free check of the reference scripts and
+local-path hygiene.
 
 ## 2. Build the executable model
 

@@ -37,6 +37,11 @@ jobs:
           TMPDIR: ${{ runner.temp }}
         run: make gates
 
+      - name: Reproducibility references
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: make gate-repro
+
       - name: Verify in-tree data manifest
         run: sha256sum -c --strict spec/data/MANIFEST.sha256
 

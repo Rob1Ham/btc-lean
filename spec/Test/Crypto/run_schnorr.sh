@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_schnorr.sh — X02 test runner: builds the Schnorr modules and runs the
+# run_schnorr.sh — BIP340 test runner: builds the Schnorr modules and runs the
 # 19-official-vector BIP340 conformance harness (compiled runtime execution
 # of Schnorr.Verify.verifyImpl; kernel checks stay on the structural layer).
 set -euo pipefail
@@ -13,4 +13,4 @@ lake build Bitcoin.Crypto.Schnorr.TaggedHash \
 echo "== SchnorrTest (19 official BIP340 vectors through verifyImpl) =="
 lake env lean --run ../Test/Crypto/SchnorrTest.lean
 
-echo "X02 tests: harness exited 0"
+echo "BIP340 tests: harness exited 0"

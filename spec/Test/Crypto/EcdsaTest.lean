@@ -1,7 +1,7 @@
 import Bitcoin.Crypto.Ecdsa.Interface
 
 /-!
-# W14b ECDSA-lax conformance harness (GENERATED — do not hand-edit)
+# ECDSA-lax conformance harness (GENERATED — do not hand-edit)
 
 Run: `bash spec/Test/Crypto/run_ecdsa.sh`.
 
@@ -12,7 +12,7 @@ Semantics : Core @ cce32b168 — lax DER parse, scalar_set_b32 mod-n
 Checked by: compiled runtime execution (`main` below) of `verifyLax`
             against the oracle-pinned expectations — deliberately NOT
             kernel/native_decide through the WF-recursive mulP/expM
-            (W14 §5 finding: decide cannot reduce WF-recursive defs).
+            (ECDSA §5 finding: decide cannot reduce WF-recursive defs).
 Kernel checks stay on the structural Der-layer defs only.
 
 Corpus (215 vectors; 139 accept / 76 reject): 100 valid sign/verify ·

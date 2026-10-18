@@ -11,7 +11,7 @@ SCRIPTS := $(SPEC)/scripts
 
 .PHONY: gates gate-sorry gate-cross gate-axiom-static gate-axiom-probe \
         gate-extract gate-census gate-overrides gate-pin gate-wallet \
-        gate-subset wallet-gates help
+        gate-subset gate-repro wallet-gates help
 
 help:
 	@echo "make gates               # all nine static gates (CI equivalent)"
@@ -25,6 +25,7 @@ help:
 	@echo "make gate-pin            # 7: every row anchor @cce32b168"
 	@echo "make gate-wallet         # 8: wallet sorry, tags, isolation, static axioms"
 	@echo "make gate-subset         # 9: 2-5 MiB data subset, no git-lfs"
+	@echo "make gate-repro          # reproducibility scripts + local-path scan"
 	@echo "make wallet-gates        # wallet gates (set CORE_SRC for anchors)"
 
 gates: gate-sorry gate-cross gate-axiom-static gate-extract gate-census \
@@ -73,6 +74,10 @@ gate-wallet:
 gate-subset:
 	@echo "== gate 9: data subset =="
 	@bash scripts/check_subset_size.sh --root spec/data
+
+gate-repro:
+	@echo "== reproducibility: reference scripts and local-path scan =="
+	@$(PYTHON) $(SCRIPTS)/check_reproducibility.py
 
 wallet-gates:
 	@bash $(SCRIPTS)/wallet_gates.sh

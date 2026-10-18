@@ -102,6 +102,9 @@ The static gates are the acceptance contract. They do not build Lean and do not
 download mathlib; `make gates` runs the consensus and static wallet battery
 (9/9 pass in this candidate), and `bash spec/scripts/wallet_gates.sh` adds the
 optional Core-source anchor census and the dynamic wallet axiom probe.
+`make gate-repro` is a separate reproducibility check: it verifies the
+reference/generator scripts cited by the test runners and scans shell/Python
+files for local checkout paths.
 
 | Gate | Script | Contract |
 |---|---|---|
@@ -114,6 +117,11 @@ optional Core-source anchor census and the dynamic wallet axiom probe.
 | 7 | `anchor_pin_check.py` | every row anchor carries the single pin `@cce32b168` |
 | 8 | `wallet_sorry_lint.py`, `wallet_crosscheck.py`, `wallet_isolation.py`, `wallet_axiom_manifest.sh --check-static` | wallet-side sorry/hazard lint, tag/row traceability, consensus isolation, and static axiom manifest |
 | 9 | `check_subset_size.sh` | the tracked data subset is 2-5 MiB and contains no git-lfs pointer |
+
+The reproducibility check is separate from the nine static gates:
+`check_reproducibility.py` verifies the reference scripts and data files used by
+the conformance runners, and rejects absolute checkout paths in tracked
+shell/Python files.
 
 `axiom_manifest.sh` without `--check-static` runs the full Lean `#print axioms`
 probe using `axiom_probe.lean` and `axiom_probe_rows.lean`. `spec/runners/`

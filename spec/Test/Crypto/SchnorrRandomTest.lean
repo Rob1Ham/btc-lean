@@ -2,7 +2,7 @@ import Bitcoin.Crypto.Schnorr.Verify
 import Bitcoin.Data.Basic
 
 /-!
-# W3-X02 python-cross-check corpus (GENERATED — do not hand-edit)
+# BIP340 python-cross-check corpus (GENERATED — do not hand-edit)
 
 Run: `bash spec/Test/Crypto/run_schnorr.sh` (second harness) or
 `python3 spec/Test/Crypto/gen_schnorr_random.py` to regenerate.
@@ -287,8 +287,8 @@ def runVectors : IO Unit := do
     if got != expected then
       fails := fails + 1
       IO.println s!"FAIL {name}: expected {expected}, got {got}"
-  IO.println s!"X02 cross-check: {vectors.length} vectors (200 accept / 25 reject), FAILURES {fails}"
-  if fails > 0 then throw (IO.userError "X02 python cross-check failures")
+  IO.println s!"BIP340 cross-check: {vectors.length} vectors (200 accept / 25 reject), FAILURES {fails}"
+  if fails > 0 then throw (IO.userError "BIP340 python cross-check failures")
 
 end Bitcoin.Test.Crypto.SchnorrRandom
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_taproot_verify.sh — X03 Unit-4 test runner: builds the BIP341
+# run_taproot_verify.sh — BIP341 output/script-path test runner: builds the BIP341
 # taproot-verify module and runs the conformance harness (compiled runtime
 # execution of p2trOutput/treeMerkleRoot over ALL 7 official wallet-vector
 # scriptPubKey-section output cases + 4 synthetic script-path control-block
@@ -17,4 +17,4 @@ lake env lean --run ../Test/Crypto/TaprootVerifyTest.lean
 echo "== crosscheck (independent pure-python secp256k1 mirror) =="
 python3 ../Test/Crypto/taproot_verify_crosscheck.py
 
-echo "X03 Unit-4 tests: harness + crosscheck exited 0"
+echo "BIP341 output/script-path tests: harness + crosscheck exited 0"
