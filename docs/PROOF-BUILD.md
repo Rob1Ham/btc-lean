@@ -105,7 +105,7 @@ and `BitcoinProofs.Property.Y15.WitnessProps`.
 against the pinned Lean toolchain, mathlib revision, and core package. It does
 **not** mean that all 416 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
-Core. Statement fidelity is a separate review obligation, with the 24 known
+Core. Statement fidelity is a separate review obligation, with the 18 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
 proof-surface reductions in [`AUDIT-RESIDUALS.md`](AUDIT-RESIDUALS.md).
 

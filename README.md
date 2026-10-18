@@ -15,11 +15,13 @@ row-by-row rule census in
 `spec/db/rules.yaml`: each row records a Bitcoin Core reference, a BIP/CVE
 attribution, the Lean declaration that carries the row's `@[rule "<ID>"]`
 tag, and its test-vector selectors. The consensus census has **726 rows:
-676 proven and 50 obsolete**, with no implemented or planned rows. Twenty-four
+676 proven and 50 obsolete**, with no implemented or planned rows. Eighteen
 of the proven rows are **explicit model residuals**: the row claim is true of
 Bitcoin Core, but the current Lean model does not yet entail it. They are
 listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and the generated
-[`docs/RESIDUALS-EVIDENCE.md`](docs/RESIDUALS-EVIDENCE.md). A second, independent
+[`docs/RESIDUALS-EVIDENCE.md`](docs/RESIDUALS-EVIDENCE.md); six further
+former residual rows are out-of-ledger (node/API or policy) obligations
+named in the same page (issue 22 triage). A second, independent
 wallet census (`spec/db/rules-wallet.yaml`, **140 rows**) records wallet
 construction and signing behaviour; it has its own gates and is never merged
 into the consensus census. This is a model of consensus rules, not an
@@ -58,12 +60,12 @@ the repository does not publish a theorem-declaration count.
 The 50 `obsolete` rows are retired duplicates, policy-only boundaries, or
 out-of-scope entries. They remain rows rather than being deleted, which is
 why the denominator stays 726. Some proven rows are also boundary evidence:
-the database marks 111 rows `consensus: false` (61 proven and 50 obsolete), and
+the database marks 115 rows `consensus: false` (65 proven and 50 obsolete), and
 the theorem index lists the proven boundary rows separately from the proven
 consensus rows. `proven` means the row has a named Lean target and passes the
 traceability gates; it does not by itself assert byte-for-byte equivalence with
 Bitcoin Core (see
-[Scope and non-claims](#scope-and-non-claims)). The 24 explicit residuals are
+[Scope and non-claims](#scope-and-non-claims)). The 18 explicit residuals are
 counted in `proven` but are not claims of Core equivalence;
 `docs/RESIDUALS.md` is authoritative for that list.
 
@@ -253,10 +255,15 @@ The script runs the wallet static battery, the 140-anchor census when
   rows carry tags, 99 appear in the obligation register, and four have
   corrected statements without a proof. Wallet results are not consensus
   results and are never added to the 726-row denominator.
-- **Twenty-four consensus rows are explicit model residuals.** Their Core
+- **Eighteen consensus rows are explicit model residuals.** Their Core
   behaviour is retained as the row claim, but the current Lean model does not
   entail it. They are listed with the missing link in `docs/RESIDUALS.md`;
   `status: proven` refers to the cited Lean target, not to Core equivalence.
+  Six former residual rows (INV-046, SCR-008, INV-114, INV-115, INV-119,
+  INV-138) are out-of-ledger obligations — the two policy rows were never
+  consensus, and the four node/API rows were retagged `consensus: false` in
+  the issue 22 triage — with their census rows, targets, and open
+  obligations kept; no underlying residual statement is claimed proved.
 - **No external audit or certification is claimed.** The residual and review
   records are internal evidence. No third-party security audit,
   certification, or endorsement is asserted.
