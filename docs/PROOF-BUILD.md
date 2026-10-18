@@ -26,6 +26,19 @@ PR 18 merged and before the remediation changes. They remain historical
 results until the full module matrix is rerun under R08; the counts and failure
 list must not be read as current-head verification.
 
+## Upstream follow-up snapshot
+
+Upstream commit `32e8463a47022307f4dc3e337bfdbb10999b7bcc` reports rerunning
+the old 15-module failure set after PRs 18/19, leaving eight failures and
+372 outside-closure passes. It records 1730 default-build jobs at its own
+29-module root. These are upstream-reported results, not a fresh 380-module
+run on this remediation branch. The eight reported remaining failures are:
+`Audit.Z03.Probe`, `Audit.Z09.Corners`, `Bip.B03.B03Subsidy`,
+`Bip.B10.Bip144Vectors`, `EcdsaDeep.DerBattery`, `EcdsaDeep.S02Flip`,
+`Theorems.Audit.CV02` and `Theorems.FuelStabilityProbe` (all under
+`BitcoinProofs`). Full current-head verification and evidence classification
+remain R08 work; a compiler-evaluated fixture pass is not a kernel proof claim.
+
 ## Recorded upstream per-module results
 
 The upstream 2026-10-18 audit reported every outside-closure module built by exact

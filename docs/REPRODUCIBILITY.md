@@ -119,7 +119,7 @@ and compiles mathlib and may take a long time and several GiB:
 ```sh
 cd spec/proofs
 lake build BitcoinProofs
-# recorded: Build completed successfully (1722 jobs).
+# Upstream recorded 1730 jobs at its 29-module revision; see PROOF-BUILD.md for current scope.
 ```
 
 Do not use a bare `lake build`: it builds the default target and makes the
@@ -143,8 +143,8 @@ lake test
 | Build | Target | Jobs | Result |
 |---|---|---:|---|
 | Lean core | `Bitcoin` | 72 | success |
-| Proof root | `BitcoinProofs` | 1722 | success (29-module closure) |
-| Proof modules outside default closure | exact module names | — | 365 pass / 15 fail (380 modules); see `docs/PROOF-BUILD.md` |
+| Proof root | `BitcoinProofs` | see scoped receipt | success (31-module closure); see `docs/PROOF-BUILD.md` |
+| Proof modules outside default closure | exact module names | — | upstream snapshot: 372 pass / 8 fail (380 modules); current-head matrix pending; see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
 
