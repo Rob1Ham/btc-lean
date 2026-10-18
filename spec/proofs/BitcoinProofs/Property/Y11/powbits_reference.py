@@ -75,7 +75,7 @@ def get_compact(t: int, f_negative: bool = False) -> int:
 POW_LIMIT = 0xFFFF * 256 ** 26          # mainnet/testnet3/testnet4 (BLK-040)
 DIFFICULTY_ONE = 0xFFFF * 256 ** 29     # compactTarget 0x1d00ffff
 
-# Real mainnet nBits, byte-extracted from the Wave-2 validated anchor blocks
+# Real mainnet nBits, byte-extracted from the validated anchor blocks
 # (spec/vectors/anchors/<h>.raw, bytes 72..76 LE) — VERIFIED on-chain data.
 ANCHOR_NBITS = [
     (0,      0x1D00FFFF),
@@ -273,7 +273,7 @@ plain-python reference `powbits_reference.py` (repo copy in this dir,
 seed 20261016, REPRODUCIBLE — regenerates this file byte-for-byte; the
 generator is kept with the corpus) and is independent of
 the Lean implementation. Real-anchor nBits were byte-extracted from the
-Wave-2 validated anchor headers (spec/vectors/anchors/*.raw, bytes 72-76
+validated anchor headers (spec/vectors/anchors/*.raw, bytes 72-76
 LE): heights 0, 74638, 91842, 91880, 481824, 709632.
 
 Sections (137 cases + 5 named theorem instances, all kernel `decide`-checkable):
@@ -326,7 +326,7 @@ def emit_lean(cases):
             n += 1
             out.append(dec(
                 f"compactTarget (0x{c['nbits']:08x} : UInt32) = {c['target_lean']}"))
-    out.append("\n/-! ### B. real mainnet anchor nBits (Wave-2 validated headers) -/\n\n")
+    out.append("\n/-! ### B. real mainnet anchor nBits (validated headers) -/\n\n")
     for c in cases:
         if c["sec"] == "B-decode-anchor":
             n += 1

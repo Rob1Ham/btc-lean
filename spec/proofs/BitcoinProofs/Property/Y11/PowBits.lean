@@ -17,7 +17,7 @@ plain-python reference `powbits_reference.py` (repo copy in this dir,
 seed 20261016, REPRODUCIBLE — regenerates this file byte-for-byte; the
 generator is kept with the corpus) and is independent of
 the Lean implementation. Real-anchor nBits were byte-extracted from the
-Wave-2 validated anchor headers (spec/vectors/anchors/*.raw, bytes 72-76
+validated anchor headers (spec/vectors/anchors/*.raw, bytes 72-76
 LE): heights 0, 74638, 91842, 91880, 481824, 709632.
 
 Sections (137 cases + 5 named theorem instances, all kernel `decide`-checkable):
@@ -82,7 +82,7 @@ example : compactTarget (0x00008000 : UInt32) = 0 := by decide
 example : compactTarget (0x2abcdef1 : UInt32) = 33284960825265155823136482913937034729659729569665613278961510290224441653652664231600590292797882368 := by decide
 example : compactTarget (0x0b000009 : UInt32) = 166020696663385964544 := by decide
 
-/-! ### B. real mainnet anchor nBits (Wave-2 validated headers) -/
+/-! ### B. real mainnet anchor nBits (validated headers) -/
 
 example : compactTarget (0x1d00ffff : UInt32) = 26959535291011309493156476344723991336010898738574164086137773096960 := by decide
 example : compactTarget (0x1c00800e : UInt32) = 52678642966898219212816601311127992435882858542187514726849708032 := by decide
