@@ -9,11 +9,11 @@ for the 64 fixed dummy leaves `dummyLeaf i = 32×[byte i]`, ALL 64 roots
 `shapeRoot n = merkleRootOf (leavesOf n)` are pinned against an independent
 Python reference (plain `hashlib.sha256d`,
 mirroring `Bitcoin.Capstone.Merkle` / merkle.cpp:51-73 @cce32b168) as a
-64-row matrix — `merkle_matrix_64`, discharged by kernel conversion
-(`rfl` at default transparency: the kernel evaluates Core's own
-`sha256d` end-to-end; plain `decide` is NOT used because its
-reducible-transparency evaluation cannot unfold the plain defs here, and
-`native_decide` is NOT used so the footprint stays axiom-light).
+64-row matrix — `merkle_matrix_64`, discharged by `native_decide`: the
+compiled evaluator runs Core's own `sha256d` end-to-end over all 64 shapes.
+This is a trusted-compiler check (its footprint includes the generated
+`native_decide` evaluation axiom), not a kernel-conversion proof; the
+`#print axioms` output at the bottom of this file records that explicitly.
 
 General statements (sorry-free, sha256d treated as an opaque pairing
 function exactly as in `Theorems.CapstoneMerkle`):
@@ -143,8 +143,9 @@ def rowBEq (a b : ByteArray) : Bool :=
 /-- One matrix row: Core's root for shape `n` byte-equals the reference root. -/
 def rowCheck (n : Nat) : Bool := rowBEq (shapeRoot n) (expectedRoot n)
 
-/-- The full 64-row matrix: all rows ANDed. -/
-def matrixCheck : Bool := (List.range 64).all rowCheck
+/-- The full 64-row matrix: shapes `n = 1..64` (the `k+1` offset is
+essential — `List.range 64` alone would be `0..63` and omit `n = 64`). -/
+def matrixCheck : Bool := (List.range 64).all (fun k => rowCheck (k + 1))
 
 /-! ## General statements (sorry-free, sha256d opaque) -/
 
@@ -223,22 +224,16 @@ theorem shape_3 : shapeRoot 3 =
 
 theorem row_1 : rowCheck 1 = true := rfl
 
-set_option maxRecDepth 8000 in
-theorem row_2 : rowCheck 2 = true := rfl
+theorem row_2 : rowCheck 2 = true := by native_decide
 
-set_option maxRecDepth 8000 in
-theorem row_3 : rowCheck 3 = true := rfl
+theorem row_3 : rowCheck 3 = true := by native_decide
 
 /-! ## THE 64-ROW MATRIX -/
 
 /-- **All 64 roots agree with the independent Python reference**, one row
-per tx-count `n = 1..64` — discharged by kernel conversion (`rfl`): Lean's
-kernel evaluates Core's own `sha256d` over all ~6.8k compressions of the
-64 shapes in one defeq check. Not `native_decide` — the footprint stays
-`propext`/`Quot.sound`-class only. -/
-set_option maxHeartbeats 10000000 in
-set_option maxRecDepth 8000 in
-theorem merkle_matrix_64 : matrixCheck = true := rfl
+per tx-count `n = 1..64`, checked by `native_decide` over Core's own
+`sha256d` (compiled evaluation; see the header and axiom footprint below). -/
+theorem merkle_matrix_64 : matrixCheck = true := by native_decide
 
 /-! ## Axiom footprints -/
 

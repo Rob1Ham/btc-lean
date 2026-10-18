@@ -33,11 +33,10 @@ verbatim transcription of Core @ `cce32b168` — `script.h:246-271,342-391`,
   trailing `0x80`) is pinned at 2 and 3 bytes (`bool_0080`, `bool_000080`),
   the -0 corner at 1 byte (`bool_80`), and the true-side contrasts
   (`bool_8000`, `bool_8080`, `bool_0180`). End-to-end through the real
-  interpreter (`evalScriptBytes`, which routes every IF/NOTIF/VERIFY/final
-  truthiness check through this exact definition — Interpreter/Defs.lean:841,
-  855, 902, 968, 1183, 1271, 1310): a bare push of `-0` (`0180`) fails final
-  verify with EVAL_FALSE while `0x80 0x00` (`018000`) verifies, and OP_IF
-  takes the ELSE branch on `0x80` (`if_80_else_true` / `if_80_else_false`).
+  consensus entry `verifyScriptFull` (which applies final-stack truthiness):
+  a bare push of `-0` (`0180`) fails final verify with EVAL_FALSE while a
+  two-byte push of `0x80 0x00` (`028000`) verifies, and OP_IF takes the
+  ELSE branch on `0x80` (`if_80_else_true` / `if_80_else_false`).
   General agreement theorem: `castToBool_iff_setVchBE` (Interface.lean:207).
 
 All examples are closed `decide` proofs (kernel reductions; no axioms beyond
@@ -150,30 +149,44 @@ example :
 
 /-! ### End-to-end through the real interpreter
 
-`evalScriptBytes` routes OP_IF/NOTIF/OP_VERIFY and the final stack check
-through `Bitcoin.Numeric.castToBool` (Interpreter/Defs.lean:841,855,902,968,
-1183,1271,1310). Flags `{}` (pre-BIP66 consensus set), policy `default`.
-(`Except` has no `DecidableEq` instance in this toolchain, so the runs are
-pinned via Bool-matched projections — kernel-reduced by `decide`, exactly
-like the `Numeric/Tests.lean` vectors.) -/
+`evalScriptBytes` routes OP_IF/NOTIF/OP_VERIFY checks through
+`Bitcoin.Numeric.castToBool`, but it does NOT apply final-stack truthiness:
+it returns the final stack. The consensus entry `verifyScriptFull` is the
+function that adds the `EVAL_FALSE` check (Interpreter/Defs.lean:1325), so
+the end-to-end rows below use it. Flags `{}` (pre-BIP66 consensus set),
+policy `default`. (`Except` has no `DecidableEq` instance in this
+toolchain, so the runs are pinned via Bool-matched projections —
+kernel-reduced by `decide`, exactly like the `Numeric/Tests.lean` vectors.) -/
 
-/-- Run a script; `true` iff the result is `error evalFalse`
+/-- Run a bare-script spend through the full consensus verifier. -/
+private def runVerify (s : String) : VerifyOutcome :=
+  verifyScriptFull 100 {} default (fromHex "") (fromHex s) [] default
+
+/-- `true` iff the full verifier fails with `EVAL_FALSE`
 (SCRIPT_ERR_EVAL_FALSE, the final-stack-truthiness failure). -/
 private def runErrEvalFalse (s : String) : Bool :=
-  match evalScriptBytes 100 {} default (fromHex s) [] default SigVersion.base default with
-  | .error .evalFalse => true | _ => false
+  match runVerify s with
+  | .fail .evalFalse => true | _ => false
 
-/-- Run a script; the resulting final stack (∅ on error). -/
+/-- `true` iff the full verifier accepts. -/
+private def runOk (s : String) : Bool :=
+  match runVerify s with
+  | .ok => true | _ => false
+
+/-- The raw evaluation's final stack (∅ on error); used only to pin stack
+CONTENTS where the consensus verdict alone would be insufficient. -/
 private def runFinal (s : String) : List ByteArray :=
   match evalScriptBytes 100 {} default (fromHex s) [] default SigVersion.base default with
   | .ok st => st | .error _ => []
 
-/-- A bare push of negative-zero `0x80` leaves a bool-FALSE stack: final
-verify fails EVAL_FALSE. -/
+/-- A bare push of negative-zero `0x80` leaves a bool-FALSE stack: the full
+verifier fails EVAL_FALSE. (`evalScriptBytes` alone would return `.ok`.) -/
 example : runErrEvalFalse "0180" = true := by decide
 
-/-- The same spend with `0x80 0x00` (= +128, C1's catch) verifies. -/
-example : runFinal "018000" = [fromHex "8000"] := by decide
+/-- A two-byte push of `0x80 0x00` (= +128, C1's catch) verifies: the script
+is `02 8000` (PUSH2), not `01 80 00` (a one-byte push followed by OP_0). -/
+example : runOk "028000" = true := by decide
+example : runFinal "028000" = [fromHex "8000"] := by decide
 
 /-- OP_IF consumes `-0` as FALSE: the ELSE branch runs. Script
 `0180 63 51 67 00 68` (push 0x80; IF; OP_1; ELSE; OP_0; ENDIF) — the false
@@ -182,6 +195,7 @@ example : runErrEvalFalse "01806351670068" = true := by decide
 
 /-- Twin with the true branch: `0180 63 51 67 51 68` leaves `[0x01]` → OK.
 (With the previous example this pins that OP_IF branched on CastToBool.) -/
+example : runOk "01806351675168" = true := by decide
 example : runFinal "01806351675168" = [fromHex "01"] := by decide
 
 end C2
