@@ -1,0 +1,726 @@
+{
+  "review_date": "2026-10-18",
+  "timezone": "America/Chicago",
+  "captured_at_utc": "2026-10-18T14:32:25.769729+00:00",
+  "repository": {
+    "defaultBranchRef": {
+      "name": "main"
+    },
+    "description": "",
+    "isPrivate": false,
+    "nameWithOwner": "Rob1Ham/btc-lean",
+    "url": "https://github.com/Rob1Ham/btc-lean"
+  },
+  "baseline_head": "57607451faa168497d971e2d50e91dae7dafdafe",
+  "core_pin": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+  "goal_status": "prepared_only_not_activated",
+  "implementation_changes": false,
+  "open_issues": [
+    {
+      "assignees": [],
+      "body": "Here's my clanker's audit of btc-lean for corrections, removals, etc. in the current btc-lean rules.\n\n# btc-lean mainnet consensus audit    \n    \nThis is the change list for btc-lean. After the corrections below, the census should state Bitcoin mainnet consensus and should not state anything else as consensus. This file does not patch btc-lean.    \n    \n## Pins    \n    \n| Tree | Revision |    \n|---|---|    \n| btc-lean | `c6e8f5e91f30b1c690b4d0320404517120a8b52d` (submodule in the rbitcoin worktree; `spec/db/rules.yaml`, 726 rows). Census anchors inside the Lean files name Core `cce32b168`. |    \n| Bitcoin Core | `9be056a8a72b624dae9623b2f7bded92c2a21c91` (rbitcoin gitlink `third_party/bitcoin`, Core v31.1). The worktree's submodule directory is empty. The Core lines cited below were read from that commit on GitHub: `src/chain.h` GetMedianTimePast, `src/chain.cpp` GetBitsProof, `src/consensus/merkle.cpp` ComputeMerkleRoot, `src/validation.cpp` CheckWitnessMalleation and ContextualCheckBlockHeader, `src/kernel/chainparams.cpp` powLimit. |\n| Hornet published spec | `spec.h` at `0e3b0a1b71cd3883e7610446f3eac5c5f0b81ed0`, rendered at https://hornetnode.org/spec.html on 2026-10-18. 35 rules, H01\u2013H06, L01\u2013L13, C01\u2013C07, S01\u2013S09, with S02 and S03 separate. In-repo `docs/peer-clients.md` still describes the older 34-rule snapshot (`151462fa`). This audit uses the published 35. |    \n| rbitcoin | worktree `/tmp/rbtc-01a14ca7`, branch `docs/btc-lean-inventory`, commit `f1896e4ffa68ac759ab1eaaab232ddbbf51521b5`. Consensus matrix: `docs/consensus-tests.md` sections A\u2013C. |    \n    \nBitcoin Core mainnet is the oracle. A `proven` tag means a Lean target exists. It is not evidence the rule matches Core. A `// btc-lean:` comment in rbitcoin is an index, not a transferred proof. Matches below are summary-level against the Core behavior named in the pin, except where a definition was read and the sentence says so.    \n    \n## Do not import these rbitcoin behaviors    \n    \nrbitcoin differs from Core on four points. None of them is a btc-lean rule.    \n    \n- BIP94 is unimplemented. It is not a mainnet fork. Core mainnet sets `enforce_BIP94` false. btc-lean BLK-047, BLK-055, INV-100, and INV-139 stay off for mainnet.    \n- `Milestone::height` can skip scripts with no anchor hash. That is not Core assumevalid. Do not add it. Anchored skip (matrix C44) is also not a consensus rule.    \n- Input sums and accumulated fees are not capped at `MAX_MONEY` (outputs are). Core caps each input, the running input sum, and the fee. btc-lean INV-025, INV-026, and TXV-069 must keep those caps. TXV-069's implementation does not yet match the claim.    \n- Equal-work fork choice is strict greater-than rather than Core's first-seen sequence id. btc-lean `betterThan` already prefers lower sequence id on equal work (BLK-116), and `switchTip` (BLK-117) does not reorg onto equal work. That matches Core's comparator and ActivateBestChain. Do not replace it with rbitcoin's strict greater-than.    \n    \n## Do not import Hornet silence or Hornet's clock sentence    \n    \nHornet's 35 rules are a subset. Where Hornet does not state a Core rule, btc-lean still must. That includes taproot and tapscript, script-flag schedules and the exception blocks (BIP16 height 170060, taproot height 692261), unspendable outputs, `MAX_MONEY` on inputs and fees, compact-target sign and overflow, the retarget clamp and the real powLimit, DERSIG, CLTV, CSV, NULLDUMMY, pair-aligned merkle mutation, and the upper median.\n    \nHornet H05 says the timestamp must not exceed network-adjusted time plus two hours. Core v31.1 `ContextualCheckBlockHeader` compares `block.Time()` to `NodeClock::now() + MAX_FUTURE_BLOCK_TIME` (`validation.cpp:4156` at `9be056a8`). btc-lean BLK-058 already says node now. Keep that. Do not \"correct\" it to Hornet's network-adjusted clock.    \n    \nHornet H04 does not say which element of an even window is the median. Core uses index `n/2` (upper). btc-lean uses `(n\u22121)/2` (lower). Follow Core.    \n    \n## Changes that remove a false consensus rule    \n    \n- SCR-039. `MAX_STANDARD_TX_SIGOPS_COST` (16,000) is mempool policy and is tagged `consensus: true`. A transaction under 80,000 block cost and over 16,000 is valid. Remove the consensus tag.    \n- The same false tag sits on the other policy flags the census still marks `consensus: true`: SIGPUSHONLY (INV-065, SCR-010), base CLEANSTACK (SCR-008), MINIMALDATA pushes (INV-046, SCR-048, SCR-049), numeric minimal padding (SCR-050, SCR-051), witness-v0 MINIMALIF (SCR-059, SWT-062), CONST_SCRIPTCODE (SCR-099, SCR-100), LOW_S (INV-053, SCR-104, SWT-058, SGN-108), STRICTENC (SCR-105, SCR-106, SWT-060), WITNESS_PUBKEYTYPE (SCR-107, SWT-056), NULLFAIL (INV-051, SCR-110, SWT-059), and the discourage flags (SWT-014, TPR-021, TPR-027, TPR-062). Enforcing any of them rejects a script Core accepts in a block. The tapscript copies of MINIMALIF and clean-stack (SCR-183) and unknown-version success (SWT-013) stay. The 4-byte and 5-byte script-number width caps (INV-058) stay. SCR-157 is already `consensus: false`. Leave it.\n- Mixed rows keep only the consensus half. INV-054 drops the STRICTENC pubkey abort and keeps tapscript x-only sizes. INV-055 drops the defined-hashtype set and keeps tapscript hashtypes on SCR-163. INV-059 drops witness-v0 MINIMALIF and keeps tapscript MINIMALIF. SCR-112 must not abort on an invalid pubkey under block flags: CHECKSIG pushes false and continues. SCR-009, the CLEANSTACK-implies-P2SH+WITNESS assert, is not a consensus rule.\n- BLK-125. A coinbase-less block that also contains a 64-byte transaction is already invalid (`bad-cb-missing`). Core's 64-byte arm in `IsBlockMutated` is not a consensus change. The row is tagged consensus. Remove it as a consensus reject. rbitcoin S2 records the same relay classification and is not a reason to keep the tag.    \n- SCR-154, SCR-173, SCR-175, SCR-176, SCR-177, SCR-178, SCR-179, SCR-180, SCR-181, SCR-182. These are policy flags or a name table. They are already `consensus: false`. Leave them there. Witness and tapscript clean-stack (SWT-012) and tapscript MINIMALIF (SCR-183) are consensus and stay.    \n- INV-148, INV-149, and the obsolete policy and node rows (INV-137, INV-146, INV-150\u2013INV-176, SWT-057, TPR-080\u2013TPR-082). Not mainnet consensus. Do not promote them.    \n- BLK-047, BLK-055, INV-100, INV-139. BIP94 is not mainnet consensus.    \n- BLK-126. Signet solutions are not mainnet consensus.    \n- The proof-module predicate `programMustFailCastToBool` (`Bip/B08/Bip141Defs.lean`) is not a census row and is not a Core rule. Delete it as a consensus claim. See issue 4 below.    \n    \n## Changes that correct an accept or reject    \n    \nEach item says what the current statement accepts or rejects, and the Core behavior that replaces it.    \n    \n1. Median time (BLK-056, BLK-057). Even windows use the lower central timestamp. Core uses the upper (`chain.h:244`, index `n/2`). A header time strictly between those two timestamps is accepted by one and rejected by the other. Select index `n/2`. Keep `blockTime > mtp`.    \n    \n2. Merkle mutation (BLK-011). Every adjacent pair is a mutation. Core only compares pair-aligned positions (`merkle.cpp:50-51`, `pos += 2`). `[A,B,B]` is rejected here and accepted by Core. INV-082 is a retired copy of the same bug. Fix BLK-011. Do not un-retire INV-082.    \n    \n3. Witness commitment (BLK-017, SWT-030). The hash is `SHA256d(witnessRoot \u2016 32 zero bytes)`. Core hashes `SHA256d(witnessRoot \u2016 witness_stack[0])` (`validation.cpp:3940`). A block with a nonzero 32-byte nonce and a matching commitment is rejected. A commitment to zeros is accepted even when the nonce differs. Hash the stack item. BLK-018's \"exactly one 32-byte item\" check matches Core's size check and stays. Do not auto-fill a zero nonce. That fill is miner code (`GenerateCoinbaseCommitment`), and rbitcoin correctly does not invent the bytes (the BLK-128 gap). The fix is to hash the bytes that are present.\n    \n4. BIP30 on the capstone path (BLK-096). `applyBlockL` has the gate. `validateBlock` calls `applyTxs` without it. A block that recreates an unspent outpoint, outside the two historical exceptions, is accepted by `validateBlock` and rejected by Core (`bad-txns-BIP30`). Call the same gate, including blocks 91842 and 91880 and the height-1983702 re-enable (BLK-097, BLK-098, which match Core as stated).    \n    \n5. Taproot output key (SCR-147, and `verifyTaprootCommitment`). `program` is unused. `outputKeyOk` checks control size, internal-key parse, tweak, and parity only. Core requires the 32-byte program to equal the tweaked x. A script-path spend of a different output key is accepted. Compare them. Tag the row consensus. `bytesToNatBE` folds every byte, so a longer program is a different integer. The bug is the missing comparison, not the decoder.\n    \n6. Annex hash on the interpreter path (TPR-006). `Program.annexHash` includes the CompactSize length. The interpreter stores `hashSha256(annex)` without it. An annex spend verifies against a digest Core does not compute. Use `annexHash`.    \n    \n7. CODESEPARATOR position (SCR-167). The model records a byte offset starting at 0. Core records the opcode index starting at `0xFFFFFFFF`. Tapscript sighashes differ, so a valid signature fails. Record the index. Tag the row consensus.    \n    \n8. FindAndDelete (SCR-098, INV-056). After any match the suffix is copied from the pre-match cursor, so the deleted region is appended again. Core copies from after the match. Legacy BASE CHECKSIG scriptCode changes in both directions. The census text for INV-056 already admits `findAndDelete b b = (1, b)` against Core's `(1, empty)`.    \n    \n9. Numeric minimal padding (SCR-050, SCR-051, SCR-157) is not a block reject. Do not force `fRequireMinimal`. Core sets `fRequireMinimal = (flags & SCRIPT_VERIFY_MINIMALDATA) != 0` (`interpreter.cpp:432` at `9be056a8`) and passes that value to CLTV (line 546), CSV (line 574), CHECKMULTISIG counts (lines 1116 and 1130), and CHECKSIGADD (line 1093). `GetBlockScriptFlags` (`validation.cpp:2266-2292`) sets P2SH, WITNESS, TAPROOT, and the buried DERSIG, CLTV, CSV, and NULLDUMMY flags. It does not set MINIMALDATA. A non-minimal operand is valid in a block. `decodeNum` already defaults `pol.minimalData` to false. Leave that default. Drop the consensus tag on SCR-050 and SCR-051. Leave SCR-157 `consensus: false`. SCR-177 stays policy. The 4-byte and 5-byte width caps (INV-058, SCR-122, SCR-126) stay.\n    \n10. Sigop accounting (SCR-033, SCR-034, SCR-038, SCR-040, BLK-035, BLK-036, SWT-026, TPR-071). Three separate errors:    \n    - `Rules.sigOpCount` adds DecodeOP_N once for the script's last opcode, and counts each CHECKMULTISIG as 1. Core's accurate count uses the opcode before each CHECKMULTISIG, else 20.    \n    - `Block.Sigops` P2SH and P2WSH legs use the legacy scanner (always 20). A 2-of-2 P2SH costs 8 in Core (`2 * 4`) and 80 here, so a block Core accepts is rejected.    \n    - `witnessScriptSigOps` returns 0 when the witness script does not parse. Core counts the valid prefix. A block over 80,000 can be accepted.    \n    - `witnessSerSize` omits the stack's CompactSize count, so the BIP342 weight budget is short and a tapscript Core rejects can be accepted.    \n    - `validateBlock` does not call the 80,000 check at all.    \n    One accurate counter, used by the block validator, replaces all of these. Legacy `GetSigOpCount(false)` remains 20 per CHECKMULTISIG and is what BLK-033's byte scan already approximates.    \n    \n11. Work and powLimit (INV-141, BLK-113, BLK-037, BLK-038, BLK-040). `workOf` assigns positive work to a negative compact and returns 0 above its powLimit. Core `GetBitsProof` returns 0 only for negative, overflow, or zero, with no powLimit test. `powLimit` is the genesis target `2^224\u22122^208`, not Core's `2^224\u22121`. No positive compact encoding lands strictly between them, so an nBits check does not flip. Negative nBits are already rejected by `targetOk`'s sign flag, so the canonical chain of valid headers does not move. The constants and the work function are still wrong. Set powLimit to `00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff`. Return 0 from work on the sign and overflow flags only.\n    \n12. Amount range (TXV-069). The claim is Core's MoneyRange on the fold. The proofs are partial and the amounts are not int64 everywhere, so an out-of-range sum can pass. Enforce the range on each input, the running input sum, and the fee. This is the opposite of rbitcoin, which omits the input and fee caps. Follow Core.    \n    \n13. Taproot and tapscript rows tagged `consensus: false` (SCR-142\u2013SCR-153, SCR-155\u2013SCR-172, SCR-174, except the policy row SCR-154 and the name table SCR-173). The behaviors in those summaries are mainnet consensus after activation. A spec that treats them as non-consensus accepts a taproot-invalid spend as out of scope, or, if the checks are deleted, accepts it outright. Retag them consensus. SCR-149 and SCR-151: the upgradable success is consensus; the discourage flags are policy and stay off. SCR-168's `< 0` comparison matches Core once the budget base (item 10) is fixed.\n    \n14. Tapscript signature weight and empty-pubkey ordering stay as Core specifies them on SCR-159 and SCR-160 once those rows are consensus. Do not charge an empty signature.    \n    \n## Rules that already match and must not be \"fixed\" the other way    \n    \n- SIGHASH_SINGLE legacy overflow (INV-078). `singleOverflowOneB` and `SINGLE_OVERFLOW_ONE` are `0x01` followed by 31 zero bytes, which is Core `uint256::ONE`. The property constant `one256` in `Property/Y08/SighashLegacyProps.lean` is 32 bytes of `0x01` and is not the hasher. See issue 4.    \n- CastToBool in the interpreter (`Bitcoin.Numeric.castToBool`, SCR-057, SCR-083). Negative zero is false, including `[0x00, 0x80]`. The any-nonzero predicate is only in the unused BIP141 proof helper.    \n- Future-timestamp bound (BLK-058). Node clock plus 7200 seconds. That is Core v31.1. Hornet's published \"network-adjusted time\" is not this rule.    \n- Odd-tail merkle duplication (BLK-008). The definition matches Core. Only a singleton is proved. Do not drop the duplication.    \n- Input `MoneyRange` claims (INV-025, INV-026). Keep them. rbitcoin does not enforce them. Core does.    \n- Equal-work ordering (BLK-115, BLK-116, BLK-117). Sequence-id tie break, and no reorg onto equal work. Matches Core. rbitcoin's strict greater-than is the one not to copy.    \n- Block weight formula. `txWeight = 3 * baseSize + totalSize`, which is Core's `4 * stripped + witness`. A PDW51 hypothesis states the opposite inequality. The hypothesis is wrong. The definition is not. See issue 4.    \n- Obsolete rows that duplicate a live rule (INV-079, INV-080, INV-081, INV-083, INV-084, and the TPR rows whose successors are SCR-158\u2013SCR-168 and SWT-028). They are not separate rules. Fix the successor. Do not delete the successor while deleting the obsolete row.    \n    \n## Issue 4 (portlandhodl), confirmed or refuted at this commit    \n    \nSource reading only. No `lake` rebuild. Wallet items are not rules to add.    \n    \n| Item | Result |    \n|---|---|    \n| `one256` / SIGHASH_SINGLE | Refuted as a hasher bug. `Digest.lean` `singleOverflowOneB` is `0x01 \u2016 31\u00d70x00`. `Y08/SighashLegacyProps.lean` `one256` is 32\u00d7`0x01`, and example f01 expects the legacy hasher to return it for an out-of-range SINGLE. That property is false against Core and against the model hasher. Correct or delete the property. Do not change `singleOverflowOneB`. |    \n| BIP113 median | Confirmed. Index `(n\u22121)/2`. Core uses `n/2`. Correct BLK-056. |    \n| BIP141 CastToBool of negative zero | Refuted as a consensus rule. Interpreter CastToBool matches Core (`vec_bool_0080` is false). `Bip141Defs.castToBool` is `any byte \u2260 0` and feeds `programMustFailCastToBool`. Core does not reject a witness program because CastToBool(program) is false. A 20-byte zero program is a valid P2WPKH template. Delete the helper. Do not change SCR-057. |    \n| findAndDelete | Confirmed. Suffix is re-appended from the pre-match cursor. Correct SCR-098 and INV-056. |    \n| CVE-2012-2459 alignment | Confirmed. Unaligned adjacent pairs. Core uses `pos += 2`. Correct BLK-011. |    \n| Witness reserved value | Confirmed. Hash uses 32 zero bytes. Core hashes `witness_stack[0]`. Correct BLK-017 and SWT-030. |    \n| validateBlock omits BIP30 | Confirmed. `applyTxs` has no bip30 argument. `applyBlockL` has the gate. Correct BLK-096's pipeline. |    \n| Taproot output-key program binding | Confirmed. `verifyTaprootCommitment` drops `program`. `outputKeyOk` never compares the output key x to q. Correct SCR-147. |    \n| `bytesToNatBE` ignores length | Refuted. `Secp.lean` folds every byte. A 33-byte input is a different integer from its 32-byte prefix. The accept bug is the missing q comparison. |    \n| SCR-051 minimal data | Refuted as a forced-minimal block reject. Core passes fRequireMinimal=(flags & SCRIPT_VERIFY_MINIMALDATA) into CLTV, CSV, CHECKMULTISIG counts, and CHECKSIGADD (interpreter.cpp:432, 546, 574, 1116, 1130, 1093 at 9be056a8). GetBlockScriptFlags does not set that flag. A non-minimal operand is valid in a block. Drop the consensus tag on SCR-051 and SCR-050, same as SCR-048. Leave SCR-157 consensus:false. SCR-177 stays non-consensus. Do not force minimal decoding. |\n| Z21 EVAL_FALSE, `native_decide` in Y03 | Not a consensus rule. Test and proof method. |    \n| Wallet tautologies (selection, miniscript, ScriptExact, descriptor expand) | Not a consensus rule. Do not add them. |    \n| Merkle shapes through 64 | Not a consensus rule change. `List.range 64` is a proof-bound gap if a theorem claims n=64. `merkleLevel` still duplicates the odd tail, which matches Core. |    \n| PDW51 weight hypothesis | Refuted as a definition bug. `txWeight` uses `3 * base + total`. Only the theorem hypothesis is reversed. |    \n| Annex CompactSize | Confirmed on the interpreter path, not on `Program.annexHash`. Correct the call (TPR-006). |    \n| P2SH and witness sigops | Confirmed inaccurate or prefix-blind. Correct the counters in item 10. rbitcoin S12 is the Core behavior (accurate count, push-only guard, v0-20 costs 1, v1 costs 0). |    \n| workOf / powLimit | Confirmed. See item 11. |    \n| assumevalid | Not a consensus rule (INV-148). A wrong skip bound must not be promoted into a validity rule. |    \n| BIP9 timeout before threshold | Reviewer-reported ordering. Not re-executed. Mainnet taproot enforcement is the height and the exception block, which the activation module states. Do not add a second state machine as a block reject beyond those flags. |    \n| Y12 / Y15 vector expectations, RawOK on-curve, PDW94, PDW85b | Not re-run. They are test or proof obligations unless a definition was read above. No additional accept/reject was confirmed from those names alone. |    \n| PDW28 powLimit pin | Confirmed the constant is the genesis target. Compact nBits accept/reject coincides with Core. Still correct the constant. |    \n| PDW30 failed-block cache class | Not a consensus rule. Cache taxonomy. |    \n| SCR-149 tagged onto the witness-version branch | The success of unknown versions is SCR-151 and is consensus. SCR-149 is unknown leaf versions and is also consensus. Both tags are currently false. Retag both. Do not merge them into one policy row. |    \n    \n## Proof gaps that are not rule changes    \n    \n`docs/RESIDUALS.md` lists 26 proven rows whose theorem is narrower than the sentence. Where the sentence is still what Core does, those rows stay \"matches Core mainnet\", with the gap named. Do not rewrite the rule to fit the narrow theorem. INV-046 is the exception inside that list: the predicate matches Core's policy check, and the consensus tag is still a false rule to remove. The other exceptions, where the residual describes a real model difference, are the corrections above (INV-141, SCR-033, SCR-040, SWT-026, TPR-071, INV-056, TXV-069, TPR-007's missing key binding).\n    \n## What \"done\" means for btc-lean    \n    \nThe census tags and the definitions agree with Core mainnet on every accept/reject in the change list. Policy, wallet, mempool, mining templates, and node cache stay `consensus: false` or obsolete. Obsolete duplicates stay obsolete after their successors are fixed. No second counter remains beside the corrected one.    \n\nFull census attached:\n\n[btc-lean-mainnet-audit.md](https://github.com/user-attachments/files/33628941/btc-lean-mainnet-audit.md)",
+      "createdAt": "2026-10-18T13:34:53Z",
+      "labels": [],
+      "number": 16,
+      "title": "Grok audit against rbitcoin, hornet, and backed up by core",
+      "updatedAt": "2026-10-18T13:38:23Z",
+      "url": "https://github.com/Rob1Ham/btc-lean/issues/16",
+      "comments": []
+    },
+    {
+      "assignees": [],
+      "body": "## Summary\n\nA 128-reviewer source audit of the 408 Lean modules under `spec/proofs/BitcoinProofs` found **185 issues: 1 critical, 46 high, 50 medium, 88 low**. 36 reviewers reported no new findings. The 9 static gates still pass; this was a source-level review, not a full package rebuild.\n\nThis issue tracks the actionable items. Items marked **confirmed** were re-read directly in the source; the rest are reviewer-reported and should be confirmed before patching. Some findings overlap with existing disclosures in `docs/RESIDUALS.md` and `docs/PROOF-BUILD.md`; where a residual is accepted as-is, close the checkbox with a link to that residual instead of changing the model.\n\n## Critical\n\n- [ ] **Y08/Y09 SIGHASH_SINGLE overflow constant is wrong.** `Property/Y08/SighashLegacyProps.lean:99` defines `one256` as 32\u00d7`0x01`, but `Bitcoin.SigHash.singleOverflowOneB` is `0x01` followed by 31 zero bytes. The `b00`\u2013`b04`/`d11` rows at `:442-466,831,1417` fail under `native_decide` (reproduced with `lake env lean`). Same mismatch at `Property/Y09/Property.lean:4401`. **Confirmed.**\n\n## High \u2014 confirmed in source\n\n- [x] **BIP113 median uses lower median.** `spec/core/Bitcoin/Block/Pow.lean:236` uses `(n-1)/2`; Core `chain.h:233-244` uses `n/2` (upper for even counts). Update `medianTimePast`, `Bip/B07/Bip113MTP.lean` fixtures, and the `mtp_even_count_lower_median` expectations.\n- [x] **BIP141 `castToBool` ignores negative zero.** `Bip/B08/Bip141Defs.lean:54` uses `bytes.any (\u00b7 != 0)`; Core treats `[0x00,0x80]` as false. Port Core's loop or reuse `Bitcoin.Numeric.castToBool`.\n- [x] **`findAndDelete` corrupts scripts after any match.** `spec/core/Bitcoin/Interpreter/Defs.lean:548-564`: `fdLastPc2` returns the pre-match `pc2`, so the final `script.extract pc2 script.size` re-appends a suffix. `AF/PDW59/PDW59d.lean` discloses only the whole-tail case. Fix `fdLastPc2` to return the post-match `pc'`.\n- [x] **CVE-2012-2459 detector flags unaligned duplicates.** `spec/core/Bitcoin/Block/Connect.lean:220-223` checks every adjacent pair; Core checks only pair-aligned `hashes[2i]==hashes[2i+1]`, so `[A,B,B]` is over-rejected. Update `merkleMutationFree` and the PDW12/PDW53 characterizations.\n- [x] **Witness commitment uses a zero reserved value.** `spec/core/Bitcoin/Capstone/Merkle.lean:187-195` hashes `zeroBytes 32`, not the coinbase witness reserved value. `witnessCommitmentOkReserved` exists in `AF/PDW13/WitnessCommitmentReserved.lean` but is orphaned; `commitmentGate` still uses the old definition. Wire the corrected definition through and re-prove BLK-017/SWT-030/PDW58B.\n- [x] **`validateBlock` omits the BIP30 gate.** `spec/core/Bitcoin/Capstone/Block.lean:382` calls `applyTxs` without `bip30BlockCollision`/`bip30Enforced`; `applyBlockL` does include it. Add the gate or route through `applyBlockL`, then update `CapstoneComposePipeline`.\n- [x] **Taproot commitment is program-blind.** `spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90` drops `program`; `OutputKey.outputKeyOk` checks only parity. Add Core's `q == program` / `CheckTapTweak` check and a wrong-program negative test; update `Audit/Z29`.\n- [ ] **Z21 EVAL_FALSE tests are false.** `Audit/Z21/Audit.lean:174,182` use `evalScriptBytes`, which never applies final-stack truthiness. Use `verifyScriptFull`/`executeWitnessScript`, and fix `\"018000\"` to `\"028000\"` if a two-byte push is intended.\n- [ ] **`native_decide` in a non-Test module.** `Property/Y03/Property.lean:326-522` has 72 `native_decide` proofs, contradicting the header's kernel-`decide` claim. Convert to `decide` or move to a Test/experiment module.\n- [x] **Wallet selection determinism is tautological.** `Wallet/Spend/Selection.lean:115-135`: `largestFirst_deterministic`, `smallestFit_deterministic`, and `runSelection_deterministic` are all `f x = f x`. Replace with a real specification or remove.\n- [x] **Wallet hash-lock acceptance is vacuous.** `Wallet/Miniscript/Interp.lean:1233`: `hproduce` requires `bytes [0,0,0,0]`, but the dissatisfaction is 32 zero bytes, so no hash fragment can satisfy it. Use `bytes (List.replicate 32 0)`.\n- [ ] **Merkle 64-shape matrix omits n=64.** `Theorems/Exhaust/MerkleShapes64.lean:147` iterates `List.range 64` (0..63), while `expectedRoot` covers 1..64. Iterate `k+1` or otherwise include n=64.\n- [x] **`blockWeight_witness_discount` has the hypothesis reversed.** `AF/PDW51/PDW51.lean:103` assumes `totalSize \u2264 strippedSize`; witness-bearing blocks have `stripped \u2264 total`. State `4*stripped + (total - stripped)` instead.\n- [x] **SmallCurve interface is uninhabited.** `SmallCurve/TweakCorSmall.lean:235`: `mulP_noneE` quantifies all `Nat k`, but `mulP'` only uses 16 bits. Restrict to `k < 2^16` or extend `mulP'`; otherwise the main theorems are vacuous.\n- [x] **`PubKeyCor` has a non-Lean placeholder and missing U2 results.** `EcdsaDeep/PubKeyCor.lean:192` contains `Bool.eq_true mp_eq??`; `:128` is malformed; the header's U2 declarations do not exist. Fix U1, then either add U2 or remove the claims.\n- [x] **O07 hash-op examples are false.** `Theorems/Ops/O07.lean:415-442` expects the hashed element to remain on the stack, while `opHash_effect` pops it. This is in a disclosed failing module, but the statements themselves are wrong.\n- [x] **`FuelStability` lacks its advertised results.** `Theorems/FuelStability.lean` ends after `stepBody_pushBytes`; none of the FUEL-STAB/FUEL-CAN theorems or pins exist, and the \u00a7B proof is malformed. Complete the module or remove the claims from the module/release notes.\n- [x] **`ScriptExact`/`Expand` totality claims are tautologies.** `Wallet/Miniscript/ScriptExact.lean:261` proves `\u2203 s, toScript ctx n = s`; `Wallet/Desc/Expand.lean:618,623` prove `f d p = f d p` and `\u2203 r, f d p = r`. Either remove or replace with substantive characterizations.\n\n## High \u2014 reviewer-reported (confirm before patching)\n\n- [ ] **P2SH/witness sigop counting is not Core's.** `AF/PDW29/PDW29Sigops.lean:176-178` uses flat-20 `legacySigOpCountScript`/`sigOpScan`, omitting push-only and accurate P2WSH handling. Reuse `accurateSigOpCount`/`countWitnessSigOps`.\n- [x] **`workOf`/`compactNegative` gate is wrong.** `AF/PDW24/PDW24.lean:89,44`: `compactNegative` tests the unshifted mantissa, and `workOf` adds a powLimit gate Core does not have. Align with `setCompactWord` and `GetBitsProof`.\n- [x] **Assumevalid model omits Core gates.** `AF/PDW46/PDW46.lean:308,415`: missing assumevalid hash/ancestor/best-header/chainwork gates; the `h < a` boundary also excludes the assumevalid block's own height.\n- [x] **`min_pow_checked` model is too narrow.** `AF/PDW8/Blk122Cor.lean:138`: derives the flag from `nMinimumChainWork` alone; Core also uses near-tip work, candidate proof, and `GetAntiDoSWorkThreshold`.\n- [x] **BIP9 timeout/threshold order is wrong.** `Bip/B08/Bip141Defs.lean:238` and `Bip141Tests.lean:212` test timeout before threshold; Core checks the signal count first (`.lockedIn`, not `.failed`).\n- [x] **Annex hash omits the CompactSize prefix.** `AF/PDW77/PDW77.lean:83` and `AF/PDW41/TPR006.lean:43`: the key-path annex digest is raw SHA256; BIP341/Core hash `CompactSize(len) || annex`.\n- [x] **INV-077 witness-unexpected case is missing.** `AF/PDW52/PDW52.lean:137`: `witnessUnexpected_nonWitness` assumes `flags.p2sh = false`, so it never covers the ordinary non-P2SH scriptPubKey under consensus flags.\n- [x] **INV-043 op-count gate is BASE-only.** `AF/PDW88/PDW88.lean:17`: the theorem fixes `ctx.sv = .base`; `stepBody` also counts in WITNESS_V0.\n- [x] **SCR-051 is policy-conditional, not consensus.** `AF/PDW98/PDW98.lean:161` and `AF/PDW95/PDW95b.lean:63` prove minimal operands only with `pol.minimalData = true`, while the row is marked `consensus: true`.\n- [x] **PDW94 stackop underflow list is incomplete.** `AF/PDW94/PDW94.lean:25`: the theorem covers a 19-opcode whitelist, not every consuming opcode claimed by the header.\n- [x] **Unexecuted IF omits the condition stack.** `AF/PDW85/PDW85b.lean:11`: conclusion only preserves `stack`/`alt`; the actual transition pushes `false` onto `vf`.\n- [x] **Taproot commitment compares numerics, not bytes/length.** `AF/PDW56/PDW56.lean:112`: `bytesToNatBE` ignores length, so a 33-byte program with the same value is accepted; require `program.size = 32` and byte equality.\n- [x] **SCR-149 is attached to the wrong witness branch.** `AF/PDW19/PDW19.lean:78`: tags the witness-version \u22652 branch (SCR-151) as SCR-149; retag and cover the taproot leaf-version branch.\n- [x] **`taprootLane_consensus_pure` is vacuous.** `AF/PDW25/PDW25.lean:106`: the statement reduces to function congruence and does not express policy non-leakage.\n- [x] **`RawOK` does not assert on-curve.** `AF/PDW42/PDW42.lean:75`: `liftX_on_curve_face` concludes only coordinate bounds; use `liftX_onCurve` or rename.\n- [x] **`PubKeyMatrix` rows cannot kernel-reduce.** `EcdsaDeep/PubKeyMatrix.lean:410,846,936,960`: `by decide` on `sqrtP`/`expM` paths is stuck; move to the R6/admit set or use a reducible square root.\n- [x] **`SmulCor` references a missing module.** `EcdsaDeep/SmulCor.lean:36`: claims `SmulCorIF.lean`/`MulPIF`/`SmulIF`; the file does not exist. Add it or remove the claims.\n- [ ] **INV-119 MuHash is only Nat addition.** `AF/PDW21/PDW21.lean:46`: `muhashSet` is a `Nat` sum, not MuHash3072 group arithmetic. Either implement the group or add INV-119 to `RESIDUALS.md`.\n- [x] **Wallet obligations are false as stated.** `Wallet/Obligations.lean:251` (empty `multi` expands successfully), `:554` (mixed height/time locks with `k = 1`), `:836` (unknown PSBT keys can survive finalization).\n- [ ] **Y12 block expectations are wrong.** `Property/Y12/FoldProps.lean:767,794`: D12 expects `.ok` where the model returns `badTxnsBIP30`; E_227931 claims BIP30 rejection but only proves same-block duplicate coinbases are accepted.\n- [ ] **Y15 witness-stack expectations are wrong.** `Property/Y15/WitnessProps.lean:496,511`: `fe01000002` yields `.truncated` (not `.compactSizeTooLong`), and `0201aa00` is a valid two-item stack.\n- [x] **BIP144 output decode loses signedness.** `Bip/B10/Bip144.lean:110`: `rdVout` casts raw `Nat` to `Amount`; use `u64ToAmt` so negative int64 outputs decode as two's-complement negatives.\n- [x] **`PDW47` codeseparator fold ignores execution.** `AF/PDW47/PDW47.lean:305`: records every `0xab` even in unexecuted branches; add an `fExec`/condition-stack mask.\n- [x] **`PDW28` mainnet powLimit pin is the genesis target.** `AF/PDW28/PDW28.lean:58`: pins `2^224 - 2^208`, not Core's `2^224 - 1`; the corrected `powLimitMainnetFull` is unused.\n- [x] **`PDW30` prune/status docs omit the failed block.** `AF/PDW30/PDW30b.lean:340,369`: the failed block is dropped and marked `BLOCK_FAILED_VALID`, not `BLOCK_FAILED_CHILD`.\n- [x] **`PDW53` mutated-failure taxonomy over-rejects.** `AF/PDW53/PDW53.lean:10` depends on the unaligned `levelHasAdjacentDup`; update after fixing the detector.\n\n## Medium / low \u2014 grouped cleanup\n\n- [x] **Rule-tag mismatches.** Examples: SCR-149 vs SCR-151 (`PDW19`), SCR-091 on an OP_SIZE theorem (`PDW86`), INV-043 vs SCR-020 (`PDW73`), SCR-154 vs SCR-071 (`PDW89`), SCR-166 vs SCR-162 (`PDW47`). Re-run `rule_crosscheck` and correct tags/targets.\n- [ ] **Axiom pins are missing or unguarded.** Several modules claim \"axiom-pinned in-file\" without pins, or use bare `#print axioms` without `#guard_msgs`/expected footprints (e.g. `PDW58GuardsD`, `PDW58GuardsE`, `PDW4`, `PDW20`, `PDW25`). Add `#guard_msgs in #print axioms ...` with expected footprints.\n- [ ] **Stale source anchors and comment arithmetic.** Examples: `231,000` vs `2,310,000` sats (`Conservation/Thms.lean:382`, `PDW7/INV033...:104`), `77` vs `72` digits (`Crypto/CurveZMod.lean:17`), stale `Params.lean`/`Interface.lean` line refs.\n- [x] **One-branch theorems with general doc claims.** Several `stepBody`/witness theorems fix `ctx.sv = .base` or one opcode while the comment claims all sigversions/opcodes (e.g. `PDW79` IFDUP/NUMEQUALVERIFY, `PDW88` OP_IF/NOTIF, `PDW94`, `PDW98`).\n- [ ] **Build disclosure is incomplete.** `docs/PROOF-BUILD.md` names 4 public failures but not all 20; reconcile the failing-module list and ensure every cited row target is in a passing build (notably `Theorems.Ops.O07` / SCR-100).\n- [ ] **Medium edge-case definitions.** `PDW24` powLimit gate, `PDW21` `UInt32` height wrap at `2^32`, `PDW56` byte-length compare, `BIP144` signed output, `PDW42` `RawOK`, `PDW47` codesep execution.\n- [ ] **Low-severity doc corrections.** Wrong opcode comments (`0xad` vs `0xac`), wrong fixture spans (BIP94 `+1`), stale theorem counts, wrong Base58/DER comments, and off-by-one comment ranges.\n\n## Verification / tracking\n\n- [ ] Re-run `make gates` after the fixes.\n- [ ] Build all 410 proof modules individually and update `docs/PROOF-BUILD.md` with the exact pass/fail list.\n- [ ] Re-run the dynamic consensus and wallet axiom probes after changing definitions/theorems.\n- [ ] Update `docs/RESIDUALS.md` for any gap that is accepted rather than fixed.\n- [ ] Add regression vectors for each consensus-semantics fix (median time, castToBool negative zero, witness commitment reserved value, BIP30, findAndDelete, merkle duplicate detection, taproot q-binding).\n\n## Audit metadata\n\n- Reviewers: 128 (partitioned across all 408 modules; 36 reported no new findings).\n- Findings: 1 critical / 46 high / 50 medium / 88 low.\n- Static gates: 9/9 passed before the audit.\n- Note: severity is reviewer-assigned; \"confirmed\" means the source contradiction was re-read. Reviewer-reported items may include duplicates or already-documented residuals.\n\n",
+      "createdAt": "2026-10-18T10:40:36Z",
+      "labels": [],
+      "number": 4,
+      "title": "Audit: 128-reviewer proof-set review \u2014 correctness and Core-fidelity findings",
+      "updatedAt": "2026-10-18T13:45:45Z",
+      "url": "https://github.com/Rob1Ham/btc-lean/issues/4",
+      "comments": [
+        {
+          "id": "IC_kwDOVN6n288AAAABdISkkw",
+          "author": {
+            "login": "Rob1Ham"
+          },
+          "authorAssociation": "OWNER",
+          "body": "I\u2019ve triaged the actionable findings into eight independent repair areas. Each area will confirm reviewer-reported items in source before changing semantics, add a regression where the fix is behavioural, and record accepted gaps in `docs/RESIDUALS.md` rather than silently dropping them.\n\n1. **Block, Merkle, BIP30, BIP113, BIP144** \u2014 median-time-past upper median; pair-aligned CVE-2012-2459 duplicate detection; reserved witness commitment; `validateBlock` BIP30 gate; signed BIP144 outputs.\n2. **Interpreter and script semantics** \u2014 `findAndDelete` suffix; PDW59/PDW79/PDW85/PDW88/PDW94/PDW95/PDW98/PDW47/PDW29 claims, tags, and policy boundaries.\n3. **Taproot, BIP141/BIP9, annex, crypto** \u2014 q-binding/program check; `castToBool` negative zero; BIP9 order; CompactSize annex hash; PDW19/21/25/42/52/56/77 and Z29.\n4. **PoW, chainwork, assumevalid, prune** \u2014 PDW24/PDW28/PDW30/PDW46/PDW8/PDW51 definitions and expectations.\n5. **Critical proof/property mismatches** \u2014 Y08/Y09 `one256`; Y03 `native_decide`; Y12/Y15 expectations; Z21; `MerkleShapes64`.\n6. **Wallet** \u2014 selection determinism; hash-lock acceptance; obligation statements; `ScriptExact`/`Expand` totality.\n7. **Tags, axiom pins, comments, low-severity cleanup** \u2014 rule-tag corrections, guarded axiom footprints, stale anchors/arithmetic, opcode/doc corrections in the affected modules.\n8. **Build and verification** \u2014 repair or narrow the failing `SmallCurve`, `PubKeyCor`, `PubKeyMatrix`, `SmulCor`, `O07`, and `FuelStability` claims; replace the incomplete build disclosure with the exact per-module result; reconcile residuals and proof counts.\n\nThe release tag and its payload remain unchanged. I\u2019ll update the checkboxes only when a fix is actually on `main`, not when a patch is merely proposed.\n",
+          "createdAt": "2026-10-18T12:17:41Z",
+          "includesCreatedEdit": false,
+          "isMinimized": false,
+          "minimizedReason": "",
+          "reactionGroups": [],
+          "url": "https://github.com/Rob1Ham/btc-lean/issues/4#issuecomment-6249817235",
+          "viewerDidAuthor": true
+        }
+      ]
+    }
+  ],
+  "open_pull_requests": [
+    {
+      "baseRefName": "main",
+      "body": "Fixes the Area-5 source-audit findings.\n\n- Y08/Y09: legacy `SIGHASH_SINGLE` out-of-range digest now uses Core's `uint256::ONE` (`01` followed by 31 zero bytes), matching `Bitcoin.SigHash.singleOverflowOneB`; the `b00`-`b04`/`d11` and Y09 overflow rows are updated.\n- Z21: EVAL_FALSE rows now run through `verifyScriptFull` (final-stack truthiness), and the two-byte negative-zero contrast uses `028000`.\n- Y03: the header no longer claims the heavy parser corpus is kernel-`decide`; rows are explicitly split between kernel `decide` and compiled-evaluation `native_decide`, with the named theorem left kernel-only.\n- Y12: the BIP30 rows now expect the pre-block pristine-view gate (`bad-txns-BIP30` where a duplicate txid already exists), including a new 227931 pre-block rejection row.\n- Y15: the witness-stack decoder expectations are corrected (`fe01000002` truncates; `0201aa00` is a valid two-item stack). The large P2WSH script rows use enough fuel for the actual opcode count.\n- `MerkleShapes64`: the 64-shape matrix now covers `n = 1..64` (`k+1`), including `n = 64`; the matrix check is disclosed as `native_decide`.\n\nValidation:\n\n- `make gates` \u2014 all nine static gates pass.\n- Targeted builds pass for all seven edited modules: `Property.Y08.SighashLegacyProps`, `Property.Y09.Property`, `Property.Y03.Property`, `Property.Y12.FoldProps`, `Property.Y15.WitnessProps`, `Audit.Z21.Audit`, `Theorems.Exhaust.MerkleShapes64`.\n- Default proof build: `lake build BitcoinProofs` succeeds (1722 jobs).\n\nNo `sorry` or `admit` was added. Heavy property rows that exceed kernel memory remain compiled-evaluation checks and are disclosed in the module headers.\n",
+      "headRefName": "audit4-proof-props",
+      "headRefOid": "bef0c50cef17f52c1c630f1dfe5e7e73d6549b22",
+      "isDraft": false,
+      "mergeable": "CONFLICTING",
+      "number": 18,
+      "reviewDecision": "",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-18T14:09:05Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/Rob1Ham/btc-lean/actions/runs/39134669708/job/117696646435",
+          "name": "static gates (no Lean build)",
+          "startedAt": "2026-10-18T14:08:51Z",
+          "status": "COMPLETED",
+          "workflowName": "gates"
+        }
+      ],
+      "title": "Fix critical proof and property audit findings",
+      "updatedAt": "2026-10-18T14:09:10Z",
+      "url": "https://github.com/Rob1Ham/btc-lean/pull/18",
+      "detail": {
+        "comments": [],
+        "commits": [
+          {
+            "authoredDate": "2026-10-18T14:08:31Z",
+            "authors": [
+              {
+                "email": "6456095+Rob1Ham@users.noreply.github.com",
+                "id": "MDQ6VXNlcjY0NTYwOTU=",
+                "login": "Rob1Ham",
+                "name": "Rob Hamilton"
+              }
+            ],
+            "committedDate": "2026-10-18T14:08:31Z",
+            "messageBody": "Correct the SIGHASH_SINGLE overflow constant, Z21 full-verifier rows, BIP30/witness-stack expectations, and the 64-shape Merkle matrix. Disclose native_decide tiers for heavy property corpora and keep the named proof surface kernel-only.",
+            "messageHeadline": "Fix critical proof and property audit findings",
+            "oid": "bef0c50cef17f52c1c630f1dfe5e7e73d6549b22"
+          }
+        ],
+        "files": [
+          {
+            "path": "spec/proofs/BitcoinProofs/Audit/Z21/Audit.lean",
+            "additions": 33,
+            "deletions": 19,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Property/Y03/Property.lean",
+            "additions": 15,
+            "deletions": 7,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Property/Y08/SighashLegacyProps.lean",
+            "additions": 14,
+            "deletions": 7,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Property/Y09/Property.lean",
+            "additions": 12,
+            "deletions": 3,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Property/Y12/FoldProps.lean",
+            "additions": 140,
+            "deletions": 125,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Property/Y15/WitnessProps.lean",
+            "additions": 119,
+            "deletions": 116,
+            "changeType": "MODIFIED"
+          },
+          {
+            "path": "spec/proofs/BitcoinProofs/Theorems/Exhaust/MerkleShapes64.lean",
+            "additions": 13,
+            "deletions": 18,
+            "changeType": "MODIFIED"
+          }
+        ],
+        "reviews": []
+      }
+    }
+  ],
+  "issue4_visible_checklist": [
+    {
+      "id": "I4-01",
+      "section": "Critical",
+      "snapshot_checked": false,
+      "title": "Y08/Y09 SIGHASH_SINGLE overflow constant is wrong.",
+      "description": "**Y08/Y09 SIGHASH_SINGLE overflow constant is wrong.** `Property/Y08/SighashLegacyProps.lean:99` defines `one256` as 32\u00d7`0x01`, but `Bitcoin.SigHash.singleOverflowOneB` is `0x01` followed by 31 zero bytes. The `b00`\u2013`b04`/`d11` rows at `:442-466,831,1417` fail under `native_decide` (reproduced with `lake env lean`). Same mismatch at `Property/Y09/Property.lean:4401`. **Confirmed.**",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-02",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "BIP113 median uses lower median.",
+      "description": "**BIP113 median uses lower median.** `spec/core/Bitcoin/Block/Pow.lean:236` uses `(n-1)/2`; Core `chain.h:233-244` uses `n/2` (upper for even counts). Update `medianTimePast`, `Bip/B07/Bip113MTP.lean` fixtures, and the `mtp_even_count_lower_median` expectations.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-03",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "BIP141 `castToBool` ignores negative zero.",
+      "description": "**BIP141 `castToBool` ignores negative zero.** `Bip/B08/Bip141Defs.lean:54` uses `bytes.any (\u00b7 != 0)`; Core treats `[0x00,0x80]` as false. Port Core's loop or reuse `Bitcoin.Numeric.castToBool`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-04",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`findAndDelete` corrupts scripts after any match.",
+      "description": "**`findAndDelete` corrupts scripts after any match.** `spec/core/Bitcoin/Interpreter/Defs.lean:548-564`: `fdLastPc2` returns the pre-match `pc2`, so the final `script.extract pc2 script.size` re-appends a suffix. `AF/PDW59/PDW59d.lean` discloses only the whole-tail case. Fix `fdLastPc2` to return the post-match `pc'`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-05",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "CVE-2012-2459 detector flags unaligned duplicates.",
+      "description": "**CVE-2012-2459 detector flags unaligned duplicates.** `spec/core/Bitcoin/Block/Connect.lean:220-223` checks every adjacent pair; Core checks only pair-aligned `hashes[2i]==hashes[2i+1]`, so `[A,B,B]` is over-rejected. Update `merkleMutationFree` and the PDW12/PDW53 characterizations.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-06",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "Witness commitment uses a zero reserved value.",
+      "description": "**Witness commitment uses a zero reserved value.** `spec/core/Bitcoin/Capstone/Merkle.lean:187-195` hashes `zeroBytes 32`, not the coinbase witness reserved value. `witnessCommitmentOkReserved` exists in `AF/PDW13/WitnessCommitmentReserved.lean` but is orphaned; `commitmentGate` still uses the old definition. Wire the corrected definition through and re-prove BLK-017/SWT-030/PDW58B.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-07",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`validateBlock` omits the BIP30 gate.",
+      "description": "**`validateBlock` omits the BIP30 gate.** `spec/core/Bitcoin/Capstone/Block.lean:382` calls `applyTxs` without `bip30BlockCollision`/`bip30Enforced`; `applyBlockL` does include it. Add the gate or route through `applyBlockL`, then update `CapstoneComposePipeline`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-08",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "Taproot commitment is program-blind.",
+      "description": "**Taproot commitment is program-blind.** `spec/core/Bitcoin/Crypto/Taproot/Verify.lean:89-90` drops `program`; `OutputKey.outputKeyOk` checks only parity. Add Core's `q == program` / `CheckTapTweak` check and a wrong-program negative test; update `Audit/Z29`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-09",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": false,
+      "title": "Z21 EVAL_FALSE tests are false.",
+      "description": "**Z21 EVAL_FALSE tests are false.** `Audit/Z21/Audit.lean:174,182` use `evalScriptBytes`, which never applies final-stack truthiness. Use `verifyScriptFull`/`executeWitnessScript`, and fix `\"018000\"` to `\"028000\"` if a two-byte push is intended.",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-10",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": false,
+      "title": "`native_decide` in a non-Test module.",
+      "description": "**`native_decide` in a non-Test module.** `Property/Y03/Property.lean:326-522` has 72 `native_decide` proofs, contradicting the header's kernel-`decide` claim. Convert to `decide` or move to a Test/experiment module.",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-11",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "Wallet selection determinism is tautological.",
+      "description": "**Wallet selection determinism is tautological.** `Wallet/Spend/Selection.lean:115-135`: `largestFirst_deterministic`, `smallestFit_deterministic`, and `runSelection_deterministic` are all `f x = f x`. Replace with a real specification or remove.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-12",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "Wallet hash-lock acceptance is vacuous.",
+      "description": "**Wallet hash-lock acceptance is vacuous.** `Wallet/Miniscript/Interp.lean:1233`: `hproduce` requires `bytes [0,0,0,0]`, but the dissatisfaction is 32 zero bytes, so no hash fragment can satisfy it. Use `bytes (List.replicate 32 0)`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-13",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": false,
+      "title": "Merkle 64-shape matrix omits n=64.",
+      "description": "**Merkle 64-shape matrix omits n=64.** `Theorems/Exhaust/MerkleShapes64.lean:147` iterates `List.range 64` (0..63), while `expectedRoot` covers 1..64. Iterate `k+1` or otherwise include n=64.",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-14",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`blockWeight_witness_discount` has the hypothesis reversed.",
+      "description": "**`blockWeight_witness_discount` has the hypothesis reversed.** `AF/PDW51/PDW51.lean:103` assumes `totalSize \u2264 strippedSize`; witness-bearing blocks have `stripped \u2264 total`. State `4*stripped + (total - stripped)` instead.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-15",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "SmallCurve interface is uninhabited.",
+      "description": "**SmallCurve interface is uninhabited.** `SmallCurve/TweakCorSmall.lean:235`: `mulP_noneE` quantifies all `Nat k`, but `mulP'` only uses 16 bits. Restrict to `k < 2^16` or extend `mulP'`; otherwise the main theorems are vacuous.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-16",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`PubKeyCor` has a non-Lean placeholder and missing U2 results.",
+      "description": "**`PubKeyCor` has a non-Lean placeholder and missing U2 results.** `EcdsaDeep/PubKeyCor.lean:192` contains `Bool.eq_true mp_eq??`; `:128` is malformed; the header's U2 declarations do not exist. Fix U1, then either add U2 or remove the claims.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-17",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "O07 hash-op examples are false.",
+      "description": "**O07 hash-op examples are false.** `Theorems/Ops/O07.lean:415-442` expects the hashed element to remain on the stack, while `opHash_effect` pops it. This is in a disclosed failing module, but the statements themselves are wrong.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-18",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`FuelStability` lacks its advertised results.",
+      "description": "**`FuelStability` lacks its advertised results.** `Theorems/FuelStability.lean` ends after `stepBody_pushBytes`; none of the FUEL-STAB/FUEL-CAN theorems or pins exist, and the \u00a7B proof is malformed. Complete the module or remove the claims from the module/release notes.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-19",
+      "section": "High \u2014 confirmed in source",
+      "snapshot_checked": true,
+      "title": "`ScriptExact`/`Expand` totality claims are tautologies.",
+      "description": "**`ScriptExact`/`Expand` totality claims are tautologies.** `Wallet/Miniscript/ScriptExact.lean:261` proves `\u2203 s, toScript ctx n = s`; `Wallet/Desc/Expand.lean:618,623` prove `f d p = f d p` and `\u2203 r, f d p = r`. Either remove or replace with substantive characterizations.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-20",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": false,
+      "title": "P2SH/witness sigop counting is not Core's.",
+      "description": "**P2SH/witness sigop counting is not Core's.** `AF/PDW29/PDW29Sigops.lean:176-178` uses flat-20 `legacySigOpCountScript`/`sigOpScan`, omitting push-only and accurate P2WSH handling. Reuse `accurateSigOpCount`/`countWitnessSigOps`.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-21",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`workOf`/`compactNegative` gate is wrong.",
+      "description": "**`workOf`/`compactNegative` gate is wrong.** `AF/PDW24/PDW24.lean:89,44`: `compactNegative` tests the unshifted mantissa, and `workOf` adds a powLimit gate Core does not have. Align with `setCompactWord` and `GetBitsProof`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-22",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "Assumevalid model omits Core gates.",
+      "description": "**Assumevalid model omits Core gates.** `AF/PDW46/PDW46.lean:308,415`: missing assumevalid hash/ancestor/best-header/chainwork gates; the `h < a` boundary also excludes the assumevalid block's own height.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-23",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`min_pow_checked` model is too narrow.",
+      "description": "**`min_pow_checked` model is too narrow.** `AF/PDW8/Blk122Cor.lean:138`: derives the flag from `nMinimumChainWork` alone; Core also uses near-tip work, candidate proof, and `GetAntiDoSWorkThreshold`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-24",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "BIP9 timeout/threshold order is wrong.",
+      "description": "**BIP9 timeout/threshold order is wrong.** `Bip/B08/Bip141Defs.lean:238` and `Bip141Tests.lean:212` test timeout before threshold; Core checks the signal count first (`.lockedIn`, not `.failed`).",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-25",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "Annex hash omits the CompactSize prefix.",
+      "description": "**Annex hash omits the CompactSize prefix.** `AF/PDW77/PDW77.lean:83` and `AF/PDW41/TPR006.lean:43`: the key-path annex digest is raw SHA256; BIP341/Core hash `CompactSize(len) || annex`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-26",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "INV-077 witness-unexpected case is missing.",
+      "description": "**INV-077 witness-unexpected case is missing.** `AF/PDW52/PDW52.lean:137`: `witnessUnexpected_nonWitness` assumes `flags.p2sh = false`, so it never covers the ordinary non-P2SH scriptPubKey under consensus flags.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-27",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "INV-043 op-count gate is BASE-only.",
+      "description": "**INV-043 op-count gate is BASE-only.** `AF/PDW88/PDW88.lean:17`: the theorem fixes `ctx.sv = .base`; `stepBody` also counts in WITNESS_V0.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-28",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "SCR-051 is policy-conditional, not consensus.",
+      "description": "**SCR-051 is policy-conditional, not consensus.** `AF/PDW98/PDW98.lean:161` and `AF/PDW95/PDW95b.lean:63` prove minimal operands only with `pol.minimalData = true`, while the row is marked `consensus: true`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-29",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "PDW94 stackop underflow list is incomplete.",
+      "description": "**PDW94 stackop underflow list is incomplete.** `AF/PDW94/PDW94.lean:25`: the theorem covers a 19-opcode whitelist, not every consuming opcode claimed by the header.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-30",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "Unexecuted IF omits the condition stack.",
+      "description": "**Unexecuted IF omits the condition stack.** `AF/PDW85/PDW85b.lean:11`: conclusion only preserves `stack`/`alt`; the actual transition pushes `false` onto `vf`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-31",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "Taproot commitment compares numerics, not bytes/length.",
+      "description": "**Taproot commitment compares numerics, not bytes/length.** `AF/PDW56/PDW56.lean:112`: `bytesToNatBE` ignores length, so a 33-byte program with the same value is accepted; require `program.size = 32` and byte equality.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-32",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "SCR-149 is attached to the wrong witness branch.",
+      "description": "**SCR-149 is attached to the wrong witness branch.** `AF/PDW19/PDW19.lean:78`: tags the witness-version \u22652 branch (SCR-151) as SCR-149; retag and cover the taproot leaf-version branch.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-33",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`taprootLane_consensus_pure` is vacuous.",
+      "description": "**`taprootLane_consensus_pure` is vacuous.** `AF/PDW25/PDW25.lean:106`: the statement reduces to function congruence and does not express policy non-leakage.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-34",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`RawOK` does not assert on-curve.",
+      "description": "**`RawOK` does not assert on-curve.** `AF/PDW42/PDW42.lean:75`: `liftX_on_curve_face` concludes only coordinate bounds; use `liftX_onCurve` or rename.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-35",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`PubKeyMatrix` rows cannot kernel-reduce.",
+      "description": "**`PubKeyMatrix` rows cannot kernel-reduce.** `EcdsaDeep/PubKeyMatrix.lean:410,846,936,960`: `by decide` on `sqrtP`/`expM` paths is stuck; move to the R6/admit set or use a reducible square root.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-36",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`SmulCor` references a missing module.",
+      "description": "**`SmulCor` references a missing module.** `EcdsaDeep/SmulCor.lean:36`: claims `SmulCorIF.lean`/`MulPIF`/`SmulIF`; the file does not exist. Add it or remove the claims.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-37",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": false,
+      "title": "INV-119 MuHash is only Nat addition.",
+      "description": "**INV-119 MuHash is only Nat addition.** `AF/PDW21/PDW21.lean:46`: `muhashSet` is a `Nat` sum, not MuHash3072 group arithmetic. Either implement the group or add INV-119 to `RESIDUALS.md`.",
+      "initial_triage": "appears addressed: accepted additive residual now disclosed in source and RESIDUALS; confirm scope"
+    },
+    {
+      "id": "I4-38",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "Wallet obligations are false as stated.",
+      "description": "**Wallet obligations are false as stated.** `Wallet/Obligations.lean:251` (empty `multi` expands successfully), `:554` (mixed height/time locks with `k = 1`), `:836` (unknown PSBT keys can survive finalization).",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-39",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": false,
+      "title": "Y12 block expectations are wrong.",
+      "description": "**Y12 block expectations are wrong.** `Property/Y12/FoldProps.lean:767,794`: D12 expects `.ok` where the model returns `badTxnsBIP30`; E_227931 claims BIP30 rejection but only proves same-block duplicate coinbases are accepted.",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-40",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": false,
+      "title": "Y15 witness-stack expectations are wrong.",
+      "description": "**Y15 witness-stack expectations are wrong.** `Property/Y15/WitnessProps.lean:496,511`: `fe01000002` yields `.truncated` (not `.compactSizeTooLong`), and `0201aa00` is a valid two-item stack.",
+      "initial_triage": "PR #18 proposes repair; resolve conflicts, review trust changes, build and verify"
+    },
+    {
+      "id": "I4-41",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "BIP144 output decode loses signedness.",
+      "description": "**BIP144 output decode loses signedness.** `Bip/B10/Bip144.lean:110`: `rdVout` casts raw `Nat` to `Amount`; use `u64ToAmt` so negative int64 outputs decode as two's-complement negatives.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-42",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`PDW47` codeseparator fold ignores execution.",
+      "description": "**`PDW47` codeseparator fold ignores execution.** `AF/PDW47/PDW47.lean:305`: records every `0xab` even in unexecuted branches; add an `fExec`/condition-stack mask.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-43",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`PDW28` mainnet powLimit pin is the genesis target.",
+      "description": "**`PDW28` mainnet powLimit pin is the genesis target.** `AF/PDW28/PDW28.lean:58`: pins `2^224 - 2^208`, not Core's `2^224 - 1`; the corrected `powLimitMainnetFull` is unused.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-44",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`PDW30` prune/status docs omit the failed block.",
+      "description": "**`PDW30` prune/status docs omit the failed block.** `AF/PDW30/PDW30b.lean:340,369`: the failed block is dropped and marked `BLOCK_FAILED_VALID`, not `BLOCK_FAILED_CHILD`.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-45",
+      "section": "High \u2014 reviewer-reported (confirm before patching)",
+      "snapshot_checked": true,
+      "title": "`PDW53` mutated-failure taxonomy over-rejects.",
+      "description": "**`PDW53` mutated-failure taxonomy over-rejects.** `AF/PDW53/PDW53.lean:10` depends on the unaligned `levelHasAdjacentDup`; update after fixing the detector.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-46",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": true,
+      "title": "Rule-tag mismatches.",
+      "description": "**Rule-tag mismatches.** Examples: SCR-149 vs SCR-151 (`PDW19`), SCR-091 on an OP_SIZE theorem (`PDW86`), INV-043 vs SCR-020 (`PDW73`), SCR-154 vs SCR-071 (`PDW89`), SCR-166 vs SCR-162 (`PDW47`). Re-run `rule_crosscheck` and correct tags/targets.",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-47",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": false,
+      "title": "Axiom pins are missing or unguarded.",
+      "description": "**Axiom pins are missing or unguarded.** Several modules claim \"axiom-pinned in-file\" without pins, or use bare `#print axioms` without `#guard_msgs`/expected footprints (e.g. `PDW58GuardsD`, `PDW58GuardsE`, `PDW4`, `PDW20`, `PDW25`). Add `#guard_msgs in #print axioms ...` with expected footprints.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-48",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": false,
+      "title": "Stale source anchors and comment arithmetic.",
+      "description": "**Stale source anchors and comment arithmetic.** Examples: `231,000` vs `2,310,000` sats (`Conservation/Thms.lean:382`, `PDW7/INV033...:104`), `77` vs `72` digits (`Crypto/CurveZMod.lean:17`), stale `Params.lean`/`Interface.lean` line refs.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-49",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": true,
+      "title": "One-branch theorems with general doc claims.",
+      "description": "**One-branch theorems with general doc claims.** Several `stepBody`/witness theorems fix `ctx.sv = .base` or one opcode while the comment claims all sigversions/opcodes (e.g. `PDW79` IFDUP/NUMEQUALVERIFY, `PDW88` OP_IF/NOTIF, `PDW94`, `PDW98`).",
+      "initial_triage": "reported addressed; revalidate relevant source and regressions"
+    },
+    {
+      "id": "I4-50",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": false,
+      "title": "Build disclosure is incomplete.",
+      "description": "**Build disclosure is incomplete.** `docs/PROOF-BUILD.md` names 4 public failures but not all 20; reconcile the failing-module list and ensure every cited row target is in a passing build (notably `Theorems.Ops.O07` / SCR-100).",
+      "initial_triage": "appears addressed in PROOF-BUILD; fresh complete module verification still required"
+    },
+    {
+      "id": "I4-51",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": false,
+      "title": "Medium edge-case definitions.",
+      "description": "**Medium edge-case definitions.** `PDW24` powLimit gate, `PDW21` `UInt32` height wrap at `2^32`, `PDW56` byte-length compare, `BIP144` signed output, `PDW42` `RawOK`, `PDW47` codesep execution.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-52",
+      "section": "Medium / low \u2014 grouped cleanup",
+      "snapshot_checked": false,
+      "title": "Low-severity doc corrections.",
+      "description": "**Low-severity doc corrections.** Wrong opcode comments (`0xad` vs `0xac`), wrong fixture spans (BIP94 `+1`), stale theorem counts, wrong Base58/DER comments, and off-by-one comment ranges.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-53",
+      "section": "Verification / tracking",
+      "snapshot_checked": false,
+      "title": "Re-run `make gates` after the fixes.",
+      "description": "Re-run `make gates` after the fixes.",
+      "initial_triage": "passed locally during review; rerun after implementation changes"
+    },
+    {
+      "id": "I4-54",
+      "section": "Verification / tracking",
+      "snapshot_checked": false,
+      "title": "Build all 410 proof modules individually and update `docs/PROOF-BUILD.md` with the exact pass/fail list.",
+      "description": "Build all 410 proof modules individually and update `docs/PROOF-BUILD.md` with the exact pass/fail list.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-55",
+      "section": "Verification / tracking",
+      "snapshot_checked": false,
+      "title": "Re-run the dynamic consensus and wallet axiom probes after changing definitions/theorems.",
+      "description": "Re-run the dynamic consensus and wallet axiom probes after changing definitions/theorems.",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    },
+    {
+      "id": "I4-56",
+      "section": "Verification / tracking",
+      "snapshot_checked": false,
+      "title": "Update `docs/RESIDUALS.md` for any gap that is accepted rather than fixed.",
+      "description": "Update `docs/RESIDUALS.md` for any gap that is accepted rather than fixed.",
+      "initial_triage": "residual register exists with 27 rows; reconcile item by item after fixes"
+    },
+    {
+      "id": "I4-57",
+      "section": "Verification / tracking",
+      "snapshot_checked": false,
+      "title": "Add regression vectors for each consensus-semantics fix (median time, castToBool negative zero, witness commitment reserved value, BIP30, findAndDelete, merkle duplicate detection, taproot q-binding).",
+      "description": "Add regression vectors for each consensus-semantics fix (median time, castToBool negative zero, witness commitment reserved value, BIP30, findAndDelete, merkle duplicate detection, taproot q-binding).",
+      "initial_triage": "open or partly addressed; confirm exact current source and acceptance evidence"
+    }
+  ],
+  "issue16_attachment": {
+    "url": "https://github.com/user-attachments/files/33628941/btc-lean-mainnet-audit.md",
+    "sha256": "1d4f3f198898db478c420324ea53132c682587b1fbda502670b79db6ad415484",
+    "btc_lean_basis": "c6e8f5e91f30b1c690b4d0320404517120a8b52d",
+    "core_basis": "9be056a8a72b624dae9623b2f7bded92c2a21c91",
+    "row_count": 726,
+    "classifications": {
+      "matches Core mainnet": 554,
+      "false rule to remove": 30,
+      "incorrect rule to correct": 61,
+      "not a consensus rule": 81
+    }
+  },
+  "pr18_diff_sha256": "49457fa77ec4e77bc669d8b133cf136ba3f612d261e900d601d2c9f08cf46153",
+  "additional_findings": [
+    {
+      "id": "R01",
+      "priority": "P1",
+      "title": "Input value validation omitted from block fold",
+      "evidence": "source-confirmed; Lean execution pending"
+    },
+    {
+      "id": "R02",
+      "priority": "P1",
+      "title": "Coinbase reward and accumulated fees omitted",
+      "evidence": "source-confirmed; Lean execution pending"
+    },
+    {
+      "id": "R03",
+      "priority": "P1",
+      "title": "Block finality and BIP68 omitted",
+      "evidence": "source-confirmed; Lean execution pending"
+    },
+    {
+      "id": "R04",
+      "priority": "P1",
+      "title": "Header lacks expected difficulty and time context",
+      "evidence": "source-confirmed; Lean execution pending"
+    },
+    {
+      "id": "R05",
+      "priority": "P1",
+      "title": "Commitment-output zero-value convention enforced as consensus",
+      "evidence": "source-confirmed against pinned Core; Lean execution pending"
+    },
+    {
+      "id": "R06",
+      "priority": "P1",
+      "title": "Unjudged native witness shortcut skips structural validity",
+      "evidence": "source-confirmed; disclosed crypto limitation, additional structural scope gap"
+    },
+    {
+      "id": "R07",
+      "priority": "P1",
+      "title": "Height-only exception predicates lack canonicality at caller",
+      "evidence": "source-confirmed; abstraction disclosed, caller preconditions absent"
+    },
+    {
+      "id": "R08",
+      "priority": "P1",
+      "title": "CI never builds Lean deliverable or dynamic axiom probes",
+      "evidence": "workflow-confirmed"
+    },
+    {
+      "id": "R09",
+      "priority": "P1",
+      "title": "Consensus static manifest accepts unapproved axioms",
+      "evidence": "reproduced in isolated fixture"
+    },
+    {
+      "id": "R10",
+      "priority": "P1",
+      "title": "Tagged sorry passes deliverable lint",
+      "evidence": "reproduced in isolated fixture"
+    },
+    {
+      "id": "R11",
+      "priority": "P2",
+      "title": "Comment tags and nonexistent declarations satisfy traceability",
+      "evidence": "reproduced in isolated fixture"
+    },
+    {
+      "id": "R12",
+      "priority": "P2",
+      "title": "Fetcher accepts unlisted members and FIFO",
+      "evidence": "reproduced in isolated fixture with pinned transport"
+    },
+    {
+      "id": "R13",
+      "priority": "P2",
+      "title": "Source/release metadata collision and stale evidence overwrite",
+      "evidence": "manifest comparison and isolated conflict reproduced; full archive not downloaded"
+    },
+    {
+      "id": "R14",
+      "priority": "P2",
+      "title": "Parser disabled set differs from correct interpreter set",
+      "evidence": "source-confirmed; active interpreter uses correct set"
+    },
+    {
+      "id": "R15",
+      "priority": "P2",
+      "title": "Independent Merkle reference generator absent",
+      "evidence": "repository inventory confirmed"
+    },
+    {
+      "id": "R16",
+      "priority": "P2",
+      "title": "Evidence hashes, counts and bootstrap instructions drift",
+      "evidence": "hashes/counts/source checks reproduced"
+    }
+  ],
+  "review_limitations": [
+    "Lean/lake/elan and caches unavailable; no fresh Lean builds or dynamic axiom probes",
+    "No full published archive download or anchor replay",
+    "Not an independent theorem-by-theorem or cryptographic arithmetic verification",
+    "Upstream audit labels and checked boxes are not assumed to be current verified facts"
+  ]
+}

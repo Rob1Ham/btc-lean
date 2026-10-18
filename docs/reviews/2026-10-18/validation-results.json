@@ -1,0 +1,64 @@
+{
+  "baseline_head": "57607451faa168497d971e2d50e91dae7dafdafe",
+  "environment": "Temporary Python 3.12 venv, PyYAML 6.0.2; no project dependencies changed",
+  "passed": [
+    {
+      "command": "make gates gate-repro PYTHON=/tmp/btc-lean-review-py312/bin/python",
+      "result": "all nine static gates and reproducibility references passed",
+      "wallet_declarations": 838,
+      "data_files": 161,
+      "data_bytes": 4852280
+    },
+    {
+      "command": "python spec/scripts/theorem_index.py --check",
+      "result": "726 consensus, 140 wallet rows; current"
+    },
+    {
+      "command": "python spec/scripts/residuals_index.py --check",
+      "result": "27 residuals; current"
+    },
+    {
+      "command": "python spec/scripts/proof_scope.py --check",
+      "result": "409 modules; default closure 29; current"
+    },
+    {
+      "command": "python3 spec/runners/wallet_diff/bip32_check.py --check-corpus",
+      "result": "17 valid rows recomputed; 16 invalid rows rejected"
+    },
+    {
+      "command": "SHA-256 verification of all entries in spec/data/MANIFEST.sha256 using hashlib",
+      "result": "160 entries, zero mismatches"
+    },
+    {
+      "command": "ast.parse all tracked .py; bash -n all tracked .sh",
+      "result": "44 Python files; 25 shell files; zero syntax errors"
+    }
+  ],
+  "not_run": [
+    {
+      "command": "lake build/test, complete per-module build, dynamic consensus/wallet axiom probes",
+      "reason": "Lean/lake/elan and build caches absent"
+    },
+    {
+      "command": "published release verification and full anchor replay",
+      "reason": "358 MB published archive not downloaded; local manifest and controlled extraction fixtures used"
+    }
+  ],
+  "warnings": {
+    "shellcheck": [
+      "scripts/check_subset_size.sh:211 redundant LFS case alternatives",
+      "spec/scripts/fetch_anchors.sh:49 unused retry variable"
+    ],
+    "initial_environment": "system Python lacked PyYAML; reran gates successfully in temporary pinned environment"
+  },
+  "upstream_ci": {
+    "main_sha": "57607451faa168497d971e2d50e91dae7dafdafe",
+    "workflows": {
+      "gates": "success",
+      "indexes": "success",
+      "proof scope": "success"
+    },
+    "scope": "static; no Lean build"
+  },
+  "reproductions": "reproduction-results.json"
+}

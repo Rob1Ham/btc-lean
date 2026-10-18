@@ -1,0 +1,121 @@
+{
+  "R09_unapproved_axiom_accepted": {
+    "observed": true,
+    "exit_code": 0,
+    "output": "axiom-manifest[static]: OK (1 entries, no sorryAx/_native)\naxiom-manifest[static]: dynamic #print axioms probe SKIPPED (CI does not build Lean; run locally with Lean installed)\n"
+  },
+  "R11_comment_only_tag_and_missing_target_accepted": {
+    "observed": true,
+    "exit_code": 0,
+    "output": "rule DB: 1 rows; Lean @[rule] attributes: 1 ids / 1 attributes\n  SCR: 1 rows | implemented 1 | tagged 1\n  coverage of implemented rows by Lean attributes: 1/1 total rows implemented\nrule-crosscheck: OK\n"
+  },
+  "R10_tagged_sorry_accepted": {
+    "observed": true,
+    "exit_code": 0,
+    "output": "sorry-lint: 1 sorry occurrences, 1 tagged, 0 untagged; 0 admit occurrences\nsorry-lint: native_decide violations: 0; unsafe/partial/FFI hazards: 0\nsorry-lint: OK\n"
+  },
+  "R12_unlisted_member_and_fifo_accepted": {
+    "observed": true,
+    "exit_code": 0,
+    "unlisted_file_extracted": true,
+    "fifo_extracted": true,
+    "output": "fetch_data: version 2026.10.17 (release tag data-2026.10.17)\nfetch_data: transport https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: manifest  https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: archive   https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\nfetch_data: dest      /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/downloads\nfetch_data: extract   /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/extract\nfetch_data: assets.sha256 matches the out-of-band pin\nfetch_data: archive verified: /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: verifying every extracted file against manifest.sha256\nspec/data/fixture.txt: OK\nfetch_data: all checks passed; no downloaded code was executed\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\n"
+  },
+  "R13_existing_newer_payload_conflict": {
+    "observed": true,
+    "exit_code": 1,
+    "output": "fetch_data: version 2026.10.17 (release tag data-2026.10.17)\nfetch_data: transport https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: manifest  https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nfetch_data: archive   https://example.invalid/review-fixture/data-2026.10.17/btc-lean-data-2026.10.17.tar.gz\nfetch_data: dest      /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/downloads\nfetch_data: extract   /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/extract\nfetch_data: assets.sha256 matches the out-of-band pin\nfetch_data: reusing verified archive /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: archive verified: /var/folders/4s/bz4kyvfj2bv4wrls6dq0byqc0000gn/T/btc-lean-review-97f4njog/downloads/btc-lean-data-2026.10.17.tar.gz\nfetch_data: verifying every extracted file against manifest.sha256\nspec/data/fixture.txt: FAILED\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/assets.sha256\nfetch_data: GET https://example.invalid/review-fixture/data-2026.10.17/manifest.sha256\nsha256sum: WARNING: 1 computed checksum did NOT match\nfetch_data: ERROR: content verification failed for manifest.sha256\n"
+  },
+  "R13_release_metadata": [
+    {
+      "path": "spec/db/axiom-manifest-wallet.txt",
+      "matches_current_checkout": false
+    },
+    {
+      "path": "spec/db/axiom-manifest.txt",
+      "matches_current_checkout": true
+    },
+    {
+      "path": "spec/db/rules-wallet.lock",
+      "matches_current_checkout": true
+    },
+    {
+      "path": "spec/db/rules-wallet.obligations.tsv",
+      "matches_current_checkout": true
+    },
+    {
+      "path": "spec/db/rules-wallet.yaml",
+      "matches_current_checkout": true
+    },
+    {
+      "path": "spec/db/rules.yaml",
+      "matches_current_checkout": false
+    },
+    {
+      "path": "spec/db/vector_ids.yaml",
+      "matches_current_checkout": true
+    }
+  ],
+  "R16_interface_hashes": [
+    {
+      "path": "spec/core/Bitcoin/Activation/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Conservation/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/DataLaws/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Interpreter/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Ledger/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Numeric/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Serialization/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/SigHash/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/TxValidation/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Crypto/Curve/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Crypto/Ecdsa/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Crypto/Field/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Crypto/Schnorr/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Crypto/Seam/Interface.lean",
+      "matches": false
+    },
+    {
+      "path": "spec/core/Bitcoin/Script/Parser/Interface.lean",
+      "matches": false
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "id": "R01",
+  "priority": "P1",
+  "title": "Input value validation omitted from block fold",
+  "evidence": "Four pre-fix monetary failures reproduced; all 13 post-fix runtime checks pass; live input-check and conservation theorems are kernel-checked with guarded standard-trio footprints.",
+  "status": "fixed_and_verified",
+  "next_action": "Add a failing live applyTx monetary regression, wire checkTxInputs before scripts, repair dependent proofs and rebuild.",
+  "verification": {
+    "command": "lake env lean --run Test/Capstone/ValueChecks.lean",
+    "scope": "live applyTx monetary regression before repair",
+    "output": "[FAIL] input value below outputs: expected=bad-txns-in-belowout, actual=ok\n[FAIL] input coin above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=ok\n[FAIL] negative input coin: expected=bad-txns-inputvalues-outofrange, actual=ok\n[FAIL] running input sum above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=ok\n[PASS] valid zero-fee spend: expected=ok, actual=ok\n[PASS] valid positive-fee spend: expected=ok, actual=ok\n[PASS] missing input: expected=bad-txns-inputs-missingorspent, actual=bad-txns-inputs-missingorspent\n[PASS] immature coinbase input: expected=bad-txns-premature-spend-of-coinbase, actual=bad-txns-premature-spend-of-coinbase\n",
+    "log": "/tmp/btc-lean-r01-before.log",
+    "test_file": "spec/core/Test/Capstone/ValueChecks.lean",
+    "exit_code": 1,
+    "result": "Expected red regression: four monetary bypasses reproduced; four valid/missing/maturity controls pass."
+  },
+  "changes": [
+    "applyTx now calls checkTxInputs on evolving view before scripts",
+    "Fold success theorem includes checked fee evidence; live value-conservation theorem added",
+    "Error taxonomy includes input-value failures; ScriptPass includes successful monetary checks",
+    "Fragile duplicate step-inversion proofs replaced with the shared checked inversion theorem"
+  ],
+  "changed_files": [
+    "Makefile",
+    "spec/core/Bitcoin/Capstone/Block.lean",
+    "spec/core/Test/Capstone/ValueChecks.lean",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposePipeline.lean",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean",
+    "spec/proofs/BitcoinProofs/Theorems/T3T4PipelineRealCor.lean"
+  ],
+  "verification_after": [
+    {
+      "command": "lake env lean --run Test/Capstone/ValueChecks.lean",
+      "exit_code": 0,
+      "checks": 13,
+      "output": "[PASS] input value below outputs: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] input coin above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] negative input coin: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] running input sum above MAX_MONEY: expected=bad-txns-inputvalues-outofrange, actual=bad-txns-inputvalues-outofrange\n[PASS] input amount failure precedes script failure: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n[PASS] input coin at MAX_MONEY: expected=ok, actual=ok\n[PASS] running input sum at MAX_MONEY: expected=ok, actual=ok\n[PASS] valid zero-fee spend: expected=ok, actual=ok\n[PASS] valid positive-fee spend: expected=ok, actual=ok\n[PASS] missing input: expected=bad-txns-inputs-missingorspent, actual=bad-txns-inputs-missingorspent\n[PASS] immature coinbase input: expected=bad-txns-premature-spend-of-coinbase, actual=bad-txns-premature-spend-of-coinbase\n[PASS] same-block spend uses the new coin value: expected=ok, actual=ok\n[PASS] same-block inflation is rejected: expected=bad-txns-in-belowout, actual=bad-txns-in-belowout\n"
+    },
+    {
+      "command": "lake build <all directly affected proof consumers>",
+      "exit_code": 0,
+      "jobs": 53,
+      "targets": [
+        "BitcoinProofs.Theorems.CapstonePipelineCor",
+        "BitcoinProofs.Theorems.CapstoneComposeStateless",
+        "BitcoinProofs.Theorems.CapstoneComposePipeline",
+        "BitcoinProofs.Theorems.CapstoneConservationCor",
+        "BitcoinProofs.Theorems.T3T4PipelineRealCor",
+        "BitcoinProofs.AF.PDW61.PDW61b"
+      ],
+      "log": "/tmp/btc-lean-r01-consumers.log"
+    },
+    {
+      "command": "make gates gate-repro; generated theorem/residual/proof-scope --check",
+      "exit_code": 0,
+      "log": "/tmp/btc-lean-r01-gates.log"
+    },
+    {
+      "command": "lake build Bitcoin",
+      "exit_code": 0,
+      "jobs": 72,
+      "log": "/tmp/btc-lean-r01-core-full.log"
+    },
+    {
+      "command": "lake test",
+      "exit_code": 0,
+      "checks": 16,
+      "log": "/tmp/btc-lean-r01-core-test.log"
+    },
+    {
+      "command": "lake build BitcoinProofs BitcoinProofs.Theorems.T3T4PipelineRealCor BitcoinProofs.Theorems.CapstoneComposePipeline",
+      "exit_code": 0,
+      "jobs": 1726,
+      "scope": "29-module default proof closure plus explicitly named affected modules; not all 409 proof modules",
+      "log": "/tmp/btc-lean-r01-default-proof.log"
+    },
+    {
+      "command": "bash spec/scripts/axiom_manifest.sh",
+      "exit_code": 0,
+      "scope": "223 consensus manifest entries, 237 physical lines",
+      "log": "/tmp/btc-lean-r01-axiom.log"
+    }
+  ],
+  "source_sha256": {
+    "Makefile": "e17faf4115242cb73d5379a8996d20a70fd8a51b002fe55482d1b6a0d923d54f",
+    "spec/core/Bitcoin/Capstone/Block.lean": "0622571634466f64bb4254eb329a0295fcb67e5c9495971a8ca2f6415e51fe99",
+    "spec/core/Test/Capstone/ValueChecks.lean": "b840b1482cd4234544ba3a3a7180560423d906138633c54b8d61a487fbd31ff4",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneFoldAgree.lean": "d99a8d9ea3e5bcc72fca905a83e11268d4f5b4a2f4b2d29ed5c50db18ab046c4",
+    "spec/proofs/BitcoinProofs/Theorems/CapstonePipelineCor.lean": "f189ff81b581da7956a7a0629829efad062ed075a122e55bf0f66245fb4d3cc9",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneComposePipeline.lean": "f5f892cf41ee9ec909599554dd37e54d92b1bfb3c5ff5c708559f9d87c492eec",
+    "spec/proofs/BitcoinProofs/Theorems/CapstoneConservationCor.lean": "c38dcdbbf65febbce7ecbe783a1d300aed6a5021d592179c1190de07927405a5",
+    "spec/proofs/BitcoinProofs/Theorems/T3T4PipelineRealCor.lean": "0982154a6cfad8794759989e1bbe68a6698c278d32d374c78fc1e241ae5e5886"
+  },
+  "remaining_scope": "Coinbase reward/fee accumulation and contextual block checks remain tracked separately as R02-R07."
+}
