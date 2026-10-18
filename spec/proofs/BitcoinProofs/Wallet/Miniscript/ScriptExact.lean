@@ -2,16 +2,19 @@ import Bitcoin.Wallet.Miniscript
 import Bitcoin.Wallet.RuleAttr
 
 /-!
-# Script emission: totality and byte length
+# Script emission: byte length
 
-This file proves two structural facts about `Bitcoin.Wallet.Miniscript.toScript`
+This file proves the structural fact about
+`Bitcoin.Wallet.Miniscript.toScript`
 (`spec/core/Bitcoin/Wallet/Miniscript/Script.lean`), the model of Core's
 `Node::ToScript` (`src/script/miniscript.h:798-880` at pin `cce32b168`):
 
-* `toScript_total`: the emitter is a total function from a context and node
-  to a `Script`; it has no failure branch and no `Option`;
 * `toScript_size`: its output length is the recursive formula `scriptLen`,
   which mirrors the emitter fragment by fragment.
+
+`toScript` is a Lean function into `Script`, so it is total by definition.
+The file does not restate that as a separate `∃ s, toScript ctx n = s`
+theorem; the length equation is the substantive characterization.
 
 The length formula is *syntactic*: it counts opcode bytes and push lengths,
 including the minimal integer encoding chosen by `pushInt`.  It does not
@@ -255,12 +258,6 @@ theorem toScriptWith_size (ctx : MiniscriptContext) (verify : Bool) (n : Node) :
 theorem toScript_size (ctx : MiniscriptContext) (n : Node) :
     (toScript ctx n).size = scriptLen ctx n :=
   toScriptWith_size ctx false n
-
-/-- Totality: for every context and node, the emitter returns a script.
-There is no error branch. -/
-theorem toScript_total (ctx : MiniscriptContext) (n : Node) :
-    ∃ s : Script, toScript ctx n = s :=
-  ⟨toScript ctx n, rfl⟩
 
 /-! ## Fragment length equations -/
 
