@@ -1,5 +1,6 @@
 import Bitcoin.Activation.Interface
 import Bitcoin.Crypto.Seam.Interface
+import Bitcoin.DataLaws.Interface
 
 /-!
 # Bitcoin.Activation.Flags — Core-faithful hash-keyed port + policy catalogue
@@ -288,6 +289,286 @@ contextual checks — flag selection is this height compare). -/
     (hact : P.csvHeight ≤ height) :
     (getBlockScriptFlagsP P hash height).csv = true := by
   simp [getBlockScriptFlagsP, hnone, buriedActive, decide_eq_true hact]
+
+/-! ### BLK-086 / BLK-087 / INV-130: exception-hash and converse arms
+
+`cltv_flag_flow` / `csv_flag_flow` above are the non-exception activation
+directions.  Core's `GetBlockScriptFlags` ORs CLTV/CSV in **after** the
+hash-keyed exception replacement (validation.cpp:2262-2278), so at/above
+the buried height the flag is on for every block hash, the two historical
+exception hashes included.  The converses below the deployment height need
+only that the replacement entries do not themselves turn the flag on,
+which is true of both mainnet entries (SCRIPT_VERIFY_NONE and
+P2SH|WITNESS). -/
+
+/-- BLK-086 (exception-hash-free activation): CLTV is OR-ed in after the
+exception replacement, so at/above the BIP65 buried height it is on for
+EVERY block hash — including the BIP16 and taproot exception hashes whose
+replacement sets carry `cltv = false`. -/
+@[rule "BLK-086"] theorem cltv_flag_flow_any (P : ChainParams) (hash : BlockHash)
+    (height : UInt32) (hact : P.bip65Height ≤ height) :
+    (getBlockScriptFlagsP P hash height).cltv = true := by
+  simp [getBlockScriptFlagsP, buriedActive, decide_eq_true hact]
+
+/-- BLK-086 (converse, exception-hash-free): below the BIP65 buried height
+CLTV is off for every hash whose exception replacement also leaves it off
+— in particular for both mainnet exception entries. -/
+theorem cltv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
+    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false)
+    (hlt : height < P.bip65Height) :
+    (getBlockScriptFlagsP P hash height).cltv = false := by
+  have hcmp : ¬ (P.bip65Height ≤ height) :=
+    Nat.not_le.mpr (UInt32.lt_iff_toNat_lt.mp hlt)
+  unfold getBlockScriptFlagsP
+  cases hmap : P.scriptFlagExceptions hash with
+  | none =>
+      simp [buriedActive, decide_eq_false hcmp]
+  | some exf =>
+      simp [hexc hash exf hmap, buriedActive, decide_eq_false hcmp]
+
+/-- BLK-086 (whole row claim, arbitrary params): CLTV is on exactly when
+BIP65 is buried-active at the block.  No `hnone`: the exception-hash arm is
+covered because Core ORs the flag after the hash-keyed replacement
+(validation.cpp:2262-2275). -/
+@[rule "BLK-086"] theorem cltv_flag_iff_any (P : ChainParams) (hash : BlockHash)
+    (height : UInt32)
+    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false) :
+    (getBlockScriptFlagsP P hash height).cltv = true ↔ P.bip65Height ≤ height := by
+  constructor
+  · intro hon
+    by_cases hle : P.bip65Height ≤ height
+    · exact hle
+    · have hlt : height < P.bip65Height := by
+        exact UInt32.lt_iff_toNat_lt.mpr <| Nat.lt_of_not_le <| by
+          intro hle'
+          exact hle (UInt32.le_iff_toNat_le.mpr hle')
+      have hoff := cltv_flag_off_any P hash height hexc hlt
+      rw [hoff] at hon
+      exact Bool.noConfusion hon
+  · intro hle
+    exact cltv_flag_flow_any P hash height hle
+
+/-- Both mainnet exception replacement sets leave CLTV off: the BIP16 entry
+is SCRIPT_VERIFY_NONE and the taproot entry is P2SH|WITNESS. -/
+theorem mainnet_exception_cltv_false (hash : BlockHash) (exf : ScriptFlags)
+    (h : mainnetParams.scriptFlagExceptions hash = some exf) : exf.cltv = false := by
+  have hmap : mainnetExceptionMap hash = some exf := by
+    simpa [mainnetParams] using h
+  by_cases h1 : hash = bip16ExceptionHash
+  · subst h1
+    rw [mainnet_bip16_exception_lookup] at hmap
+    have hexf : ({ p2sh := false, witness := false, taproot := false } : ScriptFlags) = exf :=
+      Option.some.inj hmap
+    rw [← hexf]
+  · by_cases h2 : hash = taprootExceptionHash
+    · subst h2
+      rw [mainnet_taproot_exception_lookup] at hmap
+      have hexf : ({ p2sh := true, witness := true, taproot := false } : ScriptFlags) = exf :=
+        Option.some.inj hmap
+      rw [← hexf]
+    · simp [mainnetExceptionMap, h1, h2] at hmap
+
+/-- BLK-086 (mainnet, no side condition): for EVERY mainnet block hash,
+including both exception hashes, CLTV is on exactly from the BIP65 buried
+height 388,381 (`mainnetParams.bip65Height`, pinned by
+`buried_heights_mainnet`).  This is the complete row claim: activation,
+exception-hash arm and below-height converse. -/
+@[rule "BLK-086"] theorem cltv_flag_iff_mainnet_any (hash : BlockHash) (height : UInt32) :
+    (getBlockScriptFlagsP mainnetParams hash height).cltv = true ↔
+      388381 ≤ height := by
+  have h := cltv_flag_iff_any mainnetParams hash height
+    (fun h exf hmap => mainnet_exception_cltv_false h exf hmap)
+  simpa [mainnetParams, BIP65_HEIGHT] using h
+
+/-- INV-130 (exception-hash-free activation): the CSV script flag is OR-ed
+in after the exception replacement, so at/above the CSV buried height it is
+on for EVERY block hash, exception hashes included. -/
+@[rule "INV-130"] theorem csv_flag_flow_any (P : ChainParams) (hash : BlockHash)
+    (height : UInt32) (hact : P.csvHeight ≤ height) :
+    (getBlockScriptFlagsP P hash height).csv = true := by
+  simp [getBlockScriptFlagsP, buriedActive, decide_eq_true hact]
+
+/-- INV-130 (converse, exception-hash-free): below the CSV buried height the
+CSV script flag is off for every hash whose exception replacement also
+leaves it off — in particular for both mainnet exception entries. -/
+theorem csv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
+    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.csv = false)
+    (hlt : height < P.csvHeight) :
+    (getBlockScriptFlagsP P hash height).csv = false := by
+  have hcmp : ¬ (P.csvHeight ≤ height) :=
+    Nat.not_le.mpr (UInt32.lt_iff_toNat_lt.mp hlt)
+  unfold getBlockScriptFlagsP
+  cases hmap : P.scriptFlagExceptions hash with
+  | none =>
+      simp [buriedActive, decide_eq_false hcmp]
+  | some exf =>
+      simp [hexc hash exf hmap, buriedActive, decide_eq_false hcmp]
+
+/-- INV-130 (whole row claim, arbitrary params): the CSV script flag is on
+exactly when CSV is buried-active at the block.  No `hnone`: the
+exception-hash arm is covered because Core ORs the flag after the hash-keyed
+replacement (validation.cpp:2262-2281). -/
+@[rule "INV-130"] theorem csv_flag_iff_any (P : ChainParams) (hash : BlockHash)
+    (height : UInt32)
+    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.csv = false) :
+    (getBlockScriptFlagsP P hash height).csv = true ↔ P.csvHeight ≤ height := by
+  constructor
+  · intro hon
+    by_cases hle : P.csvHeight ≤ height
+    · exact hle
+    · have hlt : height < P.csvHeight := by
+        exact UInt32.lt_iff_toNat_lt.mpr <| Nat.lt_of_not_le <| by
+          intro hle'
+          exact hle (UInt32.le_iff_toNat_le.mpr hle')
+      have hoff := csv_flag_off_any P hash height hexc hlt
+      rw [hoff] at hon
+      exact Bool.noConfusion hon
+  · intro hle
+    exact csv_flag_flow_any P hash height hle
+
+/-- Both mainnet exception replacement sets leave CSV off. -/
+theorem mainnet_exception_csv_false (hash : BlockHash) (exf : ScriptFlags)
+    (h : mainnetParams.scriptFlagExceptions hash = some exf) : exf.csv = false := by
+  have hmap : mainnetExceptionMap hash = some exf := by
+    simpa [mainnetParams] using h
+  by_cases h1 : hash = bip16ExceptionHash
+  · subst h1
+    rw [mainnet_bip16_exception_lookup] at hmap
+    have hexf : ({ p2sh := false, witness := false, taproot := false } : ScriptFlags) = exf :=
+      Option.some.inj hmap
+    rw [← hexf]
+  · by_cases h2 : hash = taprootExceptionHash
+    · subst h2
+      rw [mainnet_taproot_exception_lookup] at hmap
+      have hexf : ({ p2sh := true, witness := true, taproot := false } : ScriptFlags) = exf :=
+        Option.some.inj hmap
+      rw [← hexf]
+    · simp [mainnetExceptionMap, h1, h2] at hmap
+
+/-- INV-130 (mainnet, no side condition): for EVERY mainnet block hash,
+including both exception hashes, the CSV script flag is on exactly from the
+CSV buried height 419,328 (`mainnetParams.csvHeight`, pinned by
+`buried_heights_mainnet`).  This is the complete script-flag row claim:
+activation, exception-hash arm and below-height converse. -/
+@[rule "INV-130"] theorem csv_flag_iff_mainnet_any (hash : BlockHash) (height : UInt32) :
+    (getBlockScriptFlagsP mainnetParams hash height).csv = true ↔
+      419328 ≤ height := by
+  have h := csv_flag_iff_any mainnetParams hash height
+    (fun h exf hmap => mainnet_exception_csv_false h exf hmap)
+  simpa [mainnetParams, CSV_HEIGHT] using h
+
+/-! ### BLK-087: the contextual `LOCKTIME_VERIFY_SEQUENCE` flag
+
+`GetBlockScriptFlags` supplies the script-level `CSV` bit, but Core's
+ConnectBlock also sets the separate `LOCKTIME_VERIFY_SEQUENCE` bit in
+`nLockTimeFlags` exactly when CSV is deployed (validation.cpp:2477-2481).
+`bip68Enabled` consumes that contextual bit (`consensus/tx_verify.cpp:57`),
+so the row claim needs both flag selections, not only `ScriptFlags.csv`. -/
+
+/-- The contextual `LOCKTIME_VERIFY_SEQUENCE` bit selected at a block: the
+same buried `DEPLOYMENT_CSV` height compare as the script flag
+(validation.cpp:2477-2481).  `bip68Enabled` consumes this `Bool`. -/
+def locktimeVerifySequenceFlag (P : ChainParams) (height : UInt32) : Bool :=
+  buriedActive P P.csvHeight height
+
+/-- The same contextual selection written as Core's `nLockTimeFlags` bit
+word (`LOCKTIME_VERIFY_SEQUENCE = 1 << 0`). -/
+def blockLocktimeFlags (P : ChainParams) (height : UInt32) : Nat :=
+  if locktimeVerifySequenceFlag P height then
+    Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE
+  else 0
+
+/-- The contextual flag is on exactly when CSV is buried-active. -/
+theorem locktimeVerifySequenceFlag_iff (P : ChainParams) (height : UInt32) :
+    locktimeVerifySequenceFlag P height = true ↔ P.csvHeight ≤ height := by
+  unfold locktimeVerifySequenceFlag buriedActive
+  exact decide_eq_true_iff
+
+/-- At/above the CSV height the contextual bit word is exactly
+`LOCKTIME_VERIFY_SEQUENCE`. -/
+theorem blockLocktimeFlags_eq (P : ChainParams) (height : UInt32)
+    (hact : P.csvHeight ≤ height) :
+    blockLocktimeFlags P height =
+      Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE := by
+  simp [blockLocktimeFlags, locktimeVerifySequenceFlag, buriedActive,
+    decide_eq_true hact]
+
+/-- BLK-087 (contextual converse): the `nLockTimeFlags` word carries
+`LOCKTIME_VERIFY_SEQUENCE` exactly when CSV is buried-active, so below the
+deployment height the BIP68 contextual gate is off. -/
+@[rule "BLK-087"] theorem blockLocktimeFlags_iff (P : ChainParams) (height : UInt32) :
+    blockLocktimeFlags P height = Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE ↔
+      P.csvHeight ≤ height := by
+  constructor
+  · intro hb
+    by_cases hle : P.csvHeight ≤ height
+    · exact hle
+    · have hzero : blockLocktimeFlags P height = 0 := by
+        simp [blockLocktimeFlags, locktimeVerifySequenceFlag, buriedActive,
+          decide_eq_false hle]
+      rw [hzero] at hb
+      exact absurd hb (by decide)
+  · intro hle
+    exact blockLocktimeFlags_eq P height hle
+
+/-- Mainnet contextual flag: on exactly from the CSV buried height 419,328. -/
+theorem locktimeVerifySequenceFlag_mainnet_iff (height : UInt32) :
+    locktimeVerifySequenceFlag mainnetParams height = true ↔ 419328 ≤ height := by
+  simpa [mainnetParams, CSV_HEIGHT] using
+    locktimeVerifySequenceFlag_iff mainnetParams height
+
+/-- The mainnet contextual bit is definitionally the `csv` Bool that the
+contextual pipeline's `checkSequenceContext` hands to `bip68Enabled`
+(Capstone/Block.lean:654-668). -/
+theorem locktimeVerifySequenceFlag_mainnet_eq (height : UInt32) :
+    locktimeVerifySequenceFlag mainnetParams height =
+      (CSV_HEIGHT ≤ height : Bool) := by
+  simp [locktimeVerifySequenceFlag, buriedActive, mainnetParams]
+  rfl
+
+/-- BLK-087 (whole row claim, arbitrary params): when CSV is buried-active,
+the block selection sets BOTH `SCRIPT_VERIFY_CHECKSEQUENCEVERIFY` (the
+`ScriptFlags.csv` gate for OP_CSV) AND the separate contextual
+`LOCKTIME_VERIFY_SEQUENCE` bit, so `bip68Enabled` is true for every wire
+version ≥ 2.  No `hnone`: the exception-hash arm is covered because both
+flags are OR-ed in after the hash-keyed replacement. -/
+@[rule "BLK-087"] theorem csv_locktime_flag_flow (P : ChainParams) (hash : BlockHash)
+    (height : UInt32) (hact : P.csvHeight ≤ height) (version : Int32)
+    (hver : 2 ≤ version.toUInt32.toNat) :
+    (getBlockScriptFlagsP P hash height).csv = true ∧
+    blockLocktimeFlags P height = Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE ∧
+    Bitcoin.DataLaws.bip68Enabled version (locktimeVerifySequenceFlag P height) = true := by
+  refine ⟨csv_flag_flow_any P hash height hact, blockLocktimeFlags_eq P height hact, ?_⟩
+  rw [Bitcoin.DataLaws.bip68Enabled_iff]
+  exact ⟨hver, (locktimeVerifySequenceFlag_iff P height).mpr hact⟩
+
+/-- BLK-087 (mainnet, no side condition): for EVERY mainnet block hash,
+including both exception hashes, CSV activation sets the OP_CSV script flag
+and the contextual `LOCKTIME_VERIFY_SEQUENCE` bit together, enabling BIP68
+for every wire version ≥ 2. -/
+@[rule "BLK-087"] theorem csv_locktime_flag_flow_mainnet_any (hash : BlockHash)
+    (height : UInt32) (hact : 419328 ≤ height) (version : Int32)
+    (hver : 2 ≤ version.toUInt32.toNat) :
+    (getBlockScriptFlagsP mainnetParams hash height).csv = true ∧
+    blockLocktimeFlags mainnetParams height =
+      Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE ∧
+    Bitcoin.DataLaws.bip68Enabled version
+      (locktimeVerifySequenceFlag mainnetParams height) = true := by
+  have hb : mainnetParams.csvHeight ≤ height := by
+    simpa [mainnetParams, CSV_HEIGHT] using hact
+  exact csv_locktime_flag_flow mainnetParams hash height hb version hver
+
+/-- INV-130 (mainnet gate, no side condition): both CSV gates — the
+OP_CSV script flag and the contextual `LOCKTIME_VERIFY_SEQUENCE` bit — are
+on exactly from the CSV buried height, for every mainnet block hash. -/
+@[rule "INV-130"] theorem csv_flag_gate_iff_mainnet_any (hash : BlockHash)
+    (height : UInt32) :
+    ((getBlockScriptFlagsP mainnetParams hash height).csv = true ↔
+      419328 ≤ height) ∧
+    (locktimeVerifySequenceFlag mainnetParams height = true ↔
+      419328 ≤ height) :=
+  ⟨csv_flag_iff_mainnet_any hash height,
+    locktimeVerifySequenceFlag_mainnet_iff height⟩
 
 /-- BLK-088: NULLDUMMY is set exactly when segwit is active — BIP147
 rides segwit (validation.cpp:2280-2283). SWT-063: NULLDUMMY active
