@@ -491,10 +491,10 @@ example : decStackL (hexB "fd0000") = .error .compactSizeNonMinimal := by native
 /-- H nonminimal count fe ffff0000 -> compactSizeNonMinimal — python reference verdict: `nonminimal` -/
 example : decStackL (hexB "feffff0000") = .error .compactSizeNonMinimal := by native_decide
 
-/-- H count above MAX_SIZE on the 0xfe path is NOT range-checked by `decCS`
-(there is no `MAX_SIZE` test on the 0xfe branch); the huge count then runs
-`decN` off the end of the input -> `truncated`, not `compactSizeTooLong`. -/
-example : decStackL (hexB "fe01000002") = .error .truncated := by native_decide
+/-- H count above MAX_SIZE on the 0xfe path is range-checked by `decCS`
+(the same `ReadCompactSize` range_test as Core); the huge count is rejected
+before any item read. -/
+example : decStackL (hexB "fe01000002") = .error .compactSizeTooLong := by native_decide
 
 /-- H empty input -> truncated — python reference verdict: `truncated` -/
 example : decStackL (hexB "") = .error .truncated := by native_decide

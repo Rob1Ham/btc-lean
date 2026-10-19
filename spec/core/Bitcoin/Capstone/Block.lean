@@ -51,9 +51,11 @@ consensus validity. The gates currently composed are:
 * The runner reports the gates actually reached for its supplied corpus and
   context. Legacy/v0 ECDSA and native Taproot key/script paths use real signature
   verification; Taproot hashing binds the complete ordered spent-output view.
-* Missing required signature context is explicit `unjudgedTaproot` data. The
-  report's `scriptAdjudication` is complete exactly when its unjudged count is
-  zero; replay runners reject incomplete reports as successful validations.
+* Missing required signature context is explicit `unjudgedTaproot` data.
+  `replayBlock` reports that partial-adjudication state for diagnostic anchor
+  replay; `validateBlockInContext` rejects it as `script-unjudged` rather than
+  accepting an unverified spend. The report's `scriptAdjudication` is complete
+  exactly when its unjudged count is zero.
 * Supplied UTXOs and ancestor history remain conditional inputs. A complete
   script verdict does not establish historical reachability of that state.
 
@@ -109,6 +111,7 @@ inductive CapError where
   | badCbHeight                     -- BLK-069 (BIP34)
   | scriptFail (txIdx inputIdx : Nat) (e : ExecError)
   | scriptFalse (txIdx inputIdx : Nat)
+  | scriptUnjudged            -- contextual entry: not all inputs had adjudicable data
 deriving Repr, DecidableEq
 
 /-- Core's exact reject strings for the Capstone taxonomy (report use). -/
@@ -140,11 +143,13 @@ def CapError.reason : CapError → String
   | .badCbHeight => "bad-cb-height"
   | .scriptFail _ _ _ => "script-verify-error"
   | .scriptFalse _ _ => "script-eval-false"
+  | .scriptUnjudged => "script-unjudged"
 
 /-- Context acquisition failures mean validation is unavailable. The three
 contextual header consensus failures remain ordinary rejection verdicts. -/
 def CapError.isUnavailable : CapError → Bool
   | .context e => e.isUnavailable
+  | .scriptUnjudged => true
   | _ => false
 
 /-! ## State -/
@@ -166,6 +171,12 @@ hash). All of the fold theorems quantify over the general
 `kf : Tx → Key`, so this substitution is inside the abstracted surface. -/
 @[rule "BLK-005"]
 def txidKey (tx : Tx) : Key := fun _ k => ⟨txidOf tx, k⟩
+
+/-- The capstone txid key and the ledger's real-txid key are the same key.
+This is the bridge that lets the connect path and the block pipeline share
+one UTXO identity without importing the capstone into the ledger. -/
+theorem txidKey_eq_ledger (tx : Tx) :
+    txidKey tx = Bitcoin.Ledger.txidKeyReal tx := rfl
 
 /-! ## Block-level statics -/
 
@@ -1167,6 +1178,10 @@ def validateBlock (raw : ByteArray) (st : CapState)
   -- 5. Per-tx checks, running fees and ledger updates; then coinbase reward.
   let ((utxo', okN, unjN), sigops) ← applyBlockTransactionsWithSigops resolved st.height
     (candidateScriptFlags st.height h) txs st.utxo
+  -- The contextual entry is the full-validation claim: an input that could
+  -- not be adjudicated is unavailable verification, never an accepted spend.
+  -- `replayBlock` retains the diagnostic report for partial anchor replay.
+  if context.isSome && unjN != 0 then throw CapError.scriptUnjudged
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
          headerContextChecked := context.isSome
@@ -1182,9 +1197,11 @@ def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
 /-- Header-context entry point. Checks expected nBits, parent MTP and node
 time, absolute finality and both BIP68 domains as well as the funded replay
 gates and both sigop budgets. Scripts and cost accounting share flags from
-the actual candidate hash. BIP30/genesis historical-exception work remains
-open; success
-is not yet a full consensus-validation claim. -/
+the actual candidate hash. Any input whose signature data cannot be adjudicated
+is rejected with `script-unjudged`; success therefore carries a complete
+script verdict. Genesis connection (BLK-109) is still handled by the separate
+`connectBlock` entry, so this pipeline is not yet a full consensus-validation
+claim for the genesis block. -/
 def validateBlockInContext (raw : ByteArray) (st : CapState)
     (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=
   validateBlock raw st (some ctx)

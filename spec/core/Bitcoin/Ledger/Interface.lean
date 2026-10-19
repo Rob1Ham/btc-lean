@@ -1,5 +1,6 @@
 import Bitcoin.Data.Basic
 import Bitcoin.Data.Tx
+import Bitcoin.DataLaws.Interface
 import Bitcoin.Ledger.Utxo
 import Bitcoin.TxValidation.Interface
 import Bitcoin.Conservation.Interface
@@ -580,6 +581,57 @@ def applyBlockL (l : List (OutPoint × Coin)) (kf : Tx → Key) (txs : List Tx) 
     Except.error BlockError.badTxnsBIP30
   else applyBlockFoldL l kf txs height
 
+/-- Hash-aware pre-loop BIP30 gate over the point view: the same pristine
+collision loop as `applyBlockU`, but the enforcement decision is Core's
+actual `bip30EnforcedAtHashes` (own-hash repeat pins + BIP34 ancestor pin)
+rather than the canonical-chain height approximation. -/
+def applyBlockExactU (u : UtxoSet) (kf : Tx → Key) (txs : List Tx) (height : UInt32)
+    (ownHash ancestorHash : Nat) : Except BlockError UtxoSet :=
+  if bip30BlockCollision u kf txs height &&
+      bip30EnforcedAtHashes height ownHash ancestorHash then
+    Except.error BlockError.badTxnsBIP30
+  else applyBlockFoldU u kf txs height
+
+/-- Hash-aware pre-loop BIP30 gate over the executable assoc-list view. -/
+def applyBlockExactL (l : List (OutPoint × Coin)) (kf : Tx → Key) (txs : List Tx)
+    (height : UInt32) (ownHash ancestorHash : Nat) :
+    Except BlockError (List (OutPoint × Coin)) :=
+  if bip30BlockCollision (viewOf l) kf txs height &&
+      bip30EnforcedAtHashes height ownHash ancestorHash then
+    Except.error BlockError.badTxnsBIP30
+  else applyBlockFoldL l kf txs height
+
+/-- On the canonical chain, the hash-aware gate at the height's pinned own
+hash and `BIP34Hash` is exactly the heights-only gate, so the exact fold
+specializes to `applyBlockU`. -/
+theorem applyBlockExactU_canonical (u : UtxoSet) (kf : Tx → Key) (txs : List Tx)
+    (height : UInt32) :
+    applyBlockExactU u kf txs height (BIP30_REPEAT_HASH_OF_HEIGHT height)
+        BIP34_ACTIVATION_HASH = applyBlockU u kf txs height := by
+  unfold applyBlockExactU applyBlockU
+  rw [bip30EnforcedAtHashes_canonical]
+
+/-- Executable mirror of `applyBlockExactU_canonical`. -/
+theorem applyBlockExactL_canonical (l : List (OutPoint × Coin)) (kf : Tx → Key)
+    (txs : List Tx) (height : UInt32) :
+    applyBlockExactL l kf txs height (BIP30_REPEAT_HASH_OF_HEIGHT height)
+        BIP34_ACTIVATION_HASH = applyBlockL l kf txs height := by
+  unfold applyBlockExactL applyBlockL
+  rw [bip30EnforcedAtHashes_canonical]
+
+/-- The exact gate rejects a pristine collision whenever the hash-aware
+enforcement bit is on. This is the fork-side counterpart of the canonical
+specialization above: a non-canonical block at 91842/91880 cannot borrow the
+height-only repeat exception. -/
+theorem applyBlockExactL_error_of_collision (l : List (OutPoint × Coin))
+    (kf : Tx → Key) (txs : List Tx) (height : UInt32) (ownHash ancestorHash : Nat)
+    (hc : bip30BlockCollision (viewOf l) kf txs height = true)
+    (he : bip30EnforcedAtHashes height ownHash ancestorHash = true) :
+    applyBlockExactL l kf txs height ownHash ancestorHash =
+      Except.error BlockError.badTxnsBIP30 := by
+  unfold applyBlockExactL
+  rw [if_pos (by simp [hc, he])]
+
 /-! ### Frozen canonical wrappers (the frozen interface surface, now on the kf fold)
 
 The frozen `applyBlock` took no key: the ledger's actual keying rule
@@ -597,6 +649,24 @@ def applyBlock (u : UtxoSet) (txs : List Tx) (height : UInt32) :
 def applyBlockExec (l : List (OutPoint × Coin)) (txs : List Tx) (height : UInt32) :
     Except BlockError (List (OutPoint × Coin)) :=
   applyBlockL l txidPreimageKey txs height
+
+/-- The BLK-005 key at the ledger seam: coins are keyed by the real
+double-SHA256 txid (`Bitcoin.DataLaws.txid`), not by the base-serialization
+preimage. The hash floor is real (not an opaque stub), so this key can be
+used by the executable connection path without tainting its theorems. -/
+@[rule "BLK-005"]
+def txidKeyReal (tx : Tx) : Key := fun _ k => ⟨Bitcoin.DataLaws.txid tx, k⟩
+
+/-- Hash-aware, real-txid block fold used by the connection path. The
+pristine BIP30 loop and the coin keys both use Core's actual identities. -/
+def applyBlockTxid (u : UtxoSet) (txs : List Tx) (height : UInt32)
+    (ownHash ancestorHash : Nat) : Except BlockError UtxoSet :=
+  applyBlockExactU u txidKeyReal txs height ownHash ancestorHash
+
+/-- Executable twin of `applyBlockTxid`. -/
+def applyBlockExecTxid (l : List (OutPoint × Coin)) (txs : List Tx) (height : UInt32)
+    (ownHash ancestorHash : Nat) : Except BlockError (List (OutPoint × Coin)) :=
+  applyBlockExactL l txidKeyReal txs height ownHash ancestorHash
 
 /-- The frozen wrapper IS the general fold at `txidPreimageKey`. -/
 theorem applyBlock_abstract (u : UtxoSet) (txs : List Tx) (height : UInt32) :

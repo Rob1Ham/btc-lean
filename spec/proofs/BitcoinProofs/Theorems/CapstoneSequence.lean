@@ -295,9 +295,14 @@ theorem validateBlockInContext_stages {raw : ByteArray} {st : CapState}
         have stage : applyContextualBlockTransactions ctx facts st.height txs st.utxo
             (candidateScriptFlags st.height header) = .ok (u, a, b) :=
           applyBlockTransactionsWithSigops_projection ht
-        simp only [ht, ebind_ok, epure_ok, Except.ok.injEq] at h
-        subst report
-        exact ⟨header, txs, facts, rfl, hc, bool_not_false finality, stage, rfl, rfl⟩
+        simp only [ht, ebind_ok, epure_ok] at h
+        simp only [Option.isSome_some, Bool.true_and] at h
+        by_cases hb : b = 0
+        · simp [hb] at h
+          subst b
+          subst report
+          exact ⟨header, txs, facts, rfl, hc, bool_not_false finality, stage, rfl, rfl⟩
+        · simp [hb] at h
 
 /-- Actual public acceptance implies all absolute locks and every relative
 lock in the evolving UTXO trace, plus the same checked-fee/subsidy bound. -/
