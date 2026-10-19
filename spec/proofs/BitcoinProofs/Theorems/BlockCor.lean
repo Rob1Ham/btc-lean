@@ -212,6 +212,7 @@ theorem blockSigOpCostOk_eq_false_iff (u : UtxoSet) (vtx : List Tx) :
   rw [blockSigOpCost_fold_eq_sum]
   exact Nat.not_le
 
+set_option maxHeartbeats 1000000 in
 /-- The REAL genesis block passes the cumulative ConnectBlock sigop
 budget over an empty UTXO view — decided through the actual byte scan of
 the genesis scriptSig (0 sigops: pushes only) and scriptPubKey (1

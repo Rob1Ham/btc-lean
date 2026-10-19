@@ -113,11 +113,13 @@ theorem p2shSigOpCount_nonpush (ss : ByteArray) (ops : List WireOp)
 program counts the ACCURATE sigops of the last witness item. -/
 theorem witnessSigOps_v0_32 (prog script : ByteArray) (witness : WitnessStack)
     (ops : List WireOp) (h32 : prog.size = 32)
-    (hlast : witness.getLast? = some script) (hparse : parseWire script = some ops) :
+    (hlast : witness.getLast? = some script) (hparse : parseWire script = some ops)
+    (hall : SigOps.WireOpsWithinLimit ops) :
     witnessSigOps 0 prog witness = sigOpCount ops true := by
   unfold witnessSigOps
   rw [ite_eq_left rfl, ite_eq_right (by omega : ¬ prog.size = 20), ite_eq_left h32]
-  simp [hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse, sigOpCount, SigOps.sigOpCount]
+  simp [hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse hall,
+    sigOpCount, SigOps.sigOpCount]
 
 /-- **SCR-035** other-size lane: neither 20 nor 32 ⇒ 0. -/
 theorem witnessSigOps_v0_other (prog : ByteArray) (witness : WitnessStack)

@@ -55,6 +55,8 @@ private def checks : List (String × Nat × Nat) :=
    ("truncated PUSHDATA1 payload retains prefix", raw [0x52, 0xae, 0x4c, 2, 0xac], 2),
    ("truncated PUSHDATA2 length retains prefix", raw [0xad, 0x4d, 1], 1),
    ("truncated PUSHDATA4 length retains prefix", raw [0xaf, 0x4e, 0, 0, 0], 20),
+   ("520-byte PUSHDATA2 is still counted", raw ([0xac, 0x4d, 0x08, 0x02] ++ List.replicate 520 0 ++ [0xac]), 2),
+   ("oversize PUSHDATA2 stops at the valid prefix", raw ([0xac, 0x4d, 0x09, 0x02] ++ List.replicate 521 0 ++ [0xac]), 1),
    ("P2SH redeem bytes are counted directly", p2shSigOpCount (wrapped (bytes [0x52, 0xae])), 2),
    ("P2SH valid redeem prefix survives", Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps (wrapped (bytes [0xac, 0x4c])), 1),
    ("P2SH non-push prefix is rejected", Bitcoin.TxValidation.SigOpsCost.p2shScriptSigSigOps (bytes [0x76] ++ wrapped (bytes [0xac])), 0),

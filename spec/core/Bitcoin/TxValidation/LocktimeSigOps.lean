@@ -232,12 +232,14 @@ two non-accurate per-script counts (tx_verify.cpp:118-130). -/
 theorem txLegacySigOps_one_in_out (tx : Bitcoin.Data.Tx) (i : TxIn) (o : TxOut)
     (sOps pOps : List WireOp)
     (hs : parseWire i.scriptSig.bytes = some sOps)
-    (hp : parseWire o.scriptPubKey.bytes = some pOps) :
+    (hp : parseWire o.scriptPubKey.bytes = some pOps)
+    (hsl : SigOps.WireOpsWithinLimit sOps)
+    (hpl : SigOps.WireOpsWithinLimit pOps) :
     txLegacySigOps { tx with vin := [i], vout := [o] } =
       sigOpCount sOps false + sigOpCount pOps false := by
   unfold txLegacySigOps
-  simp [SigOps.scriptSigOpCount, SigOps.parseWirePrefix_of_parse _ _ hs,
-    SigOps.parseWirePrefix_of_parse _ _ hp, sigOpCount]
+  simp [SigOps.scriptSigOpCount, SigOps.parseWirePrefix_of_parse _ _ hs hsl,
+    SigOps.parseWirePrefix_of_parse _ _ hp hpl, sigOpCount]
 
 /-- `+`-fold as the sum of the mapped values (the general Σ shape). -/
 private theorem foldl_add_map_sum {α : Type} (l : List α) (f : α → Nat) :
