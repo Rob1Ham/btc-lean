@@ -93,7 +93,8 @@ The issue-22 failure set is now repaired. Modules fixed on this branch:
   This module peaks at about 5.3 GB RSS, so CI builds it in a separate hosted
   job with `LEAN_NUM_THREADS=1` rather than alongside the default closure.
 - `BitcoinProofs.Theorems.Audit.CV02` — monolithic `rfl` replaced with bounded
-  parse/step lemmas; no heartbeat blowup.
+  parse/step lemmas; no heartbeat blowup. It peaks at about 6.5 GB RSS, so CI
+  builds it in a separate hosted job with `LEAN_NUM_THREADS=1`.
 
 Additional regressions from the `State` field extension (`opcodeIndex`,
 `codeSepPos`) and the `ScriptChecker` field extension were also repaired:

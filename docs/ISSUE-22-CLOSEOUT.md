@@ -78,9 +78,9 @@ The seven issue-22 audit modules were built by exact name:
 | `BitcoinProofs.EcdsaDeep.S02Flip` | 49 |
 | `BitcoinProofs.Theorems.Audit.CV02` | 26 |
 
-CI builds `S02Flip` in a separate job: its measured peak resident set is about
-5.3 GB, so it is not run alongside the default-closure build on a hosted
-runner. The build itself is unchanged.
+CI builds `S02Flip` and `CV02` in separate jobs: their measured peak resident
+sets are about 5.3 GB and 6.5 GB, so they are not run alongside the
+default-closure build on a hosted runner. The builds themselves are unchanged.
 
 The closing targets were also built by exact name. `PDW50` and
 `CapstoneFunding` are in the default closure; the other ten are additionally
