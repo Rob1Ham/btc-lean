@@ -489,6 +489,43 @@ theorem evalScriptBytes_opReturn (fuel : Nat) (flags : ScriptFlags)
     rfl rfl rfl (by decide) (by decide)]
   rfl
 
+/-- SCR-070 (general OP_RETURN head): any parsed script whose first opcode is
+OP_RETURN fails at the second evaluation with `OP_RETURN`, independent of the
+rest of the script.  The parse-success premise is the model's all-or-nothing
+parser boundary; the first opcode is executed before any later opcode. -/
+@[rule "SCR-070"]
+theorem evalScriptBytes_opReturn_of_parse {fuel : Nat} {flags : ScriptFlags}
+    {pol : PolicyFlags} {b : ByteArray} {ops : List WireOp}
+    {chk : ScriptChecker} {ed : ScriptExecutionData}
+    (hb : b.size ≤ MAX_SCRIPT_SIZE)
+    (hp : parseWire b = some
+      ({ ast := Opcode.op ⟨0x6a, by decide⟩, wire := 0x6a, next := 1 } :: ops)) :
+    evalScriptBytes (fuel + 1) flags pol b [] chk .base ed = .error .opReturn := by
+  unfold evalScriptBytes
+  have hsz : ¬((SigVersion.base = .base ∨ SigVersion.base = .witnessV0) ∧
+      MAX_SCRIPT_SIZE < b.size) := by
+    intro h; omega
+  rw [if_neg hsz, hp]
+  change finalStack (evalFrom
+    ⟨flags, pol, chk, .base, b, ed⟩ (fuel + 1)
+    ({ ast := Opcode.op ⟨0x6a, by decide⟩, wire := 0x6a, next := 1 } :: ops)
+    init0) = .error .opReturn
+  rw [evalFrom_opReturn_head ⟨flags, pol, chk, .base, b, ed⟩ fuel
+    { ast := Opcode.op ⟨0x6a, by decide⟩, wire := 0x6a, next := 1 } ops init0
+    rfl rfl rfl (by decide) (by decide)]
+  rfl
+
+/-- SCR-070 (general oversize): any script longer than the 10,000-byte cap
+fails the second evaluation with `SCRIPT_SIZE`, independent of its bytes. -/
+@[rule "SCR-070"]
+theorem evalScriptBytes_oversize_of_size {fuel : Nat} {flags : ScriptFlags}
+    {pol : PolicyFlags} {b : ByteArray} {st0 : Stack} {chk : ScriptChecker}
+    {sv : SigVersion} {ed : ScriptExecutionData}
+    (hb : MAX_SCRIPT_SIZE < b.size) (hsv : sv = .base ∨ sv = .witnessV0) :
+    evalScriptBytes fuel flags pol b st0 chk sv ed = .error .scriptSize := by
+  unfold evalScriptBytes
+  rw [if_pos ⟨hsv, hb⟩]
+
 /-! ### Oversize scripts are unspendable -/
 
 theorem evalScriptBytes_oversize_10001 (fuel : Nat) (flags : ScriptFlags)
@@ -558,6 +595,36 @@ theorem verifyScriptFull_oversize (flags : ScriptFlags) (pol : PolicyFlags)
   · exact verifyScriptFull_empty_pre _ pol rfl
   · exact evalScriptBytes_empty 10001 flags pol chk default
   · exact evalScriptBytes_oversize_10001 10001 flags pol chk default
+
+/-- SCR-070 (general OP_RETURN verifier): a parsed script beginning with
+OP_RETURN fails spending even when the script is not the one-byte singleton. -/
+@[rule "SCR-070"]
+theorem verifyScriptFull_opReturn_of_parse (flags : ScriptFlags) (pol : PolicyFlags)
+    (witness : Bitcoin.Data.WitnessStack) (chk : ScriptChecker)
+    (spk : ByteArray) (ops : List WireOp)
+    (hsize : spk.size ≤ MAX_SCRIPT_SIZE)
+    (hparse : parseWire spk = some
+      ({ ast := Opcode.op ⟨0x6a, by decide⟩, wire := 0x6a, next := 1 } :: ops)) :
+    verifyScriptFull 10001 flags pol ByteArray.empty spk witness chk =
+      .fail .opReturn := by
+  apply verifyScriptFull_second_eval_fail (stack1 := [])
+  · exact verifyScriptFull_empty_pre _ pol rfl
+  · exact evalScriptBytes_empty 10000 flags pol chk default
+  · exact evalScriptBytes_opReturn_of_parse (fuel := 10000) hsize hparse
+
+/-- SCR-070 (general oversize verifier): any output script beyond the
+10,000-byte cap fails spending, independent of its contents. -/
+@[rule "SCR-070"]
+theorem verifyScriptFull_oversize_of_size (flags : ScriptFlags) (pol : PolicyFlags)
+    (witness : Bitcoin.Data.WitnessStack) (chk : ScriptChecker)
+    (spk : ByteArray) (hsize : MAX_SCRIPT_SIZE < spk.size) :
+    verifyScriptFull 10001 flags pol ByteArray.empty spk witness chk =
+      .fail .scriptSize := by
+  apply verifyScriptFull_second_eval_fail (stack1 := [])
+  · exact verifyScriptFull_empty_pre _ pol rfl
+  · exact evalScriptBytes_empty 10000 flags pol chk default
+  · exact evalScriptBytes_oversize_of_size (fuel := 10001)
+      (b := spk) (st0 := []) (sv := .base) hsize (Or.inl rfl)
 
 /-! ### The 10,000-byte non-OP_RETURN witness is spendable -/
 

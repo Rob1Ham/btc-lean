@@ -53,11 +53,12 @@ proof of correctness; it is a hygiene gate.
 Core anchor, and a Lean target. The kernel checks the target; it does not
 prove that the target's conclusion is a faithful paraphrase of the summary.
 
-Statement fidelity is a review obligation. Eighteen rows have a known gap
-between the cited target and the row summary; they are listed with the missing
-link in [`RESIDUALS.md`](RESIDUALS.md). A `proven` status is therefore not a
-claim that every relevant Bitcoin behaviour is modelled, and it is not a count
-of theorem declarations. Six former residual rows (INV-046, SCR-008, INV-114,
+Statement fidelity is a review obligation. The issue-22 ledger has **0 open
+rows**: eighteen former gaps between the cited target and the row summary were
+closed, and the closing targets are recorded in
+[`RESIDUALS.md`](RESIDUALS.md) and [`ISSUE-22-CLOSEOUT.md`](ISSUE-22-CLOSEOUT.md).
+A `proven` status is therefore still not a claim that every relevant Bitcoin
+behaviour is modelled, and it is not a count of theorem declarations. Six former residual rows (INV-046, SCR-008, INV-114,
 INV-115, INV-119, INV-138) are out-of-ledger obligations after the issue 22
 triage — two were already policy rows, four are node/API rows retagged
 `consensus: false` — so their statement-fidelity gaps are no longer counted as

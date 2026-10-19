@@ -284,6 +284,67 @@ theorem disconnectBlock_three (u : UtxoSet) (height : UInt32)
               u1 t1 (txidPreimageKey t1) height) height cb o))) := by
   simp [disconnectBlock, disconnectTxs]
 
+/-- The UTXO state produced by the reverse disconnect fold, ignoring the
+per-output cleanliness flag. -/
+def disconnectFoldUndo (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) : UtxoSet :=
+  match pairs with
+  | [] => u
+  | (tx, undo?) :: rest =>
+      disconnectFoldUndo height
+        (match undo? with
+         | some undo => undoCoins u undo tx (txidPreimageKey tx) height
+         | none => u) rest
+
+/-- The conjunction of every per-output cleanliness check in the reverse
+disconnect fold. -/
+def disconnectClean (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) : Bool :=
+  match pairs with
+  | [] => true
+  | (tx, undo?) :: rest =>
+      (List.range tx.vout.length).all (fun o => outputCoinClean u height tx o) &&
+      disconnectClean height
+        (match undo? with
+         | some undo => undoCoins u undo tx (txidPreimageKey tx) height
+         | none => u) rest
+
+/-- The reverse fold is precisely `disconnectFoldUndo` paired with the
+conjunction of every output check. -/
+theorem disconnectTxs_eq_fold (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) :
+    disconnectTxs height u pairs =
+      (disconnectFoldUndo height u pairs, disconnectClean height u pairs) := by
+  induction pairs generalizing u with
+  | nil => rfl
+  | cons p rest ih =>
+    obtain ⟨tx, undo?⟩ := p
+    cases undo? with
+    | none =>
+      simp [disconnectTxs, disconnectFoldUndo, disconnectClean, ih]
+    | some undo =>
+      simp [disconnectTxs, disconnectFoldUndo, disconnectClean, ih]
+
+/-- **INV-117 (arbitrary-length reverse fold).**  For any block whose undo
+list has one fewer entry than its transaction list, `disconnectBlock` is the
+reverse zip of the transactions with `some undo` for every non-coinbase
+transaction and `none` for the coinbase.  The resulting UTXO state is
+`disconnectFoldUndo` on that reverse zip; the verdict is the conjunction
+`disconnectClean` of every per-output check, each using the view produced by
+the previously undone (later) transaction.  `outputCoinClean` expands to the
+value/script/height/coinbase comparison or the two BIP30 exception lanes. -/
+@[rule "INV-117"]
+theorem disconnectBlock_inv117_fold (u : UtxoSet) (height : UInt32)
+    (txs : List Tx) (undos : List (List (OutPoint × Coin)))
+    (hlen : undos.length + 1 = txs.length) :
+    disconnectBlock u height txs undos =
+      .ok (disconnectFoldUndo height u
+            (txs.reverse.zip (undos.reverse.map some ++ [none])),
+          disconnectClean height u
+            (txs.reverse.zip (undos.reverse.map some ++ [none]))) := by
+  unfold disconnectBlock
+  rw [if_neg (by omega), disconnectTxs_eq_fold]
+
 /-- BLK-106 (two-transaction block): the single non-coinbase transaction
 is checked under its own key and undone with its batch; the coinbase
 outputs are re-checked against the post-undo view. -/

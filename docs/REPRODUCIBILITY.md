@@ -120,7 +120,7 @@ and compiles mathlib and may take a long time and several GiB:
 cd spec/proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
-# validated on 2026-10-18: 1,732 jobs.
+# validated on 2026-10-19: 1,733 jobs.
 ```
 
 Do not use a bare `lake build`: it builds the default target and makes the
@@ -143,10 +143,10 @@ lake test
 
 | Build | Target | Jobs | Result |
 |---|---|---:|---|
-| Lean core | `Bitcoin` | 72 | success |
+| Lean core | `Bitcoin` | 149 | success (2026-10-19) |
 | Proof root (historical) | `BitcoinProofs` | 1722 | success (29-module closure at that build) |
-| Proof root | `BitcoinProofs` | 1,732 jobs | validated 2026-10-18 (37-module closure) |
-| Proof modules outside default closure | exact module names | — | recorded 373 pass / 7 fail (380 modules), with `AF.PDW62b.PDW62b` repaired; see `docs/PROOF-BUILD.md` |
+| Proof root | `BitcoinProofs` | 1,733 jobs | validated 2026-10-19 (38-module closure) |
+| Proof modules outside default closure | exact module names | — | combined recorded 386 pass / 2 fail over today's 388 modules (prior run plus eight new modules; one deliberate probe, one post-audit API-drift module); see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
 
@@ -201,6 +201,7 @@ git-lfs is used.
 * The forty tagged wallet rows include three with partial obligations; 99 rows
   are in the obligation register. See `docs/WALLET.md` and
   `docs/WALLET-OBLIGATIONS.md`.
-* Eighteen consensus rows are explicit model residuals. See
-  `docs/RESIDUALS.md`.
+* The issue-22 statement-fidelity ledger has 0 open residuals; the eighteen
+  former gaps are archived in `docs/RESIDUALS.md`, with evidence in
+  `docs/ISSUE-22-CLOSEOUT.md`.
 * No external security audit or certification is claimed.

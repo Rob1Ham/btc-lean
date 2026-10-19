@@ -34,16 +34,18 @@ python3 spec/scripts/residuals_index.py --check
 `core_correspondence_check.py` requires every proven row with
 `consensus: true` to carry a Core anchor at the pinned commit and a Lean
 target, and rejects the six out-of-ledger rows if they are still marked
-`consensus: true`.
+`consensus: true`. The closeout run passes for all **611** proven consensus
+rows.
 
 ## Statement fidelity
 
 Statement fidelity is the semantic half: the Lean theorem must state the
 whole Core rule, including both accept and reject branches. The current
-per-row review is [`RESIDUALS.md`](RESIDUALS.md). When that ledger is empty,
-the remaining claim is still conditional on the reviewed row summaries and
-the model's representation choices; it is not a proof that the model's data
-types are Core's C++ types. In particular:
+per-row review is [`RESIDUALS.md`](RESIDUALS.md); its closeout state is **0
+open residuals**, with the closing targets recorded in
+[`ISSUE-22-CLOSEOUT.md`](ISSUE-22-CLOSEOUT.md). The remaining claim is still
+conditional on the reviewed row summaries and the model's representation
+choices; it is not a proof that the model's data types are Core's C++ types. In particular:
 
 - `core_ref` is a citation, not a verified translation;
 - `lean_target` is an index into the proof surface, not a paraphrase claim;

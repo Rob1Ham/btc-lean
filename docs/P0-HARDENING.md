@@ -44,7 +44,7 @@ and are not re-applied here.
 ## Evidence
 
 - `cd spec/core && lake build` — 149 jobs.
-- `cd spec/proofs && lake build BitcoinProofs` — 1,732 jobs.
+- `cd spec/proofs && lake build BitcoinProofs` — 1,733 jobs.
 - `spec/core/Test/Capstone/Bip30.lean` — 27/27 checks, including the new
   ledger-level fork collision checks.
 - `spec/core/Test/Capstone/TaprootBlocks.lean` — 8/8 checks; valid real

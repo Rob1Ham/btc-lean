@@ -15,13 +15,16 @@ row-by-row rule census in
 `spec/db/rules.yaml`: each row records a Bitcoin Core reference, a BIP/CVE
 attribution, the Lean declaration that carries the row's `@[rule "<ID>"]`
 tag, and its test-vector selectors. The consensus census has **726 rows:
-676 proven and 50 obsolete**, with no implemented or planned rows. Eighteen
-of the proven rows are **explicit model residuals**: the row claim is true of
-Bitcoin Core, but the current Lean model does not yet entail it. They are
-listed in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and the generated
-[`docs/RESIDUALS-EVIDENCE.md`](docs/RESIDUALS-EVIDENCE.md); six further
-former residual rows are out-of-ledger (node/API or policy) obligations
-named in the same page (issue 22 triage). A second, independent
+676 proven and 50 obsolete**, with no implemented or planned rows. The
+issue-22 statement-fidelity ledger is **closed at 0 open residuals**: all
+eighteen former gaps now name a closing theorem whose statement covers the
+identified missing link. The closed archive and the generated evidence matrix
+are in [`docs/RESIDUALS.md`](docs/RESIDUALS.md) and
+[`docs/RESIDUALS-EVIDENCE.md`](docs/RESIDUALS-EVIDENCE.md); the build, gate,
+and anchor evidence is in
+[`docs/ISSUE-22-CLOSEOUT.md`](docs/ISSUE-22-CLOSEOUT.md). Six further former
+residual rows are out-of-ledger (node/API or policy) obligations named in the
+same page (issue 22 triage). A second, independent
 wallet census (`spec/db/rules-wallet.yaml`, **140 rows**) records wallet
 construction and signing behaviour; it has its own gates and is never merged
 into the consensus census. This is a model of consensus rules, not an
@@ -65,9 +68,10 @@ the theorem index lists the proven boundary rows separately from the proven
 consensus rows. `proven` means the row has a named Lean target and passes the
 traceability gates; it does not by itself assert byte-for-byte equivalence with
 Bitcoin Core (see
-[Scope and non-claims](#scope-and-non-claims)). The 18 explicit residuals are
-counted in `proven` but are not claims of Core equivalence;
-`docs/RESIDUALS.md` is authoritative for that list.
+[Scope and non-claims](#scope-and-non-claims)). The issue-22
+statement-fidelity ledger is closed at 0 open rows; the eighteen former
+gaps are archived in `docs/RESIDUALS.md`, with build and replay evidence in
+`docs/ISSUE-22-CLOSEOUT.md`. Closure is not a claim of Core equivalence.
 
 ### Wallet census (separate)
 
@@ -113,8 +117,8 @@ lake test
 cd ../proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
-# validated on 2026-10-18: 1,732 jobs.
-# This is the 37-module default import closure, not all 417 proof modules.
+# validated on 2026-10-19: 1,733 jobs.
+# This is the 38-module default import closure, not all 426 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
@@ -217,7 +221,7 @@ The script runs the wallet static battery, the 140-anchor census when
 | `spec/data/` | Size-bounded in-tree corpus subset with a checksum manifest; the larger data-only corpus payload and anchor blocks are checksum-pinned release assets. |
 | `spec/runners/` | Executable corpus and wallet-differential runners. |
 | `release/` | Data-release transport checksums and README; the archive and content manifest are release assets. |
-| `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md` and the generated evidence matrix), generated theorem and wallet indexes (`THEOREMS.md`, `WALLET-THEOREMS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
+| `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md` and the generated evidence matrix), the issue-22 closeout record (`ISSUE-22-CLOSEOUT.md`), generated theorem and wallet indexes (`THEOREMS.md`, `WALLET-THEOREMS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
 | `docs/HARNESS.md` | The source/data boundary and the remaining harness/corpus reproducibility gap. |
 | `docs/research/` | Selected 2026-10-16 survey notes on mechanized models, conformance, the theorem portfolio, and the formality ladder. |
 
@@ -255,23 +259,25 @@ The script runs the wallet static battery, the 140-anchor census when
   rows carry tags, 99 appear in the obligation register, and four have
   corrected statements without a proof. Wallet results are not consensus
   results and are never added to the 726-row denominator.
-- **Eighteen consensus rows are explicit model residuals.** Their Core
-  behaviour is retained as the row claim, but the current Lean model does not
-  entail it. They are listed with the missing link in `docs/RESIDUALS.md`;
-  `status: proven` refers to the cited Lean target, not to Core equivalence.
-  Six former residual rows (INV-046, SCR-008, INV-114, INV-115, INV-119,
-  INV-138) are out-of-ledger obligations — the two policy rows were never
-  consensus, and the four node/API rows were retagged `consensus: false` in
-  the issue 22 triage — with their census rows, targets, and open
-  obligations kept; no underlying residual statement is claimed proved.
+- **The issue-22 statement-fidelity ledger is closed at 0 open rows.** The
+  eighteen former residuals now name closing targets in
+  `docs/RESIDUALS.md` and are recorded with build and replay evidence in
+  `docs/ISSUE-22-CLOSEOUT.md`. Closure means the target now states the
+  missing link and builds; `status: proven` still refers to the cited Lean
+  target, not to Core equivalence. Six former residual rows (INV-046,
+  SCR-008, INV-114, INV-115, INV-119, INV-138) are out-of-ledger obligations
+  — the two policy rows were never consensus, and the four node/API rows were
+  retagged `consensus: false` in the issue 22 triage — with their census
+  rows, targets, and open obligations kept; no underlying residual statement
+  is claimed proved.
 - **No external audit or certification is claimed.** The residual and review
   records are internal evidence. No third-party security audit,
   certification, or endorsement is asserted.
 - **`proven` is a kernel claim about a stated Lean proposition.** It is not a
   claim that the proposition captures every relevant Bitcoin behaviour, and
   it is not a theorem-declaration count. Statement fidelity remains a review
-  obligation; `docs/RESIDUALS.md` lists the row-level residuals and
-  `docs/TCB.md` records the permanent trust boundary.
+  obligation; `docs/RESIDUALS.md` records the closed issue-22 archive and the
+  zero open count, and `docs/TCB.md` records the permanent trust boundary.
 - **The obsolete count is a disposition, not a deletion.** Retired rows stay
   visible so the census denominator and the audit trail remain stable.
 

@@ -268,7 +268,7 @@ rules:
   check: "OP_CHECKLOCKTIMEVERIFY semantics"
   core_ref: "interpreter.cpp:OP_CLTV:556–567 + CheckLockTime:1755–1788@cce32b168"
   bip_cve: "BIP65"
-  lean_target: "BitcoinProofs.AF.PDW68x.cltv_accept_iff"
+  lean_target: BitcoinProofs.AF.PDW68xPath.stepBody_cltv_path
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -279,7 +279,7 @@ rules:
   check: "OP_CHECKSEQUENCEVERIFY semantics"
   core_ref: "interpreter.cpp:OP_CSV:584–599 + CheckSequence:1792–1836@cce32b168"
   bip_cve: "BIP112"
-  lean_target: "BitcoinProofs.AF.PDW68x.csv_accept_iff"
+  lean_target: BitcoinProofs.AF.PDW68xPath.stepBody_csv_path
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -656,7 +656,7 @@ rules:
   check: "OP_CODESEPARATOR positions in sighash scriptCode"
   core_ref: "interpreter.cpp:1281–1290,1058–1061@cce32b168"
   bip_cve: "Satoshi/CONST_SCRIPTCODE"
-  lean_target: "Bitcoin.SigHash.findAndDeleteL_codeSep_eq"
+  lean_target: BitcoinProofs.Theorems.Ops.INV057.codesep_position_commit
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -1319,7 +1319,7 @@ rules:
   check: "DisconnectBlock consistency (outputs match, BIP30 exceptions)"
   core_ref: "validation.cpp:DisconnectBlock:2178–2247@cce32b168"
   bip_cve: "BIP30"
-  lean_target: "Bitcoin.Block.Params.disconnectBlock_inv117"
+  lean_target: "Bitcoin.Block.Params.disconnectBlock_inv117, Bitcoin.Block.Params.disconnectBlock_inv117_fold"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -2304,7 +2304,7 @@ rules:
   check: "Altstack counts in stack limit"
   core_ref: "interpreter.cpp:EvalScript:1232@cce32b168"
   bip_cve: "—"
-  lean_target: "Bitcoin.Interpreter.Defs.evalScriptBytes_ok_stack_bound"
+  lean_target: Bitcoin.Interpreter.evalScriptBytes_ok_stack_alt_bound
   test_vector_ids: []
   status: proven
   difficulty: 1
@@ -2705,7 +2705,7 @@ rules:
   check: "OP_VER/OP_RESERVED/RESERVED1/2 fail executed"
   core_ref: "interpreter.cpp:EvalScript:1227-1228@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW67b.stepBody_opVer_unexecuted"
+  lean_target: "BitcoinProofs.AF.PDW67bG.stepBody_reserved_executed_badOpcode, BitcoinProofs.AF.PDW67bG.stepBody_reserved_unexecuted_skip"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2716,7 +2716,7 @@ rules:
   check: "No IF nesting limit beyond op budget"
   core_ref: "interpreter.cpp:EvalScript:460-464@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW88.stepBody_if_counts_opcode"
+  lean_target: "BitcoinProofs.AF.PDW88b.stepBody_notif_counts_opcode, BitcoinProofs.AF.PDW88b.stepBody_notif_unexecuted_counts, BitcoinProofs.AF.PDW88.stepBody_if_counts_opcode, BitcoinProofs.AF.PDW88b.stepBody_notif_counts_opcode_base_nonempty, BitcoinProofs.AF.PDW88b.stepBody_notif_opCount_reject"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2749,7 +2749,7 @@ rules:
   check: "OP_RETURN unspendable classification"
   core_ref: "script.h:IsUnspendable:564-567@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.PDW9.scriptUnspendable_of_oversize"
+  lean_target: "BitcoinProofs.AF.PDW9.UnspendableSpend.verifyScriptFull_opReturn, BitcoinProofs.AF.PDW9.UnspendableSpend.verifyScriptFull_oversize, BitcoinProofs.AF.PDW9.UnspendableSpend.verifyScriptFull_opReturn_of_parse, BitcoinProofs.AF.PDW9.UnspendableSpend.verifyScriptFull_oversize_of_size"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2794,7 +2794,7 @@ rules:
   check: "2DROP..TUCK arity checks"
   core_ref: "interpreter.cpp:705-880@cce32b168"
   bip_cve: "—"
-  lean_target: "BitcoinProofs.AF.PDW79.stepBody_depth_check"
+  lean_target: "BitcoinProofs.AF.PDW79b.stepBody_2drop_depth, BitcoinProofs.AF.PDW79b.stepBody_2dup_depth, BitcoinProofs.AF.PDW79b.stepBody_3dup_depth, BitcoinProofs.AF.PDW79b.stepBody_2over_depth, BitcoinProofs.AF.PDW79b.stepBody_2rot_depth, BitcoinProofs.AF.PDW79b.stepBody_2swap_depth, BitcoinProofs.AF.PDW79b.stepBody_ifdup_depth, BitcoinProofs.AF.PDW79b.stepBody_drop_depth, BitcoinProofs.AF.PDW79b.stepBody_dup_depth, BitcoinProofs.AF.PDW79b.stepBody_nip_depth, BitcoinProofs.AF.PDW79b.stepBody_over_depth, BitcoinProofs.AF.PDW79b.stepBody_pick_depth, BitcoinProofs.AF.PDW79b.stepBody_roll_depth, BitcoinProofs.AF.PDW79b.stepBody_rot_depth, BitcoinProofs.AF.PDW79b.stepBody_swap_depth, BitcoinProofs.AF.PDW79b.stepBody_tuck_depth"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -2926,7 +2926,7 @@ rules:
   check: "getint clamping"
   core_ref: "script.h:326-333@cce32b168"
   bip_cve: "—"
-  lean_target: "Bitcoin.Numeric.getIntClamped"
+  lean_target: "BitcoinProofs.AF.PDW86Clamp.stepBody_pick_ok_clamped, BitcoinProofs.AF.PDW86Clamp.stepBody_roll_ok_clamped, BitcoinProofs.AF.PDW86Clamp.checkMultiSig_key_count_clamped, BitcoinProofs.AF.PDW86Clamp.checkMultiSig_sig_count_clamped"
   test_vector_ids: []
   status: proven
   difficulty: 3
@@ -4661,7 +4661,7 @@ rules:
   check: "per-input, running input-sum, and fee MoneyRange"
   core_ref: "amount.h:12–15@cce32b168"
   bip_cve: "CVE-2010-5137"
-  lean_target: "Bitcoin.TxValidation.LocktimeSigOps.amountArithmetic_i64"
+  lean_target: "Bitcoin.TxValidation.LocktimeSigOps.amountArithmetic_i64, BitcoinProofs.Theorems.CapstoneFunding.applyTxsWithFees_i64_final, BitcoinProofs.Theorems.CapstoneFunding.applyTxWithFeeCheck_i64_step"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -6446,7 +6446,7 @@ rules:
   check: "P2WSH sigop counting"
   core_ref: "interpreter.cpp:2139-2142@cce32b168"
   bip_cve: "141"
-  lean_target: "BitcoinProofs.AF.PDW19.witnessSigOps_p2wsh"
+  lean_target: "Bitcoin.Interpreter.SigOps.witnessScriptSigOps_eq_coreSigOpCount, Bitcoin.Interpreter.SigOps.coreSigOpCount_oversize_push_head"
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -6985,7 +6985,7 @@ rules:
   check: "Key-path condition"
   core_ref: "interpreter.cpp:1970-1975@cce32b168"
   bip_cve: "341"
-  lean_target: "BitcoinProofs.AF.PDW25.classifySpend_one_keyPath"
+  lean_target: BitcoinProofs.AF.PDW25.TPR007.keyPath_one_element_bip340
   test_vector_ids: []
   status: proven
   difficulty: 2
@@ -7692,7 +7692,7 @@ rules:
   check: Annex counts toward weight
   core_ref: interpreter.cpp:1991 (whole stack serialized); consensus/validation.h:150@cce32b168
   bip_cve: '341'
-  lean_target: Bitcoin.Crypto.Taproot.Program.validationWeightInit_annex_included
+  lean_target: BitcoinProofs.Theorems.Ops.TPR071.txWeight_annex_witness_contribution
   test_vector_ids: []
   status: proven
   difficulty: 2
