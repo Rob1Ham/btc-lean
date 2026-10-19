@@ -228,10 +228,11 @@ theorem p2shScriptSigSigOps_redeem_parsed (ss : ByteArray) (ops : List WireOp)
     (hp : parseWire ss = some ops) (hpush : isPushOnlyWire ops = true)
     (last : WireOp) (d : ByteArray) (rops : List WireOp)
     (hl : ops.getLast? = some last) (hast : last.ast = .pushBytes d)
-    (hd : parseWire d = some rops) :
+    (hd : parseWire d = some rops)
+    (hall : SigOps.WireOpsWithinLimit rops) :
     p2shScriptSigSigOps ss = accurateSigOpCount rops := by
   rw [p2shScriptSigSigOps_push_redeem ss ops hp hpush last d hl hast]
-  exact SigOps.witnessScriptSigOps_of_parse d rops hd
+  exact SigOps.witnessScriptSigOps_of_parse d rops hd hall
 
 /-- The P2SH-gate law (tx_verify.cpp:132-147): for a non-coinbase
 one-input tx whose prevout is NOT P2SH (or unresolved = null Coin),

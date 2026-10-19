@@ -39,6 +39,9 @@ Run from `spec/proofs` after `lake build BitcoinProofs.AF.PDW50.PDW50`.
 /-- info: 'BitcoinProofs.AF.PDW50.merkleLevel_singleton' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW50.merkleLevel_singleton
 
+/-- info: 'BitcoinProofs.AF.PDW50.merkleLevel_append_singleton' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms BitcoinProofs.AF.PDW50.merkleLevel_append_singleton
+
 /-- info: 'BitcoinProofs.AF.PDW50.merkleLevel_length' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms BitcoinProofs.AF.PDW50.merkleLevel_length
 

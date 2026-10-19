@@ -31,10 +31,12 @@ theorem witnessSigOps_v1_zero_row (v : Nat) (program : ByteArray)
 
 theorem witnessSigOps_v0_32 (witness : WitnessStack) (prog script : ByteArray)
     (ops : List WireOp) (h32 : prog.size = 32)
-    (hlast : witness.getLast? = some script) (hparse : parseWire script = some ops) :
+    (hlast : witness.getLast? = some script) (hparse : parseWire script = some ops)
+    (hall : SigOps.WireOpsWithinLimit ops) :
     witnessSigOps 0 prog witness = sigOpCount ops true := by
   unfold witnessSigOps
-  simp [h32, hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse, sigOpCount, SigOps.sigOpCount]
+  simp [h32, hlast, SigOps.witnessScriptSigOps_of_parse _ _ hparse hall,
+    sigOpCount, SigOps.sigOpCount]
 
 theorem witnessSigOps_v0_other_zero (witness : WitnessStack) (prog : ByteArray)
     (h20 : prog.size ≠ 20) (h32 : prog.size ≠ 32) :

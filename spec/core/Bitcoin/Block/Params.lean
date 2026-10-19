@@ -284,6 +284,67 @@ theorem disconnectBlock_three (u : UtxoSet) (height : UInt32)
               u1 t1 (txidPreimageKey t1) height) height cb o))) := by
   simp [disconnectBlock, disconnectTxs]
 
+/-- The UTXO state produced by the reverse disconnect fold, ignoring the
+per-output cleanliness flag. -/
+def disconnectFoldUndo (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) : UtxoSet :=
+  match pairs with
+  | [] => u
+  | (tx, undo?) :: rest =>
+      disconnectFoldUndo height
+        (match undo? with
+         | some undo => undoCoins u undo tx (txidPreimageKey tx) height
+         | none => u) rest
+
+/-- The conjunction of every per-output cleanliness check in the reverse
+disconnect fold. -/
+def disconnectClean (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) : Bool :=
+  match pairs with
+  | [] => true
+  | (tx, undo?) :: rest =>
+      (List.range tx.vout.length).all (fun o => outputCoinClean u height tx o) &&
+      disconnectClean height
+        (match undo? with
+         | some undo => undoCoins u undo tx (txidPreimageKey tx) height
+         | none => u) rest
+
+/-- The reverse fold is precisely `disconnectFoldUndo` paired with the
+conjunction of every output check. -/
+theorem disconnectTxs_eq_fold (height : UInt32) (u : UtxoSet)
+    (pairs : List (Tx × Option (List (OutPoint × Coin)))) :
+    disconnectTxs height u pairs =
+      (disconnectFoldUndo height u pairs, disconnectClean height u pairs) := by
+  induction pairs generalizing u with
+  | nil => rfl
+  | cons p rest ih =>
+    obtain ⟨tx, undo?⟩ := p
+    cases undo? with
+    | none =>
+      simp [disconnectTxs, disconnectFoldUndo, disconnectClean, ih]
+    | some undo =>
+      simp [disconnectTxs, disconnectFoldUndo, disconnectClean, ih]
+
+/-- **INV-117 (arbitrary-length reverse fold).**  For any block whose undo
+list has one fewer entry than its transaction list, `disconnectBlock` is the
+reverse zip of the transactions with `some undo` for every non-coinbase
+transaction and `none` for the coinbase.  The resulting UTXO state is
+`disconnectFoldUndo` on that reverse zip; the verdict is the conjunction
+`disconnectClean` of every per-output check, each using the view produced by
+the previously undone (later) transaction.  `outputCoinClean` expands to the
+value/script/height/coinbase comparison or the two BIP30 exception lanes. -/
+@[rule "INV-117"]
+theorem disconnectBlock_inv117_fold (u : UtxoSet) (height : UInt32)
+    (txs : List Tx) (undos : List (List (OutPoint × Coin)))
+    (hlen : undos.length + 1 = txs.length) :
+    disconnectBlock u height txs undos =
+      .ok (disconnectFoldUndo height u
+            (txs.reverse.zip (undos.reverse.map some ++ [none])),
+          disconnectClean height u
+            (txs.reverse.zip (undos.reverse.map some ++ [none]))) := by
+  unfold disconnectBlock
+  rw [if_neg (by omega), disconnectTxs_eq_fold]
+
 /-- BLK-106 (two-transaction block): the single non-coinbase transaction
 is checked under its own key and undone with its batch; the coinbase
 outputs are re-checked against the post-undo view. -/
@@ -315,6 +376,153 @@ theorem disconnectBlock_two_unclean (u : UtxoSet) (height : UInt32)
     listAll_false_of_mem (fun o => outputCoinClean u height tx o)
       (List.range tx.vout.length) o (List.mem_range.mpr ho) hm
   simp [hc]
+
+/-- The per-output match decomposed into the four Core fields: value,
+scriptPubKey, creation height and coinbase bit.  This is the field-level
+form of `outputCoinMatches` used by the INV-117 whole-rule theorem. -/
+theorem outputCoinMatches_of_fields (u : UtxoSet) (height : UInt32) (tx : Tx)
+    (o : Nat) (out : TxOut) (c : Coin)
+    (hoff : tx.vout[o]? = some out)
+    (hspk : scriptUnspendable out.scriptPubKey = false)
+    (hlook : u (txidPreimageKey tx OutPoint.null (UInt32.ofNat o)) = some c)
+    (hvalue : c.value = out.value)
+    (hscript : c.scriptPubKey = out.scriptPubKey)
+    (hheight : c.height = height)
+    (hcoinbase : c.isCoinbase = tx.isCoinBase) :
+    outputCoinMatches u height tx o = true := by
+  have hscriptBeq : (c.scriptPubKey == out.scriptPubKey) = true := by
+    rw [hscript]
+    cases out.scriptPubKey with
+    | mk b => simp [BEq.beq, bytesBEq]
+  unfold outputCoinMatches
+  rw [hoff]
+  simp [hspk, hlook, hvalue, hscriptBeq, hheight, hcoinbase]
+
+/-- The exact truth condition of `outputCoinClean`: an output is clean
+either because all four coin fields match, or because it is a coinbase
+output of one of the two historical BIP30 exception blocks. -/
+theorem outputCoinClean_eq_true_iff (u : UtxoSet) (height : UInt32) (tx : Tx)
+    (o : Nat) :
+    outputCoinClean u height tx o = true ↔
+      outputCoinMatches u height tx o = true ∨
+        (tx.isCoinBase = true ∧ bip30DisconnectRelaxed height = true) := by
+  unfold outputCoinClean
+  rw [Bool.or_eq_true, Bool.and_eq_true]
+
+/-- A matching output is clean. -/
+theorem outputCoinClean_of_matches (u : UtxoSet) (height : UInt32) (tx : Tx)
+    (o : Nat) (h : outputCoinMatches u height tx o = true) :
+    outputCoinClean u height tx o = true := by
+  unfold outputCoinClean
+  rw [h]
+  simp
+
+/-- Coinbase outputs are clean at the two historical BIP30 disconnect
+heights even when the duplicate coinbase's value/script/height/coinbase
+fields do not match (validation.cpp:2200-2226). -/
+theorem outputCoinClean_bip30 (u : UtxoSet) (height : UInt32) (tx : Tx)
+    (o : Nat) (hcoinbase : tx.isCoinBase = true)
+    (hrelaxed : bip30DisconnectRelaxed height = true) :
+    outputCoinClean u height tx o = true := by
+  unfold outputCoinClean
+  rw [hcoinbase, hrelaxed]
+  simp
+
+/-- **INV-117 (the whole disconnect rule).**  For a block with a
+coinbase and two non-coinbase transactions, `[cb, t1, t2]`, and two undo
+batches, `disconnectBlock`:
+
+* walks the transactions in **reverse** order: it re-checks `t2` against
+  the pre-disconnect view, undoes `t2` with `u2`, re-checks `t1` against
+  the view `t2` produced, undoes `t1` with `u1`, and only then re-checks
+  the coinbase against the fully restored view;
+* re-checks each non-unspendable output against the coin created under
+  the transaction's own txid key, comparing the output value and
+  scriptPubKey, the creation height, and the coinbase bit (the four
+  fields `outputCoinMatches_of_fields` isolates);
+* accepts a coinbase output of the two BIP30 duplicate-coinbase blocks,
+  91722 and 91812, even when those fields do not match
+  (`outputCoinClean_bip30`).
+
+The block verdict is `true` exactly when every output of `t2` is clean in
+the old view, every output of `t1` is clean in `t2`'s post-undo view, and
+every output of `cb` is clean in the fully restored view. -/
+@[rule "INV-117"]
+theorem disconnectBlock_inv117 (u : UtxoSet) (height : UInt32)
+    (cb t1 t2 : Tx) (u1 u2 : List (OutPoint × Coin))
+    (hcoinbase : cb.isCoinBase = true)
+    (o : Nat) (out : TxOut) (hout : t2.vout[o]? = some out)
+    (c : Coin) (hlook : u (txidPreimageKey t2 OutPoint.null (UInt32.ofNat o)) = some c)
+    (hspk : scriptUnspendable out.scriptPubKey = false)
+    (hvalue : c.value = out.value)
+    (hscript : c.scriptPubKey = out.scriptPubKey)
+    (hheight : c.height = height)
+    (hcoin : c.isCoinbase = t2.isCoinBase)
+    (ht2Clean : ∀ q, q < t2.vout.length →
+      outputCoinClean u height t2 q = true)
+    (ht1Clean : ∀ q, q < t1.vout.length →
+      outputCoinClean (undoCoins u u2 t2 (txidPreimageKey t2) height) height t1 q = true)
+    (hcbClean : ∀ q, q < cb.vout.length →
+      outputCoinClean
+        (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+          u1 t1 (txidPreimageKey t1) height) height cb q = true) :
+    disconnectBlock u height [cb, t1, t2] [u1, u2] =
+        .ok (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+              u1 t1 (txidPreimageKey t1) height, true) ∧
+      outputCoinMatches u height t2 o = true ∧
+      outputCoinClean u height t2 o = true ∧
+      ((height.toNat = 91722 ∨ height.toNat = 91812) →
+        ∀ q, q < cb.vout.length →
+          outputCoinClean
+            (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+              u1 t1 (txidPreimageKey t1) height) height cb q = true) ∧
+      (∀ q, q < cb.vout.length →
+        outputCoinClean
+          (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+            u1 t1 (txidPreimageKey t1) height) 91722 cb q = true ∧
+        outputCoinClean
+          (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+            u1 t1 (txidPreimageKey t1) height) 91812 cb q = true) := by
+  have hmatch : outputCoinMatches u height t2 o = true :=
+    outputCoinMatches_of_fields u height t2 o out c hout hspk hlook
+      hvalue hscript hheight hcoin
+  have ht2All : (List.range t2.vout.length).all
+      (fun q => outputCoinClean u height t2 q) = true := by
+    rw [List.all_eq_true]
+    intro q hq
+    exact ht2Clean q (List.mem_range.mp hq)
+  have ht1All : (List.range t1.vout.length).all
+      (fun q => outputCoinClean
+        (undoCoins u u2 t2 (txidPreimageKey t2) height) height t1 q) = true := by
+    rw [List.all_eq_true]
+    intro q hq
+    exact ht1Clean q (List.mem_range.mp hq)
+  have hcbAll : (List.range cb.vout.length).all
+      (fun q => outputCoinClean
+        (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+          u1 t1 (txidPreimageKey t1) height) height cb q) = true := by
+    rw [List.all_eq_true]
+    intro q hq
+    exact hcbClean q (List.mem_range.mp hq)
+  refine ⟨?_, hmatch, outputCoinClean_of_matches u height t2 o hmatch, ?_, ?_⟩
+  · rw [disconnectBlock_three]
+    simp [ht2All, ht1All, hcbAll]
+  · intro he q hq
+    have hrelaxed : bip30DisconnectRelaxed height = true := by
+      unfold bip30DisconnectRelaxed
+      simpa using he
+    exact outputCoinClean_bip30
+      (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+        u1 t1 (txidPreimageKey t1) height) height cb q hcoinbase hrelaxed
+  · intro q hq
+    exact ⟨outputCoinClean_bip30
+        (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+          u1 t1 (txidPreimageKey t1) height) 91722 cb q hcoinbase
+        bip30_relaxed_91722,
+      outputCoinClean_bip30
+        (undoCoins (undoCoins u u2 t2 (txidPreimageKey t2) height)
+          u1 t1 (txidPreimageKey t1) height) 91812 cb q hcoinbase
+        bip30_relaxed_91812⟩
 
 /-- BLK-106 (restore/involutivity): undoing a transaction with the undo
 batch that `updateCoins` would have produced restores the post-coinbase
@@ -645,5 +853,10 @@ def MAX_FUTURE_BLOCK_TIME : Nat := 7200
 def TIMESTAMP_WINDOW : Nat := MAX_FUTURE_BLOCK_TIME
 
 theorem TIMESTAMP_WINDOW_eq : TIMESTAMP_WINDOW = 7200 := rfl
+
+/-! ## Axiom pin for the INV-117 whole-rule theorem -/
+
+/-- info: 'Bitcoin.Block.Params.disconnectBlock_inv117' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms disconnectBlock_inv117
 
 end Bitcoin.Block.Params

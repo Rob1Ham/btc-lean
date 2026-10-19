@@ -26,9 +26,9 @@ private def state : CapState :=
   { height := 481824, prevHash := headerHash genesisHeader, utxo := [] }
 
 private def verdict (raw : ByteArray) (contextual : Bool) : String :=
-  match (if contextual then validateBlockInContext raw state context else replayBlock raw state) with
+  match (if contextual then validateBlockInContext raw state context else replayBlockPartial raw state) with
   | .error e => e.reason
-  | .ok r => s!"ok:{r.txs}:{r.sigOpBudgetChecked}"
+  | .ok r => s!"{if r.fullValidation then "ok" else "partial"}:{r.txs}:{r.sigOpBudgetChecked}"
 
 def run : IO UInt32 := do
   let raw ← IO.FS.readBinFile "../data/review/witness-commitment/nonzero.raw"
@@ -52,6 +52,7 @@ def run : IO UInt32 := do
   for contextual in [false, true] do
     for (name, input, expected) in variants do
       let actual := verdict input contextual
+      let expected := if !contextual then expected.replace "ok:" "partial:" else expected
       let ok := actual == expected
       IO.println s!"[{if ok then "PASS" else "FAIL"}] {if contextual then "context" else "replay"} {name}: expected={expected}, actual={actual}"
       count := count + 1

@@ -14,12 +14,16 @@ and are not re-applied here.
    `F-Y01-005` divergence is retired, and the witness-stack decoder test now
    expects the range error rather than a later truncation.
 
-2. **Strict contextual script adjudication.** `replayBlock` keeps the
-   diagnostic `scriptUnjudged` report for partial anchor replay. The
-   contextual entry (`validateBlockInContext`) now rejects any run with an
+2. **Strict contextual script adjudication.** `replayBlockPartial` keeps the
+   diagnostic `scriptUnjudged` report for partial anchor replay and reports
+   `fullValidation = false`; it is not an acceptance predicate. The
+   contextual entry (`validateBlockInContext`) rejects any run with an
    unadjudicated input as `script-unjudged`; it cannot return `ok` while an
-   input's signature data was unavailable. The report's `scriptAdjudication`
-   remains complete exactly when the unjudged count is zero.
+   input's signature data was unavailable. The single next-block entry point
+   `validateNextBlock` derives its header/clock context from a `ChainState`
+   holding the checked parent hash, UTXO view, header index, and node clock.
+   The report's `scriptAdjudication` remains complete exactly when the
+   unjudged count is zero.
 
 3. **Exact BIP30 on the connection path.** `Bitcoin.Ledger` now has
    hash-aware `applyBlockExactU` / `applyBlockExactL`, and
@@ -40,11 +44,17 @@ and are not re-applied here.
 ## Evidence
 
 - `cd spec/core && lake build` — 149 jobs.
-- `cd spec/proofs && lake build BitcoinProofs` — 1,732 jobs.
+- `cd spec/proofs && lake build BitcoinProofs` — 1,733 jobs.
 - `spec/core/Test/Capstone/Bip30.lean` — 27/27 checks, including the new
   ledger-level fork collision checks.
 - `spec/core/Test/Capstone/TaprootBlocks.lean` — 8/8 checks; valid real
   Taproot spends still adjudicate completely.
+- `cd spec/core && lake exe issue22` — 3/3 checks: the single entry point
+  equals the contextual pipeline, and context-free replay reports
+  `fullValidation = false`.
+- `lake exe capstone` (release data bundle) — 13 anchors are replayed as
+  diagnostic partial runs; the runner prints `accepted=false` and
+  `partial-context`, never an acceptance claim.
 - Contextual regressions: `HeaderContext`, `Finality`, `ScriptFlags`,
   `SigopBudget`, and `ValueChecks` all pass.
 - Static gates: `rule_crosscheck.py`, `theorem_index.py --check`,
@@ -54,7 +64,7 @@ and are not re-applied here.
 ## Remaining P0 work (not claimed fixed here)
 
 - **Genesis short-circuit in the capstone pipeline.** `connectBlock` already
-  handles BLK-109, but `validateBlock`/`replayBlock` do not yet special-case
+  handles BLK-109, but `validateBlock`/`replayBlockPartial` do not yet special-case
   the genesis block. Fixing that requires moving the genesis predicate to a
   module below both `Block.Connect` and `Capstone.Block` to avoid an import
   cycle.

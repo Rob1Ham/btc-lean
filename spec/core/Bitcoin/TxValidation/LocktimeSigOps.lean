@@ -1,4 +1,5 @@
 import Bitcoin.TxValidation.Interface
+import Bitcoin.Capstone.Block
 import Bitcoin.Interpreter.Defs
 import Bitcoin.Interpreter.Rules
 import Bitcoin.Interpreter.SigOps
@@ -62,6 +63,9 @@ transaction weight (`3·base + total`, which remains the block metric).
   agrees with the unbounded `Int` fold (`checkOutputs_none_i64Fold_agrees`;
   at the `checkTransaction` call site the seed `0` is in range, so no
   extra hypothesis is needed: `checkOutputs_none_zero_i64Fold_agrees`).
+  The whole-rule theorem `amountArithmetic_i64` extends the same
+  checked-fold argument to the input-value sum, the running input sum,
+  `CheckTxInputs`' fee, and the block-level `nFees` accumulator.
 * **TXV-003 / INV-003** — the oversize gate both ways: acceptance implies
   `4·baseSize ≤ MAX_BLOCK_WEIGHT`, and a tx with `4·baseSize >` it is
   rejected (Core `tx_check.cpp:27-29`, witness-free).
@@ -69,7 +73,7 @@ transaction weight (`3·base + total`, which remains the block metric).
 
 namespace Bitcoin.TxValidation.LocktimeSigOps
 
-open Bitcoin.Data Bitcoin.Consensus Bitcoin.Interpreter
+open Bitcoin.Data Bitcoin.Ledger Bitcoin.Consensus Bitcoin.Interpreter
 open Bitcoin.Numeric Bitcoin.TxValidation
 open Bitcoin.Interpreter.SigOps (sigOpStep isCheckSigWire isCheckMultiSigWire opNumberOf)
 
@@ -228,12 +232,14 @@ two non-accurate per-script counts (tx_verify.cpp:118-130). -/
 theorem txLegacySigOps_one_in_out (tx : Bitcoin.Data.Tx) (i : TxIn) (o : TxOut)
     (sOps pOps : List WireOp)
     (hs : parseWire i.scriptSig.bytes = some sOps)
-    (hp : parseWire o.scriptPubKey.bytes = some pOps) :
+    (hp : parseWire o.scriptPubKey.bytes = some pOps)
+    (hsl : SigOps.WireOpsWithinLimit sOps)
+    (hpl : SigOps.WireOpsWithinLimit pOps) :
     txLegacySigOps { tx with vin := [i], vout := [o] } =
       sigOpCount sOps false + sigOpCount pOps false := by
   unfold txLegacySigOps
-  simp [SigOps.scriptSigOpCount, SigOps.parseWirePrefix_of_parse _ _ hs,
-    SigOps.parseWirePrefix_of_parse _ _ hp, sigOpCount]
+  simp [SigOps.scriptSigOpCount, SigOps.parseWirePrefix_of_parse _ _ hs hsl,
+    SigOps.parseWirePrefix_of_parse _ _ hp hpl, sigOpCount]
 
 /-- `+`-fold as the sum of the mapped values (the general Σ shape). -/
 private theorem foldl_add_map_sum {α : Type} (l : List α) (f : α → Nat) :
@@ -457,6 +463,317 @@ theorem checkOutputs_none_zero_i64Fold_agrees (l : List TxOut)
       l.foldl (fun a o => a + o.value) 0 :=
   checkOutputs_none_i64Fold_agrees l 0 moneyRange_zero h
 
+/-- Input value fold, the unbounded-`Int` model of `CheckTxInputs`'
+running input sum (tx_verify.cpp:178-196). -/
+def inputValuesFold (u : UtxoSet) (ins : List TxIn) (acc : Amount) : Amount :=
+  ins.foldl (fun a i =>
+    match u i.prevout with
+    | some c => a + c.value
+    | none => a) acc
+
+/-- Two's-complement `int64_t` input value fold: the accumulator a
+64-bit `CAmount` machine would produce at each `nValueIn += coin.out.nValue`. -/
+def inputValuesFoldI64 (u : UtxoSet) (ins : List TxIn) (acc : Amount) : Amount :=
+  ins.foldl (fun a i =>
+    match u i.prevout with
+    | some c => i64Wrap (a + c.value)
+    | none => a) acc
+
+theorem inputValuesLoop_ok_inputValuesFold (u : UtxoSet) (spendHeight : UInt32) :
+    ∀ (ins : List TxIn) (acc v : Amount),
+      inputValuesLoop u spendHeight ins acc = .ok v →
+        v = inputValuesFold u ins acc := by
+  intro ins
+  induction ins with
+  | nil =>
+      intro acc v h
+      simp only [inputValuesLoop] at h
+      cases h
+      rfl
+  | cons i rest ih =>
+      intro acc v h
+      simp only [inputValuesLoop] at h
+      cases hi : u i.prevout with
+      | none => simp only [hi] at h; simp at h
+      | some c =>
+          simp only [hi] at h
+          split at h
+          · simp at h
+          · split at h
+            · simp at h
+            · split at h
+              · simp at h
+              · next hsum =>
+                  have hv := ih (acc + c.value) v h
+                  simp [inputValuesFold, hi, hv]
+
+theorem inputValuesLoop_ok_partial_moneyRange (u : UtxoSet) (spendHeight : UInt32) :
+    ∀ (ins : List TxIn) (acc v : Amount), MoneyRange acc = true →
+      inputValuesLoop u spendHeight ins acc = .ok v →
+        ∀ k, k ≤ ins.length →
+          MoneyRange (inputValuesFold u (ins.take k) acc) = true := by
+  intro ins
+  induction ins with
+  | nil =>
+      intro acc v hacc h k hk
+      have hk0 : k = 0 := by simp at hk; omega
+      subst hk0
+      simpa [inputValuesFold] using hacc
+  | cons i rest ih =>
+      intro acc v hacc h k hk
+      simp only [inputValuesLoop] at h
+      cases hi : u i.prevout with
+      | none => simp only [hi] at h; simp at h
+      | some c =>
+          simp only [hi] at h
+          split at h
+          · simp at h
+          · split at h
+            · simp at h
+            · split at h
+              · simp at h
+              · next hsum =>
+                  have hacc' : MoneyRange (acc + c.value) = true := by
+                    simpa using hsum
+                  rcases Nat.eq_zero_or_pos k with hk0 | hkpos
+                  · subst hk0
+                    simpa [inputValuesFold] using hacc
+                  · have hk' : k - 1 ≤ rest.length := by
+                      simp at hk
+                      omega
+                    have htail := ih (acc + c.value) v hacc' h (k - 1) hk'
+                    rw [List.take_cons (by omega)]
+                    simpa [inputValuesFold, hi] using htail
+
+theorem inputValuesLoop_ok_i64Fold_agrees (u : UtxoSet) (spendHeight : UInt32) :
+    ∀ (ins : List TxIn) (acc v : Amount), MoneyRange acc = true →
+      inputValuesLoop u spendHeight ins acc = .ok v →
+        inputValuesFoldI64 u ins acc = inputValuesFold u ins acc := by
+  intro ins
+  induction ins with
+  | nil =>
+      intro acc v hacc h
+      simp [inputValuesFoldI64, inputValuesFold]
+  | cons i rest ih =>
+      intro acc v hacc h
+      simp only [inputValuesLoop] at h
+      cases hi : u i.prevout with
+      | none => simp only [hi] at h; simp at h
+      | some c =>
+          simp only [hi] at h
+          split at h
+          · simp at h
+          · split at h
+            · simp at h
+            · split at h
+              · simp at h
+              · next hsum =>
+                  have hacc' : MoneyRange (acc + c.value) = true := by
+                    simpa using hsum
+                  have hstep : i64Wrap (acc + c.value) = acc + c.value :=
+                    i64Wrap_eq_self (moneyRange_in_i64Range hacc')
+                  simp only [inputValuesFoldI64, inputValuesFold,
+                    List.foldl_cons, hi, hstep]
+                  exact ih (acc + c.value) v hacc' h
+
+theorem inputValuesLoop_ok_perCoinMoneyRange (u : UtxoSet) (spendHeight : UInt32) :
+    ∀ (ins : List TxIn) (acc v : Amount),
+      inputValuesLoop u spendHeight ins acc = .ok v →
+        ∀ i ∈ ins, ∀ c, u i.prevout = some c → MoneyRange c.value = true := by
+  intro ins
+  induction ins with
+  | nil => intro acc v _ i hi; nomatch hi
+  | cons t rest ih =>
+      intro acc v hok i hi c hu
+      simp only [inputValuesLoop] at hok
+      cases ht : u t.prevout with
+      | none => simp only [ht] at hok; simp at hok
+      | some tc =>
+          simp only [ht] at hok
+          split at hok
+          · simp at hok
+          · split at hok
+            · simp at hok
+            · split at hok
+              · simp at hok
+              · rcases List.mem_cons.mp hi with rfl | hrest
+                · rw [ht] at hu
+                  simp_all
+                · exact ih (acc + tc.value) v hok i hrest c hu
+
+theorem checkTxInputs_ok_fee_i64 (tx : Tx) (u : UtxoSet) (spendHeight : UInt32)
+    (fee : Amount) (h : checkTxInputs tx u spendHeight = .ok fee) :
+    ∃ valueIn : Amount,
+      inputValuesLoop u spendHeight tx.vin 0 = .ok valueIn ∧
+      inputValuesFold u tx.vin 0 = valueIn ∧
+      inputValuesFoldI64 u tx.vin 0 = valueIn ∧
+      fee = valueIn - tx.getValueOut ∧
+      i64Wrap fee = fee ∧
+      i64Wrap valueIn = valueIn ∧
+      MoneyRange valueIn = true ∧
+      MoneyRange fee = true ∧
+      (∀ i ∈ tx.vin, ∀ c, u i.prevout = some c → MoneyRange c.value = true) ∧
+      (∀ k, k ≤ tx.vin.length →
+        MoneyRange (inputValuesFold u (tx.vin.take k) 0) = true) := by
+  unfold checkTxInputs at h
+  by_cases hi : haveInputs tx u = true
+  · rw [if_pos hi] at h
+    rcases hlv : inputValuesLoop u spendHeight tx.vin 0 with e | valueIn
+    · simp only [hlv] at h
+      cases h
+    · simp only [hlv] at h
+      by_cases hb : valueIn < tx.getValueOut
+      · rw [if_pos hb] at h
+        cases h
+      · rw [if_neg hb] at h
+        by_cases hm : MoneyRange (valueIn - tx.getValueOut) = true
+        · rw [if_pos hm] at h
+          have hfee : fee = valueIn - tx.getValueOut := by
+            simpa using h.symm
+          have hvinEq : inputValuesFold u tx.vin 0 = valueIn :=
+            (inputValuesLoop_ok_inputValuesFold u spendHeight tx.vin 0 valueIn hlv).symm
+          have hvinRange : MoneyRange valueIn = true := by
+            have hpre := inputValuesLoop_ok_partial_moneyRange u spendHeight
+              tx.vin 0 valueIn moneyRange_zero hlv tx.vin.length (Nat.le_refl _)
+            simpa [List.take_length, hvinEq] using hpre
+          have hi64Eq : inputValuesFoldI64 u tx.vin 0 = valueIn := by
+            rw [inputValuesLoop_ok_i64Fold_agrees u spendHeight tx.vin 0 valueIn
+              moneyRange_zero hlv, hvinEq]
+          refine ⟨valueIn, rfl, hvinEq, hi64Eq, hfee, ?_, ?_, hvinRange, ?_,
+            ?_, ?_⟩
+          · rw [hfee]
+            exact i64Wrap_eq_self (moneyRange_in_i64Range hm)
+          · exact i64Wrap_eq_self (moneyRange_in_i64Range hvinRange)
+          · rw [hfee]
+            exact hm
+          · exact inputValuesLoop_ok_perCoinMoneyRange u spendHeight
+              tx.vin 0 valueIn hlv
+          · intro k hk
+            exact inputValuesLoop_ok_partial_moneyRange u spendHeight
+              tx.vin 0 valueIn moneyRange_zero hlv k hk
+        · rw [if_neg hm] at h
+          cases h
+  · rw [if_neg hi] at h
+    cases h
+
+/-- Checked block fee accumulation: exactly `ConnectBlock`'s
+`nFees += txfee; if (!MoneyRange(nFees)) ... bad-txns-accumulated-fee-outofrange`
+through the executable `checkFeeTotal` guard. -/
+def feeAccumChecked (fees : Amount) : List Amount → Option Amount
+  | [] => some fees
+  | f :: rest =>
+      match Bitcoin.Capstone.Block.checkFeeTotal fees f with
+      | .ok _ => feeAccumChecked (fees + f) rest
+      | .error _ => none
+
+/-- Two's-complement `int64_t` block fee accumulator. -/
+def feeAccumFoldI64 (fs : List Amount) (fees : Amount) : Amount :=
+  fs.foldl (fun a f => i64Wrap (a + f)) fees
+
+/-- One `ConnectBlock` fee-accumulator step: if `checkFeeTotal` accepts
+`fees + fee`, that addition is int64-representable and the wrapping i64
+machine computes the same value as the unbounded-`Int` model. -/
+theorem checkFeeTotal_ok_i64 (fees fee : Amount)
+    (h : Bitcoin.Capstone.Block.checkFeeTotal fees fee = .ok ()) :
+    i64Wrap (fees + fee) = fees + fee := by
+  unfold Bitcoin.Capstone.Block.checkFeeTotal at h
+  split at h
+  · exact i64Wrap_eq_self (moneyRange_in_i64Range (by assumption))
+  · simp at h
+
+theorem feeAccumChecked_partial_moneyRange (fs : List Amount) (fees total : Amount)
+    (hacc : MoneyRange fees = true)
+    (h : feeAccumChecked fees fs = some total) :
+    ∀ k, k ≤ fs.length →
+      MoneyRange ((fs.take k).foldl (fun a f => a + f) fees) = true := by
+  induction fs generalizing fees with
+  | nil =>
+      intro k hk
+      have hk0 : k = 0 := by simp at hk; omega
+      subst hk0
+      simpa using hacc
+  | cons f rest ih =>
+      intro k hk
+      simp only [feeAccumChecked] at h
+      cases hc : Bitcoin.Capstone.Block.checkFeeTotal fees f with
+      | error e => simp only [hc] at h; cases h
+      | ok u =>
+          simp only [hc] at h
+          have hmr : MoneyRange (fees + f) = true := by
+            unfold Bitcoin.Capstone.Block.checkFeeTotal at hc
+            split at hc
+            · assumption
+            · simp at hc
+          rcases Nat.eq_zero_or_pos k with hk0 | hkpos
+          · subst hk0
+            simpa using hacc
+          · rw [List.take_cons (by omega), List.foldl_cons]
+            exact ih (fees + f) hmr h (k - 1) (by simp at hk; omega)
+
+theorem feeAccumChecked_i64_agrees (fs : List Amount) (fees total : Amount)
+    (hacc : MoneyRange fees = true)
+    (h : feeAccumChecked fees fs = some total) :
+    feeAccumFoldI64 fs fees = total ∧
+      total = fs.foldl (fun a f => a + f) fees ∧
+      MoneyRange total = true := by
+  induction fs generalizing fees with
+  | nil =>
+      simp only [feeAccumChecked] at h
+      cases h
+      exact ⟨rfl, rfl, hacc⟩
+  | cons f rest ih =>
+      simp only [feeAccumChecked] at h
+      cases hc : Bitcoin.Capstone.Block.checkFeeTotal fees f with
+      | error e => simp only [hc] at h; cases h
+      | ok u =>
+          simp only [hc] at h
+          have hmr : MoneyRange (fees + f) = true := by
+            unfold Bitcoin.Capstone.Block.checkFeeTotal at hc
+            split at hc
+            · assumption
+            · simp at hc
+          obtain ⟨h1, h2, h3⟩ := ih (fees + f) hmr h
+          have hstep : i64Wrap (fees + f) = fees + f :=
+            i64Wrap_eq_self (moneyRange_in_i64Range hmr)
+          refine ⟨?_, ?_, h3⟩
+          · simpa [feeAccumFoldI64, List.foldl_cons, hstep] using h1
+          · simpa [List.foldl_cons] using h2
+
+/-- TXV-069 (whole rule): the tx-side input sum and running-sum guards,
+the fee computation, and the block-level fee accumulator all agree with
+the two's-complement `int64_t` `CAmount` machine. On every accepted path
+the unbounded-`Int` model and the wrapping-i64 model coincide, and every
+partial accumulator is `MoneyRange`d (hence int64-representable), so no
+i64 overflow can occur. -/
+@[rule "TXV-069"]
+theorem amountArithmetic_i64 (tx : Tx) (u : UtxoSet) (spendHeight : UInt32)
+    (fee feesSeed total : Amount) (feeList : List Amount)
+    (htx : checkTxInputs tx u spendHeight = .ok fee)
+    (hseed : MoneyRange feesSeed = true)
+    (hacc : feeAccumChecked feesSeed feeList = some total) :
+    (∃ valueIn : Amount,
+      inputValuesLoop u spendHeight tx.vin 0 = .ok valueIn ∧
+      inputValuesFold u tx.vin 0 = valueIn ∧
+      inputValuesFoldI64 u tx.vin 0 = valueIn ∧
+      fee = valueIn - tx.getValueOut ∧
+      i64Wrap fee = fee ∧
+      i64Wrap valueIn = valueIn ∧
+      MoneyRange valueIn = true ∧
+      MoneyRange fee = true ∧
+      (∀ i ∈ tx.vin, ∀ c, u i.prevout = some c → MoneyRange c.value = true) ∧
+      (∀ k, k ≤ tx.vin.length →
+        MoneyRange (inputValuesFold u (tx.vin.take k) 0) = true)) ∧
+    feeAccumFoldI64 feeList feesSeed = total ∧
+    total = feeList.foldl (fun a f => a + f) feesSeed ∧
+    MoneyRange total = true ∧
+    (∀ k, k ≤ feeList.length →
+      MoneyRange ((feeList.take k).foldl (fun a f => a + f) feesSeed) = true) := by
+  refine ⟨checkTxInputs_ok_fee_i64 tx u spendHeight fee htx, ?_⟩
+  obtain ⟨h1, h2, h3⟩ := feeAccumChecked_i64_agrees feeList feesSeed total hseed hacc
+  exact ⟨h1, h2, h3,
+    feeAccumChecked_partial_moneyRange feeList feesSeed total hseed hacc⟩
+
+
 /-! ## TXV-003 / INV-003: the stripped-size oversize gate -/
 
 /-- The bridge: `TxCheck`'s cycle-free weight replicas are
@@ -586,6 +903,18 @@ section Pins
  Classical.choice,
  Quot.sound] -/
 #guard_msgs in #print axioms checkOutputs_none_zero_i64Fold_agrees
+
+/-- info: 'Bitcoin.TxValidation.LocktimeSigOps.checkTxInputs_ok_fee_i64' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms checkTxInputs_ok_fee_i64
+
+/-- info: 'Bitcoin.TxValidation.LocktimeSigOps.feeAccumChecked_i64_agrees' depends on axioms: [propext] -/
+#guard_msgs in #print axioms feeAccumChecked_i64_agrees
+
+/-- info: 'Bitcoin.TxValidation.LocktimeSigOps.checkFeeTotal_ok_i64' depends on axioms: [propext] -/
+#guard_msgs in #print axioms checkFeeTotal_ok_i64
+
+/-- info: 'Bitcoin.TxValidation.LocktimeSigOps.amountArithmetic_i64' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms amountArithmetic_i64
 
 /-- info: 'Bitcoin.TxValidation.LocktimeSigOps.checkTransaction_weight_bound' depends on axioms: [propext,
  Classical.choice,

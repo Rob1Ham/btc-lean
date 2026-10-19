@@ -91,19 +91,19 @@ is a checked constant, not a convention.
   not silently dropped.
 - `proven` means that the row's cited Lean target builds and the row ID is
   tagged. It does **not** by itself mean that the target's conclusion
-  paraphrases the whole row summary. **18 of the 676 proven rows are
-  explicit model residuals**: the claim is true of Bitcoin Core, but the
-  current Lean model does not yet entail it. They are listed, with the
-  missing link for each, in `docs/RESIDUALS.md`; they are not counted as
-  fully proved against Core. Six further former residual rows
+  paraphrases the whole row summary. The issue-22 statement-fidelity ledger
+  has **0 open residuals**: the eighteen former gaps now name a closing
+  target in `docs/RESIDUALS.md`, with build and replay evidence in
+  `docs/ISSUE-22-CLOSEOUT.md`. Closure is not an external Core-equivalence
+  claim. Six further former residual rows
   (INV-046, SCR-008, INV-114, INV-115, INV-119, INV-138) are out-of-ledger
   (node/API or policy) obligations after the issue 22 triage; nothing was
   proved by moving them.
 - The public tree contains **zero `sorry` occurrences** in `spec/core` and
   `spec/proofs` (checked by the sorry lint), and no core `native_decide`,
   `unsafe`, `partial`, or FFI hazards. A zero-sorry tree is necessary but not
-  sufficient: the 18 residuals above are statement-fidelity gaps, not
-  unfilled `sorry`s.
+  sufficient: the closed issue-22 gaps were statement-fidelity residuals,
+  not unfilled `sorry`s.
 - The row-target axiom audit leaves **14 proven rows unresolved** (10
   targets in modules that do not build at audit time, 4 targets with no
   declaration). A clean axiom footprint for the other rows is not a claim

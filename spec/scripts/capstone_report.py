@@ -10,10 +10,11 @@ stdin or as the first argument, e.g.
 
 Line grammar (emitted by Run.lean):
 
-    ANCHOR <height> ok=<b> reason=<r> txs=<n> scriptOk=<n> \
-      scriptUnjudged=<n> foldAgrees=<b> ms=<n> hash=<hex>
+    ANCHOR <height> replayOk=<b> accepted=<b> isPartial=<b> \
+      reason=<r> txs=<n> scriptOk=<n> scriptUnjudged=<n> \
+      scriptAdjudication=<complete|incomplete> foldAgrees=<b> ms=<n> hash=<hex>
     PROBE <height>: <per-tx probe text>        (failure forensics only)
-    SUMMARY blocks=<n> allOk=<b> totalMs=<n>
+    SUMMARY blocks=<n> missing=<n> allReplayOk=<b> allAccepted=<b> totalMs=<n>
 
 The script cross-checks each reported block hash against the pinned
 canonical mainnet hash (independent of the runner: these constants were
@@ -50,10 +51,13 @@ CANONICAL = {
 SET1 = {0, 74638, 91842, 91880, 481824, 709632}
 
 ANCHOR_RE = re.compile(
-    r"ANCHOR (\d+) ok=(\w+) reason=(\S*) txs=(\d+) scriptOk=(\d+) "
-    r"scriptUnjudged=(\d+)(?: scriptAdjudication=(complete|incomplete))? foldAgrees=(\w+) ms=(\d+) hash=([0-9a-f]*)")
+    r"ANCHOR (\d+) replayOk=(\w+) accepted=(\w+) isPartial=(\w+) "
+    r"reason=(\S+) txs=(\d+) scriptOk=(\d+) scriptUnjudged=(\d+) "
+    r"scriptAdjudication=(complete|incomplete) foldAgrees=(\w+) ms=(\d+) hash=([0-9a-f]*)")
 PROBE_RE = re.compile(r"PROBE (\d+): (.*)")
-SUMMARY_RE = re.compile(r"SUMMARY blocks=(\d+)(?: missing=(\d+))? allOk=(\w+) totalMs=(\d+)")
+SUMMARY_RE = re.compile(
+    r"SUMMARY blocks=(\d+) missing=(\d+) allReplayOk=(\w+) "
+    r"allAccepted=(\w+) totalMs=(\d+)")
 
 
 def parse(text: str):
@@ -63,11 +67,14 @@ def parse(text: str):
         if m:
             h = int(m.group(1))
             anchors[h] = dict(
-                ok=m.group(2).lower() == "true", reason=m.group(3), txs=int(m.group(4)),
-                scriptOk=int(m.group(5)), scriptUnjudged=int(m.group(6)),
-                scriptAdjudication=m.group(7),
-                foldAgrees=m.group(8).lower() == "true", ms=int(m.group(9)),
-                hash=m.group(10))
+                replayOk=m.group(2).lower() == "true",
+                accepted=m.group(3).lower() == "true",
+                isPartial=m.group(4).lower() == "true",
+                reason=m.group(5), txs=int(m.group(6)),
+                scriptOk=int(m.group(7)), scriptUnjudged=int(m.group(8)),
+                scriptAdjudication=m.group(9),
+                foldAgrees=m.group(10).lower() == "true", ms=int(m.group(11)),
+                hash=m.group(12))
             continue
         m = PROBE_RE.match(line)
         if m:
@@ -75,8 +82,10 @@ def parse(text: str):
             continue
         m = SUMMARY_RE.match(line)
         if m:
-            summary = dict(blocks=int(m.group(1)), missing=int(m.group(2) or 0),
-                           allOk=m.group(3).lower() == "true", totalMs=int(m.group(4)))
+            summary = dict(blocks=int(m.group(1)), missing=int(m.group(2)),
+                           allReplayOk=m.group(3).lower() == "true",
+                           allAccepted=m.group(4).lower() == "true",
+                           totalMs=int(m.group(5)))
     return anchors, probes, summary
 
 
@@ -88,29 +97,53 @@ def main() -> int:
         print("capstone-report: no ANCHOR lines found in input", file=sys.stderr)
         return 1
 
-    print("## Capstone run: real mainnet anchor blocks "
-          f"({len(anchors)} across both corpora)")
+    print("# Capstone replay: real mainnet anchor blocks")
     print()
-    print("Partial anchor replay: supplied UTXOs and parent; ancestor, clock and")
-    print("contextual checks are not certified by this runner. Complete script")
-    print("adjudication covers the interpreter and real ECDSA/Schnorr checks only.")
+    print("## Scope and method")
     print()
-    ok_n = sum(1 for a in anchors.values() if a["ok"])
+    print("This page records one offline replay of historical, serialized mainnet")
+    print("blocks through the compiled Lean `replayBlockPartial` diagnostic adapter.")
+    print("The input block data are the checksum-pinned anchor sets from the data")
+    print("release (see `docs/DATA.md`). The replay does not contact a live network")
+    print("and does not run or compare against `bitcoind`.")
+    print()
+    print("`replayBlockPartial` is a **diagnostic** adapter: it supplies the")
+    print("serialized block, the release UTXO view, and the parent hash, but no")
+    print("ancestor/clock context. It therefore reports `accepted=false` and")
+    print("`isPartial=true` even when every available check agrees. `replayOk`")
+    print("means the checks that could be run agreed; it is not an acceptance")
+    print("claim. `scriptAdjudication=complete` with `scriptUnjudged=0` means the")
+    print("runner produced a verdict for every input; otherwise the unjudged")
+    print("inputs are reported and are not counted as validated.")
+    print()
+    replay_n = sum(1 for a in anchors.values() if a["replayOk"])
+    accepted_n = sum(1 for a in anchors.values() if a["accepted"])
     hash_n = sum(1 for h, a in anchors.items()
                  if a["hash"] == CANONICAL.get(h))
-    print(f"**Blocks: {len(anchors)} — validated {ok_n}, "
-          f"hash==canonical {hash_n}** · fold cross-check "
+    total_ms = sum(a["ms"] for a in anchors.values())
+    print(f"**Blocks: {len(anchors)} — replayOk {replay_n}, accepted {accepted_n}, "
+          f"hash==canonical {hash_n}** · script-unjudged total "
+          f"{sum(a['scriptUnjudged'] for a in anchors.values())} · "
+          f"fold cross-check "
           f"{'OK' if all(a['foldAgrees'] for a in anchors.values()) else 'MISMATCH'}"
-          f" · wall-clock {(summary or {}).get('totalMs', 0)/1000:.1f}s")
+          f" · sum of per-block ms {total_ms/1000:.1f}s (blocks run concurrently).")
     print()
-    header = ("| height | verdict | reason | txs | inputs adjudicated "
-              "| taproot unjudged | fold agrees | ms | hash==canonical |")
-    rule = "|---|---|---|---|---|---|---|---|---|"
+    print("**Limits.** This is an offline model replay of a finite historical")
+    print("block set. It is not live-network validation, peer synchronization,")
+    print("chain-tip following, or a claim of `bitcoind` equivalence. A")
+    print("`replayOk` record is a run record, not a kernel theorem.")
+    print()
+    print("## Results")
+    print()
+    header = ("| height | replayOk | accepted | isPartial | reason | txs | inputs adjudicated "
+              "| script unjudged | adjudication | fold agrees | ms | hash==canonical |")
+    rule = "|---|---|---|---|---|---|---|---|---|---|---|---|"
 
     def row(h: int) -> str:
         a = anchors[h]
-        return (f"| {h} | {'PASS' if a['ok'] else 'FAIL'} | {a['reason'] or '—'} "
-                f"| {a['txs']} | {a['scriptOk']} | {a['scriptUnjudged']} "
+        return (f"| {h} | {a['replayOk']} | {a['accepted']} | {a['isPartial']} "
+                f"| {a['reason'] or '—'} | {a['txs']} | {a['scriptOk']} "
+                f"| {a['scriptUnjudged']} | {a['scriptAdjudication']} "
                 f"| {a['foldAgrees']} | {a['ms']} "
                 f"| {a['hash'] == CANONICAL.get(h)} |")
 
@@ -135,10 +168,19 @@ def main() -> int:
         print()
         for h in sorted(probes):
             print(f"- **{h}**: {probes[h]}")
-    if (not summary or not summary["allOk"] or summary["missing"] != 0 or
-        summary["blocks"] != len(anchors) or
-        any(not a["ok"] or not a["foldAgrees"] or a["scriptUnjudged"] != 0 or
-            a["scriptAdjudication"] != "complete" for a in anchors.values())):
+    failed = (
+        summary is None or
+        any(not a["replayOk"] or a["accepted"] or not a["isPartial"] or
+            a["reason"] != "partial-context" or not a["foldAgrees"] or
+            a["scriptUnjudged"] != 0 or
+            a["scriptAdjudication"] != "complete" or
+            a["hash"] != CANONICAL.get(h)
+            for h, a in anchors.items()) or
+        any(a["accepted"] for a in anchors.values()) or
+        (summary is not None and (
+            not summary["allReplayOk"] or summary["allAccepted"] or
+            summary["missing"] != 0 or summary["blocks"] != len(anchors))))
+    if failed:
         print()
         print("**capstone-report: RUN FAILED — see probes above.**")
         return 2

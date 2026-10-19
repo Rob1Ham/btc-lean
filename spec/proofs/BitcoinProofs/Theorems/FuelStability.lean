@@ -75,7 +75,7 @@ theorem evalFrom_eventually_constant (ctx : Ctx) :
         cases hstep : stepChecked ctx op st with
         | ok st' =>
           simp only [evalFrom, hstep]
-          exact ih st' f1' hrest f2' hle
+          exact ih { st' with opcodeIndex := st.opcodeIndex + 1 } f1' hrest f2' hle
         | error e => simp only [evalFrom, hstep]
 
 /-- info: 'Bitcoin.Proofs.Theorems.FuelStability.evalFrom_eventually_constant' depends on axioms: [propext,

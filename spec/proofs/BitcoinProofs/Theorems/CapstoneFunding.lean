@@ -11,7 +11,7 @@ namespace BitcoinProofs.Theorems.CapstoneFunding
 -- Script flags are threaded uniformly through every compared execution.
 variable {flags : Bitcoin.Activation.ScriptFlags}
 
-open Bitcoin.Data Bitcoin.Ledger Bitcoin.Conservation Bitcoin.TxValidation
+open Bitcoin.Data Bitcoin.Ledger Bitcoin.Conservation Bitcoin.TxValidation Bitcoin.Numeric
 open Bitcoin.Capstone.Block Bitcoin.Serialization
 
 local macro "reduceExcept" "at" h:ident : tactic =>
@@ -72,6 +72,43 @@ theorem applyTxsWithFees_range {height : UInt32} {txs : List Tx} {i : Nat}
       · cases hr : MoneyRange (fees + fee) with
         | false => simp [checkFeeTotal, hr] at hf
         | true => rfl
+
+/-- TXV-069 (actual block fee accumulator, final): on a successful
+`applyTxsWithFees` run every accumulated fee is checked by `checkFeeTotal`
+(which is `MoneyRange` on the unbounded `Int`), so the returned total is
+`MoneyRange` and the two's-complement `int64_t` accumulator agrees with it. -/
+@[rule "TXV-069"]
+theorem applyTxsWithFees_i64_final {height : UInt32} {txs : List Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {a b : Nat} {fees total : Amount}
+    {result : List (OutPoint × Coin) × Nat × Nat} {flags : Bitcoin.Activation.ScriptFlags}
+    (hinit : MoneyRange fees = true)
+    (h : applyTxsWithFees height txs i l a b fees flags = .ok (result, total)) :
+    MoneyRange total = true ∧ i64Wrap total = total := by
+  have hrange := applyTxsWithFees_range hinit h
+  exact ⟨hrange, i64Wrap_eq_self (moneyRange_in_i64Range hrange)⟩
+
+/-- TXV-069 (actual block fee accumulator, per step): when the running
+`fees` prefix is in `MoneyRange`, a successful `applyTxWithFeeCheck` with
+`checkFeeTotal fees` keeps the next accumulator `fees + fee` in range, so
+the int64 wrap is the identity at that step. -/
+@[rule "TXV-069"]
+theorem applyTxWithFeeCheck_i64_step {height : UInt32} {tx : Tx} {i : Nat}
+    {l : List (OutPoint × Coin)} {flags : Bitcoin.Activation.ScriptFlags}
+    {result : List (OutPoint × Coin) × Nat × Nat} {fees fee : Amount}
+    (hinit : MoneyRange fees = true)
+    (h : applyTxWithFeeCheck height tx i l (checkFeeTotal fees) flags =
+      .ok (result, fee)) :
+    MoneyRange (fees + fee) = true ∧ i64Wrap (fees + fee) = fees + fee := by
+  rcases applyTxWithFeeCheck_fee h with ⟨_, rfl⟩ | ⟨_, _, hfee⟩
+  · have hi := i64Wrap_eq_self (moneyRange_in_i64Range hinit)
+    constructor
+    · simpa using hinit
+    · simpa using hi
+  · have hm : MoneyRange (fees + fee) = true := by
+      by_cases hb : MoneyRange (fees + fee)
+      · exact hb
+      · simp [checkFeeTotal, hb] at hfee
+    exact ⟨hm, i64Wrap_eq_self (moneyRange_in_i64Range hm)⟩
 
 /-- The funded stage exposes its actual checked total and subsidy bound;
 it also preserves exactly the reported UTXO and script counters. -/

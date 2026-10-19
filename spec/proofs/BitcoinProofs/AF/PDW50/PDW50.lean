@@ -77,6 +77,54 @@ theorem merkleRootOf_pair (a b : ByteArray) :
 theorem merkleLevel_singleton (a : ByteArray) :
     merkleLevel [a] = [pairHash a a] := rfl
 
+/-- **BLK-008**, arbitrary odd level: if `l` has even length then
+`l ++ [x]` has odd length, and Core duplicates its last element `x`
+before pairing. The whole level step is therefore the level step of the
+even prefix followed by the single paired tail `pairHash x x`.
+
+This is the general form of `merkleLevel_singleton`: every odd-sized
+level is `l ++ [x]` for an even prefix `l`, so no length or element is
+special-cased. -/
+@[rule "BLK-008"]
+theorem merkleLevel_append_singleton (l : List ByteArray) (x : ByteArray)
+    (h : l.length % 2 = 0) :
+    merkleLevel (l ++ [x]) = merkleLevel l ++ [pairHash x x] := by
+  -- Strong induction on a length bound: each step consumes the pair
+  -- `a, b` and leaves the even-length tail `rest` for the IH.
+  have key : ∀ (n : Nat) (l : List ByteArray), l.length ≤ n →
+      l.length % 2 = 0 →
+      merkleLevel (l ++ [x]) = merkleLevel l ++ [pairHash x x] := by
+    intro n
+    induction n with
+    | zero =>
+      intro l hle _hpar
+      have hl : l = [] := by
+        cases l with
+        | nil => rfl
+        | cons a tl => simp at hle
+      subst hl
+      rfl
+    | succ n ih =>
+      intro l hle hpar
+      cases l with
+      | nil => rfl
+      | cons a tl =>
+        cases tl with
+        | nil => simp at hpar
+        | cons b rest =>
+          have hrest_le : rest.length ≤ n := by
+            simp only [List.length_cons] at hle
+            omega
+          have hrest_par : rest.length % 2 = 0 := by
+            simp only [List.length_cons] at hpar
+            omega
+          have hIH := ih rest hrest_le hrest_par
+          change merkleLevel (a :: b :: (rest ++ [x])) =
+            merkleLevel (a :: b :: rest) ++ [pairHash x x]
+          simp only [merkleLevel, List.cons_append]
+          rw [hIH]
+  exact key l.length l (Nat.le_refl _) h
+
 /-- The Core odd-tail rule plus pairing: every level has length `(n+1)/2`. -/
 @[rule "BLK-008"]
 theorem merkleLevel_length (l : List ByteArray) :

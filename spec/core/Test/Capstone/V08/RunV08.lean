@@ -134,10 +134,14 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
     match (← (IO.FS.readFile s!"{dir}/{height}.seeds" <|> pure "")) with
     | "" => pure []
     | txt => pure ((txt.splitOn "\n").filter (fun l => !(trimStr l).isEmpty))
-  let seeds := seedLines.flatMap seedCoins
+  -- The release seed set can contain outputs created at the candidate height.
+  -- Those are not in the pristine pre-block view; pass only earlier coins to
+  -- BIP30, the fold, and the per-tx probes. Same-block spends are created by
+  -- the fold itself.
+  let seeds := (seedLines.flatMap seedCoins).filter (fun (_, c) => c.height.toNat < height)
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
-    match replayBlock raw st with
+    match replayBlockPartial raw st with
     | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
@@ -182,13 +186,13 @@ def main : IO Unit := do
   let mut results := []
   for h in anchors do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} replayOk={r.ok} accepted=false reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
   let allOk := results.all (·.ok)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone: an anchor block FAILED validation")
+  IO.println s!"SUMMARY blocks={results.length} allReplayOk={allOk} allAccepted=false totalMs={totalMs}"
+  if !allOk then throw (IO.userError "capstone: an anchor block FAILED diagnostic replay")
 
 end V08.Run
 

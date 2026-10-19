@@ -44,13 +44,13 @@ private def ledgerCode : Except BlockError (List (OutPoint × Coin)) → String
 
 private def code : Except CapError CapReport → String
   | .error e => e.reason
-  | .ok _ => "ok"
+  | .ok report => if report.fullValidation then "ok" else "partial"
 
 private def verdict (raw : ByteArray) (header parent : Bitcoin.Chain.BlockHeader)
     (height : UInt32) (coins : List (OutPoint × Coin)) (contextual : Bool) : String :=
   let state : CapState := { height := height, prevHash := header.hashPrevBlock, utxo := coins }
   code (if contextual then validateBlockInContext raw state (history height parent)
-        else replayBlock raw state)
+        else replayBlockPartial raw state)
 
 def publicChecks : IO (List (String × String × String)) := do
   let dir := "../data/review/bip30/"
@@ -80,7 +80,9 @@ def publicChecks : IO (List (String × String × String)) := do
           (funded txsAlt) contextual, "ok"),
        ("BIP30 precedes missing input", verdict rawAlt headerAlt parentAlt 91842
           [overlap txsAlt] contextual, "bad-txns-BIP30")]
-    checks := checks ++ cases.map (fun (name, actual, expected) => (mode++" "++name, actual, expected))
+    checks := checks ++ cases.map (fun (name, actual, expected) =>
+      let expected := if !contextual && expected == "ok" then "partial" else expected
+      (mode++" "++name, actual, expected))
   let (tapRaw, _, tapCoins) ← Test.Capstone.TaprootFixture.load
   let (tapHeader, tapTxs) ← Test.Capstone.TaprootFixture.decode tapRaw
   let ancestorBytes ← IO.FS.readBinFile (dir++"bip34-227931.header")
@@ -93,14 +95,14 @@ def publicChecks : IO (List (String × String × String)) := do
   let state := fun coins => ({ height := 709632, prevHash := tapHeader.hashPrevBlock, utxo := coins } : CapState)
   let collided := overlap tapTxs :: tapCoins
   checks := checks ++
-    [("window replay collision needs ancestor", code (replayBlock tapRaw (state collided)), "context-missing-ancestor"),
+    [("window replay collision needs ancestor", code (replayBlockPartial tapRaw (state collided)), "context-missing-ancestor"),
      ("window noncanonical ancestor enforces BIP30",
        code (validateBlockInContext tapRaw (state collided) base), "bad-txns-BIP30"),
      ("window missing ancestor is unavailable",
        code (validateBlockInContext tapRaw (state collided) missing), "context-missing-ancestor"),
      ("window canonical ancestor permits collision",
        code (validateBlockInContext tapRaw (state collided) pinned), "ok"),
-     ("window replay no collision needs no ancestor", code (replayBlock tapRaw (state tapCoins)), "ok"),
+     ("window replay no collision needs no ancestor", code (replayBlockPartial tapRaw (state tapCoins)), "partial"),
      ("window noncanonical ancestor no collision control",
        code (validateBlockInContext tapRaw (state tapCoins) base), "ok")]
   let ledgerState := overlap txsAlt :: funded txsAlt

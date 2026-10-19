@@ -77,6 +77,34 @@ example : mainnetParams.bip34Height = 227931 ∧
     mainnetParams.csvHeight = 419328 ∧ mainnetParams.segwitHeight = 481824 := by
   decide
 
+/-! ## BLK-086 / BLK-087 / INV-130: exception-hash and converse arms -/
+
+-- CLTV is on at the BIP65 boundary for the exception hashes too (no `hnone`).
+example : (getBlockScriptFlagsP mainnetParams bip16ExceptionHash 388381).cltv = true :=
+  (cltv_flag_iff_mainnet_any bip16ExceptionHash 388381).mpr (by decide)
+
+-- ... and off one block before, for the taproot exception hash.
+example : (getBlockScriptFlagsP mainnetParams taprootExceptionHash 388380).cltv = false :=
+  cltv_flag_off_any mainnetParams taprootExceptionHash 388380
+    (fun exf hmap => mainnet_exception_cltv_false taprootExceptionHash exf hmap) (by decide)
+
+-- CSV is on at its boundary for the taproot exception hash (INV-130), and
+-- off one block before at the BIP16 exception hash.
+example : (getBlockScriptFlagsP mainnetParams taprootExceptionHash 419328).csv = true :=
+  (csv_flag_iff_mainnet_any taprootExceptionHash 419328).mpr (by decide)
+example : (getBlockScriptFlagsP mainnetParams bip16ExceptionHash 419327).csv = false :=
+  csv_flag_off_any mainnetParams bip16ExceptionHash 419327
+    (fun exf hmap => mainnet_exception_csv_false bip16ExceptionHash exf hmap) (by decide)
+
+-- BLK-087: both CSV gates (script flag + contextual LOCKTIME_VERIFY_SEQUENCE)
+-- and the resulting BIP68 enablement are on for a version-2 transaction.
+example : (getBlockScriptFlagsP mainnetParams bip16ExceptionHash 419328).csv = true ∧
+    blockLocktimeFlags mainnetParams 419328 =
+      Bitcoin.DataLaws.LOCKTIME_VERIFY_SEQUENCE ∧
+    Bitcoin.DataLaws.bip68Enabled 2
+      (locktimeVerifySequenceFlag mainnetParams 419328) = true :=
+  csv_locktime_flag_flow_mainnet_any bip16ExceptionHash 419328 (by decide) 2 (by decide)
+
 /-! ## flagBits: verify_flags.h bit values -/
 
 example : flagBits mainnetBaseFlags = 0x20801 := by decide
@@ -120,6 +148,14 @@ no sorryAx anywhere). -/
 #guard_msgs in #print axioms Bitcoin.Activation.buried_heights_mainnet
 /-- info: 'Bitcoin.Activation.mainnet_height_hash_agree' depends on axioms: [propext] -/
 #guard_msgs in #print axioms Bitcoin.Activation.mainnet_height_hash_agree
+/-- info: 'Bitcoin.Activation.cltv_flag_iff_mainnet_any' depends on axioms: [propext] -/
+#guard_msgs in #print axioms Bitcoin.Activation.cltv_flag_iff_mainnet_any
+/-- info: 'Bitcoin.Activation.csv_flag_iff_mainnet_any' depends on axioms: [propext] -/
+#guard_msgs in #print axioms Bitcoin.Activation.csv_flag_iff_mainnet_any
+/-- info: 'Bitcoin.Activation.csv_locktime_flag_flow_mainnet_any' depends on axioms: [propext] -/
+#guard_msgs in #print axioms Bitcoin.Activation.csv_locktime_flag_flow_mainnet_any
+/-- info: 'Bitcoin.Activation.csv_flag_gate_iff_mainnet_any' depends on axioms: [propext] -/
+#guard_msgs in #print axioms Bitcoin.Activation.csv_flag_gate_iff_mainnet_any
 
 /-! ## Runtime harness (mirror of core/Main.lean's checkR pattern) -/
 

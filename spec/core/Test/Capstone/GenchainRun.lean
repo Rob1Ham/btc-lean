@@ -10,7 +10,7 @@ import Bitcoin.Capstone.RealChecker
 
 Feeds a synthetic chain (G01's genchain corpus, or the G02 fallback 50-block
 coinbase-only chain) through the capstone pipeline
-`replayBlock : SerializedBlock → CapState → Except CapError CapReport`,
+`replayBlockPartial : SerializedBlock → CapState → Except CapError CapReport`,
 **threading** the sequential state (height, prevHash, UTXO list) from block
 to block — unlike `Test.Capstone.Run`, which validates anchor blocks against
 materialized `.seeds` prevout views.
@@ -21,7 +21,7 @@ own header `hashPrevBlock` field, utxo = ∅}.
 
 Output (stdout): one `GBLOCK` line per block (per-block validate ms), a
 `PROBE` + `GDIAG` line per failure (first offending tx; per-gate verdicts
-over the public gate defs — replayBlock itself untouched), and a final
+over the public gate defs — replayBlockPartial itself untouched), and a final
 `GSUMMARY` with wall clock. Exit 0 iff every block validated.
 
 Run: `lake env lean --run Test/Capstone/GenchainRun.lean`
@@ -88,7 +88,7 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
   let t0 ← IO.monoMsNow
   let decoded := decodeBlock raw
   let res :=
-    match replayBlock raw st with
+    match replayBlockPartial raw st with
     | .error e => Sum.inl (CapError.reason e)
     | .ok rep =>
         let txsL : List Tx :=
@@ -112,7 +112,7 @@ def runBlock (idx : Nat) (raw : ByteArray) (st : CapState) :
               (fun i => probeTx st.height (txs.getD i dummyTx) i st.utxo))
       IO.println s!"GBLOCK {idx} ok=false reason={reason} ms={t1 - t0} height={st.height.toNat}"
       IO.println s!"PROBE {idx}: {probe}"
-      -- per-gate diagnosis over the public gate defs (replayBlock untouched)
+      -- per-gate diagnosis over the public gate defs (replayBlockPartial untouched)
       let diag :=
         match decoded with
         | .error e => s!"decode={repr e}"

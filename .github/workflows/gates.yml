@@ -37,6 +37,9 @@ jobs:
           TMPDIR: ${{ runner.temp }}
         run: make gates
 
+      - name: Core correspondence surface
+        run: python3 spec/scripts/core_correspondence_check.py
+
       - name: Reproducibility references
         env:
           TMPDIR: ${{ runner.temp }}

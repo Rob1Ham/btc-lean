@@ -8,13 +8,13 @@ This page is the static scope index for the Lean proof package at `spec/proofs`.
 
 | Metric | Count |
 |---|---:|
-| Tracked `.lean` files under `spec/proofs` | 418 |
-| Lean modules | 417 |
+| Tracked `.lean` files under `spec/proofs` | 427 |
+| Lean modules | 426 |
 | Non-module `.lean` files | 1 (`lakefile.lean`) |
-| Modules in the default `BitcoinProofs` closure | 37 |
-| Modules outside the default closure | 380 |
+| Modules in the default `BitcoinProofs` closure | 38 |
+| Modules outside the default closure | 388 |
 
-The package has 418 tracked `.lean` files: 417 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
+The package has 427 tracked `.lean` files: 426 modules plus the Lake build file `spec/proofs/lakefile.lean`, which is not a module.
 
 ## Module-count convention
 
@@ -28,9 +28,10 @@ The **default closure** is the root module plus every module reachable through `
 
 ## Default closure
 
-The root has 36 direct imports. Their transitive local closure is 37 modules:
+The root has 36 direct imports. Their transitive local closure is 38 modules:
 
 - `BitcoinProofs`
+- `BitcoinProofs.AF.PDW50.PDW50`
 - `BitcoinProofs.Bip.B42.Bip42`
 - `BitcoinProofs.Conservation.Test`
 - `BitcoinProofs.Conservation.Thms`
@@ -75,7 +76,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 | Area | Modules | In closure | Outside closure |
 |---|---:|---:|---:|
 | `(root)` | 1 | 1 | 0 |
-| `AF` | 249 | 0 | 249 |
+| `AF` | 256 | 1 | 255 |
 | `Activation` | 1 | 0 | 1 |
 | `Audit` | 18 | 0 | 18 |
 | `Bip` | 16 | 1 | 15 |
@@ -89,10 +90,10 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 | `Property` | 17 | 0 | 17 |
 | `Shortcuts` | 3 | 0 | 3 |
 | `SmallCurve` | 3 | 0 | 3 |
-| `Theorems` | 54 | 30 | 24 |
+| `Theorems` | 56 | 30 | 26 |
 | `Trivial` | 1 | 1 | 0 |
 | `Wallet` | 22 | 0 | 22 |
-| **Total** | **417** | **37** | **380** |
+| **Total** | **426** | **38** | **388** |
 
 <details><summary><code>(root)</code> — 1 modules (1 in closure)</summary>
 
@@ -100,7 +101,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 
 </details>
 
-<details><summary><code>AF</code> — 249 modules (0 in closure)</summary>
+<details><summary><code>AF</code> — 256 modules (1 in closure)</summary>
 
 - `BitcoinProofs.AF.PDW10.PDW10Guards`
 - `BitcoinProofs.AF.PDW100.PDW100`
@@ -144,6 +145,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.AF.PDW24.PDW24Guards`
 - `BitcoinProofs.AF.PDW25.PDW25`
 - `BitcoinProofs.AF.PDW25.PDW25Guards`
+- `BitcoinProofs.AF.PDW25.TPR007`
 - `BitcoinProofs.AF.PDW25.p1`
 - `BitcoinProofs.AF.PDW25.q`
 - `BitcoinProofs.AF.PDW26.PDW26`
@@ -276,11 +278,13 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.AF.PDW67b.PDW67bD`
 - `BitcoinProofs.AF.PDW67b.PDW67bE`
 - `BitcoinProofs.AF.PDW67b.PDW67bF`
+- `BitcoinProofs.AF.PDW67b.PDW67bG`
 - `BitcoinProofs.AF.PDW68.PDW68`
 - `BitcoinProofs.AF.PDW68.PDW68B`
 - `BitcoinProofs.AF.PDW68x.PDW68x`
 - `BitcoinProofs.AF.PDW68x.PDW68xB`
 - `BitcoinProofs.AF.PDW68x.PDW68xGuards`
+- `BitcoinProofs.AF.PDW68x.PDW68xPath`
 - `BitcoinProofs.AF.PDW69.PDW69`
 - `BitcoinProofs.AF.PDW69TxCheck.PDW69TxCheck`
 - `BitcoinProofs.AF.PDW7.INV010CoinBaseCor`
@@ -304,6 +308,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.AF.PDW78.PDW78`
 - `BitcoinProofs.AF.PDW78.PDW78Guards`
 - `BitcoinProofs.AF.PDW79.PDW79`
+- `BitcoinProofs.AF.PDW79.PDW79b`
 - `BitcoinProofs.AF.PDW8.Blk063Cor`
 - `BitcoinProofs.AF.PDW8.Blk064Cor`
 - `BitcoinProofs.AF.PDW8.Blk120Cor`
@@ -326,12 +331,15 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.AF.PDW85.PDW85`
 - `BitcoinProofs.AF.PDW85.PDW85b`
 - `BitcoinProofs.AF.PDW86.PDW86`
+- `BitcoinProofs.AF.PDW86.PDW86Clamp`
 - `BitcoinProofs.AF.PDW87.PDW87`
 - `BitcoinProofs.AF.PDW88.PDW88`
 - `BitcoinProofs.AF.PDW88.PDW88Act`
+- `BitcoinProofs.AF.PDW88.PDW88b`
 - `BitcoinProofs.AF.PDW89.PDW89`
 - `BitcoinProofs.AF.PDW89.PDW89b`
 - `BitcoinProofs.AF.PDW89.PDW89c`
+- `BitcoinProofs.AF.PDW9.UnspendableSpend`
 - `BitcoinProofs.AF.PDW90.PDW90`
 - `BitcoinProofs.AF.PDW90.PDW90b`
 - `BitcoinProofs.AF.PDW91.PDW91`
@@ -509,7 +517,7 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 
 </details>
 
-<details><summary><code>Theorems</code> — 54 modules (30 in closure)</summary>
+<details><summary><code>Theorems</code> — 56 modules (30 in closure)</summary>
 
 - `BitcoinProofs.Theorems.Audit.CV02`
 - `BitcoinProofs.Theorems.Audit.CV03`
@@ -553,11 +561,13 @@ The top-level area is the first path component after `BitcoinProofs`; the root m
 - `BitcoinProofs.Theorems.LedgerCor`
 - `BitcoinProofs.Theorems.NegMine.N02`
 - `BitcoinProofs.Theorems.NumericCor`
+- `BitcoinProofs.Theorems.Ops.INV057`
 - `BitcoinProofs.Theorems.Ops.O01`
 - `BitcoinProofs.Theorems.Ops.O02`
 - `BitcoinProofs.Theorems.Ops.O04`
 - `BitcoinProofs.Theorems.Ops.O07`
 - `BitcoinProofs.Theorems.Ops.O09`
+- `BitcoinProofs.Theorems.Ops.TPR071`
 - `BitcoinProofs.Theorems.ParserCor`
 - `BitcoinProofs.Theorems.T3T4PipelineRealCor`
 - `BitcoinProofs.Theorems.T3T4RealCheckerCor`

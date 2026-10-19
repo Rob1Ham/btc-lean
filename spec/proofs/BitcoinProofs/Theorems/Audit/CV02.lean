@@ -179,15 +179,96 @@ def matrixB2 : Bool := disabled15.all rowB2
 theorem matrixB2_true : matrixB2 = true := by rfl
 
 /-- B3: 765-byte PUSHDATA2 payload + OP_CAT = `.pushSize` first. -/
-def scriptB3 : ByteArray :=
-  ByteArray.mk #[0x4d, 0xfd, 0x02] ++ ByteArray.mk (Array.replicate 765 (0x41 : UInt8))
-    ++ ba 0x7e
+def preB3 : ByteArray := ByteArray.mk #[0x4d, 0xfd, 0x02]
+def payloadB3 : ByteArray := ByteArray.mk (Array.replicate 765 (0x41 : UInt8))
+def scriptB3 : ByteArray := preB3 ++ (payloadB3 ++ ba 0x7e)
+
+/-- The three concrete facts the bounded B3 proof needs at the two
+literal offsets, without asking the kernel to normalize the whole
+765-byte payload. -/
+theorem scriptB3_size : scriptB3.size = 769 := by decide
+theorem scriptB3_get0 : scriptB3[0]!.toNat = 0x4d := by decide
+theorem scriptB3_get768 : scriptB3[768]!.toNat = 0x7e := by decide
+
+theorem scriptB3_slice : sliceOpt scriptB3 3 765 = some payloadB3 := by
+  unfold scriptB3
+  rw [sliceOpt_payload preB3 payloadB3 (ba 0x7e) 3 765 (by rfl) (by rfl) (by decide)]
+
+theorem scriptB3_read : readLE scriptB3 1 2 = some 765 := by
+  unfold scriptB3 preB3 payloadB3 ba
+  rfl
+
+theorem scriptB3_getOp0 : getOp scriptB3 0 = some (.pushBytes payloadB3, 768) := by
+  have h : getOpt scriptB3 0 = some 0x4d := by
+    unfold scriptB3 preB3 payloadB3 ba
+    rfl
+  unfold getOp
+  rw [h]
+  change getOpAux scriptB3 0 0x4d = some (.pushBytes payloadB3, 768)
+  rw [getOpAux_pd2 _ 0 0x4d 765 payloadB3 (by decide) scriptB3_read scriptB3_slice]
+
+theorem scriptB3_getOp768 : getOp scriptB3 768 = some (.op ⟨0x7e, by decide⟩, 769) := by
+  have h : getOpt scriptB3 768 = some 0x7e := by
+    unfold scriptB3 preB3 payloadB3 ba
+    rfl
+  unfold getOp
+  rw [h]
+  change getOpAux scriptB3 768 0x7e = some (.op ⟨0x7e, by decide⟩, 769)
+  rw [getOpAux_ophi _ 768 _ (by decide)]
+  rfl
+
+theorem scriptB3_parseNil : parseWireFrom 768 scriptB3 769 = some [] := by
+  unfold parseWireFrom
+  rw [scriptB3_size]
+  simp
+
+theorem scriptB3_parse :
+    parseWire scriptB3 =
+      some [{ ast := .pushBytes payloadB3, wire := 0x4d, next := 768 },
+            { ast := .op ⟨0x7e, by decide⟩, wire := 0x7e, next := 769 }] := by
+  unfold parseWire parseWireFrom
+  rw [scriptB3_size, scriptB3_getOp0]
+  simp only [Option.map]
+  rw [show parseWireFrom 769 scriptB3 768 =
+      some [{ ast := .op ⟨0x7e, by decide⟩, wire := 0x7e, next := 769 }] by
+    unfold parseWireFrom
+    rw [scriptB3_size, scriptB3_getOp768]
+    simp [scriptB3_parseNil, scriptB3_get768]]
+  simp [scriptB3_get0]
+
+/-- The concrete first step: the 765-byte push is rejected by the
+push-size guard before the opcode dispatcher sees OP_CAT. -/
+def ctxB3 : Ctx := ⟨noflags, default, default, .base, scriptB3, default⟩
+def initB3 : State :=
+  { stack := [], alt := [], vf := [], opCount := 0, codeSep := 0, vwLeft := none }
+
+theorem scriptB3_step :
+    stepChecked ctxB3 { ast := .pushBytes payloadB3, wire := 0x4d, next := 768 } initB3
+      = .error .pushSize := by
+  unfold stepChecked stepBody
+  rfl
+
+/-- B3 at the `evalScriptBytes` entry, proved from the bounded parse and
+first-step facts instead of a monolithic `rfl` over the payload. -/
+theorem scriptB3_eval :
+    evalScriptBytes 3 noflags default scriptB3 [] default .base default
+      = .error .pushSize := by
+  unfold evalScriptBytes
+  rw [if_neg (by decide)]
+  rw [scriptB3_parse]
+  change finalStack (evalFrom ctxB3 3
+    [{ ast := .pushBytes payloadB3, wire := 0x4d, next := 768 },
+     { ast := .op ⟨0x7e, by decide⟩, wire := 0x7e, next := 769 }] initB3)
+    = .error .pushSize
+  simp only [finalStack, evalFrom, scriptB3_step]
 
 def rowB3 : Bool :=
   match evalScriptBytes 3 noflags default scriptB3 [] default .base default with
   | .error ExecError.pushSize => true
   | _ => false
-theorem rowB3_pushSize_first : rowB3 = true := by rfl
+theorem rowB3_pushSize_first : rowB3 = true := by
+  unfold rowB3
+  rw [scriptB3_eval]
 
 /-- The non-disabled flanks INSIDE 0x7e..0x9a: Core's :467-481 chain
 falls through for these (OP_SIZE 0x82, OP_EQUAL 0x87, OP_EQUALVERIFY

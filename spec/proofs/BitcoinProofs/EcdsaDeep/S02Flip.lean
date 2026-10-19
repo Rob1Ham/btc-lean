@@ -33,6 +33,15 @@ The sections, by actual-use rank (S02 census @ 2026-10-16 23:15):
   * Tapscript/Delta.lean 37  → §E (samples 60/103)
   * Y02/Corpus.lean 99 (proofs pkg) → §F (samples 160/161/162)
   * B11/NullDummyVectors.lean 13 (proofs pkg) → §G (samples V1 117 / V2 123)
+
+RESULT (re-measured 2026-10-19, Lean v4.35.0): 6 of the 18 sampled
+use-sites flip to kernel `decide`; 12 hit the wall. Live examples below:
+D1, E1, E2, E3, F1, F2. FLIP-WALLs (kept as verbatim comments so the
+module compiles without `native_decide` or an axiom): A1; B1-B4; C1-C4;
+D2, D3; F3; G1, G2. All walls are the same two seams: opaque hashing
+(`hashSha256`/`hashSha1`/`hashRipemd160`/`signatureHashLegacy`/
+`headerHash`/`txidOf`) and opaque HashMap/signature-checker reduction
+(`Std.HashMap.get?`/`mixHash`, `stubChecker`).
 -/
 
 set_option maxRecDepth 100000
@@ -84,12 +93,16 @@ private def txOf (hex : String) : Tx :=
 
 private def scOf (hex : String) : Script := ⟨fromHex hex⟩
 
--- sh-000 (SighashTest.lean:70-73), FLIP-ATTEMPT A1:
-example : bytesBEq (signatureHashLegacy (txOf "907c2bc503ade11cc3b04eb2918b6f547b0630ab569273824748c87ea14b0696526c66ba740200000004ab65ababfd1f9bdd\
-  4ef073c7afc4ae00da8a66f429c917a0081ad1e1dabce28d373eab81d8628de802000000096aab5253ab52000052ad042b5f\
-  25efb33beec9f3364e8a9139e8439d9d7e26529c3c30b6c3fd89f8684cfd68ea0200000009ab53526500636a52ab599ac2fe\
-  02a526ed040000000008535300516352515164370e010000000003006300ab2ec229") 2 (scOf "") 0x6f1ce51f)
-    (revHex "31af167a6cf3f9d5f6875caa4d31704ceb0eba078d132b78dab52c3b8997317e") = true := by decide
+-- sh-000 (SighashTest.lean:70-73), FLIP-ATTEMPT A1 — FLIP-WALL.
+-- Kernel `decide` fails to reduce: `signatureHashLegacy` reaches the
+-- opaque hash seam, so there is no kernel-reduction proof. Recorded
+-- verbatim (commented) rather than using `native_decide` (D-004) or an
+-- axiom.
+-- example : bytesBEq (signatureHashLegacy (txOf "907c2bc503ade11cc3b04eb2918b6f547b0630ab569273824748c87ea14b0696526c66ba740200000004ab65ababfd1f9bdd\
+--   4ef073c7afc4ae00da8a66f429c917a0081ad1e1dabce28d373eab81d8628de802000000096aab5253ab52000052ad042b5f\
+--   25efb33beec9f3364e8a9139e8439d9d7e26529c3c30b6c3fd89f8684cfd68ea0200000009ab53526500636a52ab599ac2fe\
+--   02a526ed040000000008535300516352515164370e010000000003006300ab2ec229") 2 (scOf "") 0x6f1ce51f)
+--     (revHex "31af167a6cf3f9d5f6875caa4d31704ceb0eba078d132b78dab52c3b8997317e") = true := by decide
 
 end A
 
@@ -133,24 +146,26 @@ private def m2 : UtxoMap :=
   | .ok m => m
   | .error _ => m0
 
--- HashMapTests.lean:88-90, FLIP-ATTEMPT B1 (coinbase insert; HashMap+mixHash):
-example : okOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).map
-    (fun m => (m.get? (keyOf cb 0)).map (·.value))) =
-  some (some (5000000000 : Int)) := by decide
+-- HashMapTests.lean:88-90, FLIP-ATTEMPT B1 — FLIP-WALL.
+-- Kernel `decide` fails to reduce: `Std.HashMap.get?`/`mixHash` over the
+-- opaque hash seam is not kernel-reducible. Recorded, not proved.
+-- example : okOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).map
+--     (fun m => (m.get? (keyOf cb 0)).map (·.value))) =
+--   some (some (5000000000 : Int)) := by decide
 
--- :92-94, FLIP-ATTEMPT B2 (isCoinbase bit):
-example : okOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).map
-    (fun m => (m.get? (keyOf cb 0)).map (·.isCoinbase))) =
-  some (some true) := by decide
+-- :92-94, FLIP-ATTEMPT B2 — FLIP-WALL (same HashMap/hash seam as B1).
+-- example : okOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).map
+--     (fun m => (m.get? (keyOf cb 0)).map (·.isCoinbase))) =
+--   some (some true) := by decide
 
--- :107-109, FLIP-ATTEMPT B3 (maturity error through the map):
-example :
-    errOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).bind
-      (fun m => applyTxStepM m s1 (txidPreimageKey s1) 0)) =
-    some (BlockError.txError TxError.badTxnsPrematureSpendOfCoinbase) := by decide
+-- :107-109, FLIP-ATTEMPT B3 — FLIP-WALL (same map reduction wall as B1).
+-- example :
+--     errOf ((applyTxStepM m0 cb (txidPreimageKey cb) 0).bind
+--       (fun m => applyTxStepM m s1 (txidPreimageKey s1) 0)) =
+--     some (BlockError.txError TxError.badTxnsPrematureSpendOfCoinbase) := by decide
 
--- :125, FLIP-ATTEMPT B4 (double-spend removal):
-example : (m2.get? (keyOf cb 0)).isSome = false := by decide
+-- :125, FLIP-ATTEMPT B4 — FLIP-WALL (same map reduction wall as B1).
+-- example : (m2.get? (keyOf cb 0)).isSome = false := by decide
 
 end B
 
@@ -181,21 +196,23 @@ where
 
 private def hex (s : String) : ByteArray := fromHex s
 
--- Interpreter/Tests.lean:91-92, FLIP-ATTEMPT C1 (empty-msg SHA-256):
-example : hashSha256 ("".toUTF8) =
-    hex "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" := by decide
+-- Interpreter/Tests.lean:91-92, FLIP-ATTEMPT C1 — FLIP-WALL.
+-- `hashSha256` is an opaque/extern crypto seam; kernel `decide` cannot
+-- reduce it. Recorded, not proved (no `native_decide`, no axiom).
+-- example : hashSha256 ("".toUTF8) =
+--     hex "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" := by decide
 
--- :93-94, FLIP-ATTEMPT C2 ("abc" SHA-256):
-example : hashSha256 ("abc".toUTF8) =
-    hex "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" := by decide
+-- :93-94, FLIP-ATTEMPT C2 — FLIP-WALL (opaque `hashSha256`).
+-- example : hashSha256 ("abc".toUTF8) =
+--     hex "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad" := by decide
 
--- :96-97, FLIP-ATTEMPT C3 (empty-msg SHA-1):
-example : hashSha1 ("".toUTF8) =
-    hex "da39a3ee5e6b4b0d3255bfef95601890afd80709" := by decide
+-- :96-97, FLIP-ATTEMPT C3 — FLIP-WALL (opaque `hashSha1`).
+-- example : hashSha1 ("".toUTF8) =
+--     hex "da39a3ee5e6b4b0d3255bfef95601890afd80709" := by decide
 
--- :99-100, FLIP-ATTEMPT C4 ("abc" RIPEMD-160):
-example : hashRipemd160 ("abc".toUTF8) =
-    hex "8eb208f7e05d987a9b044a8e98c6b087f15a0bfb" := by decide
+-- :99-100, FLIP-ATTEMPT C4 — FLIP-WALL (opaque `hashRipemd160`).
+-- example : hashRipemd160 ("abc".toUTF8) =
+--     hex "8eb208f7e05d987a9b044a8e98c6b087f15a0bfb" := by decide
 
 end C
 
@@ -247,12 +264,14 @@ private def HASH0 : ByteArray := fromHex
 -- Headers.lean:129, FLIP-ATTEMPT D1 (decode/encode stability, no hash):
 example : roundTrips RAW0 = true := by decide
 
--- :138-139, FLIP-ATTEMPT D2 (BLK-003: SHA256d header hash):
-example : bytesBEq (rev32 (headerHash (vecHeader RAW0))) HASH0 = true := by
-  decide
+-- :138-139, FLIP-ATTEMPT D2 — FLIP-WALL (BLK-003 SHA256d header hash
+-- is the opaque hash seam; kernel `decide` fails to reduce).
+-- example : bytesBEq (rev32 (headerHash (vecHeader RAW0))) HASH0 = true := by
+--   decide
 
--- :153, FLIP-ATTEMPT D3 (powOk: target gate + high-hash ≤ target):
-example : powOk (vecHeader RAW0) = true := by decide
+-- :153, FLIP-ATTEMPT D3 — FLIP-WALL (powOk reaches `headerHash`, same
+-- opaque hash seam as D2).
+-- example : powOk (vecHeader RAW0) = true := by decide
 
 end D
 
@@ -341,9 +360,10 @@ example : errOfTx (decTx v_TX_LEG_0) = none := by decide
 -- :161, FLIP-ATTEMPT F2 (roundtrip; Eq ByteArray):
 example : reEncodeTx (decTx v_TX_LEG_0) = fromHex v_TX_LEG_0 := by decide
 
--- :162, FLIP-ATTEMPT F3 (txid = sha256d):
-example : (match decTx v_TX_LEG_0 with | .ok t => txidOf t | .error _ => ByteArray.empty)
-    = fromHex "3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a" := by decide
+-- :162, FLIP-ATTEMPT F3 — FLIP-WALL (txid = SHA256d, the opaque hash
+-- seam; kernel `decide` fails to reduce).
+-- example : (match decTx v_TX_LEG_0 with | .ok t => txidOf t | .error _ => ByteArray.empty)
+--     = fromHex "3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a" := by decide
 
 end F
 
@@ -378,14 +398,17 @@ private def errIs (r : Except ExecError Bitcoin.Interpreter.State) (e : ExecErro
 private def okIs (r : Except ExecError Bitcoin.Interpreter.State) (s : Bitcoin.Interpreter.State) : Bool :=
   match r with | .ok s' => s' == s | .error _ => false
 
--- B11:116-117 (V1 nullDummy gate), FLIP-ATTEMPT G1:
-example : errIs (stepBody.checkMultiSig (mkCtx true .base) 0xae (mkSt (stackFor sig72 dummy01)))
-    .sigNullDummy = true := by decide
+-- B11:116-117 (V1 nullDummy gate), FLIP-ATTEMPT G1 — FLIP-WALL.
+-- `checkMultiSig` goes through the `stubChecker` crypto seam, which
+-- kernel `decide` cannot reduce. Recorded, not proved.
+-- example : errIs (stepBody.checkMultiSig (mkCtx true .base) 0xae (mkSt (stackFor sig72 dummy01)))
+--     .sigNullDummy = true := by decide
 
--- :118-124 (V2 empty dummy ok), FLIP-ATTEMPT G2:
-example : okIs (stepBody.checkMultiSig (mkCtx true .base) 0xae (mkSt (stackFor sig72 dummyE)))
-    { stack := [vchTrue], alt := [], vf := [], opCount := 1, codeSep := 0, vwLeft := none } := by
-  decide
+-- :118-124 (V2 empty dummy ok), FLIP-ATTEMPT G2 — FLIP-WALL (same
+-- `stubChecker` seam as G1).
+-- example : okIs (stepBody.checkMultiSig (mkCtx true .base) 0xae (mkSt (stackFor sig72 dummyE)))
+--     { stack := [vchTrue], alt := [], vf := [], opCount := 1, codeSep := 0, vwLeft := none } := by
+--   decide
 
 end G
 

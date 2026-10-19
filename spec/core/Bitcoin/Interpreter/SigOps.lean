@@ -100,19 +100,76 @@ def inaccurateSigOpCount : List WireOp → Nat
 def sigOpCount (ops : List WireOp) (accurate : Bool) : Nat :=
   if accurate then accurateSigOpCount ops else inaccurateSigOpCount ops
 
-/-- Core's GetOp loop stops at the first malformed push and retains the
-already parsed prefix. Unlike EvalScript's parser, this is not all-or-nothing. -/
+/-- `GetOp` restricted to pushes Core's static sigop counter accepts.
+`MAX_SCRIPT_ELEMENT_SIZE` is 520 (`script.h`): a PUSHDATA2/PUSHDATA4
+payload beyond it is not a valid opcode for `GetSigOpCount`, so the
+counting walk stops there. EvalScript's all-or-nothing `parseWire` keeps
+the permissive `getOp` (the interpreter rejects an oversized push with
+PUSH_SIZE, SCR-046). -/
+def getOpCount (b : ByteArray) (i : Nat) : Option (Opcode × Nat) :=
+  match getOp b i with
+  | none => none
+  | some (o, i') =>
+    match o with
+    | .pushBytes d =>
+      if d.size ≤ Bitcoin.Script.Parser.MAX_SCRIPT_ELEMENT_SIZE
+      then some (o, i') else none
+    | _ => some (o, i')
+
+/-- A size-bounded `GetOp` is the plain `GetOp` whenever the decoded
+opcode is well-formed (in particular every push payload is ≤ 520). -/
+theorem getOpCount_eq_getOp_of_opcodeWF {b : ByteArray} {i : Nat}
+    {o : Opcode} {i' : Nat} (h : getOp b i = some (o, i'))
+    (ho : opcodeWF o) : getOpCount b i = some (o, i') := by
+  unfold getOpCount
+  rw [h]
+  cases o with
+  | pushBytes d => simpa [opcodeWF] using ho
+  | pushNum n => rfl
+  | op c => rfl
+
+/-- Core's `GetOp` loop stops at the first malformed or oversized push
+and retains the already parsed prefix. Unlike EvalScript's parser, this
+is not all-or-nothing. -/
 def parseWirePrefixFrom : Nat → ByteArray → Nat → List WireOp
   | 0, _, _ => []
   | f+1, b, i =>
     if b.size ≤ i then []
-    else match getOp b i with
+    else match getOpCount b i with
       | none => []
       | some (o, i') =>
         { ast := o, wire := b[i]!.toNat, next := i' } :: parseWirePrefixFrom f b i'
 
 def parseWirePrefix (b : ByteArray) : List WireOp :=
   parseWirePrefixFrom (b.size + 1) b 0
+
+/-- A successful size-bounded decode advances at least one byte and
+stays inside the script. -/
+theorem getOpCount_spec {b : ByteArray} {i : Nat} {o : Opcode} {i' : Nat}
+    (h : getOpCount b i = some (o, i')) :
+    i < i' ∧ i' ≤ b.size := by
+  unfold getOpCount at h
+  cases hg : getOp b i with
+  | none => simp [hg] at h
+  | some p =>
+    rcases p with ⟨o₀, j⟩
+    have hj := getOp_spec hg
+    cases o₀ with
+    | pushBytes d =>
+      simp only [hg] at h
+      split at h
+      · simp only [Option.some.injEq, Prod.mk.injEq] at h
+        obtain ⟨rfl, rfl⟩ := h
+        exact ⟨hj.1, hj.2.1⟩
+      · simp at h
+    | pushNum n =>
+      simp only [hg, Option.some.injEq, Prod.mk.injEq] at h
+      obtain ⟨rfl, rfl⟩ := h
+      exact ⟨hj.1, hj.2.1⟩
+    | op c =>
+      simp only [hg, Option.some.injEq, Prod.mk.injEq] at h
+      obtain ⟨rfl, rfl⟩ := h
+      exact ⟨hj.1, hj.2.1⟩
 
 theorem parseWirePrefixFrom_length_le (f : Nat) (b : ByteArray) (i : Nat) :
     (parseWirePrefixFrom f b i).length ≤ b.size - i := by
@@ -121,11 +178,11 @@ theorem parseWirePrefixFrom_length_le (f : Nat) (b : ByteArray) (i : Nat) :
   | succ f ih =>
     by_cases hi : b.size ≤ i
     · simp [parseWirePrefixFrom, hi]
-    · cases hg : getOp b i with
+    · cases hg : getOpCount b i with
       | none => simp [parseWirePrefixFrom, hi, hg]
       | some pair =>
         rcases pair with ⟨o, j⟩
-        have hj := getOp_spec hg
+        have hj := getOpCount_spec hg
         have ht := ih j
         simp only [parseWirePrefixFrom, hi, ↓reduceIte, hg, List.length_cons]
         omega
@@ -138,8 +195,14 @@ theorem inaccurateSigOpCount_le (ops : List WireOp) :
     simp only [inaccurateSigOpCount, List.length_cons, Nat.mul_add, Nat.mul_one]
     split <;> (try split) <;> (try simp only [MAX_PUBKEYS_PER_MULTISIG]) <;> omega
 
+/-- Every opcode in the list is well-formed, hence every push payload
+is at most `MAX_SCRIPT_ELEMENT_SIZE`. -/
+def WireOpsWithinLimit (ops : List WireOp) : Prop :=
+  ∀ w ∈ ops, opcodeWF w.ast
+
 theorem parseWirePrefixFrom_of_parse (f : Nat) (b : ByteArray) (i : Nat)
-    (ops : List WireOp) (h : parseWireFrom f b i = some ops) :
+    (ops : List WireOp) (h : parseWireFrom f b i = some ops)
+    (hall : WireOpsWithinLimit ops) :
     parseWirePrefixFrom f b i = ops := by
   induction f generalizing i ops with
   | zero => simp [parseWireFrom] at h
@@ -155,11 +218,19 @@ theorem parseWirePrefixFrom_of_parse (f : Nat) (b : ByteArray) (i : Nat)
         | some tail =>
           simp only [parseWireFrom, hi, ↓reduceIte, hg, ht, Option.map_some,
             Option.some.injEq] at h
-          simpa [parseWirePrefixFrom, hi, hg, ih j tail ht] using h
+          have hwmem : ({ ast := o, wire := b[i]!.toNat, next := j } : WireOp) ∈ ops := by
+            rw [← h]; simp
+          have ho : opcodeWF o := hall _ hwmem
+          have htail : WireOpsWithinLimit tail :=
+            fun w hw => hall w (by rw [← h]; simp [hw])
+          simpa [parseWirePrefixFrom, hi,
+            getOpCount_eq_getOp_of_opcodeWF hg ho,
+            ih j tail ht htail] using h
 
 @[simp] theorem parseWirePrefix_of_parse (b : ByteArray) (ops : List WireOp)
-    (h : parseWire b = some ops) : parseWirePrefix b = ops :=
-  parseWirePrefixFrom_of_parse (b.size + 1) b 0 ops h
+    (h : parseWire b = some ops) (hall : WireOpsWithinLimit ops) :
+    parseWirePrefix b = ops :=
+  parseWirePrefixFrom_of_parse (b.size + 1) b 0 ops h hall
 
 /-- Raw-script counter: malformed pushes terminate the loop, preserving
 the count of preceding opcodes. Static counting does not execute a script. -/
@@ -173,14 +244,115 @@ theorem scriptSigOpCount_inaccurate_le (b : ByteArray) :
   have hm := Nat.mul_le_mul_left 20 hl
   simpa [scriptSigOpCount, sigOpCount, parseWirePrefix] using Nat.le_trans hc hm
 
-/-- **SWT-026/022**: accurate counting of the witnessScript's valid prefix. -/
+/-- **SWT-026/022**: accurate counting of the witnessScript's valid
+prefix. The walk uses the 520-byte-bounded `getOpCount`, so an oversized
+PUSHDATA2/PUSHDATA4 terminates the count exactly where Core's
+`GetScriptOp`/`GetSigOpCount` stops. -/
 @[rule "SWT-026"]
 def witnessScriptSigOps (script : ByteArray) : Nat :=
   scriptSigOpCount script true
 
+/-- Core's `CScript::GetSigOpCount(true)` rendering: the accurate count
+over the size-bounded `GetOp` prefix walk. -/
+@[rule "SWT-026"]
+def coreSigOpCount (script : ByteArray) : Nat :=
+  accurateSigOpCount (parseWirePrefix script)
+
+@[rule "SWT-026"]
+theorem witnessScriptSigOps_eq_coreSigOpCount (script : ByteArray) :
+    witnessScriptSigOps script = coreSigOpCount script := rfl
+
+/-- The size-bounded counting decode rejects an oversized push outright. -/
+@[rule "SWT-026"]
+theorem getOpCount_oversize_push {b : ByteArray} {i : Nat} {d : ByteArray}
+    {j : Nat} (hg : getOp b i = some (Opcode.pushBytes d, j))
+    (hd : Bitcoin.Script.Parser.MAX_SCRIPT_ELEMENT_SIZE < d.size) :
+    getOpCount b i = none := by
+  unfold getOpCount
+  rw [hg]
+  simp [hd]
+
+/-- The permissive parser decodes a canonical oversized push
+(PUSHDATA2, 521..65535 bytes) to the full payload. This is the decode
+that `getOpCount` then rejects, unlike EvalScript's later `PUSH_SIZE`
+failure. -/
+private theorem getOp_pushBytesWire_oversize (d post : ByteArray)
+    (hd : Bitcoin.Script.Parser.MAX_SCRIPT_ELEMENT_SIZE < d.size)
+    (hhi : d.size ≤ 0xffff) :
+    getOp (Bitcoin.Script.Parser.pushBytesWire d ++ post) 0 =
+      some (Opcode.pushBytes d, (Bitcoin.Script.Parser.pushBytesWire d).size) := by
+  unfold Bitcoin.Script.Parser.pushBytesWire
+  rw [ByteArray.append_assoc]
+  have hM : Bitcoin.Script.Parser.MAX_SCRIPT_ELEMENT_SIZE = 520 := rfl
+  rw [hM] at hd
+  cases heq0 : d.size with
+  | zero => omega
+  | succ m =>
+    simp only [Bitcoin.Script.Parser.lenBytes]
+    rw [if_neg (by omega), if_neg (by omega), if_pos (by omega)]
+    have hA : (List.toByteArray [(0x4d : UInt8), (((m+1) % 256 : Nat).toUInt8),
+        (((m+1) / 256 : Nat).toUInt8)]).size = 3 := by
+      simp [List.size_toByteArray]
+    rw [Bitcoin.Script.Parser.getOp_toByteArray_cons0]
+    have hs : (0+1) + 2 ≤ (List.toByteArray [(0x4d : UInt8),
+        (((m+1) % 256 : Nat).toUInt8),
+        (((m+1) / 256 : Nat).toUInt8)] ++ (d ++ post)).size := by
+      rw [ByteArray.size_append, ByteArray.size_append, hA]; omega
+    have hle : Bitcoin.Script.Parser.leOfBytes
+        (Bitcoin.Script.Parser.slice (List.toByteArray [(0x4d : UInt8),
+          (((m+1) % 256 : Nat).toUInt8),
+          (((m+1) / 256 : Nat).toUInt8)] ++ (d ++ post)) 1 2) = m + 1 := by
+      rw [Bitcoin.Script.Parser.slice,
+          Bitcoin.Script.Parser.extract_head _ (d ++ post) 1 3 (by omega)
+            (by rw [hA]; omega),
+          Bitcoin.Script.Parser.toByteArray_tail3,
+          Bitcoin.Script.Parser.leOfBytes_two,
+          show ((((m+1) % 256 : Nat).toUInt8).toNat) = ((m+1) % 256 : Nat) from by
+            simp only [Bitcoin.Script.Parser.toUInt8_toNat]; omega,
+          show ((((m+1) / 256 : Nat).toUInt8).toNat) = ((m+1) / 256 : Nat) from by
+            simp only [Bitcoin.Script.Parser.toUInt8_toNat]; omega]
+      omega
+    have hr : Bitcoin.Script.Parser.readLE (List.toByteArray [(0x4d : UInt8),
+        (((m+1) % 256 : Nat).toUInt8),
+        (((m+1) / 256 : Nat).toUInt8)] ++ (d ++ post)) (0+1) 2 = some (m+1) :=
+      Bitcoin.Script.Parser.readLE_some _ 1 2 (m+1) hs hle
+    have hd' : Bitcoin.Script.Parser.sliceOpt (List.toByteArray [(0x4d : UInt8),
+        (((m+1) % 256 : Nat).toUInt8),
+        (((m+1) / 256 : Nat).toUInt8)] ++ (d ++ post)) (0+3) (m+1) = some d := by
+      rw [Bitcoin.Script.Parser.sliceOpt_payload _ d post 3 (m+1) hA heq0
+        (by rw [ByteArray.size_append, ByteArray.size_append, hA]; omega)]
+    rw [Bitcoin.Script.Parser.getOpAux_pd2 _ 0 _ (m+1) d rfl hr hd']
+    simp [hA, heq0, ByteArray.size_append]
+
+/-- A script whose FIRST opcode is a push larger than 520 bytes is not
+counted at all: the bounded walk stops before it and the accurate count
+is zero (Core's `GetSigOpCount` valid-prefix behaviour). -/
+@[rule "SWT-026"]
+theorem coreSigOpCount_oversize_push_head (d post : ByteArray)
+    (hd : Bitcoin.Script.Parser.MAX_SCRIPT_ELEMENT_SIZE < d.size)
+    (hhi : d.size ≤ 0xffff) :
+    coreSigOpCount (Bitcoin.Script.Parser.pushBytesWire d ++ post) = 0 := by
+  have hg := getOp_pushBytesWire_oversize d post hd hhi
+  have hc : getOpCount (Bitcoin.Script.Parser.pushBytesWire d ++ post) 0 = none :=
+    getOpCount_oversize_push hg hd
+  have hpos : 0 < (Bitcoin.Script.Parser.pushBytesWire d ++ post).size := by
+    have h1 := Bitcoin.Script.Parser.serializeOpcode_size (Opcode.pushBytes d)
+    have h1' : 0 < (Bitcoin.Script.Parser.pushBytesWire d).size := by
+      have h1'' : 1 ≤ (Bitcoin.Script.Parser.pushBytesWire d).size := by
+        simpa [Bitcoin.Script.Parser.serializeOpcode] using h1
+      exact Nat.lt_of_lt_of_le Nat.zero_lt_one h1''
+    rw [ByteArray.size_append]; omega
+  unfold coreSigOpCount parseWirePrefix
+  rw [parseWirePrefixFrom]
+  rw [if_neg (by omega)]
+  rw [hc]
+  rfl
+
 @[simp] theorem witnessScriptSigOps_of_parse (b : ByteArray) (ops : List WireOp)
-    (h : parseWire b = some ops) : witnessScriptSigOps b = accurateSigOpCount ops := by
-  simp [witnessScriptSigOps, scriptSigOpCount, sigOpCount, parseWirePrefix_of_parse b ops h]
+    (h : parseWire b = some ops) (hall : WireOpsWithinLimit ops) :
+    witnessScriptSigOps b = accurateSigOpCount ops := by
+  simp [witnessScriptSigOps, scriptSigOpCount, sigOpCount,
+    parseWirePrefix_of_parse b ops h hall]
 
 /-- The final GetOp data register, only when the entire scriptSig parses
 and every opcode is at most OP_16. Small integers/OP_RESERVED clear it. -/
