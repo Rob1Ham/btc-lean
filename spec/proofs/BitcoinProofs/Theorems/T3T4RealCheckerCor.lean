@@ -302,12 +302,20 @@ theorem realCheckerFullOf_eq (tx : Tx) (nIn : Nat) (amount : Amount) :
   have he : (realCheckerFullOf tx nIn amount).env
       = (realCheckerOf tx nIn amount).env := rfl
   -- both records are the same `ScriptChecker.mk` of the same `.base`
-  -- (A5) and the same `.env` (the real locktime environment, `rfl`)
-  rcases hF : realCheckerFullOf tx nIn amount with ⟨b₁, e₁⟩
-  rcases hR : realCheckerOf tx nIn amount with ⟨b₂, e₂⟩
+  -- (A5), the same `.env` (the real locktime environment, `rfl`), and
+  -- the same default `checkSchnorrTyped = none`.
+  rcases hF : realCheckerFullOf tx nIn amount with ⟨b₁, e₁, c₁⟩
+  rcases hR : realCheckerOf tx nIn amount with ⟨b₂, e₂, c₂⟩
   rw [hF, hR] at hb he
   simp only [ScriptChecker.mk.injEq]
-  exact ⟨hb, he⟩
+  refine ⟨hb, he, ?_⟩
+  have hc₁ : c₁ = none := by
+    simpa [realCheckerFullOf] using
+      (congrArg ScriptChecker.checkSchnorrTyped hF).symm
+  have hc₂ : c₂ = none := by
+    simpa [realCheckerOf] using
+      (congrArg ScriptChecker.checkSchnorrTyped hR).symm
+  exact hc₁.trans hc₂.symm
 
 /-- **X02-non-interference (THE pin)**: `verifyScriptFull` cannot
 distinguish `realCheckerFullOf` from `realCheckerOf` — X02's Unit-3

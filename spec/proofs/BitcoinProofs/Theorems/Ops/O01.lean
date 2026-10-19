@@ -254,18 +254,18 @@ theorem step_pushBytes_1_minimaldata_fails (ctx : Ctx) (st : State) (nx : Nat)
 /-! ## 5. End-to-end verdicts (EvalScript loop) -/
 
 /-- One-op script loop: if the step yields `st'` with an empty
-conditional stack, the loop terminates successfully at `st'` (fuel 2 =
-canonical for a 1-op script). -/
+conditional stack, the loop terminates successfully after bumping the
+opcode index (fuel 2 = canonical for a 1-op script). -/
 theorem evalFrom_push_single (ctx : Ctx) (op : WireOp) (st st' : State)
     (h : stepChecked ctx op st = .ok st') (hvf : st'.vf = []) :
-    evalFrom ctx 2 [op] st = .ok st' := by
+    evalFrom ctx 2 [op] st = .ok { st' with opcodeIndex := st.opcodeIndex + 1 } := by
   simp [evalFrom, h, hvf]
 
 /-- Full python3-cross-checked verdict: script `[0x4f]` (OP_1NEGATE)
 alone validates, leaving exactly the stack `[0x81]`. -/
 theorem verdict_op1negate (ctx : Ctx) :
     evalFrom ctx 2 [{ ast := .pushNum 0, wire := 0x4f, next := 1 }] st0
-      = .ok { st0 with stack := serU8 0x81 :: [] } := by
+      = .ok { st0 with stack := serU8 0x81 :: [], opcodeIndex := st0.opcodeIndex + 1 } := by
   have hstep : stepChecked ctx { ast := .pushNum 0, wire := 0x4f, next := 1 } st0
       = .ok { st0 with stack := serU8 0x81 :: [], opCount := 0 } := by
     unfold stepChecked
@@ -277,7 +277,7 @@ theorem verdict_op1negate (ctx : Ctx) :
 stack `[∅]` (a single empty element — canonical false). -/
 theorem verdict_op0 (ctx : Ctx) :
     evalFrom ctx 2 [{ ast := .pushBytes ByteArray.empty, wire := 0, next := 1 }] st0
-      = .ok { st0 with stack := ByteArray.empty :: [] } := by
+      = .ok { st0 with stack := ByteArray.empty :: [], opcodeIndex := st0.opcodeIndex + 1 } := by
   have hstep : stepChecked ctx { ast := .pushBytes ByteArray.empty, wire := 0, next := 1 } st0
       = .ok { st0 with stack := ByteArray.empty :: [], opCount := 0 } := by
     unfold stepChecked
@@ -289,7 +289,7 @@ theorem verdict_op0 (ctx : Ctx) :
 stack `[0x05]` (the python3 `getvch(5) = 05` row). -/
 theorem verdict_op5 (ctx : Ctx) :
     evalFrom ctx 2 [{ ast := .pushNum 5, wire := 0x55, next := 1 }] st0
-      = .ok { st0 with stack := serU8 5 :: [] } := by
+      = .ok { st0 with stack := serU8 5 :: [], opcodeIndex := st0.opcodeIndex + 1 } := by
   have hstep : stepChecked ctx { ast := .pushNum 5, wire := 0x55, next := 1 } st0
       = .ok { st0 with stack := encodeScriptNum 5 false :: [], opCount := 0 } := by
     unfold stepChecked

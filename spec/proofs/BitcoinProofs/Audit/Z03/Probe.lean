@@ -3,9 +3,20 @@ import Bitcoin.Interpreter.Defs
 
 open Bitcoin.Data Bitcoin.TxValidation Bitcoin.Interpreter Bitcoin.Crypto.Seam
 
--- A: does Except have DecidableEq out of the box?
-example : DecidableEq (Except TxError Amount) := by infer_instance
+/-! # Z03 probe: kernel decidability of the validation/interpreter results
 
+This is an exploratory probe, not a consensus theorem. Two facts are
+recorded here:
+
+* `Except` has no `DecidableEq` instance in the pinned toolchain, so a
+  local instance is derived before the `checkTxInputs`/`evalScriptBytes`
+  `decide` checks.
+* `ByteArray` has a `BEq` instance but no registered `LawfulBEq`
+  instance. Reflexivity `(c == c) = true` is still a kernel fact; it
+  follows from `Array.isEqv_self` over the underlying byte array.
+-/
+
+-- A: `Except` has no `DecidableEq` out of the box; derive it locally.
 deriving instance DecidableEq for Except
 
 -- B: after the deriving, the checkTxInputs decide should synthesize + reduce
@@ -22,13 +33,12 @@ def inputOorTx : Tx :=
 example : checkTxInputs inputOorTx bigCoinUtxo 200
     = Except.error TxError.badTxnsInputvaluesOutOfRange := by decide
 
--- C: interpreter decide after deriving
+-- C: six `OP_0`s are six empty pushes (they are not disabled opcodes).
 example : evalScriptBytes 100 {} default
     ((List.replicate 6 (0 : UInt8)).foldl (fun acc b => acc.push b) ByteArray.empty) []
     default SigVersion.base default
-    = Except.error ExecError.disabledOpcode := by decide
+    = Except.ok (List.replicate 6 ByteArray.empty) := by decide
 
--- D: abstract ByteArray self-BEq: lawful?
-example : LawfulBEq ByteArray := by infer_instance
-
-example (c : ByteArray) : (c == c) = true := by simp
+-- D: `ByteArray` has no registered `LawfulBEq`, but its BEq is reflexive.
+example (c : ByteArray) : (c == c) = true := by
+  simp [BEq.beq, ByteArray.beq, Array.isEqv_self]
