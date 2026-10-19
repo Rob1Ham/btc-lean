@@ -72,7 +72,6 @@ jobs:
             BitcoinProofs.Audit.Z09.Corners \
             BitcoinProofs.Bip.B10.Bip144Vectors \
             BitcoinProofs.EcdsaDeep.DerBattery \
-            BitcoinProofs.EcdsaDeep.S02Flip \
             BitcoinProofs.Theorems.Audit.CV02
 
       - name: Build issue 22 closing-target modules
@@ -98,4 +97,41 @@ jobs:
             echo ""
             echo "Built \`spec/core\`, the default \`BitcoinProofs\` closure, the issue 22 audit modules, and the issue 22 closing-target modules outside the default closure."
             echo "The deliberate \`Theorems.FuelStabilityProbe\` is documented in \`docs/PROOF-BUILD.md\` and is not part of this gate."
+            echo "The memory-heavy \`EcdsaDeep.S02Flip\` is built in its own job."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  s02flip:
+    name: S02Flip measurement module
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            spec/core/.lake
+            spec/proofs/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('spec/core/lean-toolchain', 'spec/proofs/lean-toolchain', 'spec/proofs/lake-manifest.json') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - name: Fetch mathlib cache and build S02Flip
+        env:
+          LEAN_NUM_THREADS: "1"
+        run: |
+          cd spec/proofs
+          lake exe cache get
+          lake build BitcoinProofs.EcdsaDeep.S02Flip

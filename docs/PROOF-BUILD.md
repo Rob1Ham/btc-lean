@@ -90,6 +90,8 @@ The issue-22 failure set is now repaired. Modules fixed on this branch:
 - `BitcoinProofs.EcdsaDeep.S02Flip` — compileable measurement record: the six
   kernel-flippable sites stay as live proofs, the twelve wall sites are kept
   verbatim as comments (no `native_decide` outside Test scope, no axioms).
+  This module peaks at about 5.3 GB RSS, so CI builds it in a separate hosted
+  job with `LEAN_NUM_THREADS=1` rather than alongside the default closure.
 - `BitcoinProofs.Theorems.Audit.CV02` — monolithic `rfl` replaced with bounded
   parse/step lemmas; no heartbeat blowup.
 
