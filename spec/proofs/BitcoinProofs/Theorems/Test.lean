@@ -3,6 +3,7 @@ import BitcoinProofs.Theorems.FlagsCor
 import BitcoinProofs.Theorems.NumericCor
 import BitcoinProofs.Theorems.LedgerCor
 import BitcoinProofs.Theorems.InterpCor
+import BitcoinProofs.AF.PDW50.PDW50
 
 /-!
 # BitcoinProofs.Theorems.Test — executable cross-checks
@@ -161,7 +162,24 @@ example : checkTransaction ⟨1, [iA], [], 0, []⟩ = some .voutEmpty := by deci
 example : blockOut [txTest, txTest] = 2000 := by decide
 example : blockIn uTest [txTest] = 4000 := by decide
 
-/-! ## 6. L3 axiom pins: one headline theorem per module -/
+/-! ## 6. Merkle odd-tail regression (BLK-008) -/
+
+section MerkleOddTail
+
+open Bitcoin.Capstone.Merkle
+
+/-- Seven leaves (odd at three levels): the general append law puts the
+duplicated tail `g` in the first level exactly as `pairHash g g`. -/
+example (a b c d e f g : ByteArray) :
+    merkleLevel [a, b, c, d, e, f, g] =
+      [pairHash a b, pairHash c d, pairHash e f, pairHash g g] := by
+  rw [show [a, b, c, d, e, f, g] = [a, b, c, d, e, f] ++ [g] from rfl]
+  rw [BitcoinProofs.AF.PDW50.merkleLevel_append_singleton [a, b, c, d, e, f] g (by simp)]
+  simp [merkleLevel]
+
+end MerkleOddTail
+
+/-! ## 7. L3 axiom pins: one headline theorem per module -/
 
 /--
 info: 'BitcoinProofs.Theorems.ParserCor.parseScript_fuel_indep' depends on axioms: [propext, Quot.sound]
