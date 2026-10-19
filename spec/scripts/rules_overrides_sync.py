@@ -9,7 +9,7 @@
 # 726 rows; field census {'check': 11, 'consensus': 105, 'core_ref': 91, 'difficulty': 1, 'lean_note': 155, 'lean_target': 624, 'notes': 235, 'notes_extra': 1, 'status': 642, 'summary': 97, 'test_vector_ids': 26}.
 #
 # Source yaml: spec/db/rules.yaml
-#   726 rows, sha256 bf173444b5c1978195221969ab0a8c8eeafc9a278fce7cf1aa72048aa6c40e2b
+#   726 rows, sha256 a29f90d8bf69f7b980117aa18106878c9a456816bb98fc10c98b79118bf83ffd
 #
 # DO NOT hand-edit this file. Curation flow:
 #   1. edit the rules.yaml row;
@@ -631,7 +631,7 @@ OVERRIDES_SYNC = {
         'lean_note': None,
     },
     'INV-117': {
-        'lean_target': 'BitcoinProofs.AF.PDW58.undoCoins_restore_wins',
+        'lean_target': 'Bitcoin.Block.Params.disconnectBlock_inv117',
         'status': 'proven',
         'lean_note': None,
     },
@@ -2074,7 +2074,7 @@ OVERRIDES_SYNC = {
     'TXV-069': {
         'summary': 'each input value, the running input sum, and the fee satisfy MoneyRange (0 ≤ x ≤ MAX_MONEY); outputs are bounded separately',
         'check': 'per-input, running input-sum, and fee MoneyRange',
-        'lean_target': 'Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_moneyRange, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_i64Range, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_partial_no_overflow, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_i64Fold_agrees, Bitcoin.TxValidation.LocktimeSigOps.checkOutputs_none_zero_i64Fold_agrees',
+        'lean_target': 'Bitcoin.TxValidation.LocktimeSigOps.amountArithmetic_i64',
         'status': 'proven',
         'notes': "Core CAmount is int64, but the model's Amount is an unbounded Int; this row states the MoneyRange bounds, not a global int64 type. The cited i64-range/fold targets cover the checked output-value fold only.",
     },

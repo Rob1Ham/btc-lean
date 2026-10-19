@@ -144,7 +144,11 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
     match (← (IO.FS.readFile s!"{dir}/{height}.seeds" <|> pure "")) with
     | "" => pure []
     | txt => pure ((txt.splitOn "\n").filter (fun l => !(trimStr l).isEmpty))
-  let seeds := seedLines.flatMap seedCoins
+  -- The release seed set can contain outputs created at the candidate height.
+  -- Those are not in the pristine pre-block view; pass only earlier coins to
+  -- BIP30, the fold, and the per-tx probes. Same-block spends are created by
+  -- the fold itself.
+  let seeds := (seedLines.flatMap seedCoins).filter (fun (_, c) => c.height.toNat < height)
   -- independent witness for the decode: count txs by walking the header
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
