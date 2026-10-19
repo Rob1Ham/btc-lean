@@ -11,14 +11,14 @@ AppendDataSize) and CROSS-CHECKED case-for-case against the
 `Test/Script/Parser/ref.py` norm_walk (78/78 agree; F-Y03-001).
 Generator: fixed seed 20261016, fully reproducible.
 
-Proof tiers (explicitly disclosed): rows over inputs of at most 60 bytes
-are closed by kernel `decide`. The heavy rows (PUSHDATA1/2/4 length
-boundaries and long seeded-random scripts) are compiled-evaluation
-`native_decide` checks: kernel `decide` on a 255-byte push takes ~122 s
-standalone, so those rows are not kernel-reduced.
-The heavy rows are anonymous `example`s — not exported named theorems —
-and their footprint carries the generated `native_decide` trusted-evaluation
-axiom (the parser test-corpus convention), never `sorryAx`.
+Proof tiers (explicitly disclosed): the corpus rows are compiled-evaluation
+`native_decide` checks, including the short-input edge cases. Kernel `decide`
+on `ByteArray` parse is ~O(n²) with a large constant (a 255-byte push takes
+~122 s standalone), and converting even the rows at or below 60 bytes exceeds
+the build memory budget on the pinned toolchain, so no corpus row is claimed
+to be kernel-reduced. The rows are anonymous `example`s — not exported named
+theorems — and their footprint carries the generated `native_decide`
+trusted-evaluation axiom (the parser test-corpus convention), never `sorryAx`.
 The one named theorem, `y03_roundtrip_small`, is proved by kernel `decide`
 only, so its axiom pin is the standard trio.
 
@@ -31,8 +31,8 @@ Per canonical valid case (kinds P/R/K):
                                         parse_serialize_roundtrip)
 FAIL cases pin clean truncation failure (parse = none).
 Checker policy: kernel `decide` on ByteArray parse is ~O(n^2) with a large
-constant, so only the <= 60-byte rows use it; heavier cases use
-`native_decide` as described above.
+constant, so the corpus uses `native_decide` as described above and only the
+named theorem is kernel-reduced.
 -/
 
 namespace BitcoinProofs.Property.Y03
