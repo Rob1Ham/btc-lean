@@ -146,8 +146,9 @@ does not compare against `bitcoind`; this is a finite offline replay record.
 
 - The default proof closure is not the whole proof tree. The combined recorded
   per-name status over today's 388 outside-closure modules is 386 passes and
-  2 failures (the prior post-audit run over 380 modules plus the eight new
-  modules, all built individually). One
+  2 failures (the prior post-audit run over 380 modules plus the nine new
+  outside-closure modules, all built individually; `PDW50` moved into the
+  default closure). One
   failure is the deliberate `BitcoinProofs.Theorems.FuelStabilityProbe`
   counterexample. The other is
   `BitcoinProofs.Theorems.T3T4PipelineRealCor`, a pre-existing post-audit API

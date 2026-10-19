@@ -110,7 +110,7 @@ toolchain from `lean-toolchain` automatically.
 # Core: executable model, zero dependencies
 cd spec/core
 lake build Bitcoin
-# recorded: Build completed successfully (72 jobs).
+# recorded: Build completed successfully (74 jobs).
 lake test
 
 # Proofs: theorem package, mathlib leaf dependency

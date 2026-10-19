@@ -30,7 +30,7 @@ Install the pinned toolchain with elan (see `docs/REPRODUCIBILITY.md`), then:
 ```sh
 cd spec/core
 lake build Bitcoin
-# recorded: Build completed successfully (72 jobs).
+# recorded: Build completed successfully (74 jobs).
 ```
 
 The optional test driver is `lake test`.

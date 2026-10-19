@@ -27,9 +27,9 @@ Lake 5.0.0 rejects the `-j` option on `lake build`; the per-module command above
 is the equivalent serial invocation. The first full post-audit run produced
 **365 passes and 15 failures** over the then-380 outside-closure modules.
 Re-running that failure set after the source-audit fixes leaves **2 failures**.
-The eight new issue-22 outside-closure modules were then built individually and
-all pass, so the combined recorded status over today's 388 modules is **386
-passes and 2 failures**: one deliberate probe
+The nine new issue-22 outside-closure modules were then built individually and
+all pass; `PDW50` moved into the default closure, so the combined recorded
+status over today's 388 modules is **386 passes and 2 failures**: one deliberate probe
 (`BitcoinProofs.Theorems.FuelStabilityProbe`) and one post-audit core-API drift
 (`BitcoinProofs.Theorems.T3T4PipelineRealCor`).
 During closeout, `AF.PDW62b.PDW62b` was found to have stale axiom pins; it was

@@ -110,7 +110,7 @@ The core package has no Lake dependencies:
 ```sh
 cd spec/core
 lake build Bitcoin
-# recorded: Build completed successfully (72 jobs).
+# recorded: Build completed successfully (74 jobs).
 ```
 
 The proof package uses mathlib as a leaf dependency. The first build downloads
@@ -132,7 +132,7 @@ cd spec/proofs
 lake build BitcoinProofs.AF.PDW82.PDW82
 ```
 
-The optional model test driver is separate from the 72-job core build:
+The optional model test driver is separate from the 74-job core target:
 
 ```sh
 cd spec/core
@@ -146,7 +146,7 @@ lake test
 | Lean core | `Bitcoin` | 149 | success (2026-10-19) |
 | Proof root (historical) | `BitcoinProofs` | 1722 | success (29-module closure at that build) |
 | Proof root | `BitcoinProofs` | 1,733 jobs | validated 2026-10-19 (38-module closure) |
-| Proof modules outside default closure | exact module names | — | combined recorded 386 pass / 2 fail over today's 388 modules (prior run plus eight new modules; one deliberate probe, one post-audit API-drift module); see `docs/PROOF-BUILD.md` |
+| Proof modules outside default closure | exact module names | — | combined recorded 386 pass / 2 fail over today's 388 modules (prior run plus nine new modules, with PDW50 moved into the closure; one deliberate probe, one post-audit API-drift module); see `docs/PROOF-BUILD.md` |
 | Wallet core modules | explicit `Bitcoin.Wallet.*` targets | 60 | success |
 | Wallet proof modules | explicit `BitcoinProofs.Wallet.*` targets | 3230 | success |
 
