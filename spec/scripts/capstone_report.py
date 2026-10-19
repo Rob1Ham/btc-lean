@@ -169,13 +169,17 @@ def main() -> int:
         for h in sorted(probes):
             print(f"- **{h}**: {probes[h]}")
     failed = (
-        any(not a["replayOk"] or not a["foldAgrees"] or
+        summary is None or
+        any(not a["replayOk"] or a["accepted"] or not a["isPartial"] or
+            a["reason"] != "partial-context" or not a["foldAgrees"] or
             a["scriptUnjudged"] != 0 or
-            a["scriptAdjudication"] != "complete" for a in anchors.values()) or
-        any(a["accepted"] for a in anchors.values()))
-    if (summary and (not summary["allReplayOk"] or summary["missing"] != 0 or
-                     summary["blocks"] != len(anchors))):
-        failed = True
+            a["scriptAdjudication"] != "complete" or
+            a["hash"] != CANONICAL.get(h)
+            for h, a in anchors.items()) or
+        any(a["accepted"] for a in anchors.values()) or
+        (summary is not None and (
+            not summary["allReplayOk"] or summary["allAccepted"] or
+            summary["missing"] != 0 or summary["blocks"] != len(anchors))))
     if failed:
         print()
         print("**capstone-report: RUN FAILED — see probes above.**")
