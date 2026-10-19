@@ -1493,6 +1493,39 @@ theorem evalFrom_ok_stack_bound (ctx : Ctx) :
         have hb := stepChecked_ok_bound hsc
         exact ih rest { s with opcodeIndex := st.opcodeIndex + 1 } st' (by change s.stack.length ≤ MAX_STACK_SIZE; omega) h
 
+/-- **SCR-030**: the *combined* main+alt stack bound
+(`stack.length + alt.length ≤ 1000`) is preserved by the evaluation loop.
+Core checks exactly this sum after every opcode (interpreter.cpp:566-569);
+the separate main-stack lemma above is only the projected consequence. -/
+@[rule "SCR-030"]
+theorem evalFrom_ok_stack_alt_bound (ctx : Ctx) :
+    ∀ (f : Nat) (ops : List WireOp) (st st' : State),
+      st.stack.length + st.alt.length ≤ MAX_STACK_SIZE →
+      evalFrom ctx f ops st = .ok st' →
+      st'.stack.length + st'.alt.length ≤ MAX_STACK_SIZE := by
+  intro f
+  induction f with
+  | zero => intro ops st st' _ h; simp [evalFrom] at h
+  | succ f ih =>
+    intro ops st st' h0 h
+    cases ops with
+    | nil =>
+      simp only [evalFrom] at h
+      split at h
+      · simp only [Except.ok.injEq] at h
+        subst h
+        exact h0
+      · simp at h
+    | cons op rest =>
+      simp only [evalFrom] at h
+      cases hsc : stepChecked ctx op st with
+      | error e => rw [hsc] at h; simp at h
+      | ok s =>
+        rw [hsc] at h
+        have hb := stepChecked_ok_bound hsc
+        exact ih rest { s with opcodeIndex := st.opcodeIndex + 1 } st'
+          (by change s.stack.length + s.alt.length ≤ MAX_STACK_SIZE; exact hb) h
+
 /-- One more unit of fuel never breaks a succeeding run: the `[]` arm is
 fuel-independent and the cons arm just shifts the recursive fuel. -/
 theorem evalFrom_succ_ok (ctx : Ctx) (f : Nat) (ops : List WireOp) (st : State)
@@ -1560,6 +1593,37 @@ theorem evalScriptBytes_ok_stack_bound {fuel : Nat} {flags : ScriptFlags}
         { stack := st0, alt := [], vf := [], opCount := 0, codeSep := 0,
           vwLeft := if sv = .tapscript then some ed.validationWeightLeft else none } s h0 hr
       rw [hst]; exact hb
+
+/-- **SCR-030** at the `evalScriptBytes` entry: the exported stack is the
+main stack of a machine state that satisfies the full combined
+main+alt bound.  `evalScriptBytes` itself returns only `Stack`, so the
+altstack half must be witnessed existentially. -/
+@[rule "SCR-030"]
+theorem evalScriptBytes_ok_stack_alt_bound {fuel : Nat} {flags : ScriptFlags}
+    {pol : PolicyFlags} {b : ByteArray} {st0 : Stack} {chk : ScriptChecker}
+    {sv : SigVersion} {ed : ScriptExecutionData} (h0 : st0.length ≤ MAX_STACK_SIZE)
+    {ops : List WireOp} (hp : parseWire b = some ops) :
+    ∀ st', evalScriptBytes fuel flags pol b st0 chk sv ed = .ok st' →
+      ∃ s, evalFrom ⟨flags, pol, chk, sv, b, ed⟩ fuel ops
+            { stack := st0, alt := [], vf := [], opCount := 0, codeSep := 0,
+              vwLeft := if sv = .tapscript then some ed.validationWeightLeft else none } = .ok s ∧
+          st' = s.stack ∧ s.stack.length + s.alt.length ≤ MAX_STACK_SIZE := by
+  intro st' h
+  unfold evalScriptBytes at h
+  by_cases hsz : (sv = SigVersion.base ∨ sv = SigVersion.witnessV0) ∧
+      MAX_SCRIPT_SIZE < b.size
+  · rw [if_pos hsz] at h; simp at h
+  · rw [if_neg hsz] at h
+    rw [hp] at h
+    have h2 : finalStack (evalFrom ⟨flags, pol, chk, sv, b, ed⟩ fuel ops
+        { stack := st0, alt := [], vf := [], opCount := 0, codeSep := 0,
+          vwLeft := if sv = .tapscript then some ed.validationWeightLeft else none }) = .ok st' := h
+    obtain ⟨s, hr, hst⟩ := finalStack_ok h2
+    have hb := evalFrom_ok_stack_alt_bound ⟨flags, pol, chk, sv, b, ed⟩ fuel ops
+      { stack := st0, alt := [], vf := [], opCount := 0, codeSep := 0,
+        vwLeft := if sv = .tapscript then some ed.validationWeightLeft else none } s
+      (by simpa using h0) hr
+    exact ⟨s, hr, hst, hb⟩
 
 theorem evalScriptBytes_fuel_mono {flags : ScriptFlags} {pol : PolicyFlags}
     {b : ByteArray} {st0 : Stack} {chk : ScriptChecker} {sv : SigVersion}
