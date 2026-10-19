@@ -75,12 +75,27 @@ jobs:
             BitcoinProofs.EcdsaDeep.S02Flip \
             BitcoinProofs.Theorems.Audit.CV02
 
+      - name: Build issue 22 closing-target modules
+        run: |
+          cd spec/proofs
+          lake build \
+            BitcoinProofs.AF.PDW68x.PDW68xPath \
+            BitcoinProofs.Theorems.Ops.INV057 \
+            BitcoinProofs.AF.PDW67b.PDW67bG \
+            BitcoinProofs.AF.PDW88.PDW88 \
+            BitcoinProofs.AF.PDW88.PDW88b \
+            BitcoinProofs.AF.PDW9.UnspendableSpend \
+            BitcoinProofs.AF.PDW79.PDW79b \
+            BitcoinProofs.AF.PDW86.PDW86Clamp \
+            BitcoinProofs.AF.PDW25.TPR007 \
+            BitcoinProofs.Theorems.Ops.TPR071
+
       - name: Build summary
         if: success()
         run: |
           {
             echo "### Lean build: passed"
             echo ""
-            echo "Built \`spec/core\`, the default \`BitcoinProofs\` closure, and the issue 22 outside-closure modules."
+            echo "Built \`spec/core\`, the default \`BitcoinProofs\` closure, the issue 22 audit modules, and the issue 22 closing-target modules outside the default closure."
             echo "The deliberate \`Theorems.FuelStabilityProbe\` is documented in \`docs/PROOF-BUILD.md\` and is not part of this gate."
           } >> "$GITHUB_STEP_SUMMARY"

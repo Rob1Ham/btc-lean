@@ -114,7 +114,8 @@ lake build BitcoinProofs.EcdsaDeep.DerBattery
 lake build BitcoinProofs.EcdsaDeep.S02Flip
 lake build BitcoinProofs.Theorems.Audit.CV02
 
-# The new closing targets outside the default closure
+# The closing targets (PDW50 and CapstoneFunding are in the default
+# closure; the rest are outside it)
 lake build BitcoinProofs.AF.PDW50.PDW50
 lake build BitcoinProofs.AF.PDW68x.PDW68xPath
 lake build BitcoinProofs.AF.PDW67b.PDW67bG

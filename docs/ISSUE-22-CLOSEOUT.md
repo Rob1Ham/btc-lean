@@ -12,8 +12,9 @@ Core, and it does not claim that the Lean model is bit-for-bit executable.
   marked `consensus: false` in [`RESIDUALS.md`](RESIDUALS.md).
 - Every one of the eighteen closing targets builds. The new targets are
   generic over the case the audit identified, not additional examples.
-- The default proof closure builds, the core package builds, and the seven
-  issue-22 outside-closure modules build.
+- The default proof closure builds, the core package builds, and CI builds the
+  seven issue-22 audit modules plus the ten closing-target modules outside the
+  default closure.
 - The contextual pipeline has one public next-block entry point,
   `validateNextBlock`, which derives its `ChainContext` from a checked
   `ChainState`. The context-free `replayBlockPartial` reports
@@ -65,7 +66,7 @@ Recorded on 2026-10-19 with the pinned Lean toolchain and mathlib revision.
 | `proof_scope.py --check` | 426 modules, 38-module default closure, 388 outside-closure modules; counts current. |
 | `python3 spec/scripts/backfill_overrides.py` | Wrote the synchronized 721-entry overrides table. |
 
-The seven issue-22 outside-closure modules were built by exact name:
+The seven issue-22 audit modules were built by exact name:
 
 | Module | Jobs |
 |---|---:|
@@ -77,8 +78,9 @@ The seven issue-22 outside-closure modules were built by exact name:
 | `BitcoinProofs.EcdsaDeep.S02Flip` | 49 |
 | `BitcoinProofs.Theorems.Audit.CV02` | 26 |
 
-The new closing targets outside the default proof closure were also built by
-exact name:
+The closing targets were also built by exact name. `PDW50` and
+`CapstoneFunding` are in the default closure; the other ten are additionally
+built by the CI closeout job:
 
 | Module | Jobs |
 |---|---:|
@@ -183,6 +185,16 @@ lake build BitcoinProofs.Bip.B10.Bip144Vectors
 lake build BitcoinProofs.EcdsaDeep.DerBattery
 lake build BitcoinProofs.EcdsaDeep.S02Flip
 lake build BitcoinProofs.Theorems.Audit.CV02
+lake build BitcoinProofs.AF.PDW68x.PDW68xPath
+lake build BitcoinProofs.Theorems.Ops.INV057
+lake build BitcoinProofs.AF.PDW67b.PDW67bG
+lake build BitcoinProofs.AF.PDW88.PDW88
+lake build BitcoinProofs.AF.PDW88.PDW88b
+lake build BitcoinProofs.AF.PDW9.UnspendableSpend
+lake build BitcoinProofs.AF.PDW79.PDW79b
+lake build BitcoinProofs.AF.PDW86.PDW86Clamp
+lake build BitcoinProofs.AF.PDW25.TPR007
+lake build BitcoinProofs.Theorems.Ops.TPR071
 
 cd ../..
 make gates
