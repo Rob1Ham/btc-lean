@@ -83,8 +83,12 @@ The issue-22 failure set is now repaired. Modules fixed on this branch:
 
 - `BitcoinProofs.Audit.Z03.Probe` — false probe goals replaced with true
   kernel facts; local `DecidableEq` for `Except`; `ByteArray` BEq reflexivity.
+- `BitcoinProofs.Audit.Z09.Corners` — corner probes compile; the module peaks
+  at about 6.0 GB RSS and is built in a separate CI job.
 - `BitcoinProofs.Bip.B10.Bip144Vectors` — stale 33-byte V4 vector corrected
-  to 32 bytes; staged decode proofs modernized.
+  to 32 bytes; staged decode proofs modernized. The staged kernel decode still
+  peaks at about 33.5 GB RSS, so it is built locally and excluded from the
+  hosted CI runner.
 - `BitcoinProofs.EcdsaDeep.DerBattery` — generated file made valid Lean; the
   generator (`gen_der_battery.py`) updated so regeneration stays valid.
 - `BitcoinProofs.EcdsaDeep.S02Flip` — compileable measurement record: the six

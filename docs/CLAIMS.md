@@ -33,9 +33,11 @@ a proof of the model.
 
 The nine static gates are run by `.github/workflows/gates.yml` and by
 `make gates`; in this candidate all nine pass. `.github/workflows/lean-proofs.yml`
-separately builds `spec/core`, the default `BitcoinProofs` closure, the seven
-issue-22 audit modules, and the ten issue-22 closing-target modules outside
-the default closure; it does not build all 388 outside-closure modules. No
+separately builds `spec/core`, the default `BitcoinProofs` closure, six of the
+seven issue-22 audit modules, and the ten issue-22 closing-target modules
+outside the default closure; `Bip.B10.Bip144Vectors` is local-only because its
+staged kernel decode peaks at about 33.5 GB RSS. CI does not build all 388
+outside-closure modules. No
 dynamic `#print axioms` probe runs in CI. The recorded dynamic checks are
 separate: 333 consensus axiom entries (434 manifest lines) and 838 wallet
 theorem/lemma declarations in the wallet axiom manifest. Job counts and pins

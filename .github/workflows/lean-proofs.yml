@@ -64,13 +64,13 @@ jobs:
           lake build BitcoinProofs
 
       - name: Build outside-closure regression modules
+        # Bip.B10.Bip144Vectors is local-only: its kernel decode peaks at
+        # about 33.5 GB RSS and cannot run on a hosted 7 GB runner.
         run: |
           cd spec/proofs
           lake build \
             BitcoinProofs.Bip.B03.B03Subsidy \
             BitcoinProofs.Audit.Z03.Probe \
-            BitcoinProofs.Audit.Z09.Corners \
-            BitcoinProofs.Bip.B10.Bip144Vectors \
             BitcoinProofs.EcdsaDeep.DerBattery
 
       - name: Build issue 22 closing-target modules
@@ -96,7 +96,7 @@ jobs:
             echo ""
             echo "Built \`spec/core\`, the default \`BitcoinProofs\` closure, the issue 22 audit modules, and the issue 22 closing-target modules outside the default closure."
             echo "The deliberate \`Theorems.FuelStabilityProbe\` is documented in \`docs/PROOF-BUILD.md\` and is not part of this gate."
-            echo "The memory-heavy \`EcdsaDeep.S02Flip\` and \`Theorems.Audit.CV02\` are built in their own jobs."
+            echo "The memory-heavy \`Audit.Z09.Corners\`, \`EcdsaDeep.S02Flip\`, and \`Theorems.Audit.CV02\` are built in their own jobs."
           } >> "$GITHUB_STEP_SUMMARY"
 
   s02flip:
@@ -170,3 +170,39 @@ jobs:
           cd spec/proofs
           lake exe cache get
           lake build BitcoinProofs.Theorems.Audit.CV02
+
+  z09:
+    name: Z09 audit module
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            spec/core/.lake
+            spec/proofs/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('spec/core/lean-toolchain', 'spec/proofs/lean-toolchain', 'spec/proofs/lake-manifest.json') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - name: Fetch mathlib cache and build Z09
+        env:
+          LEAN_NUM_THREADS: "1"
+        run: |
+          cd spec/proofs
+          lake exe cache get
+          lake build BitcoinProofs.Audit.Z09.Corners

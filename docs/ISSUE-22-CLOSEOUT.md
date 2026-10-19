@@ -13,8 +13,9 @@ Core, and it does not claim that the Lean model is bit-for-bit executable.
 - Every one of the eighteen closing targets builds. The new targets are
   generic over the case the audit identified, not additional examples.
 - The default proof closure builds, the core package builds, and CI builds the
-  seven issue-22 audit modules plus the ten closing-target modules outside the
-  default closure.
+  six issue-22 audit modules that fit a hosted runner plus the ten
+  closing-target modules outside the default closure. `Bip144Vectors` is
+  built locally: its staged kernel decode peaks at about 33.5 GB RSS.
 - The contextual pipeline has one public next-block entry point,
   `validateNextBlock`, which derives its `ChainContext` from a checked
   `ChainState`. The context-free `replayBlockPartial` reports
@@ -73,14 +74,15 @@ The seven issue-22 audit modules were built by exact name:
 | `BitcoinProofs.Audit.Z03.Probe` | 33 |
 | `BitcoinProofs.Audit.Z09.Corners` | 26 |
 | `BitcoinProofs.Bip.B03.B03Subsidy` | 75 |
-| `BitcoinProofs.Bip.B10.Bip144Vectors` | 8 |
+| `BitcoinProofs.Bip.B10.Bip144Vectors` | 8 (local-only: ~33.5 GB peak) |
 | `BitcoinProofs.EcdsaDeep.DerBattery` | 9 |
 | `BitcoinProofs.EcdsaDeep.S02Flip` | 49 |
 | `BitcoinProofs.Theorems.Audit.CV02` | 26 |
 
-CI builds `S02Flip` and `CV02` in separate jobs: their measured peak resident
-sets are about 5.3 GB and 6.5 GB, so they are not run alongside the
-default-closure build on a hosted runner. The builds themselves are unchanged.
+CI builds `Z09`, `S02Flip`, and `CV02` in separate jobs: their measured peak
+resident sets are about 6.0 GB, 5.3 GB, and 6.5 GB, so they are not run
+alongside the default-closure build on a hosted runner. The builds themselves
+are unchanged.
 
 The closing targets were also built by exact name. `PDW50` and
 `CapstoneFunding` are in the default closure; the other ten are additionally
