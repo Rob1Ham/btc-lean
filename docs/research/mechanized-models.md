@@ -1,7 +1,7 @@
 # State of mechanization of Bitcoin
 
 Research note, 2026-10-16.
-Scope: every known proof-assistant / mechanized / model-checked formalization of Bitcoin or Bitcoin-like consensus; prover, level, coverage, code, aliveness, gap to btc-lean.
+Scope: every known proof-assistant / mechanized / model-checked formalization of Bitcoin or Bitcoin-like consensus, plus the closest executable-specification prior art (Hornet); prover, level, coverage, code, aliveness, gap to btc-lean.
 
 ---
 
@@ -10,9 +10,21 @@ Scope: every known proof-assistant / mechanized / model-checked formalization of
 1. **The single most important correction to the earlier project scope:** the Rupić/Rožić/Derek FMBC 2020 model — previously listed as "prover/coverage to be verified" — is **Coq, not Isabelle** (verified by cloning the repo: `Bitcoin.v` + `Utils.v`, Coq 8.10.2).
 2. I cloned and read it: ~4,031 lines of Coq, **8 main theorems** (no-double-spending, transaction uniqueness, UTXO value bounded by coinbase value, chain-consistency implications) over a *symbolic* model: script is a small denotational expression language, crypto is uninterpreted (`ver` returns a `bool`), no PoW, **no merkle trees (explicitly lists, not merkle), no serialization, no SegWit/Taproot semantics**. **Dead since July 2020** (last commit 2020-07-15).
 3. **IsabeLLM (2026, Imperial College)** is the only active proof-assistant line on *Bitcoin* consensus — but it formalizes the **abstract PoW protocol** (n-ary block tree, common-prefix property, constant difficulty), not validation rules; there are no transactions, script, or UTXO in the model at all.
-4. **There is no nontrivial Bitcoin-validation formalization in Coq beyond Rupić '20**, none in Lean 4 at all (Lean hits are DeFi/AMM/fraud-games/EVM — all above or beside consensus validation), and nothing anywhere that is executable against mainnet data.
-5. The **closest completed analogue to btc-lean's goal is not Bitcoin work at all**: IOG/Input Output's **Cardano formal ledger specification in Agda** (FMBC 2024) — a complete, executable, mechanized, conformance-tested ledger of a whole chain. It is the existence proof and the methodological template for "complete consensus spec in a dependent prover."
-6. Conclusion: the fragments that exist (symbolic UTXO/ledger in Coq; abstract PoW safety in Isabelle; Script in Agda; hash/curve towers in Lean) **do not compose** and share no common formalization. A complete, executable, proof-checked Lean 4 consensus spec of Bitcoin remains genuinely novel — essentially every concrete layer (serialization, real Script bytecode, SigHash, SegWit/Taproot, difficulty retarget, coinbase maturity, activation) has **zero** prior mechanization.
+4. **There is no nontrivial Bitcoin-validation formalization in Coq beyond Rupić '20**, and none in Lean 4 at all (Lean hits are DeFi/AMM/fraud-games/EVM — all above or beside consensus validation). No proof-assistant mechanization is executable against mainnet data. The nearest *executable* prior art is **Hornet** (Sharp, arXiv:2509.15754, 2025): a declarative C++ specification plus a purpose-built functional DSL that syncs mainnet, designed to enable formal reasoning and code generation downstream of the spec. It is prior public work on the same subject and is credited here, but it is not itself a proof-assistant development or a machine-checked artifact.
+5. **Hornet is the direct executable-specification predecessor, not a mechanization.** Its paper, code, and DSL are cited in "Prior work and attribution" below and in Appendices A–B. btc-lean's claimed advance is the Lean 4 kernel-checked model, proofs, real Script/SigHash coverage, and conformance harness; it does not claim the executable-specification idea itself as novel.
+6. The **closest completed analogue to btc-lean's goal is not Bitcoin work at all**: IOG/Input Output's **Cardano formal ledger specification in Agda** (FMBC 2024) — a complete, executable, mechanized, conformance-tested ledger of a whole chain. It is the existence proof and the methodological template for "complete consensus spec in a dependent prover."
+7. Conclusion: the fragments that exist (symbolic UTXO/ledger in Coq; abstract PoW safety in Isabelle; Script in Agda; hash/curve towers in Lean; Hornet's executable C++/DSL spec) **do not compose** and share no common formalization. A complete, executable, proof-checked Lean 4 consensus spec of Bitcoin remains genuinely novel — essentially every concrete layer (serialization, real Script bytecode, SigHash, SegWit/Taproot, difficulty retarget, coinbase maturity, activation) has **zero** prior mechanization.
+
+---
+
+## Prior work and attribution — Hornet (Toby Sharp)
+
+Hornet is the closest prior public work to btc-lean's executable-specification goal, and this survey credits it in that capacity. It is a minimal, executable, declarative C++ specification of Bitcoin consensus plus a purpose-built functional DSL, with a node that syncs mainnet. The design deliberately places formal reasoning downstream of a readable, executable specification; the paper presents formal reasoning, consensus code generation, and AI-driven adversarial testing as the path enabled by the spec.
+
+Hornet is **not** a proof-assistant mechanization. As surveyed at commit `151462fa` (2026-04-15), the public repository contains the declarative C++ spec, the DSL sketch, and the node, but no machine-checked proof development. It should therefore be cited for its architecture, rule inventory, and DSL design — not described as a mechanization, and not omitted as unrelated implementation work.
+
+- **Paper:** Toby Sharp, "Hornet Node and the Hornet DSL: A Minimal, Executable Specification for Bitcoin Consensus", arXiv:2509.15754v2 (2025-09-24), DOI [10.48550/arXiv.2509.15754](https://doi.org/10.48550/arXiv.2509.15754).
+- **Code:** [github.com/tobysharp/hornet](https://github.com/tobysharp/hornet) (MIT), project site [hornetnode.org](https://hornetnode.org).
 
 ---
 
@@ -78,6 +90,17 @@ Tolmach, Li, Lin, Liu, "A Survey of Smart Contract Formal Specification and Veri
 - **Lean 4 hits (2024–2026)** are all adjacent, none consensus-validation: Pusceddu & Bartoletti AMMs in Lean 4 (FMBC 2024); Ceresa & Sánchez fraud-proof games; Nethermind's Lean EVM/Yul semantics + Lean crypto (zk, Halo2); StarkWare-style secp256k1 Lean 3; Lean 4 SHA-2/SHA-3 (Lean ecosystem's territory).
 - No "bitcoin Agda" beyond Setzer/Alhabardi; no "bitcoin Isabelle" beyond FMBC'20 pieces + IsabeLLM line; no 2024–2026 new entrants on Bitcoin validation in any prover (searches: "bitcoin formal verification theorem prover 2025", "bitcoin mechanized").
 
+### F9 (VERIFIED) — Hornet (Sharp 2025): executable declarative C++ spec + functional DSL; prior art, not a proof assistant
+
+Hornet is the direct predecessor line for btc-lean's executable-specification ambition and is cited as prior public work on the same subject. At the surveyed commit (`151462fa`, 2026-04-15; repo public, MIT, active):
+
+- The consensus layer is a compact, statically composed rule graph (header / local / contextual / spending checks) expressed as pure, deterministic, immutable C++ functions over explicit contexts, with the spec itself represented as a first-class value and rendered to an English rule table.
+- The Hornet DSL is a purpose-built functional notation for the same rules; the paper positions it as the route to formal reasoning and consensus code generation. The DSL compiler is future work, so the C++ remains the executable artifact.
+- The node syncs mainnet; however, as surveyed, spend-script execution and signature checks are stubs/TODO, and the activation model uses fixed heights rather than BIP9/Taproot state.
+- No proof assistant or machine-checked theorem is part of the published artifact. The paper's "formal" claim is about purity, declarativeness, and the path to formal reasoning, not a kernel-checked development.
+
+**Why it matters here:** Hornet supplies a worked rule inventory/decomposition and the spec-as-data discipline that btc-lean can mirror; btc-lean's distinct contribution is the Lean 4 mechanization (definitions + proofs), its full Script/SigHash target, and Core-vector conformance. Credit for the executable-specification approach belongs to Hornet.
+
 ---
 
 ## Detailed analysis
@@ -108,9 +131,9 @@ Reading the landscape by *level*:
 - Soft-fork activation (BIP9/8, height+version locks, the 2012–2017 deployment history).
 - Weight/size limits, mempool-vs-consensus boundary documentation.
 
-**What's genuinely novel in btc-lean (estimate):** conservatively, **>90% of the concrete spec** (by rule count of the Core inventory) has no prior mechanization of any kind; the reusable prior art is (a) theorem *statements* and model-shape lessons from Rupić/Atzei/Melkonian, (b) methodology (conformance testing against the production client) proven at scale by Cardano's Agda ledger, (c) the IsabeLLM LLM-assisted proving playbook for proof engineering, (d) generic merkle-tree Isabelle theory (Lochbihler/Marić) as a design reference.
+**What's genuinely novel in btc-lean (estimate):** conservatively, **>90% of the concrete spec** (by rule count of the Core inventory) has no prior mechanization of any kind; the reusable prior art is (a) theorem *statements* and model-shape lessons from Rupić/Atzei/Melkonian, (b) methodology (conformance testing against the production client) proven at scale by Cardano's Agda ledger, (c) the IsabeLLM LLM-assisted proving playbook for proof engineering, (d) generic merkle-tree Isabelle theory (Lochbihler/Marić) as a design reference, and (e) Hornet's executable-specification architecture, rule inventory, and DSL design — prior public work on the same subject, credited but not a mechanization.
 
-**Aliveness check (VERIFIED):** Rupić repo dead (2020); IsabeLLM alive (Apr 2026); formal-ledger-specifications (Cardano) actively maintained (large org repo); Toychain archived; bitcoin-s verification line dormant; UPPAAL/TLA+ one-offs.
+**Aliveness check (VERIFIED):** Rupić repo dead (2020); IsabeLLM alive (Apr 2026); Hornet active (public, MIT; pushed 2026-10-19); formal-ledger-specifications (Cardano) actively maintained (large org repo); Toychain archived; bitcoin-s verification line dormant; UPPAAL/TLA+ one-offs.
 
 ### IsabeLLM and proof automation
 
@@ -129,7 +152,7 @@ step.
 3. **Roadmap:** the Cardano formal-ledger-specifications project is the phased-roadmap existence proof: hierarchy of modular transitions → executable spec → conformance harness against the production node → meta-theorems. Its structure (per-era modules, property test suite) maps cleanly onto our M0–M6 with Bitcoin's "eras" = consensus deployments.
 4. **Proof automation:** IsabeLLM demonstrates ~94% first-pass-ish automation on *protocol-math* lemmas with RAG over the project's own proof corpus — implying: seed btc-lean early with a self-RAG corpus (our own proofs are the best retrieval base), budget counterexample checking (Lean's `native_decide`/`decide` + e.g. QuickChick-style testing analog), and treat model/statement authorship as the human specification bottleneck.
 5. **Script semantics and Lean ecosystem hooks:** Lochbihler/Marić functors-for-merkle-trees is the design reference for our merkle/witness-commitment layer; the IsabeLLM Common-Prefix development is a citable precedent if we later add the Nakamoto-protocol track.
-6. **Publication positioning:** "first complete mechanization of Bitcoin's actual validation rules" is defensible; the two lines reviewers will name (Rupić Coq, IsabeLLM Isabelle) are both partial and on orthogonal axes (validation-but-symbolic vs protocol-but-abstract). No reviewer can point at an existing complete artifact.
+6. **Publication positioning:** "first complete mechanization of Bitcoin's actual validation rules" is defensible; the three lines reviewers will name are Rupić (Coq, symbolic validation), IsabeLLM (Isabelle, abstract protocol), and Hornet (executable C++/DSL, not a proof assistant). All are partial or orthogonal to the target: validation-but-symbolic, protocol-but-abstract, and executable-but-unproved. No reviewer can point at an existing complete proof-checked artifact.
 
 ## Open questions & risks
 
@@ -137,6 +160,7 @@ step.
 - **R2 — Cardano-style scale cost:** formal-ledger-specifications is a multi-year, team-scale effort (Input Output funding). A single lean effort must scope M-milestones to be publishable per-fragment; risk is the "90% done = abandoned" pattern that killed Rupić.
 - **R3 — Symbolic-crypto debt:** every prior Bitcoin mechanization assumed perfect crypto. btc-lean's decision (Lean ecosystem/crypto tower) on verified-vs-axiomatized SHA-256/secp256k1 determines whether "no double spend *without forging signatures*" is even expressible; the literature offers no shortcut.
 - **R4 — Un-verified claim risk:** Tolmach-survey positioning (F7) is INFERRED from citation record + known scope, not a full re-read of all 38 pages; a design-track pass over the survey PDF would close it.
+- **R5 — Hornet's formal-reasoning line continues.** Hornet is actively developed, and its author describes formal reasoning as downstream of the readable, executable specification. Monitor the repo for a proof-assistant artifact; until then, credit Hornet as executable prior art rather than treating it as a mechanization or as a competitor to dismiss.
 - **Q1 —** Did any Bitcoin Core-adjacent effort (e.g., bitcoin-s, rust-bitcoin, Kernel-lab) quietly formalize rules in a prover post-2024? My searches found none, but Kernel/C++ verification work (upstream-track) is the likelier place to double-check.
 - **Q2 —** Should the Rupić Coq artifact be ported/reviewed as a *design doc* for our ledger module? (Recommend: read, don't port — its `Den`-monad semantics is elegant but its list-UTXO and symbolic crypto don't match our goals.)
 
@@ -175,6 +199,8 @@ step.
 | 19 | Tolmach, Li, Lin, Liu — "A Survey of Smart Contract Formal Specification and Verification", ACM Comput. Surv. 54(7):148, DOI 10.1145/3464421 | survey | citation VERIFIED; positioning INFERRED |
 | 20 | "A Novel Formalization of the EVM in Isabelle/HOL", FMBC 2026, DOI 10.4230/OASIcs.FMBC.2026.3 | paper | VERIFIED (listing) |
 | 21 | Bu, Sun — "Towards Modeling and Verification of the CKB Block Synchronization Protocol in Coq", ICFEM 2020 | paper | VERIFIED (cited in FMBC 2024 refs) |
+| 22 | Sharp — "Hornet Node and the Hornet DSL: A Minimal, Executable Specification for Bitcoin Consensus", arXiv:2509.15754v2 (2025-09-24), DOI 10.48550/arXiv.2509.15754; project site hornetnode.org | paper | VERIFIED (abstract, metadata) |
+| 23 | Repo `tobysharp/hornet` (MIT; public; active; surveyed @ `151462fa`, 2026-04-15) | code | VERIFIED (cloned, inspected) |
 
 ## Appendix B — State of mechanization of Bitcoin (full table)
 
@@ -198,6 +224,7 @@ step.
 | Bu & Sun, ICFEM 2020 (CKB sync in Coq) | Coq | protocol (sync), CKB (Bitcoin-like UTXO) | Nervos CKB block-synchronization protocol verification | (paper) | ❌ | Sync protocol, not validation rules |
 | Ceresa/Sánchez Lean fraud games (FMBC 2025) | Lean 4 | L2 fraud proofs | Machine-checked arbitration-game strategies | gitlab.imdea `leanfpgames` | ⚠️ research | Lean precedent, unrelated layer |
 | Pusceddu/Bartoletti AMMs (FMBC 2024) | Lean 4 | DeFi | AMM formalization in Lean 4 | arXiv:2402.06064 | ⚠️ | Shows Lean 4 readiness, not consensus |
+| Hornet (Sharp 2025, [arXiv:2509.15754](https://arxiv.org/abs/2509.15754)) | C++23 declarative spec + Hornet DSL (functional) | validation (executable specification) | Compact rule graph for header/local/contextual/spending checks; mainnet IBD; designed to enable formal reasoning and code generation; no proof-assistant artifact; spend-script execution and signature checks are stubs/TODO at the surveyed commit (`151462fa`, 2026-04-15) | [github.com/tobysharp/hornet](https://github.com/tobysharp/hornet) (MIT) | ✅ active (pushed 2026-10-19) | Direct executable-specification predecessor; btc-lean targets Lean 4 mechanization, proofs, full Script/SigHash, and Core-vector conformance |
 | **BTC validation rules, executable+proven — the btc-lean target** | Lean 4 | full stack | — | — | — | **~90%+ of concrete rules have zero prior mechanization (finding F8)** |
 
 ---
