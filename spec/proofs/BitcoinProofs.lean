@@ -1,6 +1,7 @@
 import BitcoinProofs.Trivial
 import BitcoinProofs.Conservation.Thms
 import BitcoinProofs.Conservation.Test
+import BitcoinProofs.Bip.B42.Bip42
 import BitcoinProofs.Theorems.ParserCor
 import BitcoinProofs.Theorems.FlagsCor
 import BitcoinProofs.Theorems.NumericCor

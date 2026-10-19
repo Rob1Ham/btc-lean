@@ -18,9 +18,9 @@ following are trusted:
 
 The theorem package is the only package allowed to depend on mathlib. The
 `spec/core` model has no Lake dependencies. A successful default
-`BitcoinProofs` build means the 36-module import closure elaborates; the other
+`BitcoinProofs` build means the 37-module import closure elaborates; the other
 380 proof modules are outside that closure (the recorded post-audit per-name
-run gives 372 builds and 8 failures, none cited; the closeout-found
+run gives 373 builds and 7 failures, none cited; the closeout-found
 `AF.PDW62b.PDW62b` failure has been repaired; see
 [`PROOF-BUILD.md`](PROOF-BUILD.md)).
 It does not mean the statements are the

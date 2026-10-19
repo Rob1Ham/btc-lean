@@ -12,9 +12,9 @@ residual-ledger triage. The database now marks 115 rows `consensus: false`
 
 `status: proven` in `spec/db/rules.yaml` means that the row's cited Lean target
 is in the proof surface and carries the row's tag. The default
-`BitcoinProofs` target is a 36-module closure; a per-name run covers the
+`BitcoinProofs` target is a 37-module closure; a per-name run covers the
 380 outside-closure modules (381 `.lean` entries including the non-module
-`lakefile.lean`), of which the recorded per-name census was 372 builds and 8 failures;
+`lakefile.lean`), of which the recorded per-name census was 373 builds and 7 failures;
 `BitcoinProofs.AF.PDW62b.PDW62b` has since been repaired and now builds.
 No cited target remains in the failing set. The status does not by itself mean that the target's
 conclusion paraphrases the whole row summary. That last step is statement

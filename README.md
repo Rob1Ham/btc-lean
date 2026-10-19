@@ -113,15 +113,15 @@ lake test
 cd ../proofs
 lake build BitcoinProofs
 # recorded: Build completed successfully (1722 jobs).
-# validated on 2026-10-18: 1,731 jobs.
-# This is the 36-module default import closure, not all 416 proof modules.
+# validated on 2026-10-18: 1,732 jobs.
+# This is the 37-module default import closure, not all 417 proof modules.
 ```
 
 Do not run `lake update`; the committed `lake-manifest.json` is the pin. The
-default closure is 36 modules. A fresh per-name run covers the 380
+default closure is 37 modules. A fresh per-name run covers the 380
 outside-closure modules (381 `.lean` entries when the non-module
-`lakefile.lean` is counted): the recorded per-name census is 372 builds and
-8 failures. None of the recorded failures is a cited target; the closeout-found
+`lakefile.lean` is counted): the recorded per-name census is 373 builds and
+7 failures. None of the recorded failures is a cited target; the closeout-found
 `AF.PDW62b.PDW62b` failure has been repaired and now builds. See [`docs/PROOF-BUILD.md`](docs/PROOF-BUILD.md) for the exact
 scope and failure list. The
 optional capstone runner replays serialized mainnet anchor blocks through the

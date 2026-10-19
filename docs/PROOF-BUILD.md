@@ -1,10 +1,10 @@
 # Proof build scope and status
 
 `lake build BitcoinProofs` is the **default import closure**, not the whole
-proof tree. It builds the root module plus its 35 direct/transitive local
-imports: **36 modules**. The historical baseline recorded **1722 jobs**; the
-current validated build reports **1,731 jobs** (2026-10-18).
-The package contains **416 Lean modules** (417 `.lean` files including
+proof tree. It builds the root module plus its 36 direct/transitive local
+imports: **37 modules**. The historical baseline recorded **1722 jobs**; the
+current validated build reports **1,732 jobs** (2026-10-18).
+The package contains **417 Lean modules** (418 `.lean` files including
 `lakefile.lean`); **380 modules are outside the default closure**.
 
 The generated static inventory is [`PROOF-SCOPE.md`](PROOF-SCOPE.md).
@@ -26,15 +26,15 @@ lake build <module>
 Lake 5.0.0 rejects the `-j` option on `lake build`; the per-module command above
 is the equivalent serial invocation. The first full post-audit run produced
 **365 passes and 15 failures** over the 380 outside-closure modules. Re-running
-that failure set after the source-audit fixes leaves **8 failures**, so the
-recorded outside-closure status is **372 passes and 8 failures**. During
+that failure set after the source-audit fixes leaves **7 failures**, so the
+recorded outside-closure status is **373 passes and 7 failures**. During
 closeout, `AF.PDW62b.PDW62b` was found to have stale axiom pins; it was
 repaired and now builds, and is not counted in the recorded table below.
 
 | Scope | Count | Builds | Fails |
 |---|---:|---:|---:|
-| Default `BitcoinProofs` closure | 36 modules | 36 | 0 |
-| Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 372 | 8 |
+| Default `BitcoinProofs` closure | 37 modules | 37 | 0 |
+| Outside the default closure | 381 entries (380 modules + `lakefile.lean`) | 373 | 7 |
 | — `AF` namespace | 249 | 249 | 0 |
 | — `Theorems` namespace | 24 | 22 | 2 |
 | — `Wallet` namespace | 22 | 22 | 0 |
@@ -50,26 +50,25 @@ repaired and now builds, and is not counted in the recorded table below.
 | — `Activation` namespace | 1 | 1 | 0 |
 | — `Interpreter` namespace | 1 | 1 | 0 |
 
-The 416 modules include the 36 in the default closure. The outside-closure
+The 417 modules include the 37 in the default closure. The outside-closure
 table has 381 entries because it includes the non-module `lakefile.lean`, which
 the static index excludes; `lakefile.lean` is the Lake build configuration, not
 a module, so it is not built by name and the builds-plus-failures total is the
-380 modules. The candidate adds seven modules to the default closure without
-changing the 380-module outside-closure count, so the recorded 372/8 status is
-retained as the prior census; `AF.PDW62b.PDW62b` is an additional closeout
+380 modules. The candidate adds modules to the default closure without changing the
+380-module outside-closure count. After the BIP-42 module and the B03 repair,
+the recorded status is 373/7; `AF.PDW62b.PDW62b` is an additional closeout
 regression that has been repaired. The namespace rows are the post-audit partition of those 380 modules,
 not a re-use of the earlier five-way census categories.
 
 ## Failing modules
 
-All 8 recorded failures are outside the default closure. None is cited by
+All 7 recorded failures are outside the default closure. None is cited by
 `spec/db`, the docs, or the wallet record. The failure list is:
 
 | Module | Observed failure |
 |---|---|
 | `BitcoinProofs.Audit.Z03.Probe` | missing `DecidableEq`/`LawfulBEq` instances; false `decide` goal |
 | `BitcoinProofs.Audit.Z09.Corners` | absent rewrite patterns; “no goals” |
-| `BitcoinProofs.Bip.B03.B03Subsidy` | free variables, unknown tactic, unsolved goals |
 | `BitcoinProofs.Bip.B10.Bip144Vectors` | stale staged vector decode (`rfl` mismatches); the signedness fix is covered in `Bip144.lean` |
 | `BitcoinProofs.EcdsaDeep.DerBattery` | generated table is not valid Lean (`import` after declarations / missing `def`) |
 | `BitcoinProofs.EcdsaDeep.S02Flip` | `decide` fails to reduce |
@@ -103,7 +102,7 @@ and `BitcoinProofs.Property.Y15.WitnessProps`.
 
 `BitcoinProofs` building means that the 36 default-closure modules elaborate
 against the pinned Lean toolchain, mathlib revision, and core package. It does
-**not** mean that all 416 proof modules were rebuilt, that every cited row
+**not** mean that all 417 proof modules were rebuilt, that every cited row
 target builds, or that the Lean statements are faithful paraphrases of Bitcoin
 Core. Statement fidelity is a separate review obligation, with the 18 known
 consensus residuals in [`RESIDUALS.md`](RESIDUALS.md) and the accepted
