@@ -22,10 +22,11 @@ def run : IO UInt32 := do
   for contextual in [false, true] do
     for (name, view, expected) in cases do
       let result := if contextual then validateBlockInContext raw (state view) context
-        else replayBlock raw (state view)
+        else replayBlockPartial raw (state view)
       let actual := match result with
         | .error e => e.reason
-        | .ok r => s!"ok:{r.scriptOk}:{r.scriptUnjudged}"
+        | .ok r => s!"{if r.fullValidation then "ok" else "partial"}:{r.scriptOk}:{r.scriptUnjudged}"
+      let expected := if !contextual then expected.replace "ok:" "partial:" else expected
       let ok := actual == expected
       IO.println s!"[{if ok then "PASS" else "FAIL"}] {if contextual then "context" else "replay"} {name}: expected={expected}, actual={actual}"
       count := count+1

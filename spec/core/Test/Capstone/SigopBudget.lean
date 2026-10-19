@@ -133,16 +133,16 @@ private def publicChecks : IO (List (String × String × String)) := do
   let over ← IO.FS.readBinFile "../data/review/sigop-budget/over-limit.raw"
   let st : CapState := { height := 1, prevHash := headerHash genesisHeader, utxo := [] }
   let verdict := fun (raw : ByteArray) (contextual : Bool) =>
-    match (if contextual then validateBlockInContext raw st context else replayBlock raw st) with
+    match (if contextual then validateBlockInContext raw st context else replayBlockPartial raw st) with
     | .error e => e.reason
-    | .ok report => s!"ok:{report.sigOpCost}:{report.sigOpBudgetChecked}"
+    | .ok report => s!"{if report.fullValidation then "ok" else "partial"}:{report.sigOpCost}:{report.sigOpBudgetChecked}"
   let alternateFlags := match decodeBlock atLimit with
     | .error _ => "decode-error"
     | .ok (header, _) =>
       s!"{(candidateScriptFlags 170060 header).p2sh}:{(candidateScriptFlags 692261 header).taproot}"
   return [("public contextual exact limit", verdict atLimit true, "ok:80000:true"),
      ("public contextual above limit", verdict over true, "bad-blk-sigops"),
-     ("public replay exact limit", verdict atLimit false, "ok:80000:true"),
+     ("public replay exact limit", verdict atLimit false, "partial:80000:true"),
      ("public replay above limit", verdict over false, "bad-blk-sigops"),
      ("alternative hashes do not inherit height exceptions", alternateFlags, "true:true")]
 

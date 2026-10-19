@@ -14,7 +14,7 @@ private def height : UInt32 := 170060
 private def result (r : Except CapError CapReport) : String :=
   match r with
   | .error e => e.reason
-  | .ok report => s!"ok:{report.scriptOk}:{report.scriptUnjudged}"
+  | .ok report => s!"{if report.fullValidation then "ok" else "partial"}:{report.scriptOk}:{report.scriptUnjudged}"
 
 def run : IO UInt32 := do
   let raw ← IO.FS.readBinFile "../data/review/script-flags/block170.raw"
@@ -78,9 +78,9 @@ def run : IO UInt32 := do
   let checks : List (String × String × String) :=
     [("alternate hash retains P2SH flag", toString active.p2sh, "true"),
      ("named hash selects exception flags", toString excepted.p2sh, "false"),
-     ("public replay valid control", result (replayBlock raw (state goodCoin)), "ok:1:0"),
+     ("public replay valid control", result (replayBlockPartial raw (state goodCoin)), "partial:1:0"),
      ("public context valid control", result (validateBlockInContext raw (state goodCoin) ctx), "ok:1:0"),
-     ("public replay alternate hash executes P2SH", result (replayBlock raw (state badCoin)),
+     ("public replay alternate hash executes P2SH", result (replayBlockPartial raw (state badCoin)),
         "script-verify-error"),
      ("public context alternate hash executes P2SH",
         result (validateBlockInContext raw (state badCoin) ctx), "script-verify-error"),

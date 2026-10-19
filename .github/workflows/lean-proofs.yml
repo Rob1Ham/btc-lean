@@ -1,0 +1,86 @@
+name: lean proofs
+
+# Issue 22 requires the proof modules CI-built, not only the static indexes.
+# This job builds the core package, the default proof closure, and the
+# outside-closure modules that were the recorded per-name failures. It is a
+# build/typecheck job: it does not run the release anchor corpus.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lean-proofs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: core and proof build
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            spec/core/.lake
+            spec/proofs/.lake
+          key: lean-${{ runner.os }}-${{ hashFiles('spec/core/lean-toolchain', 'spec/proofs/lean-toolchain', 'spec/proofs/lake-manifest.json') }}
+          restore-keys: |
+            lean-${{ runner.os }}-
+
+      - name: Build core
+        run: |
+          cd spec/core
+          lake build
+
+      - name: Run issue 22 entry-point regression
+        run: |
+          cd spec/core
+          lake exe issue22
+
+      - name: Fetch mathlib cache and build proof closure
+        run: |
+          cd spec/proofs
+          lake exe cache get
+          lake build BitcoinProofs
+
+      - name: Build outside-closure regression modules
+        run: |
+          cd spec/proofs
+          lake build \
+            BitcoinProofs.Bip.B03.B03Subsidy \
+            BitcoinProofs.Audit.Z03.Probe \
+            BitcoinProofs.Audit.Z09.Corners \
+            BitcoinProofs.Bip.B10.Bip144Vectors \
+            BitcoinProofs.EcdsaDeep.DerBattery \
+            BitcoinProofs.EcdsaDeep.S02Flip \
+            BitcoinProofs.Theorems.Audit.CV02
+
+      - name: Build summary
+        if: success()
+        run: |
+          {
+            echo "### Lean build: passed"
+            echo ""
+            echo "Built \`spec/core\`, the default \`BitcoinProofs\` closure, and the issue 22 outside-closure modules."
+            echo "The deliberate \`Theorems.FuelStabilityProbe\` is documented in \`docs/PROOF-BUILD.md\` and is not part of this gate."
+          } >> "$GITHUB_STEP_SUMMARY"

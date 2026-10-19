@@ -8,7 +8,7 @@ import Bitcoin.Capstone.RealChecker
 /-!
 # Test.Capstone.Run — the end-to-end anchor capstone run
 
-Replays the 6 mainnet anchor blocks through `replayBlock` (`decodeBlock`
+Replays the 6 mainnet anchor blocks through `replayBlockPartial` (`decodeBlock`
 → structure → PoW/chain-link → merkle/witness-commitment → per-tx
 stateless + `checkTxInputs` + `verifyScriptFull` with the REAL
 crypto checker + ledger fold), reading:
@@ -119,7 +119,9 @@ def probeTx (height : UInt32) (tx : Tx) (i : Nat)
 structure BlockResult where
   height : Nat
   blockHash : String
-  ok : Bool
+  replayOk : Bool
+  accepted : Bool := false
+  isPartial : Bool := true
   reason : String := ""
   txs : Nat := 0
   scriptOk : Nat := 0
@@ -146,8 +148,8 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   -- independent witness for the decode: count txs by walking the header
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
-    match replayBlock raw st with
-    | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
+    match replayBlockPartial raw st with
+    | .error e => { height := height, blockHash := "", replayOk := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
           match decodeBlock raw with
@@ -158,17 +160,21 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
           match folded with
           | .ok l' => bytesBEqList l' rep.state.utxo
           | .error _ => false
+        let localOk := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0 && agree
+        let accepted := rep.fullValidation && agree
         { height := height, blockHash := "",
-          ok := rep.scriptAdjudication == .complete && rep.scriptUnjudged == 0 && agree,
-          reason := if rep.scriptAdjudication != .complete || rep.scriptUnjudged != 0 then
-            "script-data-unavailable" else if !agree then "ledger-fold-mismatch" else "",
+          replayOk := localOk, accepted := accepted, isPartial := !accepted,
+          reason := if !localOk then
+            (if rep.scriptAdjudication != .complete || rep.scriptUnjudged != 0 then
+              "script-data-unavailable" else "ledger-fold-mismatch")
+            else if !accepted then "partial-context" else "",
           txs := rep.txs, scriptOk := rep.scriptOk, scriptUnjudged := rep.scriptUnjudged,
           foldAgrees := agree, scriptAdjudication := rep.scriptAdjudication }
   let t1 ← IO.monoMsNow
   let hashDisp := match decodeBlock raw with
     | .ok (h, _) => (bL (headerHash h)).reverse
     | .error _ => []
-  let probe := if res.ok then "" else
+  let probe := if res.replayOk then "" else
     match decodeBlock raw with
     | .error e => s!"decode: {repr e}"
     | .ok (_, txs) =>
@@ -226,13 +232,16 @@ def main : IO Unit := do
         IO.println s!"UNAVAILABLE {h} (no {dir}/{h}.raw)"
         continue
       let r ← runAnchor dir h
-      IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+      IO.println s!"ANCHOR {h} replayOk={r.replayOk} accepted={r.accepted} isPartial={r.isPartial} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
       if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
       results := results ++ [r]
-  let allOk := !results.isEmpty && missing == 0 && results.all (·.ok)
+  let allReplayOk := !results.isEmpty && missing == 0 && results.all (·.replayOk)
+  let allAccepted := allReplayOk && results.all (·.accepted)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} missing={missing} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone: replay checks failed or the selected input corpus is incomplete")
+  IO.println s!"SUMMARY blocks={results.length} missing={missing} allReplayOk={allReplayOk} allAccepted={allAccepted} totalMs={totalMs}"
+  if !allReplayOk then throw (IO.userError "capstone: diagnostic replay checks failed or the selected input corpus is incomplete")
+  if !allAccepted then
+    IO.println "NOTE: context-free diagnostic replay; accepted=false is expected, not a validation claim"
 
 end Test.Capstone.Run
 

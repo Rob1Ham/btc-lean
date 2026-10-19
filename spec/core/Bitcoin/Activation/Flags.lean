@@ -314,7 +314,7 @@ replacement sets carry `cltv = false`. -/
 CLTV is off for every hash whose exception replacement also leaves it off
 — in particular for both mainnet exception entries. -/
 theorem cltv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
-    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false)
+    (hexc : ∀ exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false)
     (hlt : height < P.bip65Height) :
     (getBlockScriptFlagsP P hash height).cltv = false := by
   have hcmp : ¬ (P.bip65Height ≤ height) :=
@@ -324,7 +324,7 @@ theorem cltv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
   | none =>
       simp [buriedActive, decide_eq_false hcmp]
   | some exf =>
-      simp [hexc hash exf hmap, buriedActive, decide_eq_false hcmp]
+      simp [hexc exf hmap, buriedActive, decide_eq_false hcmp]
 
 /-- BLK-086 (whole row claim, arbitrary params): CLTV is on exactly when
 BIP65 is buried-active at the block.  No `hnone`: the exception-hash arm is
@@ -332,7 +332,7 @@ covered because Core ORs the flag after the hash-keyed replacement
 (validation.cpp:2262-2275). -/
 @[rule "BLK-086"] theorem cltv_flag_iff_any (P : ChainParams) (hash : BlockHash)
     (height : UInt32)
-    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false) :
+    (hexc : ∀ exf, P.scriptFlagExceptions hash = some exf → exf.cltv = false) :
     (getBlockScriptFlagsP P hash height).cltv = true ↔ P.bip65Height ≤ height := by
   constructor
   · intro hon
@@ -377,7 +377,7 @@ exception-hash arm and below-height converse. -/
     (getBlockScriptFlagsP mainnetParams hash height).cltv = true ↔
       388381 ≤ height := by
   have h := cltv_flag_iff_any mainnetParams hash height
-    (fun h exf hmap => mainnet_exception_cltv_false h exf hmap)
+    (fun exf hmap => mainnet_exception_cltv_false hash exf hmap)
   simpa [mainnetParams, BIP65_HEIGHT] using h
 
 /-- INV-130 (exception-hash-free activation): the CSV script flag is OR-ed
@@ -392,7 +392,7 @@ on for EVERY block hash, exception hashes included. -/
 CSV script flag is off for every hash whose exception replacement also
 leaves it off — in particular for both mainnet exception entries. -/
 theorem csv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
-    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.csv = false)
+    (hexc : ∀ exf, P.scriptFlagExceptions hash = some exf → exf.csv = false)
     (hlt : height < P.csvHeight) :
     (getBlockScriptFlagsP P hash height).csv = false := by
   have hcmp : ¬ (P.csvHeight ≤ height) :=
@@ -402,7 +402,7 @@ theorem csv_flag_off_any (P : ChainParams) (hash : BlockHash) (height : UInt32)
   | none =>
       simp [buriedActive, decide_eq_false hcmp]
   | some exf =>
-      simp [hexc hash exf hmap, buriedActive, decide_eq_false hcmp]
+      simp [hexc exf hmap, buriedActive, decide_eq_false hcmp]
 
 /-- INV-130 (whole row claim, arbitrary params): the CSV script flag is on
 exactly when CSV is buried-active at the block.  No `hnone`: the
@@ -410,7 +410,7 @@ exception-hash arm is covered because Core ORs the flag after the hash-keyed
 replacement (validation.cpp:2262-2281). -/
 @[rule "INV-130"] theorem csv_flag_iff_any (P : ChainParams) (hash : BlockHash)
     (height : UInt32)
-    (hexc : ∀ hash exf, P.scriptFlagExceptions hash = some exf → exf.csv = false) :
+    (hexc : ∀ exf, P.scriptFlagExceptions hash = some exf → exf.csv = false) :
     (getBlockScriptFlagsP P hash height).csv = true ↔ P.csvHeight ≤ height := by
   constructor
   · intro hon
@@ -454,7 +454,7 @@ activation, exception-hash arm and below-height converse. -/
     (getBlockScriptFlagsP mainnetParams hash height).csv = true ↔
       419328 ≤ height := by
   have h := csv_flag_iff_any mainnetParams hash height
-    (fun h exf hmap => mainnet_exception_csv_false h exf hmap)
+    (fun exf hmap => mainnet_exception_csv_false hash exf hmap)
   simpa [mainnetParams, CSV_HEIGHT] using h
 
 /-! ### BLK-087: the contextual `LOCKTIME_VERIFY_SEQUENCE` flag

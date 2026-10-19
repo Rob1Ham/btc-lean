@@ -14,10 +14,13 @@ import Bitcoin.Activation.Flags
 # Bitcoin.Capstone.Block — serialized replay and contextual header checks (S2b)
 
 `validateBlock : SerializedBlock → CapState → Except CapError CapReport`
-composes the modeled gates on real serialized bytes. The default call is
-partial replay (`replayBlock`); an explicit `ChainContext` adds header,
-absolute-finality and both BIP68-domain checks. Both entries enforce
-legacy and contextual sigop budgets. Remaining historical exception defects are actionable work in the remediation ledger, not assumed
+composes the modeled gates on real serialized bytes. The full-validation entry
+is `validateNextBlock`, which derives its `ChainContext` from a
+`ChainState` holding the checked parent hash, UTXO view, header index and
+node clock. `validateBlockInContext` is the same pipeline with those fields
+passed separately. `replayBlockPartial` is a diagnostic adapter and never
+claims the context checks. Both entries enforce legacy and contextual sigop
+budgets. Remaining historical exception defects are actionable work in the remediation ledger, not assumed
 consensus validity. The gates currently composed are:
 
 1. **Decode**: `decodeBlock` — header, tx count, txs (BIP144
@@ -31,7 +34,7 @@ consensus validity. The gates currently composed are:
    the anchors skip intermediate blocks). With `ChainContext`, also
    require the parent-bound ancestor lookup, expected mainnet nBits, the
    complete parent MTP window and the explicit node-clock future bound.
-   Without it, this is partial replay (`replayBlock`), not full validation.
+   Without it, this is partial replay (`replayBlockPartial`), not full validation.
 4. **Merkle** (this module): txid tree vs header (BLK-010) + the witness
    commitment gate (BLK-015..020).
 5. **Per tx, in order** (Core ConnectBlock's UTXO-side order):
@@ -52,7 +55,7 @@ consensus validity. The gates currently composed are:
   context. Legacy/v0 ECDSA and native Taproot key/script paths use real signature
   verification; Taproot hashing binds the complete ordered spent-output view.
 * Missing required signature context is explicit `unjudgedTaproot` data.
-  `replayBlock` reports that partial-adjudication state for diagnostic anchor
+  `replayBlockPartial` reports that partial-adjudication state for diagnostic anchor
   replay; `validateBlockInContext` rejects it as `script-unjudged` rather than
   accepting an unverified spend. The report's `scriptAdjudication` is complete
   exactly when its unjudged count is zero.
@@ -1107,6 +1110,16 @@ structure CapReport where
   scriptAdjudication : ScriptAdjudication := .incomplete
   deriving Repr
 
+/-- The report is a full-validation report only when every context gate ran
+and every input was adjudicated. A context-free diagnostic replay is never
+full validation, even when its local ledger fold agrees. -/
+def CapReport.fullValidation (r : CapReport) : Bool :=
+  r.headerContextChecked && r.absoluteFinalityChecked && r.sequenceLocksChecked &&
+    r.sigOpBudgetChecked && r.scriptUnjudged == 0 && r.scriptAdjudication == .complete
+
+/-- Complement of `fullValidation`, for diagnostic runners. -/
+def CapReport.partial (r : CapReport) : Bool := !r.fullValidation
+
 /-- **THE PIPELINE** (S2b): `SerializedBlock → ChainState → Except Err
 ChainState`, composed of decode → structure checks → header PoW +
 chain link → merkle + witness commitment → per-tx validation →
@@ -1180,7 +1193,8 @@ def validateBlock (raw : ByteArray) (st : CapState)
     (candidateScriptFlags st.height h) txs st.utxo
   -- The contextual entry is the full-validation claim: an input that could
   -- not be adjudicated is unavailable verification, never an accepted spend.
-  -- `replayBlock` retains the diagnostic report for partial anchor replay.
+  -- `replayBlockPartial` retains the diagnostic report for partial anchor replay;
+  -- its `fullValidation` predicate is false, so it cannot be mistaken for acceptance.
   if context.isSome && unjN != 0 then throw CapError.scriptUnjudged
   pure { state := { st with height := st.height + 1, prevHash := headerHash h, utxo := utxo' }
          txs := txs.length, scriptOk := okN, scriptUnjudged := unjN
@@ -1189,9 +1203,10 @@ def validateBlock (raw : ByteArray) (st : CapState)
          sigOpBudgetChecked := true, sigOpCost := sigops
          scriptAdjudication := if unjN = 0 then .complete else .incomplete }
 
-/-- Explicit partial anchor-replay adapter. No ancestor/clock checks are
-claimed; script adjudication may also be incomplete as the report records. -/
-def replayBlock (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
+/-- Diagnostic partial anchor-replay adapter. No ancestor/clock checks are
+performed and script adjudication may be incomplete; the returned report's
+`fullValidation` is therefore false. This is not an acceptance predicate. -/
+def replayBlockPartial (raw : ByteArray) (st : CapState) : Except CapError CapReport :=
   validateBlock raw st none
 
 /-- Header-context entry point. Checks expected nBits, parent MTP and node
@@ -1205,6 +1220,41 @@ claim for the genesis block. -/
 def validateBlockInContext (raw : ByteArray) (st : CapState)
     (ctx : Bitcoin.Capstone.Context.ChainContext) : Except CapError CapReport :=
   validateBlock raw st (some ctx)
+
+/-- A checked prior-chain view: the candidate height, the already-checked
+parent hash, the UTXO view produced by the preceding block, an explicit
+header index, and the node clock. `validateNextBlock` is the single entry
+point for deciding the next block from this state; it derives the
+`ChainContext` instead of accepting a second unchecked context argument. -/
+structure ChainState where
+  height : UInt32
+  prevHash : ByteArray
+  utxo : List (OutPoint × Coin)
+  headers : Nat → Option Bitcoin.Chain.BlockHeader
+  nodeTime : Int
+
+/-- The validation state embedded in a checked chain view. -/
+def ChainState.capState (cs : ChainState) : CapState :=
+  { height := cs.height, prevHash := cs.prevHash, utxo := cs.utxo }
+
+/-- The parent/clock context derived from a checked chain view. For a
+non-genesis candidate at height `h`, the parent height is `h-1`; the
+header index must resolve that parent and the complete MTP window. -/
+def ChainState.context (cs : ChainState) : Bitcoin.Capstone.Context.ChainContext :=
+  { parentHeight := cs.height.toNat - 1
+    headerAt := cs.headers
+    nodeTime := cs.nodeTime }
+
+/-- **Single next-block entry point.** Given the checked prior-chain view,
+decide the candidate under mainnet rules. This is the same contextual
+pipeline as `validateBlockInContext`; it exists so callers do not pass an
+independent, unchecked header/clock context alongside the UTXO state. -/
+def validateNextBlock (raw : ByteArray) (cs : ChainState) : Except CapError CapReport :=
+  validateBlock raw cs.capState (some cs.context)
+
+/-- Definitional bridge: the single entry point is the contextual pipeline. -/
+theorem validateNextBlock_eq (raw : ByteArray) (cs : ChainState) :
+    validateNextBlock raw cs = validateBlockInContext raw cs.capState cs.context := rfl
 
 /-! ## BLK-010 — the merkle gate rejects a mismatched header root
 

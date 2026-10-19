@@ -86,7 +86,7 @@ example : (getBlockScriptFlagsP mainnetParams bip16ExceptionHash 388381).cltv = 
 -- ... and off one block before, for the taproot exception hash.
 example : (getBlockScriptFlagsP mainnetParams taprootExceptionHash 388380).cltv = false :=
   cltv_flag_off_any mainnetParams taprootExceptionHash 388380
-    (fun h exf hmap => mainnet_exception_cltv_false h exf hmap) (by decide)
+    (fun exf hmap => mainnet_exception_cltv_false taprootExceptionHash exf hmap) (by decide)
 
 -- CSV is on at its boundary for the taproot exception hash (INV-130), and
 -- off one block before at the BIP16 exception hash.
@@ -94,7 +94,7 @@ example : (getBlockScriptFlagsP mainnetParams taprootExceptionHash 419328).csv =
   (csv_flag_iff_mainnet_any taprootExceptionHash 419328).mpr (by decide)
 example : (getBlockScriptFlagsP mainnetParams bip16ExceptionHash 419327).csv = false :=
   csv_flag_off_any mainnetParams bip16ExceptionHash 419327
-    (fun h exf hmap => mainnet_exception_csv_false h exf hmap) (by decide)
+    (fun exf hmap => mainnet_exception_csv_false bip16ExceptionHash exf hmap) (by decide)
 
 -- BLK-087: both CSV gates (script flag + contextual LOCKTIME_VERIFY_SEQUENCE)
 -- and the resulting BIP68 enablement are on for a version-2 transaction.

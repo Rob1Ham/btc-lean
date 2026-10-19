@@ -146,7 +146,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   -- independent witness for the decode: count txs by walking the header
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
-    match replayBlock raw st with
+    match replayBlockPartial raw st with
     | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
@@ -191,13 +191,13 @@ def main : IO Unit := do
   let mut results := []
   for h in anchorsV04 do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} replayOk={r.ok} accepted=false reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
   let allOk := results.all (·.ok)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone-v04: an anchor block FAILED validation")
+  IO.println s!"SUMMARY blocks={results.length} allReplayOk={allOk} allAccepted=false totalMs={totalMs}"
+  if !allOk then throw (IO.userError "capstone-v04: an anchor block FAILED diagnostic replay")
 
 end Test.Capstone.V04Run
 

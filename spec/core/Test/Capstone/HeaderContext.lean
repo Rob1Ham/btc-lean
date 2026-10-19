@@ -42,7 +42,7 @@ private def publicReason (context : ChainContext) (height : UInt32 := 1) : Strin
 
 private def reportContext (contextual : Bool) : String :=
   let st : CapState := { height := 1, prevHash := headerHash genesisHeader, utxo := [] }
-  let result := if contextual then validateBlockInContext block1 st ctx else replayBlock block1 st
+  let result := if contextual then validateBlockInContext block1 st ctx else replayBlockPartial block1 st
   match result with
   | .ok report => toString report.headerContextChecked
   | .error e => e.reason

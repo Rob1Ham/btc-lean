@@ -15,7 +15,7 @@ with an explicit LEAN_PATH (shared `.lake` build dir and global build lock
 untouched; no existing runner file edited).
 
 Validates THREE real mainnet blocks (2011–2012 sweep, all pre-BIP34,
-pre-segwit) through the exact capstone pipeline `replayBlock`:
+pre-segwit) through the exact capstone pipeline `replayBlockPartial`:
 
   123456 · 150000 · 200000
 
@@ -140,7 +140,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
-    match replayBlock raw st with
+    match replayBlockPartial raw st with
     | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
@@ -182,7 +182,7 @@ where
 def anchorsV302 : List Nat := [123456, 150000, 200000]
 
 /-- Per-tx adjudication trace (recorded even on PASS). Sequential fold: each
-tx is probed against the state after txs 0..i-1 — the state `replayBlock`
+tx is probed against the state after txs 0..i-1 — the state `replayBlockPartial`
 actually sees (RunV01 semantics, avoids the raw-seed probe artifact of
 Run.lean). -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do
@@ -217,11 +217,11 @@ def main : IO Unit := do
   let mut results := []
   for h in anchorsV302 do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} replayOk={r.ok} accepted=false reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
     perTxTrace dir h
   let allOk := results.all (·.ok)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone: an anchor block FAILED validation")
+  IO.println s!"SUMMARY blocks={results.length} allReplayOk={allOk} allAccepted=false totalMs={totalMs}"
+  if !allOk then throw (IO.userError "capstone: an anchor block FAILED diagnostic replay")

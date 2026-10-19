@@ -16,7 +16,7 @@ untouched; the anchor list is pinned inside the existing Run.lean, which
 the runner doctrine forbids editing).
 
 Validates THREE additional real mainnet blocks (2010 era) through the exact
-capstone pipeline `replayBlock`:
+capstone pipeline `replayBlockPartial`:
 
   70000 · 70863 · 72000
 
@@ -141,7 +141,7 @@ def runAnchor (dir : String) (height : Nat) : IO BlockResult := do
   let seeds := seedLines.flatMap seedCoins
   let st : CapState := ⟨(UInt32.ofNat height), parent, seeds⟩
   let res : BlockResult :=
-    match replayBlock raw st with
+    match replayBlockPartial raw st with
     | .error e => { height := height, blockHash := "", ok := false, reason := CapError.reason e }
     | .ok rep =>
         let txsL : List Tx :=
@@ -185,7 +185,7 @@ def anchorsV01 : List Nat := [70000, 70863, 72000]
 /-- Per-tx adjudication trace (recorded even on PASS). V01 note: unlike
 Run.lean's failure-only probe (which probes against the RAW seed view),
 each tx here is probed against the fold state after txs 0..i-1 — the
-state `replayBlock` actually sees — so same-block spends report `ok`
+state `replayBlockPartial` actually sees — so same-block spends report `ok`
 rather than a spurious `bad-txns-inputs-missingorspent`. -/
 def perTxTrace (dir : String) (height : Nat) : IO Unit := do
   let raw ← IO.FS.readBinFile s!"{dir}/{height}.raw"
@@ -219,11 +219,11 @@ def main : IO Unit := do
   let mut results := []
   for h in anchorsV01 do
     let r ← runAnchor dir h
-    IO.println s!"ANCHOR {h} ok={r.ok} reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
+    IO.println s!"ANCHOR {h} replayOk={r.ok} accepted=false reason={r.reason} txs={r.txs} scriptOk={r.scriptOk} scriptUnjudged={r.scriptUnjudged} scriptAdjudication={r.scriptAdjudication.label} foldAgrees={r.foldAgrees} ms={r.ms} hash={r.blockHash}"
     if r.probe != "" then IO.println s!"PROBE {h}: {r.probe}"
     results := results ++ [r]
     perTxTrace dir h
   let allOk := results.all (·.ok)
   let totalMs := (results.map (·.ms)).foldl Nat.add 0
-  IO.println s!"SUMMARY blocks={results.length} allOk={allOk} totalMs={totalMs}"
-  if !allOk then throw (IO.userError "capstone: an anchor block FAILED validation")
+  IO.println s!"SUMMARY blocks={results.length} allReplayOk={allOk} allAccepted=false totalMs={totalMs}"
+  if !allOk then throw (IO.userError "capstone: an anchor block FAILED diagnostic replay")

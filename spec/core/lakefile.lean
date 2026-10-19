@@ -27,6 +27,10 @@ lean_exe btclean where
 lean_exe capstone where
   root := `Test.Capstone.Run
 
+/-- Issue 22 single-entry-point and partial-report regression. -/
+lean_exe issue22 where
+  root := `Test.Capstone.Issue22
+
 /-- Shared fixture decoding for public Taproot regressions. -/
 lean_lib CapstoneTestSupport where
   roots := #[`Test.Capstone.TaprootFixture]
