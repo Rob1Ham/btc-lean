@@ -25,17 +25,14 @@ Structure (≈ 166 cases, all kernel `decide`-checkable concrete vectors):
   H  `encodeCompactSize`/`decodeCompactSize` API roundtrips
   I  UInt64-wrap edge of `encCSL` (documented typing artifact)
 
-TWO Lean-vs-Core divergences were found and are pinned here with BOTH
-values:
-  * F-Y01-005 (HIGH): `decCS` applies the MAX_SIZE range check ONLY to the
-    0xff frame — Core `ReadCompactSize` range-checks EVERY frame, so
-    0xfe-framed values in (MAX_SIZE, 0xffffffff] are `.ok` in Lean but
-    "size too large" errors in Core. Divergent cases carry a
-    `DIVERGENCE` comment and assert the Lean-actual value.
+One Lean-vs-Core divergence remains pinned here:
   * F-Y01-001 (LOW): public ByteArray `decodeCompactSize` (C1 bootstrap
     decoder) has NO canonicality / MAX_SIZE checks at all — section G.
-All other 158 cases AGREE with the python ground truth (asserted
-directly against the Core verdict).
+The former F-Y01-005 (0xfe-framed values above `MAX_SIZE`) is repaired:
+`decCS` now applies the `MAX_SIZE` range check to the 0xfe frame exactly
+as Core's `ReadCompactSize` does. Section C asserts the corrected rejects.
+All decCS cases AGREE with the python ground truth (asserted directly
+against the Core verdict).
 -/
 
 
@@ -165,15 +162,9 @@ example : decCS (hex "ff0000000001000000") = .error .compactSizeTooLong := by de
 -- u64 form for 2^33 -> toolarge
 example : decCS (hex "ff0000000002000000") = .error .compactSizeTooLong := by decide
 -- u32 form for MAX_SIZE+1 (0x02000001) -> toolarge
--- DIVERGENCE F-Y01-005: Lean gives .ok (33554433, []);
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fe01000002") = .ok (33554433, []) := by decide
+example : decCS (hex "fe01000002") = .error .compactSizeTooLong := by decide
 -- u32 form for 0xffffffff -> toolarge
--- DIVERGENCE F-Y01-005: Lean gives .ok (4294967295, []);
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "feffffffff") = .ok (4294967295, []) := by decide
+example : decCS (hex "feffffffff") = .error .compactSizeTooLong := by decide
 -- u32 form for MAX_SIZE (canonical, ok)
 example : decCS (hex "fe00000002") = .ok (33554432, []) := by decide
 /-! ## D. Deterministic roundtrips -/
@@ -225,51 +216,33 @@ example : decCS (hex "feffffff01f20d") = .ok (33554431, hex "f20d") := by decide
 example : decCS (hex "fe00000002e6fa") = .ok (33554432, hex "e6fa") := by decide
 /-! ## F2. Pseudo-random wire strings, full-verdict equality (seed 20261016) -/
 example : decCS (hex "dd149ed62bf4") = .ok (221, hex "149ed62bf4") := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (224698574, hex "7c68");
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fecea0640d7c68") = .ok (224698574, hex "7c68") := by decide
+example : decCS (hex "fecea0640d7c68") = .error .compactSizeTooLong := by decide
 example : decCS (hex "fd000bd11f6d") = .ok (2816, hex "d11f6d") := by decide
 example : decCS (hex "fe14745e") = .error .truncated := by decide
 example : decCS (hex "fd66f72964") = .ok (63334, hex "2964") := by decide
 example : decCS ([]) = .error .truncated := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (203547229, []);
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fe5de2210c") = .ok (203547229, []) := by decide
+example : decCS (hex "fe5de2210c") = .error .compactSizeTooLong := by decide
 example : decCS (hex "be6a35d863") = .ok (190, hex "6a35d863") := by decide
 example : decCS (hex "fe37531901465a") = .ok (18436919, hex "465a") := by decide
 example : decCS (hex "cfbbbfe2") = .ok (207, hex "bbbfe2") := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (2163252862, hex "c7");
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fe7e9ef080c7") = .ok (2163252862, hex "c7") := by decide
+example : decCS (hex "fe7e9ef080c7") = .error .compactSizeTooLong := by decide
 example : decCS (hex "fed54a") = .error .truncated := by decide
 example : decCS (hex "fe") = .error .truncated := by decide
 example : decCS (hex "fdb1fc85eb33bbfdd9") = .ok (64689, hex "85eb33bbfdd9") := by decide
 example : decCS (hex "99fb311352c7370012") = .ok (153, hex "fb311352c7370012") := by decide
 example : decCS ([]) = .error .truncated := by decide
 example : decCS (hex "fe92b7") = .error .truncated := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (863387631, hex "d28260b2");
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "feef3f7633d28260b2") = .ok (863387631, hex "d28260b2") := by decide
+example : decCS (hex "feef3f7633d28260b2") = .error .compactSizeTooLong := by decide
 example : decCS (hex "fdc8cc038bbb") = .ok (52424, hex "038bbb") := by decide
 example : decCS (hex "ceca1433c919dafb") = .ok (206, hex "ca1433c919dafb") := by decide
 example : decCS (hex "1ac50ddcb820d4d651") = .ok (26, hex "c50ddcb820d4d651") := by decide
 example : decCS (hex "fd4e9f478e2159c1") = .ok (40782, hex "478e2159c1") := by decide
 example : decCS (hex "fd885d6cae") = .ok (23944, hex "6cae") := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (181239114, hex "215ac3c0");
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fe4a7dcd0a215ac3c0") = .ok (181239114, hex "215ac3c0") := by decide
+example : decCS (hex "fe4a7dcd0a215ac3c0") = .error .compactSizeTooLong := by decide
 example : decCS (hex "95f5b39fc7ae4426") = .ok (149, hex "f5b39fc7ae4426") := by decide
 example : decCS (hex "fd189f") = .ok (40728, []) := by decide
 example : decCS (hex "fd29dceb4c1c") = .ok (56361, hex "eb4c1c") := by decide
--- DIVERGENCE F-Y01-005: Lean gives .ok (3742243679, hex "453cc6f4");
--- Core ReadCompactSize gives .error .compactSizeTooLong (0xfe frame: Lean misses the
--- MAX_SIZE range check that Core applies to every frame)
-example : decCS (hex "fe5f1b0edf453cc6f4") = .ok (3742243679, hex "453cc6f4") := by decide
+example : decCS (hex "fe5f1b0edf453cc6f4") = .error .compactSizeTooLong := by decide
 example : decCS ([]) = .error .truncated := by decide
 example : decCS (hex "fd569a895f") = .ok (39510, hex "895f") := by decide
 /-! ## G. Public ByteArray `decodeCompactSize` — Core-divergence probes.

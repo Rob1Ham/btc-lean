@@ -351,20 +351,29 @@ structure ConnectState where
 
 /-- **BLK-109 / INV-107 / BLK-110** at the real call site
 (validation.cpp:2337-2343): `ConnectBlock` tests the genesis hash BEFORE
-the per-tx loop.  On genesis it returns through `connectGenesis` with the
+the per-tx loop. On genesis it returns through `connectGenesis` with the
 UTXO set untouched and only the best block committed; every other block
-runs the frozen executable `applyBlockExec` fold first and then commits
-its hash. -/
+runs the hash-aware, real-txid executable fold first and then commits its
+hash. `ancestorHash` is the hash of the block at `BIP34_HEIGHT`; the
+canonical wrapper below pins it to `BIP34Hash`. -/
 @[rule "BLK-109", rule "INV-107", rule "BLK-110"]
-def connectBlock (h : Bitcoin.Chain.BlockHeader) (txs : List Tx) (height : UInt32)
-    (s : ConnectState) : Except BlockError ConnectState :=
+def connectBlockWithAncestor (h : Bitcoin.Chain.BlockHeader) (txs : List Tx)
+    (height : UInt32) (s : ConnectState) (ancestorHash : Nat) :
+    Except BlockError ConnectState :=
   if isGenesisHeader h then
     let r := connectGenesis s.utxo h
     Except.ok { utxo := r.1, bestBlock := some r.2 }
   else
-    match applyBlockExec s.utxo txs height with
+    match applyBlockExecTxid s.utxo txs height (hashNatLE (headerHash h)) ancestorHash with
     | Except.error e => Except.error e
     | Except.ok u => Except.ok { utxo := u, bestBlock := some (headerHash h) }
+
+/-- Canonical-chain `ConnectBlock`: the supplied ancestor is the pinned
+`BIP34Hash`, matching Core's canonical `pindexBIP34height` check. -/
+@[rule "BLK-109", rule "INV-107", rule "BLK-110"]
+def connectBlock (h : Bitcoin.Chain.BlockHeader) (txs : List Tx) (height : UInt32)
+    (s : ConnectState) : Except BlockError ConnectState :=
+  connectBlockWithAncestor h txs height s BIP34_ACTIVATION_HASH
 
 /-- **BLK-109 / INV-107**: the wired genesis branch returns before the tx
 loop.  The result has the pre-state UTXO set and only the best block
@@ -375,7 +384,7 @@ theorem connectBlock_genesis (s : ConnectState)
     (hg : isGenesisHeader h = true) :
     connectBlock h txs height s =
       Except.ok { s with bestBlock := some (headerHash h) } := by
-  simp [connectBlock, hg, connectGenesis]
+  simp [connectBlock, connectBlockWithAncestor, hg, connectGenesis]
 
 /-- **BLK-109**: the genesis connection leaves the UTXO set unchanged and
 sets `bestBlock` to the genesis header hash. -/
@@ -423,16 +432,17 @@ theorem connectBlock_genesis_coinbase_output_absent :
   refine ⟨_, connectBlock_genesis _ _ _ _ isGenesisHeader_genesisHeader, ?_⟩
   rfl
 
-/-- The non-genesis branch is the real fold: it runs `applyBlockExec` and
-only then commits the best block. -/
+/-- The non-genesis branch is the real fold: it runs the hash-aware,
+real-txid `applyBlockExecTxid` and only then commits the best block. -/
 theorem connectBlock_nonGenesis (s : ConnectState)
     (h : Bitcoin.Chain.BlockHeader) (txs : List Tx) (height : UInt32)
     (hng : isGenesisHeader h = false) :
     connectBlock h txs height s =
-      (match applyBlockExec s.utxo txs height with
+      (match applyBlockExecTxid s.utxo txs height
+          (hashNatLE (headerHash h)) BIP34_ACTIVATION_HASH with
        | Except.error e => Except.error e
        | Except.ok u => Except.ok { utxo := u, bestBlock := some (headerHash h) }) := by
-  simp [connectBlock, hng]
+  simp [connectBlock, connectBlockWithAncestor, hng]
 
 /-! ## Axiom pins -/
 

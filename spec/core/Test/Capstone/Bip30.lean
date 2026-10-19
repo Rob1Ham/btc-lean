@@ -37,6 +37,11 @@ private def history (height : UInt32) (parent : Bitcoin.Chain.BlockHeader) : Cha
       else if n < height.toNat-1 then some { parent with time := 0 } else none
     nodeTime := 2000000000 }
 
+private def ledgerCode : Except BlockError (List (OutPoint × Coin)) → String
+  | .error BlockError.badTxnsBIP30 => "bad-txns-BIP30"
+  | .error _ => "ledger-error"
+  | .ok _ => "ok"
+
 private def code : Except CapError CapReport → String
   | .error e => e.reason
   | .ok _ => "ok"
@@ -98,6 +103,15 @@ def publicChecks : IO (List (String × String × String)) := do
      ("window replay no collision needs no ancestor", code (replayBlock tapRaw (state tapCoins)), "ok"),
      ("window noncanonical ancestor no collision control",
        code (validateBlockInContext tapRaw (state tapCoins) base), "ok")]
+  let ledgerState := overlap txsAlt :: funded txsAlt
+  checks := checks ++
+    [("ledger height-only exception accepts fork collision",
+       ledgerCode (applyBlockExec ledgerState txsAlt 91842), "ok"),
+     ("ledger exact own-hash rejects fork collision",
+       ledgerCode (applyBlockExecTxid ledgerState txsAlt 91842 0 0), "bad-txns-BIP30"),
+     ("ledger exact canonical repeat accepts",
+       ledgerCode (applyBlockExecTxid ledgerState txsAlt 91842
+         (BIP30_REPEAT_HASH_OF_HEIGHT 91842) BIP34_ACTIVATION_HASH), "ok")]
   return checks
 
 def runPublic : IO UInt32 := do

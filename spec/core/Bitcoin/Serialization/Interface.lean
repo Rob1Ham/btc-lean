@@ -524,7 +524,9 @@ def decCS (l : Bytes) : Except SerError (Nat × Bytes) :=
       match rest with
       | b0 :: b1 :: b2 :: b3 :: rest' =>
         let v := b0.toNat + 256 * (b1.toNat + 256 * (b2.toNat + 256 * b3.toNat))
-        if v < 0x10000 then .error .compactSizeNonMinimal else .ok (v, rest')
+        if v < 0x10000 then .error .compactSizeNonMinimal
+        else if MAX_SIZE < v then .error .compactSizeTooLong
+        else .ok (v, rest')
       | _ => .error .truncated
     else
       match rest with
@@ -597,7 +599,9 @@ theorem decCS_encCSL (n : Nat) (h : n ≤ MAX_SIZE) (rest : Bytes) :
                 + 256 * (n.toUInt32 >>> 24 : UInt32).toUInt8.toNat)) < 0x10000) := by
           rw [hval]
           omega
-        rw [if_neg hbig, hval, List.nil_append]
+        rw [if_neg hbig, hval]
+        have hmax : ¬ MAX_SIZE < n := by omega
+        rw [if_neg hmax, List.nil_append]
       · -- n > 0xffffffff but n ≤ MAX_SIZE < 2^32: vacuous
         rename_i h1 h2 h3
         exfalso
@@ -632,6 +636,17 @@ theorem decCS_tooLarge (b0 b1 b2 b3 b4 b5 b6 b7 : UInt8) (rest : Bytes)
       256 * (b4.toNat + 256 * (b5.toNat + 256 * (b6.toNat + 256 * b7.toNat))))))) :
     decCS (0xff :: b0 :: b1 :: b2 :: b3 :: b4 :: b5 :: b6 :: b7 :: rest)
       = .error .compactSizeTooLong := by
+  simp [decCS, h1, h2]
+
+/-- **TXV-012 (reject side, 0xfe frame)**: the 32-bit CompactSize frame
+applies the same `MAX_SIZE` range check as Core's `ReadCompactSize`
+(serialize.h:333-361). A canonical 0xfe value above `MAX_SIZE` is
+rejected with `compactSizeTooLong`, not accepted as an unbounded size. -/
+theorem decCS_tooLarge_0xfe (b0 b1 b2 b3 : UInt8) (rest : Bytes)
+    (h1 : ¬ (b0.toNat + 256 * (b1.toNat + 256 * (b2.toNat + 256 * b3.toNat))
+      < 0x10000))
+    (h2 : MAX_SIZE < b0.toNat + 256 * (b1.toNat + 256 * (b2.toNat + 256 * b3.toNat))) :
+    decCS (0xfe :: b0 :: b1 :: b2 :: b3 :: rest) = .error .compactSizeTooLong := by
   simp [decCS, h1, h2]
 
 /-! ## Byte strings, scripts, tx pieces -/
@@ -1380,12 +1395,17 @@ theorem decCS_shape (l : Bytes) (n : Nat) (rest : Bytes)
                   · rw [if_pos hv] at h
                     simp at h
                   · rw [if_neg hv] at h
-                    simp only [Except.ok.injEq, Prod.mk.injEq] at h
-                    obtain ⟨hn, hrest⟩ := h
-                    subst hrest
-                    subst hn
-                    rw [encCSL_fe b0 b1 b2 b3 (by omega), h3]
-                    rfl
+                    by_cases hmax : MAX_SIZE <
+                        b0.toNat + 256 * (b1.toNat + 256 * (b2.toNat + 256 * b3.toNat))
+                    · rw [if_pos hmax] at h
+                      simp at h
+                    · rw [if_neg hmax] at h
+                      simp only [Except.ok.injEq, Prod.mk.injEq] at h
+                      obtain ⟨hn, hrest⟩ := h
+                      subst hrest
+                      subst hn
+                      rw [encCSL_fe b0 b1 b2 b3 (by omega), h3]
+                      rfl
         · rw [if_neg h3] at h
           cases rest0 with
           | nil => simp at h

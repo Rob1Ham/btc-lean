@@ -95,6 +95,7 @@ theorem reason_nonempty (e : CapError) : CapError.reason e ≠ "" := by
   | badCbHeight => simp only [CapError.reason]; decide
   | scriptFail _ _ _ => simp only [CapError.reason]; decide
   | scriptFalse _ _ => simp only [CapError.reason]; decide
+  | scriptUnjudged => simp only [CapError.reason]; decide
 
 /-! ## ERR-002: the 13 locally-owned strings + the decode/script strings -/
 
@@ -284,6 +285,11 @@ theorem reason_scriptFail_ne_scriptFalse (i j : Nat) (e : ExecError) :
     CapError.reason (.scriptFail i j e) ≠ CapError.reason (.scriptFalse i j) := by
   show "script-verify-error" ≠ "script-eval-false"
   decide
+
+/-- The contextual entry's incomplete-adjudication verdict has its own
+stable report string, distinct from an adjudicated script failure. -/
+theorem reason_scriptUnjudged :
+    CapError.reason .scriptUnjudged = "script-unjudged" := rfl
 
 /-! ## Axiom-footprint pins (L3): drift on any of these fails the build -/
 

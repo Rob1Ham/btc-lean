@@ -487,6 +487,8 @@ theorem validateBlock_ok_funded_shape (raw : ByteArray) (st : CapState) (r : Cap
           have hfund : applyBlockTransactions st.height txs st.utxo (candidateScriptFlags st.height bh) = .ok (u', k, j) :=
             applyBlockTransactionsWithSigops_projection hbudget
           rw [ebind_ok] at hval
+          simp only [Option.isSome_none, Bool.false_and, Bool.false_eq_true,
+            if_false] at hval
           simp only [Except.ok.injEq] at hval
           subst hval
           exact ⟨bh, txs, u', k, j, rfl,

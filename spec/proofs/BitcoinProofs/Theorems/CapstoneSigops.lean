@@ -141,7 +141,9 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
       | error e => simp [hs] at h
       | ok value =>
         obtain ⟨⟨out, a, b⟩, total⟩ := value
-        simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
+        simp only [hs, ebind_ok, epure_ok] at h
+        simp only [Option.isSome_none, Bool.false_and, Bool.false_eq_true,
+          if_false, Except.ok.injEq] at h
         subst report
         exact ⟨header, txs, none, rfl, prelude, witness, hs, rfl, rfl⟩
     | some ctx =>
@@ -163,9 +165,14 @@ theorem validateBlock_sigop_stage {raw : ByteArray} {st : CapState}
         | error e => simp [hs] at h
         | ok value =>
           obtain ⟨⟨out, a, b⟩, total⟩ := value
-          simp only [hs, ebind_ok, epure_ok, Except.ok.injEq] at h
-          subst report
-          exact ⟨header, txs, some (ctx, facts), rfl, prelude, witness, hs, rfl, rfl⟩
+          simp only [hs, ebind_ok, epure_ok] at h
+          simp only [Option.isSome_some, Bool.true_and] at h
+          by_cases hb : b = 0
+          · simp [hb] at h
+            subst b
+            subst report
+            exact ⟨header, txs, some (ctx, facts), rfl, prelude, witness, hs, rfl, rfl⟩
+          · simp [hb] at h
 
 /-- The public entry also enforces CheckBlock's early legacy-only budget
 and checks every stateless transaction before reaching input validation. -/
