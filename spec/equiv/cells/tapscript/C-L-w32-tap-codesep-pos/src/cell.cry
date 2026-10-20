@@ -1,0 +1,39 @@
+module CellCodesepPos where
+
+// Independent specification of SCR-167's counter semantics for a bounded,
+// pre-decoded 4-opcode stream:
+//   - m_codeseparator_pos starts at 0xFFFFFFFF;
+//   - opcode_pos is the 0-based index of the parsed opcode, incremented
+//     once per parsed opcode regardless of its byte length (a push of
+//     `len` payload bytes is one opcode);
+//   - an EXECUTED OP_CODESEPARATOR records the current opcode_pos; an
+//     unexecuted one records nothing;
+//   - parsing stops when pc >= pend.
+// Observable: bits 0..31 = final codeseparator position, bits 32..63 =
+// final opcode_pos.
+
+type St = ([32], [32], [32])          // (pc, opcode_pos, codeSepPos)
+type Op4 = ([32], [32], [32], [32])   // (kind, wire, len, exec)
+
+step : [32] -> Op4 -> St -> St
+step pend (kind, wire, len, ex) (pc, idx, sep) =
+  if pc < pend then
+    ( pc + (if kind == 0 then 1 + len else 1)
+    , idx + 1
+    , if (ex != 0) && (kind == 1) && (wire == 0x000000ab) then idx else sep )
+  else (pc, idx, sep)
+
+final : [32] -> Op4 -> Op4 -> Op4 -> Op4 -> St
+final pend a b c d =
+  step pend d (step pend c (step pend b (step pend a (0, 0, 0xffffffff))))
+
+idxOf : St -> [32]
+idxOf (_, i, _) = i
+
+sepOf : St -> [32]
+sepOf (_, _, s) = s
+
+walk : [32] -> Op4 -> Op4 -> Op4 -> Op4 -> [64]
+walk pend a b c d =
+  ((zext (sepOf (final pend a b c d))) : [64])
+    || (((zext (idxOf (final pend a b c d))) : [64]) << 32)

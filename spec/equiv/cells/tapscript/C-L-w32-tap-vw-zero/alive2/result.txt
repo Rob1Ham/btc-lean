@@ -1,0 +1,138 @@
+# cell: C-L-w32-tap-vw-zero
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional build/c_cell_eval_checksig.ll build/l_cell_eval_checksig.ll
+
+----------------------------------------
+define i64 @cell_eval_checksig(i32 noundef %sig_len, i32 noundef %pk_len, i64 noundef %vw, i32 noundef %schnorr_ok) nofree willreturn memory(none) {
+entry:
+  %or.cond = icmp ugt i64 noundef %vw, 4000050
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp2.not = icmp eq i32 noundef %sig_len, 0
+  br i1 %cmp2.not, label %if.end7, label %if.then3
+
+if.then3:
+  %sub = add nsw i64 noundef %vw, -50
+  %cmp4 = icmp slt i64 noundef %vw, 50
+  br i1 %cmp4, label %if.then5, label %if.end7
+
+if.then5:
+  %conv9.i = shl nsw i64 %sub, 16
+  %shl10.i = and i64 %conv9.i, 281474976645120
+  %or11.i = or disjoint i64 %shl10.i, 98
+  br label %return
+
+if.end7:
+  %vw.addr.0 = phi i64 [ %sub, %if.then3 ], [ noundef %vw, %if.end ]
+  switch i32 noundef %pk_len, label %if.end19 [
+    i32 0, label %if.then9
+    i32 32, label %if.then12
+  ]
+
+if.then9:
+  %conv9.i33 = shl nsw i64 %vw.addr.0, 16
+  %shl10.i34 = and i64 %conv9.i33, 281474976645120
+  %or11.i35 = or disjoint i64 %shl10.i34, 104
+  br label %return
+
+if.then12:
+  %tobool = icmp ne i32 noundef %schnorr_ok, 0
+  %or.cond22 = or i1 %cmp2.not, %tobool
+  br i1 %or.cond22, label %if.end19, label %if.then14
+
+if.end19:
+  %or717.i = select i1 %cmp2.not, i64 1, i64 257
+  %conv9.i39 = shl nsw i64 %vw.addr.0, 16
+  %shl10.i40 = and i64 %conv9.i39, 281474976645120
+  %or11.i41 = or disjoint i64 %shl10.i40, %or717.i
+  br label %return
+
+if.then14:
+  %conv9.i36 = shl nsw i64 %vw.addr.0, 16
+  %shl10.i37 = and i64 %conv9.i36, 281474976645120
+  %or11.i38 = or disjoint i64 %shl10.i37, 94
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 3735928559, %entry ], [ %or11.i, %if.then5 ], [ %or11.i35, %if.then9 ], [ %or11.i41, %if.end19 ], [ %or11.i38, %if.then14 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 281474976645632
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_eval_checksig(i32 noundef %sig_len, i32 noundef %pk_len, i64 noundef %vw, i32 noundef %schnorr_ok) nofree willreturn memory(none) {
+entry:
+  %or.cond = icmp ugt i64 noundef %vw, 4000050
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp2.not = icmp eq i32 noundef %sig_len, 0
+  br i1 %cmp2.not, label %if.end18, label %if.then3
+
+if.end18:
+  %cmp19 = icmp eq i32 noundef %pk_len, 0
+  %conv9.i45 = shl nsw nuw i64 noundef %vw, 16
+  br i1 %cmp19, label %if.then20, label %if.end22
+
+if.then20:
+  %or11.i47 = or disjoint i64 %conv9.i45, 104
+  br label %return
+
+if.end22:
+  %or11.i50 = or disjoint i64 %conv9.i45, 1
+  br label %return
+
+if.then3:
+  %sub = add nsw i64 noundef %vw, -50
+  %cmp4 = icmp slt i64 noundef %vw, 50
+  br i1 %cmp4, label %if.then5, label %if.end6
+
+if.then5:
+  %conv9.i = shl nsw i64 %sub, 16
+  %shl10.i = and i64 %conv9.i, 281474976645120
+  %or11.i = or disjoint i64 %shl10.i, 98
+  br label %return
+
+if.end6:
+  %cmp7 = icmp eq i32 noundef %pk_len, 0
+  br i1 %cmp7, label %if.then8, label %if.else
+
+if.then8:
+  %conv9.i36 = shl nsw i64 %sub, 16
+  %shl10.i37 = and i64 %conv9.i36, 281474976645120
+  %or11.i38 = or disjoint i64 %shl10.i37, 104
+  br label %return
+
+if.else:
+  %cmp10 = icmp ne i32 noundef %pk_len, 32
+  %tobool = icmp ne i32 noundef %schnorr_ok, 0
+  %or.cond25 = or i1 %cmp10, %tobool
+  %conv9.i42 = shl nsw i64 %sub, 16
+  %shl10.i43 = and i64 %conv9.i42, 281474976645120
+  br i1 %or.cond25, label %if.end16, label %if.then12
+
+if.end16:
+  %or11.i44 = or disjoint i64 %shl10.i43, 257
+  br label %return
+
+if.then12:
+  %or11.i41 = or disjoint i64 %shl10.i43, 94
+  br label %return
+
+return:
+  %retval.2 = phi i64 [ 3735928559, %entry ], [ %or11.i47, %if.then20 ], [ %or11.i50, %if.end22 ], [ %or11.i, %if.then5 ], [ %or11.i38, %if.then8 ], [ %or11.i44, %if.end16 ], [ %or11.i41, %if.then12 ]
+  %#range_0_%retval.2 = !range i64 %retval.2, i64 1, i64 -65408
+  ret i64 %#range_0_%retval.2
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
