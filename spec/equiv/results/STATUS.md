@@ -1,13 +1,13 @@
 # STATUS — three-leg LLVM IR equivalence
 
-**Last updated:** 2026-10-19 (E0–E6 evidence checkpoint)
+**Last updated:** 2026-10-20 (wave 16 integration checkpoint)
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
 `make e0`, `make pins`, `make gate-ir-pin`, and `make equiv` all exit 0.
-The cell suite contains **17 recorded cells**, all with both Alive2 and SAW
-attempts; `make equiv` reports **17 cells with >=1 green tool, 0 red, 0 TODO**.
-The ledger has **183/183 SCR rows adjudicated**: 4 both-tool green rows,
-20 unjudged seams, 159 filed gaps, and **0 planned**. `coverage_report.py
+The cell suite contains **28 recorded cells**, all with both Alive2 and SAW
+attempts; `make equiv` reports **28 cells with >=1 green tool, 0 red, 0 TODO**.
+The ledger has **183/183 SCR rows adjudicated**: 22 both-tool green rows,
+17 unjudged seams, 144 filed gaps, and **0 planned**. `coverage_report.py
 --strict` passes. This is **not** an all-rows-green claim and not a
 whole-engine equivalence proof; see the limits below.
 
@@ -21,7 +21,8 @@ whole-engine equivalence proof; see the limits below.
 | **E3** | CHECKSIG/CHECKMULTISIG + symbolic checker + error-enum equality | **attempted; partial cells, rows filed gap** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; exact ordinals 2/13/14/18/28; `M-E3-008` killed |
 | **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cell + 38-row inventory** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` killed |
 | **E5** | Whole-function `VerifyScript` (SAW invariants) or scoped residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`, `findings/e5/F-TOOL-001.md`; no whole-function proof; green empty-script run is concolic/non-pin |
-| **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 0 red; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 28 cells, 0 red; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| **E6+** | Wave 16 row-family cells; limits and tapscript dispatch integrated | **partial, additive** | 10 limits rows + 8 tapscript rows both-tool green; 22 total green; see `findings/wave16/` |
 
 ## Ledger snapshot
 
@@ -30,20 +31,24 @@ whole-engine equivalence proof; see the limits below.
 | SCR rows in `spec/db/rules.yaml` | 183 |
 | Ledger entries in `spec/db/equiv-cells.yaml` | 183 |
 | Families | 15 |
-| Proof-cell directories (recorded) | 17 |
+| Proof-cell directories (recorded) | 28 |
 | `planned` | 0 |
-| Both-tool green rows | 4 |
+| Both-tool green rows | 22 |
 | Alive2-only / SAW-only green rows | 0 / 0 |
-| `unjudged-seam` | 20 |
-| Filed `gap` | 159 |
+| `unjudged-seam` | 17 |
+| Filed `gap` | 144 |
 | Malformed cell records | 0 |
-| `make equiv` | 17 cells green, 0 red, 0 TODO |
+| `make equiv` | 28 cells green, 0 red, 0 TODO |
 | `make gate-ir-pin` | PASS (0 failures, 0 warnings) |
 | `coverage_report.py --strict` | PASS — all 183 rows adjudicated |
 
-Green rows: **SCR-069, SCR-071, SCR-072** (`control-flow/C-L-nop-return`)
-and **SCR-074** (`stack-ops/C-L-arity`, corroborated by three E1 stack cells
-and `stack/C-L-dup-drop-swap`).
+Green rows: **SCR-018–020, SCR-022–025, SCR-029–031** (limits,
+`cells/limits/C-L-*`), **SCR-069, SCR-071, SCR-072**
+(`control-flow/C-L-nop-return`), **SCR-074** (`stack-ops/C-L-arity`,
+corroborated by three E1 stack cells and `stack/C-L-dup-drop-swap`), and
+**SCR-143–145, SCR-148–152** (tapscript dispatch, `cells/tapscript/C-L-*`).
+The tapscript key-path row (SCR-144) is conditional on the same-crypto
+premise P12; SCR-021 and SCR-142 remain partial and are not promoted.
 
 ### What is *not* claimed
 

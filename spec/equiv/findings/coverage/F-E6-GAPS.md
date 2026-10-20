@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **4**
-- unjudged seam: **20**
-- filed gap: **159**
+- green: **22**
+- unjudged seam: **17**
+- filed gap: **144**
 - still planned: **0**
 - other: **0**
 
@@ -14,10 +14,28 @@ dispositions, not a new claim. Green rows are listed for completeness.
 
 | SCR | family | cells |
 |---|---|---|
+| SCR-018 | limits | `limits/C-L-script-size` |
+| SCR-019 | limits | `limits/C-L-script-size` |
+| SCR-020 | limits | `limits/C-L-push-size` |
+| SCR-022 | limits | `limits/C-L-opcount` |
+| SCR-023 | limits | `limits/C-L-opcount` |
+| SCR-024 | limits | `limits/C-L-opcount` |
+| SCR-025 | limits | `limits/C-L-opcount` |
+| SCR-029 | limits | `limits/C-L-stack-limit` |
+| SCR-030 | limits | `limits/C-L-stack-limit` |
+| SCR-031 | limits | `limits/C-L-tapscript-precheck` |
 | SCR-069 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-071 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-072 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-074 | stack-ops | `e1-stack/dup-order`, `e1-stack/rot-direction`, `e1-stack/swap-order`, `stack-ops/C-L-arity`, `stack/C-L-dup-drop-swap` |
+| SCR-143 | tapscript | `tapscript/C-L-taproot-annex` |
+| SCR-144 | tapscript | `tapscript/C-L-taproot-keypath` |
+| SCR-145 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
+| SCR-148 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
+| SCR-149 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
+| SCR-150 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
+| SCR-151 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
+| SCR-152 | tapscript | `tapscript/C-L-tapscript-isopsuccess` |
 
 ## Unjudged seams
 
@@ -29,9 +47,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-138 | witness-v0 | SCR-138 (exactly 1 true element (cons.)): interpreter.cpp:1876-1879 checks the stack after EvalScript returns: exactly one item and CastToBool true. This is an EvalScript post-state property; the leaf dispatch cell never runs the interpreter and cannot observe the final stack. |
 | SCR-140 | witness-v0 | SCR-140 (field order per BIP143; amount included): interpreter.cpp:1633-1670 builds the BIP143 preimage (field order, amount, prevouts, outputs, hashOutputs) and hashes it. Requires the tx serializer and hash model; no tx decoder is in the seam. |
 | SCR-141 | witness-v0 | SCR-141 (hashOutputs = 0 (not uint256::ONE)): interpreter.cpp:1647-1653 selects a zero hashOutputs when the SINGLE input index is out of range. The branch is pure, but it is defined over the serialized output vector and feeds the sighash preimage; the tape decoder and hash are outside the seam. |
-| SCR-142 | tapscript | SCR-142 (TAPROOT gate: with the flag, a v1-32 non-P2SH spend is not anyone-can-spend; without the flag it succeeds silently only pre-activation (height 709632, except bl): interpreter.cpp:1959 gates the v1-32 non-P2SH arm on SCRIPT_VERIFY_TAPROOT and is silent-success without the flag. The row also carries pre-activation height 709632 and exception block 692261; the contract tape has no height/block context, so the activation arm cannot be judged here. |
-| SCR-143 | tapscript | SCR-143 (≥2 items, last non-empty, first byte 0x50): interpreter.cpp:1961-1969 detects an annex as >=2 items, last item non-empty and first byte 0x50, then SpanPopBack's it. Requires witness stack item bytes and ordering; the dispatch cell only sees an item count. Annex hashing also feeds the sighash. |
-| SCR-144 | tapscript | SCR-144 (Key path: exactly one item is a BIP340 signature checked against the 32-byte output key): interpreter.cpp:1970-1975, one post-annex item is a Schnorr signature checked against the 32-byte program key. This is the EC/Schnorr crypto seam; no checker exists in the leaf harness. |
 | SCR-146 | tapscript | SCR-146 (TaggedHash("TapLeaf", leaf_ver, CompactSize, script); leaf_ver = control[0]&0xfe): interpreter.cpp:1882-1885 computes TaggedHash("TapLeaf", leaf_version, CompactSize(script), script). Requires SHA256 and the BIP340 tagged-hash construction; outside the seam. |
 | SCR-147 | tapscript | SCR-147 (32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key): interpreter.cpp:1913-1925 checks program == x(tweak(p, merkle_root)) and control[0]&1 == tweaked-key parity. Pure secp256k1 EC; outside the seam. |
 | SCR-153 | tapscript | SCR-153 (overrides all later checks (incl. size limits)): interpreter.cpp:1846-1862 scans the whole tapscript for OP_SUCCESSx before item-size and EvalScript, and returns success immediately. Needs a loop over symbolic script bytes and early-success control flow; the leaf harness is loop-free and does not parse scripts. |
@@ -65,20 +80,10 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-015 | exec-verify | SCR-015 (Away from named hash exceptions, P2SH/WITNESS/TAPROOT are enabled; DERSIG/CLTV/CSV/NULLDUMMY are added at buried heights. Scripts and costs use actual candidate): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-016 | exec-verify | SCR-016 (Two named mainnet blocks get reduced flag sets): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-017 | exec-verify | SCR-017 (Any EvalScript/VerifyWitnessProgram failure ⇒ input invalid): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-018 | limits | SCR-018 (script.size() > 10000 ⇒ SCRIPT_SIZE (BASE/WITNESS_V0 only, checked once)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-019 | limits | SCR-019 (Guard excludes TAPSCRIPT sigversion): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-020 | limits | SCR-020 (Push value >520 ⇒ PUSH_SIZE, even unexecuted): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-021 | limits | SCR-021 (witness stack items >520 bytes fail with PUSH_SIZE for base/v0 and for tapscript without OP_SUCCESSx, provided the initial stack is ≤1000 items; a tapscript con): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-022 | limits | SCR-022 (under BASE/WITNESS_V0 an opcode with wire byte > OP_16 (0x60) is charged against the 201-op budget; once the budget is exhausted stepBody returns OP_COUNT befor): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-023 | limits | SCR-023 (Count is flow-insensitive): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-024 | limits | SCR-024 (condition `opcode > OP_16` (0x00-0x60 exempt)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-025 | limits | SCR-025 (op-count check precedes disabled check): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
+| SCR-021 | limits | auto(cells): partial row coverage; limits/C-L-witness-push-size: partial — the cell proves the witness item-size predicate `any (item.size() > 520) ⇒ PUSH_SIZE` (represented exactly by max_item > 520) for base/v0 and for tapscript without OP_SUCCESSx, its ordering after the SCR-031 initial-stack guard, and the BIP342 exemption ordering (a tapscript with OP_SUCCESSx returns success before the item loop).  The OP_SUCCESSx scan itself is an abstract boolean: deciding `opSuccessScan exec` over symbolic script bytes needs the per-opcode decode loop and early success, which is SCR-153 and is not modelled here. So the row's "containing OP_SUCCESSx" branch is only modelled at its outcome, not by scanning bytes.  EvalScript is also a stub, but the row ends before it. |
 | SCR-026 | limits | SCR-026 (CMS key count ∈ [0,20] ⇒ PUBKEY_COUNT): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-027 | limits | SCR-027 (nSigsCount ∈ [0, nKeysCount] ⇒ SIG_COUNT): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-028 | limits | SCR-028 (nOpCount += nKeysCount; ≤201): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-029 | limits | SCR-029 (stack+altstack > 1000 ⇒ STACK_SIZE, checked per opcode): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-030 | limits | SCR-030 (combined check): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-031 | limits | SCR-031 (Checked before EvalScript (altstack empty)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-032 | limits | SCR-032 (CHECKSIG=1; CHECKMULTISIG=20 (inaccurate)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-033 | limits | SCR-033 (accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-034 | limits | SCR-034 (malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
@@ -212,12 +217,12 @@ NOT claimed here: SCR-133 (SHA256 program match), SCR-136 (P2WPKH script
 reconstruction/execution), SCR-138 (witness cleanstack), and every
 taproot/tapscript row. Those remain seams, listed in findings/e4/seams.md. |
 | SCR-139 | witness-v0 | SCR-139 (sigversion≠BASE skips deletion): Branch predicate in EvalChecksigPreTapscript: sigversion != BASE skips FindAndDelete on the scriptCode (interpreter.cpp:333-343). Expressible as a bounded EvalChecksig leaf with an abstract signature checker; not attempted. Next action: two-scriptCode leaf. |
-| SCR-145 | tapscript | SCR-145 (33+32k bytes, k≤128 ⇒ TAPROOT_WRONG_CONTROL_SIZE): interpreter.cpp:1980-1982 rejects control.size() < 33, > 33+32*128, or (size-33)%32!=0 with TAPROOT_WRONG_CONTROL_SIZE. Pure u64 arithmetic; judgeable as a bounded leaf. Next action: control-size predicate cell. |
-| SCR-148 | tapscript | SCR-148 (control[0]&0xfe == 0xc0 ⇒ TAPSCRIPT eval): interpreter.cpp:1988-1994 selects tapscript when (control[0]&0xfe)==0xc0. The 8-bit mask predicate is judgeable as a bounded leaf; tapscript execution is a separate seam (SCR-153/155). Not attempted. |
-| SCR-149 | tapscript | SCR-149 (Unknown leaf versions succeed (upgradable); the DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM flag is policy): interpreter.cpp:1995-1998: an unknown leaf version succeeds when DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is off. Pure mask+flag dispatch over an abstracted commitment; judgeable as a bounded leaf. Not attempted. |
-| SCR-150 | tapscript | SCR-150 (v1 2-byte 4e73 program ⇒ success, no execution): interpreter.cpp:2000-2001: v1 with a 2-byte program 0x4e73 (P2A) returns true with no execution. Pure version/size/bytes predicate; judgeable, not attempted. |
-| SCR-151 | tapscript | SCR-151 (v2-v16 / wrong-size v1 / P2SH-wrapped v1 ⇒ success (upgradable)): interpreter.cpp:2002-2008: v2..v16, wrong-size v1, and P2SH-wrapped v1 succeed for future softfork compatibility. Pure version/size/P2SH dispatch; judgeable, not attempted. |
-| SCR-152 | tapscript | SCR-152 ({80,98,126-129,131-134,137-138,141-142,149-153,187-254}): script.cpp:IsOpSuccess:365-371 is a pure set-membership test over one byte. Judgeable as a bounded byte-table leaf; not attempted. Its execution consequence is SCR-153, which is a seam. |
+| SCR-142 | tapscript | auto(cells): partial row coverage; tapscript/C-L-taproot-gate: partial. The in-function gate is proved total: flag off -> success with no
+witness inspection; flag on -> empty witness fails 39, non-empty continues
+into the annex/key/script dispatch. The row also names activation height
+709632 and exception block 692261. Those are caller-side flag assembly
+outside VerifyWitnessProgram and have no block-height channel in
+contract/tape.md, so that arm is not exercised here. |
 | SCR-155 | tapscript | SCR-155 (the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_): interpreter.cpp:460-464 is the MAX_OPS guard, skipped for TAPSCRIPT. A bounded stepBody leaf can set opCount>201 and run OP_NOP in BASE/WITNESS_V0 and TAPSCRIPT; the twin has stepBody handlers. Not attempted. (This is the op-count budget, not sigops.) |
 | SCR-157 | tapscript | SCR-157 (CScriptNum(fRequireMinimal)): interpreter.cpp:1103 parses the numeric operand with CScriptNum(fRequireMinimal). A bounded ScriptNum leaf can judge the minimal-4-byte rule; not attempted. |
 | SCR-158 | tapscript | SCR-158 (0 ⇒ fail; 32 ⇒ schnorr; else upgradable): interpreter.cpp:377-392 triages pubkey size: 0 fails, 32 enters the Schnorr lane, other non-empty sizes are upgradable. The size triage is a pure bounded predicate, judgeable with Schnorr success abstracted; not attempted. |

@@ -1,9 +1,9 @@
 # STATE — three-leg LLVM IR equivalence
 
-**Snapshot:** `2026-10-19T23:10:00Z` (UTC), post-E6 integration
+**Snapshot:** `2026-10-20T00:00:00Z` (UTC), post-wave16 integration
 **Owner:** orchestrator; independent evaluator snapshot archived at
 `docs/archive/STATE-2026-10-19T223700Z.md`
-**Tree:** `/home/ubuntu/btc-lean-public/spec/equiv/`
+**Tree:** `spec/equiv/` on PR branch `equiv/llvm-three-leg`
 
 This is the current state. The earlier evaluator snapshot is preserved rather
 than rewritten; where it says “0 green / 178 planned / 6 red”, that is the
@@ -19,9 +19,9 @@ present; `make pins`, `make e0`, `make gate-ir-pin`, and `make equiv` pass.
 
 It is **not** an all-rows-green result and **not** a whole-engine proof:
 
-- 4 of 183 SCR rows are both-tool green;
-- 20 are explicitly `unjudged-seam`;
-- 159 are filed `gap`s with named blockers;
+- 22 of 183 SCR rows are both-tool green;
+- 17 are explicitly `unjudged-seam`;
+- 144 are filed `gap`s with named blockers;
 - 0 are `planned`;
 - no `EvalScript`/`VerifyScript` whole-function proof exists (E5 residual);
 - no admissible R proof-lane artifact exists (the R behavioral E0 leg does);
@@ -40,7 +40,8 @@ conditional and must remain so.
 | E3 CHECKSIG/CHECKMULTISIG + symbolic checker + error enum | **attempted, partial** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; ordinals 2/13/14/18/28; `M-E3-008` killed |
 | E4 SegWit v0/taproot dispatch, seam inventory | **attempted, partial** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` killed; 38 seam/gap rows adjudicated |
 | E5 whole-function VerifyScript or residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`; no whole-function proof; SAW stops at GetScriptOp, `_Znwm`, EvalScript loop, exception edges; green empty-script line is concolic/non-pin |
-| E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 17 cells, 0 red, 0 TODO; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 28 cells, 0 red, 0 TODO; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| E6+ wave16 limits/tapscript cells | **partial, additive** | 10 limits rows + 8 tapscript rows both-tool green; `findings/wave16/`; 22 total green |
 
 ## 3. Ledger and cells
 
@@ -50,7 +51,7 @@ Commands at this snapshot:
 make pins          -> RESULT: OK (pins complete and tool probes passed)
 make e0            -> RESULT: PASS (E0_TRIPLE_OK; 4/4 tapes)
 make gate-ir-pin   -> RESULT: PASS (0 failures, 0 warnings)
-make equiv         -> summary: 17 cell(s) with >=1 green tool, 0 red, 0 TODO
+make equiv         -> summary: 28 cell(s) with >=1 green tool, 0 red, 0 TODO
 update_ledger.py --check -> up to date
 coverage_report.py --strict -> PASS; all 183 SCR rows adjudicated
 ```
@@ -59,27 +60,37 @@ Ledger counts:
 
 | Status | Rows |
 |---|---:|
-| `both-green` | 4 |
+| `both-green` | 22 |
 | `alive2-green` / `saw-green` | 0 / 0 |
-| `unjudged-seam` | 20 |
-| `gap` | 159 |
+| `unjudged-seam` | 17 |
+| `gap` | 144 |
 | `planned` | 0 |
 | **Total** | **183** |
 
 Green rows:
 
+- **SCR-018, SCR-019, SCR-020, SCR-022, SCR-023, SCR-024, SCR-025, SCR-029,
+  SCR-030, SCR-031** — bounded limits cells (`C-L-script-size`,
+  `C-L-push-size`, `C-L-opcount`, `C-L-stack-limit`,
+  `C-L-tapscript-precheck`). SCR-021 is tool-green but partial and remains a
+  gap.
 - **SCR-069, SCR-071, SCR-072** — `cells/control-flow/C-L-nop-return`;
   Alive2 and SAW green on the NOP4..NOP10 straight-line control cell.
 - **SCR-074** — `cells/stack-ops/C-L-arity` (16 opcodes, 16 Alive2 + 32 SAW
   green), corroborated by `e1-stack/dup-order`,
   `e1-stack/rot-direction`, `e1-stack/swap-order`, and
   `stack/C-L-dup-drop-swap`.
+- **SCR-143, SCR-144, SCR-145, SCR-148, SCR-149, SCR-150, SCR-151, SCR-152**
+  — tapscript dispatch cells. SCR-144 (key path) is conditional on the
+  same-crypto premise P12. SCR-142 is tool-green but partial (activation
+  height is absent from the tape) and remains a gap.
 
-The other 17 cell directories are recorded and tool-green but their SCR
-coverage is `partial`; the updater therefore does **not** promote those rows.
-The 20 seams are the E4 hash/EC/dispatch/sighash/clean-stack families plus
-SCR-045 (F-DIV-001 eager-parse seam). The 159 gaps are indexed in
-`findings/coverage/F-E6-GAPS.md`, each with a row-specific blocker.
+The remaining recorded cells are tool-green but their SCR coverage is
+`partial`, or they are corroborating witnesses; the updater therefore does
+**not** promote those rows. The 17 seams are the E4 hash/EC/dispatch/sighash/
+clean-stack families plus SCR-045 (F-DIV-001 eager-parse seam). The 144 gaps
+are indexed in `findings/coverage/F-E6-GAPS.md`, each with a row-specific
+blocker.
 
 ## 4. What is established
 
@@ -119,7 +130,7 @@ SCR-045 (F-DIV-001 eager-parse seam). The 159 gaps are indexed in
    is true. The pinned rustc 1.95/LLVM-22 R IR is not Alive2-ingestible; the
    rustc 1.88/LLVM-20 lane is advisory and not the official artifact.
 10. **Matrix.** `results/matrix.md` is generated deterministically and names
-    the source, tool, contract, IR, and E5 premises, plus the 4/20/159
+    the source, tool, contract, IR, and E5 premises, plus the 22/17/144
     coverage counts and cell links.
 
 ## 5. What is not established
@@ -127,8 +138,9 @@ SCR-045 (F-DIV-001 eager-parse seam). The 159 gaps are indexed in
 - **No unconditional equivalence.** The matrix claim is conditional on
   Alive2/SAW semantics, the shims, the twin/translations, the contract, and
   same-crypto.
-- **No engine proof.** 159 gaps include all `exec-verify`, limits, locktime,
-  policy, most disabled-opcode, and most tapscript rows. E5 is a residual.
+- **No engine proof.** 144 gaps include all `exec-verify`, most limits,
+  locktime, policy, most disabled-opcode, and most tapscript rows. E5 is a
+  residual.
 - **No R proof lane.** R behavioral E0 is green; the pinned 1.95 IR is
   rejected by Alive2 (`F-TOOL-001`), and the 1.88/LLVM-20 lane is non-pin.
   No R green cell is claimed.
@@ -138,8 +150,8 @@ SCR-045 (F-DIV-001 eager-parse seam). The 159 gaps are indexed in
   provenance/rule source, not a kernel-checked LLVM semantics.
 - **Core patches remain PROPOSED.** P-CORE-01/02/03 are not used by any green
   cell and have no differential evidence; no consensus-changing patch exists.
-- **Tree state.** Changes are uncommitted by instruction; `spec/equiv/` is
-  untracked in the surrounding repo.
+- **Tree state.** The evidence is committed on PR branch
+  `equiv/llvm-three-leg`; wave worktrees are isolated and not yet all merged.
 
 ## 6. Findings and dispositions
 
@@ -148,11 +160,11 @@ The historical evaluator audit is
 resolutions. In brief:
 
 - **B-06 resolved:** contract v3 includes `error_enum.md`.
-- **B-01 resolved for the evidence tier:** 0 planned rows; 4 green, 20 seam,
-  159 gap; no row is silently omitted.
+- **B-01 resolved for the evidence tier:** 0 planned rows; 22 green, 17 seam,
+  144 gap; no row is silently omitted.
 - **B-09 resolved:** mutations were executed and killed.
 - **B-10 resolved:** `make equiv` parses `result.txt`, skips aux dirs, and
-  reports 17 cells / 0 red / 0 TODO.
+  reports 28 cells / 0 red / 0 TODO.
 - **M-15 resolved:** PINS records the ABI shim source hash.
 - **M-16 resolved:** differential R blocker wording corrected; v2 summaries
   marked historical.
