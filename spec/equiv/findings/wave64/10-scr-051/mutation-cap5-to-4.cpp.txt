@@ -1,0 +1,227 @@
+#include <cstdint>
+#include "error_kind.h"
+
+// C leg: source-excerpt slices of Bitcoin Core cce32b168 (script/interpreter.cpp
+// and script/script.h).  The row is the MINIMALDATA numeric-operand policy at
+// the four handler call sites; the decoder itself is proved by
+// push-encoding/C-L-w32-num-decode-minimal and is not re-proved here.
+//
+//   src/script/script.h:246-271
+//       CScriptNum(const std::vector<unsigned char>& vch, bool fRequireMinimal,
+//                  const size_t nMaxNumSize = 4)
+//       if (vch.size() > nMaxNumSize) throw scriptnum_error("script number overflow");
+//       if (fRequireMinimal && vch.size() > 0) {
+//           if ((vch.back() & 0x7f) == 0) {
+//               if (vch.size() <= 1 || (vch[vch.size() - 2] & 0x80) == 0)
+//                   throw scriptnum_error("non-minimally encoded number");
+//           }
+//       }
+//       m_value = set_vch(vch);
+//   src/script/script.h:376-391  set_vch
+//       LE magnitude, 0x80 in the most-significant byte is the sign bit,
+//       negative zero decodes to 0.
+//   src/script/script.h:344-352  getint()
+//       saturates at INT_MIN/INT_MAX (unreachable for the 4-byte call sites:
+//       |set_vch| <= 2^31-1 there, so the cast below is exact).
+//
+//   src/script/interpreter.cpp:534-571  OP_CHECKLOCKTIMEVERIFY
+//       flag off -> NOP; stack.size() < 1 -> INVALID_STACK_OPERATION;
+//       CScriptNum(stacktop(-1), fRequireMinimal, 5);
+//       nLockTime < 0 -> NEGATIVE_LOCKTIME;
+//       !CheckLockTime -> UNSATISFIED_LOCKTIME.
+//   src/script/interpreter.cpp:1755-1788  CheckLockTime
+//   src/script/interpreter.cpp:574-602  OP_CHECKSEQUENCEVERIFY
+//       same three steps with cap 5, then the disable-flag NOP, then
+//       !CheckSequence -> UNSATISFIED_LOCKTIME.
+//   src/script/interpreter.cpp:1791-1844  CheckSequence
+//   src/script/interpreter.cpp:1113-1152  OP_CHECKMULTISIG count decode
+//       empty stack -> INVALID_STACK_OPERATION;
+//       nKeysCount = CScriptNum(stacktop(-1), fRequireMinimal).getint()  (cap 4)
+//         < 0 or > MAX_PUBKEYS_PER_MULTISIG -> PUBKEY_COUNT;
+//       nOpCount += nKeysCount; > MAX_OPS_PER_SCRIPT -> OP_COUNT;
+//       stack.size() < nKeysCount + 2 -> INVALID_STACK_OPERATION;
+//       nSigsCount = CScriptNum(stacktop(-i), fRequireMinimal).getint()  (cap 4)
+//         < 0 or > nKeysCount -> SIG_COUNT;
+//       stack.size() < nKeysCount + nSigsCount + 3 -> INVALID_STACK_OPERATION.
+//
+// The excerpt is specialised to a five-byte operand buffer.  The operand
+// length is three bits (0..7): lengths 3, 4 and 5 are exactly the widths where
+// the two caps (4 for the CHECKMULTISIG counts, 5 for CLTV/CSV) differ, and
+// 6/7 exercise the width rejection of both caps.
+//
+// Packed observable (identical layout on both legs):
+//   result(2) | error_kind(6) << 2.  result 1 = the handler continued, 0 = it
+//   returned an error.  Stack contents are not part of the observable because
+//   no handler in this cell mutates the stack before the point it stops.
+
+static uint64_t cell_pack(uint32_t res, uint32_t err) {
+  return (uint64_t)(res & 3u) | ((uint64_t)(err & 0x3fu) << 2);
+}
+
+namespace {
+
+constexpr int64_t LOCKTIME_THRESHOLD = 500000000;              // script.h
+constexpr uint32_t SEQUENCE_FINAL = 0xffffffffu;               // CTxIn
+constexpr uint32_t SEQUENCE_LOCKTIME_DISABLE_FLAG = 0x80000000u;
+constexpr uint32_t SEQUENCE_LOCKTIME_TYPE_FLAG = 0x00400000u;
+constexpr uint32_t SEQUENCE_LOCKTIME_MASK = 0x0000ffffu;
+constexpr int64_t MAX_PUBKEYS_PER_MULTISIG = 20;               // interpreter.h
+constexpr int64_t MAX_OPS_PER_SCRIPT = 201;                    // interpreter.h
+
+struct NumDec {
+  bool ok;
+  int64_t v;
+};
+
+// CScriptNum(vch, fRequireMinimal, nMaxNumSize), script.h:246-271, with
+// set_vch (script.h:376-391) unrolled for len <= 5.  The width check comes
+// first, so set_vch never sees more than five bytes.
+static NumDec cs_scriptnum(const uint8_t* v, uint32_t len, bool minimal,
+                           uint32_t maxsize) {
+  if (len > maxsize) return {false, 0};
+  if (minimal && len > 0) {
+    if ((v[len - 1] & 0x7fu) == 0) {
+      if (len <= 1 || (v[len - 2] & 0x80u) == 0) return {false, 0};
+    }
+  }
+  if (len == 0) return {true, 0};
+  int64_t result = 0;
+  result |= (int64_t)v[0];
+  if (len >= 2) result |= (int64_t)v[1] << 8;
+  if (len >= 3) result |= (int64_t)v[2] << 16;
+  if (len >= 4) result |= (int64_t)v[3] << 24;
+  if (len >= 5) result |= (int64_t)v[4] << 32;
+  if ((v[len - 1] & 0x80u) != 0)
+    return {true, -((int64_t)(result & ~(0x80ull << (8u * (len - 1)))))};
+  return {true, result};
+}
+
+// GenericTransactionSignatureChecker::CheckLockTime, interpreter.cpp:1755-1788.
+// txTo->nLockTime and vin[nIn].nSequence are uint32_t.
+static bool check_locktime(int64_t n, uint32_t txlt, uint32_t txseq) {
+  if (!((txlt < (uint32_t)LOCKTIME_THRESHOLD && n < LOCKTIME_THRESHOLD) ||
+        (txlt >= (uint32_t)LOCKTIME_THRESHOLD && n >= LOCKTIME_THRESHOLD)))
+    return false;
+  if (n > (int64_t)(uint64_t)txlt) return false;
+  if (txseq == SEQUENCE_FINAL) return false;
+  return true;
+}
+
+// GenericTransactionSignatureChecker::CheckSequence, interpreter.cpp:1791-1844.
+static bool check_sequence(int64_t n, uint32_t txver, uint32_t txseq) {
+  if (txver < 2u) return false;
+  if ((txseq & SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0) return false;
+  const uint32_t mask = SEQUENCE_LOCKTIME_TYPE_FLAG | SEQUENCE_LOCKTIME_MASK;
+  const int64_t txm = (int64_t)(uint64_t)(txseq & mask);
+  const int64_t nm = n & (int64_t)(uint64_t)mask;
+  if (!((txm < (int64_t)SEQUENCE_LOCKTIME_TYPE_FLAG &&
+         nm < (int64_t)SEQUENCE_LOCKTIME_TYPE_FLAG) ||
+        (txm >= (int64_t)SEQUENCE_LOCKTIME_TYPE_FLAG &&
+         nm >= (int64_t)SEQUENCE_LOCKTIME_TYPE_FLAG)))
+    return false;
+  if (nm > txm) return false;
+  return true;
+}
+
+}  // namespace
+
+extern "C" uint64_t cell_cltv(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3,
+                              uint8_t b4, uint8_t len, uint8_t minimal,
+                              uint32_t depth, uint32_t txlt, uint32_t txseq,
+                              uint8_t cltv_flag) {
+  const uint8_t v[5] = {b0, b1, b2, b3, b4};
+  const uint32_t l = len & 7u;
+  // interpreter.cpp:536-539: flag absent -> NOP.
+  if (!cltv_flag) return cell_pack(1, EQUIV_ERR_OK);
+  // interpreter.cpp:541-542: stack.size() < 1.
+  if (depth < 1u) return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  // interpreter.cpp:556 (cap 5).
+  const NumDec d = cs_scriptnum(v, l, minimal != 0, 4u);
+  if (!d.ok) return cell_pack(0, EQUIV_ERR_SCRIPTNUM);
+  // interpreter.cpp:561-562.
+  if (d.v < 0) return cell_pack(0, EQUIV_ERR_NEGATIVE_LOCKTIME);
+  // interpreter.cpp:565-566.
+  if (!check_locktime(d.v, txlt, txseq))
+    return cell_pack(0, EQUIV_ERR_UNSATISFIED_LOCKTIME);
+  return cell_pack(1, EQUIV_ERR_OK);
+}
+
+extern "C" uint64_t cell_csv(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3,
+                             uint8_t b4, uint8_t len, uint8_t minimal,
+                             uint32_t depth, uint32_t txver, uint32_t txseq,
+                             uint8_t csv_flag) {
+  const uint8_t v[5] = {b0, b1, b2, b3, b4};
+  const uint32_t l = len & 7u;
+  // interpreter.cpp:576-579: flag absent -> NOP3.
+  if (!csv_flag) return cell_pack(1, EQUIV_ERR_OK);
+  // interpreter.cpp:581-582.
+  if (depth < 1u) return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  // interpreter.cpp:584 (cap 5).
+  const NumDec d = cs_scriptnum(v, l, minimal != 0, 5u);
+  if (!d.ok) return cell_pack(0, EQUIV_ERR_SCRIPTNUM);
+  // interpreter.cpp:589-590.
+  if (d.v < 0) return cell_pack(0, EQUIV_ERR_NEGATIVE_LOCKTIME);
+  // interpreter.cpp:594-596: disable flag -> NOP.
+  if (((uint64_t)d.v & (uint64_t)SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+    return cell_pack(1, EQUIV_ERR_OK);
+  // interpreter.cpp:599-600.
+  if (!check_sequence(d.v, txver, txseq))
+    return cell_pack(0, EQUIV_ERR_UNSATISFIED_LOCKTIME);
+  return cell_pack(1, EQUIV_ERR_OK);
+}
+
+extern "C" uint64_t cell_cms(uint8_t k0, uint8_t k1, uint8_t k2, uint8_t k3,
+                             uint8_t k4, uint8_t klen, uint8_t s0, uint8_t s1,
+                             uint8_t s2, uint8_t s3, uint8_t s4, uint8_t slen,
+                             uint8_t minimal, uint32_t depth,
+                             uint32_t opcount) {
+  const uint8_t kv[5] = {k0, k1, k2, k3, k4};
+  const uint8_t sv[5] = {s0, s1, s2, s3, s4};
+  const uint32_t kl = klen & 7u;
+  const uint32_t sl = slen & 7u;
+
+  // interpreter.cpp:1122-1124.
+  if (depth < 1u) return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  // interpreter.cpp:1126 (cap 4) and :1127-1128.
+  const NumDec k = cs_scriptnum(kv, kl, minimal != 0, 4u);
+  if (!k.ok) return cell_pack(0, EQUIV_ERR_SCRIPTNUM);
+  if (k.v < 0 || k.v > MAX_PUBKEYS_PER_MULTISIG)
+    return cell_pack(0, EQUIV_ERR_PUBKEY_COUNT);
+  // interpreter.cpp:1129-1131.
+  if ((int64_t)(uint64_t)opcount + k.v > MAX_OPS_PER_SCRIPT)
+    return cell_pack(0, EQUIV_ERR_OP_COUNT);
+  // interpreter.cpp:1136-1137: i = nKeysCount + 2.
+  if ((int64_t)(uint64_t)depth < k.v + 2)
+    return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  // interpreter.cpp:1140 (cap 4) and :1141-1142.
+  const NumDec s = cs_scriptnum(sv, sl, minimal != 0, 4u);
+  if (!s.ok) return cell_pack(0, EQUIV_ERR_SCRIPTNUM);
+  if (s.v < 0 || k.v < s.v) return cell_pack(0, EQUIV_ERR_SIG_COUNT);
+  // interpreter.cpp:1145-1146: i = nKeysCount + nSigsCount + 3.
+  if ((int64_t)(uint64_t)depth < k.v + s.v + 3)
+    return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  return cell_pack(1, EQUIV_ERR_OK);
+}
+
+// OP_CHECKSIGADD (tapscript-only), interpreter.cpp:1097-1109:
+//   if (sigversion == BASE || sigversion == WITNESS_V0) return BAD_OPCODE;
+//   if (stack.size() < 3) return INVALID_STACK_OPERATION;
+//   const CScriptNum num(stacktop(-2), fRequireMinimal);   // cap 4
+//   ... EvalChecksig ...
+// The signature verification is the same-crypto seam (E3/E4); the observable
+// here is the handler verdict, so a decode failure is SCRIPTNUM and a decode
+// success leaves the handler running (the pushed value is not observed).
+extern "C" uint64_t cell_checksigadd(uint8_t b0, uint8_t b1, uint8_t b2,
+                                     uint8_t b3, uint8_t b4, uint8_t len,
+                                     uint8_t minimal, uint32_t depth,
+                                     uint8_t sigversion) {
+  const uint8_t v[5] = {b0, b1, b2, b3, b4};
+  const uint32_t l = len & 7u;
+  // 0 = base, 1 = witnessV0, 2 = tapscript.
+  if (sigversion == 0u || sigversion == 1u)
+    return cell_pack(0, EQUIV_ERR_BAD_OPCODE);
+  if (depth < 3u) return cell_pack(0, EQUIV_ERR_INVALID_STACK_OPERATION);
+  const NumDec d = cs_scriptnum(v, l, minimal != 0, 4u);
+  if (!d.ok) return cell_pack(0, EQUIV_ERR_SCRIPTNUM);
+  return cell_pack(1, EQUIV_ERR_OK);
+}

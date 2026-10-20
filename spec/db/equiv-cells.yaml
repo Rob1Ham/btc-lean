@@ -1031,11 +1031,12 @@ rows:
   core_ref: interpreter.cpp:556,584,1126,1140,1103@cce32b168
   consensus: false
   cells:
+  - push-encoding/C-L-w32-num-callsites
   - push-encoding/C-L-w32-num-decode-minimal
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers.'
+  gap_note: 'auto(cells): partial row coverage; push-encoding/C-L-w32-num-callsites: partial (narrowed) — this cell adds the handler-level call sites that the decode-law cell did not cover: OP_CHECKLOCKTIMEVERIFY (cap 5, with NEGATIVE_LOCKTIME, type match, locktime comparison and final-sequence rejection), OP_CHECKSEQUENCEVERIFY (cap 5, with the disable-flag NOP and CheckSequence), the two OP_CHECKMULTISIG count decodes (cap 4, with PUBKEY_COUNT / OP_COUNT / SIG_COUNT / arity ordering) and OP_CHECKSIGADD''s number decode (cap 4, with the tapscript-only BAD_OPCODE gate).  All five cited lines (556, 584, 1103, 1126, 1140) are exercised.  Still not covered: (a) the L leg is a reviewed transcription of the Lean Defs.lean handler arms, not generated twin handler code, because twin/ops_ir.py has no CLTV/CSV decode and no CHECKMULTISIG handler (see notes.md — the exact blocker); (b) CHECKMULTISIG signature verification, NULLDUMMY/NULLFAIL handling and FindAndDelete are outside the cell (the count decode precedes them); (c) OP_CHECKSIGADD''s EvalChecksig is abstracted (same-crypto premise) and the pushed result value is not observed.  The MINIMALDATA row itself is a policy face; this cell does not claim '
 - id: SCR-052
   family: push-encoding
   summary: opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push
@@ -3341,11 +3342,12 @@ rows:
   core_ref: src/script/interpreter.cpp:219-221@cce32b168
   consensus: false
   cells:
+  - policy-flags/C-L-flag-source
   - policy-flags/C-L-lows-policy
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; policy-flags/C-L-lows-policy: partial'
+  gap_note: 'auto(cells): partial row coverage; policy-flags/C-L-flag-source: partial; policy-flags/C-L-lows-policy: partial'
 - id: SCR-176
   family: policy-flags
   summary: SCRIPT_VERIFY_STRICTENC is policy (hybrid/hybrid pubkey rejection)
@@ -3448,6 +3450,7 @@ rows:
   consensus: false
   cells:
   - policy-flags/C-L-const-scriptcode
+  - policy-flags/C-L-flag-source
   alive2:
     result: green
     cell: policy-flags/C-L-const-scriptcode

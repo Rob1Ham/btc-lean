@@ -1,0 +1,96 @@
+module PolicyFlagsCell where
+
+// Independent spec for the flag-source/ordering cell (SCR-175, SCR-181).
+// Written from Core's GetBlockScriptFlags composition (validation.cpp:2249-2284),
+// CheckSignatureEncoding (:207-224), the two CONST_SCRIPTCODE gates
+// (:484-486, :339-343), and policy.h:104-133; it is not derived from either
+// C++ file.
+//
+// kind is the block hash's equivalence class under the two-entry mainnet
+// script_flag_exceptions map: 0 = no exception (base P2SH|WITNESS|TAPROOT),
+// 1 = BIP16 exception (SCRIPT_VERIFY_NONE), 2 = taproot exception
+// (P2SH|WITNESS).  height is the mainnet block height (32-bit domain).
+//
+// verify_flags.h bit values: P2SH=1, DERSIG=4, LOW_S=8, NULLDUMMY=16,
+// CLTV=512, CSV=1024, WITNESS=2048, CONST_SCRIPTCODE=65536, TAPROOT=131072.
+// Literals are full 64-bit hex words so Cryptol does not default them to a
+// narrow width before unifying with the [64] inputs.  Masking uses bitwise
+// `&&` rather than urem so the solver sees cheap bit operations.
+
+lowSBit : [64]
+lowSBit = 0x0000000000000008
+
+constScriptCodeBit : [64]
+constScriptCodeBit = 0x0000000000010000
+
+halfOrder : [256]
+halfOrder = 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0
+
+blockFlags : [64] -> [64] -> [64]
+blockFlags kind height = base + d + c + s + n
+  where
+    h    : [64]
+    h    = height && 0x00000000ffffffff
+    d    : [64]
+    d    = if 0x0000000000058ccd <= h then 0x0000000000000004 else 0x0000000000000000
+    c    : [64]
+    c    = if 0x000000000005ed1d <= h then 0x0000000000000200 else 0x0000000000000000
+    s    : [64]
+    s    = if 0x0000000000066600 <= h then 0x0000000000000400 else 0x0000000000000000
+    n    : [64]
+    n    = if 0x0000000000075a20 <= h then 0x0000000000000010 else 0x0000000000000000
+    base : [64]
+    base = if kind == 0x0000000000000001 then 0x0000000000000000
+           else if kind == 0x0000000000000002 then 0x0000000000000801
+           else 0x0000000000020801
+
+blockPolicyMask : [64] -> [64] -> [64]
+blockPolicyMask kind height =
+  (if (((blockFlags kind height >> 3) && 0x0000000000000001) == 0x0000000000000001) then lowSBit else 0x0000000000000000) +
+  (if (((blockFlags kind height >> 16) && 0x0000000000000001) == 0x0000000000000001) then constScriptCodeBit else 0x0000000000000000)
+
+standardPolicyMask : [64]
+standardPolicyMask = lowSBit + constScriptCodeBit
+
+mandatoryPolicyMask : [64]
+mandatoryPolicyMask = 0x0000000000000000
+
+// CheckSignatureEncoding specialised to the canonical skeleton
+//   30 25 02 01 <R> 02 20 <S:32> <hashtype>   (lenR=1, lenS=32),
+// then fed the block selector's word.  SIG_HIGH_S (27) is unreachable iff
+// blockFlags never sets LOW_S.
+lowsGate : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+lowsGate kind height rByte s0 s1 s2 s3 =
+  if (((w >> 2) && 0x0000000000000001) == 0x0000000000000001) && ~valid then 0x0000000000000018
+  else if (((w >> 3) && 0x0000000000000001) == 0x0000000000000001) && ~lowS then 0x000000000000001b
+  else 0x0000000000000000
+  where
+    w       : [64]
+    w       = blockFlags kind height
+    r       : [64]
+    r       = rByte && 0x00000000000000ff
+    sTop    : [64]
+    sTop    = (s0 >> 56) && 0x00000000000000ff
+    sSecond : [64]
+    sSecond = (s0 >> 48) && 0x00000000000000ff
+    valid   : Bit
+    valid   = (r < 0x0000000000000080) && (sTop < 0x0000000000000080) &&
+              ((sTop != 0x0000000000000000) || (sSecond >= 0x0000000000000080))
+    sval    : [256]
+    sval    = s0 # s1 # s2 # s3
+    lowS    : Bit
+    lowS    = valid && (sval <= halfOrder)
+
+// The two CONST_SCRIPTCODE gates, fed the block selector's word.
+// OP_CODESEPARATOR = 0xab; sigversion 0 = BASE.
+constGate : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+constGate kind height sigversion opcode foundPositive =
+  if foundPositive > 0x0000000000000001 then 0x00000000000000ff
+  else if (opcode == 0x00000000000000ab) && (sigversion == 0x0000000000000000) &&
+          (((w >> 16) && 0x0000000000000001) == 0x0000000000000001) then 0x0000000000000035
+  else if (sigversion == 0x0000000000000000) && (foundPositive != 0x0000000000000000) &&
+          (((w >> 16) && 0x0000000000000001) == 0x0000000000000001) then 0x0000000000000036
+  else 0x0000000000000000
+  where
+    w : [64]
+    w = blockFlags kind height

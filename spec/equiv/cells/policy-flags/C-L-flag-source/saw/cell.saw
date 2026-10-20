@@ -1,0 +1,67 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+let spec_cell_flag_source = do {
+  kind <- llvm_fresh_var "cell_flag_source_kind" (llvm_int 64);
+  height <- llvm_fresh_var "cell_flag_source_height" (llvm_int 64);
+  llvm_execute_func [llvm_term kind, llvm_term height];
+  llvm_return (llvm_term {{ blockFlags kind height }});
+};
+
+let spec_cell_flag_source_policy_mask = do {
+  kind <- llvm_fresh_var "cell_flag_source_policy_mask_kind" (llvm_int 64);
+  height <- llvm_fresh_var "cell_flag_source_policy_mask_height" (llvm_int 64);
+  llvm_execute_func [llvm_term kind, llvm_term height];
+  llvm_return (llvm_term {{ blockPolicyMask kind height }});
+};
+
+let spec_cell_standard_policy_mask = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ standardPolicyMask }});
+};
+
+let spec_cell_lows_gate_block = do {
+  kind <- llvm_fresh_var "cell_lows_gate_block_kind" (llvm_int 64);
+  height <- llvm_fresh_var "cell_lows_gate_block_height" (llvm_int 64);
+  rByte <- llvm_fresh_var "cell_lows_gate_block_rByte" (llvm_int 64);
+  s0 <- llvm_fresh_var "cell_lows_gate_block_s0" (llvm_int 64);
+  s1 <- llvm_fresh_var "cell_lows_gate_block_s1" (llvm_int 64);
+  s2 <- llvm_fresh_var "cell_lows_gate_block_s2" (llvm_int 64);
+  s3 <- llvm_fresh_var "cell_lows_gate_block_s3" (llvm_int 64);
+  llvm_execute_func [llvm_term kind, llvm_term height, llvm_term rByte,
+                     llvm_term s0, llvm_term s1, llvm_term s2, llvm_term s3];
+  llvm_return (llvm_term {{ lowsGate kind height rByte s0 s1 s2 s3 }});
+};
+
+let spec_cell_const_gate_block = do {
+  kind <- llvm_fresh_var "cell_const_gate_block_kind" (llvm_int 64);
+  height <- llvm_fresh_var "cell_const_gate_block_height" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_const_gate_block_sv" (llvm_int 64);
+  opcode <- llvm_fresh_var "cell_const_gate_block_opcode" (llvm_int 64);
+  foundPositive <- llvm_fresh_var "cell_const_gate_block_foundPositive" (llvm_int 64);
+  llvm_execute_func [llvm_term kind, llvm_term height, llvm_term sv,
+                     llvm_term opcode, llvm_term foundPositive];
+  llvm_return (llvm_term {{ constGate kind height sv opcode foundPositive }});
+};
+
+let spec_cell_mandatory_policy_mask = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ mandatoryPolicyMask }});
+};
+
+llvm_verify mC "cell_flag_source" [] false spec_cell_flag_source abc;
+llvm_verify mL "cell_flag_source" [] false spec_cell_flag_source abc;
+llvm_verify mC "cell_flag_source_policy_mask" [] false spec_cell_flag_source_policy_mask abc;
+llvm_verify mL "cell_flag_source_policy_mask" [] false spec_cell_flag_source_policy_mask abc;
+llvm_verify mC "cell_standard_policy_mask" [] false spec_cell_standard_policy_mask abc;
+llvm_verify mL "cell_standard_policy_mask" [] false spec_cell_standard_policy_mask abc;
+llvm_verify mC "cell_lows_gate_block" [] false spec_cell_lows_gate_block abc;
+llvm_verify mL "cell_lows_gate_block" [] false spec_cell_lows_gate_block abc;
+llvm_verify mC "cell_const_gate_block" [] false spec_cell_const_gate_block abc;
+llvm_verify mL "cell_const_gate_block" [] false spec_cell_const_gate_block abc;
+llvm_verify mC "cell_mandatory_policy_mask" [] false spec_cell_mandatory_policy_mask abc;
+llvm_verify mL "cell_mandatory_policy_mask" [] false spec_cell_mandatory_policy_mask abc;
+
+print "CELL_policy_flags_flag_source_SAW_GREEN";

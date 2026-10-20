@@ -1,0 +1,205 @@
+module CellNumCallsites where
+
+// Independent specification of the MINIMALDATA numeric-operand call sites
+// named by SCR-051.  C and L are each checked against this model:
+//
+//   CLTV/CSV  CScriptNum(stacktop(-1), fRequireMinimal, 5)
+//             (interpreter.cpp:556, :584; Defs.lean:860, :869)
+//   CMS       CScriptNum(stacktop(-i), fRequireMinimal)  x2, default cap 4
+//             (interpreter.cpp:1126, :1140; Defs.lean:1076, :1082)
+//
+// The decoder itself (width cap, minimality test, LE sign-magnitude value) is
+// the shared law proved by push-encoding/C-L-w32-num-decode-minimal and is
+// restated here rather than re-derived, so that each call-site verdict is a
+// function of the same decode.
+//
+// The model is fixed-width (no `Integer`) so the SAW obligations stay in
+// QF_BV: the decoded number is carried as (sign bit, 64-bit magnitude), which
+// is exact because five operand bytes give a magnitude below 2^40.  A value
+// is negative iff the sign bit is set AND the magnitude is non-zero, so
+// negative zero compares equal to zero exactly as in set_vch.
+//
+// Observable (both legs): result(2) | error_kind(6) << 2.  result 1 = the
+// handler continued (opcode OK), 0 = it returned the error in the field.
+// Error ordinals are Core's ScriptError ordinals (contract/error_kind.h).
+
+// ---- operand access --------------------------------------------------------
+
+byteAt : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8]
+byteAt a b c d e k =
+  if k == 0 then a
+  else if k == 1 then b
+  else if k == 2 then c
+  else if k == 3 then d
+  else e
+
+// Minimality test of script.h:255-268 for a length `l` (1..7) operand:
+// (top & 0x7f) == 0 and (l <= 1 or (next & 0x80) == 0).
+nonmin : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+nonmin a b c d e l =
+  (((byteAt a b c d e (l - 1)) && (0x7f : [8])) == (0 : [8])) &&
+  ((l <= (1 : [8])) ||
+   (((byteAt a b c d e (l - 2)) && (0x80 : [8])) == (0 : [8])))
+
+// set_vch magnitude: little-endian bytes, most-significant byte's 0x80 removed.
+raw64 : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+raw64 a b c d e l =
+  if l == 0 then (0 : [64])
+  else if l == 1 then (zext a : [64])
+  else if l == 2 then (zext a : [64]) + ((zext b : [64]) << (8 : [64]))
+  else if l == 3 then (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+                      ((zext c : [64]) << (16 : [64]))
+  else if l == 4 then (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+                      ((zext c : [64]) << (16 : [64])) +
+                      ((zext d : [64]) << (24 : [64]))
+  else (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+       ((zext c : [64]) << (16 : [64])) + ((zext d : [64]) << (24 : [64])) +
+       ((zext e : [64]) << (32 : [64]))
+
+// 0x80 << (8 * (l - 1)).
+signbit : [8] -> [64]
+signbit l =
+  if l == 1 then (128 : [64])
+  else if l == 2 then (32768 : [64])
+  else if l == 3 then (8388608 : [64])
+  else if l == 4 then (2147483648 : [64])
+  else (549755813888 : [64])
+
+negb : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+negb a b c d e l =
+  (l != (0 : [8])) && ((byteAt a b c d e (l - 1)) >= (0x80 : [8]))
+
+mag : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+mag a b c d e l =
+  if l == 0 then (0 : [64])
+  else if negb a b c d e l then (raw64 a b c d e l - signbit l)
+  else raw64 a b c d e l
+
+isneg : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+isneg a b c d e l = (negb a b c d e l) && (mag a b c d e l != (0 : [64]))
+
+// Decode is OK iff the width cap and (under the flag) the minimality test
+// both pass.  Lengths 0..7 are the cell domain; caps are 4 and 5.
+decOK : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> [8] -> Bit
+decOK a b c d e l mf maxs =
+  if (l > maxs) then False
+  else if (mf && (l != (0 : [8])) && (nonmin a b c d e l)) then False
+  else True
+
+// ---- verdict encoding ------------------------------------------------------
+
+okv : [64]
+okv = 0x0000000000000001
+
+err : [64] -> [64]
+err k = k << (2 : [64])
+
+// ---- CheckLockTime (interpreter.cpp:1755-1788 / Defs.lean:272-280) ---------
+
+checkLockT : [64] -> [64] -> [32] -> Bit
+checkLockT txlt m txseq =
+  (((txlt < (500000000 : [64])) && (m < (500000000 : [64]))) ||
+   ((txlt >= (500000000 : [64])) && (m >= (500000000 : [64])))) &&
+  (m <= txlt) &&
+  (txseq != (0xFFFFFFFF : [32]))
+
+checkLock : [64] -> [32] -> [32] -> Bit
+checkLock m txlt txseq = checkLockT (zext txlt : [64]) m txseq
+
+// ---- CheckSequence (interpreter.cpp:1791-1844 / Defs.lean:285-296) ---------
+
+masked : [64] -> [64]
+masked n = n && (4259839 : [64])
+
+checkSeqT : [64] -> [64] -> [32] -> [32] -> Bit
+checkSeqT t m txver txseq =
+  (((t < (4194304 : [64])) && (m < (4194304 : [64]))) ||
+   ((t >= (4194304 : [64])) && (m >= (4194304 : [64])))) &&
+  (m <= t) &&
+  (txver >= (2 : [32])) &&
+  ((txseq && (0x80000000 : [32])) == (0 : [32]))
+
+checkSeq : [64] -> [32] -> [32] -> Bit
+checkSeq m txver txseq =
+  checkSeqT (masked (zext txseq : [64])) (masked m) txver txseq
+
+// ---- OP_CHECKLOCKTIMEVERIFY (cap 5) ---------------------------------------
+
+cltvBody : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> [32] -> [32]
+           -> [64]
+cltvBody l a b c d e mf txlt txseq =
+  if ~(decOK a b c d e l mf 5) then err 4
+  else if (isneg a b c d e l) then err 21
+  else if ~(checkLock (mag a b c d e l) txlt txseq) then err 22
+  else okv
+
+cltv : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [32]
+       -> [8] -> [64]
+cltv a b c d e len mf depth txlt txseq flag =
+  if flag == (0 : [8]) then okv
+  else if depth < (1 : [32]) then err 18
+  else cltvBody (len && (0x07 : [8])) a b c d e (mf != (0 : [8])) txlt txseq
+
+// ---- OP_CHECKSEQUENCEVERIFY (cap 5) ---------------------------------------
+
+csvBody : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> [32] -> [32]
+          -> [64]
+csvBody l a b c d e mf txver txseq =
+  if ~(decOK a b c d e l mf 5) then err 4
+  else if (isneg a b c d e l) then err 21
+  else if (((mag a b c d e l) && (2147483648 : [64])) != (0 : [64])) then okv
+  else if ~(checkSeq (mag a b c d e l) txver txseq) then err 22
+  else okv
+
+csv : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [32]
+      -> [8] -> [64]
+csv a b c d e len mf depth txver txseq flag =
+  if flag == (0 : [8]) then okv
+  else if depth < (1 : [32]) then err 18
+  else csvBody (len && (0x07 : [8])) a b c d e (mf != (0 : [8])) txver txseq
+
+// ---- OP_CHECKMULTISIG key/sig counts (cap 4) ------------------------------
+
+cmsSigs : [64] -> [8] -> Bit -> [32] -> [8] -> [8] -> [8] -> [8] -> [8]
+          -> [64]
+cmsSigs nk sl mf depth s0 s1 s2 s3 s4 =
+  if ~(decOK s0 s1 s2 s3 s4 sl mf 4) then err 4
+  else if ((isneg s0 s1 s2 s3 s4 sl) ||
+           (nk < (mag s0 s1 s2 s3 s4 sl))) then err 9
+  else if ((zext depth : [64]) < (nk + (mag s0 s1 s2 s3 s4 sl) + (3 : [64])))
+    then err 18
+  else okv
+
+cmsKeys : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> [32] -> [32]
+          -> [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+cmsKeys kl k0 k1 k2 k3 k4 mf depth opcount s0 s1 s2 s3 s4 sl =
+  if ~(decOK k0 k1 k2 k3 k4 kl mf 4) then err 4
+  else if ((isneg k0 k1 k2 k3 k4 kl) ||
+           ((mag k0 k1 k2 k3 k4 kl) > (20 : [64]))) then err 10
+  else if (((zext opcount : [64]) + (mag k0 k1 k2 k3 k4 kl)) > (201 : [64]))
+    then err 7
+  else if ((zext depth : [64]) < ((mag k0 k1 k2 k3 k4 kl) + (2 : [64])))
+    then err 18
+  else cmsSigs (mag k0 k1 k2 k3 k4 kl) sl mf depth s0 s1 s2 s3 s4
+
+cms : [8] -> [8] -> [8] -> [8] -> [8] -> [8] ->
+      [8] -> [8] -> [8] -> [8] -> [8] -> [8] ->
+      [8] -> [32] -> [32] -> [64]
+cms k0 k1 k2 k3 k4 klen s0 s1 s2 s3 s4 slen mf depth opcount =
+  if depth < (1 : [32]) then err 18
+  else cmsKeys (klen && (0x07 : [8])) k0 k1 k2 k3 k4 (mf != (0 : [8]))
+               depth opcount s0 s1 s2 s3 s4 (slen && (0x07 : [8]))
+
+// ---- OP_CHECKSIGADD number (cap 4, tapscript only) ------------------------
+
+csaBody : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> [32] -> [64]
+csaBody l a b c d e mf depth =
+  if depth < (3 : [32]) then err 18
+  else if ~(decOK a b c d e l mf 4) then err 4
+  else okv
+
+checksigadd : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [8]
+              -> [64]
+checksigadd a b c d e len mf depth sigversion =
+  if (sigversion == (0 : [8])) || (sigversion == (1 : [8])) then err 16
+  else csaBody (len && (0x07 : [8])) a b c d e (mf != (0 : [8])) depth

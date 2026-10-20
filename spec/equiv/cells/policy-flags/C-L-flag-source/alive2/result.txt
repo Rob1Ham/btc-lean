@@ -1,0 +1,396 @@
+# cell: policy-flags/C-L-flag-source
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_flag_source cell_flag_source_policy_mask cell_lows_gate_block cell_const_gate_block cell_standard_policy_mask cell_mandatory_policy_mask
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_flag_source (L ⊑ C) =====
+# command: alive-tv ir/c_cell_flag_source.ll ir/l_cell_flag_source.ll
+
+----------------------------------------
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  %rem.i = and i64 noundef %height, 4294967295
+  %switch.selectcmp.i.i = icmp eq i64 noundef %exceptionKind, 2
+  %switch.select.i.i = select i1 %switch.selectcmp.i.i, i64 2049, i64 133121
+  %switch.selectcmp27.i.i = icmp eq i64 noundef %exceptionKind, 1
+  %switch.select28.i.i = select i1 %switch.selectcmp27.i.i, i64 0, i64 %switch.select.i.i
+  %cmp4.i.i = icmp samesign ugt i64 %rem.i, 363724
+  %or.i.i = or disjoint i64 %switch.select28.i.i, 4
+  %spec.select.i.i = select i1 %cmp4.i.i, i64 %or.i.i, i64 %switch.select28.i.i
+  %cmp7.i.i = icmp samesign ugt i64 %rem.i, 388380
+  %or9.i.i = or disjoint i64 %spec.select.i.i, 512
+  %flags.2.i.i = select i1 %cmp7.i.i, i64 %or9.i.i, i64 %spec.select.i.i
+  %cmp11.i.i = icmp samesign ugt i64 %rem.i, 419327
+  %or13.i.i = or i64 %flags.2.i.i, 1024
+  %flags.3.i.i = select i1 %cmp11.i.i, i64 %or13.i.i, i64 %flags.2.i.i
+  %cmp15.i.i = icmp samesign ugt i64 %rem.i, 481823
+  %or17.i.i = or i64 %flags.3.i.i, 16
+  %flags.4.i.i = select i1 %cmp15.i.i, i64 %or17.i.i, i64 %flags.3.i.i
+  %#range_0_%flags.4.i.i = !range i64 %flags.4.i.i, i64 0, i64 135168
+  ret i64 %#range_0_%flags.4.i.i
+}
+=>
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %exceptionKind, -3
+  %or.cond.i.i = icmp ult i64 %#0, -2
+  %cond16.i.i = select i1 %or.cond.i.i, i64 131072, i64 0
+  %.not.i = icmp eq i64 noundef %exceptionKind, 1
+  %retval.i.sroa.14.0.i = select i1 %.not.i, i64 0, i64 2048
+  %narrow.i = icmp ne i64 noundef %exceptionKind, 1
+  %retval.i.sroa.0.0.i = zext i1 %narrow.i to i64
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp.i16.i = icmp samesign ugt i64 %rem.i, 363724
+  %cmp.i15.i = icmp samesign ugt i64 %rem.i, 388380
+  %cmp.i14.i = icmp samesign ugt i64 %rem.i, 419327
+  %cmp.i.i = icmp samesign ugt i64 %rem.i, 481823
+  %cond2.i.i = select i1 %cmp.i16.i, i64 4, i64 0
+  %cond4.i.i = select i1 %cmp.i.i, i64 16, i64 0
+  %cond7.i.i = select i1 %cmp.i15.i, i64 512, i64 0
+  %cond10.i.i = select i1 %cmp.i14.i, i64 1024, i64 0
+  %or.i.i = or disjoint i64 %retval.i.sroa.14.0.i, %retval.i.sroa.0.0.i
+  %or5.i.i = or disjoint i64 %or.i.i, %cond16.i.i
+  %or8.i.i = or disjoint i64 %or5.i.i, %cond2.i.i
+  %or11.i.i = or disjoint i64 %or8.i.i, %cond4.i.i
+  %or14.i.i = or disjoint i64 %or11.i.i, %cond7.i.i
+  %or17.i.i = or i64 %or14.i.i, %cond10.i.i
+  %#range_0_%or17.i.i = !range i64 %or17.i.i, i64 0, i64 135168
+  ret i64 %#range_0_%or17.i.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_flag_source (C ⊑ L) =====
+# command: alive-tv ir/l_cell_flag_source.ll ir/c_cell_flag_source.ll
+
+----------------------------------------
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %exceptionKind, -3
+  %or.cond.i.i = icmp ult i64 %#0, -2
+  %cond16.i.i = select i1 %or.cond.i.i, i64 131072, i64 0
+  %.not.i = icmp eq i64 noundef %exceptionKind, 1
+  %retval.i.sroa.14.0.i = select i1 %.not.i, i64 0, i64 2048
+  %narrow.i = icmp ne i64 noundef %exceptionKind, 1
+  %retval.i.sroa.0.0.i = zext i1 %narrow.i to i64
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp.i16.i = icmp samesign ugt i64 %rem.i, 363724
+  %cmp.i15.i = icmp samesign ugt i64 %rem.i, 388380
+  %cmp.i14.i = icmp samesign ugt i64 %rem.i, 419327
+  %cmp.i.i = icmp samesign ugt i64 %rem.i, 481823
+  %cond2.i.i = select i1 %cmp.i16.i, i64 4, i64 0
+  %cond4.i.i = select i1 %cmp.i.i, i64 16, i64 0
+  %cond7.i.i = select i1 %cmp.i15.i, i64 512, i64 0
+  %cond10.i.i = select i1 %cmp.i14.i, i64 1024, i64 0
+  %or.i.i = or disjoint i64 %retval.i.sroa.14.0.i, %retval.i.sroa.0.0.i
+  %or5.i.i = or disjoint i64 %or.i.i, %cond16.i.i
+  %or8.i.i = or disjoint i64 %or5.i.i, %cond2.i.i
+  %or11.i.i = or disjoint i64 %or8.i.i, %cond4.i.i
+  %or14.i.i = or disjoint i64 %or11.i.i, %cond7.i.i
+  %or17.i.i = or i64 %or14.i.i, %cond10.i.i
+  %#range_0_%or17.i.i = !range i64 %or17.i.i, i64 0, i64 135168
+  ret i64 %#range_0_%or17.i.i
+}
+=>
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  %rem.i = and i64 noundef %height, 4294967295
+  %switch.selectcmp.i.i = icmp eq i64 noundef %exceptionKind, 2
+  %switch.select.i.i = select i1 %switch.selectcmp.i.i, i64 2049, i64 133121
+  %switch.selectcmp27.i.i = icmp eq i64 noundef %exceptionKind, 1
+  %switch.select28.i.i = select i1 %switch.selectcmp27.i.i, i64 0, i64 %switch.select.i.i
+  %cmp4.i.i = icmp samesign ugt i64 %rem.i, 363724
+  %or.i.i = or disjoint i64 %switch.select28.i.i, 4
+  %spec.select.i.i = select i1 %cmp4.i.i, i64 %or.i.i, i64 %switch.select28.i.i
+  %cmp7.i.i = icmp samesign ugt i64 %rem.i, 388380
+  %or9.i.i = or disjoint i64 %spec.select.i.i, 512
+  %flags.2.i.i = select i1 %cmp7.i.i, i64 %or9.i.i, i64 %spec.select.i.i
+  %cmp11.i.i = icmp samesign ugt i64 %rem.i, 419327
+  %or13.i.i = or i64 %flags.2.i.i, 1024
+  %flags.3.i.i = select i1 %cmp11.i.i, i64 %or13.i.i, i64 %flags.2.i.i
+  %cmp15.i.i = icmp samesign ugt i64 %rem.i, 481823
+  %or17.i.i = or i64 %flags.3.i.i, 16
+  %flags.4.i.i = select i1 %cmp15.i.i, i64 %or17.i.i, i64 %flags.3.i.i
+  %#range_0_%flags.4.i.i = !range i64 %flags.4.i.i, i64 0, i64 135168
+  ret i64 %#range_0_%flags.4.i.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_flag_source_policy_mask (L ⊑ C) =====
+# command: alive-tv ir/c_cell_flag_source_policy_mask.ll ir/l_cell_flag_source_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_flag_source_policy_mask(i64 noundef %exceptionKind, i64 noundef %height) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+=>
+define i64 @cell_flag_source_policy_mask(i64 noundef %exceptionKind, i64 noundef %height) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_flag_source_policy_mask (C ⊑ L) =====
+# command: alive-tv ir/l_cell_flag_source_policy_mask.ll ir/c_cell_flag_source_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_flag_source_policy_mask(i64 noundef %exceptionKind, i64 noundef %height) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+=>
+define i64 @cell_flag_source_policy_mask(i64 noundef %exceptionKind, i64 noundef %height) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_lows_gate_block (L ⊑ C) =====
+# command: alive-tv ir/c_cell_lows_gate_block.ll ir/l_cell_lows_gate_block.ll
+
+----------------------------------------
+define i64 @cell_lows_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp4.i.i = icmp samesign ult i64 %rem.i, 363725
+  %brmerge.i = or i1 %cmp4.i.i, %spec.select.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_lows_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  %rem.i.i = and i64 noundef %height, 4294967295
+  %cmp.i16.i.i = icmp samesign ult i64 %rem.i.i, 363725
+  %brmerge48.i = or i1 %cmp.i16.i.i, %spec.select.i
+  %retval.0.i = select i1 %brmerge48.i, i64 0, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_lows_gate_block (C ⊑ L) =====
+# command: alive-tv ir/l_cell_lows_gate_block.ll ir/c_cell_lows_gate_block.ll
+
+----------------------------------------
+define i64 @cell_lows_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  %rem.i.i = and i64 noundef %height, 4294967295
+  %cmp.i16.i.i = icmp samesign ult i64 %rem.i.i, 363725
+  %brmerge48.i = or i1 %cmp.i16.i.i, %spec.select.i
+  %retval.0.i = select i1 %brmerge48.i, i64 0, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_lows_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp4.i.i = icmp samesign ult i64 %rem.i, 363725
+  %brmerge.i = or i1 %cmp4.i.i, %spec.select.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_const_gate_block (L ⊑ C) =====
+# command: alive-tv ir/c_cell_const_gate_block.ll ir/l_cell_const_gate_block.ll
+
+----------------------------------------
+define i64 @cell_const_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %sigversion, i64 noundef %opcode, i64 noundef %foundPositive) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  %retval.1.i = select i1 %cmp.i, i64 255, i64 0
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_const_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %sigversion, i64 noundef %opcode, i64 noundef %foundPositive) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  %retval.1.i = select i1 %cmp.i, i64 255, i64 0
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_const_gate_block (C ⊑ L) =====
+# command: alive-tv ir/l_cell_const_gate_block.ll ir/c_cell_const_gate_block.ll
+
+----------------------------------------
+define i64 @cell_const_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %sigversion, i64 noundef %opcode, i64 noundef %foundPositive) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  %retval.1.i = select i1 %cmp.i, i64 255, i64 0
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_const_gate_block(i64 noundef %exceptionKind, i64 noundef %height, i64 noundef %sigversion, i64 noundef %opcode, i64 noundef %foundPositive) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  %retval.1.i = select i1 %cmp.i, i64 255, i64 0
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_standard_policy_mask (L ⊑ C) =====
+# command: alive-tv ir/c_cell_standard_policy_mask.ll ir/l_cell_standard_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_standard_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 65544
+}
+=>
+define i64 @cell_standard_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 65544
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_standard_policy_mask (C ⊑ L) =====
+# command: alive-tv ir/l_cell_standard_policy_mask.ll ir/c_cell_standard_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_standard_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 65544
+}
+=>
+define i64 @cell_standard_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 65544
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_mandatory_policy_mask (L ⊑ C) =====
+# command: alive-tv ir/c_cell_mandatory_policy_mask.ll ir/l_cell_mandatory_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_mandatory_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 0
+}
+=>
+define i64 @cell_mandatory_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_mandatory_policy_mask (C ⊑ L) =====
+# command: alive-tv ir/l_cell_mandatory_policy_mask.ll ir/c_cell_mandatory_policy_mask.ll
+
+----------------------------------------
+define i64 @cell_mandatory_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 65545
+  ret i64 %#range_0_0
+}
+=>
+define i64 @cell_mandatory_policy_mask() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (12 direction checks)
