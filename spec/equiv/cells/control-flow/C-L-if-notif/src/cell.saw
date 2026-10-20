@@ -1,0 +1,52 @@
+import "cell.cry";
+mC0 <- llvm_load_module "c_cell_if_len0.bc";
+mL0 <- llvm_load_module "l_cell_if_len0.bc";
+mC1 <- llvm_load_module "c_cell_if_len1.bc";
+mL1 <- llvm_load_module "l_cell_if_len1.bc";
+mC2 <- llvm_load_module "c_cell_if_len2.bc";
+mL2 <- llvm_load_module "l_cell_if_len2.bc";
+
+// Symbolic over: NOTIF/IF, executed/skipped, sigversion {base, witnessV0,
+// tapscript}, MINIMALIF flag, arbitrary stack depth and every byte value at
+// each modelled element length.
+let s0 = do {
+  isNotif <- llvm_fresh_var "isNotif" (llvm_int 32);
+  fexec   <- llvm_fresh_var "fexec"   (llvm_int 32);
+  sv      <- llvm_fresh_var "sv"      (llvm_int 32);
+  mif     <- llvm_fresh_var "mif"     (llvm_int 32);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  llvm_execute_func [llvm_term isNotif, llvm_term fexec, llvm_term sv,
+                     llvm_term mif, llvm_term depth];
+  llvm_return (llvm_term {{ packed0 isNotif fexec sv mif depth }});
+};
+let s1 = do {
+  isNotif <- llvm_fresh_var "isNotif" (llvm_int 32);
+  fexec   <- llvm_fresh_var "fexec"   (llvm_int 32);
+  sv      <- llvm_fresh_var "sv"      (llvm_int 32);
+  mif     <- llvm_fresh_var "mif"     (llvm_int 32);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  b0      <- llvm_fresh_var "b0"      (llvm_int 8);
+  llvm_execute_func [llvm_term isNotif, llvm_term fexec, llvm_term sv,
+                     llvm_term mif, llvm_term depth, llvm_term b0];
+  llvm_return (llvm_term {{ packed1 isNotif fexec sv mif depth b0 }});
+};
+let s2 = do {
+  isNotif <- llvm_fresh_var "isNotif" (llvm_int 32);
+  fexec   <- llvm_fresh_var "fexec"   (llvm_int 32);
+  sv      <- llvm_fresh_var "sv"      (llvm_int 32);
+  mif     <- llvm_fresh_var "mif"     (llvm_int 32);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  b0      <- llvm_fresh_var "b0"      (llvm_int 8);
+  b1      <- llvm_fresh_var "b1"      (llvm_int 8);
+  llvm_execute_func [llvm_term isNotif, llvm_term fexec, llvm_term sv,
+                     llvm_term mif, llvm_term depth, llvm_term b0,
+                     llvm_term b1];
+  llvm_return (llvm_term {{ packed2 isNotif fexec sv mif depth b0 b1 }});
+};
+llvm_verify mC0 "cell_if_len0" [] false s0 abc;
+llvm_verify mL0 "cell_if_len0" [] false s0 abc;
+llvm_verify mC1 "cell_if_len1" [] false s1 abc;
+llvm_verify mL1 "cell_if_len1" [] false s1 abc;
+llvm_verify mC2 "cell_if_len2" [] false s2 abc;
+llvm_verify mL2 "cell_if_len2" [] false s2 abc;
+print "CELL_control_IF_NOTIF_SAW_GREEN";

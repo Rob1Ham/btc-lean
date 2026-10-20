@@ -1,0 +1,87 @@
+# cell: control-flow/C-L-bad-opcode
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_bad.ll build/l_cell_bad.ll
+
+----------------------------------------
+define i64 @cell_bad(i32 noundef %op, i32 noundef %fexec, i32 noundef %sv, i32 noundef %opcount) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %op, 3
+  %switch.cast = trunc nsw nuw i32 %and to i4
+  %switch.downshift = lshr i4 14, %switch.cast
+  %switch.masked = trunc i4 %switch.downshift to i1
+  %switch.cast11 = trunc nsw nuw i32 %and to i4
+  %switch.downshift13 = lshr i4 12, %switch.cast11
+  %switch.masked14 = trunc i4 %switch.downshift13 to i1
+  %and.off = add nsw i32 %and, 4294967295
+  %switch = icmp ult i32 %and.off, 3
+  %or.cond = icmp ult i32 noundef %sv, 2
+  %narrow = select i1 %or.cond, i1 %switch, i1 0
+  %add = zext i1 %narrow to i32
+  %cond = add i32 noundef %opcount, %add
+  %spec.select.i = and i1 %or.cond, %switch.masked
+  %add.i = zext i1 %spec.select.i to i32
+  %cond.i = add i32 noundef %opcount, %add.i
+  %cmp4.i = icmp ugt i32 %cond.i, 201
+  %or.cond14.i = and i1 %spec.select.i, %cmp4.i
+  %cmp5.not.i = icmp ne i32 noundef %fexec, 0
+  %or.cond21.i = or i1 %cmp5.not.i, %switch.masked14
+  %spec.select22.i = select i1 %or.cond21.i, i32 16, i32 0
+  %retval.0.i10 = select i1 %or.cond14.i, i32 7, i32 %spec.select22.i
+  %cmp.i = icmp eq i32 %retval.0.i10, 0
+  %#0 = shl nsw nuw i32 %retval.0.i10, 2
+  %#1 = zext i1 %cmp.i to i32
+  %#2 = or i32 %#0, %#1
+  %and1.i = shl i32 %cond, 8
+  %#3 = and i32 %and1.i, 130816
+  %add48.i = or i32 %#2, %#3
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 130882
+  ret i64 %#range_0_%add4.i
+}
+=>
+define i64 @cell_bad(i32 noundef %op, i32 noundef %fexec, i32 noundef %sv, i32 noundef %opcount) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %op, 3
+  %switch.cast = trunc nsw nuw i32 %and to i4
+  %switch.downshift = lshr i4 14, %switch.cast
+  %switch.masked = trunc i4 %switch.downshift to i1
+  %switch.cast14 = trunc nsw nuw i32 %and to i4
+  %switch.downshift16 = lshr i4 12, %switch.cast14
+  %switch.masked17 = trunc i4 %switch.downshift16 to i1
+  %and.off = add nsw i32 %and, 4294967295
+  %switch = icmp ult i32 %and.off, 3
+  %or.cond = icmp ult i32 noundef %sv, 2
+  %narrow = select i1 %or.cond, i1 %switch, i1 0
+  %add = zext i1 %narrow to i32
+  %cond = add i32 noundef %opcount, %add
+  %spec.select.i = and i1 %or.cond, %switch.masked
+  %add.i = zext i1 %spec.select.i to i32
+  %cond.i = add i32 noundef %opcount, %add.i
+  %cmp4.i = icmp ugt i32 %cond.i, 201
+  %or.cond16.i = and i1 %spec.select.i, %cmp4.i
+  %cmp6.not.i = icmp ne i32 noundef %fexec, 0
+  %or.cond23.i = or i1 %cmp6.not.i, %switch.masked17
+  %spec.select = select i1 %or.cond23.i, i32 16, i32 0
+  %retval.0.i10 = select i1 %or.cond16.i, i32 7, i32 %spec.select
+  %cmp.i = icmp eq i32 %retval.0.i10, 0
+  %#0 = shl nsw nuw i32 %retval.0.i10, 2
+  %#1 = zext i1 %cmp.i to i32
+  %#2 = or i32 %#0, %#1
+  %and1.i = shl i32 %cond, 8
+  %#3 = and i32 %and1.i, 130816
+  %add48.i = or i32 %#2, %#3
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 130882
+  ret i64 %#range_0_%add4.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

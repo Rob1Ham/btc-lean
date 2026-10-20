@@ -1,0 +1,39 @@
+# cell: control-flow/C-L-unspendable
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_unspendable.ll build/l_cell_unspendable.ll
+
+----------------------------------------
+define i32 @cell_unspendable(i32 noundef %size, i8 noundef zeroext %first) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ne i32 noundef %size, 0
+  %cmp1 = icmp eq i8 noundef zeroext %first, 106
+  %or.cond = and i1 %cmp, %cmp1
+  %cmp2 = icmp ugt i32 noundef %size, 10000
+  %narrow = or i1 %cmp2, %or.cond
+  %cond = zext i1 %narrow to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_unspendable(i32 noundef %size, i8 noundef zeroext %first) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ne i32 noundef %size, 0
+  %cmp1 = icmp eq i8 noundef zeroext %first, 106
+  %or.cond = and i1 %cmp, %cmp1
+  %cmp2 = icmp ugt i32 noundef %size, 10000
+  %narrow = or i1 %cmp2, %or.cond
+  %cond = zext i1 %narrow to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

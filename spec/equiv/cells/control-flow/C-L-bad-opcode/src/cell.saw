@@ -1,0 +1,19 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_bad.bc";
+mL <- llvm_load_module "l_cell_bad.bc";
+
+// Symbolic over the four wire classes, executed/skipped, sigversion, and a
+// symbolic opcode counter (the budget boundary is decided by the proof, not
+// by a concrete witness).
+let s = do {
+  op      <- llvm_fresh_var "op"      (llvm_int 32);
+  fexec   <- llvm_fresh_var "fexec"   (llvm_int 32);
+  sv      <- llvm_fresh_var "sv"      (llvm_int 32);
+  opcount <- llvm_fresh_var "opcount" (llvm_int 32);
+  llvm_execute_func [llvm_term op, llvm_term fexec, llvm_term sv,
+                     llvm_term opcount];
+  llvm_return (llvm_term {{ step op fexec sv opcount }});
+};
+llvm_verify mC "cell_bad" [] false s abc;
+llvm_verify mL "cell_bad" [] false s abc;
+print "CELL_control_BAD_OPCODE_SAW_GREEN";
