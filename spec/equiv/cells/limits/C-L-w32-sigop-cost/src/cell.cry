@@ -1,0 +1,21 @@
+// Independent Cryptol specification of GetTransactionSigOpCost's weight-unit
+// aggregation (tx_verify.cpp:149-168 at pin cce32b168), over the three
+// per-input counts.
+//
+//   n = 4 * legacy
+//   if coinbase: return n
+//   if SCRIPT_VERIFY_P2SH: n += 4 * p2sh
+//   n += witness
+//
+// The counts themselves are produced by the sibling limits cells; this cell
+// fixes only the scaling and the two gates.
+module CellSigopCost where
+
+k0 : [64];  k0 = 0
+k4 : [64];  k4 = 4
+
+cost : [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+cost legacy p2sh witness coinbase p2shFlag =
+  if coinbase != 0 then k4 * zext legacy
+  else k4 * (zext legacy + (if p2shFlag != 0 then zext p2sh else k0))
+       + zext witness
