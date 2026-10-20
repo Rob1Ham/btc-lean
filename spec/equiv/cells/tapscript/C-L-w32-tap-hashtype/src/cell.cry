@@ -1,0 +1,34 @@
+module CellHashtype where
+
+// Independent specification of the BIP341 hashtype rules for SCR-163 and
+// SCR-165, written from the row text and BIP341 (not from either leg):
+//   - valid hashtypes are 0x00..0x03 and 0x81..0x83 (SIGHASH_DEFAULT
+//     counts as valid); anything else is SCHNORR_SIG_HASHTYPE (46).
+//   - a 64-byte Schnorr signature carries the implicit SIGHASH_DEFAULT
+//     (0x00); a 65-byte signature's last byte is the explicit hashtype and
+//     may not be 0x00; any other size is SCHNORR_SIG_SIZE (45).
+//   - output_type is ALL for SIGHASH_DEFAULT, else (hashtype & 3).
+
+validHt : [8] -> Bit
+validHt ht = (ht <= 0x03) || ((0x81 <= ht) && (ht <= 0x83))
+
+// bit0 = valid, bits 8..15 = error, bits 16..23 = hashtype.
+htValid : [8] -> [64]
+htValid ht = (if validHt ht then 1 else (46 << 8)) || (zext ht << 16)
+
+outType : [8] -> [8]
+outType ht = if ht == 0 then 1 else (ht && 0x03)
+
+htOf : [32] -> [8] -> [8]
+htOf size lastB = if size == 65 then lastB else 0
+
+// bit0 = error, bits 8..15 = hashtype, bits 16..23 = error ordinal,
+// bits 24..31 = output_type.
+sigToHt : [32] -> [8] -> [64]
+sigToHt size lastB =
+  if (size != 64) && (size != 65) then 1 || (45 << 16)
+  else if (size == 65) && (lastB == 0) then 1 || (46 << 16)
+  else (zext (htOf size lastB) << 8) || (zext (outType (htOf size lastB)) << 24)
+
+outType64 : [8] -> [64]
+outType64 ht = zext (outType ht)

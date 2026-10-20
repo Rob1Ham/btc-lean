@@ -1,0 +1,16 @@
+module CellSingleOutput where
+
+// Independent specification of SCR-166: under SIGHASH_SINGLE, a BIP341
+// message construction fails when the input index has no corresponding
+// output (in_pos >= vout.size()); CheckSchnorrSignature maps that failure
+// to SCHNORR_SIG_HASHTYPE (46).  Any other output type is unaffected by the
+// output count.
+//
+// Observable: bit0 construction ok, bit1 single-output hash included,
+// bits 8..15 error ordinal.
+
+singleRes : [8] -> [32] -> [32] -> [64]
+singleRes ht inPos nvout =
+  if (ht && 0x03) == 0x03 then
+    if nvout <= inPos then (((zext (0x2e : [8])) : [64]) << 8) else 3
+  else 1

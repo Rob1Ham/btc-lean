@@ -1,0 +1,20 @@
+import "cell.cry";
+
+// SCR-168: the budget check is `< 0`, not `<= 0`.  Both legs are verified
+// against the same independent Cryptol rule for every 32-bit sig/pubkey
+// size, every int64 budget and both Schnorr verdicts.
+mC <- llvm_load_module "c_cell_eval_checksig.bc";
+mL <- llvm_load_module "l_cell_eval_checksig.bc";
+let spec = do {
+  sigLen <- llvm_fresh_var "sigLen" (llvm_int 32);
+  pkLen <- llvm_fresh_var "pkLen" (llvm_int 32);
+  vw <- llvm_fresh_var "vw" (llvm_int 64);
+  ok <- llvm_fresh_var "ok" (llvm_int 32);
+  llvm_execute_func [llvm_term sigLen, llvm_term pkLen, llvm_term vw,
+                     llvm_term ok];
+  llvm_return (llvm_term {{ evalCs sigLen pkLen vw ok }});
+};
+llvm_verify mC "cell_eval_checksig" [] false spec z3;
+llvm_verify mL "cell_eval_checksig" [] false spec z3;
+
+print "CELL_W32_VW_ZERO_SAW_GREEN";

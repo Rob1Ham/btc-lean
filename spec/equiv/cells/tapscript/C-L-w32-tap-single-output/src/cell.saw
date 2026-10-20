@@ -1,0 +1,17 @@
+import "cell.cry";
+
+// SCR-166: every 8-bit hashtype, every 32-bit input index and every 32-bit
+// output count (the physical bound vout.size() < 2^32 is a premise).
+mC <- llvm_load_module "c_cell_single_output.bc";
+mL <- llvm_load_module "l_cell_single_output.bc";
+let spec = do {
+  ht <- llvm_fresh_var "ht" (llvm_int 8);
+  inPos <- llvm_fresh_var "inPos" (llvm_int 32);
+  nvout <- llvm_fresh_var "nvout" (llvm_int 32);
+  llvm_execute_func [llvm_term ht, llvm_term inPos, llvm_term nvout];
+  llvm_return (llvm_term {{ singleRes ht inPos nvout }});
+};
+llvm_verify mC "cell_single_output" [] false spec z3;
+llvm_verify mL "cell_single_output" [] false spec z3;
+
+print "CELL_W32_SINGLE_OUTPUT_SAW_GREEN";

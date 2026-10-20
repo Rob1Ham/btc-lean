@@ -1,0 +1,84 @@
+import "cell.cry";
+
+// SCR-164: both legs are verified against the same independent Cryptol
+// slice for every SigVersion in {0,1}, every 256-bit tapleaf hash and every
+// 32-bit codeseparator position.
+mC0 <- llvm_load_module "c_cell_ext_w0.bc";
+mL0 <- llvm_load_module "l_cell_ext_w0.bc";
+mC1 <- llvm_load_module "c_cell_ext_w1.bc";
+mL1 <- llvm_load_module "l_cell_ext_w1.bc";
+mC2 <- llvm_load_module "c_cell_ext_w2.bc";
+mL2 <- llvm_load_module "l_cell_ext_w2.bc";
+mC3 <- llvm_load_module "c_cell_ext_w3.bc";
+mL3 <- llvm_load_module "l_cell_ext_w3.bc";
+mC4 <- llvm_load_module "c_cell_ext_w4.bc";
+mL4 <- llvm_load_module "l_cell_ext_w4.bc";
+
+let w0 = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  cs <- llvm_fresh_var "cs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term cs];
+  llvm_return (llvm_term {{ extw0 sv t0 t1 t2 t3 cs }});
+};
+let w1 = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  cs <- llvm_fresh_var "cs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term cs];
+  llvm_return (llvm_term {{ extw1 sv t0 t1 t2 t3 cs }});
+};
+let w2 = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  cs <- llvm_fresh_var "cs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term cs];
+  llvm_return (llvm_term {{ extw2 sv t0 t1 t2 t3 cs }});
+};
+let w3 = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  cs <- llvm_fresh_var "cs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term cs];
+  llvm_return (llvm_term {{ extw3 sv t0 t1 t2 t3 cs }});
+};
+let w4s = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  cs <- llvm_fresh_var "cs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term cs];
+  llvm_return (llvm_term {{ extw4 sv t0 t1 t2 t3 cs }});
+};
+
+llvm_verify mC0 "cell_ext_w0" [] false w0 z3;
+llvm_verify mL0 "cell_ext_w0" [] false w0 z3;
+llvm_verify mC1 "cell_ext_w1" [] false w1 z3;
+llvm_verify mL1 "cell_ext_w1" [] false w1 z3;
+llvm_verify mC2 "cell_ext_w2" [] false w2 z3;
+llvm_verify mL2 "cell_ext_w2" [] false w2 z3;
+llvm_verify mC3 "cell_ext_w3" [] false w3 z3;
+llvm_verify mL3 "cell_ext_w3" [] false w3 z3;
+llvm_verify mC4 "cell_ext_w4" [] false w4s z3;
+llvm_verify mL4 "cell_ext_w4" [] false w4s z3;
+
+print "CELL_W32_EXTSLICE_SAW_GREEN";

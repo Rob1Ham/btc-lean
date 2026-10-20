@@ -1,0 +1,114 @@
+# cell: C-L-w32-tap-epoch-annex
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional build/c_cell_epoch_ht.ll build/l_cell_epoch_ht.ll
+
+----------------------------------------
+define i64 @cell_epoch_ht(i8 noundef zeroext %hash_type) nofree willreturn memory(none) {
+entry:
+  %conv = zext i8 noundef zeroext %hash_type to i64
+  %shl = shl nsw nuw i64 %conv, 8
+  %#range_0_%shl = !range i64 %shl, i64 0, i64 65281
+  ret i64 %#range_0_%shl
+}
+=>
+define i64 @cell_epoch_ht(i8 noundef zeroext %hash_type) nofree willreturn memory(none) {
+entry:
+  %conv = zext i8 noundef zeroext %hash_type to i64
+  %shl = shl nsw nuw i64 %conv, 8
+  %#range_0_%shl = !range i64 %shl, i64 0, i64 65281
+  ret i64 %#range_0_%shl
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional build/c_cell_spend_type.ll build/l_cell_spend_type.ll
+
+----------------------------------------
+define i64 @cell_spend_type(i32 noundef %sv, i1 noundef zeroext %annex_present) nofree willreturn memory(none) {
+entry:
+  %switch = icmp ult i32 noundef %sv, 2
+  br i1 %switch, label %if.end4, label %cleanup
+
+if.end4:
+  %shl = shl nsw nuw i32 noundef %sv, 1
+  %cond = zext i1 noundef zeroext %annex_present to i32
+  %add = or disjoint i32 %shl, %cond
+  %#0 = shl nsw nuw i32 noundef %sv, 8
+  %or10 = or disjoint i32 %add, %#0
+  %or = zext nneg i32 %or10 to i64
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ %or, %if.end4 ], [ 3735928559, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_spend_type(i32 noundef %sv, i1 noundef zeroext %annex_present) nofree willreturn memory(none) {
+entry:
+  %switch = icmp ult i32 noundef %sv, 2
+  br i1 %switch, label %if.end4, label %cleanup
+
+if.end4:
+  %mul = shl nsw nuw i32 noundef %sv, 1
+  %cond = zext i1 noundef zeroext %annex_present to i32
+  %add = or disjoint i32 %mul, %cond
+  %#0 = shl nsw nuw i32 noundef %sv, 8
+  %or9 = or disjoint i32 %add, %#0
+  %or = zext nneg i32 %or9 to i64
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ %or, %if.end4 ], [ 3735928559, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional build/c_cell_annex_slice.ll build/l_cell_annex_slice.ll
+
+----------------------------------------
+define i64 @cell_annex_slice(i1 noundef zeroext %annex_present, i64 noundef %h0) nofree willreturn memory(none) {
+entry:
+  %and = shl i64 noundef %h0, 16
+  %shl = and i64 %and, 281474976645120
+  %or = or disjoint i64 %shl, 8193
+  %retval.0 = select i1 noundef zeroext %annex_present, i64 %or, i64 0
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 281474976661504
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_annex_slice(i1 noundef zeroext %annex_present, i64 noundef %h0) nofree willreturn memory(none) {
+entry:
+  %and = shl i64 noundef %h0, 16
+  %shl = and i64 %and, 281474976645120
+  %or = or disjoint i64 %shl, 8193
+  %retval.0 = select i1 noundef zeroext %annex_present, i64 %or, i64 0
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 281474976661504
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

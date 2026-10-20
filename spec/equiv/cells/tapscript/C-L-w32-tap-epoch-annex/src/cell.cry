@@ -1,0 +1,23 @@
+module CellEpochAnnex where
+
+// Independent specification of the three SCR-169 structural facts modelled
+// by this cell (the SHA256/tagged-hash values themselves are not modelled):
+//   1. the first byte of the TapSighash message is the epoch 0x00, followed
+//      by the hashtype byte;
+//   2. spend_type = 2*ext_flag + annex_present with ext_flag = 0 for
+//      TAPROOT and 1 for TAPSCRIPT;
+//   3. the annex hash (32 bytes) is appended iff the annex is present.
+
+epochHt : [8] -> [64]
+epochHt ht = ((zext ht) : [64]) << 8
+
+spendType : [32] -> [1] -> [64]
+spendType sv annex =
+  if sv == 0 then (zext annex) : [64]
+  else if sv == 1 then 0x0000000000000102 || ((zext annex) : [64])
+  else 0x00000000deadbeef
+
+annexSlice : [1] -> [64] -> [64]
+annexSlice present h0 =
+  if present == 0 then 0
+  else 0x0000000000002001 || (((zext (drop h0 : [32])) : [64]) << 16)
