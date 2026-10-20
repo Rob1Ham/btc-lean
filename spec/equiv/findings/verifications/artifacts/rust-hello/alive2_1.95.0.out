@@ -1,0 +1,20 @@
+
+----------------------------------------
+define i32 @add_one(i32 %x) {
+start:
+  %_0.i = add i32 %x, 1
+  ret i32 %_0.i
+}
+=>
+define i32 @add_one(i32 %x) nofree willreturn memory(none) {
+start:
+  %_0.i = add i32 %x, 1
+  ret i32 %_0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

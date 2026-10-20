@@ -1,0 +1,105 @@
+# Pinned versions — spec/equiv
+# Every result is relative to these pins. Re-pinning creates a new result.
+# Filled/verified at E0 by the TOOLS and CORE-IR/RUST-IR roles.
+
+[core]
+commit = cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+version = v32.99
+source = bitcoin/bitcoin
+build = single-TU clang++-20 -std=c++20 -O0 -g0 -emit-llvm -c -I src -I build-ir/src -I src/secp256k1/include -I src/univalue/include src/script/interpreter.cpp (O1 lane identical with -O1); fresh-clone reproducible; exact commands in findings/core/commands.md
+closure_build = 15-TU script-layer closure (real Core source, no test stubs) built by ir/build_core.sh and inventoried in ir/manifest.json; per-artifact hashes and integrity under [ir]
+patches = none for the proof lane; P-CORE-01/02/03 are PROPOSED only (no differential evidence) and must not be cited by a green cell
+
+[core.ir]
+producer = Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+lane = unpatched
+note = bitcode hashes of the single-TU build; text IR is regenerable from the build command. This is the bounded-leaf lane, not the canonical 15-TU closure in [ir]; the two artifact scopes are not substitutes. Earlier clang 18.1.3 artifacts are retired and non-proof (findings/core/NONPROOF-clang18.txt).
+O0_bc_sha256 = f5718af79c56ccfd5a5437a313d957573cb87c0de0cdf5641013991268801b2c
+O1_bc_sha256 = 01003ec095441bad8ada96ed1effa860f84bda23802841c7d7eb15b2e554537f
+O0_ftrapv_bc_sha256 = 714ad532b43be61c0f4fdc8f0ef9e45d36cae0b538e9f67cd8665511a6b5c576
+root_api = CastToBool, operator|(script_verify_flags), EvalScript (7-arg), CScriptNum::getint, VerifyScript
+leaf_proofs = CastToBool (Alive2, SMT) and operator| (SAW at roots.bc) only; no engine proof
+
+[core.ir.proposed]
+status = PROPOSED; no differential evidence; do not cite in a green cell
+macros = BTC_EQUIV_NO_SCRIPTNUM_THROW BTC_EQUIV_HOIST_STATICS BTC_EQUIV_DEVIRT
+patches = P-CORE-01 P-CORE-02 P-CORE-03
+O0_bc_sha256 = 5993460463314028bf1225784bbbcaa28dab7ab6fec979a17907a369cba302c7
+O1_bc_sha256 = deebc447a4c2665efb6f83065420a099abdbaea1577d1c14b7822bfe003bfe6f
+hoist_only_O0_bc_sha256 = 984177bd7a04ca402e0e3b6dbb60626b2be8c22abf2e5e3d2176678558b71819
+erased_simplifycfg_O0_bc_sha256 = 3bfeecfb06cbecf41aa9edbf6cfe3c2c448f8e8df58d877e7936e4f965a33003
+internalized_roots_bc_sha256 = 2b9f683c4fdd3550e4eab43083a4c528ce785d37956f0f24b75311ec756f04a8
+note = erased is a derived transform (exception edges -> unreachable) and is domain-restricting (F-TOOL-006); the patched hash is reproducibility only, not equivalence.
+
+[rbitcoin]
+commit = ae47aa98174e04d0d8c493f13041daf65e4ac1d3
+version = ae47aa9 (untagged; the pin is the commit)
+source = reardencode/rbitcoin
+toolchain = rustc 1.95.0 (59807616e 2026-04-14), LLVM 22.1.2
+toolchain_note = matches rbitcoin/rust-toolchain.toml. SAW 1.6 ingests rustc 1.95 (LLVM 22.1.2) bitcode. Alive2 v20.0 does NOT ingest the real rbitcoin 1.95 IR: textual IR carries dead_on_return and a minimal -O2 probe fails on unsupported metadata kind 8 (F-TOOL-001). The E0 add_one leaf passes both tools but has neither construct, so it does not generalize. R/Alive2 cells at the pin are recorded inapplicable; the non-pin rustc 1.88.0/LLVM-20 lane is advisory only and is not an R green cell. rustc 1.99 (LLVM 23.1.1, host default) is NOT usable: SAW fails in the bitstream parser. See findings/verifications/artifacts/rust-hello/ and findings/tools/probes/alive2-rust195/.
+crypto = rust-bitcoin 0.32.102; secp256k1 0.28.2 / 0.29.1 (libsecp256k1 C)
+build = clean worktree at the pin, no source patch. Official R IR lane: rustc 1.95.0/LLVM 22.1.2, cargo rustc --release --ignore-rust-version -p rbitcoin-consensus --lib -- --emit=llvm-ir,llvm-bc -C lto=no -C panic=abort; artifact hashes in ir/manifest.json. Behavioral/ABI lane: shims/rust/build.sh, rustc 1.95.0, public verify API; E0 green (results/e0/). The rustc 1.88.0/LLVM-20 derivative is an advisory non-pin Alive2 lane only, not the official artifact.
+abi_shim = shims/rust/entry.rs
+abi_shim_source_sha256 = 1fd706b8b27486e2d1897dd65792acc0c6887b2bcc3723468d3b07af5daa8837
+abi_shim_binary = /tmp/opencode/shim-build/libequiv_rust.so (built by shims/rust/build.sh, rustc 1.95.0)
+abi_shim_sha256 = 73e3d2d96de864e11e7cfb7cc5cc9fbba5d0dad1dc5de08b4cad6114ad1dffde
+abi_shim_error_map = NARROW: "script false" -> EVAL_FALSE(2); "unknown opcode 0x6a" -> OP_RETURN(3); other "unknown opcode" -> BAD_OPCODE(16); every other token stays UNKNOWN(1). E3 error-enum equality is blocked on R (R-GAP-01).
+abi_shim_domain = one input, input_index 0, flags 0, amount >= 0, tx decodable; anything else returns BAD_INPUT(2) with UNKNOWN. Multi-input and policy flags are not supported by the public all-inputs entry.
+ir_toolchain = rustc 1.88.0 (6b00bc388), LLVM 20.1.5 -- NON-PIN front-end, required because Alive2 v20 rejects LLVM 22/23 IR (F-TOOL-001). Source is at the pin; the compiler is a proof-lane concession, not the repo pin.
+clean_ir_ll_sha256 = 0e80eaff568b0e58e7a93b34ef2ec36c9e3745f8005b073a2924243ee11699ea
+clean_ir_bc_sha256 = a568065fe89349d5c263c551a996c7fc0b1c71321ffafe962c7014376939cfaa
+vi_closure_bc_sha256 = 265ea2d9cea644d76f082a437b2aa78c3506a22917d2191edc99aab2fa6f8160
+eval_closure_bc_sha256 = 720c298f82cae18e55276d001f27c3e3d6c90e78630720192ac14355f624eefa
+scriptnum_leaf_bc_sha256 = b6298690c605b7491b331e56ef54cf9b5afd087378cb3c8da155dd912f7ca9a1
+note = the FFI-patched artifacts (equiv-ffi feature, rbtc_rust_verify) are PROPOSAL ONLY and are not pinned here. No official R green cell may cite them.
+
+[lean]
+repo = btc-lean-public
+lake = 5.0.0-src+5045d00 (Lean 4.34.1)
+model_rev = 4d62a97e551082a69b13f495365bff0a903b0c99
+
+[contract]
+hash = f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6
+recipe = { cat contract/ABI.md; cat contract/tape.md; cat contract/error_kind.h; cat contract/corpus_schema.md; cat contract/error_enum.md; } | sha256sum
+note = Contract v3; error_enum.md is normative (ABI §8) and is now in the hash recipe (v2 c2fcc67a... omitted it; evaluator B-06). Changes invalidate cell records; recompute after any contract edit. See contract/CHANGELOG.md.
+
+[llvm]
+clang = 20.1.2 (Ubuntu 1:20.1.2-0ubuntu1~24.04.3; /usr/bin/clang-20, /usr/bin/clang++-20)
+llvm_ir_version = 20.1.2 (LLVM 20 tools under /usr/lib/llvm-20/bin)
+flags = -O0 primary, -O1 robustness
+triple = x86_64-pc-linux-gnu (clang) / x86_64-unknown-linux-gnu (rustc); identical datalayout e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128
+
+[ir]
+manifest = ir/manifest.json
+manifest_sha256 = bef064dbca8c9884906ad8eec8922ca8ae369fb0479db7c0659c30ca7ad8808e
+note = regenerable 15-TU Core script-layer closure (real Core source, no test stubs), fresh generated twin, clean rbitcoin clone; no equivalence claim. The manifest records per-artifact bitcode hashes and verifies them (all_recorded_hashes_match = true). It is the canonical C/L/R IR inventory; the older [core.ir] single-TU hashes remain the bounded-leaf lane and are not replaced.
+core_interpreter_O0_bc_sha256 = 204cf6711ca56738eccd9d8034fe40e39b01e6f070e286f0882d3fd5956c0975
+core_interpreter_O1_bc_sha256 = 586da352f64b93967d7566e54a2dcb78466b660990ed8b56954afe0a13702b90
+twin_O0_bc_sha256 = 81af359c2e3d045ab775875d32fcca577a2bb9585cf72d97c2f412c5c33f07d0
+twin_O1_bc_sha256 = 654e1180798bb59f4a3b4f18f2eee90bd860b1af6ac2164be64268eb5a866416
+rust_consensus_O0_bc_sha256 = e54b5c1976c20d442c52d2793bd80c37b3d845bc1c9058dfbc9bb2f70eb84df7
+rust_consensus_O0_v20_bc_sha256 = e39c1d29d8f0ef09d9f94cff67dd4bfd59bd7f4b04520e7b98e6a8f98524ebb1
+rust_verify_input_O0_bc_sha256 = c329983c36b60f4b6c565a92852217470849054df03aa57b9f92183152676b0f
+rust_is_op_success_O0_bc_sha256 = 84205f25deea1751f1320f1a16c1bda9f39211ffb1db962ebccc4232bbc5eec7
+core_build_config_header_sha256 = 1cb86a3ec3b4462624f250683e126804a13f1f29b705256b504658e0b8099dd1
+core_compile_commands_sha256 = 2b810ab19c67b02ea63ffe729d1f78a4a3e614e8f7f080adfd9017abc5208f4e
+twin_generated_sha256 = 39ab7c66ea112ea0108e6f2b93c6bbb8ad0b8261f3230310c989cb8d0af2478f
+twin_generator_sha256 = b3f2aeb9048e0ed1e144fd90f5f4e4e258ae5004e048d13fc5116895ae30a7ec
+twin_ops_ir_sha256 = 6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5
+r_cargo_lock_sha256 = d0f177616e0c48925e24b1a37bfb7faa2059768cb7c7d1c51ed71d03700d5026
+r_toolchain_toml_sha256 = 12dc5d64dbd96c1b07be2943241d52d9f6127a79ba47a820455ba7b873fc896a
+r_equiv_entry_present = false
+r_patches = none (equiv-ffi feature NOT enabled)
+ir_report = findings/ir/report.md
+e5_residual = findings/e5/E5-RESIDUAL.md
+e5_status = NO whole-function proof; SAW stops at GetScriptOp, heap, the EvalScript loop, and exception edges. The one green empty-script run is concolic/non-pin and is not a green ledger row.
+
+[tools]
+alive2 = v20.0 (c0f5434f402ad91714ee0952f686cd0f524920ad); built Release against LLVM 20.1.2 + Z3 4.8.12; /opt/equiv-tools/alive-tv-v20.0
+saw = 1.6 (68eed5f release-1.6; saw-1.6-ubuntu-24.04-X64-with-solvers.tar.gz sha256 0b25c8b32db8b4a7ec32d6700024af60bb2a0398ee350b630dd84ff377c938f7); /opt/equiv-tools/saw-1.6
+z3 = 4.8.12 (system, used to build Alive2); SAW bundle also ships z3 4.8.14
+cvc5 = 1.3.1 (SAW 1.6 bundle; /opt/equiv-tools/saw-1.6/bin/cvc5)
+kani = not installed (optional; Alive2 + SAW are the dual-tool requirement)
+miri = not installed (optional; not used for any green cell)
+python = 3.12.3
+cmake = 3.28.3

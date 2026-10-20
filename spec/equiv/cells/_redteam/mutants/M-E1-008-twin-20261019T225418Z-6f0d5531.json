@@ -1,0 +1,36 @@
+{
+  "applied_at_utc": "2026-10-19T22:54:18+00:00",
+  "catalogue_version": "0.1-planned",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": null,
+  "description": "OP_2DROP arity guard dropped (accepts depth < 2)",
+  "diff": "--- a/spec/equiv/twin/ops_ir.py\n+++ b/spec/equiv/twin/ops_ir.py\n@@ -183,9 +183,7 @@\n         \"lean\": \"Defs.lean:913-915\",\n         \"body\": [\n             \"(void)ctx; (void)d;\",\n-            \"if (st.stack.n < 2) return TWIN_INVALID_STACK_OPERATION;\",\n-            \"st.stack.n -= 2;\",\n-            \"return TWIN_OK;\",\n+            \"return TWIN_OK; // M-E1-008 mutant: OP_2DROP arity guard dropped\",\n         ],\n     },\n     {\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/stack-ops/C-L-arity"
+  ],
+  "family": "e1-stack",
+  "find": "\"body\": [\n            \"(void)ctx; (void)d;\",\n            \"if (st.stack.n < 2) return TWIN_INVALID_STACK_OPERATION;\",\n            \"st.stack.n -= 2;\",\n            \"return TWIN_OK;\",\n        ],",
+  "git_head": "4d62a97e551082a69b13f495365bff0a903b0c99",
+  "log_hashes": [],
+  "mutant_id": "M-E1-008",
+  "observed": null,
+  "operator": null,
+  "outcome": "pending",
+  "pins_sha256": "46b1f316ed56d8e33ff539b2bb53c6e7ea1ff8cd464795314223eca0dad47d5c",
+  "replace": "\"body\": [\n            \"(void)ctx; (void)d;\",\n            \"return TWIN_OK; // M-E1-008 mutant: OP_2DROP arity guard dropped\",\n        ],",
+  "reverted_at_utc": null,
+  "schema": "redteam-mutant-v1",
+  "status": "applied",
+  "target": {
+    "path": "/home/ubuntu/btc-lean-public/spec/equiv/twin/ops_ir.py",
+    "path_relative_to_repo": "spec/equiv/twin/ops_ir.py",
+    "sha256_after": "ce4a642b77cd00abe0dad08268aa3f2eb151417d1134f39175b969ae6cd2c8cb",
+    "sha256_before": "6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5"
+  },
+  "target_kind": "twin",
+  "witness": null
+}

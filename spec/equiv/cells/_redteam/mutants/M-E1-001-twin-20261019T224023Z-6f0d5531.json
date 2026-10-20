@@ -1,0 +1,36 @@
+{
+  "applied_at_utc": "2026-10-19T22:40:23+00:00",
+  "catalogue_version": "0.1-planned",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": null,
+  "description": "OP_SWAP becomes a no-op (top two not exchanged)",
+  "diff": "--- a/spec/equiv/twin/ops_ir.py\n+++ b/spec/equiv/twin/ops_ir.py\n@@ -415,15 +415,7 @@\n         \"body\": [\n             \"(void)ctx; (void)d;\",\n             \"if (st.stack.n < 2) return TWIN_INVALID_STACK_OPERATION;\",\n-            \"uint32_t a = st.stack.n - 1, b = st.stack.n - 2;\",\n-            \"uint8_t tmp[MAX_SCRIPT_ELEMENT_SIZE];\",\n-            \"uint32_t tl = st.stack.len[a];\",\n-            \"std::memcpy(tmp, st.stack.e[a], tl);\",\n-            \"std::memcpy(st.stack.e[a], st.stack.e[b], st.stack.len[b]);\",\n-            \"st.stack.len[a] = st.stack.len[b];\",\n-            \"std::memcpy(st.stack.e[b], tmp, tl);\",\n-            \"st.stack.len[b] = tl;\",\n-            \"return TWIN_OK;\",\n+            \"return TWIN_OK; // M-E1-001 mutant: OP_SWAP no-op\",\n         ],\n     },\n     {\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/e1-stack/swap-order"
+  ],
+  "family": "e1-stack",
+  "find": "\"if (st.stack.n < 2) return TWIN_INVALID_STACK_OPERATION;\",\n            \"uint32_t a = st.stack.n - 1, b = st.stack.n - 2;\",\n            \"uint8_t tmp[MAX_SCRIPT_ELEMENT_SIZE];\",\n            \"uint32_t tl = st.stack.len[a];\",\n            \"std::memcpy(tmp, st.stack.e[a], tl);\",\n            \"std::memcpy(st.stack.e[a], st.stack.e[b], st.stack.len[b]);\",\n            \"st.stack.len[a] = st.stack.len[b];\",\n            \"std::memcpy(st.stack.e[b], tmp, tl);\",\n            \"st.stack.len[b] = tl;\",\n            \"return TWIN_OK;\",",
+  "git_head": "4d62a97e551082a69b13f495365bff0a903b0c99",
+  "log_hashes": [],
+  "mutant_id": "M-E1-001",
+  "observed": null,
+  "operator": null,
+  "outcome": "pending",
+  "pins_sha256": "055e7c5867c8e08d572fadb3c31d980fe42e19356d86db79fe31392eb093e535",
+  "replace": "\"if (st.stack.n < 2) return TWIN_INVALID_STACK_OPERATION;\",\n            \"return TWIN_OK; // M-E1-001 mutant: OP_SWAP no-op\",",
+  "reverted_at_utc": null,
+  "schema": "redteam-mutant-v1",
+  "status": "applied",
+  "target": {
+    "path": "/home/ubuntu/btc-lean-public/spec/equiv/twin/ops_ir.py",
+    "path_relative_to_repo": "spec/equiv/twin/ops_ir.py",
+    "sha256_after": "e83ec0a28c727e8b5fa2fc12a2ed877506734c2125cef6cc67d92e4db1e2b6f0",
+    "sha256_before": "6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5"
+  },
+  "target_kind": "twin",
+  "witness": null
+}

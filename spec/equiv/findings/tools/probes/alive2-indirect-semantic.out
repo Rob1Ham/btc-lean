@@ -1,0 +1,59 @@
+
+----------------------------------------
+@fp = global 8 bytes, align 8
+
+define i32 @f(i32 %x) {
+#0:
+  %p = load ptr, ptr @fp, align 8
+  %r = call i32 %p(i32 %x)
+  ret i32 %r
+}
+=>
+@fp = global 8 bytes, align 8
+
+define i32 @f(i32 %x) {
+#0:
+  %r = add i32 %x, 1
+  ret i32 %r
+}
+Transformation doesn't verify!
+
+ERROR: Source and target don't have the same return domain
+
+Example:
+i32 %x = poison
+
+Source:
+ptr %p = pointer(non-local, block_id=1, offset=0) / Address=#x08
+i32 %r = function did not return!
+
+SOURCE MEMORY STATE
+===================
+NON-LOCAL BLOCKS:
+Block 0 >	size: 0	align: 8	alloc type: 0	alive: false	address: 0
+Block 1 >	size: 8	align: 8	alloc type: 0	alive: true	address: 8
+Contents:
+pointer(non-local, block_id=1, offset=0), byte offset=0
+
+Block 2 >	size: 0	align: 1	alloc type: 0	alive: true	address: 4
+Contents:
+*: pointer(non-local, block_id=1, offset=0), byte offset=0
+
+Block 3 >	size: 0	align: 1	alloc type: 0	alive: true	address: 1
+Contents:
+*: pointer(non-local, block_id=1, offset=0), byte offset=0
+
+Block 4 >	size: 0	align: 1	alloc type: 0	alive: true	address: 8
+Contents:
+*: pointer(non-local, block_id=1, offset=0), byte offset=0
+
+
+Target:
+i32 %r = poison
+
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

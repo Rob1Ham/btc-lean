@@ -1,0 +1,20 @@
+module CellWithin where
+
+// Independent specification of OP_WITHIN over one-byte sign-magnitude
+// CScriptNum operands, and of the packed observable:
+//   result(2) | error(6) | depth(2) | len(2) at bit 11 | val(8) at bit 13.
+// interpreter.cpp:1012-1026 says (bn2 <= bn1 && bn1 < bn3) at line 1020.
+// vchTrue = {1} -> 0x2901; vchFalse = {} -> EVAL_FALSE(2), depth 1 -> 0x0108.
+//
+// decode1 is the one-byte CScriptNum set_vch slice (script.h:376-391):
+// sign bit 0x80, magnitude bits 0x7f; 0x80 (negative zero) decodes to 0.
+decode1 : [8] -> [64]
+decode1 b = if (b && 0x80) != 0
+             then - (zext (b && 0x7f))
+             else    zext (b && 0x7f)
+
+within : [8] -> [8] -> [8] -> Bit
+within a b c = (decode1 b <=$ decode1 a) && (decode1 a <$ decode1 c)
+
+packed : [8] -> [8] -> [8] -> [64]
+packed a b c = if within a b c then 0x0000000000002901 else 0x0000000000000108

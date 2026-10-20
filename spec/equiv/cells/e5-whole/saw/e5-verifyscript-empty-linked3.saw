@@ -1,0 +1,34 @@
+// E5-WHOLE-FUNCTION: scoped attempt at llvm_verify on Core VerifyScript.
+//
+// Target: the single-TU clang-20.1.2 -O0 bitcode of src/script/interpreter.cpp
+// (SHA256 b8f17c1f... is the .ll; .bc hash recorded in the E5 residual).
+//
+// This is the most concrete, honest attempt: valid 40-byte empty CScript
+// objects (prevector<36, unsigned char, unsigned int>: 36-byte inline storage
+// plus a 4-byte size field at offset 36, here size = 0), a null witness
+// (VerifyScript substitutes the static emptyWitness), a valid 8-byte checker
+// allocation, and a valid 8-byte ScriptError_t cell. The expected result is
+// `false` with SCRIPT_ERR_EVAL_FALSE because an empty scriptSig and an empty
+// scriptPubKey leave the stack empty.
+//
+// No llvm_unsafe_assume_spec is used anywhere in this file.
+m <- llvm_load_module "/tmp/opencode/equiv-work/ir/e5-interp-script-roots3.bc";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ zero : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     llvm_return (llvm_term {{ 0 : [1] }});
+   }) z3;
+
+print "E5_VERIFYSCRIPT_EMPTY_LINKED3_DONE";

@@ -1,0 +1,20 @@
+; ModuleID = 'rust_hello.6406597b35c8543b-cgu.0'
+source_filename = "rust_hello.6406597b35c8543b-cgu.0"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: nounwind nonlazybind
+define i32 @add_one(i32 %x) unnamed_addr #0 {
+start:
+  %_0.i = add i32 %x, 1
+  ret i32 %_0.i
+}
+
+attributes #0 = { nounwind nonlazybind "probe-stack"="inline-asm" "target-cpu"="x86-64" }
+
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
+
+!0 = !{i32 8, !"PIC Level", i32 2}
+!1 = !{i32 2, !"RtLibUseGOT", i32 1}
+!2 = !{!"rustc version 1.88.0 (6b00bc388 2025-06-23)"}

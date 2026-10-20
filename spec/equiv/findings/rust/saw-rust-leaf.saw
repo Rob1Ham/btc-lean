@@ -1,0 +1,29 @@
+// SAW 1.6 smoke spec for the clean rbitcoin leaf
+//   rbitcoin_primitives::scriptnum::scriptnum_decode_width
+//
+// Run from /tmp/opencode/equiv-work after building the clean leaf:
+//   PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw saw-rust-leaf.saw
+//
+// This is a SAFETY-ONLY smoke, not an equivalence cell: there is no
+// postcondition on the sret buffer. It fixes the input length to 5 and leaves
+// the five bytes, max_len, and require_minimal symbolic.
+//
+// Note: `ret` is allocated as [2 x i64] (16 bytes). SAW 1.6 rejected the
+// same-size [16 x i8] allocation with "Memory store failed" at the i64 store
+// to the sret buffer; this is a tool quirk, recorded in tool-probes.md.
+
+m <- llvm_load_module "out/bc/scriptnum_decode_width_clean.bc";
+let f = "_ZN19rbitcoin_primitives9scriptnum22scriptnum_decode_width17h745f9dd8aee20e20E";
+
+thm <- llvm_verify m f [] false
+  (do {
+     ret <- llvm_alloc (llvm_array 2 (llvm_int 64));
+     v <- llvm_alloc (llvm_array 5 (llvm_int 8));
+     vv <- llvm_fresh_var "v" (llvm_array 5 (llvm_int 8));
+     llvm_points_to v (llvm_term vv);
+     maxlen <- llvm_fresh_var "max_len" (llvm_int 64);
+     req <- llvm_fresh_var "require_minimal" (llvm_int 1);
+     llvm_execute_func [ret, v, llvm_term {{ 5 : [64] }}, llvm_term maxlen, llvm_term req];
+   }) abc;
+
+print "SAW_RUST_LEAF_OK";

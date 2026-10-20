@@ -1,0 +1,20 @@
+Loading file "exceptions.saw"
+Verifying f...
+Simulating f...
+Symbolic simulation completed with side conditions.
+Checking proof obligations f...
+Subgoal failed: f exceptions.cpp:3:12: error: in f
+Failed to load function handle: __cxa_allocate_exception
+Details:
+  No implementation or override found for pointer
+Goal size 35. Provers used: abc_verilog
+----------Counterexample----------
+  x: 1
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   exceptions.saw:7:33-7:36 in (callback)
+   (builtin) in llvm_verify
+   exceptions.saw:7:1-7:36 (at top level)
+Proof failed.
+

@@ -1,0 +1,16 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_within.bc";
+mL <- llvm_load_module "l_cell_within.bc";
+
+// Both legs are verified against the same independent Cryptol predicate for
+// every one-byte a, b, c (2^24 operand triples).
+let spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c];
+  llvm_return (llvm_term {{ packed a b c }});
+};
+llvm_verify mC "cell_within" [] false spec abc;
+llvm_verify mL "cell_within" [] false spec abc;
+print "CELL_E2_WITHIN_SAW_GREEN";

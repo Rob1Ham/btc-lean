@@ -1,0 +1,27 @@
+// SAW 1.6 probe for the PROPOSAL-ONLY `equiv-ffi` entry `rbtc_rust_verify`.
+//
+// This module is built from the unregistered patch
+// findings/rust/rbitcoin-ffi.patch. It is retained to document the exact
+// SAW blocker. It is NOT a green cell and MUST NOT be cited as one.
+//
+// Run from /tmp/opencode/equiv-work after:
+//   opt -passes='internalize,globaldce' \
+//       -internalize-public-api-list=rbtc_rust_verify \
+//       out/bc/rbitcoin_final.bc -o out/bc/rbitcoin_entry.bc
+//   PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw saw-rust-entry.saw
+//
+// Expected: symbolic execution stops at `llvm.usub.sat.i64` inside
+// bitcoin's Transaction decoder; SAW 1.6 has no implementation/override.
+
+m <- llvm_load_module "out/bc/rbitcoin_entry.bc";
+thm <- llvm_verify m "rbtc_rust_verify" [] false
+  (do {
+     tx <- llvm_alloc (llvm_array 61 (llvm_int 8));
+     llvm_points_to tx (llvm_term {{ [0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00] : [61][8] }});
+     spk <- llvm_alloc (llvm_array 1 (llvm_int 8));
+     llvm_points_to spk (llvm_term {{ [0x51] : [1][8] }});
+     llvm_execute_func [tx, llvm_term {{ 61 : [64] }}, spk, llvm_term {{ 1 : [64] }}, llvm_term {{ 0 : [64] }}, llvm_term {{ 0 : [32] }}, llvm_term {{ 0 : [64] }}];
+     llvm_return (llvm_term {{ 1 : [32] }});
+   }) abc;
+
+print "SAW_RUST_ENTRY_OK";

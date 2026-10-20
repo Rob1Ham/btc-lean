@@ -1,0 +1,51 @@
+ERROR: Unsupported instruction:   invoke void @_ZNSt13runtime_errorC1EPKc(ptr noundef nonnull align 8 dereferenc
+ERROR: Could not translate 'ex_edges' to Alive IR
+
+----------------------------------------
+define i32 @indirect(ptr noundef %#0, i32 noundef %#1) {
+#2:
+  %#3 = alloca i64 8, align 8
+  %#4 = alloca i64 4, align 4
+  store ptr noundef %#0, ptr %#3, align 8
+  store i32 noundef %#1, ptr %#4, align 4
+  %#5 = load ptr, ptr %#3, align 8
+  %#6 = load i32, ptr %#4, align 4
+  %#7 = call i32 %#5(noundef i32 %#6) noundef
+  ret i32 %#7
+}
+=>
+define i32 @indirect(ptr noundef %#0, i32 noundef %#1) {
+#2:
+  %#3 = tail call i32 noundef %#0(noundef i32 noundef %#1) noundef
+  ret i32 %#3
+}
+Transformation seems to be correct!
+
+
+----------------------------------------
+define i64 @ptr_roundtrip(ptr noundef %#0) {
+#1:
+  %#2 = alloca i64 8, align 8
+  %#3 = alloca i64 8, align 8
+  store ptr noundef %#0, ptr %#2, align 8
+  %#4 = load ptr, ptr %#2, align 8
+  %#5 = ptrtoint ptr %#4 to i64
+  store i64 %#5, ptr %#3, align 8
+  %#6 = load i64, ptr %#3, align 8
+  %#7 = int2ptr i64 %#6 to ptr
+  %#8 = ptrtoint ptr %#7 to i64
+  ret i64 %#8
+}
+=>
+define i64 @ptr_roundtrip(ptr noundef %#0) {
+#1:
+  %#2 = ptrtoint ptr noundef %#0 to i64
+  ret i64 %#2
+}
+Transformation seems to be correct!
+
+Summary:
+  2 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  1 Alive2 errors

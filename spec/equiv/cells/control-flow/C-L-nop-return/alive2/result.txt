@@ -1,0 +1,84 @@
+# cell: control/C-L-nop-return
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 432a29942822d16d93f2f774d68b864bce3283542997e8b89c98105f228e008f
+# command: alive-tv build/c_cell_op_return.ll build/l_cell_op_return.ll
+
+----------------------------------------
+define i64 @cell_op_return() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 12
+}
+=>
+define i64 @cell_op_return() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 12
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_plain_nop.ll build/l_cell_plain_nop.ll
+
+----------------------------------------
+define i64 @cell_plain_nop() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 10497
+}
+=>
+define i64 @cell_plain_nop() nofree willreturn memory(none) {
+entry:
+  %#range_0_10497 = !range i64 10497, i64 1, i64 2199023255552
+  ret i64 %#range_0_10497
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_nop1.ll build/l_cell_nop1.ll
+
+----------------------------------------
+define i64 @cell_nop1() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 10497
+}
+=>
+define i64 @cell_nop1() nofree willreturn memory(none) {
+entry:
+  %#range_0_10497 = !range i64 10497, i64 1, i64 2199023255552
+  ret i64 %#range_0_10497
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_nop4_to_10.ll build/l_cell_nop4_to_10.ll
+
+----------------------------------------
+define i64 @cell_nop4_to_10() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 10497
+}
+=>
+define i64 @cell_nop4_to_10() nofree willreturn memory(none) {
+entry:
+  %#range_0_10497 = !range i64 10497, i64 1, i64 2199023255552
+  ret i64 %#range_0_10497
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

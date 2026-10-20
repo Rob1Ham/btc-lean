@@ -1,0 +1,11 @@
+m <- llvm_load_module "ex_edges.bc";
+let spec_ex = do {
+  x <- llvm_fresh_var "x" (llvm_int 32);
+  // [32] comparisons are unsigned: this excludes negative i32 values
+  // (the throw path) and INT_MAX (the nsw overflow in x + 1).
+  llvm_precond {{ x < 0x7fffffff }};
+  llvm_execute_func [llvm_term x];
+  llvm_return (llvm_term {{ x + 1 : [32] }});
+};
+ex <- llvm_verify m "ex_edges" [] false spec_ex abc;
+print "SAW_EXC_NONNEG_OK";

@@ -1,0 +1,36 @@
+
+----------------------------------------
+define i32 @store_load(ptr noundef %#0, i32 noundef %#1) {
+#2:
+  %#3 = alloca i64 8, align 8
+  %#4 = alloca i64 4, align 4
+  store ptr noundef %#0, ptr %#3, align 8
+  store i32 noundef %#1, ptr %#4, align 4
+  %#5 = load i32, ptr %#4, align 4
+  %#6 = load ptr, ptr %#3, align 8
+  store i32 %#5, ptr %#6, align 4
+  %#7 = load ptr, ptr %#3, align 8
+  %#8 = load i32, ptr %#7, align 4
+  ret i32 %#8
+}
+=>
+define i32 @store_load(ptr noundef %#0, i32 noundef %#1) {
+#2:
+  %#3 = alloca i64 8, align 8
+  %#4 = alloca i64 4, align 4
+  store ptr noundef %#0, ptr %#3, align 8
+  store i32 noundef %#1, ptr %#4, align 4
+  %#5 = load i32, ptr %#4, align 4
+  %#6 = load ptr, ptr %#3, align 8
+  store i32 %#5, ptr %#6, align 4
+  %#7 = load ptr, ptr %#3, align 8
+  %#8 = load i32, ptr %#7, align 4
+  ret i32 %#8
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

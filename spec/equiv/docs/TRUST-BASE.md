@@ -1,0 +1,373 @@
+# TRUST-BASE — what the equivalence claim rests on
+
+**Snapshot:** `2026-10-19T23:10:00Z` (post-E6 integration) · **Owner:** orchestrator
+**Historical evaluator snapshot:** `docs/archive/TRUST-BASE-2026-10-19T223700Z.md`
+**Scope:** the *premises* a reader must accept to use any result in
+`spec/equiv/`. It is not a proof and not a substitute for the contract.
+
+---
+
+## 1. The claim, in its strongest honest form
+
+> For all inputs in the harness domain defined by `contract/tape.md`, **if**
+> the pinned front-ends, the LLVM IR semantics implemented by Alive2 v20.0 and
+> SAW/Crucible 1.6, the SMT solvers, the shims, the twin/translations, the
+> contract, and the same-crypto premise are sound, **then** the three engines
+> agree on verdict and error kind.
+
+This is a **conditional evidence statement**. It is not:
+
+- a Lean-kernel theorem (there is no Lean-native LLVM IR semantics in this
+  workstream);
+- a machine-code, linker, or OS result;
+- a claim about libsecp256k1 internals;
+- an all-rows-green result: only 4 of 183 SCR rows are both-tool green.
+
+The antecedent is exercised for bounded leaves, dispatch predicates,
+behavioral E0, and partial family cells. It is **not** exercised for the whole
+`EvalScript`/`VerifyScript` function (E5 residual).
+
+---
+
+## 2. Premise table
+
+| # | Premise | Status at snapshot | Where recorded | Residual risk |
+|---|---|---|---|---|
+| P1 | Core source is exactly `cce32b168…` | **verified**; worktree clean | `PINS.lock [core]`; `findings/core/core-ir-report.md` §1 | none observed |
+| P2 | Core IR is produced by pinned clang 20.1.2 at the stated flags | **verified by hash** for the unpatched closure | `PINS.lock [core.ir]`, `[ir]`; `ir/manifest.json` | bitcode is untracked; rebuild from pins |
+| P3 | rbitcoin source is exactly `ae47aa98…` for the official R build | **verified**; `equiv-work/rbitcoin-clean` is clean and is what `build.sh` uses | `PINS.lock [rbitcoin]`; `shims/rust/build.sh` | a second checkout at the same pin (`equiv-work/rbitcoin`) is dirty and must not be used for official artifacts |
+| P4 | R IR is produced by pinned rustc 1.95.0 | **behavioral lane yes; proof lane no**: the 1.95 shim is real and reproducible, but Alive2 rejects its IR; the ingestible proof lane is off-pin 1.88.0/LLVM 20.1.5 | `PINS.lock [rbitcoin] build`/`ir_toolchain`; §4.4 | no admissible R proof artifact (B-03) |
+| P5 | Lean `model_rev` is `4d62a97e…` | **verified** (equals repo HEAD) | `PINS.lock [lean]` | `spec/equiv/` is untracked at that HEAD |
+| P6 | Contract bytes are bound by one hash | **verified for v3**; recipe includes `error_enum.md`; recomputed exact match | `PINS.lock [contract]`; `contract/tape.md` §10; `contract/CHANGELOG.md` | v2 summaries remain historical; no silent re-pin |
+| P7 | ABI v2 is the 8-argument `equiv_entry` + 7-argument wrapper | **verified** across ABI, tape, shims README, 3 shims | §3.2 below | future drift; no gate check |
+| P8 | Error taxonomy is Core's 56 ordinals, dense `0..55` | **verified** header ↔ Markdown ↔ shim assert; E3 proves equality on a subset (ordinals 2, 13, 14, 18, 28) | `contract/error_kind.h`, `error_enum.md`; `findings/e3/report.md` | general twin/R mapping remains narrow/TODO |
+| P9 | Alive2 v20.0 semantics are sound for the cells used | **assumed** (tool premise) | `tools/capability-matrix.md` | tool bug; version drift |
+| P10 | SAW 1.6 / Crucible semantics are sound for the cells used | **assumed** (tool premise) | `tools/capability-matrix.md` | tool bug; override soundness |
+| P11 | Shims contain marshalling only, no engine logic | **reviewed for C; R reviewed; L reviewed transliterations where used; `shims/twin/entry.cpp` remains a stub** | `shims/`; §4.5 | P-CORE-02 hook seam not implemented |
+| P12 | Crypto is the same on all legs | **assumed; abstracted or concrete-witness only, not proved** | `README.md` §7; §5 below; `docs/DECISION-lax-ecdsa.md` | E3 checker equality is a bounded bonus lane |
+| P13 | The twin is a faithful lowering of the Lean model | **assumed; smoke + behavioral differential only** | `twin/generator.md`; §4.6 | no Lean↔twin proof; 336 rows outside the twin subset |
+| P14 | Corpus and selections are the pinned bytes | **verified hashes in the differential summary** | `differential/results/summary.json` | that summary is v2-historical; see §4.4 |
+| P15 | Results are reproducible from the tree | **partly**: `spec/equiv/` is untracked and bitcode is generated; all source/tool hashes and commands are recorded | §6; `REPRODUCE.md` | reviewer needs the live working tree, not a commit |
+| P16 | The recorded cell directories are valid and tool-green | **true at the raw-tool level for all 17 cell directories; only 4 SCR rows are ledger-green** | `cells/INDEX.md`; `results/matrix.md` | partial cells do not promote rows |
+| P17 | The C-vs-twin differential is behavioral only | **verified in its recorded run**; R absent; v2-era summary not relabelled | `differential/results/summary.json`; `CONTRACT-NOTE.md` | not IR evidence |
+| P18 | The 15-TU Core closure and twin/R IR artifacts are hash-pinned | **verified**; `all_recorded_hashes_match: true` | `PINS.lock [ir]`; `ir/manifest.json` (`bef064db…`) | generated artifacts; hash drift must fail the gate |
+| P19 | E5 is a scoped residual, not a whole-function proof | **declared**; no green ledger row | `findings/e5/E5-RESIDUAL.md`; `findings/e5/F-TOOL-001.md` | loop/`GetScriptOp`/heap/exception/`ptrtoint` premises |
+| P20 | Every non-green SCR row is filed | **verified**; 183/183 adjudicated, 0 planned | `spec/db/equiv-cells.yaml`; `findings/coverage/F-E6-GAPS.md` | filed does not mean proved |
+
+"Assumed" means the workstream does not establish it; it is a declared
+premise. "Verified" means this integration re-ran, re-hashed, or checked it at
+the snapshot.
+
+---
+
+## 3. Contract and ABI
+
+### 3.1 Contract hash
+
+Recorded in `PINS.lock`:
+
+```
+f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6
+```
+
+Recipe (`contract/tape.md` §10):
+
+```sh
+{ cat contract/ABI.md; cat contract/tape.md; \
+  cat contract/error_kind.h; cat contract/corpus_schema.md; \
+  cat contract/error_enum.md; } | sha256sum
+```
+
+The recipe was recomputed at this snapshot and matches exactly. v3 adds
+`error_enum.md` (ABI §8 makes it normative). v2 is
+`c2fcc67ad440605062e3619bcdc7310ef8670fc05c2acb118c0d7e4852ebe4ff`;
+the v2 E0/differential summaries are historical evidence of the run under v2,
+not relabelled. Live cell records cite v3. This closes audit **B-06**. See
+`contract/CHANGELOG.md`.
+
+### 3.2 ABI v2
+
+```c
+extern "C" int equiv_entry(
+    const uint8_t *tx_bytes, uint64_t tx_len,
+    const uint8_t *spk,      uint64_t spk_len,
+    int64_t amount, uint32_t input_index, uint64_t flags,
+    equiv_error_kind *error_kind);
+
+extern "C" int entry(/* same 7 inputs */);   // wrapper; discards kind
+```
+
+Verified consistent in `contract/ABI.md`, `contract/tape.md`,
+`shims/README.md`, `shims/core/entry.cpp`, `shims/twin/entry.cpp`, and
+`shims/rust/entry.rs`. The wrapper forwards to `equiv_entry` with a local kind
+and returns only the verdict. No shim reorders arguments. The older
+"optional out-param" phrasing is gone.
+
+### 3.3 Error taxonomy
+
+`contract/error_kind.h` is generated from Core's `ScriptError` at the pin.
+
+- 56 entries, values `0..55`, dense; no gaps.
+- Markdown table in `contract/error_enum.md` has the same 56 names/values.
+- Sentinel is `EQUIV_ERR_COUNT = 55`.
+- The older invented name `EQUIV_ERR_ERROR_COUNT` does **not** occur in the
+  header; it survives only in a historical disposition table and in
+  `findings/verifications/orchestrator-crosschecks.md:27` (audit C-01).
+- E3 proves equality for the modeled branches: `EVAL_FALSE=2`,
+  `CHECKMULTISIGVERIFY=13`, `CHECKSIGVERIFY=14`,
+  `INVALID_STACK_OPERATION=18`, `SIG_NULLDUMMY=28`. The general twin mapping
+  and the R error map remain narrow (`contract/error_enum.md` tail;
+  `PINS.lock [rbitcoin] abi_shim_error_map`; R-GAP-01..05).
+
+---
+
+## 4. Pins, compilers, and provenance
+
+### 4.1 Tool versions (verified against the installed binaries)
+
+| Tool | Pinned | Installed at snapshot | Evidence |
+|---|---|---|---|
+| clang / LLVM | 20.1.2 | `Ubuntu clang version 20.1.2`; `llvm-dis` 20.1.2 | `clang++-20 --version` |
+| Alive2 | v20.0, commit `c0f5434f…`, built with LLVM 20.1.2 + Z3 4.8.12 | binary reports LLVM 20.1.2 | `alive-tv --version` |
+| SAW | 1.6 (`68eed5f`) | `1.6 (68eed5f release-1.6)` | `saw --version` |
+| Z3 (system) | 4.8.12 | `Z3 version 4.8.12` | `z3 --version` |
+| Z3 (SAW bundle) | 4.8.14 | `Z3 version 4.8.14` | bundle `z3 --version` |
+| cvc5 | 1.3.1 | `cvc5 version 1.3.1` | `cvc5 --version` |
+| Python | 3.12.3 | `Python 3.12.3` | `python3 --version` |
+| cmake | 3.28.3 | `cmake version 3.28.3` | `cmake --version` |
+| Lake/Lean | `5.0.0-src+5045d00` / 4.34.1 | matches | `lake --version` |
+| rustc (pin) | 1.95.0 `59807616e`, LLVM 22.1.2 | present | `rustc --version` under 1.95.0 |
+| rustc (host) | — | 1.99.0 `b940084d7`, LLVM 23.1.1 | not usable for R proof/tooling |
+
+The SAW tarball checksum recorded in `PINS.lock` cannot be re-verified: the
+tarball is not on this host. The installed version string matches.
+
+### 4.2 Commit pins
+
+| Repo | Pin | Actual HEAD | Worktree |
+|---|---|---|---|
+| Bitcoin Core | `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66` | same | clean |
+| rbitcoin (`rbitcoin-clean`) | `ae47aa98174e04d0d8c493f13041daf65e4ac1d3` | same | **clean** (official lane) |
+| rbitcoin (`rbitcoin`, proposal checkout) | same | same | **dirty**: FFI proposal only; not official |
+| btc-lean-public | `model_rev = 4d62a97e…` | same | `spec/equiv/` untracked; `README.md` modified |
+
+`PINS.lock [rbitcoin] build` is filled and `make pins` exits 0. The official
+behavioral shim is built from the **clean** checkout at the pin. The dirty
+checkout is a separate proposal lane and is not authorized for official
+artifacts (`patches/README.md`; handoff
+`orchestrator-to-RUST-IR-003-no-unregistered-patch.md`).
+
+Datalayout for the clang and rustc targets is identical:
+`e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128`.
+
+### 4.3 R behavioral shim provenance
+
+`shims/rust/build.sh` refuses a dirty tree and a HEAD other than the pin. It:
+
+1. builds `rbitcoin-consensus` from `rbitcoin-clean` at `ae47aa98…` with
+   `RUSTUP_TOOLCHAIN=1.95.0`;
+2. links `shims/rust/entry.rs` against the public
+   `verify_tx_scripts_with_flags` API as a `cdylib`;
+3. checks that `equiv_entry` and `entry` are exported.
+
+The resulting `shims/rust/build/libequiv-rust.so`:
+
+- sha256 `73e3d2d96de864e11e7cfb7cc5cc9fbba5d0dad1dc5de08b4cad6114ad1dffde`;
+- `.comment`: `rustc version 1.95.0 (59807616e 2026-04-14)`,
+  `Linker: LLD 22.1.2`, `GCC: 13.3.0`;
+- the evaluator re-ran `build.sh` against the same clean tree and obtained a
+  **byte-identical** file.
+
+`shims/rust/entry.rs` source sha256 is `1fd706b8…` and is separately pinned as
+`abi_shim_source_sha256` in `PINS.lock` (audit M-15 resolved). The built `.so`
+hash is `abi_shim_sha256`.
+
+### 4.4 R proof lane is still off-pin or rejected
+
+- Pinned rustc 1.95 / LLVM 22.1.2 textual IR is rejected by Alive2 at
+  `dead_on_return` and unsupported metadata kind 8 (`F-TOOL-001`).
+- The clean lane that Alive2 ingests is rustc **1.88.0 / LLVM 20.1.5**, which
+  `PINS.lock [rbitcoin] ir_toolchain` labels **NON-PIN**.
+- SAW 1.6 can ingest 1.95 bitcode, but there is no SAW spec for the rbitcoin
+  engine path.
+- No R proof cell is executed. The E0 behavioral shim and the historical
+  differential record R as blocked/absent; that is not an R green cell.
+
+So the R *behavioral* leg is real; the R *proof* leg is not admissible (B-03).
+
+### 4.5 C shim provenance
+
+The `.so` used by E0 and the differential is **not** the proof build:
+
+- `/tmp/opencode/cbuild/libequiv-core.so`
+- `.comment`: `GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0`
+- contains test-only `FileCommit`/`TruncateFile` stubs
+- sha256 `5fef1df004adae637ffd7d3d7bf7dc96700c552dc2c22729d0de06d81457fbb5`
+
+The C shim source is line-reviewable: domain checks, tape decode/marshalling,
+one call into `VerifyScript`, result/error mapping. No engine decision logic
+was found. But the binary is a behavioral harness build, not clang-20 IR
+evidence. Proof cells use separately extracted bounded C slices, labelled in
+their `spec.md`.
+
+### 4.6 Twin and L provenance
+
+- `shims/twin/entry.cpp` is still a **stub** returning `3`/`UNKNOWN`. E0 does
+  not use it: `tools/tests/e0-triple.sh` loads `twin/build/libtwin.so` directly.
+- Current twin artifacts: `twin/build/twin.cpp 39ab7c66…`,
+  `twin.ir.json e5fbe727…`, `libtwin.so b9ed129b…`.
+- `twin/smoke.sh` reports **147 total cases, 0 failures**,
+  `RESULT[pinned-clang]: PASS`, rc 0; `gen.py --check` passes. This is a
+  generator/ABI smoke, not Lean↔twin refinement.
+- The C-vs-`L_twin` differential summary records **922 agree / 0 disagree /
+  336 blocked**. The 336 blocked rows are the twin's declared `result 3`
+  outside-subset boundary. The summary is v2-historical; `CONTRACT-NOTE.md`
+  preserves the distinction.
+- The Lean model lane (`tierC.l2r`, oracle pin `c50817fe`) is `1251/0/7` and
+  is labelled `lean-model-not-twin`; it is not L.
+- E1 stack cells use the generated twin handlers. E3 CHECKSIG/CMS use
+  **reviewed transliterations** of the Lean equations because the twin has no
+  real CHECKSIG/CHECKMULTISIG handler; this is stated in each `spec.md`.
+
+Behavioral agreement does not establish IR equivalence, and the twin subset is
+narrower than the full harness domain.
+
+### 4.7 IR artifact inventory
+
+`ir/manifest.json` (sha256 `bef064db…`) records:
+
+| Artifact | sha256 |
+|---|---|
+| Core `interpreter-O0` | `204cf671…` |
+| Core `interpreter-O1` | `586da352…` |
+| twin `twin-O0` | `81af359c…` |
+| twin `twin-O1` | `654e1180…` |
+| rbitcoin `consensus-O0` | `e54b5c19…` |
+
+The 15-TU Core closure, L twin, and R clone pass 19 smoke checks;
+`all_recorded_hashes_match: true`. The pinned rustc 1.95 IR is not
+Alive2-ingestible (`F-TOOL-001`); the 1.88/LLVM-20 lane is advisory and is not
+the official artifact.
+
+---
+
+## 5. Crypto seam
+
+The claim abstracts the signature checker:
+
+- **Alive2:** an unknown external is an uninterpreted function. Identical call
+  patterns can be proved equal; different implementations cannot.
+- **SAW:** E3 supplies one shared `btc_equiv_check_sig` stub, pinned to
+  verdict 0 and 1, into both legs; this proves the dispatch/error behavior
+  conditional on the checker, not ECDSA.
+- **E2 hash:** the HASH160 transform is an opaque external on both legs; one
+  concrete vector is checked, not the hash function.
+
+Therefore equivalence is conditional on the three legs using the *same*
+checker/hash semantics. No checker-equivalence or libsecp proof exists. This
+is a declared premise (`README.md` §7; `docs/DECISION-lax-ecdsa.md`), not a
+result.
+
+---
+
+## 6. Patch and transform trust
+
+| Item | Status | Trust consequence |
+|---|---|---|
+| `P-CORE-01` non-throwing ScriptNum | PROPOSED; prototype compiles; **no differential** | cannot be cited by a cell; empty-stack path is not equivalent |
+| `P-CORE-02` checker devirtualization | PROPOSED; 6 indirect sites → 0; **no linking shim yet** | any cell using `BTC_EQUIV_DEVIRT` is blocked |
+| `P-CORE-03` hoist statics | PROPOSED; `__cxa_guard` 15 → 6; **no differential** | static-init failure mode differs |
+| `P-CORE-04/05` | design only | no artifact |
+| Exception erasure (`erase_exceptions.py`) | derived textual transform; 683 invokes / 202 landing pads → 0 | domain-restricting: unwind paths become `unreachable`; old `catch (...)` behavior differs |
+| Internalize/globaldce to `roots.bc` | derived | 5-symbol API; required only to make SAW ingest |
+
+The Core report is explicit that the patched hash is **reproducibility**, not
+equivalence, and that Alive2's erased results are self-comparisons. **No
+patched or erased artifact is used by a green ledger row.** No
+consensus-changing patch exists.
+
+---
+
+## 7. Tool semantics actually measured
+
+From `tools/capability-matrix.md` and the raw logs in
+`findings/tools/probes/`:
+
+| Construct | Alive2 v20.0 | SAW 1.6 | Consequence |
+|---|---|---|---|
+| `invoke` / `landingpad` | cannot translate | simulates, but C++ runtime needs overrides | Core engine needs erasure or refactor |
+| indirect calls | fails in practice | needs allocation + override | P-CORE-02 required for C |
+| `ptrtoint` basic | proved `ptrtoint+0` | not probed | OK for some leaves |
+| `inttoptr` round-trip | reported incorrect (provenance) | not probed | avoid without argument |
+| unbounded loops | bounded unroll only | needs invariant | `EvalScript` loop blocks whole-function proof |
+| final memory | compared in v20 | not probed | dead stores matter |
+| unknown externals | uninterpreted | needs override | crypto/hash seam; E3 and E2 supply bounded overrides |
+| certificates | textual report only | JSON summary, no proof object | evidence is replay + hashes, not a certificate |
+
+One historical citation remains inaccurate: the matrix says `saw-loop.out`
+timed out at 180 s, but that log is 65 bytes with no timeout line (audit
+C-03). It is retained as a finding, not used as evidence.
+
+---
+
+## 8. What this trust base does **not** establish
+
+1. That all three engines agree on the whole harness domain — only 4 SCR rows
+   are both-tool green; 20 are seams and 159 are gaps.
+2. That `EvalScript`/`VerifyScript` are proved — E5 is a scoped residual; the
+   one green empty-script SAW run is concolic/non-pin.
+3. That the PROPOSED Core patches are behavior-preserving — no differential
+   run; no green cell uses them.
+4. That the R **proof** artifact is at the pin — the behavioral shim is, but
+   the ingestible proof lane is off-pin 1.88 / LLVM 20.1.5, and the pinned 1.95
+   IR is rejected by Alive2.
+5. That the C E0 binary is the proof build — it is GCC 13.3 + test stubs.
+6. That the differential's `L_twin` lane is engine evidence — it is
+   behavioral, v2-historical, and R is absent.
+7. That the E2/E3/E4 partial cells are engine proofs — they are bounded
+   leaves/predicates; their rows remain gaps.
+8. That a third party can fetch these artifacts from a commit — the whole
+   `spec/equiv/` directory is untracked.
+9. That every cell directory implies a ledger-green row — 17 cell directories
+   are tool-green, but only SCR-069/071/072/074 are both-tool green.
+10. That the R behavioral shim makes the R **proof** leg admissible — it does
+    not.
+11. That the Lean model is kernel-checked against LLVM — there is no such
+    theorem; results are evidence-tier.
+12. That the contract hash binds `error_enum.md` — it now does, and this is
+    verified; the old v2 fact is historical.
+
+---
+
+## 9. Re-pin rules a reviewer should enforce
+
+- Any change to `ABI.md`, `tape.md`, `error_kind.h`, `error_enum.md`, or
+  `corpus_schema.md` invalidates cell records. The recipe must be fixed first.
+- Any change to `PINS.lock` invalidates prior results; the gate must be
+  re-run and the matrix regenerated.
+- A dirty source tree cannot inherit a commit pin. Official R artifacts must
+  come from the clean checkout (or an explicitly authorized wrapper outside
+  the crate).
+- A patched/erased IR artifact must record `patched: yes`, the patch ids, and
+  the transform; a cell may not silently use it.
+- A green row requires a real cell record plus raw tool output containing the
+  success marker, with `scr_row_coverage: full`. `planned`, a timeout, a
+  partial cell, or a self-comparison is not green.
+- Tool versions and recorded IR hashes are immutable once recorded; a change
+  requires a new pin and a regenerated matrix.
+
+---
+
+## 10. Related pages
+
+- State: [`STATE.md`](STATE.md)
+- Reproduction: [`REPRODUCE.md`](REPRODUCE.md)
+- Matrix: [`../results/matrix.md`](../results/matrix.md)
+- Non-green dispositions: [`../findings/coverage/F-E6-GAPS.md`](../findings/coverage/F-E6-GAPS.md)
+- Audit and addendum: [`../findings/evaluator/audit.md`](../findings/evaluator/audit.md)
+- Contract: [`../contract/ABI.md`](../contract/ABI.md),
+  [`../contract/tape.md`](../contract/tape.md),
+  [`../contract/error_enum.md`](../contract/error_enum.md)
+- Tool limits: [`../tools/capability-matrix.md`](../tools/capability-matrix.md)
+- Core IR: [`../findings/core/core-ir-report.md`](../findings/core/core-ir-report.md)
+- E5 residual: [`../findings/e5/E5-RESIDUAL.md`](../findings/e5/E5-RESIDUAL.md)

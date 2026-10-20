@@ -1,0 +1,62 @@
+# cell: e1-altstack/roundtrip
+# command: (cd build && saw cell.saw)
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# expected: 0x0000000000a02a01
+# c module: build/c_cell_roundtrip.bc
+# l module: build/l_cell_roundtrip.bc
+
+Loading file "cell.saw"
+Verifying cell_roundtrip...
+Simulating cell_roundtrip...
+Checking proof obligations cell_roundtrip...
+Proof succeeded! cell_roundtrip
+Verifying cell_roundtrip...
+Simulating cell_roundtrip...
+Stack trace:
+   (builtin) in llvm_verify
+   cell.saw:9:1-9:50 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  internal: error: in cell_roundtrip
+  Error during memory load
+Stack frame cell_roundtrip
+  Allocations:
+    StackAlloc 11 0x98:[64] Mutable 8-byte-aligned internal
+    StackAlloc 10 0x34:[64] Mutable 4-byte-aligned internal
+    StackAlloc 9 0x34:[64] Mutable 4-byte-aligned internal
+    StackAlloc 8 0x34:[64] Mutable 4-byte-aligned internal
+    StackAlloc 7 0x34:[64] Mutable 4-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      8 |->   *(8, 0x1c:[64]) := 0x1:[32]
+              *(8, 0x4:[64]) := 0x1:[32]
+              *(8, 0x0:[64]) := 0x1:[32]
+              memset (8, 0x0:[64]) 0x0:[8] 0x34:[64]
+      11 |->   *(11, 0x0:[64]) := 0x1:[32]
+               *(11, 0x8:[64]) := 0x1:[32]
+               *(11, 0x1d:[64]) := 0x2:[8]
+               *(11, 0x0:[64]) := 0x1:[32]
+               *(11, 0x4:[64]) := 0x1:[32]
+               *(11, 0x1c:[64]) := 0x1:[8]
+               memset (11, 0x90:[64]) 0x0:[8] 0x1:[64]
+               memset (11, 0x88:[64]) 0x0:[8] 0x8:[64]
+               memset (11, 0x80:[64]) 0x0:[8] 0x4:[64]
+               *(11, 0x7c:[64]) := 0xffffffff:[32]
+               memset (11, 0x24:[64]) 0x0:[8] 0x22:[64]
+               memset (11, 0x0:[64]) 0x0:[8] 0x22:[64]
+               memset (11, 0x78:[64]) 0x0:[8] 0x4:[64]
+               memset (11, 0x74:[64]) 0x0:[8] 0x4:[64]
+               memset (11, 0x70:[64]) 0x0:[8] 0x4:[64]
+               memset (11, 0x48:[64]) 0x0:[8] 0x4:[64]
+Base memory
+  Allocations:
+    GlobalAlloc 6 0x1c:[64] Immutable 4-byte-aligned [global variable  ] switch.table.cell_dup_drop_swap_ok.5
+    GlobalAlloc 5 0x4c:[64] Immutable 4-byte-aligned [global variable  ] switch.table.cell_alt_roundtrip
+    GlobalAlloc 4 0x0:[64] Immutable 1-byte-aligned [defined function ] cell_roundtrip
+    GlobalAlloc 3 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memset.p0.i64
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [external function] llvm.lifetime.end.p0
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [external function] llvm.lifetime.start.p0
+
+
+STATUS=saw-not-green

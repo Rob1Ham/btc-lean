@@ -1,0 +1,62 @@
+# Artifact hashes — CORE-IR (clang 20.1.2 / Core cce32b168)
+
+## Bitcode (regenerable, under /tmp/opencode/equiv-work; not tracked)
+```
+f5718af79c56ccfd5a5437a313d957573cb87c0de0cdf5641013991268801b2c  ir20/interpreter-O0.bc
+01003ec095441bad8ada96ed1effa860f84bda23802841c7d7eb15b2e554537f  ir20/interpreter-O1.bc
+714ad532b43be61c0f4fdc8f0ef9e45d36cae0b538e9f67cd8665511a6b5c576  ir20/interpreter-O0-ftrapv.bc
+984177bd7a04ca402e0e3b6dbb60626b2be8c22abf2e5e3d2176678558b71819  ir20-proto/interpreter-O0-hoistonly.bc
+5993460463314028bf1225784bbbcaa28dab7ab6fec979a17907a369cba302c7  ir20-proto/interpreter-O0-patched.bc
+deebc447a4c2665efb6f83065420a099abdbaea1577d1c14b7822bfe003bfe6f  ir20-proto/interpreter-O1-patched.bc
+3bfeecfb06cbecf41aa9edbf6cfe3c2c448f8e8df58d877e7936e4f965a33003  ir20-proto/interpreter-O0-patched-noexc-s.bc
+2b9f683c4fdd3550e4eab43083a4c528ce785d37956f0f24b75311ec756f04a8  ir20-proto/roots.bc
+5993460463314028bf1225784bbbcaa28dab7ab6fec979a17907a369cba302c7  ir20-proto/verify-tree-O0-patched.bc
+```
+
+## Checked-in artifacts (paths relative to spec/equiv/)
+```
+107ef2ede2816d58793ab1ad5ad2293b7a1f25e54ce1bac16f73bcae94e0c3ea  patches/core/P-CORE-01-scriptnum-error-returns.patch
+3918ab0df94ef6094140b5d4edd0bcd88a8424c276da3c90dfab819feb4b8ec6  patches/core/P-CORE-02-devirtualize-checker.patch
+df42a88f3000abdaa2895ed146409eddfaa3384723cece0540b317e1457fb794  patches/core/P-CORE-03-hoist-evalscript-statics.patch
+24c1cf0f3e14bbaa8ef856a331603f8c350bd0eca7567cb277a4aa956180bd2e  patches/core/README.md
+39933e8d7ee4cb9e3d48414359301620a463611f42706fc8a6351b1a3822f8e7  findings/core/commands.md
+ca9ad518e05a8f490152e31dc1c7d9edf474b410dfacc7eb8d25d4ab8c60c2c6  findings/core/core-ir-report.md
+a97207c095d1b1823bf98dbf935cc6e4dda56ea59066277742fa02d12f1944a9  findings/core/findings-ledger.md
+1447e8297803379f93487be437d3001118a1f7bdb7755a49dc54a2a9b130b655  findings/core/handoff-contract-pcore02.md
+ac2f15033e14013329c1033a250126082c03c90c5e37308b0d344068fb161d7c  findings/core/pins-proposal.md
+38499c71116eba6d1cc513136963336e27707742ecd56c90df22b1c08e6c8bcd  findings/core/ir-features.tsv
+4c43ffd9d17b0039547107013cc9e66ad4364c1d4d05d10946d4f6b9271f0787  findings/core/NONPROOF-clang18.txt
+8484ba096a47a441f7b2a5ec67ef4b7ef29df762797797dc490bdb2ec89883a4  findings/core/scripts/analyze_ir.py
+0eca7bee9e31fc28ea03a3cb0c68536ac773d5d4cc7775fdc1d5d32173d4a014  findings/core/scripts/callgraph.py
+6aff9c57b1d89cbd74a64894d5cff6a43f40eb39deb80fca008c48f6cb84b7a0  findings/core/scripts/erase_exceptions.py
+41f512116ff3d4cd1f0b59a3bfbf7d87f32fe2661f066bbf2aa4bd4db8caf75c  findings/core/scripts/inventory20.py
+b8bfcdf3508a3a19577eec1f43c636671e6b0e5d7a3d19ae14fc22b77cd2d28d  findings/core/scripts/mkinventory.py
+df1a3b76aea191618da94155596961155f36c70fc5d8680aee408a72003a66b1  findings/core/scripts/split_patch.py
+3ce31258678aa5b1f1e80e97f14ecb617c4169f590f973b1a4173654935cadef  findings/core/scripts/saw/saw20-leaf-bad.saw
+e7bb885f6740cbdb65dbe9c7d97822e109347fe5780c41cc29902a97d8c41d99  findings/core/scripts/saw/saw20-leaf.saw
+26fa53a5ed972e0f59ac11145607b76cd7b1babaadb5e6af3117fad9302c0f84  findings/core/scripts/saw/saw20-load.saw
+f5f5b29bd8745e09938f0d8d920fdb38c553cd8a57094010401e0ffe0822f060  findings/core/logs/alive2-erased-_Z12VerifyScriptRK7CScriptS1_P.log
+c7e9f80452fa59999796a55998952e83c64181da18bbedbfbcb7ae146cd509e4  findings/core/logs/alive2-erased-_ZL20VerifyWitnessProgramRK14C.log
+a50f5095ddc2376fe260c7f33b66d3796dfe0109780a3673d00121f33f3bb8e4  findings/core/logs/alive2-erased-evalscript.log
+724cbac74131da7480689d3e6cf1c4b18b138686df525f98e0f804c0ceded0d1  findings/core/logs/alive2-hoistonly-evalscript.log
+b1fb7d399f0a6869b7c851bae6492178d093b469bebbc031b93565d4de7f4555  findings/core/logs/alive2-leaf-casttobool.log
+8e9b1d628993aeca3071505242e341c84c177b57f853b988e3af8718b04a105f  findings/core/logs/alive2-patched-evalscript.log
+6c57e3f621d398dcf403a557ec0a5a2ea82e8de2da6756df2d40620e743a8dae  findings/core/logs/alive2-unpatched-evalscript.log
+72fb91167545dd89ca9875ea166ab156b58cf96edf51c0fc24d1fb30a8ce3365  findings/core/logs/callgraph-patched-erased.log
+30855275512247d751cd6a562bfbcc99febb53e6cf1f88b59ec3e7c24a7f286c  findings/core/logs/callgraph-unpatched.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-O0.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-O1.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-ftrapv.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-hoistonly.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-patched-O0.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-patched-O1.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  findings/core/logs/compile-verify-tree.log
+c20aa5e15e449d28138d9946707725c07db84043cf6b2b04efaf93a6928be752  findings/core/logs/erase-exceptions.log
+f7e2b7205a8e2e9f76ced9fe933aca5ef3fc385df866c86cac985e63f3f80bf1  findings/core/logs/fno-exceptions.log
+2c312d61b59add4291345d37eb1cd29c85d0a9b129e78495bfbd1c299e392834  findings/core/logs/saw20-leaf-bad.log
+383a3cf3f8368980ea06f1a564a0ce61244d0cbd1e3deda926cc9b27e0cf038a  findings/core/logs/saw20-leaf-ok.log
+9280aa06c83d7e125c934b9d2f18e17d87d18575039eb435426818a892c134de  findings/core/logs/saw20-load.log
+```
+
+Note: this file does not hash itself. Hashes of bitcode are for the
+regenerable artifacts named in commands.md, not checked-in files.

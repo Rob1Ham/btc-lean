@@ -1,0 +1,34 @@
+# Whole-entry Alive2 probe (tool-gap record, not a proof)
+
+command:
+  /usr/bin/clang++-20 -std=c++17 -O1 -fno-strict-aliasing \
+    -I contract -S -emit-llvm -fno-discard-value-names \
+    twin/build/twin.cpp -o /tmp/opencode/cells-work/twin_full.ll
+  /usr/local/bin/alive-tv twin_full.ll twin_full.ll
+
+twin/build/twin.cpp sha256: 39ab7c66ea112ea0108e6f2b93c6bbb8ad0b8261f3230310c989cb8d0af2478f
+alive-tv: Ubuntu LLVM version 20.1.2
+
+first translation errors:
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: nocapture
+ERROR: Unsupported attribute: sret(%"struct.twin::Ctx")
+ERROR: Could not translate '_ZN4twinL8make_ctxEm' to Alive IR
+ERROR: Unsupported attribute: nocapture
+ERROR: Could not translate '_ZN4twinL18verify_script_fullERKNS_6TxInfoEPKhjRKNS_3CtxERNS_5StateE' to Alive IR
+
+additional errors:
+ERROR: Unsupported attribute: nocapture
+ERROR: Could not translate '_ZN4twinL18classify_push_onlyEPKhj' to Alive IR
+ERROR: Unsupported attribute: nocapture
+ERROR: Could not translate '_ZN4twinL11eval_scriptEPKhjRKNS_3CtxERNS_5StateE' to Alive IR
+ERROR: Unsupported attribute: nocapture
+ERROR: Could not translate '_ZN4twinL14ss_equals_pushEPKhjS1_j' to Alive IR
+ERROR: Unsupported attribute: nocapture
+
+summary:
+Summary:
+  5 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  48 Alive2 errors

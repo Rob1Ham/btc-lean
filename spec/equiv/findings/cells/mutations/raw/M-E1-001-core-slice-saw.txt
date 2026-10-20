@@ -1,0 +1,31 @@
+# cell: e1-stack/swap-order
+# command: (cd build && saw cell.saw)
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# expected: 0x0000000000a04a01
+# c module: build/c_cell_swap_order.bc
+# l module: build/l_cell_swap_order.bc
+
+Loading file "cell.saw"
+Verifying cell_swap_order...
+Simulating cell_swap_order...
+Checking proof obligations cell_swap_order...
+Subgoal failed: cell_swap_order cell.saw:8:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+expected
+Actual term:
+bvNat 64 10760
+
+Goal size 8. Provers used: abc_verilog
+----------Counterexample----------
+<<All settings of the symbolic variables constitute a counterexample>>
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:8:48-8:51 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:8:1-8:51 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

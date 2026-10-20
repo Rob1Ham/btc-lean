@@ -1,0 +1,231 @@
+# cell: e3-checksig/C-L-checksig-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_sig (same symbol both legs)
+# checker return annotated noundef (C bool return; same-crypto premise)
+# twin_ops sha256: ec8b7aaf3bf096e75b29b2c041bf82e0bcc305118b7911813fb2f4aefd7ed1a9
+# c_leaf sha256: 24be72b5cc57bee4a104c2396b771219f2d92c6030b6a71f68c0dfa17792f3bc
+# l_leaf sha256: 00fcd432a8c930a20dbced53ecb70c95b620ce4aa3908f4c6336a8e470d34d9e
+
+===== cell_checksig =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksig.ll build/l_cell_checksig.ll
+# c IR sha256: b93291b0da6eb5ab4d99b533269e647f301e2e53c85f921595085f8dcd999902
+# l IR sha256: d1aaf8b8b314c7cd9951f62290d52e583498c4533b36a4d2ca4a222cd54b6ba1
+
+----------------------------------------
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_checksig() {
+entry:
+  %call4.i = tail call i8 @btc_equiv_check_sig(noundef i32 65601, noundef i32 65538, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp.i16.not219 = icmp eq i8 %call4.i, 0
+  %retval.0.i.shrunk = select i1 %cmp.i16.not219, i64 264, i64 10497
+  %#range_0_%retval.0.i.shrunk = !range i64 %retval.0.i.shrunk, i64 257, i64 12288
+  ret i64 %#range_0_%retval.0.i.shrunk
+}
+=>
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_checksig() {
+entry:
+  %call5.i = tail call i8 @btc_equiv_check_sig(noundef i32 65601, noundef i32 65538, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp.i80 = icmp ne i8 %call5.i, 0
+  %spec.select = select i1 %cmp.i80, i32 1, i32 0
+  %switch = icmp ult i1 %cmp.i80, 1
+  %#0 = and i32 %spec.select, 127
+  %retval.0.shrunk.i.not = icmp eq i32 %#0, 0
+  %or.cond = or i1 %switch, %retval.0.shrunk.i.not
+  %.sink337 = select i1 %or.cond, i32 264, i32 257
+  %.sink338.in = select i1 %cmp.i80, i32 2048, i32 0
+  %and29.i131 = shl nsw nuw i32 %spec.select, 13
+  %#1 = or disjoint i32 %.sink338.in, %and29.i131
+  %or32102.i132 = or disjoint i32 %#1, %.sink337
+  %retval.0.i = zext nneg i32 %or32102.i132 to i64
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 2199023255552
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_checksig=alive2-green
+===== cell_checksigverify =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksigverify.ll build/l_cell_checksigverify.ll
+# c IR sha256: 71562120fb3dd1945ed85234f927fd49261d28251e4f91991c4d17d8ade5bbee
+# l IR sha256: eeaed8611aa9eaaadc0814c582905118a53f85422be0ff55932acc381108a02f
+
+----------------------------------------
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_checksigverify() {
+entry:
+  %s.i = alloca i64 52, align 4, dead
+  start_lifetime ptr %s.i
+  memset ptr %s.i align 4, i8 0, i64 52
+  %len.i = gep inbounds nuw ptr %s.i, 1 x i64 4
+  store i32 1, ptr %len.i, align 4
+  %val.i = gep inbounds nuw ptr %s.i, 1 x i64 28
+  store i32 65, ptr %val.i, align 4
+  store i32 1, ptr %s.i, align 4
+  %arrayidx5.i = gep inbounds nuw ptr %s.i, 1 x i64 8
+  store i32 1, ptr %arrayidx5.i, align 4
+  %arrayidx8.i = gep inbounds nuw ptr %s.i, 1 x i64 32
+  store i32 2, ptr %arrayidx8.i, align 4
+  store i32 2, ptr %s.i, align 4
+  %call4.i = tail call i8 @btc_equiv_check_sig(noundef i32 65601, noundef i32 65538, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp.i17 = icmp ne i8 %call4.i, 0
+  %conv5.i = zext i1 %cmp.i17 to i32
+  store i32 0, ptr %s.i, align 4
+  store i32 %conv5.i, ptr %len.i, align 4
+  store i32 %conv5.i, ptr %val.i, align 4
+  %tobool.not.i = xor i1 %cmp.i17, 1
+  %spec.store.select = zext i1 %tobool.not.i to i32
+  store i32 %spec.store.select, ptr %s.i, align 4
+  br i1 %cmp.i17, label %if.end14.i, label %_ZL11core_closedjj.exit
+
+if.end14.i:
+  %#0 = load i32, ptr %s.i, align 4
+  %idxprom.i = zext i32 %#0 to i64
+  %arrayidx19.i = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i
+  store i32 1, ptr %arrayidx19.i, align 4
+  %arrayidx23.i = gep inbounds nuw ptr %val.i, 24 x i64 0, 4 x i64 %idxprom.i
+  store i32 1, ptr %arrayidx23.i, align 4
+  %add.i = add i32 %#0, 1
+  store i32 %add.i, ptr %s.i, align 4
+  %cmp1.i = icmp eq i32 %add.i, 0
+  br i1 %cmp1.i, label %_ZL11core_closedjj.exit, label %if.end13.i
+
+if.end13.i:
+  switch i32 %#0, label %if.else7.i151 [
+    i32 3, label %if.end12.i105
+    i32 4, label %if.then6.i104
+  ]
+
+if.else7.i151:
+  %cmp9.i152 = icmp ugt i32 %add.i, 5
+  %spec.select105.i153 = select i1 %cmp9.i152, i32 3, i32 0
+  br label %if.end12.i105
+
+if.then6.i104:
+  br label %if.end12.i105
+
+if.end12.i105:
+  %k.0.i106 = phi i32 [ 2, %if.then6.i104 ], [ 1, %if.end13.i ], [ %spec.select105.i153, %if.else7.i151 ]
+  %and17.i107 = shl i32 %add.i, 8
+  %#1 = and i32 %and17.i107, 1792
+  %idxprom.i112 = zext nneg i32 %k.0.i106 to i64
+  %arrayidx.i113 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i112
+  %#2 = load i32, ptr %arrayidx.i113, align 4
+  %and23.i114 = shl i32 %#2, 11
+  %#3 = and i32 %and23.i114, 6144
+  %arrayidx28.i116 = gep inbounds nuw ptr %val.i, 24 x i64 0, 4 x i64 %idxprom.i112
+  %#4 = load i32, ptr %arrayidx28.i116, align 4
+  %and29.i117 = shl i32 %#4, 13
+  %#5 = and i32 %and29.i117, 2088960
+  %#6 = or disjoint i32 %#1, %#3
+  %or20100.i108 = or disjoint i32 %#6, %#5
+  %or32102.i118 = or disjoint i32 %or20100.i108, 1
+  %cmp34.i121.not = icmp eq i32 %#0, 0
+  br i1 %cmp34.i121.not, label %if.end51.i122, label %if.then35.i141
+
+if.then35.i141:
+  %add.i143 = add nsw nuw i32 %k.0.i106, 1
+  %idxprom37.i144 = zext nneg i32 %add.i143 to i64
+  %arrayidx38.i145 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom37.i144
+  %#7 = load i32, ptr %arrayidx38.i145, align 4
+  %and39.i146 = shl i32 %#7, 21
+  %#8 = and i32 %and39.i146, 6291456
+  %arrayidx46.i148 = gep inbounds nuw ptr %val.i, 24 x i64 0, 4 x i64 %idxprom37.i144
+  %#9 = load i32, ptr %arrayidx46.i148, align 4
+  %and47.i149 = shl i32 %#9, 23
+  %#10 = and i32 %and47.i149, 2139095040
+  %#11 = or disjoint i32 %#8, %#10
+  %or50104.i150 = or disjoint i32 %#11, %or32102.i118
+  br label %if.end51.i122
+
+if.end51.i122:
+  %r.1.in.i123 = phi i32 [ %or50104.i150, %if.then35.i141 ], [ %or32102.i118, %if.end12.i105 ]
+  %r.1.i124 = zext nneg i32 %r.1.in.i123 to i64
+  %cmp52.i125 = icmp ugt i32 %add.i, 2
+  br i1 %cmp52.i125, label %if.then53.i127, label %_ZL11core_closedjj.exit
+
+if.then53.i127:
+  %add55.i129 = add nsw nuw i32 %k.0.i106, 2
+  %idxprom56.i130 = zext nneg i32 %add55.i129 to i64
+  %arrayidx57.i131 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom56.i130
+  %#12 = load i32, ptr %arrayidx57.i131, align 4
+  %and58.i132 = and i32 %#12, 3
+  %conv59.i133 = zext nneg i32 %and58.i132 to i64
+  %shl60.i134 = shl nsw nuw i64 %conv59.i133, 31
+  %arrayidx65.i136 = gep inbounds nuw ptr %val.i, 24 x i64 0, 4 x i64 %idxprom56.i130
+  %#13 = load i32, ptr %arrayidx65.i136, align 4
+  %and66.i137 = and i32 %#13, 255
+  %conv67.i138 = zext nneg i32 %and66.i137 to i64
+  %shl68.i139 = shl nsw nuw i64 %conv67.i138, 33
+  %#14 = or disjoint i64 %shl68.i139, %shl60.i134
+  %or69.i140 = or disjoint i64 %#14, %r.1.i124
+  br label %_ZL11core_closedjj.exit
+
+_ZL11core_closedjj.exit:
+  %retval.0.i = phi i64 [ %or69.i140, %if.then53.i127 ], [ %r.1.i124, %if.end51.i122 ], [ 8, %if.end14.i ], [ 56, %entry ]
+  end_lifetime ptr %s.i
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 2199023255552
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_checksigverify() {
+entry:
+  %call5.i = tail call i8 @btc_equiv_check_sig(noundef i32 65601, noundef i32 65538, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp.i65.not = icmp eq i8 %call5.i, 0
+  %retval.0.i.shrunk = select i1 %cmp.i65.not, i64 56, i64 10497
+  %#range_0_%retval.0.i.shrunk = !range i64 %retval.0.i.shrunk, i64 0, i64 2199023255552
+  ret i64 %#range_0_%retval.0.i.shrunk
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_checksigverify=alive2-green
+===== cell_checksig_underflow =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksig_underflow.ll build/l_cell_checksig_underflow.ll
+# c IR sha256: ccff7bf8727e0894fba0052482ddeadc3a3da182038dd88ad11ef831711286d0
+# l IR sha256: 8069b23edae8ece2432960e054b85beafa99c07d830d40c3fa93df8df15a4365
+
+----------------------------------------
+define i64 @cell_checksig_underflow() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_checksig_underflow() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
+  ret i64 %#range_0_72
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_checksig_underflow=alive2-green
+STATUS=alive2-green

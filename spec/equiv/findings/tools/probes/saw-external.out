@@ -1,0 +1,20 @@
+Loading file "external.saw"
+Verifying f...
+Simulating f...
+Stack trace:
+   (builtin) in llvm_verify
+   external.saw:7:1-7:36 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  external.c:2:23: error: in f
+  Failed to load function handle: ext
+  Details:
+    No implementation or override found for pointer
+Stack frame f
+  No writes or allocations
+Base memory
+  Allocations:
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [defined function ] f
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [external function] ext
+
+

@@ -1,0 +1,76 @@
+
+----------------------------------------
+define i32 @sum_to(i32 noundef %#0) {
+#1:
+  %#6 = alloca i64 4, align 4
+  %#7 = alloca i64 4, align 4
+  %#8 = alloca i64 4, align 4
+  store i32 noundef %#0, ptr %#6, align 4
+  store i32 0, ptr %#7, align 4
+  store i32 0, ptr %#8, align 4
+  br label %#2
+
+#2:
+  %#9 = load i32, ptr %#8, align 4
+  %#10 = load i32, ptr %#6, align 4
+  %#11 = icmp slt i32 %#9, %#10
+  br i1 %#11, label %#3, label %#5
+
+#3:
+  %#12 = load i32, ptr %#8, align 4
+  %#13 = load i32, ptr %#7, align 4
+  %#14 = add nsw i32 %#13, %#12
+  store i32 %#14, ptr %#7, align 4
+  br label %#4
+
+#4:
+  %#15 = load i32, ptr %#8, align 4
+  %#16 = add nsw i32 %#15, 1
+  store i32 %#16, ptr %#8, align 4
+  br label %#2
+
+#5:
+  %#17 = load i32, ptr %#7, align 4
+  ret i32 %#17
+}
+=>
+define i32 @sum_to(i32 noundef %#0) {
+#1:
+  %#6 = alloca i64 4, align 4
+  %#7 = alloca i64 4, align 4
+  %#8 = alloca i64 4, align 4
+  store i32 noundef %#0, ptr %#6, align 4
+  store i32 0, ptr %#7, align 4
+  store i32 0, ptr %#8, align 4
+  br label %#2
+
+#2:
+  %#9 = load i32, ptr %#8, align 4
+  %#10 = load i32, ptr %#6, align 4
+  %#11 = icmp slt i32 %#9, %#10
+  br i1 %#11, label %#3, label %#5
+
+#3:
+  %#12 = load i32, ptr %#8, align 4
+  %#13 = load i32, ptr %#7, align 4
+  %#14 = add nsw i32 %#13, %#12
+  store i32 %#14, ptr %#7, align 4
+  br label %#4
+
+#4:
+  %#15 = load i32, ptr %#8, align 4
+  %#16 = add nsw i32 %#15, 1
+  store i32 %#16, ptr %#8, align 4
+  br label %#2
+
+#5:
+  %#17 = load i32, ptr %#7, align 4
+  ret i32 %#17
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

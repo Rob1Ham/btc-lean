@@ -1,0 +1,36 @@
+{
+  "applied_at_utc": "2026-10-19T22:47:04+00:00",
+  "catalogue_version": "0.1-planned",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": null,
+  "description": "OP_RETURN succeeds instead of returning OP_RETURN error",
+  "diff": "--- a/spec/equiv/twin/ops_ir.py\n+++ b/spec/equiv/twin/ops_ir.py\n@@ -83,7 +83,7 @@\n         \"wires\": [0x6a],\n         \"name\": \"OP_RETURN\",\n         \"lean\": \"Defs.lean:905\",\n-        \"body\": [\"(void)st; (void)ctx; (void)d;\", \"return TWIN_OP_RETURN;\"],\n+        \"body\": [\"(void)st; (void)ctx; (void)d;\", \"return TWIN_OK; // M-E2-010 mutant: OP_RETURN succeeds\"],\n     },\n \n     # ---- flow ------------------------------------------------------------\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/control/C-L-nop-return"
+  ],
+  "family": "e2-flow",
+  "find": "\"body\": [\"(void)st; (void)ctx; (void)d;\", \"return TWIN_OP_RETURN;\"],",
+  "git_head": "4d62a97e551082a69b13f495365bff0a903b0c99",
+  "log_hashes": [],
+  "mutant_id": "M-E2-010",
+  "observed": null,
+  "operator": null,
+  "outcome": "pending",
+  "pins_sha256": "055e7c5867c8e08d572fadb3c31d980fe42e19356d86db79fe31392eb093e535",
+  "replace": "\"body\": [\"(void)st; (void)ctx; (void)d;\", \"return TWIN_OK; // M-E2-010 mutant: OP_RETURN succeeds\"],",
+  "reverted_at_utc": null,
+  "schema": "redteam-mutant-v1",
+  "status": "applied",
+  "target": {
+    "path": "/home/ubuntu/btc-lean-public/spec/equiv/twin/ops_ir.py",
+    "path_relative_to_repo": "spec/equiv/twin/ops_ir.py",
+    "sha256_after": "f57debb6fe376bd64bb4012d2887dfc15a090cfe3c7233fe079fe0b598c77e4b",
+    "sha256_before": "6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5"
+  },
+  "target_kind": "twin",
+  "witness": null
+}

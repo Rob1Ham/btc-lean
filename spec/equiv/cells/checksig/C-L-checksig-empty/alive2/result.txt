@@ -1,0 +1,42 @@
+# cell: checksig/C-L-checksig-empty
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv build/c_cell_checksig_empty.ll build/l_cell_checksig_empty.ll
+
+----------------------------------------
+define i64 @cell_checksig_empty() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 257
+}
+=>
+define i64 @cell_checksig_empty() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 257
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_checksigverify_empty.ll build/l_cell_checksigverify_empty.ll
+
+----------------------------------------
+define i64 @cell_checksigverify_empty() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 56
+}
+=>
+define i64 @cell_checksigverify_empty() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 56
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

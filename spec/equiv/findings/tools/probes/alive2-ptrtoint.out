@@ -1,0 +1,47 @@
+
+----------------------------------------
+define i64 @p2i(ptr noundef %#0) {
+#1:
+  %#2 = alloca i64 8, align 8
+  store ptr noundef %#0, ptr %#2, align 8
+  %#3 = load ptr, ptr %#2, align 8
+  %#4 = ptrtoint ptr %#3 to i64
+  ret i64 %#4
+}
+=>
+define i64 @p2i(ptr noundef %#0) {
+#1:
+  %#2 = alloca i64 8, align 8
+  store ptr noundef %#0, ptr %#2, align 8
+  %#3 = load ptr, ptr %#2, align 8
+  %#4 = ptrtoint ptr %#3 to i64
+  ret i64 %#4
+}
+Transformation seems to be correct! (syntactically equal)
+
+
+----------------------------------------
+define ptr @i2p(i64 noundef %#0) {
+#1:
+  %#2 = alloca i64 8, align 8
+  store i64 noundef %#0, ptr %#2, align 8
+  %#3 = load i64, ptr %#2, align 8
+  %#4 = int2ptr i64 %#3 to ptr
+  ret ptr %#4
+}
+=>
+define ptr @i2p(i64 noundef %#0) {
+#1:
+  %#2 = alloca i64 8, align 8
+  store i64 noundef %#0, ptr %#2, align 8
+  %#3 = load i64, ptr %#2, align 8
+  %#4 = int2ptr i64 %#3 to ptr
+  ret ptr %#4
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  2 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

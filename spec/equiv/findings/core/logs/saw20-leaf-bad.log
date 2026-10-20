@@ -1,0 +1,23 @@
+Loading file "saw20-leaf-bad.saw"
+Verifying _Zor19script_verify_flagsS_...
+Simulating _Zor19script_verify_flagsS_...
+Checking proof obligations _Zor19script_verify_flagsS_...
+Subgoal failed: _Zor19script_verify_flagsS_ saw20-leaf-bad.saw:2:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+x
+Actual term:
+bvOr 64 x y
+
+Goal size 33. Provers used: abc_verilog
+----------Counterexample----------
+  x: 9222246136947933183
+  y: 1125899906842624
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   saw20-leaf-bad.saw:10:3-10:6 in (callback)
+   (builtin) in llvm_verify
+   saw20-leaf-bad.saw:2:8-10:6 (at top level)
+Proof failed.
+

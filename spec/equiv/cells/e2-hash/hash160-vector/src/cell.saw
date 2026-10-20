@@ -1,0 +1,26 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_hash160.bc";
+mL <- llvm_load_module "l_cell_hash160.bc";
+
+// Opaque external at the signed-hash seam: for the concrete preimage 0x61
+// (length 1), the override returns the concrete HASH160 digest.
+let hash160_spec : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x61] : [1][8] }});
+  out_p <- llvm_alloc (llvm_array 20 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 1 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ digest }});
+};
+
+let cell_spec : LLVMSetup () = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ packed_digest digest }});
+};
+
+hC <- llvm_unsafe_assume_spec mC "hash160" hash160_spec;
+llvm_verify mC "cell_hash160" [hC] false cell_spec abc;
+
+hL <- llvm_unsafe_assume_spec mL "hash160" hash160_spec;
+llvm_verify mL "cell_hash160" [hL] false cell_spec abc;
+
+print "CELL_E2_HASH160_SAW_GREEN";

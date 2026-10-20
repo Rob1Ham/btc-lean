@@ -224,6 +224,7 @@ The script runs the wallet static battery, the 140-anchor census when
 | `docs/` | Scope and trust-base notes (`TCB.md`), claims (`CLAIMS.md`), residuals (`RESIDUALS.md` and the generated evidence matrix), the issue-22 closeout record (`ISSUE-22-CLOSEOUT.md`), generated theorem and wallet indexes (`THEOREMS.md`, `WALLET-THEOREMS.md`), provenance, reproducibility, data layout, and the wallet obligation register. |
 | `docs/HARNESS.md` | The source/data boundary and the remaining harness/corpus reproducibility gap. |
 | `docs/research/` | Selected 2026-10-16 survey notes on mechanized models, conformance, the theorem portfolio, and the formality ladder. |
+| `spec/equiv/` | Experimental three-leg LLVM IR equivalence workstream (Bitcoin Core vs a Lean-derived twin vs rbitcoin) using Alive2 and SAW. Self-contained evaluation guide in `spec/equiv/README.md`; evidence-tier, not part of the 726-row census. |
 
 ### Where evidence lives
 
@@ -278,6 +279,12 @@ The script runs the wallet static battery, the 140-anchor census when
   it is not a theorem-declaration count. Statement fidelity remains a review
   obligation; `docs/RESIDUALS.md` records the closed issue-22 archive and the
   zero open count, and `docs/TCB.md` records the permanent trust boundary.
+- **The `spec/equiv/` workstream is experimental and evidence-tier.** It
+  compares LLVM IR from three script-engine implementations (Bitcoin Core, a
+  Lean-derived twin, and rbitcoin) and does not change the consensus census,
+  the Lean proofs, or any claim in this document. Its results are conditional
+  on the trust base recorded in `spec/equiv/README.md`; no unconditional Core
+  equivalence is claimed.
 - **The obsolete count is a disposition, not a deletion.** Retired rows stay
   visible so the census denominator and the audit trail remain stable.
 
