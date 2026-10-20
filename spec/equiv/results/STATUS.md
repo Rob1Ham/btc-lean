@@ -98,6 +98,17 @@ Non-green rows:
   `Symbolic execution failed`, `Error during`, `Aborted`, and `panic` in
   addition to `Proof failed`/`saw: error`. No existing green row was demoted
   by this check. Evidence: `findings/wave64/49-bip143-layout/`.
+- **Alive2/SAW evidence quality is not uniformly hardened.** The wave64
+  nondeterminism audit measured 118/141 Alive2 greens without
+  `--always-verify` and at the default 10 s budget, and 114/141 SAW greens
+  using `abc`; one raw `-O1` control was deterministically vacuous (2 SMT
+  queries, `correct`) and became `incorrect` after `opt -O2` (34 queries),
+  with a native driver returning 64 vs 32. This does **not** re-adjudicate
+  the recorded rows, but it is an open evidence-quality finding: a green
+  marker alone is not a proof of non-vacuity. The recommended hardened
+  recipe is `opt -O2`, `--always-verify`, explicit SMT budget, and parsed
+  `Num queries > 0` / `Num timeout: 0` / `Num skips: 0`. Evidence:
+  `findings/wave64/52-tool-nondeterminism/`.
 - **Certificate portability is audited in a clean checkout.** The wave64
   checker replays all cell certificates plus manifests from a detached
   worktree; stale/absolute/build-artifact manifest entries were cleaned and

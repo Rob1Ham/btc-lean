@@ -1,0 +1,96 @@
+# Exact commands — wave-64 extension of the 07-r-sanitize lane
+#
+# Host: Ubuntu 24.04, 2026-10-20.  Tools are the pinned ones.
+# WORK is scratch space outside the repo; nothing under /tmp/opencode/equiv-pr
+# is read or written.
+#
+#   ALIVE=/opt/equiv-tools/alive-tv-v20.0     # Alive2 v20.0, LLVM 20.1.2
+#   LLVM=/usr/lib/llvm-20/bin
+#   PIN=/tmp/opencode/equiv-work/target-195-ir/release/deps/rbitcoin_consensus-68e7c81c2384e3ba.ll
+#   O188=/tmp/opencode/equiv-work/target-188-final/release/deps/rbitcoin_consensus-e64cd8423f8225c3.ll
+#   S=<this directory>
+#   WORK=/tmp/opencode/wave64-scratch-42
+
+set -euo pipefail
+ALIVE=/opt/equiv-tools/alive-tv-v20.0
+LLVM=/usr/lib/llvm-20/bin
+PIN=/tmp/opencode/equiv-work/target-195-ir/release/deps/rbitcoin_consensus-68e7c81c2384e3ba.ll
+O188=/tmp/opencode/equiv-work/target-188-final/release/deps/rbitcoin_consensus-e64cd8423f8225c3.ll
+S=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+WORK=/tmp/opencode/wave64-scratch-42
+mkdir -p "$WORK"
+cd "$WORK"
+
+## 0. Verify inputs
+sha256sum "$PIN"    # 1654c15d3bba8a89ffbd20ebf342fec310ca2e5d0337c26a81a37b8479632c86
+sha256sum "$O188"   # 95037087cd92b95dee88bcbf14519b99f9ec420be34d01642cc724f5e706cad5
+sha256sum "$ALIVE"  # 91d9c14af27444c5248b948437b64e9dc7b0ed63d1bf478305a1e9cef2ed50ff
+
+## 1. Sanitize 1.95 / LLVM-22 -> LLVM-20 (12 rules)
+python3 "$S/sanitize_v22_to_v20.py" "$PIN" san7.ll | tee sanitize-195.log
+sha256sum san7.ll   # c475de3053ec8dbc00de44b894bf9bcee6c77dcb928e835385565a4ef0de3c5f
+"$LLVM/llvm-as" san7.ll -o san7.bc
+"$LLVM/opt" -passes=verify -disable-output san7.bc
+sha256sum san7.bc   # 22ed16a035c63c79958b43081624534eed62ea8b0fa2388fa51f540aea44eed2
+python3 "$S/audit_diff.py" "$PIN" san7.ll
+
+## 2. Sanitize 1.88 / LLVM-20 (R5/R6/R7/R8/R10 + legacy R12)
+python3 "$S/sanitize_v22_to_v20.py" "$O188" r188c.ll | tee sanitize-188.log
+sha256sum r188c.ll  # dd1f858087fddb5f80386a11c545ba5279466db8a075cfc7b380712b261bc2a5
+"$LLVM/llvm-as" r188c.ll -o r188c.bc
+sha256sum r188c.bc  # fb4f7a71bda353cc24410ebdb4b37307adb9a24ee4f9ec6474ddc621006846c4
+
+## 3. Translation census (self-comparison; --skip-smt is a census, not a proof)
+"$ALIVE" --skip-smt san7.bc san7.bc > alive-whole-module.out 2>&1 || true
+"$ALIVE" --skip-smt r188c.bc r188c.bc > alive-whole-module-188.out 2>&1 || true
+python3 "$S/census_w64.py" --ll san7.ll --alive alive-whole-module.out \
+    --out-json "$S/w64/census-san7.json" --out-tsv "$S/w64/census-san7.tsv"
+python3 "$S/census_w64.py" --ll r188c.ll --alive alive-whole-module-188.out \
+    --out-json "$S/w64/census-188.json" --out-tsv "$S/w64/census-188.tsv"
+
+## 4. Build the cross-artifact job list (same logical name, unique, both translate)
+python3 "$S/make_jobs_w64.py" --old-ll r188c.ll --new-ll san7.ll \
+    --old-census "$S/w64/census-188.json" --new-census "$S/w64/census-san7.json" \
+    --out "$S/w64/jobs.tsv"
+
+## 5. Cross-artifact refinements, 1.88 source -> 1.95-sanitized target
+python3 "$S/cross_w64.py" --old-mod r188c.bc --new-mod san7.bc \
+    --jobs "$S/w64/jobs.tsv" --out-dir "$S/w64/cross" \
+    --smt-to 10000 --timeout 120 --workers 1 \
+    --results-json "$S/w64/cross-results.json"
+
+## 6. Reverse direction for the functions that proved in step 5.
+##    (Only run if the reverse job list is present; see w64/jobs-reverse.tsv.)
+python3 "$S/cross_w64.py" --old-mod san7.bc --new-mod r188c.bc \
+    --jobs "$S/w64/jobs-reverse.tsv" --out-dir "$S/w64/cross-reverse" \
+    --smt-to 10000 --timeout 160 --workers 1 \
+    --results-json "$S/w64/cross-reverse-results.json"
+
+## 7. Six-times solver budget on the cross-version failed-to-prove set
+python3 "$S/cross_w64.py" --old-mod r188c.bc --new-mod san7.bc \
+    --jobs "$S/w64/jobs-deep.tsv" --out-dir "$S/w64/cross-deep" \
+    --smt-to 60000 --timeout 240 --workers 1 \
+    --results-json "$S/w64/cross-deep-results.json"
+
+## 8. Necessity check: can the eight proof functions be taken unmodified
+##    from the pinned 1.95 bitcode?  (Result: no; see w64/unmodified-195.txt.)
+/usr/lib/llvm-22/bin/llvm-as "$PIN" -o pin22.bc
+sha256sum pin22.bc   # 2706affa4a0d09d221f92b6fb3ab3fb189294830f6036d7b6494de5f1864efe0
+while IFS=$'\t' read -r tag old new; do
+  [ "$tag" = "tag" ] && continue
+  case "$tag" in
+    _ZN18rbitcoin_consensus5block11is_final_tx|_ZN18rbitcoin_consensus5block13block_subsidy|\
+    _ZN18rbitcoin_consensus5block29witness_commitment_vout_index|\
+    _ZN18rbitcoin_consensus6params11ChainParams24subsidy_halving_interval|\
+    _ZN18rbitcoin_consensus6params11ChainParams32overlay_subsidy_halving_interval|\
+    _ZN18rbitcoin_consensus6policy28zero_value_spendable_is_dust|\
+    _ZN18rbitcoin_consensus6script27p2pkh_scriptsig_shape_error|\
+    _ZN4core3ptr62drop_in_place_LT_rbitcoin_consensus..error..ConsensusError_GT_)
+      mkdir -p "unmod/$tag"
+      /usr/lib/llvm-22/bin/llvm-extract --func="$new" pin22.bc -o "unmod/$tag/new22.bc"
+      /usr/lib/llvm-22/bin/llvm-dis "unmod/$tag/new22.bc" -o "unmod/$tag/new22.ll"
+      /usr/lib/llvm-20/bin/llvm-as "unmod/$tag/new22.ll" -o "unmod/$tag/new20.bc" \
+        || true
+      ;;
+  esac
+done < "$S/w64/jobs.tsv"

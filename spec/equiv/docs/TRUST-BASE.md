@@ -54,6 +54,7 @@ behavioral E0, and partial family cells. It is **not** exercised for the whole
 | P19 | E5 is a scoped residual, not a whole-function proof | **declared**; no green ledger row | `findings/e5/E5-RESIDUAL.md`; `findings/e5/F-TOOL-001.md` | loop/`GetScriptOp`/heap/exception/`ptrtoint` premises |
 | P20 | Every non-green SCR row is filed | **verified**; 183/183 adjudicated, 0 planned | `spec/db/equiv-cells.yaml`; `findings/coverage/F-E6-GAPS.md` | filed does not mean proved |
 | P21 | Mutation kills are admissible | **not established**; E2 4/4 required killed, E3 2/5, E4 3/5; no required mutation set is complete | `cells/_redteam/AUDIT-ADJUDICATION.md`; `cells/_redteam/runs/` | no required mutation set is complete; cell evidence is unaffected |
+| P22 | Every green marker is a non-vacuous proof | **not established uniformly**; wave64 measured 118/141 Alive2 greens without `--always-verify` at the default 10 s budget and 114/141 SAW greens on `abc`; a raw `-O1` control was vacuous (2 queries) and `incorrect` after `opt -O2` (34 queries; native 64 vs 32) | `findings/wave64/52-tool-nondeterminism/`; `results/STATUS.md` | recorded rows are not re-adjudicated; the hardened recipe is a follow-up gate, not a retrospective proof |
 
 "Assumed" means the workstream does not establish it; it is a declared
 premise. "Verified" means this integration re-ran, re-hashed, or checked it at
