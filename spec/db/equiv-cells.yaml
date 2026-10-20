@@ -2650,35 +2650,12 @@ rows:
   consensus: true
   cells:
   - e4-witness/C-L-w32-p2wpkh-build
+  - e4-witness/C-L-w32-p2wpkh-exec
   - witness-v0/C-L-p2wpkh-script
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; e4-witness/C-L-w32-p2wpkh-build: partial for SCR-136.  The reconstruction half is full: for every 20-byte
-
-    program the cell proves that the C `exec_script << OP_DUP << OP_HASH160 <<
-
-    program << OP_EQUALVERIFY << OP_CHECKSIG` byte expansion and the Lean list
-
-    `[0x76,0xa9,0x14] ++ program ++ [0x88,0xac]` emit the same 25 bytes, with
-
-    the correct PUSHDATA length prefix 0x14.  The row''s second half --
-
-    executing that script through ExecuteWitnessScript (EvalScript loop,
-
-    HASH160, ECDSA CHECKSIG, cleanstack) -- is not modelled and remains a
-
-    blocker; see the task report.; witness-v0/C-L-p2wpkh-script: partial.  The row''s script bytes are fully reconstructed and proved for
-
-    every symbolic program: DUP HASH160 <20-byte program> EQUALVERIFY CHECKSIG.
-
-    What is missing is the row''s second half, `ExecuteWitnessScript` on those
-
-    bytes (interpreter.cpp:1953): the EvalScript loop, push parsing, HASH160 and
-
-    ECDSA/CHECKSIG are not modelled.  SCR-136 therefore stays partial and is not
-
-    promoted to full.'
+  gap_note: "auto(cells): partial row coverage; e4-witness/C-L-w32-p2wpkh-build: partial for SCR-136.  The reconstruction half is full: for every 20-byte\nprogram the cell proves that the C `exec_script << OP_DUP << OP_HASH160 <<\nprogram << OP_EQUALVERIFY << OP_CHECKSIG` byte expansion and the Lean list\n`[0x76,0xa9,0x14] ++ program ++ [0x88,0xac]` emit the same 25 bytes, with\nthe correct PUSHDATA length prefix 0x14.  The row's second half --\nexecuting that script through ExecuteWitnessScript (EvalScript loop,\nHASH160, ECDSA CHECKSIG, cleanstack) -- is not modelled and remains a\nblocker; see the task report.; e4-witness/C-L-w32-p2wpkh-exec: partial — SCR-136, execution half, partial in the strict ledger sense but no longer a\nreconstruction-only row.\n\nCovered here (proved for every input, both directions):\n- the C and L implied-script byte emissions decode to exactly the five\n  instructions OP_DUP, OP_HASH160, <20-byte program>, OP_EQUALVERIFY,\n  OP_CHECKSIG and the walk ends at byte 25;\n- the five-step execution: DUP, HASH160 dispatch, EQUALVERIFY on the 20-byte\n  values, CHECKSIG dispatch, and the ExecuteWitnessScript tail\n  (cleanstack, CastToBool);\n- the P2WPKH arity predicate (n_wit = 2) and "
 - id: SCR-137
   family: witness-v0
   summary: else WRONG_LENGTH

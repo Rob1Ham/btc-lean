@@ -307,12 +307,17 @@ program << OP_EQUALVERIFY << OP_CHECKSIG` byte expansion and the Lean list
 the correct PUSHDATA length prefix 0x14.  The row's second half --
 executing that script through ExecuteWitnessScript (EvalScript loop,
 HASH160, ECDSA CHECKSIG, cleanstack) -- is not modelled and remains a
-blocker; see the task report.; witness-v0/C-L-p2wpkh-script: partial.  The row's script bytes are fully reconstructed and proved for
-every symbolic program: DUP HASH160 <20-byte program> EQUALVERIFY CHECKSIG.
-What is missing is the row's second half, `ExecuteWitnessScript` on those
-bytes (interpreter.cpp:1953): the EvalScript loop, push parsing, HASH160 and
-ECDSA/CHECKSIG are not modelled.  SCR-136 therefore stays partial and is not
-promoted to full. |
+blocker; see the task report.; e4-witness/C-L-w32-p2wpkh-exec: partial — SCR-136, execution half, partial in the strict ledger sense but no longer a
+reconstruction-only row.
+
+Covered here (proved for every input, both directions):
+- the C and L implied-script byte emissions decode to exactly the five
+  instructions OP_DUP, OP_HASH160, <20-byte program>, OP_EQUALVERIFY,
+  OP_CHECKSIG and the walk ends at byte 25;
+- the five-step execution: DUP, HASH160 dispatch, EQUALVERIFY on the 20-byte
+  values, CHECKSIG dispatch, and the ExecuteWitnessScript tail
+  (cleanstack, CastToBool);
+- the P2WPKH arity predicate (n_wit = 2) and  |
 | SCR-140 | witness-v0 | auto(cells): partial row coverage; witness-v0/C-L-bip143-layout: partial.  The row asks for "field order per BIP143; amount included".  This
 cell proves the complete 10-field order, every width and offset, and the
 presence/position of the 8-byte amount, for all field ids and all

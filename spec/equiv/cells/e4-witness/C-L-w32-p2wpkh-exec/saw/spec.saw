@@ -1,0 +1,36 @@
+import "spec.cry";
+
+// Both legs are verified against the same Cryptol postcondition, so
+// C = spec = L for every input (11 free 64-bit words).
+//
+// Solver: z3.  ABC does not finish the L leg (the reviewed transliteration
+// keeps the five parse/step transitions, while the C leg is folded by clang);
+// z3 discharges each obligation in a few seconds.  This is a solver choice,
+// not a weaker obligation: both calls are plain llvm_verify with no overrides,
+// no assumptions and no unsupported-feature fallback.
+
+mC <- llvm_load_module "c_cell_p2wpkh_exec.bc";
+mL <- llvm_load_module "l_cell_p2wpkh_exec.bc";
+
+let spec = do {
+  p0      <- llvm_fresh_var "p0"      (llvm_int 64);
+  p1      <- llvm_fresh_var "p1"      (llvm_int 64);
+  p2      <- llvm_fresh_var "p2"      (llvm_int 64);
+  n_wit   <- llvm_fresh_var "n_wit"   (llvm_int 64);
+  sig_len <- llvm_fresh_var "sig_len" (llvm_int 64);
+  pk_len  <- llvm_fresh_var "pk_len"  (llvm_int 64);
+  h0      <- llvm_fresh_var "h0"      (llvm_int 64);
+  h1      <- llvm_fresh_var "h1"      (llvm_int 64);
+  h2      <- llvm_fresh_var "h2"      (llvm_int 64);
+  ck_err  <- llvm_fresh_var "ck_err"  (llvm_int 64);
+  ck_ok   <- llvm_fresh_var "ck_ok"   (llvm_int 64);
+  llvm_execute_func [ llvm_term p0, llvm_term p1, llvm_term p2,
+                      llvm_term n_wit, llvm_term sig_len, llvm_term pk_len,
+                      llvm_term h0, llvm_term h1, llvm_term h2,
+                      llvm_term ck_err, llvm_term ck_ok ];
+  llvm_return (llvm_term {{ verdict p0 p1 p2 n_wit sig_len pk_len
+                                    h0 h1 h2 ck_err ck_ok }});
+};
+
+llvm_verify mC "cell_p2wpkh_exec" [] false spec z3;
+llvm_verify mL "cell_p2wpkh_exec" [] false spec z3;

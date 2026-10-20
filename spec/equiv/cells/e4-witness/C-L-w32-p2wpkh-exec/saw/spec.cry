@@ -1,0 +1,49 @@
+module Spec where
+
+// Independent postcondition for the P2WPKH (v0, 20-byte program) outcome.
+//
+// This is the row's semantic statement written down without either leg:
+// VerifyWitnessProgram's v0 20-byte arm builds
+//   OP_DUP OP_HASH160 <program> OP_EQUALVERIFY OP_CHECKSIG
+// and runs it through ExecuteWitnessScript.  For a two-item witness, the
+// implied script's observable outcome is:
+//   * hash != program            -> EQUALVERIFY (12)
+//   * checksig error ordinal e   -> e
+//   * checksig false             -> EVAL_FALSE (2)
+//   * otherwise                  -> success
+// after the two pre-checks (arity -> 40, item size -> 6).
+//
+// The HASH160 result and the EvalChecksig outcome are *inputs* here too, so the
+// Cryptol contract is parametric in the same two seams as the legs.
+
+byte : [64] -> [8] -> [8]
+byte w i = drop`{56} (w >> (i * 8))
+
+program : [64] -> [64] -> [64] -> [20][8]
+program p0 p1 p2 =
+  [ byte p0 i | i <- [0 .. 7] ] #
+  [ byte p1 i | i <- [0 .. 7] ] #
+  [ byte p2 i | i <- [0 .. 3] ]
+
+hash20 : [64] -> [64] -> [64] -> [20][8]
+hash20 h0 h1 h2 =
+  [ byte h0 i | i <- [0 .. 7] ] #
+  [ byte h1 i | i <- [0 .. 7] ] #
+  [ byte h2 i | i <- [0 .. 3] ]
+
+same20 : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> Bit
+same20 p0 p1 p2 h0 h1 h2 =
+  program p0 p1 p2 == hash20 h0 h1 h2
+
+pack : [64] -> [64] -> [64]
+pack r e = (r % 4) + ((e % 64) * 4)
+
+verdict : [64] -> [64] -> [64] -> [64] -> [64] -> [64] ->
+          [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+verdict p0 p1 p2 n_wit sig_len pk_len h0 h1 h2 ck_err ck_ok =
+  if n_wit != 2 then pack 0 40
+  else if sig_len > 520 \/ pk_len > 520 then pack 0 6
+  else if ~ (same20 p0 p1 p2 h0 h1 h2) then pack 0 12
+  else if (ck_err % 64) != 0 then pack 0 (ck_err % 64)
+  else if ck_ok != 0 then pack 1 0
+  else pack 0 2
