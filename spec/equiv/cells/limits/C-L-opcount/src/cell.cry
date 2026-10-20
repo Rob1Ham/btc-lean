@@ -1,0 +1,52 @@
+module CellOpcount where
+
+// Independent spec of stepBody's op-budget block and its ordering relative to
+// the disabled table (interpreter.cpp:460-482; Defs.lean:826-833).
+// Observable: result(2) | error(6) | payload(24).
+//
+// sv: 0 = BASE, 1 = WITNESS_V0, 2 = TAPSCRIPT.
+// wire: the opcode byte.  > 0x60 charges the budget in BASE/WITNESS_V0.
+// fexec: enclosing condition-stack value.  The budget block does not read it.
+// opCount: incoming count, domain [0, 202].
+//
+// payload = charged count (bits 0-11) | fExec (bit 12).
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+failOpCount : [64]
+failOpCount = pack 0 7 0
+
+failDisabled : [64]
+failDisabled = pack 0 17 0
+
+badInput : [64]
+badInput = pack 2 1 0
+
+low12 : [32] -> [12]
+low12 x = [ x @ i | i <- [20 .. 31] ]
+
+low1 : [8] -> [1]
+low1 x = [ x @ 7 ]
+
+disabled : [8] -> Bit
+disabled w = w == 0x7e \/ w == 0x7f \/ w == 0x80 \/ w == 0x81 \/
+             w == 0x83 \/ w == 0x84 \/ w == 0x85 \/ w == 0x86 \/
+             w == 0x8d \/ w == 0x8e \/ w == 0x95 \/ w == 0x96 \/
+             w == 0x97 \/ w == 0x98 \/ w == 0x99
+
+counts : [8] -> [8] -> Bit
+counts sv wire = (sv == 0 \/ sv == 1) /\ (0x60 < wire)
+
+nextCount : [32] -> [8] -> [8] -> [32]
+nextCount opc sv wire = if counts sv wire then opc + 1 else opc
+
+opcount_spec : [32] -> [8] -> [8] -> [8] -> [64]
+opcount_spec opc wire fexec sv =
+  if opc > 202 \/ fexec > 1 \/ sv > 2
+    then badInput
+    else if counts sv wire /\ 201 < nextCount opc sv wire
+           then failOpCount
+           else if disabled wire
+                  then failDisabled
+                  else pack 1 0 ((zero : [11]) # (low1 fexec) # low12 (nextCount opc sv wire))

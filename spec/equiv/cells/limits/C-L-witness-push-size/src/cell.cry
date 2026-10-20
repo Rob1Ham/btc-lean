@@ -1,0 +1,33 @@
+module CellWitnessPushSize where
+
+// Independent spec of ExecuteWitnessScript's witness-item size limit and the
+// checks that precede it (interpreter.cpp:1846-1874; Defs.lean:1207-1239).
+// Observable: result(2) | error(6) | payload(24).
+//
+// sv: 0 = BASE, 1 = WITNESS_V0, 2 = TAPSCRIPT.
+// has_success: abstract OP_SUCCESSx scan result for tapscript (the scan over
+//              script bytes is SCR-153 and is NOT modelled here).
+// depth: initial witness item count (main stack; alt stack empty).
+// max_item: maximum witness item size; the item loop's
+//           `any (size > 520)` is exactly `max_item > 520`.
+// EvalScript's own verdict is outside this partial cell.
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+badInput : [64]
+badInput = pack 2 1 0
+
+witness_push_spec : [32] -> [16] -> [8] -> [8] -> [8] -> [64]
+witness_push_spec depth maxitem sv success discourage =
+  if depth > 2000 \/ sv > 2 \/ success > 1 \/ discourage > 1
+    then badInput
+    else if sv == 2
+           then if success == 1
+                  then if discourage == 1
+                         then pack 0 36 0
+                         else pack 1 0 0
+                  else if depth > 1000
+                         then pack 0 8 0
+                         else if maxitem > 520 then pack 0 6 0 else pack 1 0 0
+           else if maxitem > 520 then pack 0 6 0 else pack 1 0 0

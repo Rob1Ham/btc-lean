@@ -1,0 +1,19 @@
+import "cell.cry";
+// functions: cell_opcount
+mC <- llvm_load_module "c_cell_opcount.bc";
+mL <- llvm_load_module "l_cell_opcount.bc";
+
+// Both legs are verified against the same independent Cryptol predicate for
+// every 32-bit incoming count, every opcode byte, every fExec bit, and every
+// sigversion byte.
+let spec = do {
+  opc   <- llvm_fresh_var "opc"   (llvm_int 32);
+  wire  <- llvm_fresh_var "wire"  (llvm_int 8);
+  fexec <- llvm_fresh_var "fexec" (llvm_int 8);
+  sv    <- llvm_fresh_var "sv"    (llvm_int 8);
+  llvm_execute_func [llvm_term opc, llvm_term wire, llvm_term fexec, llvm_term sv];
+  llvm_return (llvm_term {{ opcount_spec opc wire fexec sv }});
+};
+llvm_verify mC "cell_opcount" [] false spec abc;
+llvm_verify mL "cell_opcount" [] false spec abc;
+print "CELL_LIMITS_OPCOUNT_SAW_GREEN";
