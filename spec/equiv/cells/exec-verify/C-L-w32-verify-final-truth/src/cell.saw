@@ -1,0 +1,25 @@
+import "cell.cry";
+
+// The C slice and the Lean-shaped transliteration are each verified against
+// the SAME Cryptol function, which encodes the SCR-002 postcondition. No
+// external function is called by either leg, so there is no override and no
+// llvm_unsafe_assume_spec in this spec.
+
+mC <- llvm_load_module "c_cell_verify_final.bc";
+mL <- llvm_load_module "l_cell_verify_final.bc";
+
+let final_spec = do {
+  ss_err  <- llvm_fresh_var "ss_err"  (llvm_int 64);
+  spk_err <- llvm_fresh_var "spk_err" (llvm_int 64);
+  n       <- llvm_fresh_var "n"       (llvm_int 64);
+  top     <- llvm_fresh_var "top"     (llvm_int 64);
+  top_len <- llvm_fresh_var "top_len" (llvm_int 64);
+  llvm_execute_func [llvm_term ss_err, llvm_term spk_err, llvm_term n,
+                     llvm_term top, llvm_term top_len];
+  llvm_return (llvm_term {{ verify_final ss_err spk_err n top top_len }});
+};
+
+llvm_verify mC "cell_verify_final" [] false final_spec abc;
+llvm_verify mL "cell_verify_final" [] false final_spec abc;
+
+print "CELL_W32_VERIFY_FINAL_SAW_GREEN";

@@ -1,0 +1,43 @@
+module CellVerifySequential where
+
+// SCR-001 face: scriptSig is evaluated first, then the scriptPubKey is
+// evaluated on the SAME stack (interpreter.cpp:2026-2036), and the final
+// truth check applies to the stack the second evaluation produced
+// (interpreter.cpp:2037-2040).
+//
+// scriptPubKey here is OP_DUP (0x76). DUP leaves the top value unchanged and
+// increases depth by one: underflow -> 18, depth >= 1000 -> 8 (the loop's
+// size check), otherwise the final stack is non-empty and its top is the
+// post-scriptSig top.
+//
+// The scriptSig EvalScript outcome (error ordinal, depth, top) is symbolic:
+// the row face's `hss` hypothesis. The scriptPubKey evaluation is modelled,
+// not abstracted.
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+byte : [64] -> [64] -> [64]
+byte w i = (w >> (8 * i)) && 255
+
+cast_bool : [64] -> [64] -> Bit
+cast_bool w len =
+  (((len > 0) && (byte w 0 != 0)) && ~((len == 1) && (byte w 0 == 128))) ||
+  (((len > 1) && (byte w 1 != 0)) && ~((len == 2) && (byte w 1 == 128))) ||
+  (((len > 2) && (byte w 2 != 0)) && ~((len == 3) && (byte w 2 == 128))) ||
+  (((len > 3) && (byte w 3 != 0)) && ~((len == 4) && (byte w 3 == 128))) ||
+  (((len > 4) && (byte w 4 != 0)) && ~((len == 5) && (byte w 4 == 128))) ||
+  (((len > 5) && (byte w 5 != 0)) && ~((len == 6) && (byte w 5 == 128))) ||
+  (((len > 6) && (byte w 6 != 0)) && ~((len == 7) && (byte w 6 == 128))) ||
+  (((len > 7) && (byte w 7 != 0)) && ~((len == 8) && (byte w 7 == 128)))
+
+// Result of VerifyScript(scriptSig, spk = OP_DUP) given the post-scriptSig
+// stack (depth, top, top_len).
+verify_sequential : [64] -> [64] -> [64] -> [64] -> [64]
+verify_sequential ss_err ss_depth ss_top ss_top_len =
+  if (ss_top_len > 8) || (ss_depth > 1000) then pack 0 1  // declared domain guards
+  else if ss_err != 0 then pack 0 ss_err                 // scriptSig failure wins
+  else if ss_depth < 1 then pack 0 18                    // DUP underflow
+  else if ss_depth >= 1000 then pack 0 8                 // size limit after DUP
+  else if ~(cast_bool ss_top ss_top_len) then pack 0 2   // EVAL_FALSE after spk
+  else pack 1 0                                          // success
