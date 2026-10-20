@@ -1,0 +1,152 @@
+// Independent Cryptol specification of the two static sigop counts
+// (`CScript::GetSigOpCount(bool)`, src/script/script.cpp:157-181 at pin
+// cce32b168), over the cell's four-byte script domain.
+//
+// It is written from Core's documented loop, not from either leg:
+//   walk the script with GetOp; on a decode failure keep the prefix count
+//   and stop; OP_CHECKSIG/OP_CHECKSIGVERIFY add 1; OP_CHECKMULTISIG/
+//   OP_CHECKMULTISIGVERIFY add the previous opcode's OP_1..OP_16 value when
+//   `accurate` and the previous opcode was OP_1..OP_16, else 20.
+//
+// The decoded opcode is the first script byte of the instruction; a push
+// consumes its opcode byte, any length bytes and its payload, so bytes inside
+// push data are never counted.  A truncated length field or a payload that
+// runs past the end stops the walk (Core's `GetOp` returns false).
+//
+// Script bytes are extracted from the little-endian packed [64] word with
+// `sbyte`.  `count` is the [64] value proven against the C side; `count32` is
+// the [32] projection used by SAW (the cell ABI returns uint32_t and every
+// count is far below 2^32, so the projection is lossless on the domain).
+module CellSigopCount where
+
+// Named [64] constants: Cryptol defaults a bare numeric literal to the
+// smallest width that holds it, so every constant used at [64] is annotated.
+
+o_chk  : [64];  o_chk  = 0x00000000000000ac
+o_chkv : [64];  o_chkv = 0x00000000000000ad
+o_cms  : [64];  o_cms  = 0x00000000000000ae
+o_cmsv : [64];  o_cmsv = 0x00000000000000af
+o_pd1  : [64];  o_pd1  = 0x000000000000004c
+o_pd2  : [64];  o_pd2  = 0x000000000000004d
+o_pd4  : [64];  o_pd4  = 0x000000000000004e
+o_p16  : [64];  o_p16  = 0x0000000000000060
+o_p1   : [64];  o_p1   = 0x0000000000000051
+k0     : [64];  k0     = 0 : [64]
+k1     : [64];  k1     = 1 : [64]
+k2     : [64];  k2     = 2 : [64]
+k4     : [64];  k4     = 4 : [64]
+k20    : [64];  k20    = 20 : [64]
+kff    : [64];  kff    = 0x00000000000000ff
+ksent  : [64];  ksent  = 0x00000000ffffffff
+
+// Script byte i of the little-endian packed word, as a [64] value in 0..255.
+// Constant shifts with an explicit index dispatch (the same shape as the C
+// harness) keep the SAW proof bit-blastable: a symbolic shift amount would
+// become a 64-bit barrel shifter in every round.
+sbyte : [64] -> [64] -> [64]
+sbyte w i =
+  if i == 0 then w && kff
+  else if i == 1 then (w >> s8) && kff
+  else if i == 2 then (w >> s16) && kff
+  else if i == 3 then (w >> s24) && kff
+  else if i == 4 then (w >> s32) && kff
+  else if i == 5 then (w >> s40) && kff
+  else if i == 6 then (w >> s48) && kff
+  else if i == 7 then (w >> s56) && kff
+  else k0
+
+s8  : [64];  s8  = 8
+s16 : [64];  s16 = 16
+s24 : [64];  s24 = 24
+s32 : [64];  s32 = 32
+s40 : [64];  s40 = 40
+s48 : [64];  s48 = 48
+s56 : [64];  s56 = 56
+
+// Direct push of c bytes.  `p` is the first payload byte, so the instruction
+// ends at p + c.
+pd0 : [64] -> [64] -> [64] -> (Bit, [64], [64])
+pd0 p len c =
+  if p + c <= len then (True, c, p + c) else (False, k0, p)
+
+// OP_PUSHDATA1: one length byte at p, payload at p + 1.
+pd1 : [64] -> [64] -> [64] -> (Bit, [64], [64])
+pd1 w p len =
+  if (p + k1 <= len) && ((p + k1) + l <= len)
+  then (True, o_pd1, (p + k1) + l)
+  else (False, k0, p)
+  where
+    l = sbyte w p
+
+// OP_PUSHDATA2: two little-endian length bytes at p, payload at p + 2.
+pd2 : [64] -> [64] -> [64] -> (Bit, [64], [64])
+pd2 w p len =
+  if (p + k2 <= len) && ((p + k2) + l <= len)
+  then (True, o_pd2, (p + k2) + l)
+  else (False, k0, p)
+  where
+    l = sbyte w p + (256 : [64]) * sbyte w (p + k1)
+
+// OP_PUSHDATA4: four little-endian length bytes at p, payload at p + 4.
+pd4 : [64] -> [64] -> [64] -> (Bit, [64], [64])
+pd4 w p len =
+  if (p + k4 <= len) && ((p + k4) + l <= len)
+  then (True, o_pd4, (p + k4) + l)
+  else (False, k0, p)
+  where
+    l = sbyte w p + (256 : [64]) * sbyte w (p + k1) +
+        (65536 : [64]) * sbyte w (p + k2) +
+        (16777216 : [64]) * sbyte w (p + (3 : [64]))
+
+// One GetOp.  On success the tuple is (True, decoded opcode byte, next index).
+decode : [64] -> [64] -> [64] -> (Bit, [64], [64])
+decode w len pc =
+  if pc >= len then (False, k0, pc)
+  else if b <= o_pd4
+       then if b <= (0x000000000000004b) then pd0 (pc + k1) len b
+            else if b == o_pd1 then pd1 w (pc + k1) len
+            else if b == o_pd2 then pd2 w (pc + k1) len
+            else pd4 w (pc + k1) len
+       else (True, b, pc + k1)
+  where
+    b = sbyte w pc
+
+contrib : Bit -> [64] -> [64] -> [64]
+contrib accurate prev c =
+  if (c == o_chk) || (c == o_chkv) then k1
+  else if (c == o_cms) || (c == o_cmsv)
+       then if accurate && (prev >= o_p1) && (prev <= o_p16)
+            then prev - (0x0000000000000050)
+            else k20
+       else k0
+
+type St = { act : Bit, pc : [64], n : [64], prev : [64] }
+
+apply : Bit -> St -> (Bit, [64], [64]) -> St
+apply accurate st (ok, c, nx) =
+  if ~ok then { act = False, pc = st.pc, n = st.n, prev = st.prev }
+  else { act = True, pc = nx, n = st.n + contrib accurate st.prev c, prev = c }
+
+step : [64] -> [64] -> Bit -> St -> St
+step w len accurate st =
+  if ~st.act then st
+  else if st.pc >= len then { act = False, pc = st.pc, n = st.n, prev = st.prev }
+  else apply accurate st (decode w len st.pc)
+
+init : St
+init = { act = True, pc = k0, n = k0, prev = kff }
+
+// Four rounds: each decoded opcode consumes at least one of the four bytes.
+rounds : [64] -> [64] -> Bit -> St
+rounds w len accurate =
+  step w len accurate (step w len accurate (step w len accurate
+    (step w len accurate init)))
+
+count : [64] -> [32] -> Bit -> [64]
+count w len accurate =
+  if (zext len : [64]) > k4 then ksent
+  else (rounds w (zext len : [64]) accurate).n
+
+// Lossless [32] projection for the uint32_t cell ABI.
+count32 : [64] -> [32] -> Bit -> [32]
+count32 w len accurate = drop (count w len accurate)

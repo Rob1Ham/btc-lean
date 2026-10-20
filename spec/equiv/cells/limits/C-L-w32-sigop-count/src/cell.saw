@@ -1,0 +1,37 @@
+// SAW proof for both static sigop counters against the independent Cryptol
+// specification in cell.cry.
+//
+// Each leg exposes the same two functions:
+//   cell_sigop_accurate   -> COUNT with fAccurate = true   (SCR-033)
+//   cell_sigop_inaccurate -> COUNT with fAccurate = false  (SCR-032)
+// Both take the packed little-endian script word and the byte length, and
+// return the uint32_t count.  The contract is symbolic over all 2^64 words and
+// all 2^32 lengths: lengths above four take the shared out-of-domain sentinel,
+// so the proof covers the whole ABI, not just the four-byte domain.
+import "cell.cry";
+
+mCA <- llvm_load_module "c_cell_sigop_accurate.bc";
+mLA <- llvm_load_module "l_cell_sigop_accurate.bc";
+mCI <- llvm_load_module "c_cell_sigop_inaccurate.bc";
+mLI <- llvm_load_module "l_cell_sigop_inaccurate.bc";
+
+let specAcc = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term len];
+  llvm_return (llvm_term {{ count32 w len True }});
+};
+
+let specInacc = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term len];
+  llvm_return (llvm_term {{ count32 w len False }});
+};
+
+llvm_verify mCA "cell_sigop_accurate"   [] false specAcc   abc;
+llvm_verify mLA "cell_sigop_accurate"   [] false specAcc   abc;
+llvm_verify mCI "cell_sigop_inaccurate" [] false specInacc abc;
+llvm_verify mLI "cell_sigop_inaccurate" [] false specInacc abc;
+
+print "CELL_W32_SIGOP_COUNT_SAW_GREEN";

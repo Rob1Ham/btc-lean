@@ -1,0 +1,24 @@
+// SAW proof of WitnessSigOps against the independent Cryptol specification in
+// cell.cry.  Both legs expose
+//   cell_witness_sigops(version, prog_len, stack_size, w, wit_len)
+// and the contract is symbolic over all five arguments.
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_witness_sigops.bc";
+mL <- llvm_load_module "l_cell_witness_sigops.bc";
+
+let spec = do {
+  version <- llvm_fresh_var "version" (llvm_int 32);
+  progLen <- llvm_fresh_var "progLen" (llvm_int 32);
+  stackSize <- llvm_fresh_var "stackSize" (llvm_int 32);
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  witLen <- llvm_fresh_var "witLen" (llvm_int 32);
+  llvm_execute_func [llvm_term version, llvm_term progLen,
+                     llvm_term stackSize, llvm_term w, llvm_term witLen];
+  llvm_return (llvm_term {{ witnessOps32 version progLen stackSize w witLen }});
+};
+
+llvm_verify mC "cell_witness_sigops" [] false spec abc;
+llvm_verify mL "cell_witness_sigops" [] false spec abc;
+
+print "CELL_W32_WITNESS_SIGOPS_SAW_GREEN";

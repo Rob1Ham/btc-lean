@@ -1,0 +1,20 @@
+// SAW proof of the P2SH scriptSig arm against the independent Cryptol
+// specification in cell.cry.  Both legs expose cell_p2sh_sigops(w, len); the
+// contract is symbolic over all 64-bit words and 32-bit lengths (lengths above
+// four take the shared out-of-domain sentinel).
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_p2sh_sigops.bc";
+mL <- llvm_load_module "l_cell_p2sh_sigops.bc";
+
+let spec = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term len];
+  llvm_return (llvm_term {{ p2shOps32 w len }});
+};
+
+llvm_verify mC "cell_p2sh_sigops" [] false spec abc;
+llvm_verify mL "cell_p2sh_sigops" [] false spec abc;
+
+print "CELL_W32_P2SH_SCRIPTSIG_SAW_GREEN";
