@@ -1,0 +1,30 @@
+module CellCltv where
+
+// Independent specification of the OP_CHECKLOCKTIMEVERIFY verdict, written
+// from the Core source text (interpreter.cpp:532-568, 1755-1788) and from the
+// constants in script.h:47-48 / primitives/transaction.h:62-119.  It does not
+// share code with either leg.
+//
+// Encoding: result is the ScriptError ordinal the opcode leaves behind
+// (0 OK / continue, 21 NEGATIVE_LOCKTIME, 22 UNSATISFIED_LOCKTIME), which is
+// contract/error_kind.h.  `n` is the already-decoded 5-byte CScriptNum.
+
+// Two kinds of nLockTime, distinguished by LOCKTIME_THRESHOLD = 500000000.
+type_agrees : [32] -> [64] -> Bit
+type_agrees lt n =
+  ((lt < 500000000) && (n <$ 500000000)) ||
+  ((lt >= 500000000) && (n >=$ 500000000))
+
+check_lock_time : [32] -> [32] -> [64] -> Bit
+check_lock_time lt seq n =
+  if ~ (type_agrees lt n) then False
+  else if n >$ (zext lt) then False
+  else if seq == 0xFFFFFFFF then False
+  else True
+
+cltv : [64] -> Bit -> [32] -> [32] -> [32]
+cltv n flag lt seq =
+  if flag
+    then (if n <$ 0 then 21
+          else if check_lock_time lt seq n then 0 else 22)
+    else 0
