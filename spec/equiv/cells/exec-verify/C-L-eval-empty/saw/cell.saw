@@ -1,0 +1,22 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec = do {
+  ops <- llvm_fresh_var "ops_len" (llvm_int 64);
+  vf  <- llvm_fresh_var "vf_depth" (llvm_int 64);
+  n   <- llvm_fresh_var "st_n" (llvm_int 64);
+  b0  <- llvm_fresh_var "b0" (llvm_int 64);
+  b1  <- llvm_fresh_var "b1" (llvm_int 64);
+  b2  <- llvm_fresh_var "b2" (llvm_int 64);
+  b3  <- llvm_fresh_var "b3" (llvm_int 64);
+  llvm_execute_func [llvm_term ops, llvm_term vf, llvm_term n,
+                     llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3];
+  llvm_return (llvm_term {{ eval_frame ops vf n b0 b1 b2 b3 }});
+};
+
+llvm_verify mC "cell_eval_frame" [] false spec z3;
+llvm_verify mL "cell_eval_frame" [] false spec z3;
+
+print "CELL_C_L_eval_empty_SAW_GREEN";

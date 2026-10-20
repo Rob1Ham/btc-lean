@@ -1,0 +1,27 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-eval-empty.
+//
+// SCR-003: a script that parses to no opcodes evaluates to success with the
+// stack unchanged; the trailing conditional-vector check turns success into
+// UNBALANCED_CONDITIONAL (ordinal 20) when the frame is entered with a
+// non-empty conditional stack.
+//
+// Observable: verdict (2) | err (6) << 2 | depth (2) << 8 |
+//             item0 << 10 | item1 << 18 | item2 << 26 | item3 << 34
+// verdict: 0 fail, 1 ok, 3 out-of-model.  All arithmetic stays 64-bit; the
+// harness masks each field (C leg: `& 3`, `& 0xff`).
+pack4 : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pack4 v e n b0 b1 b2 b3 =
+  (v && 0x0000000000000003) || ((e && 0x000000000000003f) << 2) ||
+  ((n && 0x0000000000000003) << 8) || ((b0 && 0x00000000000000ff) << 10) ||
+  ((b1 && 0x00000000000000ff) << 18) || ((b2 && 0x00000000000000ff) << 26) ||
+  ((b3 && 0x00000000000000ff) << 34)
+
+eval_frame : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+eval_frame ops vf n b0 b1 b2 b3 =
+  if (ops && 0x0000000000000003) != 0x0000000000000000
+    then pack4 0x0000000000000003 0x0000000000000001 n b0 b1 b2 b3
+  else if (vf && 0x0000000000000003) != 0x0000000000000000
+    then pack4 0x0000000000000000 0x0000000000000014 n b0 b1 b2 b3
+  else pack4 0x0000000000000001 0x0000000000000000 n b0 b1 b2 b3

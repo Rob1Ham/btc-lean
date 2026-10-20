@@ -1,0 +1,70 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-verifyscript-tail.
+//
+// Read off the row table in spec.md, which is read off VerifyScript at pin
+// cce32b168 (interpreter.cpp:2037-2127).  Error ordinals from
+// contract/error_kind.h: EVAL_FALSE 2, CLEANSTACK 30, WITNESS_MALLEATED 41,
+// WITNESS_MALLEATED_P2SH 42, WITNESS_UNEXPECTED 43.
+//
+// Observable: result (2) | error (6) << 2 ; result 1 = pass, 0 = fail.
+// Cryptol literals are width-typed by digit count; 16 hex digits = 64 bits,
+// and literals used inside arithmetic/comparison carry that width too.
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m2 : [64] -> [64]
+m2 x = x && 0x0000000000000003
+m8 : [64] -> [64]
+m8 x = x && 0x00000000000000ff
+
+one : [64]
+one = 0x0000000000000001
+zero : [64]
+zero = 0x0000000000000000
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2)
+
+// CastToBool for a 0- or 1-byte element (interpreter.cpp:46-59).
+cast1 : [64] -> [64] -> [64]
+cast1 tl tb =
+  if m1 tl == zero then zero
+  else if m8 tb == zero then zero
+  else if m8 tb == 0x0000000000000080 then zero
+  else one
+
+// ss == (CScript() << redeemScript) for redeemScript lengths 0..2.
+single_push_eq : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+single_push_eq sl s0 s1 s2 rl r0 r1 =
+  if m2 rl > 0x0000000000000002 then zero
+  else if m2 sl != (m2 rl + one) then zero
+  else if m8 s0 != m2 rl then zero
+  else if m2 rl >= one /\ m8 s1 != m8 r0 then zero
+  else if m2 rl >= 0x0000000000000002 /\ m8 s2 != m8 r1 then zero
+  else one
+
+final_len : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+final_len w p n spkw spkp pwit plen =
+  if (m1 p && m1 spkp) != zero
+    then (if (m1 w && m1 pwit) != zero then one else m2 plen)
+    else (if (m1 w && m1 spkw) != zero then one else m2 n)
+
+had : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+had w p spkw spkp pwit =
+  (m1 w && m1 spkw) || (m1 p && m1 spkp && m1 w && m1 pwit)
+
+vs_tail : [64] -> [64] -> [64] -> [64] -> [64] -> [64] ->
+          [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+vs_tail w p cs n tl tb spkw spkp sign pshok witn pwit plen =
+  if m2 n == zero then pack zero 0x0000000000000002
+  else if cast1 tl tb == zero then pack zero 0x0000000000000002
+  else if m1 w != zero /\ m1 spkw != zero /\ m2 sign != zero
+    then pack zero 0x0000000000000029
+  else if (m1 p && m1 spkp && m1 w && m1 pwit) != zero /\ m1 pshok == zero
+    then pack zero 0x000000000000002a
+  else if m1 cs != zero /\ final_len w p n spkw spkp pwit plen != one
+    then pack zero 0x000000000000001e
+  else if m1 w != zero /\ had w p spkw spkp pwit == zero /\ m2 witn != zero
+    then pack zero 0x000000000000002b
+  else pack one zero

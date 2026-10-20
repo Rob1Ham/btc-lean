@@ -1,0 +1,31 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_guard = do {
+  f <- llvm_fresh_var "flags" (llvm_int 64);
+  llvm_execute_func [llvm_term f];
+  llvm_return (llvm_term {{ guard f }});
+};
+
+let spec_assertsafe = do {
+  f <- llvm_fresh_var "flags" (llvm_int 64);
+  llvm_execute_func [llvm_term f];
+  llvm_return (llvm_term {{ assertsafe f }});
+};
+
+let spec_implication = do {
+  f <- llvm_fresh_var "flags" (llvm_int 64);
+  llvm_execute_func [llvm_term f];
+  llvm_return (llvm_term {{ implication f }});
+};
+
+llvm_verify mC "cell_flags_guard" [] false spec_guard z3;
+llvm_verify mL "cell_flags_guard" [] false spec_guard z3;
+llvm_verify mC "cell_flags_assertsafe" [] false spec_assertsafe z3;
+llvm_verify mL "cell_flags_assertsafe" [] false spec_assertsafe z3;
+llvm_verify mC "cell_flags_implication" [] false spec_implication z3;
+llvm_verify mL "cell_flags_implication" [] false spec_implication z3;
+
+print "CELL_C_L_flags_domain_SAW_GREEN";

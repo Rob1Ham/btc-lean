@@ -1,0 +1,170 @@
+# cell: C-L-flags-domain
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_flags_guard cell_flags_assertsafe cell_flags_implication
+# command: alive-tv  build/c_cell_flags_guard.ll build/l_cell_flags_guard.ll
+
+----------------------------------------
+define i64 @cell_flags_guard(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp ugt i64 noundef %flags, 2097151
+  %#0 = and i64 noundef %flags, 2049
+  %or.cond.i = icmp eq i64 %#0, 2048
+  %or.cond = or i1 %cmp.not.i, %or.cond.i
+  br i1 %or.cond, label %_ZL13c_flags_guardm.exit, label %if.end6.i
+
+if.end6.i:
+  %and7.i = and i64 noundef %flags, 256
+  %cmp8.not.i = icmp eq i64 %and7.i, 0
+  %#1 = and i64 noundef %flags, 2049
+  %or.cond21.i = icmp eq i64 %#1, 2049
+  %or.cond.not = or i1 %cmp8.not.i, %or.cond21.i
+  %spec.select = zext i1 %or.cond.not to i64
+  br label %_ZL13c_flags_guardm.exit
+
+_ZL13c_flags_guardm.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ %spec.select, %if.end6.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_flags_guard(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %flags, 2097152
+  %and4.i = lshr i64 noundef %flags, 11
+  %conv7.i = xor i64 %and4.i, -1
+  %or.i = or i64 noundef %flags, %conv7.i
+  %and1.i = lshr i64 noundef %flags, 8
+  %and1.lobit.i = and i64 %and1.i, 1
+  %conv13.i = xor i64 %and1.lobit.i, 1
+  %and4.lobit.i = and i64 noundef %flags, 1
+  %and16.i = and i64 %and4.lobit.i, %and4.i
+  %or17.i = or i64 %conv13.i, %and16.i
+  %and18.i = select i1 %cmp.i, i64 %or.i, i64 2097152
+  %and20.i = and i64 %or17.i, %and18.i
+  %#range_0_%and20.i = !range i64 %and20.i, i64 0, i64 2
+  ret i64 %#range_0_%and20.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv  build/c_cell_flags_assertsafe.ll build/l_cell_flags_assertsafe.ll
+
+----------------------------------------
+define i64 @cell_flags_assertsafe(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %#0 = and i64 noundef %flags, 2049
+  %or.cond.i = icmp eq i64 %#0, 2048
+  br i1 %or.cond.i, label %_ZL18c_flags_assertsafem.exit, label %if.end.i
+
+if.end.i:
+  %and3.i = and i64 noundef %flags, 256
+  %cmp4.not.i = icmp eq i64 %and3.i, 0
+  %#1 = and i64 noundef %flags, 2049
+  %or.cond16.i = icmp eq i64 %#1, 2049
+  %or.cond.not = or i1 %cmp4.not.i, %or.cond16.i
+  %spec.select = zext i1 %or.cond.not to i64
+  br label %_ZL18c_flags_assertsafem.exit
+
+_ZL18c_flags_assertsafem.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ %spec.select, %if.end.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_flags_assertsafe(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %and2.i = lshr i64 noundef %flags, 11
+  %conv5.i = xor i64 %and2.i, -1
+  %or.i = or i64 noundef %flags, %conv5.i
+  %and1.i = lshr i64 noundef %flags, 8
+  %and1.lobit.i = and i64 %and1.i, 1
+  %conv11.i = xor i64 %and1.lobit.i, 1
+  %and2.lobit.i = and i64 noundef %flags, 1
+  %and14.i = and i64 %and2.lobit.i, %and2.i
+  %or15.i = or i64 %conv11.i, %and14.i
+  %and17.i = and i64 %or15.i, %or.i
+  %#range_0_%and17.i = !range i64 %and17.i, i64 0, i64 2
+  ret i64 %#range_0_%and17.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv  build/c_cell_flags_implication.ll build/l_cell_flags_implication.ll
+
+----------------------------------------
+define i64 @cell_flags_implication(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i.i = icmp ugt i64 noundef %flags, 2097151
+  %#0 = and i64 noundef %flags, 2049
+  %or.cond.i.i = icmp eq i64 %#0, 2048
+  %or.cond = or i1 %cmp.not.i.i, %or.cond.i.i
+  br i1 %or.cond, label %_ZL13c_flags_guardm.exit.i, label %if.end6.i.i
+
+if.end6.i.i:
+  %and7.i.i = and i64 noundef %flags, 256
+  %cmp8.not.i.i = icmp ne i64 %and7.i.i, 0
+  %#1 = and i64 noundef %flags, 2049
+  %or.cond21.i.i = icmp ne i64 %#1, 2049
+  %or.cond.not.not = and i1 %cmp8.not.i.i, %or.cond21.i.i
+  %#2 = zext i1 %or.cond.not.not to i64
+  br label %_ZL13c_flags_guardm.exit.i
+
+_ZL13c_flags_guardm.exit.i:
+  %retval.0.i.i = phi i64 [ 1, %entry ], [ %#2, %if.end6.i.i ]
+  %#3 = and i64 noundef %flags, 2049
+  %or.cond.i5.i = icmp eq i64 %#3, 2048
+  br i1 %or.cond.i5.i, label %_ZL19c_flags_implicationm.exit, label %if.end.i6.i
+
+if.end.i6.i:
+  %and3.i7.i = and i64 noundef %flags, 256
+  %cmp4.not.i.i = icmp eq i64 %and3.i7.i, 0
+  %#4 = and i64 noundef %flags, 2049
+  %or.cond16.i.i = icmp eq i64 %#4, 2049
+  %or.cond1.not = or i1 %cmp4.not.i.i, %or.cond16.i.i
+  %spec.select2 = zext i1 %or.cond1.not to i64
+  br label %_ZL19c_flags_implicationm.exit
+
+_ZL19c_flags_implicationm.exit:
+  %retval.0.i8.i = phi i64 [ 0, %_ZL13c_flags_guardm.exit.i ], [ %spec.select2, %if.end.i6.i ]
+  %or.i = or i64 %retval.0.i8.i, %retval.0.i.i
+  %#range_0_%or.i = !range i64 %or.i, i64 0, i64 2
+  ret i64 %#range_0_%or.i
+}
+=>
+define i64 @cell_flags_implication(i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.i.i = icmp ult i64 noundef %flags, 2097152
+  %and4.i.i = lshr i64 noundef %flags, 11
+  %conv7.i.i = xor i64 %and4.i.i, -1
+  %or.i.i = or i64 noundef %flags, %conv7.i.i
+  %and1.i.i = lshr i64 noundef %flags, 8
+  %and1.lobit.i.i = and i64 %and1.i.i, 1
+  %conv13.i.i = xor i64 %and1.lobit.i.i, 1
+  %and4.lobit.i.i = and i64 noundef %flags, 1
+  %and16.i.i = and i64 %and4.lobit.i.i, %and4.i.i
+  %or17.i.i = or i64 %conv13.i.i, %and16.i.i
+  %and18.i.i = select i1 %cmp.i.i, i64 %or.i.i, i64 2097152
+  %and20.i.i = and i64 %or17.i.i, %and18.i.i
+  %and17.i.i = and i64 %or17.i.i, %or.i.i
+  %conv.i = xor i64 %and20.i.i, 1
+  %or.i = or i64 %conv.i, %and17.i.i
+  %#range_0_%or.i = !range i64 %or.i, i64 0, i64 2
+  ret i64 %#range_0_%or.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
