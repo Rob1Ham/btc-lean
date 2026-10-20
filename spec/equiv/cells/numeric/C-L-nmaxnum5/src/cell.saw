@@ -1,0 +1,61 @@
+import "cell.cry";
+
+// One proof per entry point per leg: C and L against the same independent
+// Cryptol predicate.  All inputs symbolic, including a full uint32 length
+// (the width guard runs before any byte is read) and any value of md.
+
+mC <- llvm_load_module "c_cell_cltv.bc";
+mL <- llvm_load_module "l_cell_cltv.bc";
+
+let specCltv = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0"  (llvm_int 8);
+  b1  <- llvm_fresh_var "b1"  (llvm_int 8);
+  b2  <- llvm_fresh_var "b2"  (llvm_int 8);
+  b3  <- llvm_fresh_var "b3"  (llvm_int 8);
+  b4  <- llvm_fresh_var "b4"  (llvm_int 8);
+  md  <- llvm_fresh_var "md"  (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term md];
+  llvm_return (llvm_term {{ packedCltv md len b0 b1 b2 b3 b4 }});
+};
+llvm_verify mC "cell_cltv" [] false specCltv bitwuzla;
+llvm_verify mL "cell_cltv" [] false specCltv bitwuzla;
+
+mC <- llvm_load_module "c_cell_csv.bc";
+mL <- llvm_load_module "l_cell_csv.bc";
+
+let specCsv = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0"  (llvm_int 8);
+  b1  <- llvm_fresh_var "b1"  (llvm_int 8);
+  b2  <- llvm_fresh_var "b2"  (llvm_int 8);
+  b3  <- llvm_fresh_var "b3"  (llvm_int 8);
+  b4  <- llvm_fresh_var "b4"  (llvm_int 8);
+  md  <- llvm_fresh_var "md"  (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term md];
+  llvm_return (llvm_term {{ packedCsv md len b0 b1 b2 b3 b4 }});
+};
+llvm_verify mC "cell_csv" [] false specCsv bitwuzla;
+llvm_verify mL "cell_csv" [] false specCsv bitwuzla;
+
+mC <- llvm_load_module "c_cell_default4.bc";
+mL <- llvm_load_module "l_cell_default4.bc";
+
+let specDefault4 = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0"  (llvm_int 8);
+  b1  <- llvm_fresh_var "b1"  (llvm_int 8);
+  b2  <- llvm_fresh_var "b2"  (llvm_int 8);
+  b3  <- llvm_fresh_var "b3"  (llvm_int 8);
+  b4  <- llvm_fresh_var "b4"  (llvm_int 8);
+  md  <- llvm_fresh_var "md"  (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term md];
+  llvm_return (llvm_term {{ packedDefault4 md len b0 b1 b2 b3 b4 }});
+};
+llvm_verify mC "cell_default4" [] false specDefault4 bitwuzla;
+llvm_verify mL "cell_default4" [] false specDefault4 bitwuzla;
+
+print "CELL_NMAXNUM5_SAW_GREEN";

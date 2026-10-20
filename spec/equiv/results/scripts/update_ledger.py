@@ -247,7 +247,11 @@ ALIVE2_FAILURE_RE = re.compile(
     re.IGNORECASE,
 )
 SAW_SUCCESS = "Proof succeeded"
-SAW_FAILURE_RE = re.compile(r"Proof failed|saw: error|Failed to verify", re.IGNORECASE)
+SAW_FAILURE_RE = re.compile(
+    r"Proof failed|saw: error|Failed to verify|Could not find definition|"
+    r"Stack trace|Symbolic execution failed|Error during|Aborted|panic",
+    re.IGNORECASE,
+)
 INAPPLICABLE_RE = re.compile(
     r"(\b(inapplicable|not applicable)\b|\bunsupported\b|\bnot supported\b|"
     r"\bcannot (handle|express|ingest|translate)\b|\btool[- ]gap\b)",

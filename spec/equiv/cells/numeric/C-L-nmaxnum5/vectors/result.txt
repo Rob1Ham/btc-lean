@@ -1,0 +1,102 @@
+# cell: numeric/C-L-nmaxnum5 (finite known-answer vectors, not a proof)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# numeric/C-L-nmaxnum5 finite known-answer vectors
+# columns: leg len bytes(be) md err value cltv csv
+cltv C len=0 b=0000000000 md=0 err=0 val=0 out=1  empty operand
+cltv L len=0 b=0000000000 md=0 err=0 val=0 out=1  empty operand
+csv  C len=0 b=0000000000 md=0 err=0 val=0 out=1  empty operand
+csv  L len=0 b=0000000000 md=0 err=0 val=0 out=1  empty operand
+cltv C len=0 b=0000000000 md=1 err=0 val=0 out=1  empty operand, md on
+cltv L len=0 b=0000000000 md=1 err=0 val=0 out=1  empty operand, md on
+csv  C len=0 b=0000000000 md=1 err=0 val=0 out=1  empty operand, md on
+csv  L len=0 b=0000000000 md=1 err=0 val=0 out=1  empty operand, md on
+cltv C len=1 b=0000000001 md=0 err=0 val=1 out=1  one byte 0x01
+cltv L len=1 b=0000000001 md=0 err=0 val=1 out=1  one byte 0x01
+csv  C len=1 b=0000000001 md=0 err=0 val=1 out=1  one byte 0x01
+csv  L len=1 b=0000000001 md=0 err=0 val=1 out=1  one byte 0x01
+cltv C len=1 b=0000000081 md=0 err=21 val=-1 out=0  one byte 0x81 = -1
+cltv L len=1 b=0000000081 md=0 err=21 val=-1 out=0  one byte 0x81 = -1
+csv  C len=1 b=0000000081 md=0 err=21 val=-1 out=0  one byte 0x81 = -1
+csv  L len=1 b=0000000081 md=0 err=21 val=-1 out=0  one byte 0x81 = -1
+cltv C len=1 b=0000000080 md=0 err=0 val=0 out=1  one byte 0x80 = negative zero
+cltv L len=1 b=0000000080 md=0 err=0 val=0 out=1  one byte 0x80 = negative zero
+csv  C len=1 b=0000000080 md=0 err=0 val=0 out=1  one byte 0x80 = negative zero
+csv  L len=1 b=0000000080 md=0 err=0 val=0 out=1  one byte 0x80 = negative zero
+cltv C len=1 b=0000000080 md=1 err=4 val=0 out=0  0x80 non-minimal, md on
+cltv L len=1 b=0000000080 md=1 err=4 val=0 out=0  0x80 non-minimal, md on
+csv  C len=1 b=0000000080 md=1 err=4 val=0 out=0  0x80 non-minimal, md on
+csv  L len=1 b=0000000080 md=1 err=4 val=0 out=0  0x80 non-minimal, md on
+cltv C len=2 b=00000000ff md=1 err=0 val=255 out=1  +255 exception 0xff00
+cltv L len=2 b=00000000ff md=1 err=0 val=255 out=1  +255 exception 0xff00
+csv  C len=2 b=00000000ff md=1 err=0 val=255 out=1  +255 exception 0xff00
+csv  L len=2 b=00000000ff md=1 err=0 val=255 out=1  +255 exception 0xff00
+cltv C len=2 b=00000080ff md=1 err=21 val=-255 out=0  -255 exception 0xff80
+cltv L len=2 b=00000080ff md=1 err=21 val=-255 out=0  -255 exception 0xff80
+csv  C len=2 b=00000080ff md=1 err=21 val=-255 out=0  -255 exception 0xff80
+csv  L len=2 b=00000080ff md=1 err=21 val=-255 out=0  -255 exception 0xff80
+cltv C len=2 b=0000000000 md=1 err=4 val=0 out=0  zero zero, md on
+cltv L len=2 b=0000000000 md=1 err=4 val=0 out=0  zero zero, md on
+csv  C len=2 b=0000000000 md=1 err=4 val=0 out=0  zero zero, md on
+csv  L len=2 b=0000000000 md=1 err=4 val=0 out=0  zero zero, md on
+cltv C len=3 b=0000008000 md=1 err=0 val=32768 out=1  0x8000 = 32768
+cltv L len=3 b=0000008000 md=1 err=0 val=32768 out=1  0x8000 = 32768
+csv  C len=3 b=0000008000 md=1 err=0 val=32768 out=1  0x8000 = 32768
+csv  L len=3 b=0000008000 md=1 err=0 val=32768 out=1  0x8000 = 32768
+cltv C len=4 b=007fffffff md=1 err=0 val=2147483647 out=1  4-byte max 2^31-1
+cltv L len=4 b=007fffffff md=1 err=0 val=2147483647 out=1  4-byte max 2^31-1
+csv  C len=4 b=007fffffff md=1 err=0 val=2147483647 out=1  4-byte max 2^31-1
+csv  L len=4 b=007fffffff md=1 err=0 val=2147483647 out=1  4-byte max 2^31-1
+cltv C len=5 b=0080000000 md=1 err=0 val=2147483648 out=1  5-byte +2^31
+cltv L len=5 b=0080000000 md=1 err=0 val=2147483648 out=1  5-byte +2^31
+csv  C len=5 b=0080000000 md=1 err=0 val=2147483648 out=2  5-byte +2^31
+csv  L len=5 b=0080000000 md=1 err=0 val=2147483648 out=2  5-byte +2^31
+cltv C len=5 b=8080000000 md=1 err=21 val=-2147483648 out=0  5-byte -2^31
+cltv L len=5 b=8080000000 md=1 err=21 val=-2147483648 out=0  5-byte -2^31
+csv  C len=5 b=8080000000 md=1 err=21 val=-2147483648 out=0  5-byte -2^31
+csv  L len=5 b=8080000000 md=1 err=21 val=-2147483648 out=0  5-byte -2^31
+cltv C len=5 b=7fffffffff md=1 err=0 val=549755813887 out=1  5-byte max 2^39-1
+cltv L len=5 b=7fffffffff md=1 err=0 val=549755813887 out=1  5-byte max 2^39-1
+csv  C len=5 b=7fffffffff md=1 err=0 val=549755813887 out=2  5-byte max 2^39-1
+csv  L len=5 b=7fffffffff md=1 err=0 val=549755813887 out=2  5-byte max 2^39-1
+cltv C len=5 b=ffffffffff md=1 err=21 val=-549755813887 out=0  5-byte min -(2^39-1)
+cltv L len=5 b=ffffffffff md=1 err=21 val=-549755813887 out=0  5-byte min -(2^39-1)
+csv  C len=5 b=ffffffffff md=1 err=21 val=-549755813887 out=0  5-byte min -(2^39-1)
+csv  L len=5 b=ffffffffff md=1 err=21 val=-549755813887 out=0  5-byte min -(2^39-1)
+cltv C len=5 b=0000000000 md=1 err=4 val=0 out=0  5-byte zero, md on (non-minimal)
+cltv L len=5 b=0000000000 md=1 err=4 val=0 out=0  5-byte zero, md on (non-minimal)
+csv  C len=5 b=0000000000 md=1 err=4 val=0 out=0  5-byte zero, md on (non-minimal)
+csv  L len=5 b=0000000000 md=1 err=4 val=0 out=0  5-byte zero, md on (non-minimal)
+cltv C len=5 b=0000000000 md=0 err=0 val=0 out=1  5-byte zero, md off
+cltv L len=5 b=0000000000 md=0 err=0 val=0 out=1  5-byte zero, md off
+csv  C len=5 b=0000000000 md=0 err=0 val=0 out=1  5-byte zero, md off
+csv  L len=5 b=0000000000 md=0 err=0 val=0 out=1  5-byte zero, md off
+cltv C len=5 b=007fffffff md=1 err=4 val=0 out=0  5-byte 2^31-1 padded, md on
+cltv L len=5 b=007fffffff md=1 err=4 val=0 out=0  5-byte 2^31-1 padded, md on
+csv  C len=5 b=007fffffff md=1 err=4 val=0 out=0  5-byte 2^31-1 padded, md on
+csv  L len=5 b=007fffffff md=1 err=4 val=0 out=0  5-byte 2^31-1 padded, md on
+cltv C len=5 b=8000000000 md=1 err=4 val=0 out=0  5-byte -0, md on (non-minimal)
+cltv L len=5 b=8000000000 md=1 err=4 val=0 out=0  5-byte -0, md on (non-minimal)
+csv  C len=5 b=8000000000 md=1 err=4 val=0 out=0  5-byte -0, md on (non-minimal)
+csv  L len=5 b=8000000000 md=1 err=4 val=0 out=0  5-byte -0, md on (non-minimal)
+cltv C len=5 b=0080000000 md=0 err=0 val=2147483648 out=1  5-byte +2^31, md off
+cltv L len=5 b=0080000000 md=0 err=0 val=2147483648 out=1  5-byte +2^31, md off
+csv  C len=5 b=0080000000 md=0 err=0 val=2147483648 out=2  5-byte +2^31, md off
+csv  L len=5 b=0080000000 md=0 err=0 val=2147483648 out=2  5-byte +2^31, md off
+cltv C len=6 b=0000000001 md=0 err=4 val=0 out=0  6-byte operand
+cltv L len=6 b=0000000001 md=0 err=4 val=0 out=0  6-byte operand
+csv  C len=6 b=0000000001 md=0 err=4 val=0 out=0  6-byte operand
+csv  L len=6 b=0000000001 md=0 err=4 val=0 out=0  6-byte operand
+cltv C len=4294967295 b=0000000001 md=1 err=4 val=0 out=0  uint32 max length
+cltv L len=4294967295 b=0000000001 md=1 err=4 val=0 out=0  uint32 max length
+csv  C len=4294967295 b=0000000001 md=1 err=4 val=0 out=0  uint32 max length
+csv  L len=4294967295 b=0000000001 md=1 err=4 val=0 out=0  uint32 max length
+def4 C len=5 b=0080000000 md=1 err=4 val=0  default-4 rejects length 5 (special-case contrast)
+def4 L len=5 b=0080000000 md=1 err=4 val=0  default-4 rejects length 5 (special-case contrast)
+def4 C len=5 b=0080000000 md=0 err=4 val=0  default-4 rejects length 5, md off
+def4 L len=5 b=0080000000 md=0 err=4 val=0  default-4 rejects length 5, md off
+def4 C len=4 b=007fffffff md=1 err=0 val=2147483647  default-4 accepts 4-byte max
+def4 L len=4 b=007fffffff md=1 err=0 val=2147483647  default-4 accepts 4-byte max
+def4 C len=2 b=00000080ff md=1 err=0 val=-255  default-4 accepts 2-byte -255
+def4 L len=2 b=00000080ff md=1 err=0 val=-255  default-4 accepts 2-byte -255
+vectors=22 default4=4 failures=0
+STATUS=vectors-green

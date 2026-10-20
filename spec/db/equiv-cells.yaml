@@ -1588,11 +1588,20 @@ rows:
   summary: nMaxNumSize=5 special case
   core_ref: interpreter.cpp:556,584@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-081 (nMaxNumSize=5 special case): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-nmaxnum5
+  alive2:
+    result: green
+    cell: numeric/C-L-nmaxnum5
+    certificate: e3dae7f64b9d4ee34917383749033836c877c35722a20d6ae10fd536e3250ca2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-nmaxnum5
+    certificate: 8402588530625931c3468335dedf012c066b1aedfa85c91950364d37802233c4
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
 - id: SCR-082
   family: numeric
   summary: 0x80 sign bit on top byte; negative zero exists

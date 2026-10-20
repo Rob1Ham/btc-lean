@@ -1,0 +1,17 @@
+# reproduced in a throwaway copy (spec/equiv/cells/witness-v0/_audit-saw-status,
+# since removed) by running: bash saw/run.sh
+# probe: 20 valid proofs followed by a SAW script error (unknown function)
+# tail of the generated saw/result.txt:
+Simulating cell_bip143_byte_tag...
+Checking proof obligations cell_bip143_byte_tag...
+Proof succeeded! cell_bip143_byte_tag
+CELL_BIP143_BYTEMAP_SAW_GREEN
+Stack trace:
+   (builtin) in llvm_verify
+   cell.saw:156:1-156:63 (at top level)
+Could not find definition for function named `cell_no_such_function`.
+Run SAW with --sim-verbose=3 to see all function names
+
+
+STATUS=saw-green
+# grep -c 'Proof succeeded' = 20

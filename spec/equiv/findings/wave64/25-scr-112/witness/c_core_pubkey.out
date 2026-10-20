@@ -1,0 +1,18 @@
+# Core pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# Core header: src/pubkey.h (CPubKey::Set / IsValid)
+# Lean model: spec/core/Bitcoin/Crypto/Seam/Der.lean:162-175
+pk=02 (1B)                      len=1   core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=04 (1B)                      len=1   core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=03 (32B)                     len=32  core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=02+00*32 (33B)               len=33  core.IsValid=1 core.size=33  lean.isValidPubKey=1 agree
+pk=03+00*32 (33B)               len=33  core.IsValid=1 core.size=33  lean.isValidPubKey=1 agree
+pk=02+00*33 (34B)               len=34  core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=04+00*32 (33B)               len=33  core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=04+00*63 (64B)               len=64  core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=04+00*64 (65B)               len=65  core.IsValid=1 core.size=65  lean.isValidPubKey=1 agree
+pk=06+00*64 (65B)               len=65  core.IsValid=1 core.size=65  lean.isValidPubKey=1 agree
+pk=07+00*64 (65B)               len=65  core.IsValid=1 core.size=65  lean.isValidPubKey=1 agree
+pk=02+00*64 (65B)               len=65  core.IsValid=0 core.size=0   lean.isValidPubKey=1 DIVERGE
+pk=05+00*32 (33B)               len=33  core.IsValid=0 core.size=0   lean.isValidPubKey=0 agree
+pk=ff (1B)                      len=1   core.IsValid=0 core.size=0   lean.isValidPubKey=0 agree
+pk=empty                        len=0   core.IsValid=0 core.size=0   lean.isValidPubKey=0 agree

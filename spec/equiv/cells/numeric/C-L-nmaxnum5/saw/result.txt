@@ -1,0 +1,60 @@
+# cell: numeric/C-L-nmaxnum5
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# script: build/cell.saw
+# expected: at least 6 'Proof succeeded!' and no 'Proof failed'
+# solver: bitwuzla (see cell.saw)
+
+Loading file "cell.saw"
+Warning: [warning] at /tmp/opencode/wave64/16-scr-081/spec/equiv/cells/numeric/C-L-nmaxnum5/build/cell.cry:74:22--74:24
+    Unused name: b4
+Verifying cell_cltv...
+Simulating cell_cltv...
+Checking proof obligations cell_cltv...
+Proof succeeded! cell_cltv
+Verifying cell_cltv...
+Simulating cell_cltv...
+Checking proof obligations cell_cltv...
+Proof succeeded! cell_cltv
+cell.saw:25:1-25:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_csv.bc";
+^^
+cell.saw:7:1-7:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_cltv.bc";
+^^
+cell.saw:26:1-26:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_csv.bc";
+^^
+cell.saw:8:1-8:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_cltv.bc";
+^^
+Verifying cell_csv...
+Simulating cell_csv...
+Checking proof obligations cell_csv...
+Proof succeeded! cell_csv
+Verifying cell_csv...
+Simulating cell_csv...
+Checking proof obligations cell_csv...
+Proof succeeded! cell_csv
+cell.saw:43:1-43:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_default4.bc";
+^^
+cell.saw:25:1-25:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_csv.bc";
+^^
+cell.saw:44:1-44:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_default4.bc";
+^^
+cell.saw:26:1-26:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_csv.bc";
+^^
+Verifying cell_default4...
+Simulating cell_default4...
+Checking proof obligations cell_default4...
+Proof succeeded! cell_default4
+Verifying cell_default4...
+Simulating cell_default4...
+Checking proof obligations cell_default4...
+Proof succeeded! cell_default4
+CELL_NMAXNUM5_SAW_GREEN
+STATUS=saw-green

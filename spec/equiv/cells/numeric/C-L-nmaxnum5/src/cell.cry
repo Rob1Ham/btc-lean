@@ -1,0 +1,140 @@
+module CellNMaxNum5 where
+
+// Independent statement of the rule under test, written from the pinned Core
+// source and the Lean equations, not from either leg.
+//
+// Core @ cce32b168:
+//   script/interpreter.cpp:556,584
+//     const CScriptNum nX(stacktop(-1), fRequireMinimal, 5);
+//   script/interpreter.cpp:561-562,589-590  nX < 0 => SCRIPT_ERR_NEGATIVE_LOCKTIME
+//   script/interpreter.cpp:595-596  (nSequence & (1<<31)) != 0 => CSV is a NOP
+//   script/interpreter.cpp:1236-1238        scriptnum_error => SCRIPT_ERR_SCRIPTNUM
+//   script/script.h:246-271                 width guard, then minimality guard
+//   script/script.h:376-391                 set_vch, LE sign-magnitude
+//   script/interpreter.cpp:442              fRequireMinimal = flags & MINIMALDATA
+//   spec/core/Bitcoin/Numeric/ScriptNum.lean  decodeBE / minimalOkBE / setVchBE
+//
+// Wire bytes b0..b4 are little-endian; len is the element length (a full
+// uint32: the width guard runs before any byte is read).  md is fRequireMinimal
+// as an integer (0 = off, nonzero = on).
+//
+// Packed observable (bit layout identical in both legs):
+//   err(6) | value40(40) << 6 | outcome(2) << 46
+//   err   0 = no error, 4 = SCRIPT_ERR_SCRIPTNUM, 21 = SCRIPT_ERR_NEGATIVE_LOCKTIME
+//   value two's-complement 40-bit CScriptNum pattern (0 when the decode failed)
+//   outcome 0 = execution stops, 1 = continues to the locktime/sequence check,
+//           2 = OP_CHECKSEQUENCEVERIFY disable-flag NOP
+
+zext8 : [8] -> [40]
+zext8 x = zext x
+
+// Raw little-endian value of bytes 0..len-1 (top byte unmasked).
+raw : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [40]
+raw len b0 b1 b2 b3 b4 =
+  (if len > 0 then zext8 b0 else 0)
+  || (if len > 1 then zext8 b1 << 8 else 0)
+  || (if len > 2 then zext8 b2 << 16 else 0)
+  || (if len > 3 then zext8 b3 << 24 else 0)
+  || (if len > 4 then zext8 b4 << 32 else 0)
+
+// The top byte's 0x80 bit, as a 40-bit mask.
+signOf : [32] -> [40]
+signOf len =
+  if len == 1 then 0x0000000080
+  else if len == 2 then 0x0000008000
+  else if len == 3 then 0x0000800000
+  else if len == 4 then 0x0080000000
+  else 0x8000000000
+
+// The same bit cleared (set_vch's ~(0x80 << 8*(len-1))).
+clearOf : [32] -> [40]
+clearOf len =
+  if len == 1 then 0xffffffff7f
+  else if len == 2 then 0xffffff7fff
+  else if len == 3 then 0xffff7fffff
+  else if len == 4 then 0xff7fffffff
+  else 0x7fffffffff
+
+// set_vch / setVchBE: little-endian sign-magnitude, negative zero is 0.
+value : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [40]
+value len b0 b1 b2 b3 b4 =
+  if len == 0 then 0
+  else if (raw len b0 b1 b2 b3 b4 && signOf len) != 0
+       then 0 - (raw len b0 b1 b2 b3 b4 && clearOf len)
+       else raw len b0 b1 b2 b3 b4 && clearOf len
+
+// top = wire byte len-1 (CScriptNum's vch.back() / setVchBE's BE head).
+top : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8]
+top len b0 b1 b2 b3 b4 =
+  if len == 1 then b0 else if len == 2 then b1 else if len == 3 then b2
+  else if len == 4 then b3 else b4
+
+// prev = wire byte len-2 (vch[vch.size()-2] / the BE head's tail head).
+prev : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8]
+prev len b0 b1 b2 b3 b4 =
+  if len == 2 then b0 else if len == 3 then b1 else if len == 4 then b2 else b3
+
+// script.h:250-268 / minimalOkBE: reject iff the top byte without its sign bit
+// is zero and (the vector is one byte or the next byte's high bit is clear).
+minimalOk : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+minimalOk md len b0 b1 b2 b3 b4 =
+  if md == 0 then True
+  else if len == 0 then True
+  else if (top len b0 b1 b2 b3 b4 && 0x7f) != 0 then True
+  else if len <= 1 then False
+  else (prev len b0 b1 b2 b3 b4 && 0x80) != 0
+
+// Is the decoded number negative (bit 39 of the two's-complement pattern)?
+negative : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+negative len b0 b1 b2 b3 b4 =
+  (value len b0 b1 b2 b3 b4 && 0x8000000000) != 0
+
+// nMaxNumSize = 5 decode outcomes.
+decodeOk5 : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+decodeOk5 md len b0 b1 b2 b3 b4 =
+  (len <= 5) && minimalOk md len b0 b1 b2 b3 b4
+
+err5 : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8]
+err5 md len b0 b1 b2 b3 b4 =
+  if len > 5 then 4
+  else if minimalOk md len b0 b1 b2 b3 b4
+       then (if negative len b0 b1 b2 b3 b4 then 21 else 0)
+       else 4
+
+val5 : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [40]
+val5 md len b0 b1 b2 b3 b4 =
+  if decodeOk5 md len b0 b1 b2 b3 b4
+    then value len b0 b1 b2 b3 b4
+    else 0
+
+pack : [8] -> [40] -> [2] -> [64]
+pack err v outcome = (zext err) || ((zext v) << 6) || ((zext outcome) << 46)
+
+// OP_CHECKLOCKTIMEVERIFY (interpreter.cpp:556-566): on success execution
+// continues to CheckLockTime (the comparison itself is not modelled here).
+packedCltv : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+packedCltv md len b0 b1 b2 b3 b4 =
+  pack (err5 md len b0 b1 b2 b3 b4) (val5 md len b0 b1 b2 b3 b4)
+       (if err5 md len b0 b1 b2 b3 b4 == 0 then 1 else 0)
+
+// OP_CHECKSEQUENCEVERIFY (interpreter.cpp:584-600): a set disable flag turns
+// the opcode into a NOP (outcome 2); otherwise it continues to CheckSequence.
+packedCsv : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+packedCsv md len b0 b1 b2 b3 b4 =
+  pack (err5 md len b0 b1 b2 b3 b4) (val5 md len b0 b1 b2 b3 b4)
+       (if err5 md len b0 b1 b2 b3 b4 != 0 then 0
+        else if (val5 md len b0 b1 b2 b3 b4 && 0x0080000000) != 0 then 2
+        else 1)
+
+// Default nMaxNumSize = 4 (script.h:242), the numeric-op default.  Present
+// only to prove the length-5 contrast: the same operand that CLTV/CSV accept
+// is rejected here.  No coverage is claimed for SCR-079/080.
+decodeOk4 : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+decodeOk4 md len b0 b1 b2 b3 b4 =
+  (len <= 4) && minimalOk md len b0 b1 b2 b3 b4
+
+packedDefault4 : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+packedDefault4 md len b0 b1 b2 b3 b4 =
+  pack (if decodeOk4 md len b0 b1 b2 b3 b4 then 0 else 4)
+       (if decodeOk4 md len b0 b1 b2 b3 b4 then value len b0 b1 b2 b3 b4 else 0)
+       0
