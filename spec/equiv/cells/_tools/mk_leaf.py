@@ -19,7 +19,7 @@ def _find_equiv() -> Path:
     for p in (HERE, *HERE.parents):
         if (p / "contract" / "error_kind.h").is_file():
             return p
-    return Path("/home/ubuntu/btc-lean-public/spec/equiv")
+    raise SystemExit(f"cannot locate spec/equiv from {HERE}")
 EQUIV = _find_equiv()
 TWIN = EQUIV / "twin"
 CONTRACT = EQUIV / "contract" / "error_kind.h"
