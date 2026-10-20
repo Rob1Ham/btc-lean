@@ -1,5 +1,5 @@
-; ModuleID = '/tmp/opencode/wave16/14-witness-v0/spec/equiv/cells/witness-v0/C-L-p2wsh-hashmatch/build/l_cell_p2wsh_hashmatch.bc'
-source_filename = "/tmp/opencode/wave16/14-witness-v0/spec/equiv/cells/witness-v0/C-L-p2wsh-hashmatch/src/l_cell.cpp"
+; ModuleID = '/tmp/opencode/equiv-pr/spec/equiv/cells/witness-v0/C-L-p2wsh-hashmatch/build/l_cell_p2wsh_hashmatch.bc'
+source_filename = "/tmp/opencode/equiv-pr/spec/equiv/cells/witness-v0/C-L-p2wsh-hashmatch/src/l_cell.cpp"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
 

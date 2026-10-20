@@ -4,13 +4,13 @@
 # checker: external declaration @btc_equiv_check_sig (same symbol both legs)
 # checker return annotated noundef (C bool return; same-crypto premise)
 # twin_ops sha256: ec8b7aaf3bf096e75b29b2c041bf82e0bcc305118b7911813fb2f4aefd7ed1a9
-# c_leaf sha256: 24be72b5cc57bee4a104c2396b771219f2d92c6030b6a71f68c0dfa17792f3bc
-# l_leaf sha256: 00fcd432a8c930a20dbced53ecb70c95b620ce4aa3908f4c6336a8e470d34d9e
+# c_leaf sha256: 40ccb4137cadac996d7502fd328d608910ceddd25fc92a0a8ccde2ee9d80c0be
+# l_leaf sha256: 4173baa90bde9d56453d85f49092f1ac0b7187af6fab193298d5da1f472d4c90
 
 ===== cell_checksig =====
 # command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksig.ll build/l_cell_checksig.ll
-# c IR sha256: b93291b0da6eb5ab4d99b533269e647f301e2e53c85f921595085f8dcd999902
-# l IR sha256: d1aaf8b8b314c7cd9951f62290d52e583498c4533b36a4d2ca4a222cd54b6ba1
+# c IR sha256: 6192f34213f94970309b1e1ded7f02746e513ab566970b5b804cd83ea2fb3ef0
+# l IR sha256: da80282a14d38e27dc5f2282ac9bfe49cb17846b614c1650cf40e0796421053e
 
 ----------------------------------------
 declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
@@ -57,8 +57,8 @@ Summary:
 STATUS_cell_checksig=alive2-green
 ===== cell_checksigverify =====
 # command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksigverify.ll build/l_cell_checksigverify.ll
-# c IR sha256: 71562120fb3dd1945ed85234f927fd49261d28251e4f91991c4d17d8ade5bbee
-# l IR sha256: eeaed8611aa9eaaadc0814c582905118a53f85422be0ff55932acc381108a02f
+# c IR sha256: 929e1ba8eef2f0911f010e61b1095c90ca120ff5d013fec938761f59b96c5711
+# l IR sha256: 371360e838d7478b2872554592ef29f74dd8e4acf452eae4352a4c7db266a184
 
 ----------------------------------------
 declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
@@ -202,8 +202,8 @@ Summary:
 STATUS_cell_checksigverify=alive2-green
 ===== cell_checksig_underflow =====
 # command: /usr/local/bin/alive-tv --bidirectional build/c_cell_checksig_underflow.ll build/l_cell_checksig_underflow.ll
-# c IR sha256: ccff7bf8727e0894fba0052482ddeadc3a3da182038dd88ad11ef831711286d0
-# l IR sha256: 8069b23edae8ece2432960e054b85beafa99c07d830d40c3fa93df8df15a4365
+# c IR sha256: 8faa422d6886d06eeaafe6d863cf14ed39eff47dc0ecc374b30d2dc8b2c69d9f
+# l IR sha256: 0126fbcf8a683ebe040a2bd0aac464d037a7a7ddb4bad1a9c675d6f862b524c6
 
 ----------------------------------------
 define i64 @cell_checksig_underflow() nofree noundef willreturn memory(none) {

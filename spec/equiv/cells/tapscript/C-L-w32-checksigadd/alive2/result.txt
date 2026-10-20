@@ -4,13 +4,13 @@
 # clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
 # checker: external declaration @btc_equiv_check_schnorr (same symbol both legs)
 # checker return annotated noundef (C bool return; same-crypto premise)
-# c_leaf sha256: f8329ee38a58bed418e094a3aad89d8b5dae77d3fa3dd931194e83116890453b
-# l_leaf sha256: 574303dfc7908a74b39e96114a3aabd85366966605ad07515c94ef4c02ca585b
+# c_leaf sha256: 8ae78e74f96d11b1da0eadb177091e241f8dd67528840aa305be223c38d8591e
+# l_leaf sha256: ffaf1f8e42071c5efe48eb0aff24fd589ee5bb1d3aa36ef8657040908975d34d
 
 ===== cell_add_dispatch =====
 # command: alive-tv --bidirectional build/c_cell_add_dispatch.ll build/l_cell_add_dispatch.ll
-# c IR sha256: c040f8de87035127799d641a79fb5e25d0d09f4d522439e957135701009450be
-# l IR sha256: 9cfbf3aab91b6351c67d0de4ef150196490220fff1a2cfcefaa5b05f369dcfc1
+# c IR sha256: bfde430207247846381875c966f86059b390e5264e275d9c52381a8570840220
+# l IR sha256: 1247897a361e2a22126dbe1fa71bdde80e76b2746a92a1a7bde212455e468cd6
 
 ----------------------------------------
 define i64 @cell_add_dispatch(i32 noundef %sv, i32 noundef %depth) nofree willreturn memory(none) {
@@ -81,8 +81,8 @@ Summary:
 STATUS_cell_add_dispatch=alive2-green
 ===== cell_add_num =====
 # command: alive-tv --bidirectional build/c_cell_add_num.ll build/l_cell_add_num.ll
-# c IR sha256: 48c59b1753fb19b12467687a089c55dd4e28fb2a88a6af2e61e622d3033a826f
-# l IR sha256: bfa9cd6bfa32fe2720e752292f22dc22cec1e46ec74d81196d874529fa3f67c5
+# c IR sha256: 7c6c4be49777f989ee45472385aa2533655feb54696fd28c73c3fa8a08bb8bf3
+# l IR sha256: 66281d39d0c491d402e2fb767dadf82f11ccf23b0c1e1538ea1686dcd58c6967
 
 ----------------------------------------
 declare i8 @btc_equiv_check_schnorr(noundef i64, noundef i64, noundef i32) noundef zeroext

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Alive2 run for C-L-w32-fexec-push.
 set -euo pipefail
-CELL_DIR="$(cd "$1" && pwd)"
+CELL_DIR="$(cd "${1:-$(dirname "$0")/..}" && pwd)"
 CELLS="$(cd "$(dirname "$0")/../../.." && pwd)"
 EQ="$(cd "$CELLS/.." && pwd)"
 ROOT="$(cd "$EQ/../.." && pwd)"
