@@ -1,0 +1,141 @@
+# cell: control-flow/C-L-conditional-stack
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_cond.ll build/l_cell_cond.ll
+
+----------------------------------------
+define i64 @cell_cond(i32 noundef %op, i32 noundef %fexec, i32 noundef %n, i32 noundef %v0, i32 noundef %v1) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp ne i32 noundef %fexec, 0
+  %cmp4.i = icmp ult i32 noundef %op, 2
+  %or.cond.i = or i1 %cmp4.i, %cmp.not.i
+  br i1 %or.cond.i, label %if.then.i, label %_ZL9core_stepjjjjjR3CSt.exit
+
+if.then.i:
+  %switch.selectcmp.i = icmp eq i32 noundef %op, 1
+  %switch.selectcmp5.i = icmp eq i32 noundef %op, 0
+  %switch.select.i = select i1 %switch.selectcmp.i, i32 104, i32 97
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i32 103, i32 %switch.select.i
+  switch i32 %switch.select6.i, label %_ZL9core_stepjjjjjR3CSt.exit [
+    i32 103, label %sw.bb.i
+    i32 104, label %sw.bb10.i
+  ]
+
+sw.bb.i:
+  %cmp6.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp6.i, label %_ZL9core_stepjjjjjR3CSt.exit, label %if.else.i
+
+if.else.i:
+  %cmp8.i = icmp eq i32 noundef %v0, 0
+  %cond.i = zext i1 %cmp8.i to i32
+  br label %_ZL9core_stepjjjjjR3CSt.exit
+
+sw.bb10.i:
+  %cmp11.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp11.i, label %_ZL9core_stepjjjjjR3CSt.exit, label %if.else13.i
+
+if.else13.i:
+  %sub.i = add i32 noundef %n, 4294967295
+  br label %_ZL9core_stepjjjjjR3CSt.exit
+
+_ZL9core_stepjjjjjR3CSt.exit:
+  %st.sroa.16.0 = phi i32 [ 0, %sw.bb10.i ], [ 0, %if.else13.i ], [ 0, %sw.bb.i ], [ 0, %if.else.i ], [ 0, %entry ], [ 4096, %if.then.i ]
+  %st.sroa.12.0 = phi i32 [ noundef %v1, %sw.bb10.i ], [ 0, %if.else13.i ], [ noundef %v1, %sw.bb.i ], [ noundef %v1, %if.else.i ], [ noundef %v1, %entry ], [ noundef %v1, %if.then.i ]
+  %st.sroa.7.0 = phi i32 [ noundef %v0, %sw.bb10.i ], [ noundef %v1, %if.else13.i ], [ noundef %v0, %sw.bb.i ], [ %cond.i, %if.else.i ], [ noundef %v0, %entry ], [ noundef %v0, %if.then.i ]
+  %st.sroa.0.0 = phi i32 [ noundef %n, %sw.bb10.i ], [ %sub.i, %if.else13.i ], [ noundef %n, %sw.bb.i ], [ noundef %n, %if.else.i ], [ noundef %n, %entry ], [ noundef %n, %if.then.i ]
+  %cmp20.i = phi i1 [ 0, %sw.bb10.i ], [ 1, %if.else13.i ], [ 0, %sw.bb.i ], [ 1, %if.else.i ], [ 1, %entry ], [ 1, %if.then.i ]
+  %err.0.i = phi i32 [ 20, %sw.bb10.i ], [ 0, %if.else13.i ], [ 20, %sw.bb.i ], [ 0, %if.else.i ], [ 0, %entry ], [ 0, %if.then.i ]
+  %cmp23.not.i = icmp eq i32 %st.sroa.0.0, 0
+  %spec.select.i = select i1 %cmp23.not.i, i32 0, i32 20
+  %err.1.i = select i1 %cmp20.i, i32 %spec.select.i, i32 %err.0.i
+  %cmp.i = icmp eq i32 %err.1.i, 0
+  %#0 = shl nsw nuw i32 %err.1.i, 2
+  %#1 = zext i1 %cmp.i to i32
+  %#2 = or i32 %#0, %#1
+  %and1.i = shl i32 %st.sroa.0.0, 8
+  %#3 = and i32 %and1.i, 768
+  %add426.i = or i32 %#2, %#3
+  %and5.i = shl i32 %st.sroa.7.0, 10
+  %#4 = and i32 %and5.i, 1024
+  %add827.i = or i32 %add426.i, %#4
+  %and9.i = shl i32 %st.sroa.12.0, 11
+  %#5 = and i32 %and9.i, 2048
+  %add1228.i = add nsw nuw i32 %add827.i, %#5
+  %add1629.i = add nsw nuw i32 %add1228.i, %st.sroa.16.0
+  %add16.i = zext nneg i32 %add1629.i to i64
+  %#range_0_%add16.i = !range i64 %add16.i, i64 0, i64 8018
+  ret i64 %#range_0_%add16.i
+}
+=>
+define i64 @cell_cond(i32 noundef %op, i32 noundef %fexec, i32 noundef %n, i32 noundef %v0, i32 noundef %v1) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp ne i32 noundef %fexec, 0
+  %cmp4.i = icmp ult i32 noundef %op, 2
+  %or.cond.i = or i1 %cmp4.i, %cmp.not.i
+  br i1 %or.cond.i, label %if.else.i, label %if.end29.i
+
+if.else.i:
+  %switch.selectcmp.i = icmp eq i32 noundef %op, 1
+  %switch.selectcmp5.i = icmp eq i32 noundef %op, 0
+  %switch.select.i = select i1 %switch.selectcmp.i, i32 104, i32 97
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i32 103, i32 %switch.select.i
+  switch i32 %switch.select6.i, label %if.end29.i [
+    i32 103, label %if.then7.i
+    i32 104, label %if.then16.i
+  ]
+
+if.then7.i:
+  %cmp8.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp8.i, label %if.end29.i, label %if.else11.i
+
+if.else11.i:
+  %cmp12.i = icmp eq i32 noundef %v0, 0
+  %cond.i = zext i1 %cmp12.i to i32
+  br label %if.end29.i
+
+if.then16.i:
+  %cmp17.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp17.i, label %if.end29.i, label %if.else20.i
+
+if.else20.i:
+  %sub.i = add i32 noundef %n, 4294967295
+  br label %if.end29.i
+
+if.end29.i:
+  %st.sroa.16.0 = phi i32 [ 0, %if.else20.i ], [ 0, %if.else11.i ], [ 0, %entry ], [ 0, %if.then7.i ], [ 0, %if.then16.i ], [ 4096, %if.else.i ]
+  %st.sroa.12.0 = phi i32 [ 0, %if.else20.i ], [ noundef %v1, %if.else11.i ], [ noundef %v1, %entry ], [ noundef %v1, %if.then7.i ], [ noundef %v1, %if.then16.i ], [ noundef %v1, %if.else.i ]
+  %st.sroa.7.0 = phi i32 [ noundef %v1, %if.else20.i ], [ %cond.i, %if.else11.i ], [ noundef %v0, %entry ], [ noundef %v0, %if.then7.i ], [ noundef %v0, %if.then16.i ], [ noundef %v0, %if.else.i ]
+  %st.sroa.0.0 = phi i32 [ %sub.i, %if.else20.i ], [ noundef %n, %if.else11.i ], [ noundef %n, %entry ], [ noundef %n, %if.then7.i ], [ noundef %n, %if.then16.i ], [ noundef %n, %if.else.i ]
+  %cmp30.i = phi i1 [ 1, %if.else20.i ], [ 1, %if.else11.i ], [ 1, %entry ], [ 0, %if.then7.i ], [ 0, %if.then16.i ], [ 1, %if.else.i ]
+  %err.0.i = phi i32 [ 0, %if.else20.i ], [ 0, %if.else11.i ], [ 0, %entry ], [ 20, %if.then7.i ], [ 20, %if.then16.i ], [ 0, %if.else.i ]
+  %cmp33.not.i = icmp eq i32 %st.sroa.0.0, 0
+  %spec.select = select i1 %cmp33.not.i, i32 0, i32 20
+  %err.1.i = select i1 %cmp30.i, i32 %spec.select, i32 %err.0.i
+  %cmp.i = icmp eq i32 %err.1.i, 0
+  %#0 = shl nsw nuw i32 %err.1.i, 2
+  %#1 = zext i1 %cmp.i to i32
+  %#2 = or i32 %#0, %#1
+  %and1.i = shl i32 %st.sroa.0.0, 8
+  %#3 = and i32 %and1.i, 768
+  %add426.i = or i32 %#2, %#3
+  %and5.i = shl i32 %st.sroa.7.0, 10
+  %#4 = and i32 %and5.i, 1024
+  %add827.i = or i32 %add426.i, %#4
+  %and9.i = shl i32 %st.sroa.12.0, 11
+  %#5 = and i32 %and9.i, 2048
+  %add1228.i = add nsw nuw i32 %add827.i, %#5
+  %add1629.i = add nsw nuw i32 %add1228.i, %st.sroa.16.0
+  %add16.i = zext nneg i32 %add1629.i to i64
+  %#range_0_%add16.i = !range i64 %add16.i, i64 0, i64 8018
+  ret i64 %#range_0_%add16.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

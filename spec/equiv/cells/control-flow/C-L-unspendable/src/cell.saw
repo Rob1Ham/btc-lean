@@ -1,0 +1,14 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_unspendable.bc";
+mL <- llvm_load_module "l_cell_unspendable.bc";
+
+// Symbolic over the whole 32-bit size range and every first byte.
+let s = do {
+  size  <- llvm_fresh_var "size"  (llvm_int 32);
+  first <- llvm_fresh_var "first" (llvm_int 8);
+  llvm_execute_func [llvm_term size, llvm_term first];
+  llvm_return (llvm_term {{ unspendable size first }});
+};
+llvm_verify mC "cell_unspendable" [] false s abc;
+llvm_verify mL "cell_unspendable" [] false s abc;
+print "CELL_control_UNSPENDABLE_SAW_GREEN";

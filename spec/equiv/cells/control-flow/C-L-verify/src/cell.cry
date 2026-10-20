@@ -1,0 +1,46 @@
+module CellVerify where
+
+// Independent Cryptol specification of OP_VERIFY over the cell's bounded
+// element model (length 0..2, one exported function per length) and arbitrary
+// stack depth.
+//
+// Core: src/script/interpreter.cpp:663-675 at cce32b168.
+//   * empty stack: INVALID_STACK_OPERATION (18), stack unchanged;
+//   * CastToBool(top) true: pop;
+//   * CastToBool(top) false: VERIFY (11), stack unchanged.
+//
+// Observable: result(2) | error(6) | depth(8)@8.
+
+to64 : [32] -> [64]
+to64 x = zext x
+
+packObs : [32] -> [32] -> [64]
+packObs err depth =
+  ((if err == 0 then 1 else 0) : [64]) ||
+  (to64 (err && (63 : [32])) << 2) ||
+  (to64 (depth && (255 : [32])) << 8)
+
+verify : [32] -> Bit -> [64]
+verify d truth =
+  packObs err d'
+  where
+    err = if d == 0 then 18
+          else if ~ truth then 11
+          else 0
+    d' = if d != 0 /\ truth then d - 1 else d
+
+cast1 : [8] -> Bit
+cast1 b0 = ~ (b0 == 0 \/ b0 == 0x80)
+
+cast2 : [8] -> [8] -> Bit
+cast2 b0 b1 = if b0 != 0 then True
+              else ~ (b1 == 0 \/ b1 == 0x80)
+
+packed0 : [32] -> [64]
+packed0 d = verify d False
+
+packed1 : [32] -> [8] -> [64]
+packed1 d b0 = verify d (cast1 b0)
+
+packed2 : [32] -> [8] -> [8] -> [64]
+packed2 d b0 b1 = verify d (cast2 b0 b1)

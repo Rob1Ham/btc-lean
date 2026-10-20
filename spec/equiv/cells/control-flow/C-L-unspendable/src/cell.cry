@@ -1,0 +1,16 @@
+module CellUnspendable where
+
+// Independent Cryptol specification of CScript::IsUnspendable.
+//
+// Core: src/script/script.h:564-567 at cce32b168; Lean:
+// spec/core/Bitcoin/Ledger/Interface.lean:96-101.
+//
+//   * a non-empty script whose first byte is OP_RETURN (0x6a) is unspendable;
+//   * any script longer than MAX_SCRIPT_SIZE (10000) is unspendable;
+//   * otherwise it is spendable.
+//
+// The size boundary 10000/10001 and every first-byte value are symbolic.
+
+unspendable : [32] -> [8] -> [32]
+unspendable size first =
+  if ((size != 0) /\ (first == 0x6a)) \/ ((10000 : [32]) < size) then 1 else 0

@@ -1,0 +1,19 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_cond.bc";
+mL <- llvm_load_module "l_cell_cond.bc";
+
+// Symbolic over all opcode classes, executed/skipped, and the bounded
+// condition stack (n in {0,1,2}, top and second bits).
+let s = do {
+  op    <- llvm_fresh_var "op"    (llvm_int 32);
+  fexec <- llvm_fresh_var "fexec" (llvm_int 32);
+  n     <- llvm_fresh_var "n"     (llvm_int 32);
+  v0    <- llvm_fresh_var "v0"    (llvm_int 32);
+  v1    <- llvm_fresh_var "v1"    (llvm_int 32);
+  llvm_execute_func [llvm_term op, llvm_term fexec, llvm_term n,
+                     llvm_term v0, llvm_term v1];
+  llvm_return (llvm_term {{ step op fexec n v0 v1 }});
+};
+llvm_verify mC "cell_cond" [] false s abc;
+llvm_verify mL "cell_cond" [] false s abc;
+print "CELL_control_COND_STACK_SAW_GREEN";

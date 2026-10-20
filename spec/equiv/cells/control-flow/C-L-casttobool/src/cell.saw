@@ -1,0 +1,29 @@
+import "cell.cry";
+mC0 <- llvm_load_module "c_cell_cast_empty.bc";
+mL0 <- llvm_load_module "l_cell_cast_empty.bc";
+mC1 <- llvm_load_module "c_cell_cast_len1.bc";
+mL1 <- llvm_load_module "l_cell_cast_len1.bc";
+mC2 <- llvm_load_module "c_cell_cast_len2.bc";
+mL2 <- llvm_load_module "l_cell_cast_len2.bc";
+
+// Every byte value (2^8 and 2^16 inputs) for lengths 1 and 2.
+let s0 = do { llvm_execute_func []; llvm_return (llvm_term {{ cast_empty }}); };
+let s1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  llvm_execute_func [llvm_term b0];
+  llvm_return (llvm_term {{ cast1 b0 }});
+};
+let s2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1];
+  llvm_return (llvm_term {{ cast2 b0 b1 }});
+};
+
+llvm_verify mC0 "cell_cast_empty" [] false s0 abc;
+llvm_verify mL0 "cell_cast_empty" [] false s0 abc;
+llvm_verify mC1 "cell_cast_len1" [] false s1 abc;
+llvm_verify mL1 "cell_cast_len1" [] false s1 abc;
+llvm_verify mC2 "cell_cast_len2" [] false s2 abc;
+llvm_verify mL2 "cell_cast_len2" [] false s2 abc;
+print "CELL_control_CASTTOBOOL_SAW_GREEN";

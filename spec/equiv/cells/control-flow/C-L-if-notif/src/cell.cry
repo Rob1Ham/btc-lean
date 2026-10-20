@@ -1,0 +1,58 @@
+module CellIfNotif where
+
+// Independent Cryptol specification of OP_IF / OP_NOTIF over the cell's
+// bounded element model (length 0..2, one exported function per length) and
+// an arbitrary stack depth.
+//
+// Core: src/script/interpreter.cpp:613-645 at cce32b168.
+//   * fExec == false: push false; the argument is NOT inspected and NOT popped.
+//   * fExec == true and empty stack: INVALID_STACK_OPERATION (18).
+//   * TAPSCRIPT: argument must be exactly {} or {1}, else
+//     TAPSCRIPT_MINIMALIF (51).
+//   * WITNESS_V0 with SCRIPT_VERIFY_MINIMALIF: same test, MINIMALIF (31).
+//   * otherwise CastToBool, inverted for NOTIF, then pop.
+//
+// Observable: result(2) | error(6) | depth(8) | vf_n(2) | vf0(1).
+
+to64 : [32] -> [64]
+to64 x = zext x
+
+packObs : [32] -> [32] -> [32] -> [32] -> [64]
+packObs err depth vfn vf0 =
+  ((if err == 0 then 1 else 0) : [64]) ||
+  (to64 (err && (63 : [32])) << 2) ||
+  (to64 (depth && (255 : [32])) << 8) ||
+  (to64 vfn << 16) ||
+  (to64 vf0 << 18)
+
+// minOk: the argument is one of the two minimal encodings ({} or {1}).
+// truth: CastToBool of the argument.
+packedGen : [32] -> [32] -> [32] -> [32] -> [32] -> Bit -> [32] -> [64]
+packedGen isNotif fexec sv mif depth minOk truth =
+  packObs err d' (if err == 0 then 1 else 0) (if err == 0 then vf else 0)
+  where
+    err = if fexec == 0 then 0
+          else if depth == 0 then 18
+          else if sv == 2 /\ ~ minOk then 51
+          else if sv == 1 /\ mif != 0 /\ ~ minOk then 31
+          else 0
+    v = if isNotif != 0 then (if truth == 1 then 0 else 1) else truth
+    vf = if fexec == 0 then 0 else v
+    // the pop happens only on the successful executed path; every error
+    // return leaves the stack unchanged.
+    d' = if (fexec != 0) /\ (err == 0) then depth - 1 else depth
+
+packed0 : [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+packed0 isNotif fexec sv mif depth =
+  packedGen isNotif fexec sv mif depth True 0
+
+packed1 : [32] -> [32] -> [32] -> [32] -> [32] -> [8] -> [64]
+packed1 isNotif fexec sv mif depth b0 =
+  packedGen isNotif fexec sv mif depth (b0 == 1)
+            (if b0 == 0 \/ b0 == 0x80 then 0 else 1)
+
+packed2 : [32] -> [32] -> [32] -> [32] -> [32] -> [8] -> [8] -> [64]
+packed2 isNotif fexec sv mif depth b0 b1 =
+  packedGen isNotif fexec sv mif depth False
+            (if b0 != 0 then 1
+             else if b1 == 0 \/ b1 == 0x80 then 0 else 1)

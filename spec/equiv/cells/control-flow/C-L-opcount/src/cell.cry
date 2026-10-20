@@ -1,0 +1,30 @@
+module CellOpCount where
+
+// Independent Cryptol specification of the opcode budget.
+//
+// Core: src/script/interpreter.cpp:459-463 at cce32b168.
+//   * only BASE and WITNESS_V0 count opcodes (tapscript does not);
+//   * only opcodes strictly greater than OP_16 (0x60) count -- OP_RESERVED
+//     and the small push opcodes do not;
+//   * the counter increments by exactly one per counted opcode, then the
+//     script fails with OP_COUNT (7) if the counter exceeds 201.
+// OP_IF is 0x63, so each IF counts exactly one opcode.
+//
+// Observable: result(2) | error(6) | opCount(9)@8.
+
+to64 : [32] -> [64]
+to64 x = zext x
+
+packObs : [32] -> [32] -> [64]
+packObs err oc =
+  ((if err == 0 then 1 else 0) : [64]) ||
+  (to64 (err && (63 : [32])) << 2) ||
+  (to64 (oc && (511 : [32])) << 8)
+
+step : [32] -> [8] -> [32] -> [64]
+step sv w opcount =
+  packObs err nc
+  where
+    counts = (sv == 0 \/ sv == 1) /\ ((0x60 : [8]) < w)
+    nc = opcount + (if counts then 1 else 0)
+    err = if counts /\ ((201 : [32]) < nc) then 7 else 0
