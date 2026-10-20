@@ -1,0 +1,195 @@
+// SAW leg for numeric/C-L-binary-4byte (SCR-088, SCR-090).
+//
+// Both legs are verified against the same independent Cryptol model for every
+// (content word, length) pair of the two operands: lengths 0..4 are the full
+// 4-byte CScriptNum domain, lengths 5..7 are the width-cap reject edge.  The
+// entry stack is exactly the two operands, so OP_NUMEQUALVERIFY success is
+// observed as the empty-stack EVAL_FALSE tail (see notes.md).
+//
+// `pBinary`'s opcode argument is a Cryptol literal, so each opcode gets its own
+// unfolding of the same model; the model itself is shared (build/cell.cry).
+import "cell.cry";
+
+let spec_add = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x0000000000000093 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_sub = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x0000000000000094 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_booland = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009a (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_boolor = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009b (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_numequal = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009c (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_numequalverify = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009d (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_numnotequal = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009e (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_lessthan = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x000000000000009f (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_greaterthan = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x00000000000000a0 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_lessthanorequal = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x00000000000000a1 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_greaterthanorequal = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x00000000000000a2 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_min = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x00000000000000a3 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let spec_max = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary 0x00000000000000a4 (zext wa) (zext (la && 0x00000007)) (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+mC <- llvm_load_module "c_cell_add.bc";
+mL <- llvm_load_module "l_cell_add.bc";
+llvm_verify mC "cell_add" [] false spec_add z3;
+llvm_verify mL "cell_add" [] false spec_add z3;
+
+mC <- llvm_load_module "c_cell_sub.bc";
+mL <- llvm_load_module "l_cell_sub.bc";
+llvm_verify mC "cell_sub" [] false spec_sub z3;
+llvm_verify mL "cell_sub" [] false spec_sub z3;
+
+mC <- llvm_load_module "c_cell_booland.bc";
+mL <- llvm_load_module "l_cell_booland.bc";
+llvm_verify mC "cell_booland" [] false spec_booland z3;
+llvm_verify mL "cell_booland" [] false spec_booland z3;
+
+mC <- llvm_load_module "c_cell_boolor.bc";
+mL <- llvm_load_module "l_cell_boolor.bc";
+llvm_verify mC "cell_boolor" [] false spec_boolor z3;
+llvm_verify mL "cell_boolor" [] false spec_boolor z3;
+
+mC <- llvm_load_module "c_cell_numequal.bc";
+mL <- llvm_load_module "l_cell_numequal.bc";
+llvm_verify mC "cell_numequal" [] false spec_numequal z3;
+llvm_verify mL "cell_numequal" [] false spec_numequal z3;
+
+mC <- llvm_load_module "c_cell_numequalverify.bc";
+mL <- llvm_load_module "l_cell_numequalverify.bc";
+llvm_verify mC "cell_numequalverify" [] false spec_numequalverify z3;
+llvm_verify mL "cell_numequalverify" [] false spec_numequalverify z3;
+
+mC <- llvm_load_module "c_cell_numnotequal.bc";
+mL <- llvm_load_module "l_cell_numnotequal.bc";
+llvm_verify mC "cell_numnotequal" [] false spec_numnotequal z3;
+llvm_verify mL "cell_numnotequal" [] false spec_numnotequal z3;
+
+mC <- llvm_load_module "c_cell_lessthan.bc";
+mL <- llvm_load_module "l_cell_lessthan.bc";
+llvm_verify mC "cell_lessthan" [] false spec_lessthan z3;
+llvm_verify mL "cell_lessthan" [] false spec_lessthan z3;
+
+mC <- llvm_load_module "c_cell_greaterthan.bc";
+mL <- llvm_load_module "l_cell_greaterthan.bc";
+llvm_verify mC "cell_greaterthan" [] false spec_greaterthan z3;
+llvm_verify mL "cell_greaterthan" [] false spec_greaterthan z3;
+
+mC <- llvm_load_module "c_cell_lessthanorequal.bc";
+mL <- llvm_load_module "l_cell_lessthanorequal.bc";
+llvm_verify mC "cell_lessthanorequal" [] false spec_lessthanorequal z3;
+llvm_verify mL "cell_lessthanorequal" [] false spec_lessthanorequal z3;
+
+mC <- llvm_load_module "c_cell_greaterthanorequal.bc";
+mL <- llvm_load_module "l_cell_greaterthanorequal.bc";
+llvm_verify mC "cell_greaterthanorequal" [] false spec_greaterthanorequal z3;
+llvm_verify mL "cell_greaterthanorequal" [] false spec_greaterthanorequal z3;
+
+mC <- llvm_load_module "c_cell_min.bc";
+mL <- llvm_load_module "l_cell_min.bc";
+llvm_verify mC "cell_min" [] false spec_min z3;
+llvm_verify mL "cell_min" [] false spec_min z3;
+
+mC <- llvm_load_module "c_cell_max.bc";
+mL <- llvm_load_module "l_cell_max.bc";
+llvm_verify mC "cell_max" [] false spec_max z3;
+llvm_verify mL "cell_max" [] false spec_max z3;
+
+print "CELL_W16_BINARY_SAW_GREEN";

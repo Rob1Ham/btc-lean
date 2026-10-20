@@ -1,0 +1,31 @@
+// SAW leg for numeric/C-L-within-4byte (SCR-089, full 4-byte coverage).
+//
+// Both legs are verified against the same independent Cryptol model for every
+// (content word, length) pair of x, min and max: lengths 0..4 are the full
+// 4-byte CScriptNum domain, lengths 5..7 are the width-cap reject edge.
+//
+// The entry stack is exactly [x, min, max]; on success OP_WITHIN pushes {1} or
+// {} and the VerifyScript tail observes res=1 (true) or EVAL_FALSE with an
+// empty top element (false).
+import "cell.cry";
+
+let spec_within = do {
+  wx  <- llvm_fresh_var "wx"  (llvm_int 32);
+  lx  <- llvm_fresh_var "lx"  (llvm_int 32);
+  wmn <- llvm_fresh_var "wmn" (llvm_int 32);
+  lmn <- llvm_fresh_var "lmn" (llvm_int 32);
+  wmx <- llvm_fresh_var "wmx" (llvm_int 32);
+  lmx <- llvm_fresh_var "lmx" (llvm_int 32);
+  llvm_execute_func [ llvm_term wx, llvm_term lx, llvm_term wmn,
+                      llvm_term lmn, llvm_term wmx, llvm_term lmx ];
+  llvm_return (llvm_term {{ pWithin (zext wx) (zext (lx && 0x00000007))
+                                     (zext wmn) (zext (lmn && 0x00000007))
+                                     (zext wmx) (zext (lmx && 0x00000007)) }});
+};
+
+mC <- llvm_load_module "c_cell_within.bc";
+mL <- llvm_load_module "l_cell_within.bc";
+llvm_verify mC "cell_within" [] false spec_within z3;
+llvm_verify mL "cell_within" [] false spec_within z3;
+
+print "CELL_W16_WITHIN_SAW_GREEN";

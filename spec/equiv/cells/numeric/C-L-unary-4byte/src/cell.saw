@@ -1,0 +1,84 @@
+// SAW leg for numeric/C-L-unary-4byte (SCR-087).
+//
+// Both legs are verified against the same independent Cryptol model for every
+// (content word, length) pair, i.e. every CScriptNum operand of length 0..7:
+// lengths 0..4 are the full 4-byte operand domain (2^32 byte strings per
+// length), lengths 5..7 are the width-cap reject edge.
+//
+// `pUnary`'s opcode argument is a Cryptol literal, so each opcode gets its own
+// unfolding of the same model; the model itself is shared (build/cell.cry).
+import "cell.cry";
+
+let spec1add = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x000000000000008b (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let spec1sub = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x000000000000008c (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specnegate = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x000000000000008f (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specabs = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x0000000000000090 (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specnot = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x0000000000000091 (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let spec0notequal = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary 0x0000000000000092 (zext w) (zext (lb && 0x00000007)) }});
+};
+
+mC <- llvm_load_module "c_cell_1add.bc";
+mL <- llvm_load_module "l_cell_1add.bc";
+llvm_verify mC "cell_1add" [] false spec1add z3;
+llvm_verify mL "cell_1add" [] false spec1add z3;
+
+mC <- llvm_load_module "c_cell_1sub.bc";
+mL <- llvm_load_module "l_cell_1sub.bc";
+llvm_verify mC "cell_1sub" [] false spec1sub z3;
+llvm_verify mL "cell_1sub" [] false spec1sub z3;
+
+mC <- llvm_load_module "c_cell_negate.bc";
+mL <- llvm_load_module "l_cell_negate.bc";
+llvm_verify mC "cell_negate" [] false specnegate z3;
+llvm_verify mL "cell_negate" [] false specnegate z3;
+
+mC <- llvm_load_module "c_cell_abs.bc";
+mL <- llvm_load_module "l_cell_abs.bc";
+llvm_verify mC "cell_abs" [] false specabs z3;
+llvm_verify mL "cell_abs" [] false specabs z3;
+
+mC <- llvm_load_module "c_cell_not.bc";
+mL <- llvm_load_module "l_cell_not.bc";
+llvm_verify mC "cell_not" [] false specnot z3;
+llvm_verify mL "cell_not" [] false specnot z3;
+
+mC <- llvm_load_module "c_cell_0notequal.bc";
+mL <- llvm_load_module "l_cell_0notequal.bc";
+llvm_verify mC "cell_0notequal" [] false spec0notequal z3;
+llvm_verify mL "cell_0notequal" [] false spec0notequal z3;
+
+print "CELL_W16_UNARY_SAW_GREEN";

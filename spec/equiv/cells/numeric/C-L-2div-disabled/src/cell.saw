@@ -1,0 +1,39 @@
+// SAW leg for numeric/C-L-2div-disabled (SCR-092).
+//
+// `pGate` is Bitcoin Core's EvalScript disabled-opcode gate
+// (interpreter.cpp:471-489) as an independent Cryptol predicate over the whole
+// 32-bit wire word.  Both legs are verified against it: the C excerpt
+// transcribes the disjunction, the L leg calls the twin's own
+// disabled_wire (runtime.inc:396-407).  This pins the 15-wire disabled set,
+// wire 0x8e (OP_2DIV) as a member, and the fact that no other wire is
+// rejected at this layer.
+//
+// `pTapScan` is ExecuteWitnessScript's OP_SUCCESSx pre-pass over a
+// one-opcode tapscript (interpreter.cpp:1846-1862, DISCOURAGE_OP_SUCCESS
+// clear).  Only the C leg is verified: tapscript execution is out of the
+// twin's contract (E4, twin/generator.md:409), so there is no L counterpart to
+// compare against.  The cell therefore records the tapscript edge as a C-vs-
+// model result, not a C-vs-L one -- see spec.md.
+import "cell.cry";
+
+let spec_gate = do {
+  w <- llvm_fresh_var "w" (llvm_int 32);
+  llvm_execute_func [ llvm_term w ];
+  llvm_return (llvm_term {{ pGate (zext w) }});
+};
+
+let spec_tap_scan = do {
+  w <- llvm_fresh_var "w" (llvm_int 32);
+  llvm_execute_func [ llvm_term w ];
+  llvm_return (llvm_term {{ pTapScan (zext w) }});
+};
+
+mC <- llvm_load_module "c_cell_gate.bc";
+mL <- llvm_load_module "l_cell_gate.bc";
+llvm_verify mC "cell_gate" [] false spec_gate z3;
+llvm_verify mL "cell_gate" [] false spec_gate z3;
+
+mC <- llvm_load_module "c_cell_tap_scan.bc";
+llvm_verify mC "cell_tap_scan" [] false spec_tap_scan z3;
+
+print "CELL_W16_2DIV_SAW_GREEN";

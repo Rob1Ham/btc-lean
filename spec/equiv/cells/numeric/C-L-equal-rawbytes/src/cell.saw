@@ -1,0 +1,47 @@
+// SAW leg for numeric/C-L-equal-rawbytes (SCR-091).
+//
+// Both legs are verified against the same independent Cryptol model for every
+// raw 8-byte element pair and every length 0..8 (lengths are the 4-bit harness
+// input folded by num_len8).  OP_EQUAL/OP_EQUALVERIFY do not decode a
+// CScriptNum, so unlike the other numeric cells there is no width cap: the
+// whole 8-byte element is in the domain.
+//
+// The entry stack is exactly [a, b]:
+//   * OP_EQUAL        -- pushes {1} or {}; the tail observes res=1, or
+//                        EVAL_FALSE with a one-element empty top.
+//   * OP_EQUALVERIFY  -- success pops both and leaves the stack empty, so the
+//                        tail reports EVAL_FALSE (empty stack); failure is
+//                        SCRIPT_ERR_EQUALVERIFY (12).
+import "cell.cry";
+
+let spec_equal = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 64);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 64);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [ llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb ];
+  llvm_return (llvm_term {{ pEqual 0x0000000000000087 wa (clamp8 la)
+                                                  wb (clamp8 lb) }});
+};
+
+let spec_equalverify = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 64);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 64);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [ llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb ];
+  llvm_return (llvm_term {{ pEqual 0x0000000000000088 wa (clamp8 la)
+                                                  wb (clamp8 lb) }});
+};
+
+mC <- llvm_load_module "c_cell_equal.bc";
+mL <- llvm_load_module "l_cell_equal.bc";
+llvm_verify mC "cell_equal" [] false spec_equal z3;
+llvm_verify mL "cell_equal" [] false spec_equal z3;
+
+mC <- llvm_load_module "c_cell_equalverify.bc";
+mL <- llvm_load_module "l_cell_equalverify.bc";
+llvm_verify mC "cell_equalverify" [] false spec_equalverify z3;
+llvm_verify mL "cell_equalverify" [] false spec_equalverify z3;
+
+print "CELL_W16_EQUAL_SAW_GREEN";

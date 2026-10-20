@@ -1,0 +1,75 @@
+# cell: numeric/C-L-2div-disabled
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops.h sha256 471352677548ea2f1a7bd64a9eec71d8e94ffd2e2be07030e7806fa5895cb0fc
+# build: build/build.txt
+# alive-tv flags: --smt-to=120000
+
+# command: alive-tv --smt-to=120000 build/c_cell_gate.ll build/l_cell_gate.ll
+
+----------------------------------------
+define i64 @cell_gate(i32 noundef %wire) nofree willreturn memory(none) {
+entry:
+  switch i32 noundef %wire, label %if.end [
+    i32 153, label %return
+    i32 152, label %return
+    i32 151, label %return
+    i32 150, label %return
+    i32 149, label %return
+    i32 142, label %return
+    i32 141, label %return
+    i32 134, label %return
+    i32 133, label %return
+    i32 132, label %return
+    i32 131, label %return
+    i32 129, label %return
+    i32 128, label %return
+    i32 127, label %return
+    i32 126, label %return
+  ]
+
+if.end:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 2, %if.end ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 2, i64 69
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_gate(i32 noundef %wire) nofree willreturn memory(none) {
+entry:
+  switch i32 noundef %wire, label %if.end [
+    i32 126, label %return
+    i32 127, label %return
+    i32 128, label %return
+    i32 129, label %return
+    i32 131, label %return
+    i32 132, label %return
+    i32 133, label %return
+    i32 134, label %return
+    i32 141, label %return
+    i32 142, label %return
+    i32 149, label %return
+    i32 150, label %return
+    i32 151, label %return
+    i32 152, label %return
+    i32 153, label %return
+  ]
+
+if.end:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 2, %if.end ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ], [ 68, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 2, i64 69
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
