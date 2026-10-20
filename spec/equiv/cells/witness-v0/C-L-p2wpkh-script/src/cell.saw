@@ -1,0 +1,53 @@
+import "cell.cry";
+
+m0C <- llvm_load_module "c_cell_p2wpkh_script_w0.bc";
+m0L <- llvm_load_module "l_cell_p2wpkh_script_w0.bc";
+m1C <- llvm_load_module "c_cell_p2wpkh_script_w1.bc";
+m1L <- llvm_load_module "l_cell_p2wpkh_script_w1.bc";
+m2C <- llvm_load_module "c_cell_p2wpkh_script_w2.bc";
+m2L <- llvm_load_module "l_cell_p2wpkh_script_w2.bc";
+m3C <- llvm_load_module "c_cell_p2wpkh_script_w3.bc";
+m3L <- llvm_load_module "l_cell_p2wpkh_script_w3.bc";
+
+let spec_w0 = do {
+  p0 <- llvm_fresh_var "p0" (llvm_int 64);
+  p1 <- llvm_fresh_var "p1" (llvm_int 64);
+  p2 <- llvm_fresh_var "p2" (llvm_int 64);
+  llvm_execute_func [llvm_term p0, llvm_term p1, llvm_term p2];
+  llvm_return (llvm_term {{ w0 p0 p1 p2 }});
+};
+
+let spec_w1 = do {
+  p0 <- llvm_fresh_var "p0" (llvm_int 64);
+  p1 <- llvm_fresh_var "p1" (llvm_int 64);
+  p2 <- llvm_fresh_var "p2" (llvm_int 64);
+  llvm_execute_func [llvm_term p0, llvm_term p1, llvm_term p2];
+  llvm_return (llvm_term {{ w1 p0 p1 p2 }});
+};
+
+let spec_w2 = do {
+  p0 <- llvm_fresh_var "p0" (llvm_int 64);
+  p1 <- llvm_fresh_var "p1" (llvm_int 64);
+  p2 <- llvm_fresh_var "p2" (llvm_int 64);
+  llvm_execute_func [llvm_term p0, llvm_term p1, llvm_term p2];
+  llvm_return (llvm_term {{ w2 p0 p1 p2 }});
+};
+
+let spec_w3 = do {
+  p0 <- llvm_fresh_var "p0" (llvm_int 64);
+  p1 <- llvm_fresh_var "p1" (llvm_int 64);
+  p2 <- llvm_fresh_var "p2" (llvm_int 64);
+  llvm_execute_func [llvm_term p0, llvm_term p1, llvm_term p2];
+  llvm_return (llvm_term {{ w3 p0 p1 p2 }});
+};
+
+llvm_verify m0C "cell_p2wpkh_script_w0" [] false spec_w0 abc;
+llvm_verify m0L "cell_p2wpkh_script_w0" [] false spec_w0 abc;
+llvm_verify m1C "cell_p2wpkh_script_w1" [] false spec_w1 abc;
+llvm_verify m1L "cell_p2wpkh_script_w1" [] false spec_w1 abc;
+llvm_verify m2C "cell_p2wpkh_script_w2" [] false spec_w2 abc;
+llvm_verify m2L "cell_p2wpkh_script_w2" [] false spec_w2 abc;
+llvm_verify m3C "cell_p2wpkh_script_w3" [] false spec_w3 abc;
+llvm_verify m3L "cell_p2wpkh_script_w3" [] false spec_w3 abc;
+
+print "CELL_P2WPKH_SCRIPT_SAW_GREEN";

@@ -1,0 +1,34 @@
+# cell: C-L-witness-v0-cleanstack
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_v0_cleanstack 
+# command: alive-tv ir/c_cell_v0_cleanstack.ll ir/l_cell_v0_cleanstack.ll
+
+----------------------------------------
+define i64 @cell_v0_cleanstack(i64 noundef %stack_size, i64 noundef %top_truthy) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %stack_size, 1
+  %tobool.not = icmp eq i64 noundef %top_truthy, 0
+  %. = select i1 %tobool.not, i64 8, i64 1
+  %retval.0 = select i1 %cmp.not, i64 %., i64 120
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 121
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_v0_cleanstack(i64 noundef %stack_size, i64 noundef %top_truthy) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %stack_size, 1
+  %tobool.not = icmp eq i64 noundef %top_truthy, 0
+  %. = select i1 %tobool.not, i64 8, i64 1
+  %retval.0 = select i1 %cmp.not, i64 %., i64 120
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 121
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

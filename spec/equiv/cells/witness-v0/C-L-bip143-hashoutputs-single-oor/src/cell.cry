@@ -1,0 +1,11 @@
+module Spec where
+
+// BIP143 hashOutputs slot selection (interpreter.cpp:1647-1653).
+// mode 0 = zero uint256 (SCR-141), 1 = uint256::ONE (legacy, not this path),
+// mode 2 = dsha(all outputs), mode 3 = dsha(single output at nIn).
+hashoutputs_mode : [64] -> [64] -> [64] -> [64]
+hashoutputs_mode ht ni vl =
+  if ht % 32 == 3 then
+    if ni < vl then 3 else 0
+  else if ht % 32 == 2 then 0
+  else 2
