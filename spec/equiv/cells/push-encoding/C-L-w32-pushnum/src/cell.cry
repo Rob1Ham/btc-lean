@@ -1,0 +1,31 @@
+module CellPushNum where
+
+// Independent statement of the OP_0 / OP_1NEGATE / OP_1..OP_16 push result
+// (interpreter.cpp:499-503 and 527-546; Defs.lean:836-846) and of
+// VerifyScript's EVAL_FALSE tail (interpreter.cpp:1876-1880).
+//
+// sel: 0 -> OP_0, 1 -> OP_1NEGATE, 2..17 -> OP_1..OP_16.
+// Stack is one element; packed observable is
+//   res(2) | err(6) | depth(2) | len(2) | first byte(8) | final(1).
+
+zext8 : [32] -> [64]
+zext8 x = (0 : [32]) # x
+
+to32 : [8] -> [32]
+to32 x = (0 : [24]) # x
+
+byteOf : [32] -> [32]
+byteOf sel = if sel == 0 then (0 : [32]) else if sel == 1 then to32 0x81 else (sel - 1)
+
+lenOf : [32] -> [64]
+lenOf sel = if sel == 0 then 0 else 1
+
+finalOf : [32] -> Bit
+finalOf sel = sel != 0
+
+packed : [32] -> [64]
+packed sel = (1 : [64])
+          || ((1 : [64]) << 8)
+          || (lenOf sel << 10)
+          || (zext8 (byteOf sel) << 12)
+          || ((if finalOf sel then (1 : [64]) else (0 : [64])) << 20)

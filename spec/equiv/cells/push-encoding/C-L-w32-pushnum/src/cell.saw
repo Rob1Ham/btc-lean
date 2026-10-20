@@ -1,0 +1,17 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_pushnum.bc";
+mL <- llvm_load_module "l_cell_pushnum.bc";
+
+// Both legs against the same independent predicate, for every sel in the 18
+// opcodes and both values of the MINIMALDATA policy bit (which the rule must
+// not consult on these paths).
+let spec = do {
+  sel <- llvm_fresh_var "sel" (llvm_int 32);
+  md  <- llvm_fresh_var "md"  (llvm_int 32);
+  llvm_precond {{ sel <= 17 }};
+  llvm_execute_func [llvm_term sel, llvm_term md];
+  llvm_return (llvm_term {{ packed sel }});
+};
+llvm_verify mC "cell_pushnum" [] false spec abc;
+llvm_verify mL "cell_pushnum" [] false spec abc;
+print "CELL_PUSH_PUSHNUM_SAW_GREEN";

@@ -1,0 +1,46 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_parse_meta.bc";
+mL <- llvm_load_module "l_cell_parse_meta.bc";
+mCP <- llvm_load_module "c_cell_parse_payload.bc";
+mLP <- llvm_load_module "l_cell_parse_payload.bc";
+
+// Both legs against the same independent parser statement for every 8-byte
+// script and every valid length 0..8.  Two observables: the parse result
+// (ok, wire, data length, next offset) and the payload lanes.
+let metaSpec = do {
+  n  <- llvm_fresh_var "n"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  b6 <- llvm_fresh_var "b6" (llvm_int 8);
+  b7 <- llvm_fresh_var "b7" (llvm_int 8);
+  llvm_precond {{ n <= 8 }};
+  llvm_execute_func [llvm_term n, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term b5, llvm_term b6,
+                     llvm_term b7];
+  llvm_return (llvm_term {{ packedMeta n [b0,b1,b2,b3,b4,b5,b6,b7] }});
+};
+let payloadSpec = do {
+  n  <- llvm_fresh_var "n"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  b6 <- llvm_fresh_var "b6" (llvm_int 8);
+  b7 <- llvm_fresh_var "b7" (llvm_int 8);
+  llvm_precond {{ n <= 8 }};
+  llvm_execute_func [llvm_term n, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term b5, llvm_term b6,
+                     llvm_term b7];
+  llvm_return (llvm_term {{ packedPayload n [b0,b1,b2,b3,b4,b5,b6,b7] }});
+};
+llvm_verify mC  "cell_parse_meta"    [] false metaSpec    abc;
+llvm_verify mL  "cell_parse_meta"    [] false metaSpec    abc;
+llvm_verify mCP "cell_parse_payload" [] false payloadSpec abc;
+llvm_verify mLP "cell_parse_payload" [] false payloadSpec abc;
+print "CELL_PUSH_PARSE_SAW_GREEN";

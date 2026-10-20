@@ -1,0 +1,23 @@
+import "cell.cry";
+mC0 <- llvm_load_module "c_cell_fexec_false.bc";
+mL0 <- llvm_load_module "l_cell_fexec_false.bc";
+mC1 <- llvm_load_module "c_cell_fexec_true.bc";
+mL1 <- llvm_load_module "l_cell_fexec_true.bc";
+
+// Both legs against the same independent packed constants, for both values
+// of SCRIPT_VERIFY_MINIMALDATA (md = 0 / md != 0).
+let s0 = do {
+  md <- llvm_fresh_var "md" (llvm_int 32);
+  llvm_execute_func [llvm_term md];
+  llvm_return (llvm_term {{ packedFalse md }});
+};
+let s1 = do {
+  md <- llvm_fresh_var "md" (llvm_int 32);
+  llvm_execute_func [llvm_term md];
+  llvm_return (llvm_term {{ packedTrue md }});
+};
+llvm_verify mC0 "cell_fexec_false" [] false s0 abc;
+llvm_verify mL0 "cell_fexec_false" [] false s0 abc;
+llvm_verify mC1 "cell_fexec_true"  [] false s1 abc;
+llvm_verify mL1 "cell_fexec_true"  [] false s1 abc;
+print "CELL_PUSH_FEXEC_SAW_GREEN";

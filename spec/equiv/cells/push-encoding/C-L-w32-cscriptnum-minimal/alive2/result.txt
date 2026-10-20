@@ -1,0 +1,269 @@
+# cell: push-encoding/C-L-w32-cscriptnum-minimal
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv build/c_cell_cscriptnum.ll build/l_cell_cscriptnum.ll
+
+----------------------------------------
+define i64 @cell_cscriptnum(i32 noundef %n, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i32 noundef %minimal) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %n, 4
+  br i1 %cmp, label %cleanup9, label %if.end
+
+if.end:
+  %tobool.i = icmp ne i32 noundef %minimal, 0
+  %cmp1.i = icmp ne i32 noundef %n, 0
+  %or.cond.i = and i1 %cmp1.i, %tobool.i
+  br i1 %or.cond.i, label %if.then2.i, label %if.end13.i
+
+if.then2.i:
+  switch i32 noundef %n, label %cond.false8.i [
+    i32 1, label %_ZL8core_topPKhj.exit
+    i32 2, label %cond.true2.i
+    i32 3, label %cond.true6.i
+  ]
+
+cond.false8.i:
+  br label %_ZL8core_topPKhj.exit
+
+cond.true2.i:
+  br label %_ZL8core_topPKhj.exit
+
+cond.true6.i:
+  br label %_ZL8core_topPKhj.exit
+
+_ZL8core_topPKhj.exit:
+  %cond13.in.i.sroa.speculated = phi i8 [ noundef zeroext %b1, %cond.true2.i ], [ noundef zeroext %b2, %cond.true6.i ], [ noundef zeroext %b3, %cond.false8.i ], [ noundef zeroext %b0, %if.then2.i ]
+  %#0 = and i8 %cond13.in.i.sroa.speculated, 127
+  %cmp3.i = icmp eq i8 %#0, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end13.i
+
+if.then4.i:
+  %cmp5.i = icmp samesign ult i32 noundef %n, 2
+  br i1 %cmp5.i, label %_ZL21core_decode_scriptnumPKhjjPl.exit, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  switch i32 noundef %n, label %cond.false4.i [
+    i32 2, label %_ZL9core_prevPKhj.exit
+    i32 3, label %cond.true2.i13
+  ]
+
+cond.false4.i:
+  br label %_ZL9core_prevPKhj.exit
+
+cond.true2.i13:
+  br label %_ZL9core_prevPKhj.exit
+
+_ZL9core_prevPKhj.exit:
+  %cond7.in.i.sroa.speculated = phi i8 [ noundef zeroext %b1, %cond.true2.i13 ], [ noundef zeroext %b2, %cond.false4.i ], [ noundef zeroext %b0, %lor.lhs.false.i ]
+  %cmp9.i = icmp sgt i8 %cond7.in.i.sroa.speculated, 255
+  br i1 %cmp9.i, label %_ZL21core_decode_scriptnumPKhjjPl.exit, label %if.end13.i
+
+if.end13.i:
+  switch i32 noundef %n, label %sw.default.i [
+    i32 0, label %_ZL21core_decode_scriptnumPKhjjPl.exit
+    i32 1, label %sw.bb1.i
+    i32 2, label %sw.bb6.i
+    i32 3, label %sw.bb23.i
+  ]
+
+sw.default.i:
+  %conv48.i = zext i8 noundef zeroext %b0 to i64
+  %conv50.i = zext i8 noundef zeroext %b1 to i64
+  %shl51.i = shl nsw nuw i64 %conv50.i, 8
+  %or52.i = or disjoint i64 %shl51.i, %conv48.i
+  %conv54.i = zext i8 noundef zeroext %b2 to i64
+  %shl55.i = shl nsw nuw i64 %conv54.i, 16
+  %or56.i = or disjoint i64 %or52.i, %shl55.i
+  %conv58.i = zext i8 noundef zeroext %b3 to i64
+  %and59.i = shl nsw nuw i64 %conv58.i, 24
+  %shl61.i = and i64 %and59.i, 2130706432
+  %or62.i = or disjoint i64 %shl61.i, %or56.i
+  %sub68.i = sub nsw i64 0, %or62.i
+  %tobool66.not92.i = icmp slt i8 noundef zeroext %b3, 0
+  %cond71.i = select i1 %tobool66.not92.i, i64 %sub68.i, i64 %or62.i
+  br label %_ZL21core_decode_scriptnumPKhjjPl.exit
+
+sw.bb1.i:
+  %#1 = and i8 noundef zeroext %b0, 127
+  %conv2.i = zext nneg i8 %#1 to i64
+  %sub.i = sub nsw i64 0, %conv2.i
+  %tobool.not91.i = icmp slt i8 noundef zeroext %b0, 0
+  %cond.i = select i1 %tobool.not91.i, i64 %sub.i, i64 %conv2.i
+  br label %_ZL21core_decode_scriptnumPKhjjPl.exit
+
+sw.bb6.i:
+  %conv11.i = zext i8 noundef zeroext %b1 to i64
+  %and12.i = shl nsw nuw i64 %conv11.i, 8
+  %#2 = and i64 %and12.i, 32512
+  %#3 = zext i8 noundef zeroext %b0 to i64
+  %or.i = or disjoint i64 %#2, %#3
+  %sub19.i = sub nsw i64 0, %or.i
+  %tobool17.not90.i = icmp slt i8 noundef zeroext %b1, 0
+  %cond22.i = select i1 %tobool17.not90.i, i64 %sub19.i, i64 %or.i
+  br label %_ZL21core_decode_scriptnumPKhjjPl.exit
+
+sw.bb23.i:
+  %conv26.i = zext i8 noundef zeroext %b0 to i64
+  %conv28.i = zext i8 noundef zeroext %b1 to i64
+  %shl29.i = shl nsw nuw i64 %conv28.i, 8
+  %or30.i = or disjoint i64 %shl29.i, %conv26.i
+  %conv32.i = zext i8 noundef zeroext %b2 to i64
+  %and33.i = shl nsw nuw i64 %conv32.i, 16
+  %shl35.i = and i64 %and33.i, 8323072
+  %or36.i = or disjoint i64 %shl35.i, %or30.i
+  %sub42.i = sub nsw i64 0, %or36.i
+  %tobool40.not89.i = icmp slt i8 noundef zeroext %b2, 0
+  %cond45.i = select i1 %tobool40.not89.i, i64 %sub42.i, i64 %or36.i
+  br label %_ZL21core_decode_scriptnumPKhjjPl.exit
+
+_ZL21core_decode_scriptnumPKhjjPl.exit:
+  %v.0 = phi i64 [ 0, %if.then4.i ], [ 0, %_ZL9core_prevPKhj.exit ], [ %cond71.i, %sw.default.i ], [ %cond45.i, %sw.bb23.i ], [ %cond22.i, %sw.bb6.i ], [ %cond.i, %sw.bb1.i ], [ 0, %if.end13.i ]
+  %tobool.not = phi i1 [ 0, %if.then4.i ], [ 0, %_ZL9core_prevPKhj.exit ], [ 1, %sw.default.i ], [ 1, %sw.bb23.i ], [ 1, %sw.bb6.i ], [ 1, %sw.bb1.i ], [ 1, %if.end13.i ]
+  %retval.0.i = phi i64 [ 16, %if.then4.i ], [ 16, %_ZL9core_prevPKhj.exit ], [ 0, %sw.default.i ], [ 0, %sw.bb23.i ], [ 0, %sw.bb6.i ], [ 0, %sw.bb1.i ], [ 0, %if.end13.i ]
+  %and4.i = shl nsw i64 %v.0, 6
+  %shl5.i = and i64 %and4.i, 274877906880
+  %or6.i = or disjoint i64 %shl5.i, 1
+  %retval.0 = select i1 %tobool.not, i64 %or6.i, i64 %retval.0.i
+  br label %cleanup9
+
+cleanup9:
+  %retval.1 = phi i64 [ %retval.0, %_ZL21core_decode_scriptnumPKhjjPl.exit ], [ 16, %entry ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 274877906882
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_cscriptnum(i32 noundef %n, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i32 noundef %minimal) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %n, 4
+  br i1 %cmp, label %cleanup9, label %if.end
+
+if.end:
+  %tobool.i = icmp ne i32 noundef %minimal, 0
+  %cmp1.i = icmp ne i32 noundef %n, 0
+  %or.cond.i = and i1 %cmp1.i, %tobool.i
+  br i1 %or.cond.i, label %if.then2.i, label %if.end13.i
+
+if.then2.i:
+  switch i32 noundef %n, label %cond.false8.i [
+    i32 1, label %_ZL8lean_topPKhj.exit
+    i32 2, label %cond.true2.i
+    i32 3, label %cond.true6.i
+  ]
+
+cond.false8.i:
+  br label %_ZL8lean_topPKhj.exit
+
+cond.true2.i:
+  br label %_ZL8lean_topPKhj.exit
+
+cond.true6.i:
+  br label %_ZL8lean_topPKhj.exit
+
+_ZL8lean_topPKhj.exit:
+  %cond13.in.i.sroa.speculated = phi i8 [ noundef zeroext %b1, %cond.true2.i ], [ noundef zeroext %b2, %cond.true6.i ], [ noundef zeroext %b3, %cond.false8.i ], [ noundef zeroext %b0, %if.then2.i ]
+  %#0 = and i8 %cond13.in.i.sroa.speculated, 127
+  %cmp3.i = icmp eq i8 %#0, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end13.i
+
+if.then4.i:
+  %cmp5.i = icmp samesign ult i32 noundef %n, 2
+  br i1 %cmp5.i, label %_ZL15lean_decode_numPKhjjPl.exit, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  switch i32 noundef %n, label %cond.false4.i [
+    i32 2, label %_ZL9lean_prevPKhj.exit
+    i32 3, label %cond.true2.i13
+  ]
+
+cond.false4.i:
+  br label %_ZL9lean_prevPKhj.exit
+
+cond.true2.i13:
+  br label %_ZL9lean_prevPKhj.exit
+
+_ZL9lean_prevPKhj.exit:
+  %cond7.in.i.sroa.speculated = phi i8 [ noundef zeroext %b1, %cond.true2.i13 ], [ noundef zeroext %b2, %cond.false4.i ], [ noundef zeroext %b0, %lor.lhs.false.i ]
+  %cmp9.i = icmp sgt i8 %cond7.in.i.sroa.speculated, 255
+  br i1 %cmp9.i, label %_ZL15lean_decode_numPKhjjPl.exit, label %if.end13.i
+
+if.end13.i:
+  switch i32 noundef %n, label %sw.default.i [
+    i32 0, label %_ZL15lean_decode_numPKhjjPl.exit
+    i32 1, label %sw.bb1.i
+    i32 2, label %sw.bb6.i
+    i32 3, label %sw.bb23.i
+  ]
+
+sw.default.i:
+  %conv48.i = zext i8 noundef zeroext %b0 to i64
+  %conv50.i = zext i8 noundef zeroext %b1 to i64
+  %shl51.i = shl nsw nuw i64 %conv50.i, 8
+  %or52.i = or disjoint i64 %shl51.i, %conv48.i
+  %conv54.i = zext i8 noundef zeroext %b2 to i64
+  %shl55.i = shl nsw nuw i64 %conv54.i, 16
+  %or56.i = or disjoint i64 %or52.i, %shl55.i
+  %conv58.i = zext i8 noundef zeroext %b3 to i64
+  %and59.i = shl nsw nuw i64 %conv58.i, 24
+  %shl61.i = and i64 %and59.i, 2130706432
+  %or62.i = or disjoint i64 %shl61.i, %or56.i
+  %sub68.i = sub nsw i64 0, %or62.i
+  %tobool66.not92.i = icmp slt i8 noundef zeroext %b3, 0
+  %cond71.i = select i1 %tobool66.not92.i, i64 %sub68.i, i64 %or62.i
+  br label %_ZL15lean_decode_numPKhjjPl.exit
+
+sw.bb1.i:
+  %#1 = and i8 noundef zeroext %b0, 127
+  %conv2.i = zext nneg i8 %#1 to i64
+  %sub.i = sub nsw i64 0, %conv2.i
+  %tobool.not91.i = icmp slt i8 noundef zeroext %b0, 0
+  %cond.i = select i1 %tobool.not91.i, i64 %sub.i, i64 %conv2.i
+  br label %_ZL15lean_decode_numPKhjjPl.exit
+
+sw.bb6.i:
+  %conv11.i = zext i8 noundef zeroext %b1 to i64
+  %and12.i = shl nsw nuw i64 %conv11.i, 8
+  %#2 = and i64 %and12.i, 32512
+  %#3 = zext i8 noundef zeroext %b0 to i64
+  %or.i = or disjoint i64 %#2, %#3
+  %sub19.i = sub nsw i64 0, %or.i
+  %tobool17.not90.i = icmp slt i8 noundef zeroext %b1, 0
+  %cond22.i = select i1 %tobool17.not90.i, i64 %sub19.i, i64 %or.i
+  br label %_ZL15lean_decode_numPKhjjPl.exit
+
+sw.bb23.i:
+  %conv26.i = zext i8 noundef zeroext %b0 to i64
+  %conv28.i = zext i8 noundef zeroext %b1 to i64
+  %shl29.i = shl nsw nuw i64 %conv28.i, 8
+  %or30.i = or disjoint i64 %shl29.i, %conv26.i
+  %conv32.i = zext i8 noundef zeroext %b2 to i64
+  %and33.i = shl nsw nuw i64 %conv32.i, 16
+  %shl35.i = and i64 %and33.i, 8323072
+  %or36.i = or disjoint i64 %shl35.i, %or30.i
+  %sub42.i = sub nsw i64 0, %or36.i
+  %tobool40.not89.i = icmp slt i8 noundef zeroext %b2, 0
+  %cond45.i = select i1 %tobool40.not89.i, i64 %sub42.i, i64 %or36.i
+  br label %_ZL15lean_decode_numPKhjjPl.exit
+
+_ZL15lean_decode_numPKhjjPl.exit:
+  %v.0 = phi i64 [ 0, %if.then4.i ], [ 0, %_ZL9lean_prevPKhj.exit ], [ %cond71.i, %sw.default.i ], [ %cond45.i, %sw.bb23.i ], [ %cond22.i, %sw.bb6.i ], [ %cond.i, %sw.bb1.i ], [ 0, %if.end13.i ]
+  %tobool.not = phi i1 [ 0, %if.then4.i ], [ 0, %_ZL9lean_prevPKhj.exit ], [ 1, %sw.default.i ], [ 1, %sw.bb23.i ], [ 1, %sw.bb6.i ], [ 1, %sw.bb1.i ], [ 1, %if.end13.i ]
+  %retval.0.i = phi i64 [ 16, %if.then4.i ], [ 16, %_ZL9lean_prevPKhj.exit ], [ 0, %sw.default.i ], [ 0, %sw.bb23.i ], [ 0, %sw.bb6.i ], [ 0, %sw.bb1.i ], [ 0, %if.end13.i ]
+  %and4.i = shl nsw i64 %v.0, 6
+  %shl5.i = and i64 %and4.i, 274877906880
+  %or6.i = or disjoint i64 %shl5.i, 1
+  %retval.0 = select i1 %tobool.not, i64 %or6.i, i64 %retval.0.i
+  br label %cleanup9
+
+cleanup9:
+  %retval.1 = phi i64 [ %retval.0, %_ZL15lean_decode_numPKhjjPl.exit ], [ 16, %entry ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 274877906882
+  ret i64 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
