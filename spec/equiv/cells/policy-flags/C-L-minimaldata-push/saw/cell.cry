@@ -1,0 +1,18 @@
+module PolicyCell where
+
+// Independent predicate for SCR-177 (MINIMALDATA push minimality).
+// ordinals: 0 pass, 25 SCRIPT_ERR_MINIMALDATA.
+// opcode constants: OP_0=0, OP_PUSHDATA1=76, OP_PUSHDATA2=77, OP_PUSHDATA4=78.
+minimaldata_push : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+minimaldata_push flags fExec opcode dataLen b0Arg =
+  if ((fExec != 0) && (opcode <= 78) && ((((flags >> 6) % 2) == 1) && ~ok)) then 25
+  else 0
+  where
+    b0 = b0Arg % 256
+    ok = if dataLen == 0 then opcode == 0
+         else if ((dataLen == 1) && (b0 >= 1) && (b0 <= 16)) then False
+         else if ((dataLen == 1) && (b0 == 129)) then False
+         else if dataLen <= 75 then opcode == dataLen
+         else if dataLen <= 255 then opcode == 76
+         else if dataLen <= 65535 then opcode == 77
+         else True

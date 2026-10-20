@@ -1,0 +1,15 @@
+module PolicyCell where
+
+// Independent predicate for SCR-181 (CONST_SCRIPTCODE, both cited gates).
+// sigversion: 0 BASE, 1 WITNESS_V0, 2 TAPSCRIPT.  OP_CODESEPARATOR = 171.
+// ordinals: 0 pass, 53 SIG_OP_CODESEPARATOR, 54 SIG_FINDANDDELETE, 255 out of domain.
+const_codesep : [64] -> [64] -> [64] -> [64]
+const_codesep flags sv opcode =
+  if ((opcode == 171) && ((sv == 0) && (((flags >> 16) % 2) == 1))) then 53
+  else 0
+
+const_finddelete : [64] -> [64] -> [64] -> [64]
+const_finddelete flags sv foundPositive =
+  if foundPositive > 1 then 255
+  else if ((sv == 0) && ((foundPositive != 0) && (((flags >> 16) % 2) == 1))) then 54
+  else 0

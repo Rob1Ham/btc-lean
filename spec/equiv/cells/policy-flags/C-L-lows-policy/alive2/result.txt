@@ -1,0 +1,214 @@
+# cell: policy-flags/C-L-lows-policy
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_lows_policy
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_lows_policy (L ⊑ C) =====
+# command: alive-tv ir/c_cell_lows_policy.ll ir/l_cell_lows_policy.ll
+
+----------------------------------------
+define i64 @cell_lows_policy(i64 noundef %flags, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree noundef willreturn memory(none) {
+entry:
+  %and.i.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  br i1 %spec.select.i, label %land.rhs7.i, label %_Z13c_lows_policymmmmmm.exit
+
+land.rhs7.i:
+  %cmp.not.i.i = icmp eq i64 noundef %s0, 9223372036854775807
+  br i1 %cmp.not.i.i, label %if.end.i.i, label %if.then.i.i
+
+if.end.i.i:
+  %cmp2.not.i.i = icmp eq i64 noundef %s1, -1
+  br i1 %cmp2.not.i.i, label %if.end5.i.i, label %_Z13c_lows_policymmmmmm.exit
+
+if.end5.i.i:
+  %cmp6.not.i.i = icmp eq i64 noundef %s2, 6725966010171805725
+  br i1 %cmp6.not.i.i, label %if.end9.i.i, label %if.then7.i.i
+
+if.end9.i.i:
+  %cmp10.i.i = icmp ult i64 noundef %s3, -2312264954237214559
+  br label %_Z13c_lows_policymmmmmm.exit
+
+if.then7.i.i:
+  %cmp8.i.i = icmp ult i64 noundef %s2, 6725966010171805725
+  br label %_Z13c_lows_policymmmmmm.exit
+
+if.then.i.i:
+  %cmp1.i.i = icmp ult i64 noundef %s0, 9223372036854775807
+  br label %_Z13c_lows_policymmmmmm.exit
+
+_Z13c_lows_policymmmmmm.exit:
+  %#1 = phi i1 [ 0, %entry ], [ %cmp1.i.i, %if.then.i.i ], [ %cmp8.i.i, %if.then7.i.i ], [ %cmp10.i.i, %if.end9.i.i ], [ 1, %if.end.i.i ]
+  %and11.i = and i64 noundef %flags, 14
+  %cmp12.not.i = icmp eq i64 %and11.i, 0
+  %brmerge.i = or i1 %cmp12.not.i, %spec.select.i
+  %and15.i = and i64 noundef %flags, 8
+  %cmp16.not.i = icmp eq i64 %and15.i, 0
+  %brmerge30.i = or i1 %cmp16.not.i, %#1
+  %spec.select31.i = select i1 %brmerge30.i, i64 0, i64 27
+  %retval.0.i = select i1 %brmerge.i, i64 %spec.select31.i, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_lows_policy(i64 noundef %flags, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree noundef willreturn memory(none) {
+entry:
+  %and.i.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  br i1 %spec.select.i, label %land.rhs7.i, label %_Z13l_lows_policymmmmmm.exit
+
+land.rhs7.i:
+  %cmp.not.i.i = icmp eq i64 noundef %s0, 9223372036854775807
+  br i1 %cmp.not.i.i, label %if.end.i.i, label %if.then.i.i
+
+if.end.i.i:
+  %cmp2.not.i.i = icmp eq i64 noundef %s1, -1
+  br i1 %cmp2.not.i.i, label %if.end5.i.i, label %_Z13l_lows_policymmmmmm.exit
+
+if.end5.i.i:
+  %cmp6.not.i.i = icmp eq i64 noundef %s2, 6725966010171805725
+  br i1 %cmp6.not.i.i, label %if.end9.i.i, label %if.then7.i.i
+
+if.end9.i.i:
+  %cmp10.i.i = icmp ult i64 noundef %s3, -2312264954237214559
+  br label %_Z13l_lows_policymmmmmm.exit
+
+if.then7.i.i:
+  %cmp8.i.i = icmp ult i64 noundef %s2, 6725966010171805725
+  br label %_Z13l_lows_policymmmmmm.exit
+
+if.then.i.i:
+  %cmp1.i.i = icmp ult i64 noundef %s0, 9223372036854775807
+  br label %_Z13l_lows_policymmmmmm.exit
+
+_Z13l_lows_policymmmmmm.exit:
+  %#1 = phi i1 [ 0, %entry ], [ %cmp1.i.i, %if.then.i.i ], [ %cmp8.i.i, %if.then7.i.i ], [ %cmp10.i.i, %if.end9.i.i ], [ 1, %if.end.i.i ]
+  %and14.i = and i64 noundef %flags, 8
+  %cmp15.not.i = icmp eq i64 %and14.i, 0
+  %#2 = and i64 noundef %flags, 14
+  %brmerge45.not49.i = icmp eq i64 %#2, 0
+  %brmerge46.i = or i1 %brmerge45.not49.i, %spec.select.i
+  %brmerge47.i = or i1 %cmp15.not.i, %#1
+  %spec.select48.i = select i1 %brmerge47.i, i64 0, i64 27
+  %retval.0.i = select i1 %brmerge46.i, i64 %spec.select48.i, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_lows_policy (C ⊑ L) =====
+# command: alive-tv ir/l_cell_lows_policy.ll ir/c_cell_lows_policy.ll
+
+----------------------------------------
+define i64 @cell_lows_policy(i64 noundef %flags, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree noundef willreturn memory(none) {
+entry:
+  %and.i.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  br i1 %spec.select.i, label %land.rhs7.i, label %_Z13l_lows_policymmmmmm.exit
+
+land.rhs7.i:
+  %cmp.not.i.i = icmp eq i64 noundef %s0, 9223372036854775807
+  br i1 %cmp.not.i.i, label %if.end.i.i, label %if.then.i.i
+
+if.end.i.i:
+  %cmp2.not.i.i = icmp eq i64 noundef %s1, -1
+  br i1 %cmp2.not.i.i, label %if.end5.i.i, label %_Z13l_lows_policymmmmmm.exit
+
+if.end5.i.i:
+  %cmp6.not.i.i = icmp eq i64 noundef %s2, 6725966010171805725
+  br i1 %cmp6.not.i.i, label %if.end9.i.i, label %if.then7.i.i
+
+if.end9.i.i:
+  %cmp10.i.i = icmp ult i64 noundef %s3, -2312264954237214559
+  br label %_Z13l_lows_policymmmmmm.exit
+
+if.then7.i.i:
+  %cmp8.i.i = icmp ult i64 noundef %s2, 6725966010171805725
+  br label %_Z13l_lows_policymmmmmm.exit
+
+if.then.i.i:
+  %cmp1.i.i = icmp ult i64 noundef %s0, 9223372036854775807
+  br label %_Z13l_lows_policymmmmmm.exit
+
+_Z13l_lows_policymmmmmm.exit:
+  %#1 = phi i1 [ 0, %entry ], [ %cmp1.i.i, %if.then.i.i ], [ %cmp8.i.i, %if.then7.i.i ], [ %cmp10.i.i, %if.end9.i.i ], [ 1, %if.end.i.i ]
+  %and14.i = and i64 noundef %flags, 8
+  %cmp15.not.i = icmp eq i64 %and14.i, 0
+  %#2 = and i64 noundef %flags, 14
+  %brmerge45.not49.i = icmp eq i64 %#2, 0
+  %brmerge46.i = or i1 %brmerge45.not49.i, %spec.select.i
+  %brmerge47.i = or i1 %cmp15.not.i, %#1
+  %spec.select48.i = select i1 %brmerge47.i, i64 0, i64 27
+  %retval.0.i = select i1 %brmerge46.i, i64 %spec.select48.i, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_lows_policy(i64 noundef %flags, i64 noundef %rByte, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree noundef willreturn memory(none) {
+entry:
+  %and.i.i = and i64 noundef %rByte, 128
+  %cmp.i = icmp eq i64 %and.i.i, 0
+  %#0 = icmp sgt i64 noundef %s0, 36028797018963967
+  %spec.select.i = and i1 %cmp.i, %#0
+  br i1 %spec.select.i, label %land.rhs7.i, label %_Z13c_lows_policymmmmmm.exit
+
+land.rhs7.i:
+  %cmp.not.i.i = icmp eq i64 noundef %s0, 9223372036854775807
+  br i1 %cmp.not.i.i, label %if.end.i.i, label %if.then.i.i
+
+if.end.i.i:
+  %cmp2.not.i.i = icmp eq i64 noundef %s1, -1
+  br i1 %cmp2.not.i.i, label %if.end5.i.i, label %_Z13c_lows_policymmmmmm.exit
+
+if.end5.i.i:
+  %cmp6.not.i.i = icmp eq i64 noundef %s2, 6725966010171805725
+  br i1 %cmp6.not.i.i, label %if.end9.i.i, label %if.then7.i.i
+
+if.end9.i.i:
+  %cmp10.i.i = icmp ult i64 noundef %s3, -2312264954237214559
+  br label %_Z13c_lows_policymmmmmm.exit
+
+if.then7.i.i:
+  %cmp8.i.i = icmp ult i64 noundef %s2, 6725966010171805725
+  br label %_Z13c_lows_policymmmmmm.exit
+
+if.then.i.i:
+  %cmp1.i.i = icmp ult i64 noundef %s0, 9223372036854775807
+  br label %_Z13c_lows_policymmmmmm.exit
+
+_Z13c_lows_policymmmmmm.exit:
+  %#1 = phi i1 [ 0, %entry ], [ %cmp1.i.i, %if.then.i.i ], [ %cmp8.i.i, %if.then7.i.i ], [ %cmp10.i.i, %if.end9.i.i ], [ 1, %if.end.i.i ]
+  %and11.i = and i64 noundef %flags, 14
+  %cmp12.not.i = icmp eq i64 %and11.i, 0
+  %brmerge.i = or i1 %cmp12.not.i, %spec.select.i
+  %and15.i = and i64 noundef %flags, 8
+  %cmp16.not.i = icmp eq i64 %and15.i, 0
+  %brmerge30.i = or i1 %cmp16.not.i, %#1
+  %spec.select31.i = select i1 %brmerge30.i, i64 0, i64 27
+  %retval.0.i = select i1 %brmerge.i, i64 %spec.select31.i, i64 24
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (2 direction checks)

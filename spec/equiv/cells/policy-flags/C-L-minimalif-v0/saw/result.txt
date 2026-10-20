@@ -1,0 +1,20 @@
+# cell: policy-flags/C-L-minimalif-v0
+# tool: saw 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# roots: cell_minimalif_v0 (each verified in the C module and in the L module)
+# spec: saw/cell.cry (independent predicate, written from the row's rule)
+# modules: build/<leg>_leaf.bc, byte-identical to tracked ir/<leg>_leaf.ll
+# ir-match c_leaf.bc == ir/c_leaf.ll
+# ir-match l_leaf.bc == ir/l_leaf.ll
+
+Loading file "cell.saw"
+Verifying cell_minimalif_v0...
+Simulating cell_minimalif_v0...
+Checking proof obligations cell_minimalif_v0...
+Proof succeeded! cell_minimalif_v0
+Verifying cell_minimalif_v0...
+Simulating cell_minimalif_v0...
+Checking proof obligations cell_minimalif_v0...
+Proof succeeded! cell_minimalif_v0
+CELL_policy_flags_minimalif_v0_SAW_GREEN
+STATUS=saw-green (2 proofs for 1 root(s) x 2 legs)

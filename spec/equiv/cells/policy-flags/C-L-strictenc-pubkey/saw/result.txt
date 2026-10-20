@@ -1,0 +1,20 @@
+# cell: policy-flags/C-L-strictenc-pubkey
+# tool: saw 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# roots: cell_strictenc_pubkey (each verified in the C module and in the L module)
+# spec: saw/cell.cry (independent predicate, written from the row's rule)
+# modules: build/<leg>_leaf.bc, byte-identical to tracked ir/<leg>_leaf.ll
+# ir-match c_leaf.bc == ir/c_leaf.ll
+# ir-match l_leaf.bc == ir/l_leaf.ll
+
+Loading file "cell.saw"
+Verifying cell_strictenc_pubkey...
+Simulating cell_strictenc_pubkey...
+Checking proof obligations cell_strictenc_pubkey...
+Proof succeeded! cell_strictenc_pubkey
+Verifying cell_strictenc_pubkey...
+Simulating cell_strictenc_pubkey...
+Checking proof obligations cell_strictenc_pubkey...
+Proof succeeded! cell_strictenc_pubkey
+CELL_policy_flags_strictenc_SAW_GREEN
+STATUS=saw-green (2 proofs for 1 root(s) x 2 legs)
