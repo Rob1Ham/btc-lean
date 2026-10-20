@@ -1,0 +1,151 @@
+# cell: numeric/C-L-numeric-default-4byte
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (src/cell.cry verbatim)
+# script: build/cell.saw
+# solver: z3
+# expected: at least 14 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Warning: [warning] at /tmp/opencode/wave64/15-scr-080/spec/equiv/cells/numeric/C-L-numeric-default-4byte/build/cell.cry:77:9--77:11
+    Unused name: wa
+[warning] at /tmp/opencode/wave64/15-scr-080/spec/equiv/cells/numeric/C-L-numeric-default-4byte/build/cell.cry:84:15--84:18
+    Unused name: wmn
+[warning] at /tmp/opencode/wave64/15-scr-080/spec/equiv/cells/numeric/C-L-numeric-default-4byte/build/cell.cry:84:9--84:11
+    Unused name: wx
+Verifying cell_pick_roll...
+Simulating cell_pick_roll...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_pick_roll...
+Proof succeeded! cell_pick_roll
+Verifying cell_pick_roll...
+Simulating cell_pick_roll...
+Checking proof obligations cell_pick_roll...
+Proof succeeded! cell_pick_roll
+cell.saw:74:1-74:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_unary.bc";
+^^
+cell.saw:69:1-69:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_pick_roll.bc";
+^^
+cell.saw:75:1-75:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_unary.bc";
+^^
+cell.saw:70:1-70:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_pick_roll.bc";
+^^
+Verifying cell_unary...
+Simulating cell_unary...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_unary...
+Proof succeeded! cell_unary
+Verifying cell_unary...
+Simulating cell_unary...
+Checking proof obligations cell_unary...
+Proof succeeded! cell_unary
+cell.saw:79:1-79:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_binary.bc";
+^^
+cell.saw:74:1-74:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_unary.bc";
+^^
+cell.saw:80:1-80:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_binary.bc";
+^^
+cell.saw:75:1-75:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_unary.bc";
+^^
+Verifying cell_binary...
+Simulating cell_binary...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_binary...
+Proof succeeded! cell_binary
+Verifying cell_binary...
+Simulating cell_binary...
+Checking proof obligations cell_binary...
+Proof succeeded! cell_binary
+cell.saw:84:1-84:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_within.bc";
+^^
+cell.saw:79:1-79:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_binary.bc";
+^^
+cell.saw:85:1-85:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_within.bc";
+^^
+cell.saw:80:1-80:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_binary.bc";
+^^
+Verifying cell_within...
+Simulating cell_within...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_within...
+Proof succeeded! cell_within
+Verifying cell_within...
+Simulating cell_within...
+Checking proof obligations cell_within...
+Proof succeeded! cell_within
+cell.saw:89:1-89:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_checksigadd.bc";
+^^
+cell.saw:84:1-84:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_within.bc";
+^^
+cell.saw:90:1-90:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_checksigadd.bc";
+^^
+cell.saw:85:1-85:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_within.bc";
+^^
+Verifying cell_checksigadd...
+Simulating cell_checksigadd...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_checksigadd...
+Proof succeeded! cell_checksigadd
+Verifying cell_checksigadd...
+Simulating cell_checksigadd...
+Checking proof obligations cell_checksigadd...
+Proof succeeded! cell_checksigadd
+cell.saw:94:1-94:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_cms_nkeys.bc";
+^^
+cell.saw:89:1-89:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_checksigadd.bc";
+^^
+cell.saw:95:1-95:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_cms_nkeys.bc";
+^^
+cell.saw:90:1-90:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_checksigadd.bc";
+^^
+Verifying cell_cms_nkeys...
+Simulating cell_cms_nkeys...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_cms_nkeys...
+Proof succeeded! cell_cms_nkeys
+Verifying cell_cms_nkeys...
+Simulating cell_cms_nkeys...
+Checking proof obligations cell_cms_nkeys...
+Proof succeeded! cell_cms_nkeys
+cell.saw:99:1-99:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_cms_nsigs.bc";
+^^
+cell.saw:94:1-94:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_cms_nkeys.bc";
+^^
+cell.saw:100:1-100:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_cms_nsigs.bc";
+^^
+cell.saw:95:1-95:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_cms_nkeys.bc";
+^^
+Verifying cell_cms_nsigs...
+Simulating cell_cms_nsigs...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_cms_nsigs...
+Proof succeeded! cell_cms_nsigs
+Verifying cell_cms_nsigs...
+Simulating cell_cms_nsigs...
+Checking proof obligations cell_cms_nsigs...
+Proof succeeded! cell_cms_nsigs
+CELL_W64_NUMERIC_DEFAULT_4BYTE_SAW_GREEN
+STATUS=saw-green

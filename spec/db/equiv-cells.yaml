@@ -1576,11 +1576,20 @@ rows:
   summary: all numeric opcodes
   core_ref: script.h:244,247@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-080 (all numeric opcodes): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-numeric-default-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-numeric-default-4byte
+    certificate: d4403a5220418423df656b54b848832c11c43b48368c6609018c3a130c289022
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-numeric-default-4byte
+    certificate: 660b4b94f0fbf06053b65b09fecafda612063a4a55f354426f75163f02d7c007
+    note: Proof succeeded! cell_pick_roll
+  status: both-green
+  gap_note: null
 - id: SCR-081
   family: numeric
   summary: nMaxNumSize=5 special case
@@ -1653,11 +1662,20 @@ rows:
   summary: only re-interpretation enforces limit
   core_ref: script.h:229-236 (comment), getvch@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-085 (only re-interpretation enforces limit): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-reinterpret-limit
+  alive2:
+    result: green
+    cell: numeric/C-L-reinterpret-limit
+    certificate: b0e33d39e7404db4f9ad35c88efae4b1e3a1fee5ef535c2c993b25194b150870
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-reinterpret-limit
+    certificate: 4d119b2412016166ac4e7b82d16885b2dead72b0c3b30ae9a684411de5d5d729
+    note: Proof succeeded! cell_push_raw
+  status: both-green
+  gap_note: null
 - id: SCR-086
   family: numeric
   summary: clamp to int32 for depth/count uses

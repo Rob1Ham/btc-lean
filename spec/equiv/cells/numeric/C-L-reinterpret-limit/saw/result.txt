@@ -1,0 +1,83 @@
+# cell: numeric/C-L-reinterpret-limit
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (tools/num.cry + src/cell_extra.cry as module CellSpec)
+# script: build/cell.saw
+# expected: at least 8 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_push_raw...
+Simulating cell_push_raw...
+Checking proof obligations cell_push_raw...
+Proof succeeded! cell_push_raw
+Verifying cell_push_raw...
+Simulating cell_push_raw...
+Checking proof obligations cell_push_raw...
+Proof succeeded! cell_push_raw
+cell.saw:47:1-47:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_reinterpret.bc";
+^^
+cell.saw:42:1-42:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_push_raw.bc";
+^^
+cell.saw:48:1-48:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_reinterpret.bc";
+^^
+cell.saw:43:1-43:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_push_raw.bc";
+^^
+Verifying cell_reinterpret...
+Simulating cell_reinterpret...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_reinterpret...
+Proof succeeded! cell_reinterpret
+Verifying cell_reinterpret...
+Simulating cell_reinterpret...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_reinterpret...
+Proof succeeded! cell_reinterpret
+cell.saw:52:1-52:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_add4_observe.bc";
+^^
+cell.saw:47:1-47:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_reinterpret.bc";
+^^
+cell.saw:53:1-53:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_add4_observe.bc";
+^^
+cell.saw:48:1-48:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_reinterpret.bc";
+^^
+Verifying cell_add4_observe...
+Simulating cell_add4_observe...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add4_observe...
+Proof succeeded! cell_add4_observe
+Verifying cell_add4_observe...
+Simulating cell_add4_observe...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add4_observe...
+Proof succeeded! cell_add4_observe
+cell.saw:57:1-57:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_add4_readd.bc";
+^^
+cell.saw:52:1-52:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_add4_observe.bc";
+^^
+cell.saw:58:1-58:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_add4_readd.bc";
+^^
+cell.saw:53:1-53:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_add4_observe.bc";
+^^
+Verifying cell_add4_readd...
+Simulating cell_add4_readd...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add4_readd...
+Proof succeeded! cell_add4_readd
+Verifying cell_add4_readd...
+Simulating cell_add4_readd...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add4_readd...
+Proof succeeded! cell_add4_readd
+CELL_SCR085_REINTERPRET_SAW_GREEN
+STATUS=saw-green

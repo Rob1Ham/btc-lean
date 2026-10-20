@@ -1,0 +1,62 @@
+// SAW leg for numeric/C-L-reinterpret-limit (SCR-085).
+//
+// Four entry points, each verified on C and L against the shared numeric
+// model plus the cell-local raw-push observable:
+//
+//   cell_push_raw(w, l)      raw push of clamp8(l) bytes; no CScriptNum, so no
+//                            SCRIPTNUM result for any length 0..8.
+//   cell_reinterpret(w, l)   the same raw element re-interpreted by OP_1ADD;
+//                            SCRIPTNUM (4) exactly when clamp8(l) > 4.
+//   cell_add4_observe(w)     four-byte OP_1ADD; result can be five bytes and is
+//                            observed as a raw stack element.
+//   cell_add4_readd(w)       second OP_1ADD re-interprets that result; SCRIPTNUM
+//                            exactly at w = 0x7fffffff (value 2^31 -> 5 bytes).
+import "cell.cry";
+
+let specPushRaw = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  l <- llvm_fresh_var "l" (llvm_int 32);
+  llvm_execute_func [ llvm_term w, llvm_term l ];
+  llvm_return (llvm_term {{ pRawPush w (clamp8 l) }});
+};
+
+let specReinterpret = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  l <- llvm_fresh_var "l" (llvm_int 32);
+  llvm_execute_func [ llvm_term w, llvm_term l ];
+  llvm_return (llvm_term {{ pUnary 0x000000000000008b w (clamp8 l) }});
+};
+
+let specAdd4Observe = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  llvm_execute_func [ llvm_term w ];
+  llvm_return (llvm_term {{ pAdd4Observe w }});
+};
+
+let specAdd4Readd = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  llvm_execute_func [ llvm_term w ];
+  llvm_return (llvm_term {{ pAdd4Readd w }});
+};
+
+mC <- llvm_load_module "c_cell_push_raw.bc";
+mL <- llvm_load_module "l_cell_push_raw.bc";
+llvm_verify mC "cell_push_raw" [] false specPushRaw z3;
+llvm_verify mL "cell_push_raw" [] false specPushRaw z3;
+
+mC <- llvm_load_module "c_cell_reinterpret.bc";
+mL <- llvm_load_module "l_cell_reinterpret.bc";
+llvm_verify mC "cell_reinterpret" [] false specReinterpret z3;
+llvm_verify mL "cell_reinterpret" [] false specReinterpret z3;
+
+mC <- llvm_load_module "c_cell_add4_observe.bc";
+mL <- llvm_load_module "l_cell_add4_observe.bc";
+llvm_verify mC "cell_add4_observe" [] false specAdd4Observe z3;
+llvm_verify mL "cell_add4_observe" [] false specAdd4Observe z3;
+
+mC <- llvm_load_module "c_cell_add4_readd.bc";
+mL <- llvm_load_module "l_cell_add4_readd.bc";
+llvm_verify mC "cell_add4_readd" [] false specAdd4Readd z3;
+llvm_verify mL "cell_add4_readd" [] false specAdd4Readd z3;
+
+print "CELL_SCR085_REINTERPRET_SAW_GREEN";

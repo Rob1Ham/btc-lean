@@ -1,0 +1,11 @@
+--- /tmp/opencode/wave64/15-scr-080/spec/equiv/cells/numeric/C-L-numeric-default-4byte/src/l_leaf.cpp	2026-10-20 22:06:45.914271409 +0000
++++ /tmp/opencode/wave64/15-scr-080/spec/equiv/cells/numeric/_mut-M-W64-080-a/src/l_leaf.cpp	2026-10-20 22:15:11.873073931 +0000
+@@ -39,7 +39,7 @@
+   uint32_t len = 0;
+   const uint8_t* p = st_top(st.stack, 1, len);
+   int64_t n = 0;
+-  const TwinErr e = decode_num(p, len, /*minimal=*/false, 4, n);
++  const TwinErr e = decode_num(p, len, /*minimal=*/false, 5, n);
+   if (e != TWIN_OK) return dflt_obs(1, static_cast<uint32_t>(core_ord(e)), 0);
+   return dflt_obs(1, 0, n);
+ }

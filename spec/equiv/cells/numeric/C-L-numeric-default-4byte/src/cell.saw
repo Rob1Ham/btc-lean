@@ -1,0 +1,104 @@
+// SAW leg for numeric/C-L-numeric-default-4byte (SCR-080).
+//
+// Both legs are verified against the same independent Cryptol model, for every
+// (content word, length) pair of every operand: lengths 0..4 are the full
+// 4-byte CScriptNum operand domain (2^32 byte strings per length), lengths 5..7
+// are the nMaxNumSize reject edge.  Fourteen proofs: seven entry points x two
+// legs.
+import "cell.cry";
+
+let specPickRoll = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pPickRoll (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specUnary = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pUnary (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specBinary = do {
+  wa <- llvm_fresh_var "wa" (llvm_int 32);
+  la <- llvm_fresh_var "la" (llvm_int 32);
+  wb <- llvm_fresh_var "wb" (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term wa, llvm_term la, llvm_term wb, llvm_term lb];
+  llvm_return (llvm_term {{ pBinary (zext wa) (zext (la && 0x00000007))
+                                    (zext wb) (zext (lb && 0x00000007)) }});
+};
+
+let specWithin = do {
+  wx  <- llvm_fresh_var "wx"  (llvm_int 32);
+  lx  <- llvm_fresh_var "lx"  (llvm_int 32);
+  wmn <- llvm_fresh_var "wmn" (llvm_int 32);
+  lmn <- llvm_fresh_var "lmn" (llvm_int 32);
+  wmx <- llvm_fresh_var "wmx" (llvm_int 32);
+  lmx <- llvm_fresh_var "lmx" (llvm_int 32);
+  llvm_execute_func [llvm_term wx, llvm_term lx, llvm_term wmn,
+                     llvm_term lmn, llvm_term wmx, llvm_term lmx];
+  llvm_return (llvm_term {{ pWithin (zext wx) (zext (lx && 0x00000007))
+                                     (zext wmn) (zext (lmn && 0x00000007))
+                                     (zext wmx) (zext (lmx && 0x00000007)) }});
+};
+
+let specCheckSigAdd = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pCheckSigAdd (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specCmsKeys = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pCmsKeys (zext w) (zext (lb && 0x00000007)) }});
+};
+
+let specCmsSigs = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 32);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ pCmsSigs (zext w) (zext (lb && 0x00000007)) }});
+};
+
+mC <- llvm_load_module "c_cell_pick_roll.bc";
+mL <- llvm_load_module "l_cell_pick_roll.bc";
+llvm_verify mC "cell_pick_roll" [] false specPickRoll z3;
+llvm_verify mL "cell_pick_roll" [] false specPickRoll z3;
+
+mC <- llvm_load_module "c_cell_unary.bc";
+mL <- llvm_load_module "l_cell_unary.bc";
+llvm_verify mC "cell_unary" [] false specUnary z3;
+llvm_verify mL "cell_unary" [] false specUnary z3;
+
+mC <- llvm_load_module "c_cell_binary.bc";
+mL <- llvm_load_module "l_cell_binary.bc";
+llvm_verify mC "cell_binary" [] false specBinary z3;
+llvm_verify mL "cell_binary" [] false specBinary z3;
+
+mC <- llvm_load_module "c_cell_within.bc";
+mL <- llvm_load_module "l_cell_within.bc";
+llvm_verify mC "cell_within" [] false specWithin z3;
+llvm_verify mL "cell_within" [] false specWithin z3;
+
+mC <- llvm_load_module "c_cell_checksigadd.bc";
+mL <- llvm_load_module "l_cell_checksigadd.bc";
+llvm_verify mC "cell_checksigadd" [] false specCheckSigAdd z3;
+llvm_verify mL "cell_checksigadd" [] false specCheckSigAdd z3;
+
+mC <- llvm_load_module "c_cell_cms_nkeys.bc";
+mL <- llvm_load_module "l_cell_cms_nkeys.bc";
+llvm_verify mC "cell_cms_nkeys" [] false specCmsKeys z3;
+llvm_verify mL "cell_cms_nkeys" [] false specCmsKeys z3;
+
+mC <- llvm_load_module "c_cell_cms_nsigs.bc";
+mL <- llvm_load_module "l_cell_cms_nsigs.bc";
+llvm_verify mC "cell_cms_nsigs" [] false specCmsSigs z3;
+llvm_verify mL "cell_cms_nsigs" [] false specCmsSigs z3;
+
+print "CELL_W64_NUMERIC_DEFAULT_4BYTE_SAW_GREEN";

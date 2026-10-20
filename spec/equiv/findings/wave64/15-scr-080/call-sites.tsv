@@ -1,0 +1,19 @@
+line	class	CScriptNum-expression	case-labels
+419	static-int	static const CScriptNum bnZero(0);	-
+420	static-int	static const CScriptNum bnOne(1);	-
+518	int-ctor	CScriptNum bn((int)opcode - (int)(OP_1 - 1));	OP_1NEGATE,OP_1,OP_2,OP_3,OP_4,OP_5,OP_6,OP_7,OP_8,OP_9,OP_10,OP_11,OP_12,OP_13,OP_14,OP_15,OP_16@L499
+556	decode-explicit5	const CScriptNum nLockTime(stacktop(-1), fRequireMinimal, 5);	OP_CHECKLOCKTIMEVERIFY@L532
+584	decode-explicit5	const CScriptNum nSequence(stacktop(-1), fRequireMinimal, 5);	OP_CHECKSEQUENCEVERIFY@L571
+790	int-ctor	CScriptNum bn(stack.size());	OP_DEPTH@L787
+840	decode-default4	int n = CScriptNum(stacktop(-1), fRequireMinimal).getint();	OP_PICK,OP_ROLL@L833
+888	int-ctor	CScriptNum bn(stacktop(-1).size());	OP_SIZE@L883
+939	decode-default4	CScriptNum bn(stacktop(-1), fRequireMinimal);	OP_1ADD,OP_1SUB,OP_NEGATE,OP_ABS,OP_NOT,OP_0NOTEQUAL@L929
+972	decode-default4	CScriptNum bn1(stacktop(-2), fRequireMinimal);	OP_ADD,OP_SUB,OP_BOOLAND,OP_BOOLOR,OP_NUMEQUAL,OP_NUMEQUALVERIFY,OP_NUMNOTEQUAL,OP_LESSTHAN,OP_GREATERTHAN,OP_LESSTHANOREQUAL,OP_GREATERTHANOREQUAL,OP_MIN,OP_MAX@L955
+973	decode-default4	CScriptNum bn2(stacktop(-1), fRequireMinimal);	OP_ADD,OP_SUB,OP_BOOLAND,OP_BOOLOR,OP_NUMEQUAL,OP_NUMEQUALVERIFY,OP_NUMNOTEQUAL,OP_LESSTHAN,OP_GREATERTHAN,OP_LESSTHANOREQUAL,OP_GREATERTHANOREQUAL,OP_MIN,OP_MAX@L955
+974	int-ctor	CScriptNum bn(0);	OP_ADD,OP_SUB,OP_BOOLAND,OP_BOOLOR,OP_NUMEQUAL,OP_NUMEQUALVERIFY,OP_NUMNOTEQUAL,OP_LESSTHAN,OP_GREATERTHAN,OP_LESSTHANOREQUAL,OP_GREATERTHANOREQUAL,OP_MIN,OP_MAX@L955
+1017	decode-default4	CScriptNum bn1(stacktop(-3), fRequireMinimal);	OP_WITHIN@L1012
+1018	decode-default4	CScriptNum bn2(stacktop(-2), fRequireMinimal);	OP_WITHIN@L1012
+1019	decode-default4	CScriptNum bn3(stacktop(-1), fRequireMinimal);	OP_WITHIN@L1012
+1103	decode-default4	const CScriptNum num(stacktop(-2), fRequireMinimal);	OP_CHECKSIGADD@L1094
+1126	decode-default4	int nKeysCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();	OP_CHECKMULTISIG,OP_CHECKMULTISIGVERIFY@L1115
+1140	decode-default4	int nSigsCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();	OP_CHECKMULTISIG,OP_CHECKMULTISIGVERIFY@L1115

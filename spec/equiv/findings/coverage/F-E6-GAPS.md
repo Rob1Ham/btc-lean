@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **152**
+- green: **154**
 - unjudged seam: **2**
-- filed gap: **29**
+- filed gap: **27**
 - still planned: **0**
 - other: **0**
 
@@ -81,9 +81,11 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-076 | stack-ops | `e1-stack/depth-count`, `stack-ops/C-L-depth-size` |
 | SCR-077 | stack-ops | `stack-ops/C-L-ifdup` |
 | SCR-079 | numeric | `numeric/C-L-scriptnum-width` |
+| SCR-080 | numeric | `numeric/C-L-numeric-default-4byte` |
 | SCR-082 | numeric | `numeric/C-L-scriptnum-sign` |
 | SCR-083 | numeric | `numeric/C-L-w64-negzero` |
 | SCR-084 | numeric | `numeric/C-L-scriptnum-signext-exception` |
+| SCR-085 | numeric | `numeric/C-L-reinterpret-limit` |
 | SCR-087 | numeric | `numeric/C-L-unary-4byte` |
 | SCR-088 | numeric | `numeric/C-L-binary-4byte` |
 | SCR-089 | numeric | `e2-numeric/within-boundary`, `numeric/C-L-within-4byte` |
@@ -251,9 +253,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-051 | push-encoding | auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers. |
 | SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-078 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
-| SCR-080 | numeric | SCR-080 (all numeric opcodes): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-081 | numeric | SCR-081 (nMaxNumSize=5 special case): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-085 | numeric | SCR-085 (only re-interpretation enforces limit): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-086 | numeric | SCR-086 (clamp to int32 for depth/count uses): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial; checksig/C-L-checksig-lows-numeric: partial |
 | SCR-112 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial |
