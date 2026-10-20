@@ -1,0 +1,270 @@
+# cell: e4-witness/C-L-w32-witness-hash-compare
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_hash_compare =====
+
+----------------------------------------
+define i64 @cell_hash_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %p0, i64 noundef %p1, i64 noundef %p2, i64 noundef %p3, i64 noundef %exec_res, i64 noundef %exec_err) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %h0, noundef %p0
+  %cmp1.i = icmp eq i64 noundef %h1, noundef %p1
+  %and11.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %h2, noundef %p2
+  %and512.i = and i1 %and11.i, %cmp3.i
+  %cmp6.i = icmp eq i64 noundef %h3, noundef %p3
+  %and813.i = and i1 %and512.i, %cmp6.i
+  br i1 %and813.i, label %if.end.i, label %_ZL14c_hash_comparemmmmmmmmmm.exit
+
+if.end.i:
+  %#0 = trunc i64 noundef %exec_res to i32
+  %conv.i = and i32 %#0, 1
+  %tobool.not.i = icmp eq i32 %conv.i, 0
+  %#1 = trunc i64 noundef %exec_err to i32
+  %conv2.i = shl i32 %#1, 2
+  %#2 = and i32 %conv2.i, 252
+  %#3 = select i1 %tobool.not.i, i32 %#2, i32 0
+  %or3.i.i = or disjoint i32 %#3, %conv.i
+  %or.i.i = zext nneg i32 %or3.i.i to i64
+  br label %_ZL14c_hash_comparemmmmmmmmmm.exit
+
+_ZL14c_hash_comparemmmmmmmmmm.exit:
+  %retval.0.i = phi i64 [ %or.i.i, %if.end.i ], [ 160, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 254
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_hash_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %p0, i64 noundef %p1, i64 noundef %p2, i64 noundef %p3, i64 noundef %exec_res, i64 noundef %exec_err) nofree willreturn memory(none) {
+entry:
+  %conv.i131 = trunc i64 noundef %h0 to i8
+  %conv.i129 = trunc i64 noundef %p0 to i8
+  %cmp.i72 = icmp eq i8 %conv.i131, %conv.i129
+  br i1 %cmp.i72, label %land.lhs.true.i73, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true.i73:
+  %shr.i126 = lshr i64 noundef %h0, 8
+  %conv.i127 = trunc i64 %shr.i126 to i8
+  %shr.i124 = lshr i64 noundef %p0, 8
+  %conv.i125 = trunc i64 %shr.i124 to i8
+  %cmp7.i76 = icmp eq i8 %conv.i127, %conv.i125
+  br i1 %cmp7.i76, label %land.lhs.true8.i77, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true8.i77:
+  %shr.i122 = lshr i64 noundef %h0, 16
+  %conv.i123 = trunc i64 %shr.i122 to i8
+  %shr.i120 = lshr i64 noundef %p0, 16
+  %conv.i121 = trunc i64 %shr.i120 to i8
+  %cmp13.i80 = icmp eq i8 %conv.i123, %conv.i121
+  br i1 %cmp13.i80, label %land.lhs.true14.i81, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true14.i81:
+  %shr.i118 = lshr i64 noundef %h0, 24
+  %conv.i119 = trunc i64 %shr.i118 to i8
+  %shr.i116 = lshr i64 noundef %p0, 24
+  %conv.i117 = trunc i64 %shr.i116 to i8
+  %cmp19.i84 = icmp eq i8 %conv.i119, %conv.i117
+  br i1 %cmp19.i84, label %land.lhs.true20.i85, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true20.i85:
+  %shr.i114 = lshr i64 noundef %h0, 32
+  %conv.i115 = trunc i64 %shr.i114 to i8
+  %shr.i112 = lshr i64 noundef %p0, 32
+  %conv.i113 = trunc i64 %shr.i112 to i8
+  %cmp25.i88 = icmp eq i8 %conv.i115, %conv.i113
+  br i1 %cmp25.i88, label %land.lhs.true26.i89, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true26.i89:
+  %shr.i110 = lshr i64 noundef %h0, 40
+  %conv.i111 = trunc i64 %shr.i110 to i8
+  %shr.i108 = lshr i64 noundef %p0, 40
+  %conv.i109 = trunc i64 %shr.i108 to i8
+  %cmp31.i92 = icmp eq i8 %conv.i111, %conv.i109
+  br i1 %cmp31.i92, label %land.lhs.true32.i93, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true32.i93:
+  %shr.i106 = lshr i64 noundef %h0, 48
+  %conv.i107 = trunc i64 %shr.i106 to i8
+  %shr.i104 = lshr i64 noundef %p0, 48
+  %conv.i105 = trunc i64 %shr.i104 to i8
+  %cmp37.i96 = icmp eq i8 %conv.i107, %conv.i105
+  br i1 %cmp37.i96, label %land.rhs.i97, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.rhs.i97:
+  %cmp42.i100.unshifted = xor i64 noundef %p0, noundef %h0
+  %cmp42.i100 = icmp ult i64 %cmp42.i100.unshifted, 72057594037927936
+  %conv.i163 = trunc i64 noundef %h1 to i8
+  %conv.i161 = trunc i64 noundef %p1 to i8
+  %cmp.i42 = icmp eq i8 %conv.i163, %conv.i161
+  %or.cond = and i1 %cmp42.i100, %cmp.i42
+  br i1 %or.cond, label %land.lhs.true.i43, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true.i43:
+  %shr.i158 = lshr i64 noundef %h1, 8
+  %conv.i159 = trunc i64 %shr.i158 to i8
+  %shr.i156 = lshr i64 noundef %p1, 8
+  %conv.i157 = trunc i64 %shr.i156 to i8
+  %cmp7.i45 = icmp eq i8 %conv.i159, %conv.i157
+  br i1 %cmp7.i45, label %land.lhs.true8.i46, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true8.i46:
+  %shr.i154 = lshr i64 noundef %h1, 16
+  %conv.i155 = trunc i64 %shr.i154 to i8
+  %shr.i152 = lshr i64 noundef %p1, 16
+  %conv.i153 = trunc i64 %shr.i152 to i8
+  %cmp13.i49 = icmp eq i8 %conv.i155, %conv.i153
+  br i1 %cmp13.i49, label %land.lhs.true14.i50, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true14.i50:
+  %shr.i150 = lshr i64 noundef %h1, 24
+  %conv.i151 = trunc i64 %shr.i150 to i8
+  %shr.i148 = lshr i64 noundef %p1, 24
+  %conv.i149 = trunc i64 %shr.i148 to i8
+  %cmp19.i53 = icmp eq i8 %conv.i151, %conv.i149
+  br i1 %cmp19.i53, label %land.lhs.true20.i54, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true20.i54:
+  %shr.i146 = lshr i64 noundef %h1, 32
+  %conv.i147 = trunc i64 %shr.i146 to i8
+  %shr.i144 = lshr i64 noundef %p1, 32
+  %conv.i145 = trunc i64 %shr.i144 to i8
+  %cmp25.i57 = icmp eq i8 %conv.i147, %conv.i145
+  br i1 %cmp25.i57, label %land.lhs.true26.i58, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true26.i58:
+  %shr.i142 = lshr i64 noundef %h1, 40
+  %conv.i143 = trunc i64 %shr.i142 to i8
+  %shr.i140 = lshr i64 noundef %p1, 40
+  %conv.i141 = trunc i64 %shr.i140 to i8
+  %cmp31.i61 = icmp eq i8 %conv.i143, %conv.i141
+  br i1 %cmp31.i61, label %land.lhs.true32.i62, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true32.i62:
+  %shr.i138 = lshr i64 noundef %h1, 48
+  %conv.i139 = trunc i64 %shr.i138 to i8
+  %shr.i136 = lshr i64 noundef %p1, 48
+  %conv.i137 = trunc i64 %shr.i136 to i8
+  %cmp37.i65 = icmp eq i8 %conv.i139, %conv.i137
+  br i1 %cmp37.i65, label %land.rhs.i66, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.rhs.i66:
+  %cmp42.i69.unshifted = xor i64 noundef %p1, noundef %h1
+  %cmp42.i69 = icmp ult i64 %cmp42.i69.unshifted, 72057594037927936
+  %conv.i195 = trunc i64 noundef %h2 to i8
+  %conv.i193 = trunc i64 noundef %p2 to i8
+  %cmp.i10 = icmp eq i8 %conv.i195, %conv.i193
+  %or.cond231 = and i1 %cmp42.i69, %cmp.i10
+  br i1 %or.cond231, label %land.lhs.true.i11, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true.i11:
+  %shr.i190 = lshr i64 noundef %h2, 8
+  %conv.i191 = trunc i64 %shr.i190 to i8
+  %shr.i188 = lshr i64 noundef %p2, 8
+  %conv.i189 = trunc i64 %shr.i188 to i8
+  %cmp7.i14 = icmp eq i8 %conv.i191, %conv.i189
+  br i1 %cmp7.i14, label %land.lhs.true8.i15, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true8.i15:
+  %shr.i186 = lshr i64 noundef %h2, 16
+  %conv.i187 = trunc i64 %shr.i186 to i8
+  %shr.i184 = lshr i64 noundef %p2, 16
+  %conv.i185 = trunc i64 %shr.i184 to i8
+  %cmp13.i18 = icmp eq i8 %conv.i187, %conv.i185
+  br i1 %cmp13.i18, label %land.lhs.true14.i19, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true14.i19:
+  %shr.i182 = lshr i64 noundef %h2, 24
+  %conv.i183 = trunc i64 %shr.i182 to i8
+  %shr.i180 = lshr i64 noundef %p2, 24
+  %conv.i181 = trunc i64 %shr.i180 to i8
+  %cmp19.i22 = icmp eq i8 %conv.i183, %conv.i181
+  br i1 %cmp19.i22, label %land.lhs.true20.i23, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true20.i23:
+  %shr.i178 = lshr i64 noundef %h2, 32
+  %conv.i179 = trunc i64 %shr.i178 to i8
+  %shr.i176 = lshr i64 noundef %p2, 32
+  %conv.i177 = trunc i64 %shr.i176 to i8
+  %cmp25.i26 = icmp eq i8 %conv.i179, %conv.i177
+  br i1 %cmp25.i26, label %land.lhs.true26.i27, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true26.i27:
+  %shr.i174 = lshr i64 noundef %h2, 40
+  %conv.i175 = trunc i64 %shr.i174 to i8
+  %shr.i172 = lshr i64 noundef %p2, 40
+  %conv.i173 = trunc i64 %shr.i172 to i8
+  %cmp31.i30 = icmp eq i8 %conv.i175, %conv.i173
+  br i1 %cmp31.i30, label %land.lhs.true32.i31, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true32.i31:
+  %shr.i170 = lshr i64 noundef %h2, 48
+  %conv.i171 = trunc i64 %shr.i170 to i8
+  %shr.i168 = lshr i64 noundef %p2, 48
+  %conv.i169 = trunc i64 %shr.i168 to i8
+  %cmp37.i34 = icmp eq i8 %conv.i171, %conv.i169
+  br i1 %cmp37.i34, label %land.rhs.i35, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.rhs.i35:
+  %cmp42.i38.unshifted = xor i64 noundef %p2, noundef %h2
+  %cmp42.i38 = icmp ult i64 %cmp42.i38.unshifted, 72057594037927936
+  %conv.i227 = trunc i64 noundef %h3 to i8
+  %conv.i225 = trunc i64 noundef %p3 to i8
+  %cmp.i = icmp eq i8 %conv.i227, %conv.i225
+  %or.cond232 = and i1 %cmp42.i38, %cmp.i
+  br i1 %or.cond232, label %land.lhs.true.i5, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true.i5:
+  %shr.i222 = lshr i64 noundef %h3, 8
+  %conv.i223 = trunc i64 %shr.i222 to i8
+  %shr.i220 = lshr i64 noundef %p3, 8
+  %conv.i221 = trunc i64 %shr.i220 to i8
+  %cmp7.i = icmp eq i8 %conv.i223, %conv.i221
+  br i1 %cmp7.i, label %land.lhs.true8.i, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true8.i:
+  %shr.i218 = lshr i64 noundef %h3, 16
+  %conv.i219 = trunc i64 %shr.i218 to i8
+  %shr.i216 = lshr i64 noundef %p3, 16
+  %conv.i217 = trunc i64 %shr.i216 to i8
+  %cmp13.i = icmp eq i8 %conv.i219, %conv.i217
+  br i1 %cmp13.i, label %land.lhs.true14.i, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+land.lhs.true14.i:
+  %shr.i214 = lshr i64 noundef %h3, 24
+  %conv.i215 = trunc i64 %shr.i214 to i8
+  %shr.i212 = lshr i64 noundef %p3, 24
+  %conv.i213 = trunc i64 %shr.i212 to i8
+  %cmp19.i = icmp eq i8 %conv.i215, %conv.i213
+  %or.cond235.unshifted = xor i64 noundef %h3, noundef %p3
+  %or.cond235 = icmp ult i64 %or.cond235.unshifted, 4294967296
+  %or.cond236 = and i1 %cmp19.i, %or.cond235
+  br i1 %or.cond236, label %if.end.i, label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+if.end.i:
+  %conv4.i = and i64 noundef %exec_res, 1
+  %tobool.not.i = icmp eq i64 %conv4.i, 0
+  %conv2.i = shl i64 noundef %exec_err, 32
+  %#0 = and i64 %conv2.i, 270582939648
+  %retval.sroa.2.0.insert.shift.i = select i1 %tobool.not.i, i64 %#0, i64 0
+  %retval.sroa.0.0.insert.insert.i2 = or disjoint i64 %retval.sroa.2.0.insert.shift.i, %conv4.i
+  br label %_ZL14l_hash_comparemmmmmmmmmm.exit
+
+_ZL14l_hash_comparemmmmmmmmmm.exit:
+  %retval.sroa.0.0.insert.insert.i = phi i64 [ %retval.sroa.0.0.insert.insert.i2, %if.end.i ], [ 171798691840, %land.rhs.i97 ], [ 171798691840, %land.rhs.i66 ], [ 171798691840, %land.rhs.i35 ], [ 171798691840, %entry ], [ 171798691840, %land.lhs.true.i73 ], [ 171798691840, %land.lhs.true8.i77 ], [ 171798691840, %land.lhs.true14.i81 ], [ 171798691840, %land.lhs.true20.i85 ], [ 171798691840, %land.lhs.true26.i89 ], [ 171798691840, %land.lhs.true32.i93 ], [ 171798691840, %land.lhs.true.i43 ], [ 171798691840, %land.lhs.true8.i46 ], [ 171798691840, %land.lhs.true14.i50 ], [ 171798691840, %land.lhs.true20.i54 ], [ 171798691840, %land.lhs.true26.i58 ], [ 171798691840, %land.lhs.true32.i62 ], [ 171798691840, %land.lhs.true.i11 ], [ 171798691840, %land.lhs.true8.i15 ], [ 171798691840, %land.lhs.true14.i19 ], [ 171798691840, %land.lhs.true20.i23 ], [ 171798691840, %land.lhs.true26.i27 ], [ 171798691840, %land.lhs.true32.i31 ], [ 171798691840, %land.lhs.true.i5 ], [ 171798691840, %land.lhs.true8.i ], [ 171798691840, %land.lhs.true14.i ]
+  %and.i = and i64 %retval.sroa.0.0.insert.insert.i, 3
+  %sh.diff = lshr i64 %retval.sroa.0.0.insert.insert.i, 30
+  %#1 = and i64 %sh.diff, 4294967292
+  %or3.i = or disjoint i64 %#1, %and.i
+  %#range_0_%or3.i = !range i64 %or3.i, i64 0, i64 256
+  ret i64 %#range_0_%or3.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
