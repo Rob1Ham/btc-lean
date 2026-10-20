@@ -19,10 +19,12 @@ postcondition: |
 direction:
   - L ⊑ C
   - C ⊑ L
-scr_rows: SCR-069, SCR-071, SCR-072
-scr_row_coverage: full — SCR-069 is exactly "OP_RETURN error"; SCR-071 executes
-  NOP1 and NOP4..NOP10 and succeeds; SCR-072's premise is flags=0, under which
-  those opcodes are plain NOPs.
+scr_rows: SCR-069, SCR-071
+scr_row_coverage: >-
+  full — SCR-069 is a closed constant witness of the OP_RETURN error; SCR-071
+  is a bounded closed witness that NOP1 and NOP4..OP_NOP10 leave the stack
+  unchanged and succeed with flags=0. SCR-072 is **not** covered: the cell does
+  not execute CLTV/CSV pre-activation NOP behavior.
 patches: none
 source_citations:
   - interpreter.cpp:529-530 (OP_NOP)

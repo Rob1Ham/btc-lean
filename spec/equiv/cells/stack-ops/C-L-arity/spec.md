@@ -20,10 +20,12 @@ direction:
   - L ⊑ C
   - C ⊑ L
 scr_rows: SCR-074
-scr_row_coverage: full — every opcode in the 2DROP..TUCK arity set is
-  exercised at an empty stack (n=0) against its per-case Core guard and its
-  twin handler; the success branches are covered by the other E1 cells and are
-  not part of this "each op checks depth" row.
+scr_row_coverage: >-
+  partial — every opcode in the 2DROP..TUCK arity set is exercised only at an
+  empty stack (n=0) against its per-case Core guard and twin handler. This does
+  not prove all insufficient-depth boundaries for ops that require more than
+  one item; off-by-one threshold mutants survive. The success branches are
+  covered by other E1 cells and are not part of this row.
 patches: none
 source_citations:
   - interpreter.cpp:888-1045 (per-op stack-arity guards; individual line

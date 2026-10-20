@@ -1,6 +1,6 @@
 ---
 # Cell disabled/C-L-w32-opname-table
-contract: b547fafb5fc5a6c3370f916d800418db37dec7c78d88fc4cd209a436a6a6e187
+contract: f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6
 repo_head: 805c8042f92d3bed909ca40219a4d21fc9150cc1
 pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
 legs: C, L
