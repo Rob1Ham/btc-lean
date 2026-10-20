@@ -1,0 +1,154 @@
+import "cell.cry";
+
+mC0  <- llvm_load_module "c_cell_bip143_preimage_l0.bc";
+mL0  <- llvm_load_module "l_cell_bip143_preimage_l0.bc";
+mC1  <- llvm_load_module "c_cell_bip143_preimage_l1.bc";
+mL1  <- llvm_load_module "l_cell_bip143_preimage_l1.bc";
+mC75 <- llvm_load_module "c_cell_bip143_preimage_l75.bc";
+mL75 <- llvm_load_module "l_cell_bip143_preimage_l75.bc";
+
+// One spec shape per scriptCode length.  All ten field payloads are symbolic;
+// the postcondition fixes every preimage byte to the BIP143 concatenation and
+// the return value to the SHA256d input length.  SHA256d is opaque and is not
+// called here: this spec is exactly its input.
+
+let spec_l0 = do {
+  out  <- llvm_alloc (llvm_array 157 (llvm_int 8));
+  pver <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  php  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  phs  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  ptx  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  pvo  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  psc  <- llvm_alloc (llvm_array 1  (llvm_int 8));
+  pam  <- llvm_alloc (llvm_array 8  (llvm_int 8));
+  pseq <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pho  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  plk  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pht  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+
+  ver <- llvm_fresh_var "version"      (llvm_array 4  (llvm_int 8));
+  hp  <- llvm_fresh_var "hashPrevouts" (llvm_array 32 (llvm_int 8));
+  hs  <- llvm_fresh_var "hashSequence" (llvm_array 32 (llvm_int 8));
+  tx  <- llvm_fresh_var "txid"         (llvm_array 32 (llvm_int 8));
+  vo  <- llvm_fresh_var "vout"         (llvm_array 4  (llvm_int 8));
+  sc  <- llvm_fresh_var "script"       (llvm_array 1  (llvm_int 8));
+  am  <- llvm_fresh_var "amount"       (llvm_array 8  (llvm_int 8));
+  sq  <- llvm_fresh_var "nSequence"    (llvm_array 4  (llvm_int 8));
+  ho  <- llvm_fresh_var "hashOutputs"  (llvm_array 32 (llvm_int 8));
+  lk  <- llvm_fresh_var "nLockTime"    (llvm_array 4  (llvm_int 8));
+  ht  <- llvm_fresh_var "nHashType"    (llvm_array 4  (llvm_int 8));
+
+  llvm_points_to pver (llvm_term ver);
+  llvm_points_to php  (llvm_term hp);
+  llvm_points_to phs  (llvm_term hs);
+  llvm_points_to ptx  (llvm_term tx);
+  llvm_points_to pvo  (llvm_term vo);
+  llvm_points_to psc  (llvm_term sc);
+  llvm_points_to pam  (llvm_term am);
+  llvm_points_to pseq (llvm_term sq);
+  llvm_points_to pho  (llvm_term ho);
+  llvm_points_to plk  (llvm_term lk);
+  llvm_points_to pht  (llvm_term ht);
+
+  llvm_execute_func [out, pver, php, phs, ptx, pvo, psc, pam, pseq, pho, plk, pht];
+
+  llvm_points_to out (llvm_term {{ preimage_l0 ver hp hs tx vo am sq ho lk ht }});
+  llvm_return (llvm_term {{ digest_input_len_l0 }});
+};
+
+let spec_l1 = do {
+  out  <- llvm_alloc (llvm_array 158 (llvm_int 8));
+  pver <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  php  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  phs  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  ptx  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  pvo  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  psc  <- llvm_alloc (llvm_array 1  (llvm_int 8));
+  pam  <- llvm_alloc (llvm_array 8  (llvm_int 8));
+  pseq <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pho  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  plk  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pht  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+
+  ver <- llvm_fresh_var "version"      (llvm_array 4  (llvm_int 8));
+  hp  <- llvm_fresh_var "hashPrevouts" (llvm_array 32 (llvm_int 8));
+  hs  <- llvm_fresh_var "hashSequence" (llvm_array 32 (llvm_int 8));
+  tx  <- llvm_fresh_var "txid"         (llvm_array 32 (llvm_int 8));
+  vo  <- llvm_fresh_var "vout"         (llvm_array 4  (llvm_int 8));
+  sc  <- llvm_fresh_var "script"       (llvm_array 1  (llvm_int 8));
+  am  <- llvm_fresh_var "amount"       (llvm_array 8  (llvm_int 8));
+  sq  <- llvm_fresh_var "nSequence"    (llvm_array 4  (llvm_int 8));
+  ho  <- llvm_fresh_var "hashOutputs"  (llvm_array 32 (llvm_int 8));
+  lk  <- llvm_fresh_var "nLockTime"    (llvm_array 4  (llvm_int 8));
+  ht  <- llvm_fresh_var "nHashType"    (llvm_array 4  (llvm_int 8));
+
+  llvm_points_to pver (llvm_term ver);
+  llvm_points_to php  (llvm_term hp);
+  llvm_points_to phs  (llvm_term hs);
+  llvm_points_to ptx  (llvm_term tx);
+  llvm_points_to pvo  (llvm_term vo);
+  llvm_points_to psc  (llvm_term sc);
+  llvm_points_to pam  (llvm_term am);
+  llvm_points_to pseq (llvm_term sq);
+  llvm_points_to pho  (llvm_term ho);
+  llvm_points_to plk  (llvm_term lk);
+  llvm_points_to pht  (llvm_term ht);
+
+  llvm_execute_func [out, pver, php, phs, ptx, pvo, psc, pam, pseq, pho, plk, pht];
+
+  llvm_points_to out (llvm_term {{ preimage_l1 ver hp hs tx vo sc am sq ho lk ht }});
+  llvm_return (llvm_term {{ digest_input_len_l1 }});
+};
+
+let spec_l75 = do {
+  out  <- llvm_alloc (llvm_array 232 (llvm_int 8));
+  pver <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  php  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  phs  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  ptx  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  pvo  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  psc  <- llvm_alloc (llvm_array 75 (llvm_int 8));
+  pam  <- llvm_alloc (llvm_array 8  (llvm_int 8));
+  pseq <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pho  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  plk  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+  pht  <- llvm_alloc (llvm_array 4  (llvm_int 8));
+
+  ver <- llvm_fresh_var "version"      (llvm_array 4  (llvm_int 8));
+  hp  <- llvm_fresh_var "hashPrevouts" (llvm_array 32 (llvm_int 8));
+  hs  <- llvm_fresh_var "hashSequence" (llvm_array 32 (llvm_int 8));
+  tx  <- llvm_fresh_var "txid"         (llvm_array 32 (llvm_int 8));
+  vo  <- llvm_fresh_var "vout"         (llvm_array 4  (llvm_int 8));
+  sc  <- llvm_fresh_var "script"       (llvm_array 75 (llvm_int 8));
+  am  <- llvm_fresh_var "amount"       (llvm_array 8  (llvm_int 8));
+  sq  <- llvm_fresh_var "nSequence"    (llvm_array 4  (llvm_int 8));
+  ho  <- llvm_fresh_var "hashOutputs"  (llvm_array 32 (llvm_int 8));
+  lk  <- llvm_fresh_var "nLockTime"    (llvm_array 4  (llvm_int 8));
+  ht  <- llvm_fresh_var "nHashType"    (llvm_array 4  (llvm_int 8));
+
+  llvm_points_to pver (llvm_term ver);
+  llvm_points_to php  (llvm_term hp);
+  llvm_points_to phs  (llvm_term hs);
+  llvm_points_to ptx  (llvm_term tx);
+  llvm_points_to pvo  (llvm_term vo);
+  llvm_points_to psc  (llvm_term sc);
+  llvm_points_to pam  (llvm_term am);
+  llvm_points_to pseq (llvm_term sq);
+  llvm_points_to pho  (llvm_term ho);
+  llvm_points_to plk  (llvm_term lk);
+  llvm_points_to pht  (llvm_term ht);
+
+  llvm_execute_func [out, pver, php, phs, ptx, pvo, psc, pam, pseq, pho, plk, pht];
+
+  llvm_points_to out (llvm_term {{ preimage_l75 ver hp hs tx vo sc am sq ho lk ht }});
+  llvm_return (llvm_term {{ digest_input_len_l75 }});
+};
+
+llvm_verify mC0  "cell_bip143_preimage_l0"  [] false spec_l0  z3;
+llvm_verify mL0  "cell_bip143_preimage_l0"  [] false spec_l0  z3;
+llvm_verify mC1  "cell_bip143_preimage_l1"  [] false spec_l1  z3;
+llvm_verify mL1  "cell_bip143_preimage_l1"  [] false spec_l1  z3;
+llvm_verify mC75 "cell_bip143_preimage_l75" [] false spec_l75 z3;
+llvm_verify mL75 "cell_bip143_preimage_l75" [] false spec_l75 z3;
+
+print "CELL_BIP143_PREIMAGE_ORDER_SAW_GREEN";

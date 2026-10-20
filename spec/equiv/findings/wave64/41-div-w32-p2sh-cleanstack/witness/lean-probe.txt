@@ -1,0 +1,19 @@
+# F-DIV-W32-01 concrete Lean probe
+# lean=Lean (version 4.35.0, x86_64-unknown-linux-gnu, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)
+# command: (cd spec/core && lake env lean ../equiv/findings/wave64/41-div-w32-p2sh-cleanstack/witness/lean_probe.lean)
+# expected: P2SH-P2WPKH/P2WSH cleanstack=true FAIL cleanstack; controls OK
+
+"pk hash160 = { data := #[173, 252, 229, 79, 82, 155, 33, 84, 227, 195, 97, 187, 227, 247, 212, 29, 176, 99, 87, 23] }"
+"spkWPKH isWitnessProgram = none"
+"redeemWPKH isWitnessProgram = some (0, { data := #[173, 252, 229, 79, 82, 155, 33, 84, 227, 195, 97, 187, 227, 247, 212, 29, 176, 99, 87, 23] })"
+"redeemWSH isWitnessProgram = some (0,\n { data := #[74, 232, 21, 114, 240, 110, 27, 136, 253, 92, 237, 122, 26, 0, 9, 69, 67, 46, 131, 225, 85, 30, 111, 114,\n             30, 233, 192, 11, 140, 195, 50, 96] })"
+"eval redeemWPKH on [] length = 2"
+"eval redeemWSH on [] length = 2"
+"p2shInner WPKH = OK"
+"p2shInner WSH  = OK"
+"verifyScriptFull P2SH-P2WPKH cleanstack=true  = FAIL Bitcoin.Interpreter.ExecError.cleanstack"
+"verifyScriptFull P2SH-P2WSH  cleanstack=true  = FAIL Bitcoin.Interpreter.ExecError.cleanstack"
+"verifyScriptFull P2SH-P2WPKH cleanstack=false = OK"
+"verifyScriptFull P2SH-P2WSH  cleanstack=false = OK"
+"verifyScriptFull BARE-P2WPKH  cleanstack=true  = OK"
+"verifyScriptFull P2SH-plain   cleanstack=true  = OK"

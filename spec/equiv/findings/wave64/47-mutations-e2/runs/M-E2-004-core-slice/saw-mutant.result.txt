@@ -1,0 +1,77 @@
+# cell: e2-numeric/within-boundary
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# script: build/cell.saw
+# expected: at least 2 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_within...
+Simulating cell_within...
+Checking proof obligations cell_within...
+Subgoal failed: cell_within cell.saw:14:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+packed a b c
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = Vec 1 Bool;
+      _x`3 = bvNat 32 0;
+      _x`4 = bvNat 8 0;
+      _x`5 = bvNat 64 18446744073709551615;
+      _x`6 = bvNat 8 127;
+      _x`7 = bvUExt 56 8 (bvAnd 8 _x`6 a);
+      _x`8 = ite _x`1 (bvslt 8 a _x`4) (bvMul 64 _x`5 _x`7) _x`7;
+      _x`9 = bvUExt 56 8 (bvAnd 8 _x`6 b);
+      _x`10 = bvNat 1 0;
+      _x`11 = bvNat 1 1;
+      _x`12 = bvUExt 56 8 (bvAnd 8 _x`6 c);
+      _x`13 = bvUExt 31 1
+                (bvAnd 1
+                   (ite _x`2
+                      (bvslt 64 _x`8
+                         (ite _x`1 (bvslt 8 b _x`4) (bvMul 64 _x`5 _x`9) _x`9))
+                      _x`10
+                      _x`11)
+                   (ite _x`2
+                      (bvslt 64
+                         (ite _x`1 (bvslt 8 c _x`4) (bvMul 64 _x`5 _x`12) _x`12)
+                         _x`8)
+                      _x`10
+                      _x`11));
+      _x`14 = bvEq 32 _x`3 _x`13;
+      _x`15 = bvNat 32 256;
+      _x`16 = bvAnd 32 (bvNat 32 6144)
+                (bvShl 32 _x`13 (bvToNat 32 (bvNat 32 11)));
+      _x`17 = ite _x`1 _x`14 (bvNat 64 0)
+                (bvUExt 32 32
+                   (bvAnd 32 (bvNat 32 2088960)
+                      (bvShl 32 _x`13 (bvToNat 32 (bvNat 32 13)))));
+      _x`18 = bvOr 64
+                (bvUExt 32 32 (bvOr 32 (bvOr 32 (bvNat 32 8) _x`15) _x`16))
+                _x`17;
+      _x`19 = bvNat 32 1;
+      _x`20 = bvOr 64
+                (bvUExt 32 32 (bvOr 32 (bvOr 32 _x`19 _x`15) _x`16))
+                _x`17;
+    }
+ in ite _x`1 _x`14 _x`18
+      (ite _x`1 (bvEq 32 _x`19 _x`13)
+         (ite _x`1 (bvEq 32 _x`3 (bvAnd 32 (bvNat 32 127) _x`13)) _x`18
+            _x`20)
+         (ite _x`1 (bvEq 32 _x`3 (bvAnd 32 (bvNat 32 255) _x`13)) _x`18
+            _x`20))
+
+Goal size 279. Provers used: abc_verilog
+----------Counterexample----------
+  a: 65
+  b: 241
+  c: 65
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:14:44-14:47 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:14:1-14:47 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

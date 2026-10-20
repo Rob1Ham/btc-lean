@@ -1,0 +1,11 @@
+--- a/spec/equiv/twin/ops_ir.py
++++ b/spec/equiv/twin/ops_ir.py
+@@ -846,7 +846,7 @@
+             "e = decode_num(p3, l3, ctx.pol.minimalData, 4, c);",
+             "if (e != TWIN_OK) return e;",
+             "st.stack.n -= 3;",
+-            "return st_push_num(st.stack, (b <= a && a < c) ? 1 : 0);",
++            "return st_push_num(st.stack, (b <= a && a <= c) ? 1 : 0); // M-E2-004 mutant: inclusive max",
+         ],
+     },
+ 

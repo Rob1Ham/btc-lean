@@ -1,0 +1,99 @@
+module CellP2shSubscriptLeaf where
+
+// SCR-005: the P2SH subscript call at interpreter.cpp:2080-2086.
+//
+// The verified shape predicate and the stack handoff are separate cells; this
+// model takes the *evaluated bytes* to be the redeem element itself (the last
+// scriptSig stack element), runs a bounded one-instruction EvalScript leaf over
+// them on the restored stack minus its top, and then applies Core's two
+// EVAL_FALSE checks to the stack that evaluation returned.
+//
+// LEAF: subscript length 0..2, at most one parsed instruction.
+//
+// All byte arguments are modelled as the low 8 bits of a [64] word.
+
+byte : [64] -> [64]
+byte x = x && 255
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+cast_bool : [64] -> [64] -> Bit
+cast_bool w len =
+  (((len > 0) && (byte (w >> 0) != 0)) && ~((len == 1) && (byte (w >> 0) == 128))) ||
+  (((len > 1) && (byte (w >> 8) != 0)) && ~((len == 2) && (byte (w >> 8) == 128))) ||
+  (((len > 2) && (byte (w >> 16) != 0)) && ~((len == 3) && (byte (w >> 16) == 128))) ||
+  (((len > 3) && (byte (w >> 24) != 0)) && ~((len == 4) && (byte (w >> 24) == 128))) ||
+  (((len > 4) && (byte (w >> 32) != 0)) && ~((len == 5) && (byte (w >> 32) == 128))) ||
+  (((len > 5) && (byte (w >> 40) != 0)) && ~((len == 6) && (byte (w >> 40) == 128))) ||
+  (((len > 6) && (byte (w >> 48) != 0)) && ~((len == 7) && (byte (w >> 48) == 128))) ||
+  (((len > 7) && (byte (w >> 56) != 0)) && ~((len == 8) && (byte (w >> 56) == 128)))
+
+b0 : [64] -> [64]
+b0 w = byte w
+
+b1 : [64] -> [64]
+b1 w = byte (w >> 8)
+
+// One bounded instruction, already dispatched: err is the error ordinal, with
+// 16 BAD_OPCODE, 3 OP_RETURN and the internal sentinel 63 for "outside leaf".
+type Step = { err : [64], pushed : Bit, val : [64], len : [64] }
+
+s_none : Step
+s_none = { err = 0, pushed = False, val = 0, len = 0 }
+
+s_push : [64] -> [64] -> Step
+s_push v l = { err = 0, pushed = True, val = v, len = l }
+
+s_bad : Step
+s_bad = { err = 16, pushed = False, val = 0, len = 0 }
+
+s_return : Step
+s_return = { err = 3, pushed = False, val = 0, len = 0 }
+
+s_out : Step
+s_out = { err = 63, pushed = False, val = 0, len = 0 }
+
+step : [64] -> [64] -> Step
+step w n =
+  if n == 0 then s_none
+  else if n == 1 then
+    if (b0 w) <= 78 then
+      if (b0 w) == 0 then s_push 0 0 else s_bad
+    else if (b0 w) == 79 then s_push 129 1
+    else if ((b0 w) >= 81) && ((b0 w) <= 96) then s_push ((b0 w) - 80) 1
+    else if (b0 w) == 106 then s_return
+    else s_out
+  else if n == 2 then
+    if (b0 w) == 1 then s_push (b1 w) 1
+    else if (b0 w) == 76 then
+      if (b1 w) == 0 then s_push 0 0 else s_bad
+    else if ((b0 w) >= 2) && ((b0 w) <= 75) then s_bad
+    else if ((b0 w) == 77) || ((b0 w) == 78) then s_bad
+    else s_out
+  else s_out
+
+// The EVAL_FALSE checks on the stack the bounded subscript returned.
+// `depth` is stackCopy.size() before the redeem element is popped.
+post : Step -> [64] -> [64] -> [64] -> [64]
+post s depth prev_top prev_len =
+  if s.err == 16 then pack 0 16
+  else if s.err == 3 then pack 0 3
+  else if s.err == 63 then pack 0 1
+  else if s.pushed && (depth > 1000) then pack 0 8
+  else if (if s.pushed then depth else (depth - 1)) == 0 then pack 0 2
+  else if ~(cast_bool (if s.pushed then s.val else prev_top)
+                       (if s.pushed then s.len else prev_len)) then pack 0 2
+  else pack 1 0
+
+// leaf depth top top_len prev_top prev_len
+//   depth    -- stackCopy.size() (post-scriptSig stack)
+//   top      -- the redeem element bytes, and therefore pubKey2
+//   top_len  -- its length (the bounded subscript length)
+//   prev_*   -- the element below it, i.e. the top of `stackCopy` minus its
+//               last element; unobservable when the subscript pushes
+leaf : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+leaf depth top top_len prev_top prev_len =
+  if (top_len > 2) || (prev_len > 8) then pack 0 1
+  else if (depth < 1) || (depth > 1000) then pack 0 1
+  else post (step top top_len) depth prev_top prev_len

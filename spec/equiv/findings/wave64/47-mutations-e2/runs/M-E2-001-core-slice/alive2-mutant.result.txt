@@ -1,0 +1,128 @@
+# cell: control-flow/C-L-casttobool
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_cast_empty.ll build/l_cell_cast_empty.ll
+
+----------------------------------------
+define i32 @cell_cast_empty() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i32 0, i32 0, i32 2
+  ret i32 %#range_0_0
+}
+=>
+define i32 @cell_cast_empty() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i32 0, i32 0, i32 2
+  ret i32 %#range_0_0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_cast_len1.ll build/l_cell_cast_len1.ll
+
+----------------------------------------
+define i32 @cell_cast_len1(i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %cmp1.not.i = icmp eq i8 noundef zeroext %b0, 0
+  br label %for.cond.i
+
+for.cond.i:
+  %i.0.i = phi i1 [ 1, %entry ], [ 0, %for.cond.i ]
+  %or.cond = and i1 %i.0.i, %cmp1.not.i
+  br i1 %or.cond, label %for.cond.i, label %_ZL17core_cast_to_boolPKhj.exit
+
+_ZL17core_cast_to_boolPKhj.exit:
+  %cond = zext i1 %i.0.i to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_cast_len1(i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %b0, 127
+  %spec.select.i = icmp ne i8 %#0, 0
+  %cond = zext i1 %spec.select.i to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i8 noundef zeroext %b0 = #x80 (128, -128)
+
+Source:
+i1 %cmp1.not.i = #x0 (0)
+  >> Jump to %for.cond.i
+i1 %i.0.i = #x1 (1)
+i1 %or.cond = #x0 (0)
+  >> Jump to %_ZL17core_cast_to_boolPKhj.exit
+i32 %cond = #x00000001 (1)
+i32 %#range_0_%cond = #x00000001 (1)
+
+Target:
+i8 %#0 = #x00 (0)
+i1 %spec.select.i = #x0 (0)
+i32 %cond = #x00000000 (0)
+i32 %#range_0_%cond = #x00000000 (0)
+Source value: #x00000001 (1)
+Target value: #x00000000 (0)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_cast_len2.ll build/l_cell_cast_len2.ll
+
+----------------------------------------
+define i32 @cell_cast_len2(i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %vch = alloca i64 2, align 1, dead
+  start_lifetime ptr %vch
+  store i8 noundef zeroext %b0, ptr %vch, align 1
+  %arrayinit.element = gep inbounds nuw ptr %vch, 1 x i64 1
+  store i8 noundef zeroext %b1, ptr %arrayinit.element, align 1
+  br label %for.body.i
+
+for.body.i:
+  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body.i ]
+  %arrayidx.i = gep inbounds nuw ptr %vch, 1 x i64 %indvars.iv
+  %#0 = load i8, ptr %arrayidx.i, align 1
+  %cmp1.not.i.not = icmp ne i8 %#0, 0
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %cmp.i = icmp ne i64 %indvars.iv, 0
+  %or.cond.not = or i1 %cmp.i, %cmp1.not.i.not
+  br i1 %or.cond.not, label %_ZL17core_cast_to_boolPKhj.exit, label %for.body.i
+
+_ZL17core_cast_to_boolPKhj.exit:
+  %cond = zext i1 %cmp1.not.i.not to i32
+  end_lifetime ptr %vch
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_cast_len2(i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %b1, 127
+  %#1 = or i8 noundef zeroext %b0, %#0
+  %narrow = icmp ne i8 %#1, 0
+  %retval.0.i = zext i1 %narrow to i32
+  %#range_0_%retval.0.i = !range i32 %retval.0.i, i32 0, i32 2
+  ret i32 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-not-green

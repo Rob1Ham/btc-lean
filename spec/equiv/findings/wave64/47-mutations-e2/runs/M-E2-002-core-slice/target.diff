@@ -1,0 +1,11 @@
+--- a/spec/equiv/cells/numeric/C-L-unary-4byte/src/c_leaf.cpp
++++ b/spec/equiv/cells/numeric/C-L-unary-4byte/src/c_leaf.cpp
+@@ -35,7 +35,7 @@
+   int64_t bn = 0;
+   uint32_t err = 0;
+   // CScriptNum bn(stacktop(-1), fRequireMinimal)  [script.h:246-271]
+-  if (!decode_num(p, len, /*fRequireMinimal=*/false, 4, bn, err))
++  if (!decode_num(p, len, /*fRequireMinimal=*/false, 5, bn, err))  // M-E2-002 mutant: 5-byte operand accepted
+     return num_obs_err(err);
+   switch (opcode) {
+     case 0x8b: bn += 1; break;                       // OP_1ADD: bn += bnOne

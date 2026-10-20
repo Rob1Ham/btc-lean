@@ -1,0 +1,51 @@
+--- core-p1/src/script/interpreter.cpp	2026-10-20 22:00:35.965036161 +0000
++++ core-p1-amend/src/script/interpreter.cpp	2026-10-20 22:00:49.790203036 +0000
+@@ -80,15 +80,11 @@
+ #define altstacktop(i) (altstack.at(size_t(int64_t(altstack.size()) + int64_t{i})))
+ static inline void popstack(std::vector<valtype>& stack)
+ {
+-#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
+-    // Reaching this with an empty stack is a Core bug: every call site checks
+-    // the stack size first. Turn the exception into an assertion so the
+-    // function stays exception-free; never observed on any non-buggy path.
+-    assert(!stack.empty());
+-#else
++    // Kept as a throw: the catch(...) below maps it to SCRIPT_ERR_UNKNOWN_ERROR,
++    // exactly like Core. The audit (findings/wave16b/04-e5-exceptions) shows it
++    // is unreachable, but that is stated as an obligation, not assumed here.
+     if (stack.empty())
+         throw std::runtime_error("popstack(): stack empty");
+-#endif
+     stack.pop_back();
+ }
+ 
+@@ -465,9 +461,7 @@
+     execdata.m_codeseparator_pos = 0xFFFFFFFFUL;
+     execdata.m_codeseparator_pos_init = true;
+ 
+-#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     try
+-#endif
+     {
+         for (; pc < pend; ++opcode_pos) {
+             bool fExec = vfExec.all_true();
+@@ -1316,16 +1310,17 @@
+                 return set_error(serror, SCRIPT_ERR_STACK_SIZE);
+         }
+     }
+-#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     catch (const scriptnum_error&)
+     {
++        // Unreachable once every call site uses GetScriptNum()/from_vch();
++        // kept so a missed site still yields Core's error code.
+         return set_error(serror, SCRIPT_ERR_SCRIPTNUM);
+     }
+     catch (...)
+     {
++        // Allocation failure and any throwing external: Core behaviour.
+         return set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
+     }
+-#endif
+ 
+     if (!vfExec.empty())
+         return set_error(serror, SCRIPT_ERR_UNBALANCED_CONDITIONAL);

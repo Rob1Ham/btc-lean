@@ -1,0 +1,203 @@
+--- core/src/script/interpreter.cpp	2026-10-20 22:01:07.971070183 +0000
++++ core-p1/src/script/interpreter.cpp	2026-10-20 22:00:35.965036161 +0000
+@@ -41,6 +41,20 @@
+     return false;
+ }
+ 
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++/** Non-throwing replacement for CScriptNum(vch, ...) at every engine call
++ *  site: sets SCRIPT_ERR_SCRIPTNUM exactly where the old catch block did. */
++static bool GetScriptNum(const std::vector<unsigned char>& vch, bool fRequireMinimal,
++                         size_t nMaxNumSize, CScriptNum& out, ScriptError* serror)
++{
++    if (!CScriptNum::from_vch(vch, fRequireMinimal, nMaxNumSize, out)) {
++        set_error(serror, SCRIPT_ERR_SCRIPTNUM);
++        return false;
++    }
++    return true;
++}
++#endif
++
+ } // namespace
+ 
+ bool CastToBool(const valtype& vch)
+@@ -66,8 +80,15 @@
+ #define altstacktop(i) (altstack.at(size_t(int64_t(altstack.size()) + int64_t{i})))
+ static inline void popstack(std::vector<valtype>& stack)
+ {
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++    // Reaching this with an empty stack is a Core bug: every call site checks
++    // the stack size first. Turn the exception into an assertion so the
++    // function stays exception-free; never observed on any non-buggy path.
++    assert(!stack.empty());
++#else
+     if (stack.empty())
+         throw std::runtime_error("popstack(): stack empty");
++#endif
+     stack.pop_back();
+ }
+ 
+@@ -444,7 +465,9 @@
+     execdata.m_codeseparator_pos = 0xFFFFFFFFUL;
+     execdata.m_codeseparator_pos_init = true;
+ 
++#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     try
++#endif
+     {
+         for (; pc < pend; ++opcode_pos) {
+             bool fExec = vfExec.all_true();
+@@ -553,7 +576,12 @@
+                     // Thus as a special case we tell CScriptNum to accept up
+                     // to 5-byte bignums, which are good until 2**39-1, well
+                     // beyond the 2**32-1 limit of the nLockTime field itself.
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum nLockTime;
++                    if (!GetScriptNum(stacktop(-1), fRequireMinimal, 5, nLockTime, serror)) return false;
++#else
+                     const CScriptNum nLockTime(stacktop(-1), fRequireMinimal, 5);
++#endif
+ 
+                     // In the rare event that the argument may be < 0 due to
+                     // some arithmetic being done first, you can always use
+@@ -581,7 +609,12 @@
+                     // nSequence, like nLockTime, is a 32-bit unsigned integer
+                     // field. See the comment in CHECKLOCKTIMEVERIFY regarding
+                     // 5-byte numeric operands.
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum nSequence;
++                    if (!GetScriptNum(stacktop(-1), fRequireMinimal, 5, nSequence, serror)) return false;
++#else
+                     const CScriptNum nSequence(stacktop(-1), fRequireMinimal, 5);
++#endif
+ 
+                     // In the rare event that the argument may be < 0 due to
+                     // some arithmetic being done first, you can always use
+@@ -837,7 +870,16 @@
+                     // (xn ... x2 x1 x0 n - ... x2 x1 x0 xn)
+                     if (stack.size() < 2)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+-                    int n = CScriptNum(stacktop(-1), fRequireMinimal).getint();
++                    int n;
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    {
++                        CScriptNum num;
++                        if (!GetScriptNum(stacktop(-1), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, num, serror)) return false;
++                        n = num.getint();
++                    }
++#else
++                    n = CScriptNum(stacktop(-1), fRequireMinimal).getint();
++#endif
+                     popstack(stack);
+                     if (n < 0 || n >= (int)stack.size())
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+@@ -936,7 +978,12 @@
+                     // (in -- out)
+                     if (stack.size() < 1)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum bn;
++                    if (!GetScriptNum(stacktop(-1), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn, serror)) return false;
++#else
+                     CScriptNum bn(stacktop(-1), fRequireMinimal);
++#endif
+                     switch (opcode)
+                     {
+                     case OP_1ADD:       bn += bnOne; break;
+@@ -969,8 +1016,14 @@
+                     // (x1 x2 -- out)
+                     if (stack.size() < 2)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum bn1, bn2;
++                    if (!GetScriptNum(stacktop(-2), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn1, serror)) return false;
++                    if (!GetScriptNum(stacktop(-1), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn2, serror)) return false;
++#else
+                     CScriptNum bn1(stacktop(-2), fRequireMinimal);
+                     CScriptNum bn2(stacktop(-1), fRequireMinimal);
++#endif
+                     CScriptNum bn(0);
+                     switch (opcode)
+                     {
+@@ -1014,9 +1067,16 @@
+                     // (x min max -- out)
+                     if (stack.size() < 3)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum bn1, bn2, bn3;
++                    if (!GetScriptNum(stacktop(-3), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn1, serror)) return false;
++                    if (!GetScriptNum(stacktop(-2), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn2, serror)) return false;
++                    if (!GetScriptNum(stacktop(-1), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, bn3, serror)) return false;
++#else
+                     CScriptNum bn1(stacktop(-3), fRequireMinimal);
+                     CScriptNum bn2(stacktop(-2), fRequireMinimal);
+                     CScriptNum bn3(stacktop(-1), fRequireMinimal);
++#endif
+                     bool fValue = (bn2 <= bn1 && bn1 < bn3);
+                     popstack(stack);
+                     popstack(stack);
+@@ -1100,7 +1160,12 @@
+                     if (stack.size() < 3) return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+ 
+                     const valtype& sig = stacktop(-3);
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    CScriptNum num;
++                    if (!GetScriptNum(stacktop(-2), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, num, serror)) return false;
++#else
+                     const CScriptNum num(stacktop(-2), fRequireMinimal);
++#endif
+                     const valtype& pubkey = stacktop(-1);
+ 
+                     bool success = true;
+@@ -1123,7 +1188,16 @@
+                     if ((int)stack.size() < i)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+ 
+-                    int nKeysCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();
++                    int nKeysCount;
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    {
++                        CScriptNum num;
++                        if (!GetScriptNum(stacktop(-i), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, num, serror)) return false;
++                        nKeysCount = num.getint();
++                    }
++#else
++                    nKeysCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();
++#endif
+                     if (nKeysCount < 0 || nKeysCount > MAX_PUBKEYS_PER_MULTISIG)
+                         return set_error(serror, SCRIPT_ERR_PUBKEY_COUNT);
+                     nOpCount += nKeysCount;
+@@ -1137,7 +1211,16 @@
+                     if ((int)stack.size() < i)
+                         return set_error(serror, SCRIPT_ERR_INVALID_STACK_OPERATION);
+ 
+-                    int nSigsCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();
++                    int nSigsCount;
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++                    {
++                        CScriptNum num;
++                        if (!GetScriptNum(stacktop(-i), fRequireMinimal, CScriptNum::nDefaultMaxNumSize, num, serror)) return false;
++                        nSigsCount = num.getint();
++                    }
++#else
++                    nSigsCount = CScriptNum(stacktop(-i), fRequireMinimal).getint();
++#endif
+                     if (nSigsCount < 0 || nSigsCount > nKeysCount)
+                         return set_error(serror, SCRIPT_ERR_SIG_COUNT);
+                     int isig = ++i;
+@@ -1233,6 +1316,7 @@
+                 return set_error(serror, SCRIPT_ERR_STACK_SIZE);
+         }
+     }
++#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     catch (const scriptnum_error&)
+     {
+         return set_error(serror, SCRIPT_ERR_SCRIPTNUM);
+@@ -1241,6 +1325,7 @@
+     {
+         return set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
+     }
++#endif
+ 
+     if (!vfExec.empty())
+         return set_error(serror, SCRIPT_ERR_UNBALANCED_CONDITIONAL);

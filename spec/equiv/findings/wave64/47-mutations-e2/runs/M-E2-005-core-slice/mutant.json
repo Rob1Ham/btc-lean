@@ -1,0 +1,77 @@
+{
+  "baseline": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "catalogue_cell": "cells/e2-flow/opcount-201",
+  "caught": true,
+  "caught_by": {
+    "alive2": true,
+    "saw": true
+  },
+  "cell": "cells/limits/C-L-opcount",
+  "classification": "KILLED",
+  "commands": {
+    "alive2": "cd spec/equiv && bash cells/limits/C-L-opcount/alive2/run.sh",
+    "saw": "cd spec/equiv && bash cells/limits/C-L-opcount/saw/run.sh"
+  },
+  "description": "OP_COUNT threshold 201 -> 200: the C excerpt rejects when the charged count is >= 201 instead of > 201.",
+  "diff": "--- a/spec/equiv/cells/limits/C-L-opcount/src/c_leaf.cpp\n+++ b/spec/equiv/cells/limits/C-L-opcount/src/c_leaf.cpp\n@@ -45,7 +45,7 @@\n   if (sv == LIM_SV_BASE || sv == LIM_SV_WITNESS_V0) {\n     if (wire > 0x60) {\n       ++nOpCount;\n-      if (nOpCount > LIM_MAX_OPS_PER_SCRIPT) {\n+      if (nOpCount >= LIM_MAX_OPS_PER_SCRIPT) {  // M-E2-005 mutant: threshold 200\n         return lim_pack(0, EQUIV_ERR_OP_COUNT, 0);\n       }\n     }\n",
+  "expected_detection": "Alive2 C-vs-L must report a value mismatch at a charged count of 201; SAW must fail the C proof against the independent 201 budget. Witness: incoming opCount=200, wire=0x8e, sv=BASE, fExec=0; baseline DISABLED_OPCODE (budget admits 201), mutant OP_COUNT.",
+  "family": "e2-flow",
+  "find": "if (nOpCount > LIM_MAX_OPS_PER_SCRIPT) {",
+  "finished_at_utc": "2026-10-20T22:17:13+00:00",
+  "head_commit": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "mutant": {
+    "alive2": {
+      "blocks": [
+        {
+          "command": "alive-tv build/c_cell_opcount.ll build/l_cell_opcount.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_opcount",
+          "mismatch": true
+        }
+      ],
+      "failure_excerpt": "  ret i64 %#range_0_%retval.1\n}\nTransformation doesn't verify!\n\nERROR: Value mismatch\n\nExample:\ni32 noundef %opCount = #x000000c8 (200)\ni8 noundef zeroext %wire = #x8e (142, -114)\ni8 noundef zeroext %fExec = #x00 (0)\ni8 noundef zeroext %sv = #x00 (0)\n\nSource:\ni1 %spec.select.i = #x0 (0)\ni32 %conv = #x00000000 (0)\ni1 %cmp = #x0 (0)\ni1 %or.cond = #x0 (0)\ni1 %cmp2 = #x0 (0)\ni1 %or.cond25 = #x0 (0)\n  >> Jump to %if.end",
+      "rc": 1,
+      "status": "alive2-not-green"
+    },
+    "saw": {
+      "failure_excerpt": "         (ite _x`1 (bvslt 32 (bvNat 32 199) opc) (bvNat 64 28)\n            (ite _x`1 _x`6 _x`7\n               (ite _x`1 _x`8 _x`7\n                  (ite _x`1 _x`9 _x`7\n                     (ite _x`1 _x`10 _x`7\n                        (ite _x`1 _x`11 _x`7\n                           (ite _x`1 _x`12 _x`7\n                              (ite _x`1 _x`13 _x`7\n                                 (ite _x`1 _x`14 _x`7\n                                    (ite _x`1 _x`15 _x`7\n                                       (ite _x`1 _x`16 _x`7\n                                          (ite _x`1 _x`17 _x`7\n                                             (... ... _x`18 _x`7\n                                                (... ... _x`7 (... ... (... ...)))))))))))))))))\n      (bvNat 64 6)\n\nGoal size 334. Provers used: abc_verilog\n----------Counterexample----------\n  opc: 200\n  wire: 192\n  fexec: 0\n  sv: 0\n----------------------------------\nStack trace:\n   (builtin) in abc\n   cell.saw:17:45-17:48 in (callback)\n   (builtin) in llvm_verify\n   cell.saw:17:1-17:48 (at top level)\nProof failed.",
+      "proofs_failed": 1,
+      "proofs_succeeded": 0,
+      "rc": 1,
+      "status": "saw-not-green"
+    }
+  },
+  "mutant_id": "M-E2-005",
+  "operator": "wave64/47-mutations-e2",
+  "post_revert": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "replace": "if (nOpCount >= LIM_MAX_OPS_PER_SCRIPT) {  // M-E2-005 mutant: threshold 200",
+  "revert_verified": true,
+  "run_id": "M-E2-005-core-slice",
+  "schema": "redteam-mutant-run-v1",
+  "scratch_root": ".work",
+  "site": "core-slice",
+  "started_at_utc": "2026-10-20T22:16:57+00:00",
+  "target": "cells/limits/C-L-opcount/src/c_leaf.cpp",
+  "target_sha256_after": "90d70d4196510028d46c2924bc9f85b7bd8b16cf727703df02c0f80d366aab2b",
+  "target_sha256_before": "8222580d12a65dcda9f306dcfdcd257f6bc5a5bc99e579d7d31f21ca81c77955",
+  "witness_input": "opCount=200, wire=0x8e, fExec=0, sv=BASE"
+}

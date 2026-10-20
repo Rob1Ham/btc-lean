@@ -1,0 +1,63 @@
+module CellW32CmsGetintCounts where
+
+// Independent Cryptol oracle for SCR-086's int32 clamp and its CHECKMULTISIG
+// count call sites.
+//
+// Written from Bitcoin Core script.h:326-333 and interpreter.cpp:1126-1146 at
+// pin cce32b168, plus the Lean statements Numeric/ScriptNum.lean:741-744 and
+// Interpreter/Defs.lean:1071-1096.  It is not derived from either cell leg.
+//
+// Signed comparisons use Cryptol's `<$`/`>$` on two's-complement bitvectors.
+// Inputs are the raw operand bytes, so the oracle covers every four-byte
+// CScriptNum operand, not a selected value.
+
+// ---------------------------------------------------------------------------
+// The clamp itself.  Input is Core's int64_t m_value; output is its `int`.
+// Both arms fire: x > INT_MAX and x < INT_MIN.
+clamp_i32 : [64] -> [32]
+clamp_i32 x =
+  if x >$ 2147483647 then 2147483647
+  else if x <$ (-2147483648) then (-2147483648)
+  else drop x
+
+// ---------------------------------------------------------------------------
+// CScriptNum::set_vch for a four-byte little-endian operand (script.h:376-391;
+// Lean setVchBE, ScriptNum.lean:449-460).  Byte d3's 0x80 bit is the sign.
+set_vch4 : [8] -> [8] -> [8] -> [8] -> [64]
+set_vch4 b0 b1 b2 b3 =
+  if (b3 && 0x80) != 0
+    then -((zext b0) || ((zext b1) << 8) || ((zext b2) << 16) ||
+           ((zext (b3 && 0x7f)) << 24))
+    else  ((zext b0) || ((zext b1) << 8) || ((zext b2) << 16) ||
+           ((zext (b3 && 0x7f)) << 24))
+
+// ---------------------------------------------------------------------------
+// Cell-local layout observable, identical packing to both legs:
+//   status(3) | nKeys(5)<<3 | nSigs(5)<<8 | ikey2(6)<<13 | isig(6)<<19
+pack_layout : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pack_layout st nk ns ik is =
+  (st && 7) || ((nk && 31) << 3) || ((ns && 31) << 8) ||
+  ((ik && 63) << 13) || ((is && 63) << 19)
+
+w64 : [32] -> [64]
+w64 x = zext x
+
+// Core's precedence order (interpreter.cpp:1122-1146):
+//   1 pubkey_count, 2 op_count, 3 underflow, 4 sig_count, 0 ok.
+cms_counts4 : [8] -> [8] -> [8] -> [8] ->
+              [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [64]
+cms_counts4 kb0 kb1 kb2 kb3 sb0 sb1 sb2 sb3 depth opc =
+  if (nkv <$ 0) || (nkv >$ 20)
+    then pack_layout 1 0 0 0 0
+  else if (w64 opc + w64 nkv) >$ 201
+    then pack_layout 2 0 0 0 0
+  else if w64 depth < w64 nkv + 2
+    then pack_layout 3 0 0 0 0
+  else if (nsv <$ 0) || (nsv >$ nkv)
+    then pack_layout 4 0 0 0 0
+  else if w64 depth < w64 nkv + w64 nsv + 3
+    then pack_layout 3 0 0 0 0
+  else pack_layout 0 (w64 nkv) (w64 nsv) (w64 (nkv + 2)) (w64 (nkv + 3))
+  where
+    nkv = clamp_i32 (set_vch4 kb0 kb1 kb2 kb3)
+    nsv = clamp_i32 (set_vch4 sb0 sb1 sb2 sb3)

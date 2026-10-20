@@ -1,0 +1,21 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_p2sh_subscript_leaf.bc";
+mL <- llvm_load_module "l_cell_p2sh_subscript_leaf.bc";
+
+// One symbolic function for both legs. No overrides: the functions call
+// nothing outside the module.
+let leaf_spec = do {
+  d  <- llvm_fresh_var "ss_depth"   (llvm_int 64);
+  t  <- llvm_fresh_var "ss_top"     (llvm_int 64);
+  tl <- llvm_fresh_var "ss_top_len" (llvm_int 64);
+  pt <- llvm_fresh_var "prev_top"   (llvm_int 64);
+  pl <- llvm_fresh_var "prev_len"   (llvm_int 64);
+  llvm_execute_func [llvm_term d, llvm_term t, llvm_term tl, llvm_term pt,
+                     llvm_term pl];
+  llvm_return (llvm_term {{ leaf d t tl pt pl }});
+};
+llvm_verify mC "cell_p2sh_subscript_leaf" [] false leaf_spec abc;
+llvm_verify mL "cell_p2sh_subscript_leaf" [] false leaf_spec abc;
+
+print "CELL_W64_P2SH_SUBSCRIPT_LEAF_SAW_GREEN";

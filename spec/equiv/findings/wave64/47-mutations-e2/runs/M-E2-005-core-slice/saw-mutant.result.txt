@@ -1,0 +1,95 @@
+# cell: limits/C-L-opcount
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# script: build/cell.saw
+# expected: at least 2 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_opcount...
+Simulating cell_opcount...
+Checking proof obligations cell_opcount...
+Subgoal failed: cell_opcount cell.saw:17:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+opcount_spec opc wire fexec sv
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = Vec 1 Bool;
+      _x`3 = bvNat 1 0;
+      _x`4 = bvNat 8 2;
+      _x`5 = bvNat 1 1;
+      _x`6 = bvEq 8 (bvNat 8 152) wire;
+      _x`7 = bvNat 64 68;
+      _x`8 = bvEq 8 (bvNat 8 151) wire;
+      _x`9 = bvEq 8 (bvNat 8 150) wire;
+      _x`10 = bvEq 8 (bvNat 8 149) wire;
+      _x`11 = bvEq 8 (bvNat 8 142) wire;
+      _x`12 = bvEq 8 (bvNat 8 141) wire;
+      _x`13 = bvEq 8 (bvNat 8 134) wire;
+      _x`14 = bvEq 8 (bvNat 8 133) wire;
+      _x`15 = bvEq 8 (bvNat 8 132) wire;
+      _x`16 = bvEq 8 (bvNat 8 131) wire;
+      _x`17 = bvEq 8 (bvNat 8 129) wire;
+      _x`18 = bvEq 8 (bvNat 8 128) wire;
+      _x`19 = bvEq 8 (bvNat 8 127) wire;
+      _x`20 = bvEq 8 (bvNat 8 126) wire;
+      _x`21 = bvEq 8 (bvNat 8 153) wire;
+      _x`22 = bvNat 32 1;
+      _x`23 = bvToNat 32 (bvNat 32 8);
+      _x`24 = bvOr 32 _x`22
+                (bvShl 32 (bvUExt 24 8 fexec) (bvToNat 32 (bvNat 32 20)));
+    }
+ in ite _x`1
+      (bvEq 1 _x`3
+         (bvOr 1
+            (bvOr 1 (ite _x`2 (bvult 8 _x`4 sv) _x`5 _x`3)
+               (ite _x`2 (bvult 8 (bvNat 8 1) fexec) _x`5 _x`3))
+            (ite _x`2 (bvult 32 (bvNat 32 202) opc) _x`5 _x`3)))
+      (ite _x`1
+         (bvEq 1 _x`3
+            (bvAnd 1 (ite _x`2 (bvult 8 sv _x`4) _x`5 _x`3)
+               (ite _x`2 (bvult 8 (bvNat 8 96) wire) _x`5 _x`3)))
+         (ite _x`1 _x`6 _x`7
+            (ite _x`1 _x`8 _x`7
+               (ite _x`1 _x`9 _x`7
+                  (ite _x`1 _x`10 _x`7
+                     (ite _x`1 _x`11 _x`7
+                        (ite _x`1 _x`12 _x`7
+                           (ite _x`1 _x`13 _x`7
+                              (ite _x`1 _x`14 _x`7
+                                 (ite _x`1 _x`15 _x`7
+                                    (ite _x`1 _x`16 _x`7
+                                       (ite _x`1 _x`17 _x`7
+                                          (... ... _x`18 _x`7
+                                             (... ... _x`7 (... ... (... ...)))))))))))))))
+         (ite _x`1 (bvslt 32 (bvNat 32 199) opc) (bvNat 64 28)
+            (ite _x`1 _x`6 _x`7
+               (ite _x`1 _x`8 _x`7
+                  (ite _x`1 _x`9 _x`7
+                     (ite _x`1 _x`10 _x`7
+                        (ite _x`1 _x`11 _x`7
+                           (ite _x`1 _x`12 _x`7
+                              (ite _x`1 _x`13 _x`7
+                                 (ite _x`1 _x`14 _x`7
+                                    (ite _x`1 _x`15 _x`7
+                                       (ite _x`1 _x`16 _x`7
+                                          (ite _x`1 _x`17 _x`7
+                                             (... ... _x`18 _x`7
+                                                (... ... _x`7 (... ... (... ...)))))))))))))))))
+      (bvNat 64 6)
+
+Goal size 334. Provers used: abc_verilog
+----------Counterexample----------
+  opc: 200
+  wire: 192
+  fexec: 0
+  sv: 0
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:17:45-17:48 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:17:1-17:48 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

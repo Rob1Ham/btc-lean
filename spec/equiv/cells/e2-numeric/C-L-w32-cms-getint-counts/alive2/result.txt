@@ -1,0 +1,194 @@
+# cell: e2-numeric/C-L-w32-cms-getint-counts
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional build/c_cell_clamp_int32.ll build/l_cell_clamp_int32.ll
+
+----------------------------------------
+define i32 @cell_clamp_int32(i64 noundef %x) nofree willreturn memory(none) {
+entry:
+  %spec.select6.i = smax i64 noundef %x, -2147483648
+  %retval.07.i = smin i64 %spec.select6.i, 2147483647
+  %retval.0.i = trunc nsw i64 %retval.07.i to i32
+  ret i32 %retval.0.i
+}
+=>
+define i32 @cell_clamp_int32(i64 noundef %x) nofree willreturn memory(none) {
+entry:
+  %spec.select6.i = smax i64 noundef %x, -2147483648
+  %retval.07.i = smin i64 %spec.select6.i, 2147483647
+  %retval.0.i = trunc nsw i64 %retval.07.i to i32
+  ret i32 %retval.0.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional build/c_cell_cms_counts4.ll build/l_cell_cms_counts4.ll
+
+----------------------------------------
+define i64 @cell_cms_counts4(i8 noundef zeroext %kb0, i8 noundef zeroext %kb1, i8 noundef zeroext %kb2, i8 noundef zeroext %kb3, i8 noundef zeroext %sb0, i8 noundef zeroext %sb1, i8 noundef zeroext %sb2, i8 noundef zeroext %sb3, i32 noundef %depth, i32 noundef %opCount) nofree willreturn memory(none) {
+entry:
+  %conv.i = zext i8 noundef zeroext %kb0 to i64
+  %conv1.i = zext i8 noundef zeroext %kb1 to i64
+  %shl.i = shl nsw nuw i64 %conv1.i, 8
+  %or.i = or disjoint i64 %shl.i, %conv.i
+  %conv2.i = zext i8 noundef zeroext %kb2 to i64
+  %shl3.i = shl nsw nuw i64 %conv2.i, 16
+  %or4.i = or disjoint i64 %or.i, %shl3.i
+  %conv5.i = zext i8 noundef zeroext %kb3 to i64
+  %and.i = shl nsw nuw i64 %conv5.i, 24
+  %shl7.i = and i64 %and.i, 2130706432
+  %or8.i = or disjoint i64 %shl7.i, %or4.i
+  %sub.i = sub nsw i64 0, %or8.i
+  %tobool.not13.i = icmp slt i8 noundef zeroext %kb3, 0
+  %cond.i = select i1 %tobool.not13.i, i64 %sub.i, i64 %or8.i
+  %spec.select6.i = smax i64 %cond.i, -2147483648
+  %retval.07.i = smin i64 %spec.select6.i, 2147483647
+  %retval.0.i = trunc nsw i64 %retval.07.i to i32
+  %or.cond = icmp ugt i64 %retval.07.i, 20
+  br i1 %or.cond, label %cleanup41, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %opCount to i64
+  %add = add nsw nuw i64 %retval.07.i, %conv
+  %cmp5 = icmp samesign ugt i64 %add, 201
+  br i1 %cmp5, label %cleanup41, label %if.end8
+
+if.end8:
+  %add9 = add nsw nuw i32 %retval.0.i, 2
+  %cmp14 = icmp ult i32 noundef %depth, %add9
+  br i1 %cmp14, label %cleanup41, label %if.end17
+
+if.end17:
+  %conv.i58 = zext i8 noundef zeroext %sb0 to i64
+  %conv1.i59 = zext i8 noundef zeroext %sb1 to i64
+  %shl.i60 = shl nsw nuw i64 %conv1.i59, 8
+  %or.i61 = or disjoint i64 %shl.i60, %conv.i58
+  %conv2.i62 = zext i8 noundef zeroext %sb2 to i64
+  %shl3.i63 = shl nsw nuw i64 %conv2.i62, 16
+  %or4.i64 = or disjoint i64 %or.i61, %shl3.i63
+  %conv5.i65 = zext i8 noundef zeroext %sb3 to i64
+  %and.i66 = shl nsw nuw i64 %conv5.i65, 24
+  %shl7.i67 = and i64 %and.i66, 2130706432
+  %or8.i68 = or disjoint i64 %shl7.i67, %or4.i64
+  %sub.i69 = sub nsw i64 0, %or8.i68
+  %tobool.not13.i70 = icmp slt i8 noundef zeroext %sb3, 0
+  %cond.i71 = select i1 %tobool.not13.i70, i64 %sub.i69, i64 %or8.i68
+  %spec.select6.i72 = smax i64 %cond.i71, -2147483648
+  %retval.07.i73 = smin i64 %spec.select6.i72, 2147483647
+  %retval.0.i74 = trunc nsw i64 %retval.07.i73 to i32
+  %cmp20 = icmp slt i64 %cond.i71, 0
+  %cmp22 = icmp slt i64 %spec.select6.i, %retval.07.i73
+  %or.cond57 = or i1 %cmp20, %cmp22
+  br i1 %or.cond57, label %cleanup41, label %if.end25
+
+if.end25:
+  %narrow = add nsw nuw i32 %retval.0.i, 3
+  %narrow56 = add nuw i32 %narrow, %retval.0.i74
+  %cmp30 = icmp ult i32 noundef %depth, %narrow56
+  br i1 %cmp30, label %cleanup41, label %if.end33
+
+if.end33:
+  %#0 = shl nsw nuw i32 %retval.0.i, 3
+  %#1 = shl nsw nuw i32 %retval.0.i74, 8
+  %or616.i = or disjoint i32 %#1, %#0
+  %#2 = shl nsw nuw i32 %add9, 13
+  %or1017.i = add nsw nuw i32 %or616.i, %#2
+  %#3 = shl nsw nuw i32 %narrow, 19
+  %or1418.i = add nsw nuw i32 %or1017.i, %#3
+  %or14.i = zext nneg i32 %or1418.i to i64
+  br label %cleanup41
+
+cleanup41:
+  %retval.4 = phi i64 [ %or14.i, %if.end33 ], [ 1, %entry ], [ 2, %if.end ], [ 3, %if.end8 ], [ 4, %if.end17 ], [ 3, %if.end25 ]
+  %#range_0_%retval.4 = !range i64 %retval.4, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.4
+}
+=>
+define i64 @cell_cms_counts4(i8 noundef zeroext %kb0, i8 noundef zeroext %kb1, i8 noundef zeroext %kb2, i8 noundef zeroext %kb3, i8 noundef zeroext %sb0, i8 noundef zeroext %sb1, i8 noundef zeroext %sb2, i8 noundef zeroext %sb3, i32 noundef %depth, i32 noundef %opCount) nofree willreturn memory(none) {
+entry:
+  %conv.i = zext i8 noundef zeroext %kb0 to i64
+  %conv1.i = zext i8 noundef zeroext %kb1 to i64
+  %shl.i = shl nsw nuw i64 %conv1.i, 8
+  %or.i = or disjoint i64 %shl.i, %conv.i
+  %conv2.i = zext i8 noundef zeroext %kb2 to i64
+  %shl3.i = shl nsw nuw i64 %conv2.i, 16
+  %or4.i = or disjoint i64 %or.i, %shl3.i
+  %conv5.i = zext i8 noundef zeroext %kb3 to i64
+  %and.i = shl nsw nuw i64 %conv5.i, 24
+  %shl7.i = and i64 %and.i, 2130706432
+  %or8.i = or disjoint i64 %shl7.i, %or4.i
+  %sub.i = sub nsw i64 0, %or8.i
+  %tobool.not13.i = icmp slt i8 noundef zeroext %kb3, 0
+  %cond.i = select i1 %tobool.not13.i, i64 %sub.i, i64 %or8.i
+  %or.cond = icmp ugt i64 %cond.i, 20
+  br i1 %or.cond, label %cleanup37, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %opCount to i64
+  %add = add nsw nuw i64 %cond.i, %conv
+  %cmp3 = icmp ugt i64 %add, 201
+  br i1 %cmp3, label %cleanup37, label %if.end6
+
+if.end6:
+  %conv7 = zext i32 noundef %depth to i64
+  %add8 = add nsw nuw i64 %cond.i, 2
+  %cmp9 = icmp ugt i64 %add8, %conv7
+  br i1 %cmp9, label %cleanup37, label %if.end12
+
+if.end12:
+  %conv.i51 = zext i8 noundef zeroext %sb0 to i64
+  %conv1.i52 = zext i8 noundef zeroext %sb1 to i64
+  %shl.i53 = shl nsw nuw i64 %conv1.i52, 8
+  %or.i54 = or disjoint i64 %shl.i53, %conv.i51
+  %conv2.i55 = zext i8 noundef zeroext %sb2 to i64
+  %shl3.i56 = shl nsw nuw i64 %conv2.i55, 16
+  %or4.i57 = or disjoint i64 %or.i54, %shl3.i56
+  %conv5.i58 = zext i8 noundef zeroext %sb3 to i64
+  %and.i59 = shl nsw nuw i64 %conv5.i58, 24
+  %shl7.i60 = and i64 %and.i59, 2130706432
+  %or8.i61 = or disjoint i64 %shl7.i60, %or4.i57
+  %sub.i62 = sub nsw i64 0, %or8.i61
+  %tobool.not13.i63 = icmp slt i8 noundef zeroext %sb3, 0
+  %cond.i64 = select i1 %tobool.not13.i63, i64 %sub.i62, i64 %or8.i61
+  %or.cond50 = icmp ugt i64 %cond.i64, %cond.i
+  br i1 %or.cond50, label %cleanup37, label %if.end19
+
+if.end19:
+  %add21 = add nsw nuw i64 %cond.i, 3
+  %add22 = add nsw nuw i64 %add21, %cond.i64
+  %cmp23 = icmp ugt i64 %add22, %conv7
+  br i1 %cmp23, label %cleanup37, label %if.end26
+
+if.end26:
+  %#0 = shl nsw nuw i64 %cond.i, 3
+  %#1 = shl nsw i64 %cond.i64, 8
+  %#2 = shl nsw nuw i64 %add8, 13
+  %conv32 = shl nsw nuw i64 %cond.i, 19
+  %#3 = add nsw nuw i64 %conv32, 1572864
+  %.masked = and i64 %#1, 4294967040
+  %or616.i.masked = or disjoint i64 %.masked, %#0
+  %or1017.i.masked = or disjoint i64 %#3, %#2
+  %or14.i = or i64 %or1017.i.masked, %or616.i.masked
+  br label %cleanup37
+
+cleanup37:
+  %retval.3 = phi i64 [ %or14.i, %if.end26 ], [ 1, %entry ], [ 2, %if.end ], [ 3, %if.end6 ], [ 4, %if.end12 ], [ 3, %if.end19 ]
+  ret i64 %retval.3
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

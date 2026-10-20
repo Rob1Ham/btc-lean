@@ -1,0 +1,301 @@
+# cell: disabled/C-L-w64-row172-flip
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv build/c_cell_pair.ll build/l_cell_pair.ll
+
+----------------------------------------
+define i64 @cell_pair(i8 noundef zeroext %w, i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp.i, label %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit, label %if.end.i
+
+if.end.i:
+  %#0 = and i8 noundef zeroext %w, 254
+  %or.cond.i = icmp eq i8 %#0, 126
+  %#1 = icmp slt i8 noundef zeroext %w, 130
+  %or.cond28.i = or i1 %#1, %or.cond.i
+  %#2 = add i8 noundef zeroext %w, 125
+  %#3 = icmp ult i8 %#2, 4
+  %or.cond32.i = or i1 %#3, %or.cond28.i
+  %#4 = add i8 noundef zeroext %w, 115
+  %#5 = icmp ult i8 %#4, 2
+  %or.cond34.i = or i1 %#5, %or.cond32.i
+  %#6 = add i8 noundef zeroext %w, 107
+  %#7 = icmp ult i8 %#6, 5
+  %spec.select.i = or i1 %#7, %or.cond34.i
+  %#8 = select i1 %spec.select.i, i64 73014444032, i64 274877906944
+  br label %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit
+
+_ZN12_GLOBAL__N_117core_base_outcomeEj.exit:
+  %retval.0.i = phi i64 [ 1090921693184, %entry ], [ %#8, %if.end.i ]
+  br i1 %cmp.i, label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit, label %if.end.i7
+
+if.end.i7:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 98, label %if.then1.i
+    i8 80, label %if.then1.i
+    i8 153, label %if.then1.i
+    i8 152, label %if.then1.i
+    i8 151, label %if.then1.i
+    i8 150, label %if.then1.i
+    i8 149, label %if.then1.i
+    i8 142, label %if.then1.i
+    i8 141, label %if.then1.i
+    i8 138, label %if.then1.i
+    i8 137, label %if.then1.i
+    i8 134, label %if.then1.i
+    i8 133, label %if.then1.i
+    i8 132, label %if.then1.i
+    i8 131, label %if.then1.i
+    i8 129, label %if.then1.i
+    i8 128, label %if.then1.i
+    i8 127, label %if.then1.i
+    i8 126, label %if.then1.i
+  ]
+
+lor.rhs.i:
+  %#9 = add i8 noundef zeroext %w, 69
+  %#10 = icmp ult i8 %#9, 68
+  br i1 %#10, label %if.then1.i, label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit
+
+if.then1.i:
+  %and.i = and i64 noundef %flags, 524288
+  %tobool.not.i = icmp eq i64 %and.i, 0
+  %#11 = select i1 %tobool.not.i, i64 0, i64 36
+  br label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit
+
+_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit:
+  %retval.0.i9 = phi i64 [ %#11, %if.then1.i ], [ 254, %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit ], [ 66, %lor.rhs.i ]
+  %or = or disjoint i64 %retval.0.i9, %retval.0.i
+  %#range_0_%or = !range i64 %or, i64 73014444032, i64 1090921693440
+  ret i64 %#range_0_%or
+}
+=>
+define i64 @cell_pair(i8 noundef zeroext %w, i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %flags, 524288
+  %cmp.i.not = icmp eq i64 %and.i, 0
+  %cmp.i6 = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp.i6, label %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit, label %if.end.i
+
+if.end.i:
+  %#0 = and i8 noundef zeroext %w, 254
+  %or.cond.i = icmp eq i8 %#0, 126
+  %#1 = icmp slt i8 noundef zeroext %w, 130
+  %or.cond28.i = or i1 %#1, %or.cond.i
+  %#2 = add i8 noundef zeroext %w, 125
+  %#3 = icmp ult i8 %#2, 4
+  %or.cond32.i = or i1 %#3, %or.cond28.i
+  %#4 = add i8 noundef zeroext %w, 115
+  %#5 = icmp ult i8 %#4, 2
+  %or.cond34.i = or i1 %#5, %or.cond32.i
+  %#6 = add i8 noundef zeroext %w, 107
+  %#7 = icmp ult i8 %#6, 5
+  %spec.select.i11 = or i1 %#7, %or.cond34.i
+  %#8 = select i1 %spec.select.i11, i64 73014444032, i64 274877906944
+  br label %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit
+
+_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit:
+  %retval.0.i = phi i64 [ 1090921693184, %entry ], [ %#8, %if.end.i ]
+  br i1 %cmp.i6, label %_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit, label %if.end.i8
+
+if.end.i8:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 98, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 80, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 153, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 152, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 151, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 150, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 149, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 142, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 141, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 138, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 137, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 134, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 133, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 132, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 131, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 129, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 128, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 127, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 126, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+  ]
+
+lor.rhs.i:
+  %#9 = add i8 noundef zeroext %w, 69
+  %#10 = icmp ult i8 %#9, 68
+  br label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+
+_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit:
+  %#11 = phi i1 [ 1, %if.end.i8 ], [ %#10, %lor.rhs.i ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ], [ 1, %if.end.i8 ]
+  %#12 = select i1 %cmp.i.not, i64 0, i64 36
+  %#13 = select i1 %#11, i64 %#12, i64 66
+  br label %_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit
+
+_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit:
+  %retval.0.i10 = phi i64 [ 254, %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit ], [ %#13, %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit ]
+  %or.i = or disjoint i64 %retval.0.i10, %retval.0.i
+  %#range_0_%or.i = !range i64 %or.i, i64 73014444032, i64 1090921693440
+  ret i64 %#range_0_%or.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_flip.ll build/l_cell_flip.ll
+
+----------------------------------------
+define i64 @cell_flip(i8 noundef zeroext %w, i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp.i, label %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit, label %if.end.i
+
+if.end.i:
+  %#0 = and i8 noundef zeroext %w, 254
+  %or.cond.i = icmp eq i8 %#0, 126
+  %#1 = icmp slt i8 noundef zeroext %w, 130
+  %or.cond28.i = or i1 %#1, %or.cond.i
+  %#2 = add i8 noundef zeroext %w, 125
+  %#3 = icmp ult i8 %#2, 4
+  %or.cond32.i = or i1 %#3, %or.cond28.i
+  %#4 = add i8 noundef zeroext %w, 115
+  %#5 = icmp ult i8 %#4, 2
+  %or.cond34.i = or i1 %#5, %or.cond32.i
+  %#6 = add i8 noundef zeroext %w, 107
+  %#7 = icmp ult i8 %#6, 5
+  %spec.select.i = or i1 %#7, %or.cond34.i
+  br label %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit
+
+_ZN12_GLOBAL__N_117core_base_outcomeEj.exit:
+  %retval.0.i = phi i1 [ 0, %entry ], [ %spec.select.i, %if.end.i ]
+  br i1 %cmp.i, label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit, label %if.end.i9
+
+if.end.i9:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 98, label %if.then1.i
+    i8 80, label %if.then1.i
+    i8 153, label %if.then1.i
+    i8 152, label %if.then1.i
+    i8 151, label %if.then1.i
+    i8 150, label %if.then1.i
+    i8 149, label %if.then1.i
+    i8 142, label %if.then1.i
+    i8 141, label %if.then1.i
+    i8 138, label %if.then1.i
+    i8 137, label %if.then1.i
+    i8 134, label %if.then1.i
+    i8 133, label %if.then1.i
+    i8 132, label %if.then1.i
+    i8 131, label %if.then1.i
+    i8 129, label %if.then1.i
+    i8 128, label %if.then1.i
+    i8 127, label %if.then1.i
+    i8 126, label %if.then1.i
+  ]
+
+lor.rhs.i:
+  %#8 = add i8 noundef zeroext %w, 69
+  %#9 = icmp ult i8 %#8, 68
+  br i1 %#9, label %if.then1.i, label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit
+
+if.then1.i:
+  %and.i = and i64 noundef %flags, 524288
+  %tobool.not.i = icmp eq i64 %and.i, 0
+  %cond.i = select i1 %tobool.not.i, i32 0, i32 36
+  br label %_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit
+
+_ZN12_GLOBAL__N_122core_tapscript_outcomeEjm.exit:
+  %retval.0.i11 = phi i32 [ %cond.i, %if.then1.i ], [ 254, %_ZN12_GLOBAL__N_117core_base_outcomeEj.exit ], [ 66, %lor.rhs.i ]
+  %cmp = icmp eq i32 %retval.0.i11, 0
+  %cmp3 = icmp eq i32 %retval.0.i11, 36
+  %#10 = or i1 %cmp, %cmp3
+  %#11 = and i1 %retval.0.i, %#10
+  %conv5 = zext i1 %#11 to i64
+  %#range_0_%conv5 = !range i64 %conv5, i64 0, i64 2
+  ret i64 %#range_0_%conv5
+}
+=>
+define i64 @cell_flip(i8 noundef zeroext %w, i64 noundef %flags) nofree willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %flags, 524288
+  %cmp.i.not = icmp eq i64 %and.i, 0
+  %cmp.i11 = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp.i11, label %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit, label %if.end.i
+
+if.end.i:
+  %#0 = and i8 noundef zeroext %w, 254
+  %or.cond.i = icmp eq i8 %#0, 126
+  %#1 = icmp slt i8 noundef zeroext %w, 130
+  %or.cond28.i = or i1 %#1, %or.cond.i
+  %#2 = add i8 noundef zeroext %w, 125
+  %#3 = icmp ult i8 %#2, 4
+  %or.cond32.i = or i1 %#3, %or.cond28.i
+  %#4 = add i8 noundef zeroext %w, 115
+  %#5 = icmp ult i8 %#4, 2
+  %or.cond34.i = or i1 %#5, %or.cond32.i
+  %#6 = add i8 noundef zeroext %w, 107
+  %#7 = icmp ult i8 %#6, 5
+  %spec.select.i16 = or i1 %#7, %or.cond34.i
+  br label %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit
+
+_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit:
+  %retval.0.i = phi i1 [ 0, %entry ], [ %spec.select.i16, %if.end.i ]
+  br i1 %cmp.i11, label %_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit, label %if.end.i13
+
+if.end.i13:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 98, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 80, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 153, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 152, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 151, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 150, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 149, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 142, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 141, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 138, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 137, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 134, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 133, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 132, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 131, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 129, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 128, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 127, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+    i8 126, label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+  ]
+
+lor.rhs.i:
+  %#8 = add i8 noundef zeroext %w, 69
+  %#9 = icmp ult i8 %#8, 68
+  br label %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit
+
+_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit:
+  %#10 = phi i1 [ 1, %if.end.i13 ], [ %#9, %lor.rhs.i ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ], [ 1, %if.end.i13 ]
+  %cond.i = select i1 %cmp.i.not, i32 0, i32 36
+  %spec.select.i = select i1 %#10, i32 %cond.i, i32 66
+  br label %_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit
+
+_ZN12_GLOBAL__N_122lean_tapscript_outcomeEjb.exit:
+  %retval.0.i15 = phi i32 [ 254, %_ZN12_GLOBAL__N_117lean_base_outcomeEj.exit ], [ %spec.select.i, %_ZN12_GLOBAL__N_123lean_is_op_success_wireEj.exit ]
+  %cmp = icmp eq i32 %retval.0.i15, 0
+  %cmp4 = icmp eq i32 %retval.0.i15, 36
+  %#11 = or i1 %cmp, %cmp4
+  %#12 = and i1 %retval.0.i, %#11
+  %conv8 = zext i1 %#12 to i64
+  %#range_0_%conv8 = !range i64 %conv8, i64 0, i64 2
+  ret i64 %#range_0_%conv8
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

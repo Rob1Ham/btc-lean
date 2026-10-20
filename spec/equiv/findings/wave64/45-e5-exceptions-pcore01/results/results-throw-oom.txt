@@ -1,0 +1,12 @@
+== baseline
+throw_test: ok=0 err=1 (SCRIPT_ERR_UNKNOWN_ERROR)
+oom_test: ok=0 err=1 (SCRIPT_ERR_UNKNOWN_ERROR)
+rc=0
+== p01
+throw_test: PROPAGATED exception what="injected external throw" err=1
+oom_test: PROPAGATED exception what="std::bad_alloc" err=1
+rc=0
+== p01amend
+throw_test: ok=0 err=1 (SCRIPT_ERR_UNKNOWN_ERROR)
+oom_test: ok=0 err=1 (SCRIPT_ERR_UNKNOWN_ERROR)
+rc=0

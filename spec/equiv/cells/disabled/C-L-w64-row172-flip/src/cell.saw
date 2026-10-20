@@ -1,0 +1,28 @@
+import "cell.cry";
+mCp <- llvm_load_module "c_cell_pair.bc";
+mLp <- llvm_load_module "l_cell_pair.bc";
+mCf <- llvm_load_module "c_cell_flip.bc";
+mLf <- llvm_load_module "l_cell_flip.bc";
+
+// One-byte script, BASE vs TAPSCRIPT packed result. `flags` is the full
+// 64-bit flag word; the policy bit is bit 19.
+let sPair = do {
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  f <- llvm_fresh_var "f" (llvm_int 64);
+  llvm_execute_func [llvm_term w, llvm_term f];
+  llvm_return (llvm_term {{ pair w f }});
+};
+llvm_verify mCp "cell_pair" [] false sPair abc;
+llvm_verify mLp "cell_pair" [] false sPair abc;
+
+// The SCR-172 flip predicate: exactly the fifteen legacy-disabled wires.
+let sFlip = do {
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  f <- llvm_fresh_var "f" (llvm_int 64);
+  llvm_execute_func [llvm_term w, llvm_term f];
+  llvm_return (llvm_term {{ flip w f }});
+};
+llvm_verify mCf "cell_flip" [] false sFlip abc;
+llvm_verify mLf "cell_flip" [] false sFlip abc;
+
+print "CELL_W64_ROW172_FLIP_SAW_GREEN";

@@ -1,0 +1,122 @@
+# cell: limits/C-L-opcount
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 7d7459a14ec20dfd66af1fae3251ff33f66c499f7ec9e368f61660ca8e9ae899
+# command: alive-tv build/c_cell_opcount.ll build/l_cell_opcount.ll
+
+----------------------------------------
+define i64 @cell_opcount(i32 noundef %opCount, i8 noundef zeroext %wire, i8 noundef zeroext %fExec, i8 noundef zeroext %sv) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %conv = zext i8 noundef zeroext %fExec to i32
+  %cmp = icmp ugt i8 noundef zeroext %fExec, 1
+  %or.cond = or i1 %cmp, %spec.select.i
+  %cmp2 = icmp ugt i32 noundef %opCount, 202
+  %or.cond25 = or i1 %cmp2, %or.cond
+  br i1 %or.cond25, label %return, label %if.end
+
+if.end:
+  %or.cond.i = icmp ult i8 noundef zeroext %sv, 2
+  %cmp11 = icmp ugt i8 noundef zeroext %wire, 96
+  %or.cond27 = and i1 %cmp11, %or.cond.i
+  br i1 %or.cond27, label %if.then12, label %if.end18
+
+if.then12:
+  %inc = add nsw nuw i32 noundef %opCount, 1
+  %cmp13 = icmp sgt i32 noundef %opCount, 200
+  br i1 %cmp13, label %return, label %if.end18
+
+if.end18:
+  %nOpCount.0 = phi i32 [ %inc, %if.then12 ], [ noundef %opCount, %if.end ]
+  switch i8 noundef zeroext %wire, label %lor.rhs.i [
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+    i8 153, label %return
+  ]
+
+lor.rhs.i:
+  %#0 = shl nsw nuw i32 %conv, 20
+  %#1 = shl i32 %nOpCount.0, 8
+  %#2 = or i32 %#0, %#1
+  %or68.i = or disjoint i32 %#2, 1
+  %or6.i = zext nneg i32 %or68.i to i64
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ %or6.i, %lor.rhs.i ], [ 6, %entry ], [ 28, %if.then12 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ], [ 68, %if.end18 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 4294967296
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_opcount(i32 noundef %opCount, i8 noundef zeroext %wire, i8 noundef zeroext %fExec, i8 noundef zeroext %sv) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %conv = zext i8 noundef zeroext %fExec to i32
+  %cmp = icmp ugt i8 noundef zeroext %fExec, 1
+  %or.cond = or i1 %cmp, %spec.select.i
+  %cmp2 = icmp ugt i32 noundef %opCount, 202
+  %or.cond23 = or i1 %cmp2, %or.cond
+  br i1 %or.cond23, label %return, label %if.end
+
+if.end:
+  %or.cond.i = icmp ult i8 noundef zeroext %sv, 2
+  %cmp10 = icmp ugt i8 noundef zeroext %wire, 96
+  %spec.select = and i1 %cmp10, %or.cond.i
+  %add = zext i1 %spec.select to i32
+  %cond = add nsw nuw i32 noundef %opCount, %add
+  %cmp12 = icmp ugt i32 %cond, 201
+  %or.cond25 = select i1 %spec.select, i1 %cmp12, i1 0
+  br i1 %or.cond25, label %return, label %if.end15
+
+if.end15:
+  switch i8 noundef zeroext %wire, label %lor.rhs.i [
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+    i8 153, label %return
+  ]
+
+lor.rhs.i:
+  %#0 = shl nsw nuw i32 %conv, 20
+  %#1 = shl nsw nuw i32 %cond, 8
+  %#2 = or disjoint i32 %#1, %#0
+  %or68.i = or disjoint i32 %#2, 1
+  %or6.i = zext nneg i32 %or68.i to i64
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ %or6.i, %lor.rhs.i ], [ 6, %entry ], [ 28, %if.end ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ], [ 68, %if.end15 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 4294967296
+  ret i64 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

@@ -1,0 +1,66 @@
+# Hashes for wave64/45-e5-exceptions-pcore01
+# base repo commit: 5946c02
+# Core pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+
+## Patches
+9aee2de3890e1a616fcb2336c4a3337954efb4d5ac7cfc667783252f1619136e  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/P-CORE-01-amendment.proposal.patch
+cc48da52cf14af7542d9c7e207022f84f9c8110ff9f5da204e2f96e8f39ea4a8  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/P-CORE-01-amendment.patch
+107ef2ede2816d58793ab1ad5ad2293b7a1f25e54ce1bac16f73bcae94e0c3ea  work/patches/P-CORE-01-scriptnum-error-returns.patch
+3918ab0df94ef6094140b5d4edd0bcd88a8424c276da3c90dfab819feb4b8ec6  work/patches/P-CORE-02-devirtualize-checker.patch
+df42a88f3000abdaa2895ed146409eddfaa3384723cece0540b317e1457fb794  work/patches/P-CORE-03-hoist-evalscript-statics.patch
+
+## Bitcode / modules
+f5718af79c56ccfd5a5437a313d957573cb87c0de0cdf5641013991268801b2c  work/base-interpreter-pin.bc
+2c23631fbe4970de8dd44a7ca05033c4781eb73b85098532db26e1e5fa749a41  work/p1-interpreter-rel.bc
+4583a46dd76bfe2ed2b63393c071a21a53986e7e38c873c9b11b8163d358af5b  work/p1amend-interpreter-rel.bc
+# fresh-tree rebuild from the two committed patches (same bytes as above)
+4583a46dd76bfe2ed2b63393c071a21a53986e7e38c873c9b11b8163d358af5b  work/verify-amend/verify-amend.bc
+657530a8d18741b40e09653a681c5d11438ed453bcccf8bde14f0b2037a6d51c  work/script-O0.bc
+78b1b47f2d03fed464480acd7e006310857997d5963116858730f45ad88f1ad5  work/e5probe/m3a.bc
+ea878eae7cbf7d542b62821650f67aeea71b3edf1fd7133146dc673a44b573db  work/p123amend-interpreter.bc
+
+## C-leg libraries
+f3f32d635d4086efbb53ca9bb2f25d8f390a4727bd7c05c356a8e326737dbc2f  work/lib/libequiv-core-baseline.so
+637e9bf5995edcf4f476ae13b4708d7926d5b91993673262f1313c5acc19d09b  work/lib/libequiv-core-p01.so
+0dcee4c898483c654d0d5ffcca061d1829ae68bea04ec34c38e7400de30c6e7d  work/lib/libequiv-core-p01amend.so
+
+## Corpus / fuzz
+7fb93dea245f68b627d214e0d51969c4f29fefaae1ac94ca1eba5fe8322f864c  spec/data/core/script_tests.json
+5f31c672428d10c4a864641be9aae81e11b9840dfcd2f971e7fb96e1783d94b9  work/fuzz_diff.cpp
+83110a51f4402241433e1b03a2c4806297af6b667876534c002ef87ecf5d1cd0  work/diff_corpus.py
+
+## Committed evidence files
+e0eb234661f23a8ea7324d0efb625b53ca94391142121e5c7a227e7fc72656ed  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/COMMANDS.md
+cc48da52cf14af7542d9c7e207022f84f9c8110ff9f5da204e2f96e8f39ea4a8  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/P-CORE-01-amendment.patch
+9aee2de3890e1a616fcb2336c4a3337954efb4d5ac7cfc667783252f1619136e  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/P-CORE-01-amendment.proposal.patch
+088e8afbdb1b794aac7bf9869295a99a9782ed6f72401935d7108e4f40a44dab  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/README.md
+7ad2defc7a45b83313de5d3f247bdb88559ae1018484d6b13e8ac019389e2af7  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/diffs/p1-vs-amended-interpreter.diff
+f6b20d2d9b3e231d26b0d1676f6f23218a1e27d8d7a868099e4ac48748bff344  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/diffs/upstream-vs-amended-interpreter.diff
+1c3794e5a67e592c3b7aa7e0773a57a3162500ece65662b783791ac53355b8be  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/diffs/upstream-vs-amended-script-h.diff
+a707b1eb1e65c204ee9d88e678f12b29ca8780c5b027fae7b9037ee72844fb48  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/diffs/upstream-vs-p1-interpreter.diff
+e8393c68c096c698d93d6e40d3ffa8653e3f23d394a86578441ff4dc00d2626b  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/diffs/upstream-vs-p1-script-h.diff
+c620ddc11be2549b9e19b45e6430b185c379fef8e808c200049491860fe95f72  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/build_legs.sh
+c10d8840081bf8ad6a0eae79480fc9a4125deaf0a95e24b6ac5f1e750a8ac9d8  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/defglob.py
+83110a51f4402241433e1b03a2c4806297af6b667876534c002ef87ecf5d1cd0  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/diff_corpus.py
+5f31c672428d10c4a864641be9aae81e11b9840dfcd2f971e7fb96e1783d94b9  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/fuzz_diff.cpp
+47ad1761ee5b7f8fa70c340904c801273a0bc4bfe8a5bf1cc3ffe95b28d2f85b  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/mkm.py
+784089a18728ed3b1d887c7078eb6237eb1c8c521bf85c39bcb87f9ccf613303  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/sites_driver.cpp
+9cba6ca57d6ee1065ffb713efd6c1899550cc272f9e67172300a462e7e5ac10d  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/spec-b4-throw-pcore01-amend.saw
+a21a166e66f1c41725d495b4508bf89b02dd2b71c8c867b835343282d7e137c0  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/spec-vs-empty-m3a.saw
+94063657b3e80a9a1e721d284b14dc91e078b05aafe68a84e8e054e8b05b20f2  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/spec-vs-scriptnum-m3a.saw
+5ad60c1fe287e1d4fbf344b1f186b5a7b8885f176676bec9b5ba930733ad8b0b  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/stub-fns.ll
+6f3be6a0ccaaebb8ea08bb0eb85370057eda8f9f9f944236024d94eac8cf753e  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/harness/throw_oom_driver.cpp
+6c57e3f621d398dcf403a557ec0a5a2ea82e8de2da6756df2d40620e743a8dae  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/alive2/alive2-amend-es.txt
+ea659cc3bbe30fe244570750185fdf55b6bbbff3b0323970d688344635a2e321  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/alive2/alive2-amend-vs.txt
+bd8a95f961d492413788ae724d6b2912819cba23e453c584642e1a487b8047ea  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/build_legs.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/corpus/divergences.jsonl
+8a9e9cc94940f4590181898c89bd444719077d180b50e4160cb52462a3694c0f  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/corpus/rows.jsonl
+eb1755ac3e5a0ad8748f35ce3e02634c3ea3628bf796ef6d910b4178cff04b0e  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/corpus/summary.json
+24734149c36eecedd7bb121805f12183f2acfc89391d0b1c63889ec953a7a9dc  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/fuzz/summary.json
+a30576254960e965fd53caaaf6830fea3257cc17a025fecfa7c398384c079afc  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/predcheck.log
+46691a105095a0a0181835115ef2afc63e59e9281b92ccf28f5e2036be9e1c79  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/results-ir-counts.txt
+5366d0f5839a7a88a0e5831c6aaf84b5e609ed88b3aa8477132b70c410c63af4  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/results-sites.txt
+fa2f7bb615e7fc020d1f3bc926835afd83371db283e1e46753d441a2cb12e012  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/results-throw-oom.txt
+1eddd3c33e475336cc24a5bd96e340d57d3bc3b0bcd2c3f692abb281dfb27c7e  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/saw/log-b4-throw-amend.txt
+b2f20df26046917ca2b8a916c8bf7d8ed20686ab4fb960d4a0c871842c72df58  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/saw/log-vs-empty-m3a.txt
+673923cd9c9b85cf03118ee82095f1ba478033b1bf462e9701d4a1b27d7fa0c8  spec/equiv/findings/wave64/45-e5-exceptions-pcore01/results/saw/log-vs-scriptnum-m3a.txt

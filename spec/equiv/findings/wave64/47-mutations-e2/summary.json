@@ -1,0 +1,244 @@
+{
+  "base_commit": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "branch": "wave64/47-mutations-e2",
+  "distinct_mutants_run": [
+    "M-E2-001",
+    "M-E2-002",
+    "M-E2-004",
+    "M-E2-005"
+  ],
+  "open_items": [
+    "full core-copy rebuild not performed; C-side kills are source-excerpt slices",
+    "catalogue cell ids e2-flow/negzero-if, e2-flow/opcount-201, e2-numeric/num-4byte-boundary do not exist at this base",
+    "model-site pairing only for M-E2-004",
+    "optional hash mutant M-E2-007 not run"
+  ],
+  "required_equivalent": 0,
+  "required_killed": 4,
+  "required_mutants": [
+    "M-E2-001",
+    "M-E2-002",
+    "M-E2-004",
+    "M-E2-005"
+  ],
+  "required_score": "4/4 = 100%",
+  "required_total": 4,
+  "runs": [
+    {
+      "alive2_failing_functions": [
+        "cell_cast_len1"
+      ],
+      "baseline_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "catalogue_cell": "cells/e2-flow/negzero-if",
+      "caught": true,
+      "caught_by": {
+        "alive2": true,
+        "saw": true
+      },
+      "cell": "cells/control-flow/C-L-casttobool",
+      "classification": "KILLED",
+      "commands": {
+        "alive2": "cd spec/equiv && bash cells/control-flow/C-L-casttobool/alive2/run.sh",
+        "saw": "cd spec/equiv && bash cells/control-flow/C-L-casttobool/saw/run.sh"
+      },
+      "evidence": "runs/M-E2-001-core-slice/result.md",
+      "expected_detection": "Alive2 C-vs-L must report a value mismatch for cell_cast_len1 at b0=0x80; SAW must fail the C cell_cast_len1 proof against the independent cast1 predicate (0x80 => false). Witness: element length 1, byte 0x80; baseline C returns 0, mutant returns 1.",
+      "family": "e2-flow",
+      "mutant_id": "M-E2-001",
+      "mutant_status": {
+        "alive2": "alive2-not-green",
+        "saw": "saw-not-green"
+      },
+      "post_revert_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "revert_verified": true,
+      "run_id": "M-E2-001-core-slice",
+      "saw_proofs_failed": 1,
+      "saw_proofs_succeeded": 2,
+      "site": "core-slice",
+      "target": "cells/control-flow/C-L-casttobool/src/c_leaf.cpp",
+      "target_sha256_after": "044034a53806e64d35509de6eb08464eeaf38115054a094b4d42ea2555294060",
+      "target_sha256_before": "f8f2393b7e1efd4dff404840386cb19733f651a5f36ac35164db5f51c860021d",
+      "witness_input": "len=1, b0=0x80"
+    },
+    {
+      "alive2_failing_functions": [
+        "cell_1add",
+        "cell_1sub",
+        "cell_negate",
+        "cell_abs",
+        "cell_not",
+        "cell_0notequal"
+      ],
+      "baseline_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "catalogue_cell": "cells/e2-numeric/num-4byte-boundary",
+      "caught": true,
+      "caught_by": {
+        "alive2": true,
+        "saw": true
+      },
+      "cell": "cells/numeric/C-L-unary-4byte",
+      "classification": "KILLED",
+      "commands": {
+        "alive2": "cd spec/equiv && bash cells/numeric/C-L-unary-4byte/alive2/run.sh",
+        "saw": "cd spec/equiv && bash cells/numeric/C-L-unary-4byte/saw/run.sh"
+      },
+      "evidence": "runs/M-E2-002-core-slice/result.md",
+      "expected_detection": "Alive2 C-vs-L must report a value mismatch at operand length 5 (C accepts, L returns SCRIPTNUM); SAW must fail the C proof against the independent decodeOk predicate (L <= 4). Witness: cell_1add, lb=5, content 0; baseline error 4 (SCRIPTNUM), mutant pushes 1.",
+      "family": "e2-numeric",
+      "mutant_id": "M-E2-002",
+      "mutant_status": {
+        "alive2": "alive2-not-green",
+        "saw": "saw-not-green"
+      },
+      "post_revert_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "revert_verified": true,
+      "run_id": "M-E2-002-core-slice",
+      "saw_proofs_failed": 1,
+      "saw_proofs_succeeded": 0,
+      "site": "core-slice",
+      "target": "cells/numeric/C-L-unary-4byte/src/c_leaf.cpp",
+      "target_sha256_after": "c63201531534a279097f9939ff1f158ad50d54afcfe35cf138cfd3edcc238437",
+      "target_sha256_before": "40062b8734175e26491fff60f3538934be9706f6c677a050eaa861445a2dcf04",
+      "witness_input": "len=5, w=0, OP_1ADD"
+    },
+    {
+      "alive2_failing_functions": [
+        "cell_within"
+      ],
+      "baseline_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "catalogue_cell": "cells/e2-numeric/within-boundary",
+      "caught": true,
+      "caught_by": {
+        "alive2": true,
+        "saw": true
+      },
+      "cell": "cells/e2-numeric/within-boundary",
+      "classification": "KILLED",
+      "commands": {
+        "alive2": "cd spec/equiv && bash cells/e2-numeric/within-boundary/alive2/run.sh",
+        "saw": "cd spec/equiv && bash cells/e2-numeric/within-boundary/saw/run.sh"
+      },
+      "evidence": "runs/M-E2-004-core-slice/result.md",
+      "expected_detection": "Alive2 C-vs-L must report a value mismatch on a triple where x == max; SAW must fail the C proof against the independent within predicate (min <= x < max). Witness: x=5, min=1, max=5; baseline EVAL_FALSE, mutant vchTrue.",
+      "family": "e2-numeric",
+      "mutant_id": "M-E2-004",
+      "mutant_status": {
+        "alive2": "alive2-not-green",
+        "saw": "saw-not-green"
+      },
+      "post_revert_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "revert_verified": true,
+      "run_id": "M-E2-004-core-slice",
+      "saw_proofs_failed": 1,
+      "saw_proofs_succeeded": 0,
+      "site": "core-slice",
+      "target": "cells/e2-numeric/within-boundary/src/c_leaf.cpp",
+      "target_sha256_after": "c17b6c5d4c4a5a4dd720cc74727f1dfaaaccbade2fceae881ef87344c35bd8ce",
+      "target_sha256_before": "4e72978fa99ad69e058b0791966813a0643fc42424b396d3a87c12fdab26ebca",
+      "witness_input": "av=5, bv=1, cv=5"
+    },
+    {
+      "alive2_failing_functions": [
+        "cell_within"
+      ],
+      "baseline_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "catalogue_cell": "cells/e2-numeric/within-boundary",
+      "caught": true,
+      "caught_by": {
+        "alive2": true,
+        "saw": true
+      },
+      "cell": "cells/e2-numeric/within-boundary",
+      "classification": "KILLED",
+      "commands": {
+        "alive2": "cd spec/equiv && bash cells/e2-numeric/within-boundary/alive2/run.sh",
+        "saw": "cd spec/equiv && bash cells/e2-numeric/within-boundary/saw/run.sh"
+      },
+      "evidence": "runs/M-E2-004-model/result.md",
+      "expected_detection": "Same observable as M-E2-004-core-slice, but the L leg is the mutant. Alive2 C-vs-L must report a value mismatch; SAW must fail the L proof. Witness: x=5, min=1, max=5. The regenerated build/twin_ops.h must contain the mutated comparison.",
+      "family": "e2-numeric",
+      "mutant_id": "M-E2-004",
+      "mutant_status": {
+        "alive2": "alive2-not-green",
+        "saw": "saw-not-green"
+      },
+      "post_revert_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "revert_verified": true,
+      "run_id": "M-E2-004-model",
+      "saw_proofs_failed": 1,
+      "saw_proofs_succeeded": 1,
+      "site": "model",
+      "target": "twin/ops_ir.py",
+      "target_sha256_after": "2504b53341f3e644114645d9af3f565b2dd5c1d88a7003731955912313d20498",
+      "target_sha256_before": "6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5",
+      "witness_input": "av=5, bv=1, cv=5"
+    },
+    {
+      "alive2_failing_functions": [
+        "cell_opcount"
+      ],
+      "baseline_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "catalogue_cell": "cells/e2-flow/opcount-201",
+      "caught": true,
+      "caught_by": {
+        "alive2": true,
+        "saw": true
+      },
+      "cell": "cells/limits/C-L-opcount",
+      "classification": "KILLED",
+      "commands": {
+        "alive2": "cd spec/equiv && bash cells/limits/C-L-opcount/alive2/run.sh",
+        "saw": "cd spec/equiv && bash cells/limits/C-L-opcount/saw/run.sh"
+      },
+      "evidence": "runs/M-E2-005-core-slice/result.md",
+      "expected_detection": "Alive2 C-vs-L must report a value mismatch at a charged count of 201; SAW must fail the C proof against the independent 201 budget. Witness: incoming opCount=200, wire=0x8e, sv=BASE, fExec=0; baseline DISABLED_OPCODE (budget admits 201), mutant OP_COUNT.",
+      "family": "e2-flow",
+      "mutant_id": "M-E2-005",
+      "mutant_status": {
+        "alive2": "alive2-not-green",
+        "saw": "saw-not-green"
+      },
+      "post_revert_status": {
+        "alive2": "alive2-green",
+        "saw": "saw-green"
+      },
+      "revert_verified": true,
+      "run_id": "M-E2-005-core-slice",
+      "saw_proofs_failed": 1,
+      "saw_proofs_succeeded": 0,
+      "site": "core-slice",
+      "target": "cells/limits/C-L-opcount/src/c_leaf.cpp",
+      "target_sha256_after": "90d70d4196510028d46c2924bc9f85b7bd8b16cf727703df02c0f80d366aab2b",
+      "target_sha256_before": "8222580d12a65dcda9f306dcfdcd257f6bc5a5bc99e579d7d31f21ca81c77955",
+      "witness_input": "opCount=200, wire=0x8e, fExec=0, sv=BASE"
+    }
+  ],
+  "schema": "redteam-e2-mutation-summary-v1"
+}

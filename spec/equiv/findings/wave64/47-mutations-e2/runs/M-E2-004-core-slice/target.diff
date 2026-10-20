@@ -1,0 +1,11 @@
+--- a/spec/equiv/cells/e2-numeric/within-boundary/src/c_leaf.cpp
++++ b/spec/equiv/cells/e2-numeric/within-boundary/src/c_leaf.cpp
+@@ -33,7 +33,7 @@
+   const int64_t a = core_set_vch_1byte(av);     // bn1 = stacktop(-3)
+   const int64_t b = core_set_vch_1byte(bv);     // bn2 = stacktop(-2)
+   const int64_t c = core_set_vch_1byte(cv);     // bn3 = stacktop(-1)
+-  const bool v = (b <= a && a < c);             // interpreter.cpp:1020
++  const bool v = (b <= a && a <= c);  // M-E2-004 mutant: inclusive max             // interpreter.cpp:1020
+   BStack s{};
+   // vchTrue is {1}; vchFalse is the empty vector (interpreter.cpp:423-425).
+   const uint32_t e = v ? core_push_raw(s, 1u, 1u) : core_push_raw(s, 0u, 0u);

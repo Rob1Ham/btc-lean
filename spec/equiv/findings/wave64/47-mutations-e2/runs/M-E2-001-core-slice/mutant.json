@@ -1,0 +1,91 @@
+{
+  "baseline": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "catalogue_cell": "cells/e2-flow/negzero-if",
+  "caught": true,
+  "caught_by": {
+    "alive2": true,
+    "saw": true
+  },
+  "cell": "cells/control-flow/C-L-casttobool",
+  "classification": "KILLED",
+  "commands": {
+    "alive2": "cd spec/equiv && bash cells/control-flow/C-L-casttobool/alive2/run.sh",
+    "saw": "cd spec/equiv && bash cells/control-flow/C-L-casttobool/saw/run.sh"
+  },
+  "description": "CastToBool treats negative zero (0x80) as true: drop the `i == n-1 && vch[i] == 0x80` special case from the line-cited Core excerpt.",
+  "diff": "--- a/spec/equiv/cells/control-flow/C-L-casttobool/src/c_leaf.cpp\n+++ b/spec/equiv/cells/control-flow/C-L-casttobool/src/c_leaf.cpp\n@@ -25,8 +25,7 @@\n BINLINE bool core_cast_to_bool(const uint8_t* vch, unsigned int n) {\n   for (unsigned int i = 0; i < n; i++) {\n     if (vch[i] != 0) {\n-      if (i == n - 1 && vch[i] == 0x80)\n-        return false;\n+      // M-E2-001 mutant: negative zero is treated as true\n       return true;\n     }\n   }\n",
+  "expected_detection": "Alive2 C-vs-L must report a value mismatch for cell_cast_len1 at b0=0x80; SAW must fail the C cell_cast_len1 proof against the independent cast1 predicate (0x80 => false). Witness: element length 1, byte 0x80; baseline C returns 0, mutant returns 1.",
+  "family": "e2-flow",
+  "find": "      if (i == n - 1 && vch[i] == 0x80)\n        return false;\n",
+  "finished_at_utc": "2026-10-20T22:09:50+00:00",
+  "head_commit": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "mutant": {
+    "alive2": {
+      "blocks": [
+        {
+          "command": "alive-tv build/c_cell_cast_empty.ll build/l_cell_cast_empty.ll",
+          "correct": true,
+          "error": false,
+          "function": "cell_cast_empty",
+          "mismatch": false
+        },
+        {
+          "command": "alive-tv build/c_cell_cast_len1.ll build/l_cell_cast_len1.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_cast_len1",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv build/c_cell_cast_len2.ll build/l_cell_cast_len2.ll",
+          "correct": true,
+          "error": false,
+          "function": "cell_cast_len2",
+          "mismatch": false
+        }
+      ],
+      "failure_excerpt": "  ret i32 %#range_0_%cond\n}\nTransformation doesn't verify!\n\nERROR: Value mismatch\n\nExample:\ni8 noundef zeroext %b0 = #x80 (128, -128)\n\nSource:\ni1 %cmp1.not.i = #x0 (0)\n  >> Jump to %for.cond.i\ni1 %i.0.i = #x1 (1)\ni1 %or.cond = #x0 (0)\n  >> Jump to %_ZL17core_cast_to_boolPKhj.exit\ni32 %cond = #x00000001 (1)\ni32 %#range_0_%cond = #x00000001 (1)\n\nTarget:\ni8 %#0 = #x00 (0)",
+      "rc": 1,
+      "status": "alive2-not-green"
+    },
+    "saw": {
+      "failure_excerpt": "Simulating cell_cast_empty...\nChecking proof obligations cell_cast_empty...\nProof succeeded! cell_cast_empty\nVerifying cell_cast_empty...\nSimulating cell_cast_empty...\nChecking proof obligations cell_cast_empty...\nProof succeeded! cell_cast_empty\nVerifying cell_cast_len1...\nSimulating cell_cast_len1...\nChecking proof obligations cell_cast_len1...\nSubgoal failed: cell_cast_len1 cell.saw:25:1: error: in _SAW_LLVM_withMethodSpec\nLiteral equality postcondition\nExpected term: \ncast1 b0\nActual term:\nbvUExt 31 1\n  (ite (Vec 1 Bool) (bvEq 8 (bvNat 8 0) b0) (bvNat 1 0)\n     (bvNat 1 1))\n\nGoal size 59. Provers used: abc_verilog\n----------Counterexample----------\n  b0: 128\n----------------------------------\nStack trace:\n   (builtin) in abc\n   cell.saw:25:46-25:49 in (callback)\n   (builtin) in llvm_verify\n   cell.saw:25:1-25:49 (at top level)\nProof failed.",
+      "proofs_failed": 1,
+      "proofs_succeeded": 2,
+      "rc": 1,
+      "status": "saw-not-green"
+    }
+  },
+  "mutant_id": "M-E2-001",
+  "operator": "wave64/47-mutations-e2",
+  "post_revert": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "replace": "      // M-E2-001 mutant: negative zero is treated as true\n",
+  "revert_verified": true,
+  "run_id": "M-E2-001-core-slice",
+  "schema": "redteam-mutant-run-v1",
+  "scratch_root": ".work",
+  "site": "core-slice",
+  "started_at_utc": "2026-10-20T22:09:33+00:00",
+  "target": "cells/control-flow/C-L-casttobool/src/c_leaf.cpp",
+  "target_sha256_after": "044034a53806e64d35509de6eb08464eeaf38115054a094b4d42ea2555294060",
+  "target_sha256_before": "f8f2393b7e1efd4dff404840386cb19733f651a5f36ac35164db5f51c860021d",
+  "witness_input": "len=1, b0=0x80"
+}

@@ -77,11 +77,15 @@ scr_row_coverage: |
     NOT covered: the scriptSig evaluation that *produces* the single truthy
     element (a push executed by EvalScript — E5 dispatch residual), and the
     row's explicitly unproved CLEANSTACK-on one-element arm.
-  - SCR-008 full — "exactly 1 element after all evaluation" (flag; pol.;
-    interpreter.cpp:2110-2118): the check is proved for every final depth,
-    after the P2SH arm and with the witness resize(1) bypass, in Core's
-    order.  What is assumed is only the *depth* handed in by the abstracted
-    evaluations.
+  - SCR-008 partial — "exactly 1 element after all evaluation" (flag; pol.;
+    interpreter.cpp:2110-2118): the flag/policy check is proved for every
+    final depth in Core's order, but the witness-implicit face is blocked by
+    the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness
+    spend Core resizes the stack to one element at :2102 while the pinned Lean
+    `verifyScriptFull` reuses the redeem-script length and rejects with
+    CLEANSTACK.  See findings/wave64/41-div-w32-p2sh-cleanstack.  What is
+    assumed in the green flag/policy face is only the depth handed in by the
+    abstracted evaluations.
   - SCR-011 full — bare witness program requires scriptSig == CScript()
     (interpreter.cpp:2045-2051): proved for every scriptSig size.
   - SCR-012 partial — "scriptSig == single push of redeemScript"

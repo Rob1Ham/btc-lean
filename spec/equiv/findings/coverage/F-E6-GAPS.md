@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **154**
+- green: **153**
 - unjudged seam: **2**
-- filed gap: **27**
+- filed gap: **28**
 - still planned: **0**
 - other: **0**
 
@@ -19,7 +19,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-004 | exec-verify | `exec-verify/C-L-verifyscript-tail`, `exec-verify/C-L-w32-witness-flag` |
 | SCR-006 | exec-verify | `exec-verify/C-L-pushonly`, `exec-verify/C-L-w32-p2sh-pushonly` |
 | SCR-007 | exec-verify | `exec-verify/C-L-p2sh-handoff`, `exec-verify/C-L-w32-p2sh-stackcopy` |
-| SCR-008 | exec-verify | `exec-verify/C-L-verifyscript-tail`, `exec-verify/C-L-w32-cleanstack` |
 | SCR-009 | exec-verify | `exec-verify/C-L-flags-domain`, `exec-verify/C-L-w32-flag-combo` |
 | SCR-011 | exec-verify | `exec-verify/C-L-verifyscript-tail` |
 | SCR-013 | exec-verify | `exec-verify/C-L-verifyscript-tail` |
@@ -197,6 +196,23 @@ dispositions, not a new claim. Green rows are listed for completeness.
   subscript script.  NOT proved: the subscript `EvalScript(pubKey2)` call
   itself (interpreter.cpp:2080-2082) and its EVAL_FALSE checks
   (2083-2086) — the E5 dispatch residual.  The cell prove |
+| SCR-008 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-verifyscript-tail: per row, with the bounds above:
+- SCR-002 full — "after scriptPubKey eval, stack non-empty and top
+  CastToBool-true" (interpreter.cpp:2037-2040): proved for every post-eval
+  stack in the bounded domain (depth 0..3, top 0/1 bytes) and every mask.
+- SCR-004 partial — the two arms cited by the row:
+    WITNESS off, empty scriptPubKey, scriptSig leaves one truthy element
+      -> pass (modelled: spk_wit = spk_p2sh = 0, st_n = 1, top truthy);
+    WITNESS on, witness non-null, empty scriptPubKey (not a witness
+      program) -> WITNESS_UNEXPECTED (modelled: spk_wit = 0, wit_n > 0);
+  NOT covered: the scriptSig evaluation that *produces* the single truthy
+  element (a push executed by EvalScript — E5 dispatch residual), and the
+  row's explicitly unproved CLEANSTACK-on one-element arm.
+- SCR-008 partial — "exactly 1 element after all evaluation" (flag; pol.;
+  interpreter.cpp:2110-2118): the flag/policy check is proved for every
+  final depth in Core's order, but the witness-implicit face is blocked by
+  the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness
+  spend Core resizes the stack to one elemen |
 | SCR-010 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-pushonly: - SCR-006 **partial** — "scriptSig must be push-only for P2SH evaluation"
   (interpreter.cpp:2065-2066).  Proved: the exact `IsPushOnly` predicate
   and the `SIG_PUSHONLY` (26) result for every script of 0..8 bytes, plus
@@ -223,12 +239,11 @@ dispositions, not a new claim. Green rows are listed for completeness.
   NOT covered: the scriptSig evaluation that *produces* the single truthy
   element (a push executed by EvalScript — E5 dispatch residual), and the
   row's explicitly unproved CLEANSTACK-on one-element arm.
-- SCR-008 full — "exactly 1 element after all evaluation" (flag; pol.;
-  interpreter.cpp:2110-2118): the check is proved for every final depth,
-  after the P2SH arm and with the witness resize(1) bypass, in Core's
-  order.  What is assumed is only the *depth* handed in by the abstracted
-  evaluations.
-- SCR-011 full — bare witness progr |
+- SCR-008 partial — "exactly 1 element after all evaluation" (flag; pol.;
+  interpreter.cpp:2110-2118): the flag/policy check is proved for every
+  final depth in Core's order, but the witness-implicit face is blocked by
+  the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness
+  spend Core resizes the stack to one elemen |
 | SCR-021 | limits | auto(cells): partial row coverage; limits/C-L-witness-push-size: partial — the cell proves the witness item-size predicate `any (item.size() > 520) ⇒ PUSH_SIZE` (represented exactly by max_item > 520) for base/v0 and for tapscript without OP_SUCCESSx, its ordering after the SCR-031 initial-stack guard, and the BIP342 exemption ordering (a tapscript with OP_SUCCESSx returns success before the item loop).  The OP_SUCCESSx scan itself is an abstract boolean: deciding `opSuccessScan exec` over symbolic script bytes needs the per-opcode decode loop and early success, which is SCR-153 and is not modelled here. So the row's "containing OP_SUCCESSx" branch is only modelled at its outcome, not by scanning bytes.  EvalScript is also a stub, but the row ends before it. |
 | SCR-036 | limits | SCR-036 (push-only scriptSig; last element as program): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-040 | limits | auto(cells): partial row coverage; limits/C-L-tapscript-weight: - SCR-040 (budget = serialized witness stack size including the
@@ -254,7 +269,20 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-078 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-081 | numeric | SCR-081 (nMaxNumSize=5 special case): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-086 | numeric | SCR-086 (clamp to int32 for depth/count uses): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
+| SCR-086 | numeric | auto(cells): partial row coverage; e2-numeric/C-L-w32-cms-getint-counts: partial for SCR-086, with the CMS count call site now proved.
+- The int32 clamp itself is isolated: both arms fire and are proved
+  against an independent Cryptol statement of script.h:326-333.
+- The CHECKMULTISIG key-count and signature-count call sites are proved
+  for every four-byte operand, including the derived cursors and the
+  PUBKEY_COUNT / OP_COUNT / INVALID_STACK_OPERATION / SIG_COUNT order.
+- The clamp is vacuous at this site: a four-byte sign-magnitude operand
+  has magnitude at most 2^31-1, so `getint()` is the identity.  This is
+  what lets the unclamped Lean model match Core.  It is NOT a claim that
+  the twin or Lean implements the clamp.
+- Remaining: OP_ROLL's depth read and the CHECKMULTISIG verification
+  loops.  OP_ROLL's verbatim twin body contains a stack-shift loop and
+  cannot be ingested by Alive2 without unrolling, which would break the
+  `ops_ir.py` provenance gate; see notes.md for the exact blocker. |
 | SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial; checksig/C-L-checksig-lows-numeric: partial |
 | SCR-112 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial |
 | SCR-115 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial; e3-cms/C-L-w32-cms-finddelete: partial |
@@ -291,7 +319,17 @@ presence/position of the 8-byte amount, for all field ids and all
 script lengths in [0,75].  It does not model the field CONTENTS: the three
 sub-hashes (hashPrevouts/hashSequence/hashOutputs), the transaction
 serializer, or the final double SHA256.  Those keep SCR-140 partial; it is
-not promoted to full. |
+not promoted to full.; witness-v0/C-L-bip143-preimage-order: partial, but this closes the layout half of the row at byte granularity.
+SCR-140 is "field order per BIP143; amount included".  Three claims are now
+checked:
+  (a) the ten fields appear in BIP143 order as contiguous byte ranges of the
+      preimage (byte-level, not just a width/offset table);
+  (b) `amount` is present as 8 bytes at [105+L,113+L), between scriptCode and
+      nSequence, with symbolic contents;
+  (c) the total hashed length is 157+L, and nHashType is the last field.
+For L in {0,1,75}.  General L in [0,75] is covered by the width/offset table
+of C-L-bip143-layout.  Still outside SCR-140: the field CONTENTS/encodings
+(L |
 | SCR-142 | tapscript | auto(cells): partial row coverage; tapscript/C-L-taproot-activation-gate: partial, and the remaining gap is now exact.
 - COVERED: "with the flag, a v1-32 non-P2SH spend is not anyone-can-spend"
   (empty witness -> error 39; non-empty -> continuation) for every
@@ -345,5 +383,5 @@ NOT claimed: the EvalScript result for scripts without OP_SUCCESSx
 any script lo |
 | SCR-167 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch's other branches are not modelled.  The Core loop itself is not executed by either tool. |
 | SCR-169 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-epoch-annex: partial — the epoch byte/position, the spend_type formula and the annex-hash inclusion/length/first-word placement are proved for all inputs in the domain; the SHA256 of the annex, the TapSighash tagged hash, the tx-level sub-hashes and the full SigMsg byte order are not modelled.  The row's own text names the digest, so the row is not claimed full. |
-| SCR-172 | disabled-opcodes | auto(cells): partial row coverage; disabled/C-L-w32-opsuccess-scan: partial. (a) The wire mapping is full: IsOpSuccess is proved over every byte 0x00..0xff, including all fifteen disabled bytes. (b) The success mechanism is proved for scripts of exactly two non-push opcodes: the scan returns success at the first success byte, in either position, before any evaluation, with the DISCOURAGE_OP_SUCCESS policy arm. Not machine-checked: the n-opcode induction for arbitrary script length (the scan is a fold of the same per-byte predicate), push-payload decode ordering (F-DIV-001), and the rest of ExecuteWitnessScript (item/stack limits, annex, control block), which is SCR-153/157/168 territory. |
+| SCR-172 | disabled-opcodes | auto(cells): partial row coverage; disabled/C-L-w32-opsuccess-scan: partial. (a) The wire mapping is full: IsOpSuccess is proved over every byte 0x00..0xff, including all fifteen disabled bytes. (b) The success mechanism is proved for scripts of exactly two non-push opcodes: the scan returns success at the first success byte, in either position, before any evaluation, with the DISCOURAGE_OP_SUCCESS policy arm. Not machine-checked: the n-opcode induction for arbitrary script length (the scan is a fold of the same per-byte predicate), push-payload decode ordering (F-DIV-001), and the rest of ExecuteWitnessScript (item/stack limits, annex, control block), which is SCR-153/157/168 territory.; disabled/C-L-w64-row172-flip: partial, with the flip itself machine-checked on a one-byte script. Proved: for every 8-bit wire and every 64-bit flag word the BASE disabled classification and the tapscript one-byte OP_SUCCESSx pre-scan are exactly the table above, and the fifteen legacy-disabled wires are precisely the bytes whose outcome flips from 17 to 0 (or 36 under the policy bit). Not machine-checked: the n-opcode/arbitrary-length scan induction (the scan is a fold of the same per-byte predic |
 | SCR-175 | policy-flags | auto(cells): partial row coverage; policy-flags/C-L-lows-policy: partial |
