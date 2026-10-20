@@ -1,0 +1,1507 @@
+# cell: hash-ops/C-L-hash-widths
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops provenance: build/twin_ops.h sha256 29217ef0a79cadcb2cfb11d342147a315aeb2031f939a7e6b65ae4a57203b82c
+# build: build/build.txt
+# externals: ripemd160/sha256/hash160/hash256, uninterpreted and shared
+# command: alive-tv build/c_cell_ripemd160_empty_meta.ll build/l_cell_ripemd160_empty_meta.ll
+
+----------------------------------------
+declare void @ripemd160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_ripemd160_empty_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 20, align 16, dead
+  start_lifetime ptr %pre
+  store i8 0, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @ripemd160(nonnull noundef ptr %pre, noundef i32 0, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_41217 = !range i64 41217, i64 1, i64 523264
+  ret i64 %#range_0_41217
+}
+=>
+declare void @ripemd160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_ripemd160_empty_meta() {
+entry:
+  %out.i = alloca i64 20, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  store i32 1, ptr %st.i, align 4
+  %len1.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len1.i, align 4
+  %e.i13 = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @ripemd160(nonnull noundef ptr %e.i13, noundef i32 %#0, nonnull noundef ptr %out.i)
+  %#1 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#1, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i13, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#2 = load i8, ptr %out.i, align 16
+  store i8 %#2, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#3 = load i8, ptr %arrayidx4.i, align 1
+  %arrayidx5.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#3, ptr %arrayidx5.i, align 1
+  %arrayidx9.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#4 = load i8, ptr %arrayidx9.i, align 2
+  %arrayidx10.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#4, ptr %arrayidx10.i, align 2
+  %arrayidx14.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#5 = load i8, ptr %arrayidx14.i, align 1
+  %arrayidx15.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#5, ptr %arrayidx15.i, align 1
+  %arrayidx19.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#6 = load i8, ptr %arrayidx19.i, align 4
+  %arrayidx20.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#6, ptr %arrayidx20.i, align 4
+  %arrayidx24.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#7 = load i8, ptr %arrayidx24.i, align 1
+  %arrayidx25.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#7, ptr %arrayidx25.i, align 1
+  %arrayidx29.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#8 = load i8, ptr %arrayidx29.i, align 2
+  %arrayidx30.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#8, ptr %arrayidx30.i, align 2
+  %arrayidx34.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#9 = load i8, ptr %arrayidx34.i, align 1
+  %arrayidx35.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#9, ptr %arrayidx35.i, align 1
+  %arrayidx39.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#10 = load i8, ptr %arrayidx39.i, align 8
+  %arrayidx40.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#10, ptr %arrayidx40.i, align 4
+  %arrayidx44.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#11 = load i8, ptr %arrayidx44.i, align 1
+  %arrayidx45.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#11, ptr %arrayidx45.i, align 1
+  %arrayidx49.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#12 = load i8, ptr %arrayidx49.i, align 2
+  %arrayidx50.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#12, ptr %arrayidx50.i, align 2
+  %arrayidx54.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#13 = load i8, ptr %arrayidx54.i, align 1
+  %arrayidx55.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#13, ptr %arrayidx55.i, align 1
+  %arrayidx59.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#14 = load i8, ptr %arrayidx59.i, align 4
+  %arrayidx60.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#14, ptr %arrayidx60.i, align 4
+  %arrayidx64.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#15 = load i8, ptr %arrayidx64.i, align 1
+  %arrayidx65.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#15, ptr %arrayidx65.i, align 1
+  %arrayidx69.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#16 = load i8, ptr %arrayidx69.i, align 2
+  %arrayidx70.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#16, ptr %arrayidx70.i, align 2
+  %arrayidx74.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#17 = load i8, ptr %arrayidx74.i, align 1
+  %arrayidx75.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#17, ptr %arrayidx75.i, align 1
+  %arrayidx79.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#18 = load i8, ptr %arrayidx79.i, align 16
+  %arrayidx80.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#18, ptr %arrayidx80.i, align 4
+  %arrayidx84.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#19 = load i8, ptr %arrayidx84.i, align 1
+  %arrayidx85.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#19, ptr %arrayidx85.i, align 1
+  %arrayidx89.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#20 = load i8, ptr %arrayidx89.i, align 2
+  %arrayidx90.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#20, ptr %arrayidx90.i, align 2
+  %arrayidx94.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#21 = load i8, ptr %arrayidx94.i, align 1
+  %arrayidx95.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#21, ptr %arrayidx95.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 20, ptr %arrayidx8.i.i, align 4
+  store i32 %#1, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#22 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#22, 8
+  %#23 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#23
+  %cmp.not.i14 = icmp eq i32 %#22, 0
+  br i1 %cmp.not.i14, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i15
+
+if.then.i15:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i16 = add i32 %#22, 4294967295
+  %idxprom.i17 = zext i32 %sub.i16 to i64
+  %arrayidx.i18 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i17
+  %#24 = load i32, ptr %arrayidx.i18, align 4
+  %and10.i = shl i32 %#24, 11
+  %#25 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#25, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i15 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_ripemd160_a_meta.ll build/l_cell_ripemd160_a_meta.ll
+
+----------------------------------------
+declare void @ripemd160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_ripemd160_a_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 20, align 16, dead
+  start_lifetime ptr %pre
+  store i8 97, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @ripemd160(nonnull noundef ptr %pre, noundef i32 1, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_41217 = !range i64 41217, i64 1, i64 523264
+  ret i64 %#range_0_41217
+}
+=>
+declare void @ripemd160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_ripemd160_a_meta() {
+entry:
+  %out.i = alloca i64 20, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  %e.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i8 97, ptr %e.i, align 4
+  %len5.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len5.i, align 4
+  store i32 1, ptr %st.i, align 4
+  %e.i14 = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @ripemd160(nonnull noundef ptr %e.i14, noundef i32 1, nonnull noundef ptr %out.i)
+  %#0 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#0, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %len1.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i14, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#1 = load i8, ptr %out.i, align 16
+  store i8 %#1, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#2 = load i8, ptr %arrayidx4.i, align 1
+  %arrayidx5.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#2, ptr %arrayidx5.i, align 1
+  %arrayidx9.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#3 = load i8, ptr %arrayidx9.i, align 2
+  %arrayidx10.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#3, ptr %arrayidx10.i, align 2
+  %arrayidx14.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#4 = load i8, ptr %arrayidx14.i, align 1
+  %arrayidx15.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#4, ptr %arrayidx15.i, align 1
+  %arrayidx19.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#5 = load i8, ptr %arrayidx19.i, align 4
+  %arrayidx20.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#5, ptr %arrayidx20.i, align 4
+  %arrayidx24.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#6 = load i8, ptr %arrayidx24.i, align 1
+  %arrayidx25.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#6, ptr %arrayidx25.i, align 1
+  %arrayidx29.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#7 = load i8, ptr %arrayidx29.i, align 2
+  %arrayidx30.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#7, ptr %arrayidx30.i, align 2
+  %arrayidx34.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#8 = load i8, ptr %arrayidx34.i, align 1
+  %arrayidx35.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#8, ptr %arrayidx35.i, align 1
+  %arrayidx39.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#9 = load i8, ptr %arrayidx39.i, align 8
+  %arrayidx40.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#9, ptr %arrayidx40.i, align 4
+  %arrayidx44.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#10 = load i8, ptr %arrayidx44.i, align 1
+  %arrayidx45.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#10, ptr %arrayidx45.i, align 1
+  %arrayidx49.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#11 = load i8, ptr %arrayidx49.i, align 2
+  %arrayidx50.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#11, ptr %arrayidx50.i, align 2
+  %arrayidx54.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#12 = load i8, ptr %arrayidx54.i, align 1
+  %arrayidx55.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#12, ptr %arrayidx55.i, align 1
+  %arrayidx59.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#13 = load i8, ptr %arrayidx59.i, align 4
+  %arrayidx60.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#13, ptr %arrayidx60.i, align 4
+  %arrayidx64.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#14 = load i8, ptr %arrayidx64.i, align 1
+  %arrayidx65.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#14, ptr %arrayidx65.i, align 1
+  %arrayidx69.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#15 = load i8, ptr %arrayidx69.i, align 2
+  %arrayidx70.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#15, ptr %arrayidx70.i, align 2
+  %arrayidx74.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#16 = load i8, ptr %arrayidx74.i, align 1
+  %arrayidx75.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#16, ptr %arrayidx75.i, align 1
+  %arrayidx79.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#17 = load i8, ptr %arrayidx79.i, align 16
+  %arrayidx80.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#17, ptr %arrayidx80.i, align 4
+  %arrayidx84.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#18 = load i8, ptr %arrayidx84.i, align 1
+  %arrayidx85.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#18, ptr %arrayidx85.i, align 1
+  %arrayidx89.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#19 = load i8, ptr %arrayidx89.i, align 2
+  %arrayidx90.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#19, ptr %arrayidx90.i, align 2
+  %arrayidx94.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#20 = load i8, ptr %arrayidx94.i, align 1
+  %arrayidx95.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#20, ptr %arrayidx95.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 20, ptr %arrayidx8.i.i, align 4
+  store i32 %#0, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#21 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#21, 8
+  %#22 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#22
+  %cmp.not.i15 = icmp eq i32 %#21, 0
+  br i1 %cmp.not.i15, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i16
+
+if.then.i16:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i17 = add i32 %#21, 4294967295
+  %idxprom.i18 = zext i32 %sub.i17 to i64
+  %arrayidx.i19 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i18
+  %#23 = load i32, ptr %arrayidx.i19, align 4
+  %and10.i = shl i32 %#23, 11
+  %#24 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#24, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i16 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_sha256_empty_meta.ll build/l_cell_sha256_empty_meta.ll
+
+----------------------------------------
+declare void @sha256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_sha256_empty_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 32, align 16, dead
+  start_lifetime ptr %pre
+  store i8 0, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @sha256(nonnull noundef ptr %pre, noundef i32 0, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_65793 = !range i64 65793, i64 1, i64 523264
+  ret i64 %#range_0_65793
+}
+=>
+declare void @sha256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_sha256_empty_meta() {
+entry:
+  %out.i = alloca i64 32, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  store i32 1, ptr %st.i, align 4
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len1.i.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @sha256(nonnull noundef ptr %e.i9.i, noundef i32 %#0, nonnull noundef ptr %out.i)
+  %#1 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#1, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#2 = load i8, ptr %out.i, align 16
+  store i8 %#2, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#3 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#3, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#4 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#4, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#5 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#5, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#6 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#6, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#7 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#7, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#8 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#8, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#9 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#9, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#10 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#10, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#11 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#11, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#12 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#12, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#13 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#13, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#14 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#14, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#15 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#15, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#16 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#16, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#17 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#17, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#18 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#18, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#19 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#19, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#20 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#20, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#21 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#21, ptr %arrayidx95.i.i, align 1
+  %arrayidx99.i.i = gep inbounds nuw ptr %out.i, 1 x i64 20
+  %#22 = load i8, ptr %arrayidx99.i.i, align 4
+  %arrayidx100.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 20
+  store i8 %#22, ptr %arrayidx100.i.i, align 4
+  %arrayidx104.i.i = gep inbounds nuw ptr %out.i, 1 x i64 21
+  %#23 = load i8, ptr %arrayidx104.i.i, align 1
+  %arrayidx105.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 21
+  store i8 %#23, ptr %arrayidx105.i.i, align 1
+  %arrayidx109.i.i = gep inbounds nuw ptr %out.i, 1 x i64 22
+  %#24 = load i8, ptr %arrayidx109.i.i, align 2
+  %arrayidx110.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 22
+  store i8 %#24, ptr %arrayidx110.i.i, align 2
+  %arrayidx114.i.i = gep inbounds nuw ptr %out.i, 1 x i64 23
+  %#25 = load i8, ptr %arrayidx114.i.i, align 1
+  %arrayidx115.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 23
+  store i8 %#25, ptr %arrayidx115.i.i, align 1
+  %arrayidx119.i.i = gep inbounds nuw ptr %out.i, 1 x i64 24
+  %#26 = load i8, ptr %arrayidx119.i.i, align 8
+  %arrayidx120.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 24
+  store i8 %#26, ptr %arrayidx120.i.i, align 4
+  %arrayidx124.i.i = gep inbounds nuw ptr %out.i, 1 x i64 25
+  %#27 = load i8, ptr %arrayidx124.i.i, align 1
+  %arrayidx125.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 25
+  store i8 %#27, ptr %arrayidx125.i.i, align 1
+  %arrayidx129.i.i = gep inbounds nuw ptr %out.i, 1 x i64 26
+  %#28 = load i8, ptr %arrayidx129.i.i, align 2
+  %arrayidx130.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 26
+  store i8 %#28, ptr %arrayidx130.i.i, align 2
+  %arrayidx134.i.i = gep inbounds nuw ptr %out.i, 1 x i64 27
+  %#29 = load i8, ptr %arrayidx134.i.i, align 1
+  %arrayidx135.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 27
+  store i8 %#29, ptr %arrayidx135.i.i, align 1
+  %arrayidx139.i.i = gep inbounds nuw ptr %out.i, 1 x i64 28
+  %#30 = load i8, ptr %arrayidx139.i.i, align 4
+  %arrayidx140.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 28
+  store i8 %#30, ptr %arrayidx140.i.i, align 4
+  %arrayidx144.i.i = gep inbounds nuw ptr %out.i, 1 x i64 29
+  %#31 = load i8, ptr %arrayidx144.i.i, align 1
+  %arrayidx145.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 29
+  store i8 %#31, ptr %arrayidx145.i.i, align 1
+  %arrayidx149.i.i = gep inbounds nuw ptr %out.i, 1 x i64 30
+  %#32 = load i8, ptr %arrayidx149.i.i, align 2
+  %arrayidx150.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 30
+  store i8 %#32, ptr %arrayidx150.i.i, align 2
+  %arrayidx154.i.i = gep inbounds nuw ptr %out.i, 1 x i64 31
+  %#33 = load i8, ptr %arrayidx154.i.i, align 1
+  %arrayidx155.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 31
+  store i8 %#33, ptr %arrayidx155.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 32, ptr %arrayidx8.i.i, align 4
+  store i32 %#1, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#34 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#34, 8
+  %#35 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#35
+  %cmp.not.i7 = icmp eq i32 %#34, 0
+  br i1 %cmp.not.i7, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i8
+
+if.then.i8:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i9 = add i32 %#34, 4294967295
+  %idxprom.i10 = zext i32 %sub.i9 to i64
+  %arrayidx.i11 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i10
+  %#36 = load i32, ptr %arrayidx.i11, align 4
+  %and10.i = shl i32 %#36, 11
+  %#37 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#37, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i8 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_sha256_a_meta.ll build/l_cell_sha256_a_meta.ll
+
+----------------------------------------
+declare void @sha256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_sha256_a_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 32, align 16, dead
+  start_lifetime ptr %pre
+  store i8 97, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @sha256(nonnull noundef ptr %pre, noundef i32 1, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_65793 = !range i64 65793, i64 1, i64 523264
+  ret i64 %#range_0_65793
+}
+=>
+declare void @sha256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_sha256_a_meta() {
+entry:
+  %out.i = alloca i64 32, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  %e.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i8 97, ptr %e.i, align 4
+  %len5.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len5.i, align 4
+  store i32 1, ptr %st.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @sha256(nonnull noundef ptr %e.i9.i, noundef i32 1, nonnull noundef ptr %out.i)
+  %#0 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#0, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#1 = load i8, ptr %out.i, align 16
+  store i8 %#1, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#2 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#2, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#3 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#3, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#4 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#4, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#5 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#5, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#6 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#6, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#7 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#7, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#8 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#8, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#9 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#9, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#10 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#10, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#11 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#11, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#12 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#12, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#13 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#13, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#14 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#14, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#15 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#15, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#16 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#16, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#17 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#17, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#18 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#18, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#19 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#19, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#20 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#20, ptr %arrayidx95.i.i, align 1
+  %arrayidx99.i.i = gep inbounds nuw ptr %out.i, 1 x i64 20
+  %#21 = load i8, ptr %arrayidx99.i.i, align 4
+  %arrayidx100.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 20
+  store i8 %#21, ptr %arrayidx100.i.i, align 4
+  %arrayidx104.i.i = gep inbounds nuw ptr %out.i, 1 x i64 21
+  %#22 = load i8, ptr %arrayidx104.i.i, align 1
+  %arrayidx105.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 21
+  store i8 %#22, ptr %arrayidx105.i.i, align 1
+  %arrayidx109.i.i = gep inbounds nuw ptr %out.i, 1 x i64 22
+  %#23 = load i8, ptr %arrayidx109.i.i, align 2
+  %arrayidx110.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 22
+  store i8 %#23, ptr %arrayidx110.i.i, align 2
+  %arrayidx114.i.i = gep inbounds nuw ptr %out.i, 1 x i64 23
+  %#24 = load i8, ptr %arrayidx114.i.i, align 1
+  %arrayidx115.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 23
+  store i8 %#24, ptr %arrayidx115.i.i, align 1
+  %arrayidx119.i.i = gep inbounds nuw ptr %out.i, 1 x i64 24
+  %#25 = load i8, ptr %arrayidx119.i.i, align 8
+  %arrayidx120.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 24
+  store i8 %#25, ptr %arrayidx120.i.i, align 4
+  %arrayidx124.i.i = gep inbounds nuw ptr %out.i, 1 x i64 25
+  %#26 = load i8, ptr %arrayidx124.i.i, align 1
+  %arrayidx125.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 25
+  store i8 %#26, ptr %arrayidx125.i.i, align 1
+  %arrayidx129.i.i = gep inbounds nuw ptr %out.i, 1 x i64 26
+  %#27 = load i8, ptr %arrayidx129.i.i, align 2
+  %arrayidx130.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 26
+  store i8 %#27, ptr %arrayidx130.i.i, align 2
+  %arrayidx134.i.i = gep inbounds nuw ptr %out.i, 1 x i64 27
+  %#28 = load i8, ptr %arrayidx134.i.i, align 1
+  %arrayidx135.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 27
+  store i8 %#28, ptr %arrayidx135.i.i, align 1
+  %arrayidx139.i.i = gep inbounds nuw ptr %out.i, 1 x i64 28
+  %#29 = load i8, ptr %arrayidx139.i.i, align 4
+  %arrayidx140.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 28
+  store i8 %#29, ptr %arrayidx140.i.i, align 4
+  %arrayidx144.i.i = gep inbounds nuw ptr %out.i, 1 x i64 29
+  %#30 = load i8, ptr %arrayidx144.i.i, align 1
+  %arrayidx145.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 29
+  store i8 %#30, ptr %arrayidx145.i.i, align 1
+  %arrayidx149.i.i = gep inbounds nuw ptr %out.i, 1 x i64 30
+  %#31 = load i8, ptr %arrayidx149.i.i, align 2
+  %arrayidx150.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 30
+  store i8 %#31, ptr %arrayidx150.i.i, align 2
+  %arrayidx154.i.i = gep inbounds nuw ptr %out.i, 1 x i64 31
+  %#32 = load i8, ptr %arrayidx154.i.i, align 1
+  %arrayidx155.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 31
+  store i8 %#32, ptr %arrayidx155.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 32, ptr %arrayidx8.i.i, align 4
+  store i32 %#0, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#33 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#33, 8
+  %#34 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#34
+  %cmp.not.i8 = icmp eq i32 %#33, 0
+  br i1 %cmp.not.i8, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i9
+
+if.then.i9:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i10 = add i32 %#33, 4294967295
+  %idxprom.i11 = zext i32 %sub.i10 to i64
+  %arrayidx.i12 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i11
+  %#35 = load i32, ptr %arrayidx.i12, align 4
+  %and10.i = shl i32 %#35, 11
+  %#36 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#36, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i9 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_hash160_empty_meta.ll build/l_cell_hash160_empty_meta.ll
+
+----------------------------------------
+declare void @hash160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash160_empty_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 20, align 16, dead
+  start_lifetime ptr %pre
+  store i8 0, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @hash160(nonnull noundef ptr %pre, noundef i32 0, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_41217 = !range i64 41217, i64 1, i64 523264
+  ret i64 %#range_0_41217
+}
+=>
+declare void @hash160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash160_empty_meta() {
+entry:
+  %out.i = alloca i64 20, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  store i32 1, ptr %st.i, align 4
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len1.i.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @hash160(nonnull noundef ptr %e.i9.i, noundef i32 %#0, nonnull noundef ptr %out.i)
+  %#1 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#1, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#2 = load i8, ptr %out.i, align 16
+  store i8 %#2, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#3 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#3, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#4 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#4, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#5 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#5, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#6 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#6, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#7 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#7, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#8 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#8, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#9 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#9, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#10 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#10, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#11 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#11, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#12 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#12, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#13 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#13, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#14 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#14, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#15 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#15, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#16 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#16, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#17 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#17, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#18 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#18, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#19 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#19, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#20 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#20, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#21 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#21, ptr %arrayidx95.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 20, ptr %arrayidx8.i.i, align 4
+  store i32 %#1, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#22 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#22, 8
+  %#23 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#23
+  %cmp.not.i7 = icmp eq i32 %#22, 0
+  br i1 %cmp.not.i7, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i8
+
+if.then.i8:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i9 = add i32 %#22, 4294967295
+  %idxprom.i10 = zext i32 %sub.i9 to i64
+  %arrayidx.i11 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i10
+  %#24 = load i32, ptr %arrayidx.i11, align 4
+  %and10.i = shl i32 %#24, 11
+  %#25 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#25, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i8 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_hash160_a_meta.ll build/l_cell_hash160_a_meta.ll
+
+----------------------------------------
+declare void @hash160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash160_a_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 20, align 16, dead
+  start_lifetime ptr %pre
+  store i8 97, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @hash160(nonnull noundef ptr %pre, noundef i32 1, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_41217 = !range i64 41217, i64 1, i64 523264
+  ret i64 %#range_0_41217
+}
+=>
+declare void @hash160(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash160_a_meta() {
+entry:
+  %out.i = alloca i64 20, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  %e.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i8 97, ptr %e.i, align 4
+  %len5.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len5.i, align 4
+  store i32 1, ptr %st.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @hash160(nonnull noundef ptr %e.i9.i, noundef i32 1, nonnull noundef ptr %out.i)
+  %#0 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#0, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#1 = load i8, ptr %out.i, align 16
+  store i8 %#1, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#2 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#2, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#3 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#3, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#4 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#4, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#5 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#5, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#6 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#6, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#7 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#7, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#8 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#8, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#9 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#9, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#10 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#10, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#11 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#11, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#12 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#12, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#13 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#13, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#14 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#14, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#15 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#15, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#16 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#16, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#17 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#17, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#18 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#18, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#19 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#19, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#20 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#20, ptr %arrayidx95.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 20, ptr %arrayidx8.i.i, align 4
+  store i32 %#0, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#21 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#21, 8
+  %#22 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#22
+  %cmp.not.i8 = icmp eq i32 %#21, 0
+  br i1 %cmp.not.i8, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i9
+
+if.then.i9:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i10 = add i32 %#21, 4294967295
+  %idxprom.i11 = zext i32 %sub.i10 to i64
+  %arrayidx.i12 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i11
+  %#23 = load i32, ptr %arrayidx.i12, align 4
+  %and10.i = shl i32 %#23, 11
+  %#24 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#24, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i9 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_hash256_empty_meta.ll build/l_cell_hash256_empty_meta.ll
+
+----------------------------------------
+declare void @hash256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash256_empty_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 32, align 16, dead
+  start_lifetime ptr %pre
+  store i8 0, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @hash256(nonnull noundef ptr %pre, noundef i32 0, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_65793 = !range i64 65793, i64 1, i64 523264
+  ret i64 %#range_0_65793
+}
+=>
+declare void @hash256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash256_empty_meta() {
+entry:
+  %out.i = alloca i64 32, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  store i32 1, ptr %st.i, align 4
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len1.i.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @hash256(nonnull noundef ptr %e.i9.i, noundef i32 %#0, nonnull noundef ptr %out.i)
+  %#1 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#1, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#2 = load i8, ptr %out.i, align 16
+  store i8 %#2, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#3 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#3, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#4 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#4, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#5 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#5, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#6 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#6, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#7 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#7, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#8 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#8, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#9 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#9, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#10 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#10, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#11 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#11, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#12 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#12, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#13 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#13, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#14 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#14, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#15 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#15, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#16 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#16, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#17 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#17, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#18 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#18, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#19 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#19, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#20 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#20, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#21 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#21, ptr %arrayidx95.i.i, align 1
+  %arrayidx99.i.i = gep inbounds nuw ptr %out.i, 1 x i64 20
+  %#22 = load i8, ptr %arrayidx99.i.i, align 4
+  %arrayidx100.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 20
+  store i8 %#22, ptr %arrayidx100.i.i, align 4
+  %arrayidx104.i.i = gep inbounds nuw ptr %out.i, 1 x i64 21
+  %#23 = load i8, ptr %arrayidx104.i.i, align 1
+  %arrayidx105.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 21
+  store i8 %#23, ptr %arrayidx105.i.i, align 1
+  %arrayidx109.i.i = gep inbounds nuw ptr %out.i, 1 x i64 22
+  %#24 = load i8, ptr %arrayidx109.i.i, align 2
+  %arrayidx110.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 22
+  store i8 %#24, ptr %arrayidx110.i.i, align 2
+  %arrayidx114.i.i = gep inbounds nuw ptr %out.i, 1 x i64 23
+  %#25 = load i8, ptr %arrayidx114.i.i, align 1
+  %arrayidx115.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 23
+  store i8 %#25, ptr %arrayidx115.i.i, align 1
+  %arrayidx119.i.i = gep inbounds nuw ptr %out.i, 1 x i64 24
+  %#26 = load i8, ptr %arrayidx119.i.i, align 8
+  %arrayidx120.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 24
+  store i8 %#26, ptr %arrayidx120.i.i, align 4
+  %arrayidx124.i.i = gep inbounds nuw ptr %out.i, 1 x i64 25
+  %#27 = load i8, ptr %arrayidx124.i.i, align 1
+  %arrayidx125.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 25
+  store i8 %#27, ptr %arrayidx125.i.i, align 1
+  %arrayidx129.i.i = gep inbounds nuw ptr %out.i, 1 x i64 26
+  %#28 = load i8, ptr %arrayidx129.i.i, align 2
+  %arrayidx130.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 26
+  store i8 %#28, ptr %arrayidx130.i.i, align 2
+  %arrayidx134.i.i = gep inbounds nuw ptr %out.i, 1 x i64 27
+  %#29 = load i8, ptr %arrayidx134.i.i, align 1
+  %arrayidx135.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 27
+  store i8 %#29, ptr %arrayidx135.i.i, align 1
+  %arrayidx139.i.i = gep inbounds nuw ptr %out.i, 1 x i64 28
+  %#30 = load i8, ptr %arrayidx139.i.i, align 4
+  %arrayidx140.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 28
+  store i8 %#30, ptr %arrayidx140.i.i, align 4
+  %arrayidx144.i.i = gep inbounds nuw ptr %out.i, 1 x i64 29
+  %#31 = load i8, ptr %arrayidx144.i.i, align 1
+  %arrayidx145.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 29
+  store i8 %#31, ptr %arrayidx145.i.i, align 1
+  %arrayidx149.i.i = gep inbounds nuw ptr %out.i, 1 x i64 30
+  %#32 = load i8, ptr %arrayidx149.i.i, align 2
+  %arrayidx150.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 30
+  store i8 %#32, ptr %arrayidx150.i.i, align 2
+  %arrayidx154.i.i = gep inbounds nuw ptr %out.i, 1 x i64 31
+  %#33 = load i8, ptr %arrayidx154.i.i, align 1
+  %arrayidx155.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 31
+  store i8 %#33, ptr %arrayidx155.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 32, ptr %arrayidx8.i.i, align 4
+  store i32 %#1, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#34 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#34, 8
+  %#35 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#35
+  %cmp.not.i7 = icmp eq i32 %#34, 0
+  br i1 %cmp.not.i7, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i8
+
+if.then.i8:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i9 = add i32 %#34, 4294967295
+  %idxprom.i10 = zext i32 %sub.i9 to i64
+  %arrayidx.i11 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i10
+  %#36 = load i32, ptr %arrayidx.i11, align 4
+  %and10.i = shl i32 %#36, 11
+  %#37 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#37, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i8 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_hash256_a_meta.ll build/l_cell_hash256_a_meta.ll
+
+----------------------------------------
+declare void @hash256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash256_a_meta() noundef {
+entry:
+  %pre = alloca i64 1, align 1, dead
+  %out = alloca i64 32, align 16, dead
+  start_lifetime ptr %pre
+  store i8 97, ptr %pre, align 1
+  start_lifetime ptr %out
+  call void @hash256(nonnull noundef ptr %pre, noundef i32 1, nonnull noundef ptr %out)
+  end_lifetime ptr %out
+  end_lifetime ptr %pre
+  %#range_0_65793 = !range i64 65793, i64 1, i64 523264
+  ret i64 %#range_0_65793
+}
+=>
+declare void @hash256(noundef ptr, noundef i32, noundef ptr)
+
+define i64 @cell_hash256_a_meta() {
+entry:
+  %out.i = alloca i64 32, align 16, dead
+  %st.i = alloca i64 148, align 4, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 4, i8 0, i64 148
+  %e.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i8 97, ptr %e.i, align 4
+  %len5.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len5.i, align 4
+  store i32 1, ptr %st.i, align 4
+  %e.i9.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  start_lifetime ptr %out.i
+  call void @hash256(nonnull noundef ptr %e.i9.i, noundef i32 1, nonnull noundef ptr %out.i)
+  %#0 = load i32, ptr %st.i, align 4
+  %sub.i = add i32 %#0, 4294967295
+  store i32 %sub.i, ptr %st.i, align 4
+  %cmp1.i.i = icmp ult i32 %sub.i, 4
+  br i1 %cmp1.i.i, label %if.end3.i.i, label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+if.end3.i.i:
+  %len1.i.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %idxprom.i.i = zext nneg i32 %sub.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i9.i, 128 x i64 0, 32 x i64 %idxprom.i.i
+  %#1 = load i8, ptr %out.i, align 16
+  store i8 %#1, ptr %arrayidx.i.i, align 4
+  %arrayidx4.i.i = gep inbounds nuw ptr %out.i, 1 x i64 1
+  %#2 = load i8, ptr %arrayidx4.i.i, align 1
+  %arrayidx5.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 1
+  store i8 %#2, ptr %arrayidx5.i.i, align 1
+  %arrayidx9.i.i = gep inbounds nuw ptr %out.i, 1 x i64 2
+  %#3 = load i8, ptr %arrayidx9.i.i, align 2
+  %arrayidx10.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 2
+  store i8 %#3, ptr %arrayidx10.i.i, align 2
+  %arrayidx14.i.i = gep inbounds nuw ptr %out.i, 1 x i64 3
+  %#4 = load i8, ptr %arrayidx14.i.i, align 1
+  %arrayidx15.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 3
+  store i8 %#4, ptr %arrayidx15.i.i, align 1
+  %arrayidx19.i.i = gep inbounds nuw ptr %out.i, 1 x i64 4
+  %#5 = load i8, ptr %arrayidx19.i.i, align 4
+  %arrayidx20.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 4
+  store i8 %#5, ptr %arrayidx20.i.i, align 4
+  %arrayidx24.i.i = gep inbounds nuw ptr %out.i, 1 x i64 5
+  %#6 = load i8, ptr %arrayidx24.i.i, align 1
+  %arrayidx25.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 5
+  store i8 %#6, ptr %arrayidx25.i.i, align 1
+  %arrayidx29.i.i = gep inbounds nuw ptr %out.i, 1 x i64 6
+  %#7 = load i8, ptr %arrayidx29.i.i, align 2
+  %arrayidx30.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 6
+  store i8 %#7, ptr %arrayidx30.i.i, align 2
+  %arrayidx34.i.i = gep inbounds nuw ptr %out.i, 1 x i64 7
+  %#8 = load i8, ptr %arrayidx34.i.i, align 1
+  %arrayidx35.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 7
+  store i8 %#8, ptr %arrayidx35.i.i, align 1
+  %arrayidx39.i.i = gep inbounds nuw ptr %out.i, 1 x i64 8
+  %#9 = load i8, ptr %arrayidx39.i.i, align 8
+  %arrayidx40.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 8
+  store i8 %#9, ptr %arrayidx40.i.i, align 4
+  %arrayidx44.i.i = gep inbounds nuw ptr %out.i, 1 x i64 9
+  %#10 = load i8, ptr %arrayidx44.i.i, align 1
+  %arrayidx45.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 9
+  store i8 %#10, ptr %arrayidx45.i.i, align 1
+  %arrayidx49.i.i = gep inbounds nuw ptr %out.i, 1 x i64 10
+  %#11 = load i8, ptr %arrayidx49.i.i, align 2
+  %arrayidx50.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 10
+  store i8 %#11, ptr %arrayidx50.i.i, align 2
+  %arrayidx54.i.i = gep inbounds nuw ptr %out.i, 1 x i64 11
+  %#12 = load i8, ptr %arrayidx54.i.i, align 1
+  %arrayidx55.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 11
+  store i8 %#12, ptr %arrayidx55.i.i, align 1
+  %arrayidx59.i.i = gep inbounds nuw ptr %out.i, 1 x i64 12
+  %#13 = load i8, ptr %arrayidx59.i.i, align 4
+  %arrayidx60.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 12
+  store i8 %#13, ptr %arrayidx60.i.i, align 4
+  %arrayidx64.i.i = gep inbounds nuw ptr %out.i, 1 x i64 13
+  %#14 = load i8, ptr %arrayidx64.i.i, align 1
+  %arrayidx65.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 13
+  store i8 %#14, ptr %arrayidx65.i.i, align 1
+  %arrayidx69.i.i = gep inbounds nuw ptr %out.i, 1 x i64 14
+  %#15 = load i8, ptr %arrayidx69.i.i, align 2
+  %arrayidx70.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 14
+  store i8 %#15, ptr %arrayidx70.i.i, align 2
+  %arrayidx74.i.i = gep inbounds nuw ptr %out.i, 1 x i64 15
+  %#16 = load i8, ptr %arrayidx74.i.i, align 1
+  %arrayidx75.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 15
+  store i8 %#16, ptr %arrayidx75.i.i, align 1
+  %arrayidx79.i.i = gep inbounds nuw ptr %out.i, 1 x i64 16
+  %#17 = load i8, ptr %arrayidx79.i.i, align 16
+  %arrayidx80.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 16
+  store i8 %#17, ptr %arrayidx80.i.i, align 4
+  %arrayidx84.i.i = gep inbounds nuw ptr %out.i, 1 x i64 17
+  %#18 = load i8, ptr %arrayidx84.i.i, align 1
+  %arrayidx85.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 17
+  store i8 %#18, ptr %arrayidx85.i.i, align 1
+  %arrayidx89.i.i = gep inbounds nuw ptr %out.i, 1 x i64 18
+  %#19 = load i8, ptr %arrayidx89.i.i, align 2
+  %arrayidx90.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 18
+  store i8 %#19, ptr %arrayidx90.i.i, align 2
+  %arrayidx94.i.i = gep inbounds nuw ptr %out.i, 1 x i64 19
+  %#20 = load i8, ptr %arrayidx94.i.i, align 1
+  %arrayidx95.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 19
+  store i8 %#20, ptr %arrayidx95.i.i, align 1
+  %arrayidx99.i.i = gep inbounds nuw ptr %out.i, 1 x i64 20
+  %#21 = load i8, ptr %arrayidx99.i.i, align 4
+  %arrayidx100.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 20
+  store i8 %#21, ptr %arrayidx100.i.i, align 4
+  %arrayidx104.i.i = gep inbounds nuw ptr %out.i, 1 x i64 21
+  %#22 = load i8, ptr %arrayidx104.i.i, align 1
+  %arrayidx105.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 21
+  store i8 %#22, ptr %arrayidx105.i.i, align 1
+  %arrayidx109.i.i = gep inbounds nuw ptr %out.i, 1 x i64 22
+  %#23 = load i8, ptr %arrayidx109.i.i, align 2
+  %arrayidx110.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 22
+  store i8 %#23, ptr %arrayidx110.i.i, align 2
+  %arrayidx114.i.i = gep inbounds nuw ptr %out.i, 1 x i64 23
+  %#24 = load i8, ptr %arrayidx114.i.i, align 1
+  %arrayidx115.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 23
+  store i8 %#24, ptr %arrayidx115.i.i, align 1
+  %arrayidx119.i.i = gep inbounds nuw ptr %out.i, 1 x i64 24
+  %#25 = load i8, ptr %arrayidx119.i.i, align 8
+  %arrayidx120.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 24
+  store i8 %#25, ptr %arrayidx120.i.i, align 4
+  %arrayidx124.i.i = gep inbounds nuw ptr %out.i, 1 x i64 25
+  %#26 = load i8, ptr %arrayidx124.i.i, align 1
+  %arrayidx125.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 25
+  store i8 %#26, ptr %arrayidx125.i.i, align 1
+  %arrayidx129.i.i = gep inbounds nuw ptr %out.i, 1 x i64 26
+  %#27 = load i8, ptr %arrayidx129.i.i, align 2
+  %arrayidx130.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 26
+  store i8 %#27, ptr %arrayidx130.i.i, align 2
+  %arrayidx134.i.i = gep inbounds nuw ptr %out.i, 1 x i64 27
+  %#28 = load i8, ptr %arrayidx134.i.i, align 1
+  %arrayidx135.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 27
+  store i8 %#28, ptr %arrayidx135.i.i, align 1
+  %arrayidx139.i.i = gep inbounds nuw ptr %out.i, 1 x i64 28
+  %#29 = load i8, ptr %arrayidx139.i.i, align 4
+  %arrayidx140.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 28
+  store i8 %#29, ptr %arrayidx140.i.i, align 4
+  %arrayidx144.i.i = gep inbounds nuw ptr %out.i, 1 x i64 29
+  %#30 = load i8, ptr %arrayidx144.i.i, align 1
+  %arrayidx145.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 29
+  store i8 %#30, ptr %arrayidx145.i.i, align 1
+  %arrayidx149.i.i = gep inbounds nuw ptr %out.i, 1 x i64 30
+  %#31 = load i8, ptr %arrayidx149.i.i, align 2
+  %arrayidx150.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 30
+  store i8 %#31, ptr %arrayidx150.i.i, align 2
+  %arrayidx154.i.i = gep inbounds nuw ptr %out.i, 1 x i64 31
+  %#32 = load i8, ptr %arrayidx154.i.i, align 1
+  %arrayidx155.i.i = gep inbounds nuw ptr %arrayidx.i.i, 1 x i64 31
+  store i8 %#32, ptr %arrayidx155.i.i, align 1
+  %arrayidx8.i.i = gep inbounds nuw ptr %len1.i.i, 16 x i64 0, 4 x i64 %idxprom.i.i
+  store i32 32, ptr %arrayidx8.i.i, align 4
+  store i32 %#0, ptr %st.i, align 4
+  br label %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i
+
+_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i:
+  %cond6.i = phi i32 [ 0, %if.end3.i.i ], [ 32, %entry ]
+  end_lifetime ptr %out.i
+  %cond.i = zext i1 %cmp1.i.i to i32
+  %or321.i = or disjoint i32 %cond6.i, %cond.i
+  %#33 = load i32, ptr %st.i, align 4
+  %and4.i = shl i32 %#33, 8
+  %#34 = and i32 %and4.i, 768
+  %or722.i = or disjoint i32 %or321.i, %#34
+  %cmp.not.i8 = icmp eq i32 %#33, 0
+  br i1 %cmp.not.i8, label %_ZL11h_pack_metajjRK6HStack.exit, label %if.then.i9
+
+if.then.i9:
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %sub.i10 = add i32 %#33, 4294967295
+  %idxprom.i11 = zext i32 %sub.i10 to i64
+  %arrayidx.i12 = gep inbounds nuw ptr %len.i, 16 x i64 0, 4 x i64 %idxprom.i11
+  %#35 = load i32, ptr %arrayidx.i12, align 4
+  %and10.i = shl i32 %#35, 11
+  %#36 = and i32 %and10.i, 522240
+  %or1323.i = or disjoint i32 %#36, %or722.i
+  br label %_ZL11h_pack_metajjRK6HStack.exit
+
+_ZL11h_pack_metajjRK6HStack.exit:
+  %r.0.in.i = phi i32 [ %or1323.i, %if.then.i9 ], [ %or722.i, %_ZN13twinleaf_hashL7st_pushER6HStackPKhj.exit.i ]
+  %r.0.i = zext nneg i32 %r.0.in.i to i64
+  end_lifetime ptr %st.i
+  %#range_0_%r.0.i = !range i64 %r.0.i, i64 0, i64 523264
+  ret i64 %#range_0_%r.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
