@@ -1,0 +1,386 @@
+# cell: exec-verify/C-L-w32-fail-propagation
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# mode: symbolic C-vs-L compare (no closed inputs)
+# command: alive-tv build/c_cell_fail_prop.ll build/l_cell_fail_prop.ll
+
+----------------------------------------
+define i64 @cell_fail_prop(i64 noundef %flags, i32 noundef %e1_fail, i32 noundef %e2_fail, i32 noundef %e3_fail, i32 noundef %ew1_fail, i32 noundef %ew2_fail, i32 noundef %err1, i32 noundef %err2, i32 noundef %err3, i32 noundef %errw1, i32 noundef %errw2, i32 noundef %spk_truth, i32 noundef %redeem_truth, i32 noundef %bare_witness, i32 noundef %p2sh_path, i32 noundef %p2sh_redeem_witness, i32 noundef %cleanstack_ok, i32 noundef %witness_unexpected) nofree willreturn memory(none) {
+entry:
+  %tobool.not = icmp eq i32 noundef %e1_fail, 0
+  br i1 %tobool.not, label %if.end, label %if.then
+
+if.then:
+  %and1.i = and i32 noundef %err1, 255
+  %or.i = zext nneg i32 %and1.i to i64
+  br label %return
+
+if.end:
+  %tobool1.not = icmp eq i32 noundef %e2_fail, 0
+  br i1 %tobool1.not, label %if.end4, label %if.then2
+
+if.end4:
+  %tobool5.not = icmp eq i32 noundef %spk_truth, 0
+  br i1 %tobool5.not, label %return, label %if.end8
+
+if.end8:
+  %and = and i64 noundef %flags, 2048
+  %cmp = icmp ne i64 %and, 0
+  %tobool9 = icmp ne i32 noundef %bare_witness, 0
+  %tobool11 = icmp ne i32 noundef %ew1_fail, 0
+  %#0 = and i1 %tobool11, %tobool9
+  %or.cond59 = and i1 %cmp, %#0
+  br i1 %or.cond59, label %if.then12, label %if.end15
+
+if.then12:
+  %and1.i67 = and i32 noundef %errw1, 255
+  %or.i68 = zext nneg i32 %and1.i67 to i64
+  br label %return
+
+if.end15:
+  %and16 = and i64 noundef %flags, 1
+  %cmp17 = icmp ne i64 %and16, 0
+  %tobool19 = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond55 = and i1 %cmp17, %tobool19
+  br i1 %or.cond55, label %if.then20, label %if.end39
+
+if.then20:
+  %tobool21.not = icmp eq i32 noundef %e3_fail, 0
+  br i1 %tobool21.not, label %if.end24, label %if.then22
+
+if.end24:
+  %tobool25.not = icmp eq i32 noundef %redeem_truth, 0
+  br i1 %tobool25.not, label %return, label %if.end28
+
+if.end28:
+  %tobool32 = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %tobool34 = icmp ne i32 noundef %ew2_fail, 0
+  %#1 = and i1 %tobool34, %tobool32
+  %or.cond60 = and i1 %cmp, %#1
+  br i1 %or.cond60, label %if.then35, label %if.end39
+
+if.then35:
+  %and1.i71 = and i32 noundef %errw2, 255
+  %or.i72 = zext nneg i32 %and1.i71 to i64
+  br label %return
+
+if.then22:
+  %and1.i69 = and i32 noundef %err3, 255
+  %or.i70 = zext nneg i32 %and1.i69 to i64
+  br label %return
+
+if.end39:
+  %and40 = and i64 noundef %flags, 256
+  %cmp41 = icmp eq i64 %and40, 0
+  %tobool43 = icmp ne i32 noundef %cleanstack_ok, 0
+  %or.cond57 = or i1 %cmp41, %tobool43
+  br i1 %or.cond57, label %if.end46, label %return
+
+if.end46:
+  %tobool50 = icmp ne i32 noundef %witness_unexpected, 0
+  %or.cond58 = and i1 %cmp, %tobool50
+  %. = select i1 %or.cond58, i64 43, i64 256
+  br label %return
+
+if.then2:
+  %and1.i65 = and i32 noundef %err2, 255
+  %or.i66 = zext nneg i32 %and1.i65 to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or.i, %if.then ], [ %or.i66, %if.then2 ], [ %or.i68, %if.then12 ], [ %or.i70, %if.then22 ], [ %or.i72, %if.then35 ], [ 2, %if.end4 ], [ 2, %if.end24 ], [ 30, %if.end39 ], [ %., %if.end46 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 257
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_fail_prop(i64 noundef %flags, i32 noundef %e1_fail, i32 noundef %e2_fail, i32 noundef %e3_fail, i32 noundef %ew1_fail, i32 noundef %ew2_fail, i32 noundef %err1, i32 noundef %err2, i32 noundef %err3, i32 noundef %errw1, i32 noundef %errw2, i32 noundef %spk_truth, i32 noundef %redeem_truth, i32 noundef %bare_witness, i32 noundef %p2sh_path, i32 noundef %p2sh_redeem_witness, i32 noundef %cleanstack_ok, i32 noundef %witness_unexpected) nofree willreturn memory(none) {
+entry:
+  %tobool.not.not = icmp eq i32 noundef %e1_fail, 0
+  br i1 %tobool.not.not, label %if.end, label %if.then
+
+if.then:
+  %and1.i = and i32 noundef %err1, 255
+  %or.i = zext nneg i32 %and1.i to i64
+  br label %cleanup97
+
+if.end:
+  %tobool3.not.not = icmp eq i32 noundef %e2_fail, 0
+  br i1 %tobool3.not.not, label %if.end14, label %if.then11
+
+if.end14:
+  %tobool15.not = icmp eq i32 noundef %spk_truth, 0
+  br i1 %tobool15.not, label %cleanup97, label %if.end18
+
+if.end18:
+  %and = and i64 noundef %flags, 2048
+  %cmp19 = icmp ne i64 %and, 0
+  %tobool20 = icmp ne i32 noundef %bare_witness, 0
+  %or.cond = and i1 %cmp19, %tobool20
+  br i1 %or.cond, label %if.then21, label %if.end34
+
+if.then21:
+  %tobool22.not.not = icmp eq i32 noundef %ew1_fail, 0
+  %#0 = and i32 noundef %errw1, 255
+  %or.i149 = zext nneg i32 %#0 to i64
+  %retval.0 = select i1 %tobool22.not.not, i64 undef, i64 %or.i149
+  br i1 %tobool22.not.not, label %if.end34, label %cleanup97
+
+if.end34:
+  %retval.1 = phi i64 [ %retval.0, %if.then21 ], [ undef, %if.end18 ]
+  %and35 = and i64 noundef %flags, 1
+  %cmp36 = icmp ne i64 %and35, 0
+  %tobool38 = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond100 = and i1 %cmp36, %tobool38
+  br i1 %or.cond100, label %if.then39, label %if.end80
+
+if.then39:
+  %tobool40.not.not = icmp eq i32 noundef %e3_fail, 0
+  br i1 %tobool40.not.not, label %if.end51, label %if.then48
+
+if.end51:
+  %tobool52.not = icmp eq i32 noundef %redeem_truth, 0
+  br i1 %tobool52.not, label %cleanup77, label %if.end55
+
+if.end55:
+  %tobool59 = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %or.cond101 = and i1 %cmp19, %tobool59
+  br i1 %or.cond101, label %if.then60, label %cleanup77
+
+if.then60:
+  %tobool61.not.not = icmp eq i32 noundef %ew2_fail, 0
+  %#1 = and i32 noundef %errw2, 255
+  %or.i159 = zext nneg i32 %#1 to i64
+  %retval.2 = select i1 %tobool61.not.not, i64 %retval.1, i64 %or.i159
+  br label %cleanup77
+
+if.then48:
+  %and1.i153 = and i32 noundef %err3, 255
+  %or.i154 = zext nneg i32 %and1.i153 to i64
+  br label %cleanup77
+
+cleanup77:
+  %retval.4 = phi i64 [ %or.i154, %if.then48 ], [ %retval.1, %if.end55 ], [ %retval.2, %if.then60 ], [ 2, %if.end51 ]
+  %cond = phi i1 [ 0, %if.then48 ], [ 1, %if.end55 ], [ %tobool61.not.not, %if.then60 ], [ 0, %if.end51 ]
+  br i1 %cond, label %if.end80, label %cleanup97
+
+if.end80:
+  %and81 = and i64 noundef %flags, 256
+  %cmp82 = icmp eq i64 %and81, 0
+  %tobool84 = icmp ne i32 noundef %cleanstack_ok, 0
+  %or.cond102 = or i1 %cmp82, %tobool84
+  br i1 %or.cond102, label %if.end87, label %cleanup97
+
+if.end87:
+  %tobool91 = icmp ne i32 noundef %witness_unexpected, 0
+  %or.cond103 = and i1 %cmp19, %tobool91
+  %. = select i1 %or.cond103, i64 43, i64 256
+  br label %cleanup97
+
+if.then11:
+  %and1.i143 = and i32 noundef %err2, 255
+  %or.i144 = zext nneg i32 %and1.i143 to i64
+  br label %cleanup97
+
+cleanup97:
+  %retval.6 = phi i64 [ %or.i, %if.then ], [ %or.i144, %if.then11 ], [ %retval.4, %cleanup77 ], [ %retval.0, %if.then21 ], [ 2, %if.end14 ], [ 30, %if.end80 ], [ %., %if.end87 ]
+  ret i64 %retval.6
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_prop_law.ll build/l_cell_prop_law.ll
+
+----------------------------------------
+define i32 @cell_prop_law(i64 noundef %flags, i32 noundef %e1_fail, i32 noundef %e2_fail, i32 noundef %e3_fail, i32 noundef %ew1_fail, i32 noundef %ew2_fail, i32 noundef %err1, i32 noundef %err2, i32 noundef %err3, i32 noundef %errw1, i32 noundef %errw2, i32 noundef %spk_truth, i32 noundef %redeem_truth, i32 noundef %bare_witness, i32 noundef %p2sh_path, i32 noundef %p2sh_redeem_witness, i32 noundef %cleanstack_ok, i32 noundef %witness_unexpected) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %flags, 1
+  %cmp = icmp ne i64 %and, 0
+  %and1 = and i64 noundef %flags, 2048
+  %cmp2 = icmp ne i64 %and1, 0
+  %#0 = or i32 noundef %e2_fail, noundef %e1_fail
+  %or.cond.not = icmp eq i32 %#0, 0
+  br i1 %or.cond.not, label %lor.lhs.false6, label %lor.end
+
+lor.lhs.false6:
+  %tobool = icmp ne i32 noundef %bare_witness, 0
+  %cmp8 = icmp ne i32 noundef %ew1_fail, 0
+  %#1 = and i1 %cmp8, %tobool
+  %or.cond30 = and i1 %cmp2, %#1
+  br i1 %or.cond30, label %lor.end, label %lor.lhs.false9
+
+lor.lhs.false9:
+  %tobool12 = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond31 = and i1 %cmp, %tobool12
+  %cmp14 = icmp ne i32 noundef %e3_fail, 0
+  %or.cond32 = and i1 %cmp14, %or.cond31
+  %or.cond31.not = xor i1 %or.cond31, 1
+  %brmerge = or i1 %cmp14, %or.cond31.not
+  %not.or.cond32 = xor i1 %or.cond32, 1
+  br i1 %brmerge, label %lor.end, label %land.lhs.true18
+
+land.lhs.true18:
+  %tobool21 = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %or.cond34 = and i1 %cmp2, %tobool21
+  %cmp22 = icmp eq i32 noundef %ew2_fail, 0
+  %not.or.cond34 = xor i1 %or.cond34, 1
+  %spec.select = or i1 %cmp22, %not.or.cond34
+  br label %lor.end
+
+lor.end:
+  %not. = phi i1 [ 0, %entry ], [ 0, %lor.lhs.false6 ], [ %not.or.cond32, %lor.lhs.false9 ], [ %spec.select, %land.lhs.true18 ]
+  %tobool.not.i = icmp eq i32 noundef %e1_fail, 0
+  br i1 %tobool.not.i, label %if.end.i, label %cell_fail_prop.exit
+
+if.end.i:
+  %tobool1.not.i = icmp ne i32 noundef %e2_fail, 0
+  %tobool5.not.i = icmp eq i32 noundef %spk_truth, 0
+  %or.cond = or i1 %tobool1.not.i, %tobool5.not.i
+  br i1 %or.cond, label %cell_fail_prop.exit, label %if.end8.i
+
+if.end8.i:
+  %tobool9.i = icmp ne i32 noundef %bare_witness, 0
+  %tobool11.i = icmp ne i32 noundef %ew1_fail, 0
+  %#2 = and i1 %tobool11.i, %tobool9.i
+  %or.cond59.i = and i1 %cmp2, %#2
+  br i1 %or.cond59.i, label %cell_fail_prop.exit, label %if.end15.i
+
+if.end15.i:
+  %tobool19.i = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond55.i = and i1 %cmp, %tobool19.i
+  br i1 %or.cond55.i, label %if.then20.i, label %if.end39.i
+
+if.then20.i:
+  %tobool21.not.i = icmp ne i32 noundef %e3_fail, 0
+  %tobool25.not.i = icmp eq i32 noundef %redeem_truth, 0
+  %or.cond48 = or i1 %tobool21.not.i, %tobool25.not.i
+  br i1 %or.cond48, label %cell_fail_prop.exit, label %if.end28.i
+
+if.end28.i:
+  %tobool32.i = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %tobool34.i = icmp ne i32 noundef %ew2_fail, 0
+  %#3 = and i1 %tobool34.i, %tobool32.i
+  %or.cond60.i = and i1 %cmp2, %#3
+  br i1 %or.cond60.i, label %cell_fail_prop.exit, label %if.end39.i
+
+if.end39.i:
+  %and40.i = and i64 noundef %flags, 256
+  %cmp41.i = icmp eq i64 %and40.i, 0
+  %tobool43.i = icmp ne i32 noundef %cleanstack_ok, 0
+  %or.cond57.i = or i1 %cmp41.i, %tobool43.i
+  br i1 %or.cond57.i, label %if.end46.i, label %cell_fail_prop.exit
+
+if.end46.i:
+  %tobool50.i = icmp ne i32 noundef %witness_unexpected, 0
+  %or.cond58.i = and i1 %cmp2, %tobool50.i
+  br label %cell_fail_prop.exit
+
+cell_fail_prop.exit:
+  %retval.0.i = phi i1 [ 1, %if.end39.i ], [ %or.cond58.i, %if.end46.i ], [ 1, %lor.end ], [ 1, %if.end.i ], [ 1, %if.end8.i ], [ 1, %if.then20.i ], [ 1, %if.end28.i ]
+  %#4 = or i1 %not., %retval.0.i
+  %cond = zext i1 %#4 to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_prop_law(i64 noundef %flags, i32 noundef %e1_fail, i32 noundef %e2_fail, i32 noundef %e3_fail, i32 noundef %ew1_fail, i32 noundef %ew2_fail, i32 noundef %err1, i32 noundef %err2, i32 noundef %err3, i32 noundef %errw1, i32 noundef %errw2, i32 noundef %spk_truth, i32 noundef %redeem_truth, i32 noundef %bare_witness, i32 noundef %p2sh_path, i32 noundef %p2sh_redeem_witness, i32 noundef %cleanstack_ok, i32 noundef %witness_unexpected) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %flags, 1
+  %cmp = icmp ne i64 %and, 0
+  %and1 = and i64 noundef %flags, 2048
+  %cmp2 = icmp ne i64 %and1, 0
+  %#0 = or i32 noundef %e2_fail, noundef %e1_fail
+  %or.cond.not = icmp eq i32 %#0, 0
+  br i1 %or.cond.not, label %lor.lhs.false6, label %lor.end
+
+lor.lhs.false6:
+  %tobool = icmp ne i32 noundef %bare_witness, 0
+  %cmp8 = icmp ne i32 noundef %ew1_fail, 0
+  %#1 = and i1 %cmp8, %tobool
+  %or.cond30 = and i1 %cmp2, %#1
+  br i1 %or.cond30, label %lor.end, label %lor.lhs.false9
+
+lor.lhs.false9:
+  %tobool12 = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond31 = and i1 %cmp, %tobool12
+  %cmp14 = icmp ne i32 noundef %e3_fail, 0
+  %or.cond32 = and i1 %cmp14, %or.cond31
+  %or.cond31.not = xor i1 %or.cond31, 1
+  %brmerge = or i1 %cmp14, %or.cond31.not
+  %not.or.cond32 = xor i1 %or.cond32, 1
+  br i1 %brmerge, label %lor.end, label %land.lhs.true18
+
+land.lhs.true18:
+  %tobool21 = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %or.cond34 = and i1 %cmp2, %tobool21
+  %cmp22 = icmp eq i32 noundef %ew2_fail, 0
+  %not.or.cond34 = xor i1 %or.cond34, 1
+  %spec.select = or i1 %cmp22, %not.or.cond34
+  br label %lor.end
+
+lor.end:
+  %not. = phi i1 [ 0, %entry ], [ 0, %lor.lhs.false6 ], [ %not.or.cond32, %lor.lhs.false9 ], [ %spec.select, %land.lhs.true18 ]
+  %tobool.not.not.i = icmp eq i32 noundef %e1_fail, 0
+  br i1 %tobool.not.not.i, label %if.end.i, label %cell_fail_prop.exit
+
+if.end.i:
+  %tobool3.not.not.i = icmp ne i32 noundef %e2_fail, 0
+  %tobool15.not.i = icmp eq i32 noundef %spk_truth, 0
+  %or.cond = or i1 %tobool3.not.not.i, %tobool15.not.i
+  br i1 %or.cond, label %cell_fail_prop.exit, label %if.end18.i
+
+if.end18.i:
+  %tobool20.i = icmp ne i32 noundef %bare_witness, 0
+  %tobool22.not.not.i = icmp ne i32 noundef %ew1_fail, 0
+  %#2 = and i1 %tobool20.i, %tobool22.not.not.i
+  %or.cond48.not = and i1 %#2, %cmp2
+  br i1 %or.cond48.not, label %cell_fail_prop.exit, label %if.end34.i
+
+if.end34.i:
+  %tobool38.i = icmp ne i32 noundef %p2sh_path, 0
+  %or.cond100.i = and i1 %cmp, %tobool38.i
+  br i1 %or.cond100.i, label %if.then39.i, label %if.end80.i
+
+if.then39.i:
+  %tobool40.not.not.i = icmp ne i32 noundef %e3_fail, 0
+  %tobool52.not.i = icmp eq i32 noundef %redeem_truth, 0
+  %or.cond49 = or i1 %tobool40.not.not.i, %tobool52.not.i
+  br i1 %or.cond49, label %cell_fail_prop.exit, label %if.end55.i
+
+if.end55.i:
+  %tobool59.i = icmp ne i32 noundef %p2sh_redeem_witness, 0
+  %tobool61.not.not.i = icmp ne i32 noundef %ew2_fail, 0
+  %#3 = and i1 %tobool59.i, %tobool61.not.not.i
+  %spec.select50.not = and i1 %#3, %cmp2
+  br i1 %spec.select50.not, label %cell_fail_prop.exit, label %if.end80.i
+
+if.end80.i:
+  %and81.i = and i64 noundef %flags, 256
+  %cmp82.i = icmp eq i64 %and81.i, 0
+  %tobool84.i = icmp ne i32 noundef %cleanstack_ok, 0
+  %or.cond102.i = or i1 %cmp82.i, %tobool84.i
+  br i1 %or.cond102.i, label %if.end87.i, label %cell_fail_prop.exit
+
+if.end87.i:
+  %tobool91.i = icmp ne i32 noundef %witness_unexpected, 0
+  %or.cond103.i = and i1 %cmp2, %tobool91.i
+  br label %cell_fail_prop.exit
+
+cell_fail_prop.exit:
+  %retval.6.i = phi i1 [ 1, %if.end55.i ], [ 1, %if.end80.i ], [ %or.cond103.i, %if.end87.i ], [ 1, %lor.end ], [ 1, %if.end.i ], [ 1, %if.end18.i ], [ 1, %if.then39.i ]
+  %#4 = or i1 %not., %retval.6.i
+  %cond = zext i1 %#4 to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

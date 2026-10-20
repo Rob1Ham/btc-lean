@@ -1,0 +1,28 @@
+module spec where
+
+// Bitcoin.Activation.getBlockScriptFlagsP mainnetParams
+// (Flags.lean:145-157) over a 256-bit block hash and a block height.
+//
+// base := match mainnetExceptionMap hash with
+//         | some exf => exf | none => { p2sh := true, witness := true, taproot := true }
+// then DERSIG/CLTV/CSV/NULLDUMMY are OR-ed in by buriedActive (since <= height)
+// with the mainnet heights 363725 / 388381 / 419328 / 481824.
+block_flags : [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+block_flags h0 h1 h2 h3 height =
+  base || dersig || cltv || csv || nulldummy
+  where
+    base = if exc_bip16 then 0
+           else if exc_taproot then 0x0000000000000801
+           else 0x0000000000020801
+    dersig    = if height >= (363725 : [32]) then 0x0000000000000004 else 0
+    cltv      = if height >= (388381 : [32]) then 0x0000000000000200 else 0
+    csv       = if height >= (419328 : [32]) then 0x0000000000000400 else 0
+    nulldummy = if height >= (481824 : [32]) then 0x0000000000000010 else 0
+    exc_bip16 = (h0 == (0x00000000000002dc : [64])) &&
+                (h1 == (0x756eebf4f49723ed : [64])) &&
+                (h2 == (0x8d30cc28a5f108eb : [64])) &&
+                (h3 == (0x94b1ba88ac4f9c22 : [64]))
+    exc_taproot = (h0 == (0x0000000000000000 : [64])) &&
+                  (h1 == (0x000f14c35b2d841e : [64])) &&
+                  (h2 == (0x986ab5441de8c585 : [64])) &&
+                  (h3 == (0xd5ffe55ea1e395ad : [64]))

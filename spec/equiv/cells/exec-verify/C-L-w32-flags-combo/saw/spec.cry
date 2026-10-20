@@ -1,0 +1,14 @@
+module spec where
+
+// Bitcoin.Interpreter.flagsComboOk (Rules.lean:48-50):
+//   (!pol.cleanstack || (flags.p2sh && flags.witness)) &&
+//   (!flags.witness || flags.p2sh)
+// Return 1 for true, 0 for false (the cell's observable).
+flags_combo : [64] -> [32] -> [32]
+flags_combo flags cs =
+  if ((~ cs_nonzero) || (p2sh && witness)) && ((~ witness) || p2sh)
+    then 1 else 0
+  where
+    cs_nonzero = cs != (0 : [32])
+    p2sh       = (flags && (0x0000000000000001 : [64])) != 0
+    witness    = (flags && (0x0000000000000800 : [64])) != 0

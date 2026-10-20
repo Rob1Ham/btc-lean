@@ -1,0 +1,219 @@
+# cell: exec-verify/C-L-w32-flag-exceptions
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# mode: symbolic C-vs-L compare (no closed inputs)
+# command: alive-tv build/c_cell_exc_select.ll build/l_cell_exc_select.ll
+
+----------------------------------------
+define i64 @cell_exc_select(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %h0, 732
+  %cmp1.i = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i, %cmp3.i
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i, label %return, label %if.end
+
+if.end:
+  %cmp.i8 = icmp eq i64 noundef %h0, 0
+  %cmp1.i9 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i10 = and i1 %cmp.i8, %cmp1.i9
+  %cmp3.i11 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i12 = and i1 %or.cond.i10, %cmp3.i11
+  %cmp4.i13 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i14 = and i1 %or.cond5.i12, %cmp4.i13
+  %. = select i1 %spec.select.i14, i64 2, i64 0
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 1, %entry ], [ %., %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_exc_select(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %h0, 732
+  %cmp1.i = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond33.i = and i1 %or.cond.i, %cmp3.i
+  %cmp5.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %or.cond34.i = and i1 %or.cond33.i, %cmp5.i
+  br i1 %or.cond34.i, label %_ZL21mainnet_exception_mapmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp6.i = icmp eq i64 noundef %h0, 0
+  %cmp8.i = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond35.i = and i1 %cmp6.i, %cmp8.i
+  %cmp10.i = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond36.i = and i1 %or.cond35.i, %cmp10.i
+  %cmp12.i = icmp eq i64 noundef %h3, -3026448229963950675
+  %or.cond37.i = and i1 %or.cond36.i, %cmp12.i
+  %..i = zext i1 %or.cond37.i to i64
+  %#0 = select i1 %or.cond37.i, i64 65792, i64 0
+  %#1 = or disjoint i64 %#0, %..i
+  br label %_ZL21mainnet_exception_mapmmmm.exit
+
+_ZL21mainnet_exception_mapmmmm.exit:
+  %retval.sroa.0.0.insert.insert.i = phi i64 [ 1, %entry ], [ %#1, %if.else.i ]
+  %loadedv = trunc i64 %retval.sroa.0.0.insert.insert.i to i1
+  br i1 %loadedv, label %if.end, label %cleanup
+
+if.end:
+  %#2 = and i64 %retval.sroa.0.0.insert.insert.i, 256
+  %loadedv1.not = icmp eq i64 %#2, 0
+  %#3 = and i64 %retval.sroa.0.0.insert.insert.i, 65536
+  %loadedv3.not = icmp eq i64 %#3, 0
+  br i1 %loadedv1.not, label %land.lhs.true, label %land.lhs.true12
+
+land.lhs.true:
+  br i1 %loadedv3.not, label %cleanup, label %if.end21
+
+land.lhs.true12:
+  br i1 %loadedv3.not, label %if.end21, label %cleanup
+
+if.end21:
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ 0, %if.end21 ], [ 0, %_ZL21mainnet_exception_mapmmmm.exit ], [ 1, %land.lhs.true ], [ 2, %land.lhs.true12 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_flags_bip16_at.ll build/l_cell_flags_bip16_at.ll
+
+----------------------------------------
+define i64 @cell_flags_bip16_at(i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %height, 363724
+  %spec.select29.i = select i1 %cmp.i, i64 4, i64 0
+  %cmp6.i = icmp ugt i32 noundef %height, 388380
+  %or8.i = or disjoint i64 %spec.select29.i, 512
+  %flags.2.i = select i1 %cmp6.i, i64 %or8.i, i64 %spec.select29.i
+  %cmp10.i = icmp ugt i32 noundef %height, 419327
+  %or12.i = or disjoint i64 %flags.2.i, 1024
+  %flags.3.i = select i1 %cmp10.i, i64 %or12.i, i64 %flags.2.i
+  %cmp14.i = icmp ugt i32 noundef %height, 481823
+  %or16.i = or disjoint i64 %flags.3.i, 16
+  %flags.4.i = select i1 %cmp14.i, i64 %or16.i, i64 %flags.3.i
+  %#range_0_%flags.4.i = !range i64 %flags.4.i, i64 0, i64 2048
+  ret i64 %#range_0_%flags.4.i
+}
+=>
+define i64 @cell_flags_bip16_at(i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i30.i = icmp ugt i32 noundef %height, 363724
+  %cmp.i31.i = icmp ugt i32 noundef %height, 388380
+  %cmp.i32.i = icmp ugt i32 noundef %height, 419327
+  %cmp.i33.i = icmp ugt i32 noundef %height, 481823
+  %out.3.i.i = select i1 %cmp.i30.i, i64 4, i64 0
+  %or15.i.i = or disjoint i64 %out.3.i.i, 512
+  %out.4.i.i = select i1 %cmp.i31.i, i64 %or15.i.i, i64 %out.3.i.i
+  %or19.i.i = or disjoint i64 %out.4.i.i, 1024
+  %out.5.i.i = select i1 %cmp.i32.i, i64 %or19.i.i, i64 %out.4.i.i
+  %or23.i.i = or disjoint i64 %out.5.i.i, 16
+  %out.6.i.i = select i1 %cmp.i33.i, i64 %or23.i.i, i64 %out.5.i.i
+  %#range_0_%out.6.i.i = !range i64 %out.6.i.i, i64 0, i64 2048
+  ret i64 %#range_0_%out.6.i.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_flags_taproot_at.ll build/l_cell_flags_taproot_at.ll
+
+----------------------------------------
+define i64 @cell_flags_taproot_at(i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %height, 363724
+  %spec.select29.i = select i1 %cmp.i, i64 2053, i64 2049
+  %cmp6.i = icmp ugt i32 noundef %height, 388380
+  %or8.i = or disjoint i64 %spec.select29.i, 512
+  %flags.2.i = select i1 %cmp6.i, i64 %or8.i, i64 %spec.select29.i
+  %cmp10.i = icmp ugt i32 noundef %height, 419327
+  %or12.i = or disjoint i64 %flags.2.i, 1024
+  %flags.3.i = select i1 %cmp10.i, i64 %or12.i, i64 %flags.2.i
+  %cmp14.i = icmp ugt i32 noundef %height, 481823
+  %or16.i = or disjoint i64 %flags.3.i, 16
+  %flags.4.i = select i1 %cmp14.i, i64 %or16.i, i64 %flags.3.i
+  %#range_0_%flags.4.i = !range i64 %flags.4.i, i64 2049, i64 4096
+  ret i64 %#range_0_%flags.4.i
+}
+=>
+define i64 @cell_flags_taproot_at(i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i30.i = icmp ugt i32 noundef %height, 363724
+  %cmp.i31.i = icmp ugt i32 noundef %height, 388380
+  %cmp.i32.i = icmp ugt i32 noundef %height, 419327
+  %cmp.i33.i = icmp ugt i32 noundef %height, 481823
+  %out.3.i.i = select i1 %cmp.i30.i, i64 2053, i64 2049
+  %or15.i.i = or disjoint i64 %out.3.i.i, 512
+  %out.4.i.i = select i1 %cmp.i31.i, i64 %or15.i.i, i64 %out.3.i.i
+  %or19.i.i = or disjoint i64 %out.4.i.i, 1024
+  %out.5.i.i = select i1 %cmp.i32.i, i64 %or19.i.i, i64 %out.4.i.i
+  %or23.i.i = or disjoint i64 %out.5.i.i, 16
+  %out.6.i.i = select i1 %cmp.i33.i, i64 %or23.i.i, i64 %out.5.i.i
+  %#range_0_%out.6.i.i = !range i64 %out.6.i.i, i64 2049, i64 4096
+  ret i64 %#range_0_%out.6.i.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_flags_bip16_named.ll build/l_cell_flags_bip16_named.ll
+
+----------------------------------------
+define i64 @cell_flags_bip16_named() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 0
+}
+=>
+define i64 @cell_flags_bip16_named() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_0 = !range i64 0, i64 0, i64 135168
+  ret i64 %#range_0_0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_flags_taproot_named.ll build/l_cell_flags_taproot_named.ll
+
+----------------------------------------
+define i64 @cell_flags_taproot_named() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 3605
+}
+=>
+define i64 @cell_flags_taproot_named() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_3605 = !range i64 3605, i64 0, i64 135168
+  ret i64 %#range_0_3605
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
