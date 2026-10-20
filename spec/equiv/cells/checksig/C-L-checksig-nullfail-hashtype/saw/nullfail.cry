@@ -1,0 +1,50 @@
+module nullfail where
+
+// Independent Cryptol reference for cell C-L-checksig-nullfail-hashtype
+// (SCR-110 / SCR-111).
+//
+// Restates the pinned rule:
+//   interpreter.cpp:351-352  !fSuccess && NULLFAIL && !sig.empty() -> SIG_NULLFAIL
+//   interpreter.cpp:1069-1092 OP_CHECKSIG pushes fSuccess; VERIFY raises 14
+//   interpreter.cpp:1876-1880 VerifyScript's EVAL_FALSE tail
+//   interpreter.cpp:1712-1713 nHashType = last signature byte
+//   SigHash/Digest.lean:125-145  htAcp = bit 0x80; htBase = bits 0..4
+//
+// Not extracted from either leg.
+
+widen : [8] -> [32]
+widen b = 0 # b
+
+byteAt : [32] -> [640] -> [8]
+shamt : [32] -> [10]
+shamt i = drop ((8 * i) : [32]) : [10]
+
+byteAt i p = drop ((p >> (shamt i)) : [640]) : [8]
+
+// st_fail(e): result 0, error e at bits 2..7, empty stack.
+failPack : [32] -> [64]
+failPack e = ((0 : [32]) # e) << 2
+
+// The EvalChecksigPreTapscript tail and the OP_CHECKSIG handler.
+//   fSuccess = 0/1 checker verdict, nf = NULLFAIL policy bit,
+//   sl = signature length, wire = 0xac CHECKSIG or 0xad CHECKSIGVERIFY.
+checksig : [32] -> [32] -> [32] -> [32] -> [64]
+checksig f nf sl wire =
+  if (f == 0) && (nf != 0) && (sl != 0) then failPack 32
+  else if wire == 0x000000ad then
+    (if f != 0 then failPack 2 else failPack 14)
+  else if f != 0 then 10497      // push true, depth 1, top {1}
+  else 264                       // push false, EVAL_FALSE, depth 1, empty top
+
+// Trailing-byte decode: ht (byte) | acp<<8 | base5<<9 | class<<16.
+hashtype : [32] -> [640] -> [64]
+hashtype sl p =
+  if (sl == 0) || (sl > 80) then 0
+  else ((0 : [32]) # ht) || (((0 : [32]) # acp) << 8)
+         || (((0 : [32]) # base5) << 9) || (((0 : [32]) # cls) << 16)
+  where
+    ht    = widen (byteAt (sl - 1) p)
+    acp   = if (ht && 0x00000080) != 0 then (1 : [32]) else 0
+    base5 = ht && 0x0000001f
+    cls   = if base5 == 0x00000003 then (2 : [32])
+            else if base5 == 0x00000002 then 1 else 0

@@ -1,0 +1,50 @@
+module der where
+
+// Independent Cryptol reference for cell C-L-checksig-der.
+//
+// Not extracted from either leg.  Restates the pinned consensus rule
+// (BIP66 strict DER, src/script/interpreter.cpp:118-181) over the cell's
+// 80-byte word-packed signature domain:
+//   byte i = (pack >> 8*i) mod 256   (little-endian byte order in `pack`).
+
+widen : [8] -> [32]
+widen b = 0 # b
+
+byteAt : [32] -> [640] -> [8]
+shamt : [32] -> [10]
+shamt i = drop ((8 * i) : [32]) : [10]
+
+byteAt i p = drop ((p >> (shamt i)) : [640]) : [8]
+
+// isDERSignature: 9..73 bytes, 0x30 compound, exact total length, minimal
+// positive R and S integers, trailing sighash byte.
+derOK : [32] -> [640] -> Bit
+derOK n p =
+  if n < 9 then False
+  else if n > 73 then False
+  else if byteAt 0 p != 0x30 then False
+  else if widen (byteAt 1 p) != n - 3 then False
+  else if 5 + lenR >= n then False
+  else if lenR + lenS + 7 != n then False
+  else if byteAt 2 p != 0x02 then False
+  else if lenR == 0 then False
+  else if byteAt 4 p >= 0x80 then False
+  else if (lenR > 1) && (byteAt 4 p == 0) && (byteAt 5 p < 0x80) then False
+  else if byteAt (lenR + 4) p != 0x02 then False
+  else if lenS == 0 then False
+  else if byteAt (lenR + 6) p >= 0x80 then False
+  else if (lenS > 1) && (byteAt (lenR + 6) p == 0) && (byteAt (lenR + 7) p < 0x80) then False
+  else True
+  where
+    lenR = widen (byteAt 3 p)
+    lenS = widen (byteAt (5 + lenR) p)
+
+// CheckSignatureEncoding's DER arm (interpreter.cpp:211-219): the empty
+// signature bypasses the encoding gates; otherwise the DERSIG (or LOW_S /
+// STRICTENC) flag turns a failed predicate into SCRIPT_ERR_SIG_DER = 24.
+derGate : [32] -> [32] -> [32] -> [32] -> [640] -> [64]
+derGate dersig lowS strictEnc n p =
+  if n == 0 then 0
+  else if (dersig != 0) || (lowS != 0) || (strictEnc != 0)
+       then (if derOK n p then 0 else 24)
+  else 0

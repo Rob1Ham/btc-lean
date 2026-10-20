@@ -1,0 +1,41 @@
+import "bip66.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let spec_general = do {
+  since  <- llvm_fresh_var "bip66_height" (llvm_int 32);
+  height <- llvm_fresh_var "height"       (llvm_int 32);
+  exc    <- llvm_fresh_var "exc"          (llvm_int 32);
+  llvm_execute_func [llvm_term since, llvm_term height, llvm_term exc];
+  llvm_return (llvm_term {{ (0 # flagGeneral since height exc) : [64] }});
+};
+
+let spec_mainnet = do {
+  height <- llvm_fresh_var "height" (llvm_int 32);
+  exc    <- llvm_fresh_var "exc"    (llvm_int 32);
+  llvm_execute_func [llvm_term height, llvm_term exc];
+  llvm_return (llvm_term {{ (0 # flagMainnet height exc) : [64] }});
+};
+
+let spec_or = do {
+  since  <- llvm_fresh_var "bip66_height" (llvm_int 32);
+  height <- llvm_fresh_var "height"       (llvm_int 32);
+  base   <- llvm_fresh_var "base_flags"   (llvm_int 32);
+  llvm_execute_func [llvm_term since, llvm_term height, llvm_term base];
+  llvm_return (llvm_term {{ (0 # dersigOR since height (base && 15)) : [64] }});
+};
+
+r1 <- llvm_verify mC "cell_dersig_flag"         [] false spec_general abc;
+print "PROOF cell_dersig_flag C";
+r2 <- llvm_verify mL "cell_dersig_flag"         [] false spec_general abc;
+print "PROOF cell_dersig_flag L";
+r3 <- llvm_verify mC "cell_dersig_flag_mainnet" [] false spec_mainnet abc;
+print "PROOF cell_dersig_flag_mainnet C";
+r4 <- llvm_verify mL "cell_dersig_flag_mainnet" [] false spec_mainnet abc;
+print "PROOF cell_dersig_flag_mainnet L";
+r5 <- llvm_verify mC "cell_dersig_or"           [] false spec_or abc;
+print "PROOF cell_dersig_or C";
+r6 <- llvm_verify mL "cell_dersig_or"           [] false spec_or abc;
+print "PROOF cell_dersig_or L";
+print "CELL_BIP66_SAW_GREEN";
