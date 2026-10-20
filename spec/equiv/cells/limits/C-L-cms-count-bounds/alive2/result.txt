@@ -1,0 +1,98 @@
+# cell: limits/C-L-cms-count-bounds
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt (limits_common.h sha256 recorded there)
+# command: alive-tv build/c_cell_cms_count_bounds.ll build/l_cell_cms_count_bounds.ll
+
+----------------------------------------
+define i64 @cell_cms_count_bounds(i32 noundef %nKeysCount, i32 noundef %nSigsCount, i32 noundef %nOpCountIn) nofree willreturn memory(none) {
+entry:
+  %or.cond.i = icmp ugt i32 noundef %nKeysCount, 20
+  br i1 %or.cond.i, label %if.then.i, label %if.end.i
+
+if.end.i:
+  %add.i = add nsw i32 noundef %nOpCountIn, noundef %nKeysCount
+  %cmp2.i = icmp sgt i32 %add.i, 201
+  br i1 %cmp2.i, label %if.then3.i, label %if.end5.i
+
+if.then3.i:
+  %conv3.i1 = zext nneg i32 %add.i to i64
+  %shl4.i2 = shl nsw nuw i64 %conv3.i1, 8
+  %or5.i3 = or disjoint i64 %shl4.i2, 28
+  br label %_ZL18c_cms_count_boundsiii.exit
+
+if.end5.i:
+  %or.cond22.i = icmp ugt i32 noundef %nSigsCount, noundef %nKeysCount
+  %conv3.i4 = zext i32 %add.i to i64
+  %shl4.i5 = shl nsw nuw i64 %conv3.i4, 8
+  br i1 %or.cond22.i, label %if.then9.i, label %if.end11.i
+
+if.then9.i:
+  %or5.i6 = or disjoint i64 %shl4.i5, 36
+  br label %_ZL18c_cms_count_boundsiii.exit
+
+if.end11.i:
+  %or5.i9 = or disjoint i64 %shl4.i5, 1
+  br label %_ZL18c_cms_count_boundsiii.exit
+
+if.then.i:
+  %conv3.i = zext i32 noundef %nOpCountIn to i64
+  %shl4.i = shl nsw nuw i64 %conv3.i, 8
+  %or5.i = or disjoint i64 %shl4.i, 40
+  br label %_ZL18c_cms_count_boundsiii.exit
+
+_ZL18c_cms_count_boundsiii.exit:
+  %retval.0.i = phi i64 [ %or5.i, %if.then.i ], [ %or5.i3, %if.then3.i ], [ %or5.i6, %if.then9.i ], [ %or5.i9, %if.end11.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 1099511627584
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_cms_count_bounds(i32 noundef %nKeysCount, i32 noundef %nSigsCount, i32 noundef %nOpCountIn) nofree willreturn memory(none) {
+entry:
+  %or.cond.i = icmp ugt i32 noundef %nKeysCount, 20
+  br i1 %or.cond.i, label %if.then.i, label %if.end.i
+
+if.end.i:
+  %add.i = add nsw i32 noundef %nOpCountIn, noundef %nKeysCount
+  %cmp2.i = icmp sgt i32 %add.i, 201
+  br i1 %cmp2.i, label %if.then3.i, label %if.end5.i
+
+if.then3.i:
+  %conv3.i1 = zext nneg i32 %add.i to i64
+  %shl4.i2 = shl nsw nuw i64 %conv3.i1, 8
+  %or5.i3 = or disjoint i64 %shl4.i2, 28
+  br label %_ZL18l_cms_count_boundsiii.exit
+
+if.end5.i:
+  %or.cond22.i = icmp ugt i32 noundef %nSigsCount, noundef %nKeysCount
+  %conv3.i4 = zext i32 %add.i to i64
+  %shl4.i5 = shl nsw nuw i64 %conv3.i4, 8
+  br i1 %or.cond22.i, label %if.then9.i, label %if.end11.i
+
+if.then9.i:
+  %or5.i6 = or disjoint i64 %shl4.i5, 36
+  br label %_ZL18l_cms_count_boundsiii.exit
+
+if.end11.i:
+  %or5.i9 = or disjoint i64 %shl4.i5, 1
+  br label %_ZL18l_cms_count_boundsiii.exit
+
+if.then.i:
+  %conv3.i = zext i32 noundef %nOpCountIn to i64
+  %shl4.i = shl nsw nuw i64 %conv3.i, 8
+  %or5.i = or disjoint i64 %shl4.i, 40
+  br label %_ZL18l_cms_count_boundsiii.exit
+
+_ZL18l_cms_count_boundsiii.exit:
+  %retval.1.i = phi i64 [ %or5.i, %if.then.i ], [ %or5.i3, %if.then3.i ], [ %or5.i6, %if.then9.i ], [ %or5.i9, %if.end11.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 1099511627584
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

@@ -1,0 +1,72 @@
+# cell: limits/C-L-sigop-site-weights
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt (limits_common.h sha256 recorded there)
+# command: alive-tv build/c_cell_sigop_site_weight.ll build/l_cell_sigop_site_weight.ll
+
+----------------------------------------
+define i32 @cell_sigop_site_weight(i8 noundef zeroext %lastOpcode, i8 noundef zeroext %opcode, i8 noundef zeroext %fAccurate) nofree willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %opcode, 254
+  switch i8 %#0, label %_ZL19c_sigop_site_weighthhh.exit.fold.split [
+    i8 172, label %_ZL19c_sigop_site_weighthhh.exit
+    i8 174, label %if.then8.i
+  ]
+
+if.then8.i:
+  %cmp10.i = icmp ne i8 noundef zeroext %fAccurate, 0
+  %#1 = add i8 noundef zeroext %lastOpcode, 175
+  %#2 = icmp ult i8 %#1, 16
+  %or.cond25.i = and i1 %#2, %cmp10.i
+  br i1 %or.cond25.i, label %if.then16.i, label %_ZL19c_sigop_site_weighthhh.exit
+
+if.then16.i:
+  %conv11.i = zext nneg i8 noundef zeroext %lastOpcode to i32
+  %add.i = add nsw i32 %conv11.i, 4294967216
+  br label %_ZL19c_sigop_site_weighthhh.exit
+
+_ZL19c_sigop_site_weighthhh.exit.fold.split:
+  br label %_ZL19c_sigop_site_weighthhh.exit
+
+_ZL19c_sigop_site_weighthhh.exit:
+  %n.0.i = phi i32 [ %add.i, %if.then16.i ], [ 1, %entry ], [ 20, %if.then8.i ], [ 0, %_ZL19c_sigop_site_weighthhh.exit.fold.split ]
+  %#range_0_%n.0.i = !range i32 %n.0.i, i32 0, i32 21
+  ret i32 %#range_0_%n.0.i
+}
+=>
+define i32 @cell_sigop_site_weight(i8 noundef zeroext %lastOpcode, i8 noundef zeroext %opcode, i8 noundef zeroext %fAccurate) nofree willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %opcode, 254
+  switch i8 %#0, label %_ZL19l_sigop_site_weighthhh.exit.fold.split [
+    i8 172, label %_ZL19l_sigop_site_weighthhh.exit
+    i8 174, label %if.then11.i
+  ]
+
+if.then11.i:
+  %cmp13.i = icmp ne i8 noundef zeroext %fAccurate, 0
+  %#1 = add i8 noundef zeroext %lastOpcode, 175
+  %#2 = icmp ult i8 %#1, 16
+  %or.cond24.i = and i1 %#2, %cmp13.i
+  br i1 %or.cond24.i, label %if.then19.i, label %_ZL19l_sigop_site_weighthhh.exit
+
+if.then19.i:
+  %conv14.i = zext nneg i8 noundef zeroext %lastOpcode to i32
+  %sub.i = add nsw i32 %conv14.i, 4294967216
+  br label %_ZL19l_sigop_site_weighthhh.exit
+
+_ZL19l_sigop_site_weighthhh.exit.fold.split:
+  br label %_ZL19l_sigop_site_weighthhh.exit
+
+_ZL19l_sigop_site_weighthhh.exit:
+  %retval.0.i = phi i32 [ %sub.i, %if.then19.i ], [ 1, %entry ], [ 20, %if.then11.i ], [ 0, %_ZL19l_sigop_site_weighthhh.exit.fold.split ]
+  %#range_0_%retval.0.i = !range i32 %retval.0.i, i32 0, i32 21
+  ret i32 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

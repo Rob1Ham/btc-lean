@@ -1,0 +1,108 @@
+# cell: limits/C-L-sigop-cost-arith
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt (limits_common.h sha256 recorded there)
+# command: alive-tv build/c_cell_tx_sigop_cost.ll build/l_cell_tx_sigop_cost.ll
+
+----------------------------------------
+define i64 @cell_tx_sigop_cost(i32 noundef %legacy, i32 noundef %p2sh, i32 noundef %witness, i8 noundef zeroext %coinbase, i8 noundef zeroext %p2sh_flag, i8 noundef zeroext %witness_flag) nofree willreturn memory(none) {
+entry:
+  %conv.i = zext i32 noundef %legacy to i64
+  %mul.i = shl nsw nuw i64 %conv.i, 2
+  %tobool.not.i = icmp eq i8 noundef zeroext %coinbase, 0
+  br i1 %tobool.not.i, label %if.end.i, label %_ZL15c_tx_sigop_costjjjhhh.exit
+
+if.end.i:
+  %tobool1.not.i = icmp eq i8 noundef zeroext %p2sh_flag, 0
+  %conv3.i = zext i32 noundef %p2sh to i64
+  %mul14.i = add nsw nuw i64 %conv3.i, %conv.i
+  %add.i = shl nsw nuw i64 %mul14.i, 2
+  %nSigOps.0.i = select i1 %tobool1.not.i, i64 %mul.i, i64 %add.i
+  %tobool6.not.i = icmp eq i8 noundef zeroext %witness_flag, 0
+  %conv8.i = zext i32 noundef %witness to i64
+  %add9.i = select i1 %tobool6.not.i, i64 0, i64 %conv8.i
+  %nSigOps.1.i = add nsw nuw i64 %add9.i, %nSigOps.0.i
+  br label %_ZL15c_tx_sigop_costjjjhhh.exit
+
+_ZL15c_tx_sigop_costjjjhhh.exit:
+  %retval.0.i = phi i64 [ %nSigOps.1.i, %if.end.i ], [ %mul.i, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 38654705656
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_tx_sigop_cost(i32 noundef %legacy, i32 noundef %p2sh, i32 noundef %witness, i8 noundef zeroext %coinbase, i8 noundef zeroext %p2sh_flag, i8 noundef zeroext %witness_flag) nofree willreturn memory(none) {
+entry:
+  %tobool.i = icmp ne i8 noundef zeroext %coinbase, 0
+  %cmp.i = icmp eq i8 noundef zeroext %p2sh_flag, 0
+  %or.cond.i = or i1 %tobool.i, %cmp.i
+  %cmp5.not.i = icmp eq i8 noundef zeroext %witness_flag, 0
+  %#0 = or i1 %tobool.i, %cmp5.not.i
+  %conv12.i = zext i32 noundef %legacy to i64
+  %#1 = zext i32 noundef %p2sh to i64
+  %conv13.i = select i1 %or.cond.i, i64 0, i64 %#1
+  %add.i = add nsw nuw i64 %conv13.i, %conv12.i
+  %mul.i = shl nsw nuw i64 %add.i, 2
+  %#2 = zext i32 noundef %witness to i64
+  %conv14.i = select i1 %#0, i64 0, i64 %#2
+  %add15.i = add nsw nuw i64 %mul.i, %conv14.i
+  %#range_0_%add15.i = !range i64 %add15.i, i64 0, i64 38654705656
+  ret i64 %#range_0_%add15.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_block_sigop_gate.ll build/l_cell_block_sigop_gate.ll
+
+----------------------------------------
+define i32 @cell_block_sigop_gate(i64 noundef %cumulative) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp slt i64 noundef %cumulative, 80001
+  %cond.i = zext i1 %cmp.i to i32
+  %#range_0_%cond.i = !range i32 %cond.i, i32 0, i32 2
+  ret i32 %#range_0_%cond.i
+}
+=>
+define i32 @cell_block_sigop_gate(i64 noundef %cumulative) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp slt i64 noundef %cumulative, 80001
+  %cond.i = zext i1 %cmp.i to i32
+  %#range_0_%cond.i = !range i32 %cond.i, i32 0, i32 2
+  ret i32 %#range_0_%cond.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_tx_sigop_policy.ll build/l_cell_tx_sigop_policy.ll
+
+----------------------------------------
+define i32 @cell_tx_sigop_policy(i64 noundef %cost) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp slt i64 noundef %cost, 16001
+  %cond.i = zext i1 %cmp.i to i32
+  %#range_0_%cond.i = !range i32 %cond.i, i32 0, i32 2
+  ret i32 %#range_0_%cond.i
+}
+=>
+define i32 @cell_tx_sigop_policy(i64 noundef %cost) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp slt i64 noundef %cost, 16001
+  %cond.i = zext i1 %cmp.i to i32
+  %#range_0_%cond.i = !range i32 %cond.i, i32 0, i32 2
+  ret i32 %#range_0_%cond.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

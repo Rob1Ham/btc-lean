@@ -1,0 +1,17 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_sigop_site_weight.bc";
+mL <- llvm_load_module "l_cell_sigop_site_weight.bc";
+
+// Per-site sigop weight for every 8-bit (lastOpcode, opcode) pair and every
+// 8-bit accurate flag (0/1 are Core's bool values; other bytes follow the
+// same non-zero convention in both legs).
+let spec = do {
+  prev <- llvm_fresh_var "lastOpcode" (llvm_int 8);
+  cur  <- llvm_fresh_var "opcode" (llvm_int 8);
+  acc  <- llvm_fresh_var "fAccurate" (llvm_int 8);
+  llvm_execute_func [llvm_term prev, llvm_term cur, llvm_term acc];
+  llvm_return (llvm_term {{ weight prev cur acc }});
+};
+llvm_verify mC "cell_sigop_site_weight" [] false spec abc;
+llvm_verify mL "cell_sigop_site_weight" [] false spec abc;
+print "CELL_limits_sigop_site_weights_SAW_GREEN";
