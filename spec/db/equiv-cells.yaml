@@ -161,17 +161,18 @@ rows:
   core_ref: interpreter.cpp:VerifyScript:2037-2040@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-verifyscript-tail
   - exec-verify/C-L-w32-verify-final-truth
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-verify-final-truth
-    certificate: 9a0f442b55a86cc85a8c94733cba880654db31725062490a9cf9faa3c5396f43
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-verify-final-truth
-    certificate: 1650e51b03a6b9fdc3e5e484638ac8cc98a0563ba88dc1264cd81b43609c8934
-    note: Proof succeeded! cell_verify_final
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
 - id: SCR-003
@@ -179,28 +180,38 @@ rows:
   summary: Empty/short script evaluates to success with unchanged stack
   core_ref: interpreter.cpp:EvalScript:449,1248@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-003 (Empty/short script evaluates to success with unchanged stack): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-eval-empty
+  alive2:
+    result: green
+    cell: exec-verify/C-L-eval-empty
+    certificate: 3748732b8d8bf4e63c2db4a4eb307fe01c1f35227d6a53091ce39614093bc12c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-eval-empty
+    certificate: ca5839526ee1011a9d5853e4a2c3e63cdde174627f4422cee31c302e9d0196fa
+    note: Proof succeeded! cell_eval_frame
+  status: both-green
+  gap_note: null
 - id: SCR-004
   family: exec-verify
   summary: with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNESS_UNEXPECTED because an empty scriptPubKey is not a witness program (the cited theorem also assumes SIGPUSHONLY and CLEANSTACK off; the one-element CLEANSTACK-on arm is unproved)
   core_ref: interpreter.cpp:VerifyScript:2037 + scriptSig@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-verifyscript-tail
   - exec-verify/C-L-w32-witness-flag
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-witness-flag
-    certificate: 9d983603410827f4e1008e0ef410f0d2b766eb63750dae7fdecd292c88f0e09d
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-witness-flag
-    certificate: 429f1beddedf3862cfbd47032808c8e31237b567053aeb6d2691a38b5e5298a7
-    note: Proof succeeded! cell_witness_flag
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
 - id: SCR-005
@@ -209,28 +220,30 @@ rows:
   core_ref: interpreter.cpp:VerifyScript:2062-2105@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-p2sh-handoff
   - exec-verify/C-L-w32-p2sh-23byte
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-w32-p2sh-23byte: partial. Proved: (a) the 23-byte HASH160/EQUAL template predicate for every byte and length (so "23-byte HASH160 script" is exactly Core''s IsPayToScriptHash, not an approximation); (b) the P2SH arm restores the post-scriptSig stack (stackCopy), removes exactly one element (the serialized redeem script, the last scriptSig stack element) and evaluates that subscript on the remainder; (c) the resulting stack''s final truth is the decision; (d) the hash-equality gate and its precedence over the push-only check. NOT proved: the HASH160 computation itself (opaque seam — `hash_match` is a symbolic premise), the serialization of the redeem script bytes vs. the scriptSig push (`scriptSig == CScript() << pubKey2`, the WITNESS_MALLEATED_P2SH check, a different row SCR-012), the BIP16 activation rule, and sigop counting. The `GetSigOpCount`/P2SH preimage paths are out of scope.'
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-p2sh-handoff: - SCR-007 **full** — \"stackCopy (taken after scriptSig) is restored for\n  subscript eval\" (interpreter.cpp:2032-2033, 2069).  The capture at 2033\n  is a direct assignment and is modelled by naming the input `stackCopy`;\n  the cell proves the restore: for every captured stack (depth 0..3,\n  symbolic bytes) the value consumed by the subscript call is the captured\n  stack with its top popped, element order and contents preserved, and the\n  popped top is the redeemScript.  It also proves the arm gating: with the\n  P2SH flag off or a non-P2SH scriptPubKey, no handoff occurs.  The only\n  excluded input is the unreachable `assert(!stack.empty())` arm.\n- SCR-005 **partial** — \"23-byte HASH160 script: re-eval last scriptSig\n  stack element as subscript\".  Proved: the 23-byte shape predicate\n  exactly (all four fields Core reads, for arbitrary length/bytes) and the\n  identification/transfer of the **last scriptSig stack element** as the\n  subscript script.  NOT proved: the subscript `EvalScript(pubKey2)` call\n  itself (interpreter.cpp:2080-2082) and its EVAL_FALSE checks\n  (2083-2086) — the E5 dispatch residual.  The cell prove"
 - id: SCR-006
   family: exec-verify
   summary: scriptSig must be push-only for P2SH evaluation
   core_ref: interpreter.cpp:VerifyScript:2065-2066@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-pushonly
   - exec-verify/C-L-w32-p2sh-pushonly
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-p2sh-pushonly
-    certificate: b6f5d20fdf377c0e77a907c36bf53141d4a77f789976da5fc5fc14d0b9740df3
+    cell: exec-verify/C-L-pushonly
+    certificate: 511ab355393b5ec0b355a12f0a9059b1ef5c49efe486f202c2b4b1b1297ab67e
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-p2sh-pushonly
-    certificate: 3c4ec56f06e2a052f8e1425d8d73ad7d2435818c289c8f6cc03ed338a6ca657b
-    note: Proof succeeded! cell_p2sh_pushonly_gate
+    cell: exec-verify/C-L-pushonly
+    certificate: 886bb6f81bb61fe0c0ca7a5526c780176852b9dc3eaafb3332da756490acaf75
+    note: Proof succeeded! cell_ispushonly
   status: both-green
   gap_note: null
 - id: SCR-007
@@ -239,17 +252,18 @@ rows:
   core_ref: interpreter.cpp:VerifyScript:2032-2033,2069@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-p2sh-handoff
   - exec-verify/C-L-w32-p2sh-stackcopy
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-p2sh-stackcopy
-    certificate: 5412413fc1a55951bbf51bb6b3d74f795c0ab861fb7a7cdea6c5acae064db521
+    cell: exec-verify/C-L-p2sh-handoff
+    certificate: e10d4b1ef87db4654745b0bfdfd2d67a6a7abc88f853f44299416b8d0d066417
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-p2sh-stackcopy
-    certificate: 650121cf22d4157f0a575af834374bce4ae07b2d6cd96f9046f674c613652767
-    note: Proof succeeded! cell_p2sh_stackcopy
+    cell: exec-verify/C-L-p2sh-handoff
+    certificate: 7eaa555c25fc9af4dd91c2f17409fbfd690452aa7e6104043a6b4ddf3620d3f9
+    note: Proof succeeded! cell_p2sh_shape
   status: both-green
   gap_note: null
 - id: SCR-008
@@ -258,28 +272,38 @@ rows:
   core_ref: interpreter.cpp:VerifyScript:2110-2118@cce32b168
   consensus: false
   cells:
+  - exec-verify/C-L-verifyscript-tail
   - exec-verify/C-L-w32-cleanstack
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-w32-cleanstack: partial.  Covered by this cell (both tools green):\n- the `flag` face: SCRIPT_VERIFY_CLEANSTACK on/off and the exact\n  `stack.size() != 1` test (interpreter.cpp:2110-2118),\n- the `pol.` face: the Lean model's `pol.cleanstack` reads the same bit\n  and reaches the same `cleanstack` error.\nNOT covered / blocked: the `implicit in witness` face.  Core resizes the\nstack to one element after a successful witness program, at\n:2057 (bare) and :2102 (P2SH-wrapped), so the check at :2115 cannot fire\nfor those spends.  The Lean model only reproduces the bare case:\n`verifyScriptFull` computes\n    finalLen := if flags.witness ∧ (isWitnessProgram spk).isSome then 1\n                else <re-evaluate the redeem script and take its length>\nand `isWitnessProgram spk` is false for a P2SH scriptPubKey, so the\nP2SH-wrapped witness spend keeps the inner length instead of 1.  The\nconcrete Lean evaluation and the Alive2 counterexample are in\n`divergence/` (wave-32 finding F-DIV-W32-01, proposed global id\nF-DIV-003).  SCR-008 stays partial until that is fixed or the row is\nre-scoped."
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
 - id: SCR-009
   family: exec-verify
   summary: Flag combination constraint
   core_ref: interpreter.cpp:VerifyScript:2113-2114 (assert)@cce32b168
   consensus: false
   cells:
+  - exec-verify/C-L-flags-domain
   - exec-verify/C-L-w32-flag-combo
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-flag-combo
-    certificate: c511ac9b5c538b0d0a6e03433f00d2ce19df466be54b6f70c3c582541f21e3ef
+    cell: exec-verify/C-L-flags-domain
+    certificate: 89ffb8cab528eb3038a129cfd935e0440fcc5d2d8c51d9178c76088b52570a3c
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-flag-combo
-    certificate: 7cfa84d68153b0f2e789c4c26ab2c613e228873ed0e4597fe8763c0473a99a2b
-    note: Proof succeeded! cell_flag_combo_admissible
+    cell: exec-verify/C-L-flags-domain
+    certificate: 9d47c9a8ddfef40ac6f6ee4ba8eb75bcb634305629e1d4393fd13ebc262c734f
+    note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
 - id: SCR-010
@@ -287,58 +311,79 @@ rows:
   summary: scriptSig push-only before eval (pol.)
   core_ref: interpreter.cpp:VerifyScript:2022-2024@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - exec-verify/C-L-pushonly
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-010 (scriptSig push-only before eval (pol.)): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-pushonly: - SCR-006 **partial** — \"scriptSig must be push-only for P2SH evaluation\"\n  (interpreter.cpp:2065-2066).  Proved: the exact `IsPushOnly` predicate\n  and the `SIG_PUSHONLY` (26) result for every script of 0..8 bytes, plus\n  the arm gating (only when P2SH is set and the scriptPubKey is P2SH).\n  Missing: scripts longer than 8 bytes, i.e. the general unbounded\n  `GetScriptOp` walk (E5 residual).  Also not claimed: that the check is\n  the *only* precondition of the arm (the handoff is `C-L-p2sh-handoff`).\n- SCR-010 **partial** — \"scriptSig push-only before eval (pol.)\"\n  (interpreter.cpp:2022-2024).  Proved: the policy-flag short-circuit and\n  the `SIG_PUSHONLY` result for every 0..8-byte script.  Missing: the\n  *sequencing* claim \"before eval\" — that the pre-check runs before the\n  scriptSig `EvalScript` call.  That is whole-function composition\n  (SCR-001 / E5 residual), not a leaf property; and the same 8-byte bound\n  applies."
 - id: SCR-011
   family: exec-verify
   summary: scriptSig == ∅ for bare witness programs
   core_ref: interpreter.cpp:VerifyScript:2048-2051@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-011 (scriptSig == ∅ for bare witness programs): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
 - id: SCR-012
   family: exec-verify
   summary: scriptSig == single push of redeemScript
   core_ref: interpreter.cpp:VerifyScript:2092-2096@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - exec-verify/C-L-verifyscript-tail
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-012 (scriptSig == single push of redeemScript): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-verifyscript-tail: per row, with the bounds above:\n- SCR-002 full — \"after scriptPubKey eval, stack non-empty and top\n  CastToBool-true\" (interpreter.cpp:2037-2040): proved for every post-eval\n  stack in the bounded domain (depth 0..3, top 0/1 bytes) and every mask.\n- SCR-004 partial — the two arms cited by the row:\n    WITNESS off, empty scriptPubKey, scriptSig leaves one truthy element\n      -> pass (modelled: spk_wit = spk_p2sh = 0, st_n = 1, top truthy);\n    WITNESS on, witness non-null, empty scriptPubKey (not a witness\n      program) -> WITNESS_UNEXPECTED (modelled: spk_wit = 0, wit_n > 0);\n  NOT covered: the scriptSig evaluation that *produces* the single truthy\n  element (a push executed by EvalScript — E5 dispatch residual), and the\n  row's explicitly unproved CLEANSTACK-on one-element arm.\n- SCR-008 full — \"exactly 1 element after all evaluation\" (flag; pol.;\n  interpreter.cpp:2110-2118): the check is proved for every final depth,\n  after the P2SH arm and with the witness resize(1) bypass, in Core's\n  order.  What is assumed is only the *depth* handed in by the abstracted\n  evaluations.\n- SCR-011 full — bare witness progr"
 - id: SCR-013
   family: exec-verify
   summary: Non-null witness without witness program fails
   core_ref: interpreter.cpp:VerifyScript:2125-2127@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-013 (Non-null witness without witness program fails): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
 - id: SCR-014
   family: exec-verify
   summary: Flag-combination constraint
   core_ref: interpreter.cpp:VerifyScript:2124 (assert)@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-flags-domain
   - exec-verify/C-L-w32-flags-combo
   alive2:
     result: green
-    cell: exec-verify/C-L-w32-flags-combo
-    certificate: dc471964f85b652d32cb4b028331f5c044de027c86bf29ba3c565b5ae4fdff0b
+    cell: exec-verify/C-L-flags-domain
+    certificate: 89ffb8cab528eb3038a129cfd935e0440fcc5d2d8c51d9178c76088b52570a3c
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: exec-verify/C-L-w32-flags-combo
-    certificate: 870af29af795ff3936719ec8d855a2144cfefb78f59d5b73f7bc7dd164513286
-    note: Proof succeeded! cell_flags_combo
+    cell: exec-verify/C-L-flags-domain
+    certificate: 9d47c9a8ddfef40ac6f6ee4ba8eb75bcb634305629e1d4393fd13ebc262c734f
+    note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
 - id: SCR-015
@@ -385,25 +430,20 @@ rows:
   core_ref: src/script/interpreter.cpp:2029-2036; src/script/interpreter.cpp:2052-2054; src/script/interpreter.cpp:2080-2082; src/script/interpreter.cpp:2097-2099@cce32b168
   consensus: true
   cells:
+  - exec-verify/C-L-failure-propagation
   - exec-verify/C-L-w32-fail-propagation
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-w32-fail-propagation: partial — the propagation combinator is proved for ALL symbolic engine
-
-    outcomes, in Core''s return order, including every early return named by
-
-    interpreter.cpp:2029-2036/2052-2054/2080-2082/2097-2099. What is not
-
-    proved: that Core''s EvalScript/VerifyWitnessProgram actually return those
-
-    outcomes (the E5 residual: GetScriptOp, heap, dispatch loop, exceptions),
-
-    and the CScript::IsWitnessProgram / IsPayToScriptHash / scriptSig
-
-    predicates are inputs. So the row is discharged at the wrapper seam only,
-
-    not over real scripts.'
+  alive2:
+    result: green
+    cell: exec-verify/C-L-failure-propagation
+    certificate: 845d89a5c8fb3a632fb799a527850ead94e16d0ac46dd77c8dc86c3a64164eb0
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-failure-propagation
+    certificate: 090bec9047efd847601a35fcb228b1ded79ec9fd1b5fd0bc1023f1189ef13640
+    note: Proof succeeded! cell_failprop
+  status: both-green
+  gap_note: null
 - id: SCR-018
   family: limits
   summary: script.size() > 10000 ⇒ SCRIPT_SIZE (BASE/WITNESS_V0 only, checked once)
@@ -669,6 +709,7 @@ rows:
   consensus: true
   cells:
   - limits/C-L-sigop-site-weights
+  - limits/C-L-w32-sigop-count
   alive2:
     result: green
     cell: limits/C-L-sigop-site-weights
@@ -688,6 +729,7 @@ rows:
   consensus: true
   cells:
   - limits/C-L-sigop-site-weights
+  - limits/C-L-w32-sigop-count
   alive2:
     result: green
     cell: limits/C-L-sigop-site-weights
@@ -705,27 +747,37 @@ rows:
   summary: malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately
   core_ref: script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-034 (malformed or non-push-only scriptSig returns zero; otherwise count the final push data''s valid script prefix accurately): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-w32-p2sh-scriptsig
+  alive2:
+    result: green
+    cell: limits/C-L-w32-p2sh-scriptsig
+    certificate: f59f6234eb6cbbc6b1122cfed0636ddcaafaef80693cb0aca5507ea252b8b2cf
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-w32-p2sh-scriptsig
+    certificate: aa5c02f92d927df98c17777c5d1ecd9149ecd7be8a49ff87884c7a194dd360e9
+    note: Proof succeeded! cell_p2sh_sigops
+  status: both-green
+  gap_note: null
 - id: SCR-035
   family: limits
   summary: v0-20=1; v0-32=accurate(witness script); v1+=0
   core_ref: interpreter.cpp:WitnessSigOps:2133-2147@cce32b168
   consensus: true
   cells:
+  - limits/C-L-w32-witness-sigops
   - limits/C-L-witness-sigop-dispatch
   alive2:
     result: green
-    cell: limits/C-L-witness-sigop-dispatch
-    certificate: 0d2bb36a09f2661da174563e08ec7e9cac92177a089bd6db2c06a3397bb8c10d
+    cell: limits/C-L-w32-witness-sigops
+    certificate: 524ad50ab79124b4f176cda97e93b819f3041b83025218f985cc79a1d3370bcc
     note: Transformation seems to be correct!
   saw:
     result: green
-    cell: limits/C-L-witness-sigop-dispatch
-    certificate: a52abe4c55132fdb9a1ac078891a20fdb4c4629b432a90a0f6a0f086bf6cc2c2
+    cell: limits/C-L-w32-witness-sigops
+    certificate: da1892c16fa1fb8b6ecbc8146685badae93a03a8e7dcce51a3860b74bda86f74
     note: Proof succeeded! cell_witness_sigops
   status: both-green
   gap_note: null
@@ -746,6 +798,7 @@ rows:
   consensus: true
   cells:
   - limits/C-L-sigop-cost-arith
+  - limits/C-L-w32-sigop-cost
   alive2:
     result: green
     cell: limits/C-L-sigop-cost-arith
@@ -1917,84 +1970,132 @@ rows:
   core_ref: interpreter.cpp:1122-1146@cce32b168
   consensus: true
   cells:
+  - checkmultisig/C-L-cms-layout-sym
   - e3-cms/C-L-cms-1of1
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e3-cms/C-L-cms-1of1: partial'
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-layout-sym
+    certificate: 79ed83651a6d7d1d00a624a7edd48c109d120d6fc26f9b91fa9cf49e25a68913
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-layout-sym
+    certificate: 42de61318ca951f13f900e10e5ba813a3bf324ca0133bac384e2082670989991
+    note: Proof succeeded! cell_cms_layout
+  status: both-green
+  gap_note: null
 - id: SCR-115
   family: checkmultisig
   summary: all nSigsCount sigs FindAndDelete'd before any check (BASE)
   core_ref: interpreter.cpp:1152-1160@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - checkmultisig/C-L-cms-fad-probe
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-115 (all nSigsCount sigs FindAndDelete''d before any check (BASE)): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial'
 - id: SCR-116
   family: checkmultisig
   summary: sigs to keys in order; early fail when sigs>keys remain
   core_ref: interpreter.cpp:1163-1191@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - checkmultisig/C-L-cms-order-unroll
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-116 (sigs to keys in order; early fail when sigs>keys remain): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-order-unroll: partial'
 - id: SCR-117
   family: checkmultisig
   summary: CheckSignatureEncoding+CheckPubKeyEncoding inside loop
   core_ref: interpreter.cpp:1171-1174@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - checkmultisig/C-L-cms-enc-loop
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-117 (CheckSignatureEncoding+CheckPubKeyEncoding inside loop): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-enc-loop: partial'
 - id: SCR-118
   family: checkmultisig
   summary: extra stack item consumed unchecked
   core_ref: interpreter.cpp:1209-1213@cce32b168
   consensus: true
   cells:
+  - checkmultisig/C-L-cms-tail-sym
   - e3-cms/C-L-cms-1of1
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e3-cms/C-L-cms-1of1: partial'
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
 - id: SCR-119
   family: checkmultisig
   summary: dummy must be ∅ (cons. post-SegWit)
   core_ref: interpreter.cpp:1211-1212@cce32b168
   consensus: true
   cells:
+  - checkmultisig/C-L-cms-tail-sym
   - e3-cms/C-L-cms-1of1
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e3-cms/C-L-cms-1of1: partial'
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
 - id: SCR-120
   family: checkmultisig
   summary: false ⇒ CHECKMULTISIGVERIFY error
   core_ref: interpreter.cpp:1217-1223@cce32b168
   consensus: true
   cells:
+  - checkmultisig/C-L-cms-tail-sym
   - e3-cms/C-L-cms-1of1
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e3-cms/C-L-cms-1of1: partial'
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
 - id: SCR-121
   family: checkmultisig
   summary: TAPSCRIPT_CHECKMULTISIG
   core_ref: interpreter.cpp:1118@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-121 (TAPSCRIPT_CHECKMULTISIG): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed.'
+  cells:
+  - checkmultisig/C-L-cms-tapscript-ban
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tapscript-ban
+    certificate: 46f80825c59f5f93341c4b7bc20c386f9b78631a00f936ca111c0ee74a13a0d2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tapscript-ban
+    certificate: 58e49c83b80d1a989a3e485135c77d62b0e73d85ac57cc62029d4b38e7d1e4a0
+    note: Proof succeeded! cell_cms_tapscript_ban
+  status: both-green
+  gap_note: null
 - id: SCR-122
   family: locktime
   summary: negative ⇒ NEGATIVE_LOCKTIME

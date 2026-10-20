@@ -48,14 +48,12 @@ scr_row_coverage: |
   result 2), not as a Core-debug-build equivalence.  See trust_note.
 patches: none
 source_citations:
-  - interpreter.cpp:2110-2118 (CLEANSTACK arm; asserts at 2113-2114, CLEANSTACK error at 2115-2116)
-  - interpreter.cpp:2120-2127 (WITNESS arm; assert P2SH at 2124)
-  - interpreter.h:50-160 (flag ordinals; MAX_SCRIPT_VERIFY_FLAGS = (1<<21)-1)
-  - contract/tape.md §5 (flags word; the two implications; violations are 2)
-  - shims/core/entry.cpp:93-102 (the guard the C shim applies before VerifyScript)
-  - spec/core/Bitcoin/Interpreter/Defs.lean:1363-1455 (verifyScriptFull: typed
-    ScriptFlags/PolicyFlags; cleanstack and witness are independent booleans,
-    so the model can construct the combination Core asserts against)
+  - "interpreter.cpp:2110-2118 (CLEANSTACK arm; asserts at 2113-2114, CLEANSTACK error at 2115-2116)"
+  - "interpreter.cpp:2120-2127 (WITNESS arm; assert P2SH at 2124)"
+  - "interpreter.h:50-160 (flag ordinals; MAX_SCRIPT_VERIFY_FLAGS = (1<<21)-1)"
+  - "contract/tape.md §5 (flags word; the two implications; violations are 2)"
+  - "shims/core/entry.cpp:93-102 (the guard the C shim applies before VerifyScript)"
+  - "spec/core/Bitcoin/Interpreter/Defs.lean:1363-1455 (verifyScriptFull: typed ScriptFlags/PolicyFlags; cleanstack and witness are independent booleans, so the model can construct the combination Core asserts against)"
 trust_note: >
   This cell proves the **contract-level totalization** of the two asserts, not
   a debug-build abort and not a property of the Lean model's internals.  The C
