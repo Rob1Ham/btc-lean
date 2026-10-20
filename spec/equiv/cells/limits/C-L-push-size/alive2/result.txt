@@ -1,0 +1,66 @@
+# cell: limits/C-L-push-size
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 e01d11418de03c8a9061852b4f0ac69fe09e1b089c8e665ce832983b93ffe4d0
+# command: alive-tv build/c_cell_push_size.ll build/l_cell_push_size.ll
+
+----------------------------------------
+define i64 @cell_push_size(i16 noundef zeroext %dlen, i8 noundef zeroext %fExec, i8 noundef zeroext %kind) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i8 noundef zeroext %kind, 2
+  %cmp2 = icmp ugt i8 noundef zeroext %fExec, 1
+  %or.cond = or i1 %cmp2, %cmp
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp4 = icmp eq i8 noundef zeroext %kind, 0
+  %cmp619 = icmp ugt i16 noundef zeroext %dlen, 520
+  %cmp6 = and i1 %cmp619, %cmp4
+  br i1 %cmp6, label %return, label %if.end9
+
+if.end9:
+  %cmp11 = icmp ne i8 noundef zeroext %kind, 2
+  %cmp13 = icmp eq i8 noundef zeroext %fExec, 1
+  %#0 = and i1 %cmp13, %cmp11
+  %or6.i = select i1 %#0, i64 257, i64 1
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ %or6.i, %if.end9 ], [ 6, %entry ], [ 24, %if.end ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 258
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_push_size(i16 noundef zeroext %dlen, i8 noundef zeroext %fExec, i8 noundef zeroext %kind) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i8 noundef zeroext %kind, 2
+  %cmp2 = icmp ugt i8 noundef zeroext %fExec, 1
+  %or.cond = or i1 %cmp2, %cmp
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp4 = icmp ne i8 noundef zeroext %kind, 0
+  %cmp6 = icmp ult i16 noundef zeroext %dlen, 521
+  %.not = or i1 %cmp6, %cmp4
+  br i1 %.not, label %if.end9, label %return
+
+if.end9:
+  %cmp11 = icmp ne i8 noundef zeroext %kind, 2
+  %cmp14 = icmp eq i8 noundef zeroext %fExec, 1
+  %#0 = and i1 %cmp14, %cmp11
+  %or6.i = select i1 %#0, i64 257, i64 1
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ %or6.i, %if.end9 ], [ 6, %entry ], [ 24, %if.end ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 258
+  ret i64 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

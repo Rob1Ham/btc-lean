@@ -1,0 +1,35 @@
+module CellScriptSize where
+
+// Independent spec of EvalScript's MAX_SCRIPT_SIZE prologue guard
+// (interpreter.cpp:438-440; Defs.lean:1163-1164) and of the packed
+// observable: result(2) | error(6) | payload(24) | zero(32).
+//
+//   result 0 = fail, error 5 = EQUIV_ERR_SCRIPT_SIZE
+//   result 1 = guard admitted the script to the opcode loop (error 0)
+//   result 2 = out-of-domain sigversion (error 1 = EQUIV_ERR_UNKNOWN_ERROR)
+//
+// sv: 0 = BASE, 1 = WITNESS_V0, 2 = TAPSCRIPT (Core's TAPROOT never executes
+// a script and is not in the cell domain).
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+failScriptSize : [64]
+failScriptSize = pack 0 5 0
+
+low24 : [64] -> [24]
+low24 x = [ x @ i | i <- [40 .. 63] ]
+
+admit : [64] -> [64]
+admit len = pack 1 0 (low24 len)
+
+badInput : [64]
+badInput = pack 2 1 0
+
+script_size_spec : [64] -> [8] -> [64]
+script_size_spec len sv =
+  if sv == 0 \/ sv == 1 \/ sv == 2
+    then if (sv == 0 \/ sv == 1) /\ (len > 10000)
+           then failScriptSize
+           else admit len
+    else badInput

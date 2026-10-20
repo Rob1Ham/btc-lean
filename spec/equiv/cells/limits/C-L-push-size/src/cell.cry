@@ -1,0 +1,31 @@
+module CellPushSize where
+
+// Independent spec of the per-instruction push-value size limit
+// (interpreter.cpp:455-458; Defs.lean:817-826) and of the packed observable:
+// result(2) | error(6) | payload(24).
+//
+// kind: 0 = byte push (dlen is the push value size)
+//       1 = numeric push (OP_1NEGATE..OP_16, empty push value)
+//       2 = other opcode (empty push value)
+// fExec: 0/1.  The limit is checked before fExec is consulted.
+//
+// payload = stack depth after the bounded push step: 1 iff the instruction is
+// a push (kind 0 or 1) and it executes; 0 otherwise.  On the PUSH_SIZE branch
+// the payload is 0 because the step aborts before any push.
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+failPushSize : [64]
+failPushSize = pack 0 6 0
+
+badInput : [64]
+badInput = pack 2 1 0
+
+push_size_spec : [16] -> [8] -> [8] -> [64]
+push_size_spec dlen fexec kind =
+  if kind <= 2 /\ fexec <= 1
+    then if kind == 0 /\ dlen > 520
+           then failPushSize
+           else pack 1 0 (if kind != 2 /\ fexec == 1 then 1 else 0)
+    else badInput

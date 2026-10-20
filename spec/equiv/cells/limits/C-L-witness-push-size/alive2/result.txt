@@ -1,0 +1,90 @@
+# cell: limits/C-L-witness-push-size
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 a54f4a8b961f88928c9366e5b474e3f6aaee90492279cc69c53d671391ae5efb
+# command: alive-tv build/c_cell_witness_push_size.ll build/l_cell_witness_push_size.ll
+
+----------------------------------------
+define i64 @cell_witness_push_size(i32 noundef %depth, i16 noundef zeroext %max_item, i8 noundef zeroext %sv, i8 noundef zeroext %has_success, i8 noundef zeroext %discourage) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %or.cond = or i1 %cmp, %spec.select.i
+  %#0 = or i8 noundef zeroext %discourage, noundef zeroext %has_success
+  %#1 = icmp ugt i8 %#0, 1
+  %or.cond29 = or i1 %or.cond, %#1
+  br i1 %or.cond29, label %return, label %if.end
+
+if.end:
+  %cmp4.i = icmp eq i8 noundef zeroext %sv, 2
+  br i1 %cmp4.i, label %if.then9, label %if.end21
+
+if.then9:
+  %tobool.not = icmp eq i8 noundef zeroext %has_success, 0
+  br i1 %tobool.not, label %if.end16, label %if.then10
+
+if.end16:
+  %cmp17 = icmp ugt i32 noundef %depth, 1000
+  br i1 %cmp17, label %return, label %if.end21
+
+if.then10:
+  %tobool11.not = icmp eq i8 noundef zeroext %discourage, 0
+  %. = select i1 %tobool11.not, i64 1, i64 144
+  br label %return
+
+if.end21:
+  %cmp23 = icmp ugt i16 noundef zeroext %max_item, 520
+  %.34 = select i1 %cmp23, i64 24, i64 1
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 6, %entry ], [ %., %if.then10 ], [ 32, %if.end16 ], [ %.34, %if.end21 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 145
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_witness_push_size(i32 noundef %depth, i16 noundef zeroext %max_item, i8 noundef zeroext %sv, i8 noundef zeroext %has_success, i8 noundef zeroext %discourage) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %or.cond = or i1 %cmp, %spec.select.i
+  %#0 = or i8 noundef zeroext %discourage, noundef zeroext %has_success
+  %#1 = icmp ugt i8 %#0, 1
+  %or.cond29 = or i1 %or.cond, %#1
+  br i1 %or.cond29, label %return, label %if.end
+
+if.end:
+  %cmp4.i = icmp eq i8 noundef zeroext %sv, 2
+  br i1 %cmp4.i, label %if.then9, label %if.end21
+
+if.then9:
+  %tobool.not = icmp eq i8 noundef zeroext %has_success, 0
+  br i1 %tobool.not, label %if.end16, label %if.then10
+
+if.end16:
+  %cmp17 = icmp ugt i32 noundef %depth, 1000
+  br i1 %cmp17, label %return, label %if.end21
+
+if.then10:
+  %tobool11.not = icmp eq i8 noundef zeroext %discourage, 0
+  %. = select i1 %tobool11.not, i64 1, i64 144
+  br label %return
+
+if.end21:
+  %cmp23 = icmp ugt i16 noundef zeroext %max_item, 520
+  %.34 = select i1 %cmp23, i64 24, i64 1
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 6, %entry ], [ %., %if.then10 ], [ 32, %if.end16 ], [ %.34, %if.end21 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 145
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

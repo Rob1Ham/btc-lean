@@ -1,0 +1,39 @@
+module CellTapscriptPrecheck where
+
+// Independent spec of ExecuteWitnessScript's tapscript initial-stack guard
+// and its placement before EvalScript (interpreter.cpp:1846-1874;
+// Defs.lean:1207-1239).  Observable: result(2) | error(6) | payload(24).
+//
+// sv: 0 = BASE, 1 = WITNESS_V0, 2 = TAPSCRIPT.
+// has_success: abstract outcome of the OP_SUCCESSx scan (false when the
+//              script has no OP_SUCCESSx).  true => success, before the
+//              stack guard, unless DISCOURAGE_OP_SUCCESS is set.
+// inner_err: the opaque EvalScript outcome as a Core ScriptError ordinal
+//            (0 = EvalScript returned true).  It is reachable only when the
+//            pre-check did not already decide the verdict.
+//
+// Both depths are bounded to [0, 2000].  The alt stack is empty at this point
+// (Defs.lean / interpreter.cpp:1864), so only the main depth is an input.
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+badInput : [64]
+badInput = pack 2 1 0
+
+low6 : [8] -> [6]
+low6 x = [ x @ i | i <- [2 .. 7] ]
+
+tap_precheck_spec : [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+tap_precheck_spec depth sv success discourage inner =
+  if depth > 2000 \/ sv > 2 \/ success > 1 \/ discourage > 1 \/ inner > 55
+    then badInput
+    else if sv == 2
+           then if success == 1
+                  then if discourage == 1
+                         then pack 0 36 0
+                         else pack 1 0 0
+                  else if depth > 1000
+                         then pack 0 8 0
+                         else if inner == 0 then pack 1 0 0 else pack 0 (low6 inner) 0
+           else if inner == 0 then pack 1 0 0 else pack 0 (low6 inner) 0
