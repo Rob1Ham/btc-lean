@@ -1592,21 +1592,39 @@ rows:
   summary: 1ADD/1SUB/NEGATE/ABS/NOT/0NOTEQUAL
   core_ref: interpreter.cpp:929-953@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-087 (1ADD/1SUB/NEGATE/ABS/NOT/0NOTEQUAL): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-unary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-unary-4byte
+    certificate: 41abbe060d7e6cc5c56de97771b79b1c56f39c44c1075245c6eb746db773dcd3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-unary-4byte
+    certificate: 6a39188cb0a3ae1014308e0c29066ef43513bf17c8e7ffd718a0d4f22d762273
+    note: Proof succeeded! cell_1add
+  status: both-green
+  gap_note: null
 - id: SCR-088
   family: numeric
   summary: ADD/SUB/BOOLAND/BOOLOR/NUMEQUAL/NUMNOTEQUAL/LE/GE/LT/GT/MIN/MAX (wire 0x93, 0x94, 0x9a-0x9c, 0x9e-0xa4) push the binary result; OP_NUMEQUALVERIFY (0x9d) is a separate non-pushing op — false => NUMEQUALVERIFY error (SCR-090, PDW79.lean:94-105), and its success arm (both operands dropped) is not yet proved
   core_ref: interpreter.cpp:955-1010@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-088 (ADD/SUB/BOOLAND/BOOLOR/NUMEQUAL/NUMNOTEQUAL/LE/GE/LT/GT/MIN/MAX (wire 0x93, 0x94, 0x9a-0x9c, 0x9e-0xa4) push the binary result; OP_NUMEQUALVERIFY (0x9d) is a se): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-binary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ce25aabe6ba5626392ad042fc2fb48c0c842de9ddf424b983c7ff7b394397ad4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ff9fc20ac88b6282364d87eb6b2e281c888ae78c325095d7acd4f3de60d8aef7
+    note: Proof succeeded! cell_add
+  status: both-green
+  gap_note: null
 - id: SCR-089
   family: numeric
   summary: min ≤ x < max
@@ -1614,40 +1632,68 @@ rows:
   consensus: true
   cells:
   - e2-numeric/within-boundary
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e2-numeric/within-boundary: partial — the cell is symbolic over all 2^24 single-byte operand triples, which is the full half-open-interval rule for one-byte CScriptNum operands. It does not exercise 2-4 byte operands or the SCR-079/SCR-080 width cap, nor the stack-underflow branch of SCR-078; those are separate rows/gaps, not hidden extensions of this cell.'
+  - numeric/C-L-within-4byte
+  alive2:
+    result: green
+    cell: e2-numeric/within-boundary
+    certificate: e8367b7153783f3379c0afe393b13c8b1b780401264315a652ec1a7d7ef5598f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e2-numeric/within-boundary
+    certificate: c6da80d10837e07319da4765d978dc907fc3985c347b4399a45ebc50ae3c1c5f
+    note: Proof succeeded! cell_within
+  status: both-green
+  gap_note: null
 - id: SCR-090
   family: numeric
   summary: false ⇒ NUMEQUALVERIFY error
   core_ref: interpreter.cpp:1002-1008@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-090 (false ⇒ NUMEQUALVERIFY error): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-binary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ce25aabe6ba5626392ad042fc2fb48c0c842de9ddf424b983c7ff7b394397ad4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ff9fc20ac88b6282364d87eb6b2e281c888ae78c325095d7acd4f3de60d8aef7
+    note: Proof succeeded! cell_add
+  status: both-green
+  gap_note: null
 - id: SCR-091
   family: numeric
   summary: raw bytes, not numeric
   core_ref: interpreter.cpp:897-923@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-091 (raw bytes, not numeric): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-equal-rawbytes
+  alive2:
+    result: green
+    cell: numeric/C-L-equal-rawbytes
+    certificate: acb9dbf6f836663c843a1ed16855b27993b3932344dc0b09ac502f4feb8e279d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-equal-rawbytes
+    certificate: ec565e9d57d0595a1c15d6c307105838d9e1a945207e192b4260d5ee4a313360
+    note: Proof succeeded! cell_equal
+  status: both-green
+  gap_note: null
 - id: SCR-092
   family: numeric
   summary: 0x8e is OP_2DIV (no OP_NOTEQUAL opcode exists); legacy and witness-v0 execution reject it as a disabled opcode, and tapscript treats it as OP_SUCCESS142
   core_ref: interpreter.cpp:899,907-911 (comment)@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - numeric/C-L-2div-disabled
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-092 (0x8e is OP_2DIV (no OP_NOTEQUAL opcode exists); legacy and witness-v0 execution reject it as a disabled opcode, and tapscript treats it as OP_SUCCESS142): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; numeric/C-L-2div-disabled: partial — the EvalScript gate is proved C-vs-L for every wire word (this is the edge that decides 0x8e in BASE and WITNESS_V0), and the tapscript OP_SUCCESS142 pre-pass is proved on the C leg against the Cryptol model for every wire word.  What is not proved C-vs-L is the tapscript edge itself: the twin has no tapscript engine (witness v0/v1 and tapscript return TWIN_INVALID_UNSUPPORTED, result 3 — twin/generator.md:409, E4), so there is no L counterpart of ExecuteWitnessScript''s pre-pass to compare against. Remaining gap: add the OP_SUCCESSx pre-pass to the twin, then compare it to cell_tap_scan with Alive2.  Nothing in the row is claimed as proved on the L side for tapscript.'
 - id: SCR-093
   family: hash-ops
   summary: 20/20/32

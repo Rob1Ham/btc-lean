@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **127**
+- green: **132**
 - unjudged seam: **2**
-- filed gap: **54**
+- filed gap: **49**
 - still planned: **0**
 - other: **0**
 
@@ -75,6 +75,11 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-070 | control-flow | `control-flow/C-L-unspendable` |
 | SCR-071 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-073 | stack-ops | `e1-altstack/roundtrip`, `stack-ops/C-L-w32-altstack-step`, `stack/C-L-altstack` |
+| SCR-087 | numeric | `numeric/C-L-unary-4byte` |
+| SCR-088 | numeric | `numeric/C-L-binary-4byte` |
+| SCR-089 | numeric | `e2-numeric/within-boundary`, `numeric/C-L-within-4byte` |
+| SCR-090 | numeric | `numeric/C-L-binary-4byte` |
+| SCR-091 | numeric | `numeric/C-L-equal-rawbytes` |
 | SCR-094 | hash-ops | `e2-hash/hash160-vector`, `hash-ops/C-L-hash-compose` |
 | SCR-102 | checksig | `checksig/C-L-checksig-der` |
 | SCR-103 | checksig | `checksig/C-L-checksig-bip66` |
@@ -239,12 +244,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-084 | numeric | SCR-084 (CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception ): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-085 | numeric | SCR-085 (only re-interpretation enforces limit): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-086 | numeric | SCR-086 (clamp to int32 for depth/count uses): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-087 | numeric | SCR-087 (1ADD/1SUB/NEGATE/ABS/NOT/0NOTEQUAL): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-088 | numeric | SCR-088 (ADD/SUB/BOOLAND/BOOLOR/NUMEQUAL/NUMNOTEQUAL/LE/GE/LT/GT/MIN/MAX (wire 0x93, 0x94, 0x9a-0x9c, 0x9e-0xa4) push the binary result; OP_NUMEQUALVERIFY (0x9d) is a se): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-089 | numeric | auto(cells): partial row coverage; e2-numeric/within-boundary: partial — the cell is symbolic over all 2^24 single-byte operand triples, which is the full half-open-interval rule for one-byte CScriptNum operands. It does not exercise 2-4 byte operands or the SCR-079/SCR-080 width cap, nor the stack-underflow branch of SCR-078; those are separate rows/gaps, not hidden extensions of this cell. |
-| SCR-090 | numeric | SCR-090 (false ⇒ NUMEQUALVERIFY error): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-091 | numeric | SCR-091 (raw bytes, not numeric): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-092 | numeric | SCR-092 (0x8e is OP_2DIV (no OP_NOTEQUAL opcode exists); legacy and witness-v0 execution reject it as a disabled opcode, and tapscript treats it as OP_SUCCESS142): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
+| SCR-092 | numeric | auto(cells): partial row coverage; numeric/C-L-2div-disabled: partial — the EvalScript gate is proved C-vs-L for every wire word (this is the edge that decides 0x8e in BASE and WITNESS_V0), and the tapscript OP_SUCCESS142 pre-pass is proved on the C leg against the Cryptol model for every wire word.  What is not proved C-vs-L is the tapscript edge itself: the twin has no tapscript engine (witness v0/v1 and tapscript return TWIN_INVALID_UNSUPPORTED, result 3 — twin/generator.md:409, E4), so there is no L counterpart of ExecuteWitnessScript's pre-pass to compare against. Remaining gap: add the OP_SUCCESSx pre-pass to the twin, then compare it to cell_tap_scan with Alive2.  Nothing in the row is claimed as proved on the L side for tapscript. |
 | SCR-093 | hash-ops | auto(cells): partial row coverage; e2-hash/hash160-vector: partial — one concrete HASH160 witness establishes the 20-byte output width (SCR-093's HASH160 arm) and the RIPEMD160(SHA256(x)) composition seam (SCR-094) for that preimage. The SHA256/HASH256/RIPEMD160 output widths, the empty-element row SCR-095, and the hash functions themselves are not proved: the transform is an opaque external on both legs and the SAW override supplies the concrete digest.; hash-ops/C-L-hash-widths: partial |
 | SCR-095 | hash-ops | auto(cells): partial row coverage; hash-ops/C-L-hash-widths: partial |
 | SCR-096 | checksig | SCR-096 (pbegincodehash .. end): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
