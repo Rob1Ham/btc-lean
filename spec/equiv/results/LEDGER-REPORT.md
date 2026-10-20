@@ -1,6 +1,6 @@
 # LEDGER REPORT — current SCR coverage ledger
 
-**Date:** 2026-10-20 (post wave 16/32 integration; E0 bootstrap retained in the family mapping)
+**Date:** 2026-10-20 (wave64 integration; evidence tier)
 **Census pin:** Bitcoin Core v32.99 @ `cce32b168`
 **Scope:** `spec/db/rules.yaml` → `spec/db/equiv-cells.yaml`
 
@@ -18,41 +18,42 @@
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
 | Ledger status `planned` | **0** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / **143** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **155** |
 | `unjudged-seam` | **2** |
-| Filed `gap` | **65** |
+| Filed `gap` | **26** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
 Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
-adjudicated; the 143 green rows are listed in `results/matrix.md` and the
+adjudicated; the 155 green rows are listed in `results/matrix.md` and the
 non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
-## 2. Family mapping
+## 2. Family mapping and green coverage
 
 Families are derived from the `source` field. The family id is also the
 intended directory name under `spec/equiv/cells/`.
 
-| Family id | Source | Rows | Consensus | Non-consensus |
-|---|---|---:|---:|---:|
-| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 |
-| `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 |
-| `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 |
-| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 |
-| `stack-ops` | `06-script-interpreter.md` §B.5 Stack ops | 6 | 6 | 0 |
-| `numeric` | `06-script-interpreter.md` §B.6 Numeric ops & ScriptNum | 14 | 14 | 0 |
-| `hash-ops` | `06-script-interpreter.md` §B.7 Hash ops | 3 | 3 | 0 |
-| `checksig` | `06-script-interpreter.md` §B.8 Checksig (pre-tapscript) | 18 | 11 | 7 |
-| `checkmultisig` | `06-script-interpreter.md` §B.9 CHECKMULTISIG | 8 | 8 | 0 |
-| `locktime` | `06-script-interpreter.md` §B.10 Locktime | 11 | 11 | 0 |
-| `witness-v0` | `06-script-interpreter.md` §B.11 SegWit v0 | 9 | 9 | 0 |
-| `tapscript` | `06-script-interpreter.md` §B.12 Taproot/Tapscript | 28 | 26 | 2 |
-| `disabled-opcodes` | `06-script-interpreter.md` §B.13 Disabled opcodes | 5 | 4 | 1 |
-| `tapscript-reimport` | `w2-06-flags-activation.md` §B.1 Tapscript re-import | 1 | 1 | 0 |
-| `policy-flags` | `w2-06-flags-activation.md` §B.12 Policy-only flags | 8 | 0 | 8 |
-| **Total** | | **183** | **156** | **27** |
+| Family id | Source | Rows | Consensus | Non-consensus | Green |
+|---|---|---:|---:|---:|---:|
+| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 12 |
+| `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 | 22 |
+| `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 | 10 |
+| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 17 |
+| `stack-ops` | `06-script-interpreter.md` §B.5 Stack ops | 6 | 6 | 0 | 5 |
+| `numeric` | `06-script-interpreter.md` §B.6 Numeric ops & ScriptNum | 14 | 14 | 0 | 13 |
+| `hash-ops` | `06-script-interpreter.md` §B.7 Hash ops | 3 | 3 | 0 | 3 |
+| `checksig` | `06-script-interpreter.md` §B.8 Checksig (pre-tapscript) | 18 | 11 | 7 | 16 |
+| `checkmultisig` | `06-script-interpreter.md` §B.9 CHECKMULTISIG | 8 | 8 | 0 | 7 |
+| `locktime` | `06-script-interpreter.md` §B.10 Locktime | 11 | 11 | 0 | 11 |
+| `witness-v0` | `06-script-interpreter.md` §B.11 SegWit v0 | 9 | 9 | 0 | 6 |
+| `tapscript` | `06-script-interpreter.md` §B.12 Taproot/Tapscript | 28 | 26 | 2 | 21 |
+| `disabled-opcodes` | `06-script-interpreter.md` §B.13 Disabled opcodes | 5 | 4 | 1 | 4 |
+| `tapscript-reimport` | `w2-06-flags-activation.md` §B.1 Tapscript re-import | 1 | 1 | 0 | 1 |
+| `policy-flags` | `w2-06-flags-activation.md` §B.12 Policy-only flags | 8 | 0 | 8 | 7 |
+| **Total** | | **183** | **156** | **27** | **155** |
 
-Every family is present; sum of family row counts equals 183.
+Every family is present; the sum of family row counts equals 183. Green counts
+are row counts, not cell counts; a row may cite more than one cell.
 
 ## 3. `rules.yaml` oddities and decisions
 
@@ -77,8 +78,8 @@ Every family is present; sum of family row counts equals 183.
    end in `@cce32b168`; none is missing the pin suffix.
 5. **Census status ≠ IR status.** All 183 SCR rows already have
    `status: proven` in `rules.yaml` (Lean-level). That does **not** imply any
-   LLVM cell is green. The equivalent ledger status is initialized to
-   `planned` for every row; only tool-cell evidence can promote it.
+   LLVM cell is green. The equivalent ledger status is derived only from
+   tool-cell evidence.
 6. **Policy rows.** 27 rows are `consensus: false`. All 8 `policy-flags`
    rows are non-consensus, plus 19 boundary/policy rows in other families.
    These still need adjudication (green or filed gap), not silent exclusion.
@@ -95,97 +96,56 @@ Every family is present; sum of family row counts equals 183.
 
 ## 4. Regeneration and state preservation
 
+`results/scripts/update_ledger.py` is the only supported status writer. It
+validates each `spec.md` front matter, checks the contract hash against
+`PINS.lock`, parses the raw `alive2/result.txt` and `saw/result.txt`, and
+requires a raw success marker before any green status. A filed
+inapplicability requires `notes.md` with an `F-TOOL-nnn` id. Malformed records
+leave their rows `planned` and are reported verbatim.
+
 `build_equiv_cells.py` regenerates the computed fields (`id`, `family`,
 `summary`, `core_ref`, `consensus`, `families`) and preserves the
 hand-maintained fields (`status`, `cells`, `alive2`, `saw`, `gap_note`) by id.
 If the existing ledger is unparseable, it aborts rather than discarding state.
-Verified by promoting `SCR-001` to `both-green` with cells, regenerating, and
-confirming the state survived, then restoring the bootstrap ledger.
 
 Determinism check: `python3 .../build_equiv_cells.py --check` reports
 `up to date`; the output contains no timestamps or absolute paths.
 
-## 5. TODO / blockers
+## 5. Status derivation and gates
 
-- **No LLVM cells yet.** `spec/equiv/cells/` does not exist; all 183 rows are
-  `planned`. CELLS must populate `cells`, `alive2`, `saw`, and `status`.
-- **Result-record schema not frozen.** `alive2` and `saw` currently accept
-  `null` or a free-form result mapping (`result`, `cell`, `certificate`,
-  `note`). Freeze this when the first E1 cell lands.
-- **Gate integration pending.** The Makefile references
-  `tools/gate_ir_pin.py`, but `spec/equiv/tools/` does not exist at E0. Wire
-  `coverage_report.py --strict` into that gate once TOOLS lands it.
-- **Pins incomplete.** `PINS.lock` still has `TODO` for clang, LLVM version,
-  Alive2, SAW, solvers, rbitcoin commit, and builds; no IR hashes exist yet.
-- **Matrix is a template.** `results/matrix-template.md` has the E0 skeleton;
-  final generation from the ledger is an E6 deliverable.
-- **No commit made.** Changes are left in the working tree per instructions.
+- **Updater:** `results/scripts/update_ledger.py` is the only supported
+  status writer. A row becomes `both-green` only when a valid cell lists it
+  and the raw `alive2/result.txt` and `saw/result.txt` both contain the
+  success marker. A partial-coverage cell can be tool-green without promoting
+  its row; per-row coverage bullets are honored, so a partial bullet for one
+  row does not demote a fully covered sibling row.
+- **SAW classification:** `Proof failed`, `saw: error`, `Failed to verify`,
+  `Could not find definition`, `Stack trace`, `Symbolic execution failed`,
+  `Error during`, `Aborted`, and `panic` all prevent a green status. This
+  closes the wave64 finding that a shared runner could print `saw-green`
+  after an unknown-function error.
+- **Coverage gate:** `coverage_report.py --strict` covers 183/183 and fails on
+  a green row whose cited cell is missing/malformed, does not list the row,
+  or lacks the required tool success marker.
+- **Matrix:** `results/scripts/build_matrix.py` writes `results/matrix.md`
+  with per-family counts, the named trust base, the claim form, and links to
+  cell records. It fails loudly (no write) if a green row has no cell or if
+  the ledger disagrees with the cell-derived state.
+- **Certificate gate:** `tools/gate_ir_pin.py` replays all nested
+  certificates; the current tree has 342 certificates and 0 failures. The
+  clean-checkout checker
+  `findings/wave64/51-cert-repro-hardening/tools/cert_repro_check.py`
+  additionally replays manifests and moves non-tracked historical hashes to
+  explicit `EXTERNAL-HASHES.txt` records.
 
-## 6. E1 update: cell-derived status and published matrix
+## 6. Current non-green dispositions
 
-This section records what changed after the E0 bootstrap; it supersedes the
-stale bullets above where they conflict.
-
-- **Updater landed:** `results/scripts/update_ledger.py` is the only supported
-  status writer. It validates `cells/<family>/<cell>/spec.md` (required front
-  matter: `contract`, `legs`, `precondition`, `postcondition`, `direction`,
-  `scr_rows`, `patches`, `trust_note`), parses `alive2/result.txt` and
-  `saw/result.txt`, and requires a raw success marker before any green status.
-  `contract` must match `PINS.lock [contract] hash`. A filed inapplicability
-  requires `notes.md` with an `F-TOOL-nnn` id. Malformed records leave their
-  rows `planned` and are reported verbatim.
-- **Status derivation:** both tool markers → `both-green`; one green + the
-  other filed inapplicable → `alive2-green`/`saw-green`; both inapplicable with
-  a valid `unjudged_seam:` declaration citing `DECISION-lax-ecdsa.md` and a
-  finding → `unjudged-seam`; any red/ambiguous result or no green leg →
-  `gap` with an `auto(cells):` note naming the exact cell and leg outcomes. A
-  row with a malformed cell is never promoted.
-- **Result-record schema is now frozen** by the updater: `alive2`/`saw` are
-  either `null` or `{result, cell, certificate, note}` with `result: green`
-  and `cell` a path relative to `spec/equiv/cells/`.
-- **Coverage gate extended:** `coverage_report.py --strict` still covers
-  183/183 and now additionally fails on a green row whose cited cell is
-  missing/malformed, does not list the row, or lacks the required tool success
-  marker.
-- **Matrix published:** `results/scripts/build_matrix.py` writes
-  `results/matrix.md` with per-family counts, the named trust base, the claim
-  form, and links to cell records. It fails loudly (no write) if a green row
-  has no cell or if the ledger disagrees with the cell-derived state.
-- **Round trip verified:** `build_equiv_cells.py --ledger <copy>` regenerates a
-  byte-identical ledger and preserves `status`, `cells`, `alive2`, `saw`,
-  `gap_note`. The optional `--ledger` flag is a testability hook; the default
-  path and interface are unchanged.
-- **Honest current state:** 0 cell directories, 183 `planned`, 0 green,
-  0 filed gaps. No row was promoted by hand. See
-  `findings/ledger/E1-report.md` for exact commands and outputs.
-- **Still open:** one `PINS.lock` build TODO (`[rbitcoin] build`), L/R E0
-  stubs, and the absence of cell records. These are external to the ledger
-  machinery.
-
-
----
-
-## Current snapshot addendum — `2026-10-19T23:10:00Z`
-
-The §§1–4 counts above are the **E0 bootstrap** state (183 `planned`). They
-are retained as history. The current ledger, generated by
-`results/scripts/update_ledger.py` and adjudicated by
-`results/scripts/adjudicate.py`, is:
-
-| Metric | Current |
-|---|---:|
-| Ledger entries | 183 |
-| Families | 15 |
-| Cell directories (valid) | 17 |
-| `planned` | **0** |
-| `both-green` | **4** (SCR-069, SCR-071, SCR-072, SCR-074) |
-| `alive2-green` / `saw-green` only | 0 / 0 |
-| `unjudged-seam` | **20** |
-| Filed `gap` | **159** |
-| `coverage_report.py --strict` | **PASS** |
-| `make gate-ir-pin` | **PASS** (0 failures, 0 warnings) |
-
-The 183 rows are not all green. E2/E3/E4 cells are tool-green but explicitly
-partial; their rows stay gaps. Every non-green row has a row-specific
-disposition in `findings/coverage/F-E6-GAPS.md`. The generated authoritative
-view is `results/matrix.md`; do not hand-edit either file.
+- **`unjudged-seam` (2):** SCR-146 (TapLeaf tagged-hash preimage) and
+  SCR-147 (Taproot tweak/commitment).
+- **Filed gaps (26):** SCR-001, 005, 008, 010, 012, 021, 036, 040, 043, 044,
+  051, 078, 086, 104, 112, 115, 133, 136, 140, 142, 153, 154, 167, 169, 172,
+  175.
+- Each row has a row-specific blocker in `findings/coverage/F-E6-GAPS.md`;
+  wave64 added exact witnesses for SCR-008 (`F-DIV-W32-01`), SCR-112
+  (`F-DIV-004`), SCR-043 (miniscript bound), SCR-142 (no pin height gate), and
+  the SCR-146/147 crypto seams.

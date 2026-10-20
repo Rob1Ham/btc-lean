@@ -1,23 +1,24 @@
 # Cell index — all recorded cells
 
-**Snapshot:** `2026-10-20` (post wave 16/32 integration)
+**Snapshot:** `2026-10-20` (wave64 integration)
 Contract: `f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6`.
 Pinned Core: `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`.
 
-There are **111 valid cell directories**; all have Alive2 and SAW attempts
-and replayable certificates. Only cells whose `scr_row_coverage` is `full`
-for the named row promote that ledger row; per-row `partial` coverage is
-honoured. The current ledger is **143 both-green, 2 unjudged-seam, 38 filed
-gap, 0 planned**. See `../results/matrix.md` and
+There are **163 valid cell directories**; all have Alive2 and SAW attempts
+or a filed inapplicability, and replayable certificates. Only cells whose
+`scr_row_coverage` is `full` for the named row promote that ledger row;
+per-row `partial` coverage is honoured. The current ledger is **155
+both-green, 2 unjudged-seam, 26 filed gap, 0 planned**. `gate-ir-pin` replays
+342 certificates with 0 failures. See `../results/matrix.md` and
 `../findings/coverage/F-E6-GAPS.md` for the authoritative generated view.
 
 The table below is retained as the historical E1/E2/E3/E4 core-cell set; the
-wave-16/32 cells are listed in the generated matrix and find gaps.
+wave-16/32/64 cells are listed in the generated matrix and find gaps.
 
 | Cell | Family | Alive2 | SAW | SCR rows | Row coverage |
 |---|---|---|---|---|---|
-| `control-flow/C-L-nop-return` | control-flow | green | green | SCR-069/071 | **full** for 069/071; 072 not covered |
-| `stack-ops/C-L-arity` | stack-ops | 16/16 | 32/32 | SCR-074 | **partial** (empty-stack only; 074 gap) |
+| `control-flow/C-L-nop-return` | control-flow | green | green | SCR-069/071 | **full** for 069/071; 072 covered by `control-flow/C-L-cltv-csv-nop` |
+| `stack-ops/C-L-arity` | stack-ops | 55/55 | 110/110 | SCR-074 | **full** bounded 55-row (opcode, depth) census |
 | `stack/C-L-dup-drop-swap` | stack-ops | green | green | SCR-074/076/078 | partial; these rows remain gaps |
 | `stack/C-L-altstack` | stack-ops | green | green | SCR-073 | partial |
 | `stack/C-L-verify` | control-flow | green | green | SCR-068 | partial |
