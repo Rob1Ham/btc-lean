@@ -1,0 +1,46 @@
+# cell: disabled/C-L-w32-opname-table
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# name tables: build/build.txt
+# command: alive-tv build/c_cell_opname.ll build/l_cell_opname.ll
+
+----------------------------------------
+@switch.table.cell_opname = constant 2048 bytes, align 8
+
+define i64 @cell_opname(i8 noundef zeroext %w) nofree willreturn memory(none) {
+init:
+  store [256 x i64] { 61, 95, 102, 60, 32, 85, 113, 50, 51, 92, 93, 20, 21, 25, 22, 69, 30, 80, 19, 31, 103, 68, 45, 67, 64, 99, 33, 34, 82, 83, 84, 62, 53, 63, 54, 66, 65, 112, 96, 100, 101, 55, 56, 43, 40, 42, 37, 38, 72, 36, 39, 74, 75, 76, 77, 78, 79, 73, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 59, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 88, 89, 90, 1, 91, 3, 11, 12, 13, 14, 15, 16, 17, 18, 4, 5, 6, 7, 8, 9, 10, 71, 108, 57, 81, 109, 111, 48, 49, 110, 94, 106, 52, 23, 24, 29, 26, 27, 28, 58, 44, 46, 47, 70, 86, 87, 97, 98, 105, 107, 35, 104 }, ptr @switch.table.cell_opname, align 8
+  br label %entry
+
+entry:
+  %switch.tableidx = xor i8 noundef zeroext %w, 128
+  %#0 = zext i8 %switch.tableidx to i64
+  %switch.gep = gep inbounds nuw ptr @switch.table.cell_opname, 2048 x i64 0, 8 x i64 %#0
+  %switch.load = load i64, ptr %switch.gep, align 8
+  %#range_0_%switch.load = !range i64 %switch.load, i64 0, i64 4294967296
+  ret i64 %#range_0_%switch.load
+}
+=>
+@switch.table.cell_opname = constant 2048 bytes, align 8
+
+define i64 @cell_opname(i8 noundef zeroext %w) nofree willreturn memory(none) {
+init:
+  store [256 x i64] { 61, 95, 102, 60, 32, 85, 113, 50, 51, 92, 93, 20, 21, 25, 22, 69, 30, 80, 19, 31, 103, 68, 45, 67, 64, 99, 33, 34, 82, 83, 84, 62, 53, 63, 54, 66, 65, 112, 96, 100, 101, 55, 56, 43, 40, 42, 37, 38, 72, 36, 39, 74, 75, 76, 77, 78, 79, 73, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 59, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 88, 89, 90, 1, 91, 3, 11, 12, 13, 14, 15, 16, 17, 18, 4, 5, 6, 7, 8, 9, 10, 71, 108, 57, 81, 109, 111, 48, 49, 110, 94, 106, 52, 23, 24, 29, 26, 27, 28, 58, 44, 46, 47, 70, 86, 87, 97, 98, 105, 107, 35, 104 }, ptr @switch.table.cell_opname, align 8
+  br label %entry
+
+entry:
+  %switch.tableidx = xor i8 noundef zeroext %w, 128
+  %#0 = zext i8 %switch.tableidx to i64
+  %switch.gep = gep inbounds nuw ptr @switch.table.cell_opname, 2048 x i64 0, 8 x i64 %#0
+  %switch.load = load i64, ptr %switch.gep, align 8
+  %#range_0_%switch.load = !range i64 %switch.load, i64 0, i64 4294967296
+  ret i64 %#range_0_%switch.load
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

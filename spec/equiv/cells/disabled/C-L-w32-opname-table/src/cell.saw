@@ -1,0 +1,15 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_opname.bc";
+mL <- llvm_load_module "l_cell_opname.bc";
+
+// SCR-173: GetOpName over every wire byte 0x00..0xff.  Id 0 is OP_UNKNOWN;
+// every other id is a distinct name from the sorted union of both tables.
+let sName = do {
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  llvm_execute_func [llvm_term w];
+  llvm_return (llvm_term {{ zext (nameId w) : [64] }});
+};
+llvm_verify mC "cell_opname" [] false sName abc;
+llvm_verify mL "cell_opname" [] false sName abc;
+
+print "CELL_W32_OPNAME_TABLE_SAW_GREEN";

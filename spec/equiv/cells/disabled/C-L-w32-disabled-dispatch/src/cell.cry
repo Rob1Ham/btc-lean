@@ -1,0 +1,56 @@
+module CellDisabledDispatch where
+
+// Independent Cryptol specification for the EvalScript loop-head guards.
+// Source of record: Bitcoin Core cce32b168 src/script/interpreter.cpp
+//   :459-463  budget: (BASE|WITNESS_V0) && opcode > OP_16 && ++nOpCount > 201
+//   :465-482  the fifteen disabled opcodes, unconditional on fExec
+//   :488-493  push arm then switch entry (fExec || OP_IF..OP_ENDIF)
+//   :1227-1228 default: BAD_OPCODE
+// Observable codes: contract error ordinals + 64 execute + 65 skip.
+
+disabled : [8] -> Bit
+disabled w =
+  (w == 0x7e) || (w == 0x7f) || (w == 0x80) || (w == 0x81) ||
+  (w == 0x83) || (w == 0x84) || (w == 0x85) || (w == 0x86) ||
+  (w == 0x8d) || (w == 0x8e) ||
+  (w == 0x95) || (w == 0x96) || (w == 0x97) || (w == 0x98) || (w == 0x99)
+
+// Explicit `case` labels in the EvalScript switch (:493-1226).
+named : [8] -> Bit
+named w =
+  (w == 0x4f) ||
+  ((0x51 <= w) && (w <= 0x61)) ||
+  (w == 0x63) || (w == 0x64) ||
+  ((0x67 <= w) && (w <= 0x7d)) ||
+  (w == 0x82) ||
+  (w == 0x87) || (w == 0x88) ||
+  ((0x8b <= w) && (w <= 0x8c)) ||
+  ((0x8f <= w) && (w <= 0x94)) ||
+  ((0x9a <= w) && (w <= 0xba))
+
+pushbyte : [8] -> Bit
+pushbyte w = w <= 0x4e
+
+pushnum : [8] -> Bit
+pushnum w = (w == 0x4f) || ((0x51 <= w) && (w <= 0x60))
+
+budget : [8] -> [32] -> [32] -> Bit
+budget w wv0 oc = (wv0 != 0) && (w > 0x60) && ((oc + 1) > 201)
+
+// SCR-170/171: op-count first, then disabled, then fExec.
+guard : [8] -> [32] -> [32] -> [32] -> [64]
+guard w wv0 oc fe =
+  if budget w wv0 oc then 7
+  else if disabled w then 17
+  else if fe != 0 then 64 else 65
+
+// SCR-174: full wire-space dispatch including the default arm.
+dispatchOut : [8] -> [32] -> [32] -> [32] -> [64]
+dispatchOut w wv0 oc fe =
+  if budget w wv0 oc then 7
+  else if disabled w then 17
+  else if ~((fe != 0) || ((0x63 <= w) && (w <= 0x68))) then 65
+  else if (pushbyte w) || (pushnum w) then 64
+  else if w == 0xba then 16
+  else if named w then 64
+  else 16
