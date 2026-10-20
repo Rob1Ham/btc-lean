@@ -1,0 +1,15 @@
+module CellP2sh where
+
+// Independent specification of CScript::IsPayToScriptHash
+// (script.cpp:224-231): a 23-byte script whose first byte is OP_HASH160
+// (0xa9), whose second byte is the 20-byte push length (0x14), and whose
+// last byte is OP_EQUAL (0x87).
+//
+// No other byte is read, so this is the full rule over all scripts.
+p2sh : [8] -> [8] -> [8] -> [32] -> Bit
+p2sh b0 b1 b22 n =
+  (n == 23) && (b0 == 0xa9) && (b1 == 0x14) && (b22 == 0x87)
+
+packed : [8] -> [8] -> [8] -> [32] -> [64]
+packed b0 b1 b22 n =
+  if p2sh b0 b1 b22 n then 0x0000000000000001 else 0x0000000000000000

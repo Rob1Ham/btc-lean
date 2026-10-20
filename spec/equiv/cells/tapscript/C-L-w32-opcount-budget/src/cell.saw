@@ -1,0 +1,29 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// SCR-155: the guard over every sigversion 0..2^32-1, every wire byte, and
+// every reachable nOpCount.
+let guard_spec = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  w  <- llvm_fresh_var "w" (llvm_int 8);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term w, llvm_term oc];
+  llvm_return (llvm_term {{ opcount_guard sv w oc }});
+};
+llvm_verify mC "cell_opcount_guard" [] false guard_spec abc;
+llvm_verify mL "cell_opcount_guard" [] false guard_spec abc;
+
+// SCR-155: one OP_NOP on a one-item stack, symbolic nOpCount and CastToBool.
+let nop_spec = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  tt <- llvm_fresh_var "tt" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term oc, llvm_term tt];
+  llvm_return (llvm_term {{ nop_overbudget sv oc tt }});
+};
+llvm_verify mC "cell_nop_overbudget" [] false nop_spec abc;
+llvm_verify mL "cell_nop_overbudget" [] false nop_spec abc;
+
+print "CELL_W32_OPCOUNT_BUDGET_SAW_GREEN";

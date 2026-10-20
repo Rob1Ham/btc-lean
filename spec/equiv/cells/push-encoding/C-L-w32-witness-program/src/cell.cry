@@ -1,0 +1,18 @@
+module CellWp where
+
+// Independent specification of CScript::IsWitnessProgram's recognition
+// predicate (script.cpp:250-264) for a script of size n whose first byte is
+// the version opcode v and whose second byte is the direct-push length p.
+//
+//   n in [4,42]; v in {OP_0=0x00, OP_1..OP_16=0x51..0x60};
+//   p + 2 == n  (exact-length direct push; program size p is 2..40)
+//
+// The predicate reads no other byte: every script with the same (v,p,n) has
+// the same answer, so this is the full rule, not a sample.
+wp : [8] -> [8] -> [32] -> Bit
+wp v p n = ((n >= 4) && (n <= 42)) &&
+           ((v == 0x00) || ((v >= 0x51) && (v <= 0x60))) &&
+           ((((zext p : [32]) + 2) == n))
+
+packed : [8] -> [8] -> [32] -> [64]
+packed v p n = if wp v p n then 0x0000000000000001 else 0x0000000000000000

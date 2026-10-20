@@ -1,0 +1,56 @@
+module CellAltStep where
+
+// Independent specification of one EvalScript step for OP_TOALTSTACK /
+// OP_FROMALTSTACK, including the opcode-budget gate and the fExec gate:
+//
+//   if (opcode > OP_16 && ++nOpCount > MAX_OPS_PER_SCRIPT) -> OP_COUNT
+//   if (fExec) { TOALTSTACK / FROMALTSTACK }
+//
+// Inputs: wire (0x6b or 0x6c), exec (0/1), opc (nOpCount before the step),
+// sn/an (stack depths 0..4), s_top/a_top (top bytes).
+//
+// Stack contents: element i of the main stack is 0x40+i except the top
+// (s_top); element i of the altstack is 0x60+i except the top (a_top).
+// Only the top bytes are observable.
+//
+// Packing (identical to w32_common.h):
+//   result(2) | error(6) | sn(3) | an(3) | stack top(8) | alt top(8)
+
+pack : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+pack res err sn an sv av =
+  (zext res : [64]) || ((zext err : [64]) << 2) || ((zext sn : [64]) << 8) ||
+  ((zext an : [64]) << 11) || ((zext sv : [64]) << 14) ||
+  ((zext av : [64]) << 22)
+
+// Top of the main stack after OP_TOALTSTACK removes one item.
+stack_top_after_toalt : [8] -> [8]
+stack_top_after_toalt sn = if sn <= 1 then 0 else (0x40 + (sn - 2))
+
+// Top of the altstack after OP_FROMALTSTACK removes one item.
+alt_top_after_fromalt : [8] -> [8]
+alt_top_after_fromalt an = if an <= 1 then 0 else (0x60 + (an - 2))
+
+step : [8] -> [8] -> [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+step wire exec opc sn an s_top a_top =
+  if (wire != 0x6b) && (wire != 0x6c) then 0xffffffffffffffff
+  else if sn > 4 then 0xffffffffffffffff
+  else if an > 4 then 0xffffffffffffffff
+  else if (opc + 1) > 201 then
+    // wire > OP_16 in every in-domain input, so ++nOpCount > 201 is OP_COUNT.
+    // The budget gate precedes the handler, so this wins over both the
+    // unexecuted skip and the empty-stack errors.
+    pack 0 7 sn an (if sn == 0 then 0 else s_top) (if an == 0 then 0 else a_top)
+  else if exec == 0 then
+    // Unexecuted branch (fExec false): no stack effect; the opcode was
+    // still counted, and the OP_COUNT case above already took precedence.
+    pack 1 0 sn an (if sn == 0 then 0 else s_top) (if an == 0 then 0 else a_top)
+  else if wire == 0x6b then
+    if sn == 0 then
+      pack 0 18 0 an 0 (if an == 0 then 0 else a_top)
+    else
+      pack 1 0 (sn - 1) (an + 1) (stack_top_after_toalt sn) s_top
+  else
+    if an == 0 then
+      pack 0 19 sn 0 (if sn == 0 then 0 else s_top) 0
+    else
+      pack 1 0 (sn + 1) (an - 1) a_top (alt_top_after_fromalt an)

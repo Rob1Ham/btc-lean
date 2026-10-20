@@ -18,14 +18,14 @@
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
 | Ledger status `planned` | **0** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / **111** |
-| `unjudged-seam` | **4** |
-| Filed `gap` | **68** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **116** |
+| `unjudged-seam` | **2** |
+| Filed `gap` | **65** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
 Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
-adjudicated; the 111 green rows are listed in `results/matrix.md` and the
+adjudicated; the 116 green rows are listed in `results/matrix.md` and the
 non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
 ## 2. Family mapping

@@ -1,0 +1,94 @@
+module CellDecNum where
+
+// Independent specification of CScriptNum(vch, fRequireMinimal, maxSize)
+// (script.h:246-271) and its set_vch value (script.h:376-391), for an
+// operand of at most five bytes.
+//
+// maxSize is 4 (default; CMS counts, CHECKSIGADD number) or 5 (CLTV/CSV).
+// Packing: result(2) | error(6) | value(56 at bit 8); error 4 = SCRIPTNUM,
+// error 0 = OK, result 1 = constructor returned, result 0 = it threw.
+//
+// The width check precedes the minimality check; a zero-length operand
+// decodes to 0; the sign bit is 0x80 in the most-significant byte and the
+// magnitude excludes it.
+
+maxsz : Bit -> [8]
+maxsz wide = if wide then 5 else 4
+
+b0 : [8] -> [64]
+b0 x = zext x
+b1 : [8] -> [64]
+b1 x = zext x
+
+// Magnitude of the first k bytes with the sign bit of byte k-1 cleared.
+m1 : [8] -> [64]
+m1 a = zext (a && 0x7f)
+
+m2 : [8] -> [8] -> [64]
+m2 a b = (b0 a) + ((zext (b && 0x7f)) << 8)
+
+m3 : [8] -> [8] -> [8] -> [64]
+m3 a b c = (b0 a) + ((b0 b) << 8) + ((zext (c && 0x7f)) << 16)
+
+m4 : [8] -> [8] -> [8] -> [8] -> [64]
+m4 a b c d = (b0 a) + ((b0 b) << 8) + ((b0 c) << 16) +
+             ((zext (d && 0x7f)) << 24)
+
+m5 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+m5 a b c d e = (b0 a) + ((b0 b) << 8) + ((b0 c) << 16) + ((b0 d) << 24) +
+               ((zext (e && 0x7f)) << 32)
+
+nonmin1 : [8] -> Bit
+nonmin1 a = ((a && 0x7f) == 0)
+
+nonmin2 : [8] -> [8] -> Bit
+nonmin2 a b = (((b && 0x7f) == 0) && ((a && 0x80) == 0))
+
+nonmin3 : [8] -> [8] -> [8] -> Bit
+nonmin3 a b c = (((c && 0x7f) == 0) && ((b && 0x80) == 0))
+
+nonmin4 : [8] -> [8] -> [8] -> [8] -> Bit
+nonmin4 a b c d = (((d && 0x7f) == 0) && ((c && 0x80) == 0))
+
+nonmin5 : [8] -> [8] -> [8] -> [8] -> [8] -> Bit
+nonmin5 a b c d e = (((e && 0x7f) == 0) && ((d && 0x80) == 0))
+
+val1 : [8] -> [64]
+val1 a = if (a && 0x80) != 0 then -(m1 a) else m1 a
+
+val2 : [8] -> [8] -> [64]
+val2 a b = if (b && 0x80) != 0 then -(m2 a b) else m2 a b
+
+val3 : [8] -> [8] -> [8] -> [64]
+val3 a b c = if (c && 0x80) != 0 then -(m3 a b c) else m3 a b c
+
+val4 : [8] -> [8] -> [8] -> [8] -> [64]
+val4 a b c d = if (d && 0x80) != 0 then -(m4 a b c d) else m4 a b c d
+
+val5 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+val5 a b c d e = if (e && 0x80) != 0 then -(m5 a b c d e) else m5 a b c d e
+
+// 0x10 = result 0, error 4 (SCRIPTNUM), value 0.
+// 0x01 = result 1, error 0 (OK), value 0.
+err : [64]
+err = 0x0000000000000010
+
+ok : [64] -> [64]
+ok v = 0x0000000000000001 + (v << 8)
+
+dec : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> Bit -> Bit -> [64]
+dec a b c d e l mf wide =
+  if (l > maxsz wide) then err
+  else if (mf && (l != 0) &&
+           (if l == 1 then nonmin1 a
+            else if l == 2 then nonmin2 a b
+            else if l == 3 then nonmin3 a b c
+            else if l == 4 then nonmin4 a b c d
+            else if l == 5 then nonmin5 a b c d e
+            else False)) then err
+  else if l == 0 then ok (0 : [64])
+  else if l == 1 then ok (val1 a)
+  else if l == 2 then ok (val2 a b)
+  else if l == 3 then ok (val3 a b c)
+  else if l == 4 then ok (val4 a b c d)
+  else ok (val5 a b c d e)

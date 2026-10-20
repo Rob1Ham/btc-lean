@@ -1,0 +1,35 @@
+module CellWitnessDispatchUpgradable where
+
+// Independent specification of the post-control-block witness dispatch, from
+// BIP341/BIP350 as implemented at interpreter.cpp:1988-2008 and reflected in
+// spec/core/Bitcoin/Interpreter/Defs.lean:1312-1321.
+//
+// Packed observable (w32_common.h): result(2) | error(6) << 2 | aux << 8.
+//   pass                          = 1
+//   fail DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM (34) = 136
+//   fail DISCOURAGE_UPGRADABLE_TAPROOT_VERSION (35) = 140
+//   bad input marker (2, UNKNOWN_ERROR=1)          = 6
+
+TAPSCRIPT_LEAF = 0xc0
+LEAF_MASK = 0xfe
+
+// SCR-149: unknown leaf version.  control[0] & 0xfe == 0xc0 selects tapscript
+// (execution abstracted to the input trc); every other leaf version succeeds
+// unless the policy flag DISCOURAGE_UPGRADABLE_TAPROOT_VERSION is set.
+leaf_version_dispatch : [8] -> [32] -> [64] -> [64]
+leaf_version_dispatch c0 disc trc =
+  if (c0 && LEAF_MASK) == TAPSCRIPT_LEAF then trc
+  else if disc != 0 then 140
+  else 1
+
+// SCR-150 / SCR-151: the tail of VerifyWitnessProgram for witversion 1..16.
+//   v1 / 32-byte program / !p2sh  -> taproot arm (input trc, not modelled)
+//   v1 / 2-byte 4e73 / !p2sh      -> P2A success, before the discourage check
+//   otherwise                     -> policy failure or success
+program_tail_dispatch : [32] -> [32] -> [8] -> [8] -> [32] -> [32] -> [64] -> [64]
+program_tail_dispatch v plen b0 b1 p2sh disc trc =
+  if v == 0 \/ v > 16 then 6
+  else if v == 1 /\ plen == 32 /\ p2sh == 0 then trc
+  else if p2sh == 0 /\ v == 1 /\ plen == 2 /\ b0 == 0x4e /\ b1 == 0x73 then 1
+  else if disc != 0 then 136
+  else 1

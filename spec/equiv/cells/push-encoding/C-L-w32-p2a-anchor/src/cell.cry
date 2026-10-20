@@ -1,0 +1,13 @@
+module CellP2a where
+
+// Independent specification of IsPayToAnchor (script.cpp:207-222,
+// Defs.lean:523-526): witness version 1 with the two-byte program {0x4e,0x73}.
+// The serialized form is the four-byte script 51 02 4e 73; decoding that
+// script is IsWitnessProgram's job (SCR-053), not this predicate's.
+p2a : [8] -> [8] -> [8] -> [32] -> Bit
+p2a version p0 p1 plen =
+  (version == 1) && (plen == 2) && (p0 == 0x4e) && (p1 == 0x73)
+
+packed : [8] -> [8] -> [8] -> [32] -> [64]
+packed version p0 p1 plen =
+  if p2a version p0 p1 plen then 0x0000000000000001 else 0x0000000000000000

@@ -4,10 +4,10 @@
 Contract: `f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6`.
 Pinned Core: `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`.
 
-There are **101 valid cell directories**; all have Alive2 and SAW attempts
+There are **111 valid cell directories**; all have Alive2 and SAW attempts
 and replayable certificates. Only cells whose `scr_row_coverage` is `full`
 for the named row promote that ledger row; per-row `partial` coverage is
-honoured. The current ledger is **111 both-green, 4 unjudged-seam, 68 filed
+honoured. The current ledger is **116 both-green, 2 unjudged-seam, 65 filed
 gap, 0 planned**. See `../results/matrix.md` and
 `../findings/coverage/F-E6-GAPS.md` for the authoritative generated view.
 

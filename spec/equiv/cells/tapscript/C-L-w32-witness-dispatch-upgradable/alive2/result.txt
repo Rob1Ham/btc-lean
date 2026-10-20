@@ -1,0 +1,111 @@
+# cell: tapscript/C-L-w32-witness-dispatch-upgradable
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_leaf_version_dispatch.opt.ll build/l_cell_leaf_version_dispatch.opt.ll
+
+----------------------------------------
+define i64 @cell_leaf_version_dispatch(i8 noundef zeroext %control0, i32 noundef %discourage_utv, i64 noundef %tapscript_rc) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %control0, 254
+  %cmp.i = icmp eq i8 %#0, 192
+  %cmp1.not.i = icmp eq i32 noundef %discourage_utv, 0
+  %. = select i1 %cmp1.not.i, i64 1, i64 140
+  %retval.0.i = select i1 %cmp.i, i64 noundef %tapscript_rc, i64 %.
+  ret i64 %retval.0.i
+}
+=>
+define i64 @cell_leaf_version_dispatch(i8 noundef zeroext %control0, i32 noundef %discourage_utv, i64 noundef %tapscript_rc) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %control0, 254
+  %cmp.i = icmp eq i8 %#0, 192
+  %tobool.not.i = icmp eq i32 noundef %discourage_utv, 0
+  %. = select i1 %tobool.not.i, i64 1, i64 140
+  %retval.0.i = select i1 %cmp.i, i64 noundef %tapscript_rc, i64 %.
+  ret i64 %retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_program_tail_dispatch.opt.ll build/l_cell_program_tail_dispatch.opt.ll
+
+----------------------------------------
+define i64 @cell_program_tail_dispatch(i32 noundef %version, i32 noundef %plen, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i32 noundef %is_p2sh, i32 noundef %discourage_ugwp, i64 noundef %taproot_rc) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i32 noundef %version, 4294967279
+  %or.cond.i = icmp ult i32 %#0, 4294967280
+  br i1 %or.cond.i, label %_ZL14c_program_tailjjhhjjm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i32 noundef %version, 1
+  %cmp3.i = icmp eq i32 noundef %plen, 32
+  %or.cond26.i = and i1 %cmp2.i, %cmp3.i
+  %cmp5.i = icmp eq i32 noundef %is_p2sh, 0
+  %or.cond27.i = and i1 %or.cond26.i, %cmp5.i
+  br i1 %or.cond27.i, label %_ZL14c_program_tailjjhhjjm.exit, label %if.end7.i
+
+if.end7.i:
+  %cmp12.i = icmp eq i32 noundef %plen, 2
+  %cmp14.i = icmp eq i8 noundef zeroext %b0, 78
+  %#1 = and i1 %cmp12.i, %cmp14.i
+  %cmp17.i = icmp eq i8 noundef zeroext %b1, 115
+  %#2 = and i1 %#1, %cmp17.i
+  %#3 = and i1 %cmp2.i, %#2
+  %or.cond31.i = and i1 %cmp5.i, %#3
+  br i1 %or.cond31.i, label %_ZL14c_program_tailjjhhjjm.exit, label %if.end20.i
+
+if.end20.i:
+  %cmp21.not.i = icmp eq i32 noundef %discourage_ugwp, 0
+  %. = select i1 %cmp21.not.i, i64 1, i64 136
+  br label %_ZL14c_program_tailjjhhjjm.exit
+
+_ZL14c_program_tailjjhhjjm.exit:
+  %retval.0.i = phi i64 [ noundef %taproot_rc, %if.end.i ], [ 6, %entry ], [ 1, %if.end7.i ], [ %., %if.end20.i ]
+  ret i64 %retval.0.i
+}
+=>
+define i64 @cell_program_tail_dispatch(i32 noundef %version, i32 noundef %plen, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i32 noundef %is_p2sh, i32 noundef %discourage_ugwp, i64 noundef %taproot_rc) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i32 noundef %version, 4294967279
+  %or.cond.i = icmp ult i32 %#0, 4294967280
+  br i1 %or.cond.i, label %_ZL14l_program_tailjjhhjjm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i32 noundef %version, 1
+  %cmp3.i = icmp eq i32 noundef %plen, 32
+  %cmp5.i = icmp eq i32 noundef %is_p2sh, 0
+  %#1 = and i1 %cmp3.i, %cmp5.i
+  %or.cond25.i = and i1 %cmp2.i, %#1
+  br i1 %or.cond25.i, label %_ZL14l_program_tailjjhhjjm.exit, label %if.end7.i
+
+if.end7.i:
+  %cmp10.i = icmp eq i32 noundef %plen, 2
+  %cmp12.i = icmp eq i8 noundef zeroext %b0, 78
+  %#2 = and i1 %cmp10.i, %cmp12.i
+  %cmp14.i = icmp eq i8 noundef zeroext %b1, 115
+  %#3 = and i1 %#2, %cmp14.i
+  %spec.select.i = and i1 %cmp2.i, %#3
+  %brmerge.i.demorgan = and i1 %cmp5.i, %spec.select.i
+  br i1 %brmerge.i.demorgan, label %_ZL14l_program_tailjjhhjjm.exit, label %if.end18.i
+
+if.end18.i:
+  %tobool19.not.i = icmp eq i32 noundef %discourage_ugwp, 0
+  %. = select i1 %tobool19.not.i, i64 1, i64 136
+  br label %_ZL14l_program_tailjjhhjjm.exit
+
+_ZL14l_program_tailjjhhjjm.exit:
+  %retval.1.i = phi i64 [ noundef %taproot_rc, %if.end.i ], [ 6, %entry ], [ 1, %if.end7.i ], [ %., %if.end18.i ]
+  ret i64 %retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

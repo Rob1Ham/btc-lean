@@ -1,0 +1,17 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_wp.bc";
+mL <- llvm_load_module "l_cell_wp.bc";
+
+// Both legs are checked against the same independent Cryptol predicate for
+// every (v, p, n): all 256 version bytes, all 256 length bytes, and all
+// 2^32 script sizes.
+let spec = do {
+  v <- llvm_fresh_var "v" (llvm_int 8);
+  p <- llvm_fresh_var "p" (llvm_int 8);
+  n <- llvm_fresh_var "n" (llvm_int 32);
+  llvm_execute_func [llvm_term v, llvm_term p, llvm_term n];
+  llvm_return (llvm_term {{ packed v p n }});
+};
+llvm_verify mC "cell_wp" [] false spec abc;
+llvm_verify mL "cell_wp" [] false spec abc;
+print "CELL_W32_WP_SAW_GREEN";

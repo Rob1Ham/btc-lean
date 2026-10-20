@@ -1,0 +1,22 @@
+module CellPushOnly where
+
+// Independent specification of CScript::IsPushOnly (script.cpp:266-286) on a
+// one-byte script.  GetOp on a one-byte script:
+//   - 0x00          : OP_0, an empty direct push, decodes; 0x00 <= OP_16
+//   - 0x01..0x4b    : a direct push whose data bytes are missing -> GetOp
+//                     fails -> IsPushOnly false
+//   - 0x4c..0x4e    : PUSHDATA1/2/4, length field missing -> GetOp fails
+//   - 0x4f..0x60    : OP_1NEGATE, OP_RESERVED, OP_1..OP_16 -> push-only
+//   - 0x61..0xff    : wire > OP_16 -> IsPushOnly false
+//
+// So the predicate is exactly OP_0 or [OP_1NEGATE, OP_16].  OP_RESERVED
+// (0x50) is the named edge: it is not executed here but it *is* push-only.
+po1 : [8] -> Bit
+po1 b = (b == 0x00) || ((b >= 0x4f) && (b <= 0x60))
+
+packed1 : [8] -> [64]
+packed1 b = if po1 b then 0x0000000000000001 else 0x0000000000000000
+
+// The empty script: the loop body never runs, IsPushOnly is true.
+packed0 : [64]
+packed0 = 0x0000000000000001

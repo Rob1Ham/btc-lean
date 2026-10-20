@@ -1,0 +1,24 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_decnum.bc";
+mL <- llvm_load_module "l_cell_decnum.bc";
+
+// Symbolic over all five operand bytes, the operand length, the
+// fRequireMinimal flag and the maxSize selector (4 or 5).  This covers both
+// call-site families named by SCR-051: maxSize 4 (CHECKMULTISIG counts,
+// CHECKSIGADD number) and maxSize 5 (CLTV/CSV).
+let spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  l <- llvm_fresh_var "l" (llvm_int 8);
+  mf <- llvm_fresh_var "mf" (llvm_int 8);
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term l, llvm_term mf, llvm_term w];
+  llvm_return (llvm_term {{ dec a b c d e (l && 0x07) (mf != 0) (w != 0) }});
+};
+llvm_verify mC "cell_decnum" [] false spec z3;
+llvm_verify mL "cell_decnum" [] false spec z3;
+print "CELL_W32_DECNUM_SAW_GREEN";

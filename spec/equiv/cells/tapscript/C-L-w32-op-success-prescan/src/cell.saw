@@ -1,0 +1,36 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// SCR-153/154: every script of length 0..4 over all four byte values, both
+// policy-flag states.
+let scan_spec = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0" (llvm_int 8);
+  b1  <- llvm_fresh_var "b1" (llvm_int 8);
+  b2  <- llvm_fresh_var "b2" (llvm_int 8);
+  b3  <- llvm_fresh_var "b3" (llvm_int 8);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3];
+  llvm_return (llvm_term {{ scan_finds_success len b0 b1 b2 b3 }});
+};
+llvm_verify mC "cell_scan_finds_success" [] false scan_spec abc;
+llvm_verify mL "cell_scan_finds_success" [] false scan_spec abc;
+
+// The overridden branches: OP_SUCCESSx beats STACK_SIZE, PUSH_SIZE and the
+// whole EvalScript tail; DISCOURAGE_OP_SUCCESS is the policy failure.
+let tail_spec = do {
+  found   <- llvm_fresh_var "found" (llvm_int 32);
+  disc    <- llvm_fresh_var "disc" (llvm_int 32);
+  too_many<- llvm_fresh_var "too_many" (llvm_int 32);
+  oversize<- llvm_fresh_var "oversize" (llvm_int 32);
+  later   <- llvm_fresh_var "later" (llvm_int 64);
+  llvm_execute_func [llvm_term found, llvm_term disc, llvm_term too_many,
+                     llvm_term oversize, llvm_term later];
+  llvm_return (llvm_term {{ prescan_tail found disc too_many oversize later }});
+};
+llvm_verify mC "cell_prescan_tail" [] false tail_spec abc;
+llvm_verify mL "cell_prescan_tail" [] false tail_spec abc;
+
+print "CELL_W32_OP_SUCCESS_PRESCAN_SAW_GREEN";

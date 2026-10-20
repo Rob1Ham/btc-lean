@@ -984,51 +984,80 @@ rows:
   summary: minimal numeric operands under MINIMALDATA (policy, not consensus)
   core_ref: interpreter.cpp:556,584,1126,1140,1103@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - push-encoding/C-L-w32-num-decode-minimal
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-051 (minimal numeric operands under MINIMALDATA (policy, not consensus)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers.'
 - id: SCR-052
   family: push-encoding
   summary: opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push
   core_ref: script.cpp:266-286@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - push-encoding/C-L-w32-pushonly-opcode
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-052 (opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; push-encoding/C-L-w32-pushonly-opcode: partial — the cell is symbolic over every wire byte 0x00..0xff in a script position, so it exercises the named edge exactly: every opcode <= OP_16 (0x60) counts as a push, including OP_RESERVED 0x50, and OP_17 0x61 does not.  It also covers the one-op truncation cases (direct push 0x01..0x4b and PUSHDATA1/2/4 with missing length/data).  It does NOT exercise a successful multi-op script, a successful PUSHDATA push whose data is present, or the script-level `all` conjunction beyond one opcode.  The cell is deliberately bounded to a 0/1-byte script; a full symbolic-length loop cell over the complete GetOp/decode_op surface was not built in this task.  Alive2 itself was not observed to reject loops (a scalar symbolic-trip-count probe verifies), so this is a scope decision, not a proved tool impossibility; see notes.md.'
 - id: SCR-053
   family: push-encoding
   summary: 4..42 bytes; OP_0/OP_N + exact-length push; program 2..40
   core_ref: script.cpp:250-264@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-053 (4..42 bytes; OP_0/OP_N + exact-length push; program 2..40): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-witness-program
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-witness-program
+    certificate: 20154bf9e06eca2b2ac91898727bf8c872ffac73608e4ac5ad35cc3adc9ffc9a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-witness-program
+    certificate: 169b5b9d9e0a8ca21a60e3042a4d2492c7c048161a67a2ac40b3f553110a27ce
+    note: Proof succeeded! cell_wp
+  status: both-green
+  gap_note: null
 - id: SCR-054
   family: push-encoding
   summary: 23-byte HASH160 pattern
   core_ref: script.cpp:224-231@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-054 (23-byte HASH160 pattern): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-p2sh-pattern
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-p2sh-pattern
+    certificate: 31460a00c7f6e2390d984f2c3a095d28318d978371c1f1cb7c4471f452f7d377
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-p2sh-pattern
+    certificate: 5ab6c97dcabd569d02e96b8b741de73969f983e23ba62d67a96e44da19944d79
+    note: Proof succeeded! cell_p2sh
+  status: both-green
+  gap_note: null
 - id: SCR-055
   family: push-encoding
   summary: OP_1 0x4e73 (4-byte script / 2-byte v1 program)
   core_ref: script.cpp:207-222@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-055 (OP_1 0x4e73 (4-byte script / 2-byte v1 program)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-p2a-anchor
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-p2a-anchor
+    certificate: 2f4ec58da2a43220bf0c81b99dbeb1b9ac80cfe064d1929c9e6e47cf05fa498e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-p2a-anchor
+    certificate: 5d09bd7c6f1f175c9fb4c3422281178d998243e38b357a3dec7ac7f3fb96b686
+    note: Proof succeeded! cell_p2a
+  status: both-green
+  gap_note: null
 - id: SCR-056
   family: control-flow
   summary: CastToBool of top (NOTIF inverts); pop
@@ -1351,11 +1380,20 @@ rows:
   consensus: true
   cells:
   - e1-altstack/roundtrip
+  - stack-ops/C-L-w32-altstack-step
   - stack/C-L-altstack
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e1-altstack/roundtrip: partial success branch only: TOALTSTACK/FROMALTSTACK roundtrip with budget available and nonempty stacks; empty-main/empty-alt failures and the OP_COUNT edge of SCR-073 are not exercised.; stack/C-L-altstack: partial — closed branches only: empty-alt FROMALTSTACK, empty-main TOALTSTACK, and a success roundtrip; no opcode-budget/OP_COUNT edge, no symbolic stacks.'
+  alive2:
+    result: green
+    cell: e1-altstack/roundtrip
+    certificate: 1dd20a7e0f6a15de978d1f2bf3cb43a45b01c9226148c13dd765a3f91f085903
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e1-altstack/roundtrip
+    certificate: 4fe9e81974a813c2eb1acef90941f3c5cd3ad74b262d79b46981695a5e3a2bd8
+    note: Proof succeeded! cell_roundtrip
+  status: both-green
+  gap_note: null
 - id: SCR-074
   family: stack-ops
   summary: each op checks depth ⇒ INVALID_STACK_OPERATION
@@ -2507,6 +2545,7 @@ rows:
   consensus: true
   cells:
   - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
@@ -2526,6 +2565,7 @@ rows:
   consensus: true
   cells:
   - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
@@ -2545,6 +2585,7 @@ rows:
   consensus: true
   cells:
   - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
@@ -2564,6 +2605,7 @@ rows:
   consensus: true
   cells:
   - tapscript/C-L-tapscript-isopsuccess
+  - tapscript/C-L-w32-op-success-set
   alive2:
     result: green
     cell: tapscript/C-L-tapscript-isopsuccess
@@ -2581,31 +2623,42 @@ rows:
   summary: overrides all later checks (incl. size limits)
   core_ref: interpreter.cpp:ExecuteWitnessScript:1846-1862@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - tapscript/C-L-w32-op-success-prescan
   alive2: null
   saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-153 (overrides all later checks (incl. size limits)): interpreter.cpp:1846-1862 scans the whole tapscript for OP_SUCCESSx before item-size and EvalScript, and returns success immediately. Needs a loop over symbolic script bytes and early-success control flow; the leaf harness is loop-free and does not parse scripts.'
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-w32-op-success-prescan: partial for both rows; the bound and the two exclusions are exact:\n- SCR-153 \"overrides all later checks (incl. size limits)\": partial —\n  proved for every script of length <= 4 over all byte values: an OP_SUCCESSx\n  returns success before the initial stack-size check, the 520-byte item\n  check and EvalScript, and its outcome is independent of those inputs.  Not\n  proved: scripts longer than 4 bytes (the scan is straight-line unrolled;\n  the 8-byte version was attempted and Alive2 could not discharge it inside\n  the 60 s SMT budget), and the BAD_OPCODE-vs-STACK_SIZE ordering on a\n  truncated tail (F-DIV-w32-001; the cell compares the found bit only).\n- SCR-154 \"pol. flag fails them\": partial — same bound: with\n  DISCOURAGE_OP_SUCCESS set, every found OP_SUCCESSx in a <= 4-byte script\n  yields DISCOURAGE_OP_SUCCESS (36) and not success.  The row is policy\n  (consensus=false), and the flag is modelled as a policy input, not as a\n  consensus ScriptFlags bit.\nNOT claimed: the EvalScript result for scripts without OP_SUCCESSx\n(`later_rc`), the initial stack-size/item-size preconditions themselves, and\nany script lo"
 - id: SCR-154
   family: tapscript
   summary: pol. flag fails them
   core_ref: interpreter.cpp:1857-1859@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - tapscript/C-L-w32-op-success-prescan
   alive2: null
   saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-154 (pol. flag fails them): interpreter.cpp:1857-1859 fails with DISCOURAGE_OP_SUCCESS during the same pre-scan. Same loop/early-success seam as SCR-153; additionally a policy-flag branch. Consensus=false.'
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-w32-op-success-prescan: partial for both rows; the bound and the two exclusions are exact:\n- SCR-153 \"overrides all later checks (incl. size limits)\": partial —\n  proved for every script of length <= 4 over all byte values: an OP_SUCCESSx\n  returns success before the initial stack-size check, the 520-byte item\n  check and EvalScript, and its outcome is independent of those inputs.  Not\n  proved: scripts longer than 4 bytes (the scan is straight-line unrolled;\n  the 8-byte version was attempted and Alive2 could not discharge it inside\n  the 60 s SMT budget), and the BAD_OPCODE-vs-STACK_SIZE ordering on a\n  truncated tail (F-DIV-w32-001; the cell compares the found bit only).\n- SCR-154 \"pol. flag fails them\": partial — same bound: with\n  DISCOURAGE_OP_SUCCESS set, every found OP_SUCCESSx in a <= 4-byte script\n  yields DISCOURAGE_OP_SUCCESS (36) and not success.  The row is policy\n  (consensus=false), and the flag is modelled as a policy input, not as a\n  consensus ScriptFlags bit.\nNOT claimed: the EvalScript result for scripts without OP_SUCCESSx\n(`later_rc`), the initial stack-size/item-size preconditions themselves, and\nany script lo"
 - id: SCR-155
   family: tapscript
   summary: 'the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_V0 an over-budget counting opcode instead returns OP_COUNT'
   core_ref: interpreter.cpp:460-464 (guard)@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-155 (the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_): interpreter.cpp:460-464 is the MAX_OPS guard, skipped for TAPSCRIPT. A bounded stepBody leaf can set opCount>201 and run OP_NOP in BASE/WITNESS_V0 and TAPSCRIPT; the twin has stepBody handlers. Not attempted. (This is the op-count budget, not sigops.)'
+  cells:
+  - tapscript/C-L-w32-opcount-budget
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-opcount-budget
+    certificate: 458cb50549f356e5583e152ed4b9f5da0e243cce2762609c17a7a58eafbe8c75
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-opcount-budget
+    certificate: 08fd239f8b31928df24806fada920700e444c53c3095597d548b6f730ad4f084
+    note: Proof succeeded! cell_opcount_guard
+  status: both-green
+  gap_note: null
 - id: SCR-156
   family: tapscript
   summary: (sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript

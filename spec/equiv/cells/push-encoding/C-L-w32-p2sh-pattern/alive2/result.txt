@@ -1,0 +1,44 @@
+# cell: push-encoding/C-L-w32-p2sh-pattern
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_p2sh.ll build/l_cell_p2sh.ll
+
+----------------------------------------
+define i64 @cell_p2sh(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b22, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %n, 23
+  %cmp1.not = icmp eq i8 noundef zeroext %b0, 169
+  %or.cond = and i1 %cmp1.not, %cmp.not
+  %cmp5.not = icmp eq i8 noundef zeroext %b1, 20
+  %or.cond12 = and i1 %cmp5.not, %or.cond
+  %cmp9.not = icmp eq i8 noundef zeroext %b22, 135
+  %narrow = and i1 %cmp9.not, %or.cond12
+  %retval.0 = zext i1 %narrow to i64
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 2
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_p2sh(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b22, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i32 noundef %n, 23
+  %cmp1.i = icmp eq i8 noundef zeroext %b0, 169
+  %or.cond = and i1 %cmp1.i, %cmp.i
+  %cmp5.i = icmp eq i8 noundef zeroext %b1, 20
+  %or.cond4 = and i1 %cmp5.i, %or.cond
+  %cmp8.i = icmp eq i8 noundef zeroext %b22, 135
+  %spec.select = and i1 %cmp8.i, %or.cond4
+  %conv = zext i1 %spec.select to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 2
+  ret i64 %#range_0_%conv
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
