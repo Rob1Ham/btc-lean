@@ -1,0 +1,119 @@
+# cell: C-L-cms-tapscript-ban
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_sig (same symbol both legs)
+# checker return annotated noundef (C bool return; same-crypto premise)
+# c_leaf sha256: 9a1c5eaf875f99e26b7de9fa337489a4146f100935ac6f7db8b1fcf06f2c759a
+# l_leaf sha256: e451e8f68aa2c2cfb0811a00321f000784ff34c0c8dcc76c54f969eb3aeba21b
+
+===== cell_cms_tapscript_ban =====
+# command: /opt/equiv-tools/alive-tv-v20.0 --bidirectional build/c_cell_cms_tapscript_ban.ll build/l_cell_cms_tapscript_ban.ll
+# c IR sha256: 2a811e71fea13c8470a7110392eae090a507f0e482b1adcbbf24c957a2857d02
+# l IR sha256: 1fdb99a8a48151f01dd58efede4882a89760495ccf0231dc9a6b6fa7c8a9620a
+
+----------------------------------------
+define i64 @cell_cms_tapscript_ban(i32 noundef %sigversion, i32 noundef %opcode, i32 noundef %stackSize, i32 noundef %nKeysIn, i32 noundef %nSigsIn) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp eq i32 noundef %sigversion, 2
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %cmp1 = icmp eq i32 noundef %stackSize, 0
+  br i1 %cmp1, label %return, label %if.end4
+
+if.end4:
+  %or.cond = icmp ugt i32 noundef %nKeysIn, 20
+  br i1 %or.cond, label %return, label %if.end9
+
+if.end9:
+  %narrow = add nsw nuw i32 noundef %nKeysIn, 2
+  %cmp15 = icmp ult i32 noundef %stackSize, %narrow
+  br i1 %cmp15, label %return, label %if.end18
+
+if.end18:
+  %or.cond58 = icmp ugt i32 noundef %nSigsIn, noundef %nKeysIn
+  br i1 %or.cond58, label %return, label %if.end24
+
+if.end24:
+  %narrow56 = add nsw nuw i32 noundef %nKeysIn, 3
+  %narrow57 = add nuw i32 %narrow56, noundef %nSigsIn
+  %cmp30 = icmp ugt i32 %narrow57, noundef %stackSize
+  br i1 %cmp30, label %return, label %if.end33
+
+if.end33:
+  %#0 = shl nsw nuw i32 noundef %nKeysIn, 6
+  %#1 = shl nsw nuw i32 noundef %nSigsIn, 11
+  %or722.i = or disjoint i32 %#1, %#0
+  %#2 = shl nsw nuw i32 %narrow, 16
+  %or1123.i = add nsw nuw i32 %or722.i, %#2
+  %#3 = shl nsw nuw i32 %narrow56, 22
+  %or1524.i = add nsw nuw i32 %or1123.i, %#3
+  %or15.i = zext nneg i32 %or1524.i to i64
+  br label %return
+
+return:
+  %retval.3 = phi i64 [ %or15.i, %if.end33 ], [ 50, %entry ], [ 3, %if.end ], [ 1, %if.end4 ], [ 3, %if.end9 ], [ 4, %if.end18 ], [ 3, %if.end24 ]
+  %#range_0_%retval.3 = !range i64 %retval.3, i64 1, i64 4294967296
+  ret i64 %#range_0_%retval.3
+}
+=>
+define i64 @cell_cms_tapscript_ban(i32 noundef %sigversion, i32 noundef %opcode, i32 noundef %stackSize, i32 noundef %nKeysIn, i32 noundef %nSigsIn) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp eq i32 noundef %sigversion, 2
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %stackSize to i64
+  %cmp1 = icmp eq i32 noundef %stackSize, 0
+  br i1 %cmp1, label %return, label %if.end4
+
+if.end4:
+  %or.cond = icmp ugt i32 noundef %nKeysIn, 20
+  br i1 %or.cond, label %return, label %if.end10
+
+if.end10:
+  %narrow55 = add nsw nuw i32 noundef %nKeysIn, 2
+  %cmp15 = icmp ugt i32 %narrow55, noundef %stackSize
+  br i1 %cmp15, label %return, label %if.end18
+
+if.end18:
+  %or.cond56 = icmp ugt i32 noundef %nSigsIn, noundef %nKeysIn
+  br i1 %or.cond56, label %return, label %if.end25
+
+if.end25:
+  %narrow = add nuw i32 noundef %nSigsIn, noundef %nKeysIn
+  %add29 = zext i32 %narrow to i64
+  %add30 = add nsw nuw i64 %add29, 3
+  %cmp31 = icmp samesign ugt i64 %add30, %conv
+  br i1 %cmp31, label %return, label %if.end34
+
+if.end34:
+  %and1.i = shl nsw nuw i32 noundef %nKeysIn, 6
+  %and4.i = shl i32 noundef %nSigsIn, 11
+  %#0 = and i32 %and4.i, 63488
+  %or722.i = or disjoint i32 %#0, %and1.i
+  %and8.i = shl nsw nuw i32 %narrow55, 16
+  %or1123.i = or disjoint i32 %or722.i, %and8.i
+  %add36 = shl nsw nuw i32 noundef %nKeysIn, 22
+  %and12.i = add nsw nuw i32 %add36, 12582912
+  %or1524.i = or disjoint i32 %or1123.i, %and12.i
+  %or15.i = zext nneg i32 %or1524.i to i64
+  br label %return
+
+return:
+  %retval.5 = phi i64 [ %or15.i, %if.end34 ], [ 50, %entry ], [ 3, %if.end ], [ 1, %if.end4 ], [ 3, %if.end10 ], [ 4, %if.end18 ], [ 3, %if.end25 ]
+  %#range_0_%retval.5 = !range i64 %retval.5, i64 1, i64 268435456
+  ret i64 %#range_0_%retval.5
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_cms_tapscript_ban=alive2-green
+STATUS=alive2-green

@@ -1,0 +1,72 @@
+// Independent Cryptol oracle for the SCR-116 matching-order cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1163-1189: walk the keys from the
+// top of the key block downward, compare each against the current signature,
+// advance the signature only on a match, and fail as soon as more signatures
+// than keys remain.  The trace is (keys examined, matched-key mask, whether the
+// early "sigs > keys" exit fired, fSuccess); out-of-domain inputs return the
+// cell sentinel.
+//
+// The checker instance is a parameter: match{0..4} mirror the shared SAW stub
+// cases.  Alive2 quantifies over the checker instead, so these instances are
+// the SAW point checks, not the whole claim.
+module cms_order_model where
+
+// match relation per stub instance: signature index k against key index j
+match0 : [32] -> [32] -> Bit
+match0 k j = False
+
+match1 : [32] -> [32] -> Bit
+match1 k j = True
+
+match2 : [32] -> [32] -> Bit
+match2 k j = (k == j)
+
+match3 : [32] -> [32] -> Bit
+match3 k j = ((k + 0x00000001) == j)
+
+match4 : [32] -> [32] -> Bit
+match4 k j = ((k + 0x00000002) == j)
+
+// state = (fs, nSigsLeft, isig, nKeysLeft, examined, mask, early)
+type State = (Bit, [32], [32], [32], [32], [32], Bit)
+
+didMatch : ([32] -> [32] -> Bit) -> State -> [32] -> Bit
+didMatch f s j = f (s.2) j
+
+nsAfter : ([32] -> [32] -> Bit) -> State -> [32] -> [32]
+nsAfter f s j = if didMatch f s j then s.1 - 0x00000001 else s.1
+
+isigAfter : ([32] -> [32] -> Bit) -> State -> [32] -> [32]
+isigAfter f s j = if didMatch f s j then s.2 + 0x00000001 else s.2
+
+step : ([32] -> [32] -> Bit) -> [32] -> State -> State
+step f j s =
+  if (s.0) && (s.1 != 0x00000000)
+  then ( if (nsAfter f s j) > (s.3 - 0x00000001) then False else s.0,
+         nsAfter f s j,
+         isigAfter f s j,
+         s.3 - 0x00000001,
+         s.4 + 0x00000001,
+         if didMatch f s j then (s.5 || (0x00000001 << j)) else s.5,
+         (nsAfter f s j) > (s.3 - 0x00000001) )
+  else s
+
+s4 : ([32] -> [32] -> Bit) -> [32] -> [32] -> State
+s4 f nk ns = step f 0x00000003 (step f 0x00000002 (step f 0x00000001
+               (step f 0x00000000 (True, ns, 0x00000000, nk, 0x00000000,
+                                   0x00000000, False))))
+
+w64 : [32] -> [64]
+w64 x = zext x
+
+traceOf : ([32] -> [32] -> Bit) -> [32] -> [32] -> [64]
+traceOf f nk ns =
+  (w64 ((s4 f nk ns).4)) || (w64 ((s4 f nk ns).5) << 3) ||
+  (if (s4 f nk ns).6 then 0x0000000000000080 else 0x0000000000000000) ||
+  (if (s4 f nk ns).0 then 0x0000000000000100 else 0x0000000000000000)
+
+order : ([32] -> [32] -> Bit) -> [32] -> [32] -> [64]
+order f nk ns =
+  if (nk > 0x00000004) || (ns > nk) then 0x000000000000ffff
+  else traceOf f nk ns

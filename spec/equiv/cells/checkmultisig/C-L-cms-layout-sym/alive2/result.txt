@@ -1,0 +1,130 @@
+# cell: C-L-cms-layout-sym
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_sig (same symbol both legs)
+# checker return annotated noundef (C bool return; same-crypto premise)
+# c_leaf sha256: 0437ae13d18a973e3a93819bbb3f3c0b41eb21cb86bf5d749858735b9290e6eb
+# l_leaf sha256: 5299f0159f1c144e354420037efca4abe9df5d0360730d12d8d9545bcea5b238
+
+===== cell_cms_layout =====
+# command: /opt/equiv-tools/alive-tv-v20.0 --bidirectional build/c_cell_cms_layout.ll build/l_cell_cms_layout.ll
+# c IR sha256: 98b391a437e0951af01095feb1b2ffb5dd8764205e14d1067fe34890a794bf60
+# l IR sha256: bd61f288c5ba674f0c58e124d6970422380bf94a4ca181f6cb83463e925def52
+
+----------------------------------------
+define i64 @cell_cms_layout(i32 noundef %nKeysIn, i32 noundef %nSigsIn, i32 noundef %stackSize, i32 noundef %opCount) nofree willreturn memory(none) {
+entry:
+  %conv = zext i32 noundef %stackSize to i64
+  %cmp = icmp eq i32 noundef %stackSize, 0
+  br i1 %cmp, label %cleanup43, label %if.end
+
+if.end:
+  %or.cond = icmp ugt i32 noundef %nKeysIn, 20
+  br i1 %or.cond, label %cleanup43, label %if.end5
+
+if.end5:
+  %conv6 = zext i32 noundef %opCount to i64
+  %conv7 = zext nneg i32 noundef %nKeysIn to i64
+  %add = add nsw nuw i64 %conv6, %conv7
+  %cmp8 = icmp samesign ugt i64 %add, 201
+  br i1 %cmp8, label %cleanup43, label %if.end11
+
+if.end11:
+  %add13 = add nsw nuw i64 %conv7, 2
+  %cmp18 = icmp samesign ugt i64 %add13, %conv
+  br i1 %cmp18, label %cleanup43, label %if.end21
+
+if.end21:
+  %or.cond62 = icmp ugt i32 noundef %nSigsIn, noundef %nKeysIn
+  br i1 %or.cond62, label %cleanup43, label %if.end27
+
+if.end27:
+  %add28 = add nsw nuw i64 %conv7, 3
+  %conv29 = zext nneg i32 noundef %nSigsIn to i64
+  %add30 = add nsw nuw i64 %add28, %conv29
+  %cmp32 = icmp samesign ugt i64 %add30, %conv
+  br i1 %cmp32, label %cleanup43, label %if.end35
+
+if.end35:
+  %conv36 = trunc nsw nuw i64 %add13 to i32
+  %conv37 = trunc nsw nuw i64 %add28 to i32
+  %#0 = shl nsw nuw i32 noundef %nKeysIn, 3
+  %#1 = shl nsw nuw i32 noundef %nSigsIn, 8
+  %or722.i = or disjoint i32 %#1, %#0
+  %#2 = shl nsw nuw i32 %conv36, 13
+  %or1123.i = add nsw nuw i32 %#2, %or722.i
+  %#3 = shl nsw nuw i32 %conv37, 19
+  %or1524.i = add nsw nuw i32 %or1123.i, %#3
+  %or15.i = zext nneg i32 %or1524.i to i64
+  br label %cleanup43
+
+cleanup43:
+  %retval.5 = phi i64 [ %or15.i, %if.end35 ], [ 3, %entry ], [ 1, %if.end ], [ 2, %if.end5 ], [ 3, %if.end11 ], [ 4, %if.end21 ], [ 3, %if.end27 ]
+  %#range_0_%retval.5 = !range i64 %retval.5, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.5
+}
+=>
+define i64 @cell_cms_layout(i32 noundef %nKeysIn, i32 noundef %nSigsIn, i32 noundef %stackSize, i32 noundef %opCount) nofree willreturn memory(none) {
+entry:
+  %conv = zext i32 noundef %stackSize to i64
+  %cmp = icmp eq i32 noundef %stackSize, 0
+  br i1 %cmp, label %cleanup43, label %if.end
+
+if.end:
+  %or.cond = icmp ugt i32 noundef %nKeysIn, 20
+  br i1 %or.cond, label %cleanup43, label %if.end6
+
+if.end6:
+  %conv8 = zext i32 noundef %opCount to i64
+  %conv9 = zext nneg i32 noundef %nKeysIn to i64
+  %add = add nsw nuw i64 %conv8, %conv9
+  %cmp10 = icmp samesign ugt i64 %add, 201
+  br i1 %cmp10, label %cleanup43, label %if.end13
+
+if.end13:
+  %add15 = add nsw nuw i64 %conv9, 2
+  %cmp16 = icmp samesign ugt i64 %add15, %conv
+  br i1 %cmp16, label %cleanup43, label %if.end19
+
+if.end19:
+  %or.cond57 = icmp ugt i32 noundef %nSigsIn, noundef %nKeysIn
+  br i1 %or.cond57, label %cleanup43, label %if.end26
+
+if.end26:
+  %narrow = add nuw i32 noundef %nSigsIn, noundef %nKeysIn
+  %add30 = zext i32 %narrow to i64
+  %add31 = add nsw nuw i64 %add30, 3
+  %cmp32 = icmp samesign ugt i64 %add31, %conv
+  br i1 %cmp32, label %cleanup43, label %if.end35
+
+if.end35:
+  %and1.i = shl nsw nuw i32 noundef %nKeysIn, 3
+  %and4.i = shl i32 noundef %nSigsIn, 8
+  %#0 = and i32 %and4.i, 7936
+  %or722.i = or disjoint i32 %#0, %and1.i
+  %add36 = shl nsw nuw i32 noundef %nKeysIn, 13
+  %and8.i = add nsw nuw i32 %add36, 16384
+  %or1123.i = or disjoint i32 %or722.i, %and8.i
+  %add37 = shl nsw nuw i32 noundef %nKeysIn, 19
+  %and12.i = add nsw nuw i32 %add37, 1572864
+  %or1524.i = or disjoint i32 %or1123.i, %and12.i
+  %or15.i = zext nneg i32 %or1524.i to i64
+  br label %cleanup43
+
+cleanup43:
+  %retval.4 = phi i64 [ %or15.i, %if.end35 ], [ 3, %entry ], [ 1, %if.end ], [ 2, %if.end6 ], [ 3, %if.end13 ], [ 4, %if.end19 ], [ 3, %if.end26 ]
+  %#range_0_%retval.4 = !range i64 %retval.4, i64 1, i64 33554432
+  ret i64 %#range_0_%retval.4
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_cms_layout=alive2-green
+STATUS=alive2-green
