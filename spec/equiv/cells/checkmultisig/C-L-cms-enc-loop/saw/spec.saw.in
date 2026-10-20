@@ -1,0 +1,20 @@
+// SAW script template for the SCR-117 encoding-gate cell.  @CASE@ selects a
+// concrete encoding/checker stub instance: 0 no rejects + checker false,
+// 1 checker true, 2 checker diagonal, 5 sig gate rejects all, 6 sig gate
+// rejects only the second signature (checker diagonal), 7 pubkey gate
+// rejects all.  Alive2 quantifies over the checker but not the validators.
+import "model.cry";
+
+mC <- llvm_load_module "c_saw_c@CASE@.bc";
+mL <- llvm_load_module "l_saw_c@CASE@.bc";
+
+let spec = do {
+  nk <- llvm_fresh_var "nk" (llvm_int 32);
+  ns <- llvm_fresh_var "ns" (llvm_int 32);
+  llvm_execute_func [llvm_term nk, llvm_term ns];
+  llvm_return (llvm_term {{ cms_enc@CASE@ nk ns }});
+};
+
+llvm_verify mC "cell_cms_enc" [] false spec abc;
+llvm_verify mL "cell_cms_enc" [] false spec abc;
+print "CASE_@CASE@_OK";

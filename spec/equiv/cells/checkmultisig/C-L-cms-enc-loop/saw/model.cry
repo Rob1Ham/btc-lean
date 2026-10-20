@@ -1,0 +1,142 @@
+// Independent Cryptol oracle for the SCR-117 encoding-gate cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1171-1174 at the pin:
+//   if (!CheckSignatureEncoding(vchSig, flags, serror) ||
+//       !CheckPubKeyEncoding(vchPubKey, flags, sigversion, serror))
+//       return false;                      // serror is set
+// i.e. both gates are evaluated once per loop body, after the pair is fixed
+// and before the checker call; a signature-gate error takes precedence and
+// aborts before the pubkey gate and the checker.
+//
+// The oracle mirrors the *trace* the cell packs:
+//   bit 0 result | 1..6 error ordinal | 7..8 bodies entered
+//   body 0: bits 9..13 = entered, sigRej, pkRej, checkerCalled, checkerTrue
+//   body 1: bits 14..18 = same fields
+// Out-of-domain (nKeys > 2, nSigs > nKeys) returns the cell sentinel 0xFFFF.
+//
+// The encoding validators and the checker are parameters.  The named
+// instances below mirror the shared SAW stubs; Alive2 quantifies over the
+// checker but not over the (separately abstract) validators.
+module cms_enc_model where
+
+// state = (fs, nSigs, sigId, nKeysLeft, bodies, entered, sigRej, pkRej,
+//          chkCalled, chkTrue, err)
+type ES = (Bit, [32], [32], [32], [32], [32], [32], [32], [32], [32], [32])
+
+sigOf : ES -> [32]
+sigOf s = 0x00010040 + s.2
+
+pkOf : ES -> [32]
+pkOf s = 0x00010040 + s.4      // body index = key position
+
+nsOf : Bit -> ES -> [32]
+nsOf ok s = if ok then s.1 - 0x00000001 else s.1
+
+gateSig : [32] -> ES -> ES
+gateSig e s =
+  (False, s.1, s.2, s.3, s.4 + 0x00000001,
+   s.5 || (0x00000001 << s.4), s.6 || (0x00000001 << s.4),
+   s.7, s.8, s.9, e)
+
+gatePk : [32] -> ES -> ES
+gatePk e s =
+  (False, s.1, s.2, s.3, s.4 + 0x00000001,
+   s.5 || (0x00000001 << s.4), s.6,
+   s.7 || (0x00000001 << s.4), s.8, s.9, e)
+
+matchBody : Bit -> ES -> ES
+matchBody ok s =
+  ( if (nsOf ok s) > (s.3 - 0x00000001) then False else s.0,
+    nsOf ok s,
+    if ok then s.2 + 0x00000001 else s.2,
+    s.3 - 0x00000001,
+    s.4 + 0x00000001,
+    s.5 || (0x00000001 << s.4),
+    s.6, s.7,
+    s.8 || (0x00000001 << s.4),
+    s.9 || (if ok then 0x00000001 << s.4 else 0x00000000),
+    s.10 )
+
+step : ([32] -> [32] -> [32]) -> ([32] -> [32] -> [32]) ->
+       ([32] -> [32] -> Bit) -> ES -> ES
+step se pe chk s =
+  if (s.0) && (s.1 != 0x00000000)
+  then if se (sigOf s) 0x00000000 != 0x00000000
+       then gateSig (se (sigOf s) 0x00000000) s
+       else if pe (pkOf s) 0x00000000 != 0x00000000
+            then gatePk (pe (pkOf s) 0x00000000) s
+            else matchBody (chk (sigOf s) (pkOf s)) s
+  else s
+
+two : ([32] -> [32] -> [32]) -> ([32] -> [32] -> [32]) ->
+      ([32] -> [32] -> Bit) -> [32] -> [32] -> ES
+two se pe chk nk ns =
+  step se pe chk (step se pe chk (True, ns, 0x00000000, nk, 0x00000000,
+                                 0x00000000, 0x00000000, 0x00000000,
+                                 0x00000000, 0x00000000, 0x00000000))
+
+w64 : [32] -> [64]
+w64 x = zext x
+
+nth : [32] -> Integer -> [64]
+nth m i = zext ((m >> i) && 0x00000001)
+
+pack : ES -> [64]
+pack s =
+  (if s.0 then 0x0000000000000001 else 0x0000000000000000) ||
+  (w64 s.10 << 1) || (w64 s.4 << 7) ||
+  (nth s.5 0 << 9)  || (nth s.6 0 << 10) || (nth s.7 0 << 11) ||
+  (nth s.8 0 << 12) || (nth s.9 0 << 13) ||
+  (nth s.5 1 << 14) || (nth s.6 1 << 15) || (nth s.7 1 << 16) ||
+  (nth s.8 1 << 17) || (nth s.9 1 << 18)
+
+run : ([32] -> [32] -> [32]) -> ([32] -> [32] -> [32]) ->
+      ([32] -> [32] -> Bit) -> [32] -> [32] -> [64]
+run se pe chk nk ns =
+  if (nk > 0x00000002) || (ns > nk) then 0x000000000000ffff
+  else pack (two se pe chk nk ns)
+
+// --- stub instances -------------------------------------------------------
+// Signature encoding: accepts everything, rejects everything (SIG_DER = 24),
+// or rejects only signature index 1 (encoded low byte 0x41).
+se0 : [32] -> [32] -> [32]
+se0 sig f = 0x00000000
+
+se5 : [32] -> [32] -> [32]
+se5 sig f = 0x00000018
+
+se6 : [32] -> [32] -> [32]
+se6 sig f = if (sig && 0x000000ff) == 0x00000041 then 0x00000018
+            else 0x00000000
+
+// Pubkey encoding: accepts everything, or rejects everything (PUBKEYTYPE=29).
+pe0 : [32] -> [32] -> [32]
+pe0 pk f = 0x00000000
+
+pe7 : [32] -> [32] -> [32]
+pe7 pk f = 0x0000001d
+
+// Checker instances mirroring the shared stub modes.
+chk0 : [32] -> [32] -> Bit
+chk0 k j = False
+chk1 : [32] -> [32] -> Bit
+chk1 k j = True
+chk2 : [32] -> [32] -> Bit
+chk2 k j = (k == j)
+chk3 : [32] -> [32] -> Bit
+chk3 k j = ((k + 0x00000001) == j)
+chk4 : [32] -> [32] -> Bit
+chk4 k j = ((k + 0x00000002) == j)
+
+cms_enc0 : [32] -> [32] -> [64]
+cms_enc0 nk ns = run se0 pe0 chk0 nk ns
+cms_enc1 : [32] -> [32] -> [64]
+cms_enc1 nk ns = run se0 pe0 chk1 nk ns
+cms_enc2 : [32] -> [32] -> [64]
+cms_enc2 nk ns = run se0 pe0 chk2 nk ns
+cms_enc5 : [32] -> [32] -> [64]
+cms_enc5 nk ns = run se5 pe0 chk0 nk ns
+cms_enc6 : [32] -> [32] -> [64]
+cms_enc6 nk ns = run se6 pe0 chk2 nk ns
+cms_enc7 : [32] -> [32] -> [64]
+cms_enc7 nk ns = run se0 pe7 chk0 nk ns

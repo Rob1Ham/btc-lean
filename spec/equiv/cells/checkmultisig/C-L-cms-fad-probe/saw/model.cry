@@ -1,0 +1,126 @@
+// Independent Cryptol oracle for the SCR-115 FindAndDelete-order cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1152-1160 at the pin: the
+// scriptCode is copied from the last OP_CODESEPARATOR, then `for k in
+// 0..nSigsCount-1` applies `FindAndDelete(scriptCode, push(sig_k))` -- all of
+// them, before the verification loop at 1163.  BASE is the only sigversion
+// that deletes; a positive `found` with SCRIPT_VERIFY_CONST_SCRIPTCODE latches
+// SIG_FINDANDDELETE (54).
+//
+// `findAndDelete` itself is a parameter here (the same abstract seam symbol
+// both legs call); fadStub mirrors the shared SAW stub.
+//
+// Observable (cms_pack_fad):
+//   bits 0..1 result | 2..7 error | 8..9 calls | 10..11 deletions applied
+//   bits 12..43 script id after the fold | bit 44 call0 saw final |
+//   bit 45 call1 saw call0 | bits 46..47 deletions with found>0 |
+//   bit 48 BASE.   Out-of-domain returns 0xFFFF.
+module cms_fad_model where
+
+// fold state = (cur, applied, foundpos, err, done)
+type FS = ([32], [32], [32], [32], Bit)
+// probe state = (fs, nSigs, sigId, nKeys, calls, c0Eq, c1Eq, c0Sc, curSc)
+type PS = (Bit, [32], [32], [32], [32], Bit, Bit, [32], [32])
+
+pushEnc : [32] -> [32]
+pushEnc k = 0x00010111 + k
+
+fadStub : [32] -> [32] -> ([32], [32])
+fadStub sc push =
+  ( if (sc && 0x0000ffff) == (push && 0x0000ffff) then 0x00000001
+    else 0x00000000,
+    if (sc && 0x0000ffff) == (push && 0x0000ffff) then sc + 0x00000100
+    else sc )
+
+fadStep : [32] -> [32] -> FS -> FS
+fadStep cf push s =
+  if s.4 then s
+  else if (fadStub s.0 push).0 != 0x00000000
+       then if cf != 0x00000000
+            then ((fadStub s.0 push).1, s.1 + 1, s.2 + 1, 0x00000036, True)
+            else ((fadStub s.0 push).1, s.1 + 1, s.2 + 1, s.3, False)
+       else ((fadStub s.0 push).1, s.1 + 1, s.2, s.3, False)
+
+fold : [32] -> Bit -> [32] -> [32] -> FS
+fold nsigs base cf sc =
+  if base && (0x00000000 < nsigs)
+  then if 0x00000001 < nsigs
+       then fadStep cf (pushEnc 0x00000001)
+              (fadStep cf (pushEnc 0x00000000) (sc, 0, 0, 0, False))
+       else fadStep cf (pushEnc 0x00000000) (sc, 0, 0, 0, False)
+  else (sc, 0, 0, 0, False)
+
+nsAfter : Bit -> PS -> [32]
+nsAfter ok s = if ok then s.1 - 1 else s.1
+
+sidAfter : Bit -> PS -> [32]
+sidAfter ok s = if ok then s.2 + 1 else s.2
+
+fsAfter : Bit -> PS -> Bit
+fsAfter ok s = if (nsAfter ok s) > (s.3 - 1) then False else s.0
+
+pstep2 : Bit -> [32] -> [32] -> PS -> PS
+pstep2 ok f t s =
+  ( fsAfter ok s, nsAfter ok s, sidAfter ok s, s.3 - 1, s.4 + 1,
+    if s.4 == 0 then (s.8 == f) else s.5,
+    if s.4 == 1 then (s.8 == s.7) else s.6,
+    if s.4 == 0 then s.8 else s.7,
+    s.8 )
+
+pstep : ([32] -> [32] -> Bit) -> [32] -> [32] -> PS -> PS
+pstep chk f t s =
+  if (s.0) && (s.1 != 0x00000000)
+  then pstep2 (chk (0x00010040 + s.2) (0x00010040 + t)) f t s
+  else s
+
+probe : ([32] -> [32] -> Bit) -> [32] -> [32] -> PS
+probe chk nsigs f =
+  pstep chk f 0x00000001
+    (pstep chk f 0x00000000
+       (True, nsigs, 0x00000000, nsigs, 0x00000000, False, False,
+        0x00000000, f))
+
+chk0 : [32] -> [32] -> Bit
+chk0 k j = False
+chk1 : [32] -> [32] -> Bit
+chk1 k j = True
+
+run : ([32] -> [32] -> Bit) -> [32] -> [32] -> [32] -> [32] -> [64]
+run chk nsigs sv cf sc =
+  if (nsigs > 0x00000002) || (sv > 0x00000001) || (cf > 0x00000001)
+  then 0x000000000000ffff
+  else pack (fold nsigs (sv == 0x00000000) cf sc)
+            (probe chk nsigs (fold nsigs (sv == 0x00000000) cf sc).0)
+            (sv == 0x00000000)
+
+// Observable packer (kept separate because this Cryptol dialect rejects `let`).
+// An error latched in the fold means checkMultiSig never reaches cmsLoop, so
+// the probe state is the untouched initial one (no checker calls).
+effPs : FS -> PS -> PS
+effPs fs ps =
+  if fs.4 then (True, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                False, False, 0x00000000, fs.0)
+  else ps
+
+pack : FS -> PS -> Bit -> [64]
+pack fs ps0 base =
+  let2 fs (effPs fs ps0) base
+
+let2 : FS -> PS -> Bit -> [64]
+let2 fs ps base =
+  ( if fs.4 then 0x0000000000000003
+    else if ps.0 then 0x0000000000000001 else 0x0000000000000000 ) ||
+  (zext fs.3 << 2) ||
+  (zext ps.4 << 8) ||
+  (zext fs.1 << 10) ||
+  (zext fs.0 << 12) ||
+  (if ps.5 then 0x0000100000000000 else 0x0000000000000000) ||
+  (if ps.6 then 0x0000200000000000 else 0x0000000000000000) ||
+  (zext fs.2 << 46) ||
+  (if base then 0x0001000000000000 else 0x0000000000000000)
+
+cms_fad0 : [32] -> [32] -> [32] -> [32] -> [64]
+cms_fad0 nsigs sv cf sc = run chk0 nsigs sv cf sc
+
+cms_fad1 : [32] -> [32] -> [32] -> [32] -> [64]
+cms_fad1 nsigs sv cf sc = run chk1 nsigs sv cf sc
