@@ -1,0 +1,35 @@
+module Spec where
+
+// Independent reconstruction of the P2WPKH implied redeem script from the
+// Lean byte list (Defs.lean:1272-1274):
+//   [0x76, 0xa9, 0x14] ++ program ++ [0x88, 0xac]
+// where program is 20 bytes carried as three little-endian u64 words
+// (p0 = bytes 0..7, p1 = bytes 8..15, p2 = bytes 16..19).
+// The 25 script bytes are returned as four little-endian u64 words, with
+// bytes 25..31 of w3 zero.
+
+byte : [64] -> [8] -> [8]
+byte w i = drop`{56} (w >> (i * 8))
+
+programBytes : [64] -> [64] -> [64] -> [20][8]
+programBytes p0 p1 p2 =
+  [ byte p0 i | i <- [0 .. 7] ] #
+  [ byte p1 i | i <- [0 .. 7] ] #
+  [ byte p2 i | i <- [0 .. 3] ]
+
+script32 : [64] -> [64] -> [64] -> [32][8]
+script32 p0 p1 p2 =
+  ([0x76, 0xa9, 0x14] # programBytes p0 p1 p2 # [0x88, 0xac]) #
+  (zero : [7][8])
+
+w0 : [64] -> [64] -> [64] -> [64]
+w0 p0 p1 p2 = join (reverse (take`{8} (script32 p0 p1 p2)))
+
+w1 : [64] -> [64] -> [64] -> [64]
+w1 p0 p1 p2 = join (reverse (take`{8} (drop`{8} (script32 p0 p1 p2))))
+
+w2 : [64] -> [64] -> [64] -> [64]
+w2 p0 p1 p2 = join (reverse (take`{8} (drop`{16} (script32 p0 p1 p2))))
+
+w3 : [64] -> [64] -> [64] -> [64]
+w3 p0 p1 p2 = join (reverse (take`{8} (drop`{24} (script32 p0 p1 p2))))

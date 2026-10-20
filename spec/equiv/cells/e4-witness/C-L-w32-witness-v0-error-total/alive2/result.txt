@@ -1,0 +1,110 @@
+# cell: e4-witness/C-L-w32-witness-v0-error-total
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_v0_error_total =====
+
+----------------------------------------
+define i64 @cell_v0_error_total(i64 noundef %plen, i64 noundef %wn, i64 noundef %hash_ok, i64 noundef %exec_res, i64 noundef %exec_err) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %plen, label %_ZL16c_v0_error_totalmmmmm.exit [
+    i64 32, label %if.then.i
+    i64 20, label %if.then9.i
+  ]
+
+if.then9.i:
+  %cmp10.not.i = icmp eq i64 noundef %wn, 2
+  br i1 %cmp10.not.i, label %if.end13.i, label %_ZL16c_v0_error_totalmmmmm.exit
+
+if.end13.i:
+  %#0 = trunc i64 noundef %exec_res to i32
+  %conv.i1 = and i32 %#0, 1
+  %tobool.not.i2 = icmp eq i32 %conv.i1, 0
+  %#1 = trunc i64 noundef %exec_err to i32
+  %conv2.i3 = shl i32 %#1, 2
+  %#2 = and i32 %conv2.i3, 252
+  %#3 = select i1 %tobool.not.i2, i32 %#2, i32 0
+  %or3.i.i5 = or disjoint i32 %#3, %conv.i1
+  br label %_ZL16c_v0_error_totalmmmmm.exit
+
+if.then.i:
+  %cmp1.i = icmp eq i64 noundef %wn, 0
+  br i1 %cmp1.i, label %_ZL16c_v0_error_totalmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp3.i = icmp eq i64 noundef %hash_ok, 0
+  br i1 %cmp3.i, label %_ZL16c_v0_error_totalmmmmm.exit, label %if.end6.i
+
+if.end6.i:
+  %#4 = trunc i64 noundef %exec_res to i32
+  %conv.i = and i32 %#4, 1
+  %tobool.not.i = icmp eq i32 %conv.i, 0
+  %#5 = trunc i64 noundef %exec_err to i32
+  %conv2.i = shl i32 %#5, 2
+  %#6 = and i32 %conv2.i, 252
+  %#7 = select i1 %tobool.not.i, i32 %#6, i32 0
+  %or3.i.i = or disjoint i32 %#7, %conv.i
+  br label %_ZL16c_v0_error_totalmmmmm.exit
+
+_ZL16c_v0_error_totalmmmmm.exit:
+  %retval.0.i.shrunk = phi i32 [ %or3.i.i, %if.end6.i ], [ %or3.i.i5, %if.end13.i ], [ 156, %if.then.i ], [ 160, %if.end.i ], [ 160, %if.then9.i ], [ 152, %entry ]
+  %retval.0.i = zext nneg i32 %retval.0.i.shrunk to i64
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 254
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_v0_error_total(i64 noundef %plen, i64 noundef %wn, i64 noundef %hash_ok, i64 noundef %exec_res, i64 noundef %exec_err) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %plen, label %_ZL16l_v0_error_totalmmmmm.exit [
+    i64 32, label %if.then.i
+    i64 20, label %if.then9.i
+  ]
+
+if.then9.i:
+  %cmp10.not.i = icmp eq i64 noundef %wn, 2
+  br i1 %cmp10.not.i, label %if.end14.i, label %_ZL16l_v0_error_totalmmmmm.exit
+
+if.end14.i:
+  %conv4.i4 = and i64 noundef %exec_res, 1
+  %tobool.not.i5 = icmp eq i64 %conv4.i4, 0
+  %conv2.i6 = shl i64 noundef %exec_err, 32
+  %#0 = and i64 %conv2.i6, 270582939648
+  %retval.sroa.2.0.insert.shift.i7 = select i1 %tobool.not.i5, i64 %#0, i64 0
+  br label %_ZL16l_v0_error_totalmmmmm.exit
+
+if.then.i:
+  %cmp1.i = icmp eq i64 noundef %wn, 0
+  br i1 %cmp1.i, label %_ZL16l_v0_error_totalmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp3.i = icmp eq i64 noundef %hash_ok, 0
+  br i1 %cmp3.i, label %_ZL16l_v0_error_totalmmmmm.exit, label %if.end7.i
+
+if.end7.i:
+  %conv4.i = and i64 noundef %exec_res, 1
+  %tobool.not.i = icmp eq i64 %conv4.i, 0
+  %conv2.i = shl i64 noundef %exec_err, 32
+  %#1 = and i64 %conv2.i, 270582939648
+  %retval.sroa.2.0.insert.shift.i = select i1 %tobool.not.i, i64 %#1, i64 0
+  br label %_ZL16l_v0_error_totalmmmmm.exit
+
+_ZL16l_v0_error_totalmmmmm.exit:
+  %retval.sroa.0.0.i = phi i64 [ %conv4.i, %if.end7.i ], [ %conv4.i4, %if.end14.i ], [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.then9.i ], [ 0, %entry ]
+  %retval.sroa.7.0.i = phi i64 [ %retval.sroa.2.0.insert.shift.i, %if.end7.i ], [ %retval.sroa.2.0.insert.shift.i7, %if.end14.i ], [ 167503724544, %if.then.i ], [ 171798691840, %if.end.i ], [ 171798691840, %if.then9.i ], [ 163208757248, %entry ]
+  %sh.diff = lshr i64 %retval.sroa.7.0.i, 30
+  %#2 = and i64 %sh.diff, 4294967292
+  %or3.i = or disjoint i64 %#2, %retval.sroa.0.0.i
+  %#range_0_%or3.i = !range i64 %or3.i, i64 0, i64 254
+  ret i64 %#range_0_%or3.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

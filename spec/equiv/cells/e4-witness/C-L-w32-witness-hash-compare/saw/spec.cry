@@ -1,0 +1,19 @@
+module Spec where
+
+// Independent Cryptol encoding of interpreter.cpp:1939-1945:
+//   if (memcmp(SHA256(exec_script), program, 32)) -> (0, 40)
+//   else -> ExecuteWitnessScript (exec_res, exec_err)
+// h0..h3 and p0..p3 are the little-endian u64 words of the 32-byte digest and
+// program.  packed = result(2) | error(6) << 2; (0,40) = 160.
+
+execPair : [64] -> [64] -> [64]
+execPair er ee =
+  if (er && 1) == 1 then 1 else (ee && 63) * 4
+
+hashCompare : [64] -> [64] -> [64] -> [64] ->
+              [64] -> [64] -> [64] -> [64] ->
+              [64] -> [64] -> [64]
+hashCompare h0 h1 h2 h3 p0 p1 p2 p3 er ee =
+  if (h0 == p0) && (h1 == p1) && (h2 == p2) && (h3 == p3)
+    then execPair er ee
+    else 160
