@@ -1,0 +1,73 @@
+# cell: tapscript/C-L-taproot-keypath
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_schnorr (same symbol both legs)
+# checker return annotated noundef (C uint32_t return; same-crypto premise)
+# command: alive-tv --bidirectional build/c_cell_keypath.ll build/l_cell_keypath.ll
+
+===== cell_keypath =====
+# c IR sha256: e69ac3bd3aeb937f0de3b2a9990831e611654368b62f92ff3f5c89acf4b7de20
+# l IR sha256: b385fd2151cd757eab64ab664779f234f45980a921472b1c0450f26a6d869795
+
+----------------------------------------
+declare i32 @btc_equiv_check_schnorr(noundef i32, noundef i32, noundef i32, noundef i32) noundef
+
+define i64 @cell_keypath(i64 noundef %stack_n, i32 noundef %sig_id, i32 noundef %program_key_id) {
+entry:
+  %cmp.i = icmp eq i64 noundef %stack_n, 1
+  br i1 %cmp.i, label %if.then.i, label %_ZL9c_keypathmjj.exit
+
+if.then.i:
+  %call.i = tail call i32 @btc_equiv_check_schnorr(noundef i32 noundef %sig_id, noundef i32 noundef %program_key_id, noundef i32 2, noundef i32 32) noundef
+  %and.i = and i32 %call.i, 1
+  %cmp1.i = icmp eq i32 %and.i, 0
+  br i1 %cmp1.i, label %if.then2.i, label %_ZL9c_keypathmjj.exit
+
+if.then2.i:
+  %and3.i = shl i32 %call.i, 1
+  %#0 = and i32 %and3.i, 252
+  %or.i = zext nneg i32 %#0 to i64
+  br label %_ZL9c_keypathmjj.exit
+
+_ZL9c_keypathmjj.exit:
+  %retval.1.i = phi i64 [ %or.i, %if.then2.i ], [ 1, %if.then.i ], [ 2, %entry ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 253
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+declare i32 @btc_equiv_check_schnorr(noundef i32, noundef i32, noundef i32, noundef i32) noundef
+
+define i64 @cell_keypath(i64 noundef %stack_n, i32 noundef %sig_id, i32 noundef %program_key_id) {
+entry:
+  %cmp.i = icmp eq i64 noundef %stack_n, 1
+  br i1 %cmp.i, label %if.then.i, label %_ZL9l_keypathmjj.exit
+
+if.then.i:
+  %call.i = tail call i32 @btc_equiv_check_schnorr(noundef i32 noundef %sig_id, noundef i32 noundef %program_key_id, noundef i32 2, noundef i32 32) noundef
+  %and.i = and i32 %call.i, 1
+  %cmp1.i = icmp eq i32 %and.i, 0
+  br i1 %cmp1.i, label %if.then2.i, label %_ZL9l_keypathmjj.exit
+
+if.then2.i:
+  %and3.i = shl i32 %call.i, 1
+  %#0 = and i32 %and3.i, 252
+  %or.i = zext nneg i32 %#0 to i64
+  br label %_ZL9l_keypathmjj.exit
+
+_ZL9l_keypathmjj.exit:
+  %retval.1.i = phi i64 [ %or.i, %if.then2.i ], [ 1, %if.then.i ], [ 2, %entry ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 253
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_keypath=alive2-green
+STATUS=alive2-green

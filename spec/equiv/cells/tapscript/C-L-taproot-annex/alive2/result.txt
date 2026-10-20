@@ -1,0 +1,88 @@
+# cell: tapscript/C-L-taproot-annex
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_annex_detected =====
+# c IR sha256: d28f65f6631e5e10d402d4f50390bf7594d11c94ff83777926072ef202d7f426
+# l IR sha256: 28452870f8b1eef06408bc298061757ac2a387f9b19c04cdf63934f03ea40dfb
+
+----------------------------------------
+define i64 @cell_annex_detected(i64 noundef %witness_n, i64 noundef %last_len, i64 noundef %last_first) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %witness_n, 1
+  %cmp1.i = icmp ne i64 noundef %last_len, 0
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %and.i = and i64 noundef %last_first, 255
+  %cmp2.i = icmp eq i64 %and.i, 80
+  %narrow = and i1 %or.cond.i, %cmp2.i
+  %cond.i = zext i1 %narrow to i64
+  %#range_0_%cond.i = !range i64 %cond.i, i64 0, i64 2
+  ret i64 %#range_0_%cond.i
+}
+=>
+define i64 @cell_annex_detected(i64 noundef %witness_n, i64 noundef %last_len, i64 noundef %last_first) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %witness_n, 1
+  %cmp1.i = icmp ne i64 noundef %last_len, 0
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %and.i = and i64 noundef %last_first, 255
+  %cmp2.i = icmp eq i64 %and.i, 80
+  %narrow = and i1 %or.cond.i, %cmp2.i
+  %cond.i = zext i1 %narrow to i64
+  %#range_0_%cond.i = !range i64 %cond.i, i64 0, i64 2
+  ret i64 %#range_0_%cond.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_annex_detected=alive2-green
+===== cell_annex_remaining =====
+# c IR sha256: dbfddf42c08787852278eb06ce4877c5e3f65ae7bb1c0f9eb947adecea522c28
+# l IR sha256: 5ea637bad62a2dfe3445679a5515ad35dac925d6d1f925af727234762ee0c317
+
+----------------------------------------
+define i64 @cell_annex_remaining(i64 noundef %witness_n, i64 noundef %last_len, i64 noundef %last_first) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i.i = icmp ugt i64 noundef %witness_n, 1
+  %cmp1.i.i = icmp ne i64 noundef %last_len, 0
+  %or.cond.i.i = and i1 %cmp.i.i, %cmp1.i.i
+  %and.i.i = and i64 noundef %last_first, 255
+  %cmp2.i.i = icmp eq i64 %and.i.i, 80
+  %narrow = and i1 %or.cond.i.i, %cmp2.i.i
+  %cond.i.i.neg = sext i1 %narrow to i64
+  %cond.i = add i64 noundef %witness_n, %cond.i.i.neg
+  ret i64 %cond.i
+}
+=>
+define i64 @cell_annex_remaining(i64 noundef %witness_n, i64 noundef %last_len, i64 noundef %last_first) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i.i = icmp ugt i64 noundef %witness_n, 1
+  %cmp1.i.i = icmp ne i64 noundef %last_len, 0
+  %or.cond.i.i = and i1 %cmp.i.i, %cmp1.i.i
+  %and.i.i = and i64 noundef %last_first, 255
+  %cmp2.i.i = icmp eq i64 %and.i.i, 80
+  %narrow = and i1 %or.cond.i.i, %cmp2.i.i
+  %cond.i.i.neg = sext i1 %narrow to i64
+  %cond.i = add i64 noundef %witness_n, %cond.i.i.neg
+  ret i64 %cond.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_annex_remaining=alive2-green
+STATUS=alive2-green
