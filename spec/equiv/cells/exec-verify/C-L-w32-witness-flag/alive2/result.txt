@@ -1,0 +1,72 @@
+# cell: exec-verify/C-L-w32-witness-flag
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --always-verify build/c_cell_witness_flag.ll build/l_cell_witness_flag.ll
+
+----------------------------------------
+define i64 @cell_witness_flag(i64 noundef %ss_err, i64 noundef %witness, i64 noundef %witness_nonempty, i64 noundef %cleanstack) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i64 noundef %ss_err, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %and1.i = shl i64 noundef %ss_err, 2
+  %or.i = and i64 %and1.i, 252
+  br label %_ZL14c_witness_flagmmmm.exit
+
+if.end.i:
+  %cmp1.i = icmp ne i64 noundef %cleanstack, 0
+  %cmp3.i = icmp eq i64 noundef %witness, 0
+  %or.cond.i = and i1 %cmp3.i, %cmp1.i
+  br i1 %or.cond.i, label %_ZL14c_witness_flagmmmm.exit, label %if.end7.i
+
+if.end7.i:
+  %cmp8.i = icmp ne i64 noundef %witness, 0
+  %cmp10.i = icmp ne i64 noundef %witness_nonempty, 0
+  %or.cond16.i = and i1 %cmp8.i, %cmp10.i
+  %. = select i1 %or.cond16.i, i64 172, i64 1
+  br label %_ZL14c_witness_flagmmmm.exit
+
+_ZL14c_witness_flagmmmm.exit:
+  %retval.1.i = phi i64 [ %or.i, %if.then.i ], [ 4, %if.end.i ], [ %., %if.end7.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 253
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_witness_flag(i64 noundef %ss_err, i64 noundef %witness, i64 noundef %witness_nonempty, i64 noundef %cleanstack) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i64 noundef %ss_err, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %and1.i = shl i64 noundef %ss_err, 2
+  %or.i = and i64 %and1.i, 252
+  br label %_ZN13l_w32_witnessL16verify_empty_spkEmmmm.exit
+
+if.end.i:
+  %cmp5.not.i = icmp ne i64 noundef %cleanstack, 0
+  %cmp7.i = icmp eq i64 noundef %witness, 0
+  %or.cond27.i = and i1 %cmp7.i, %cmp5.not.i
+  br i1 %or.cond27.i, label %_ZN13l_w32_witnessL16verify_empty_spkEmmmm.exit, label %if.end15.i
+
+if.end15.i:
+  %cmp16.i = icmp ne i64 noundef %witness, 0
+  %cmp18.i = icmp ne i64 noundef %witness_nonempty, 0
+  %or.cond.i = and i1 %cmp16.i, %cmp18.i
+  %. = select i1 %or.cond.i, i64 172, i64 1
+  br label %_ZN13l_w32_witnessL16verify_empty_spkEmmmm.exit
+
+_ZN13l_w32_witnessL16verify_empty_spkEmmmm.exit:
+  %retval.1.i = phi i64 [ %or.i, %if.then.i ], [ 4, %if.end.i ], [ %., %if.end15.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 253
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

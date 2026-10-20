@@ -1,0 +1,52 @@
+module CellP2sh23 where
+
+// SCR-005: the 23-byte HASH160 P2SH scriptPubKey
+//   a9 14 <20-byte hash> 87
+// is recognised, and the last scriptSig stack element is re-evaluated as a
+// subscript (redeem script) on the restored post-scriptSig stack.
+//
+// All byte arguments are modelled as the low 8 bits of a [64] word.
+
+byte : [64] -> [64]
+byte x = x && 255
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+cast_bool : [64] -> [64] -> Bit
+cast_bool w len =
+  (((len > 0) && (byte (w >> 0) != 0)) && ~((len == 1) && (byte (w >> 0) == 128))) ||
+  (((len > 1) && (byte (w >> 8) != 0)) && ~((len == 2) && (byte (w >> 8) == 128))) ||
+  (((len > 2) && (byte (w >> 16) != 0)) && ~((len == 3) && (byte (w >> 16) == 128))) ||
+  (((len > 3) && (byte (w >> 24) != 0)) && ~((len == 4) && (byte (w >> 24) == 128))) ||
+  (((len > 4) && (byte (w >> 32) != 0)) && ~((len == 5) && (byte (w >> 32) == 128))) ||
+  (((len > 5) && (byte (w >> 40) != 0)) && ~((len == 6) && (byte (w >> 40) == 128))) ||
+  (((len > 6) && (byte (w >> 48) != 0)) && ~((len == 7) && (byte (w >> 48) == 128))) ||
+  (((len > 7) && (byte (w >> 56) != 0)) && ~((len == 8) && (byte (w >> 56) == 128)))
+
+// CScript::IsPayToScriptHash (script.cpp:224-231). OP_HASH160 = 169,
+// push-20 = 20, OP_EQUAL = 135.
+is_p2sh : [64] -> [64] -> [64] -> [64] -> [64]
+is_p2sh len b0 b1 b22 =
+  if (len == 23) && (byte b0 == 169) && (byte b1 == 20) && (byte b22 == 135)
+  then 1 else 0
+
+// VerifyScript's P2SH arm (interpreter.cpp:2062-2086), given:
+//   hash_match      -- HASH160(redeemScript) == the committed 20-byte hash
+//                      (crypto seam; symbolically true or false)
+//   pushonly_ok     -- scriptSig.IsPushOnly() (1 = yes, 0 = non-push op)
+//   redeem_*        -- EvalScript(redeemScript, stackCopy minus its top)
+//                      outcome (declared seam)
+p2sh_reeval : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+           -> [64] -> [64] -> [64] -> [64] -> [64]
+p2sh_reeval ss_err ss_depth ss_top ss_top_len hash_match pushonly_ok
+            redeem_err redeem_depth redeem_top redeem_top_len =
+  if (ss_top_len > 8) || (redeem_top_len > 8) then pack 0 1   // encoding guard
+  else if ss_err != 0 then pack 0 ss_err
+  else if ss_depth < 1 then pack 0 18            // OP_HASH160 underflow
+  else if hash_match == 0 then pack 0 2          // OP_EQUAL false -> EVAL_FALSE
+  else if pushonly_ok == 0 then pack 0 26        // SIG_PUSHONLY
+  else if redeem_err != 0 then pack 0 redeem_err
+  else if redeem_depth == 0 then pack 0 2        // empty redeem stack
+  else if ~(cast_bool redeem_top redeem_top_len) then pack 0 2
+  else pack 1 0

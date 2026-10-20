@@ -1,0 +1,322 @@
+# cell: exec-verify/C-L-w32-p2sh-23byte
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --always-verify build/c_cell_is_p2sh.ll build/l_cell_is_p2sh.ll
+
+----------------------------------------
+define i64 @cell_is_p2sh(i64 noundef %len, i64 noundef %b0, i64 noundef %b1, i64 noundef %b22) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp eq i64 noundef %len, 23
+  %conv312 = and i64 noundef %b0, 255
+  %cmp4 = icmp eq i64 %conv312, 169
+  %or.cond = and i1 %cmp, %cmp4
+  %conv613 = and i64 noundef %b1, 255
+  %cmp7 = icmp eq i64 %conv613, 20
+  %or.cond11 = and i1 %or.cond, %cmp7
+  %conv814 = and i64 noundef %b22, 255
+  %cmp9 = icmp eq i64 %conv814, 135
+  %narrow = and i1 %or.cond11, %cmp9
+  %cond = zext i1 %narrow to i64
+  %#range_0_%cond = !range i64 %cond, i64 0, i64 2
+  ret i64 %#range_0_%cond
+}
+=>
+define i64 @cell_is_p2sh(i64 noundef %len, i64 noundef %b0, i64 noundef %b1, i64 noundef %b22) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %len, 23
+  %#0 = and i64 noundef %b0, 255
+  %cmp1.i = icmp eq i64 %#0, 169
+  %or.cond = and i1 %cmp.i, %cmp1.i
+  %#1 = and i64 noundef %b1, 255
+  %cmp5.i = icmp eq i64 %#1, 20
+  %or.cond7 = and i1 %or.cond, %cmp5.i
+  %#2 = and i64 noundef %b22, 255
+  %cmp8.i = icmp eq i64 %#2, 135
+  %narrow = and i1 %or.cond7, %cmp8.i
+  %conv5 = zext i1 %narrow to i64
+  %#range_0_%conv5 = !range i64 %conv5, i64 0, i64 2
+  ret i64 %#range_0_%conv5
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify build/c_cell_p2sh_reeval.ll build/l_cell_p2sh_reeval.ll
+
+----------------------------------------
+define i64 @cell_p2sh_reeval(i64 noundef %ss_err, i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %hash_match, i64 noundef %pushonly_ok, i64 noundef %redeem_err, i64 noundef %redeem_depth, i64 noundef %redeem_top, i64 noundef %redeem_top_len) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %ss_top_len, 8
+  %cmp1 = icmp ugt i64 noundef %redeem_top_len, 8
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp.not.i = icmp eq i64 noundef %ss_err, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %ss_depth, 0
+  br i1 %cmp2.i, label %return, label %if.end5.i
+
+if.end5.i:
+  %cmp6.i = icmp eq i64 noundef %hash_match, 0
+  br i1 %cmp6.i, label %return, label %if.end9.i
+
+if.end9.i:
+  %cmp10.i = icmp eq i64 noundef %pushonly_ok, 0
+  br i1 %cmp10.i, label %return, label %if.end13.i
+
+if.end13.i:
+  %cmp17.not.i = icmp eq i64 noundef %redeem_err, 0
+  br i1 %cmp17.not.i, label %if.end21.i, label %if.then18.i
+
+if.end21.i:
+  %cmp22.i = icmp eq i64 noundef %redeem_depth, 0
+  br i1 %cmp22.i, label %return, label %if.end25.i
+
+if.end25.i:
+  %cmp.not.i5 = icmp eq i64 noundef %redeem_top_len, 0
+  br i1 %cmp.not.i5, label %if.end7.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %and.i38 = and i64 noundef %redeem_top, 255
+  %cmp1.not.i = icmp eq i64 %and.i38, 0
+  br i1 %cmp1.not.i, label %if.end7.i, label %if.then.i6
+
+if.end7.i:
+  %cmp8.i = icmp samesign ugt i64 noundef %redeem_top_len, 1
+  br i1 %cmp8.i, label %land.lhs.true9.i, label %if.end19.i
+
+land.lhs.true9.i:
+  %shr.i9 = lshr i64 noundef %redeem_top, 8
+  %and.i10 = and i64 %shr.i9, 255
+  %cmp11.not.i = icmp eq i64 %and.i10, 0
+  br i1 %cmp11.not.i, label %if.end19.i, label %if.then12.i
+
+if.then12.i:
+  %cmp13.i = icmp ne i64 noundef %redeem_top_len, 2
+  %cmp16.i = icmp ne i64 %and.i10, 128
+  %or.cond40.not = or i1 %cmp13.i, %cmp16.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end19.i:
+  %cmp20.i = icmp samesign ugt i64 noundef %redeem_top_len, 2
+  br i1 %cmp20.i, label %land.lhs.true21.i, label %if.end31.i
+
+land.lhs.true21.i:
+  %shr.i13 = lshr i64 noundef %redeem_top, 16
+  %and.i14 = and i64 %shr.i13, 255
+  %cmp23.not.i = icmp eq i64 %and.i14, 0
+  br i1 %cmp23.not.i, label %if.end31.i, label %if.then24.i
+
+if.then24.i:
+  %cmp25.i = icmp ne i64 noundef %redeem_top_len, 3
+  %cmp28.i = icmp ne i64 %and.i14, 128
+  %or.cond41.not = or i1 %cmp25.i, %cmp28.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end31.i:
+  %cmp32.i = icmp samesign ugt i64 noundef %redeem_top_len, 3
+  br i1 %cmp32.i, label %land.lhs.true33.i, label %if.end43.i
+
+land.lhs.true33.i:
+  %shr.i17 = lshr i64 noundef %redeem_top, 24
+  %and.i18 = and i64 %shr.i17, 255
+  %cmp35.not.i = icmp eq i64 %and.i18, 0
+  br i1 %cmp35.not.i, label %if.end43.i, label %if.then36.i
+
+if.then36.i:
+  %cmp37.i = icmp ne i64 noundef %redeem_top_len, 4
+  %cmp40.i = icmp ne i64 %and.i18, 128
+  %or.cond42.not = or i1 %cmp37.i, %cmp40.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end43.i:
+  %cmp44.i = icmp samesign ugt i64 noundef %redeem_top_len, 4
+  br i1 %cmp44.i, label %land.lhs.true45.i, label %if.end55.i
+
+land.lhs.true45.i:
+  %shr.i21 = lshr i64 noundef %redeem_top, 32
+  %and.i22 = and i64 %shr.i21, 255
+  %cmp47.not.i = icmp eq i64 %and.i22, 0
+  br i1 %cmp47.not.i, label %if.end55.i, label %if.then48.i
+
+if.then48.i:
+  %cmp49.i = icmp ne i64 noundef %redeem_top_len, 5
+  %cmp52.i = icmp ne i64 %and.i22, 128
+  %or.cond43.not = or i1 %cmp49.i, %cmp52.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end55.i:
+  %cmp56.i = icmp samesign ugt i64 noundef %redeem_top_len, 5
+  br i1 %cmp56.i, label %land.lhs.true57.i, label %if.end67.i
+
+land.lhs.true57.i:
+  %shr.i25 = lshr i64 noundef %redeem_top, 40
+  %and.i26 = and i64 %shr.i25, 255
+  %cmp59.not.i = icmp eq i64 %and.i26, 0
+  br i1 %cmp59.not.i, label %if.end67.i, label %if.then60.i
+
+if.then60.i:
+  %cmp61.i = icmp ne i64 noundef %redeem_top_len, 6
+  %cmp64.i = icmp ne i64 %and.i26, 128
+  %or.cond44.not = or i1 %cmp61.i, %cmp64.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end67.i:
+  %cmp68.i = icmp samesign ugt i64 noundef %redeem_top_len, 6
+  br i1 %cmp68.i, label %land.lhs.true69.i, label %if.end79.i
+
+land.lhs.true69.i:
+  %shr.i29 = lshr i64 noundef %redeem_top, 48
+  %and.i30 = and i64 %shr.i29, 255
+  %cmp71.not.i = icmp eq i64 %and.i30, 0
+  br i1 %cmp71.not.i, label %if.end79.i, label %if.then72.i
+
+if.then72.i:
+  %cmp73.i = icmp ne i64 noundef %redeem_top_len, 7
+  %cmp76.i = icmp ne i64 %and.i30, 128
+  %or.cond45.not = or i1 %cmp73.i, %cmp76.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end79.i:
+  %cmp80.i = icmp ugt i64 noundef %redeem_top_len, 7
+  %#0 = and i64 noundef %redeem_top, 9151314442816847872
+  %#1 = icmp ne i64 %#0, 0
+  %spec.select = and i1 %#1, %cmp80.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.then.i6:
+  %cmp2.i7 = icmp ne i64 noundef %redeem_top_len, 1
+  %cmp5.i = icmp ne i64 %and.i38, 128
+  %or.cond39.not = or i1 %cmp2.i7, %cmp5.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+_ZL18w32_cast_bool_coremm.exit:
+  %retval.0.i = phi i1 [ %or.cond39.not, %if.then.i6 ], [ %or.cond40.not, %if.then12.i ], [ %or.cond41.not, %if.then24.i ], [ %or.cond42.not, %if.then36.i ], [ %or.cond43.not, %if.then48.i ], [ %or.cond44.not, %if.then60.i ], [ %or.cond45.not, %if.then72.i ], [ %spec.select, %if.end79.i ]
+  %. = select i1 %retval.0.i, i64 1, i64 8
+  br label %return
+
+if.then18.i:
+  %and1.i.i = shl i64 noundef %redeem_err, 2
+  %or.i.i = and i64 %and1.i.i, 252
+  br label %return
+
+if.then.i:
+  %and1.i40.i = shl i64 noundef %ss_err, 2
+  %or.i41.i = and i64 %and1.i40.i, 252
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 4, %entry ], [ %or.i41.i, %if.then.i ], [ %or.i.i, %if.then18.i ], [ 72, %if.end.i ], [ 8, %if.end5.i ], [ 104, %if.end9.i ], [ 8, %if.end21.i ], [ %., %_ZL18w32_cast_bool_coremm.exit ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 253
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_p2sh_reeval(i64 noundef %ss_err, i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %hash_match, i64 noundef %pushonly_ok, i64 noundef %redeem_err, i64 noundef %redeem_depth, i64 noundef %redeem_top, i64 noundef %redeem_top_len) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %ss_top_len, 8
+  %cmp1 = icmp ugt i64 noundef %redeem_top_len, 8
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp.not.i = icmp eq i64 noundef %ss_err, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %ss_depth, 0
+  br i1 %cmp2.i, label %return, label %if.end5.i
+
+if.end5.i:
+  %cmp6.i = icmp eq i64 noundef %hash_match, 0
+  br i1 %cmp6.i, label %return, label %if.end9.i
+
+if.end9.i:
+  %cmp10.i = icmp eq i64 noundef %pushonly_ok, 0
+  br i1 %cmp10.i, label %return, label %if.end19.i
+
+if.end19.i:
+  %cmp24.not.i = icmp eq i64 noundef %redeem_err, 0
+  br i1 %cmp24.not.i, label %if.end28.i, label %if.then25.i
+
+if.end28.i:
+  %cmp33.i = icmp eq i64 noundef %redeem_depth, 0
+  %cmp.i = icmp eq i64 noundef %redeem_top_len, 0
+  %or.cond21 = or i1 %cmp33.i, %cmp.i
+  br i1 %or.cond21, label %return, label %if.end.i5
+
+if.end.i5:
+  %sub.i = add nsw i64 noundef %redeem_top_len, -1
+  %cmp1.not.i = icmp ne i64 %sub.i, 0
+  %and.i20 = and i64 noundef %redeem_top, 255
+  %cmp2.not.i = icmp ne i64 %and.i20, 0
+  %narrow = and i1 %cmp2.not.i, %cmp1.not.i
+  %any_prefix.0.i = zext i1 %narrow to i8
+  %cmp5.i = icmp ugt i64 %sub.i, 1
+  %#0 = and i64 noundef %redeem_top, 65280
+  %cmp8.not.i = icmp eq i64 %#0, 0
+  %spec.select68.i = select i1 %cmp8.not.i, i8 %any_prefix.0.i, i8 1
+  %any_prefix.1.i = select i1 %cmp5.i, i8 %spec.select68.i, i8 %any_prefix.0.i
+  %cmp11.i = icmp ugt i64 %sub.i, 2
+  %#1 = and i64 noundef %redeem_top, 16711680
+  %cmp14.not.i = icmp eq i64 %#1, 0
+  %spec.select69.i = select i1 %cmp14.not.i, i8 %any_prefix.1.i, i8 1
+  %any_prefix.2.i = select i1 %cmp11.i, i8 %spec.select69.i, i8 %any_prefix.1.i
+  %cmp17.i = icmp ugt i64 %sub.i, 3
+  %#2 = and i64 noundef %redeem_top, 4278190080
+  %cmp20.not.i = icmp eq i64 %#2, 0
+  %spec.select70.i = select i1 %cmp20.not.i, i8 %any_prefix.2.i, i8 1
+  %any_prefix.3.i = select i1 %cmp17.i, i8 %spec.select70.i, i8 %any_prefix.2.i
+  %cmp23.i = icmp ugt i64 %sub.i, 4
+  %#3 = and i64 noundef %redeem_top, 1095216660480
+  %cmp26.not.i = icmp eq i64 %#3, 0
+  %spec.select71.i = select i1 %cmp26.not.i, i8 %any_prefix.3.i, i8 1
+  %any_prefix.4.i = select i1 %cmp23.i, i8 %spec.select71.i, i8 %any_prefix.3.i
+  %cmp29.i = icmp ugt i64 %sub.i, 5
+  %#4 = and i64 noundef %redeem_top, 280375465082880
+  %cmp32.not.i = icmp eq i64 %#4, 0
+  %spec.select72.i = select i1 %cmp32.not.i, i8 %any_prefix.4.i, i8 1
+  %any_prefix.5.i = select i1 %cmp29.i, i8 %spec.select72.i, i8 %any_prefix.4.i
+  %cmp35.i = icmp ugt i64 %sub.i, 6
+  %#5 = and i64 noundef %redeem_top, 71776119061217280
+  %cmp38.not.i = icmp eq i64 %#5, 0
+  %spec.select73.i = select i1 %cmp38.not.i, i8 %any_prefix.5.i, i8 1
+  %any_prefix.6.i = select i1 %cmp35.i, i8 %spec.select73.i, i8 %any_prefix.5.i
+  %mul.i = shl nsw nuw i64 %sub.i, 3
+  %loadedv.i = trunc nuw i8 %any_prefix.6.i to i1
+  %#6 = shl i64 127, %mul.i
+  %#7 = and i64 %#6, noundef %redeem_top
+  %#8 = icmp ne i64 %#7, 0
+  %#9 = select i1 %loadedv.i, i1 1, i1 %#8
+  %#10 = select i1 %#9, i64 1, i64 8
+  br label %return
+
+if.then25.i:
+  %and1.i.i = shl i64 noundef %redeem_err, 2
+  %or.i.i = and i64 %and1.i.i, 252
+  br label %return
+
+if.then.i:
+  %and1.i50.i = shl i64 noundef %ss_err, 2
+  %or.i51.i = and i64 %and1.i50.i, 252
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 4, %entry ], [ %or.i51.i, %if.then.i ], [ %or.i.i, %if.then25.i ], [ 72, %if.end.i ], [ 8, %if.end5.i ], [ 104, %if.end9.i ], [ 8, %if.end28.i ], [ %#10, %if.end.i5 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 253
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
