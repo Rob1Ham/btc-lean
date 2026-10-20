@@ -1,0 +1,34 @@
+# cell: exec-verify/C-L-w32-cleanstack
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# expected: green
+# command: alive-tv build/c_cell_cleanstack_flag.ll build/l_cell_cleanstack_flag.ll
+
+----------------------------------------
+define i64 @cell_cleanstack_flag(i64 noundef %final_len, i64 noundef %cs_flag) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp ne i64 noundef %cs_flag, 0
+  %cmp1 = icmp ne i64 noundef %final_len, 1
+  %or.cond = and i1 %cmp1, %cmp
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @cell_cleanstack_flag(i64 noundef %final_len, i64 noundef %cs_flag) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp ne i64 noundef %cs_flag, 0
+  %cmp1 = icmp ne i64 noundef %final_len, 1
+  %or.cond = and i1 %cmp1, %cmp
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

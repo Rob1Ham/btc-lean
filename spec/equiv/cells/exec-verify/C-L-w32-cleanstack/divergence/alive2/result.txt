@@ -1,0 +1,65 @@
+# cell: exec-verify/C-L-w32-cleanstack
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# expected: red
+# command: alive-tv build/c_probe_cleanstack_witness.ll build/l_probe_cleanstack_witness.ll
+
+----------------------------------------
+define i64 @probe_cleanstack_witness(i64 noundef %final_len, i64 noundef %cs_flag, i64 noundef %bypass_kind) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %bypass_kind, 0
+  %cmp1 = icmp ne i64 noundef %cs_flag, 0
+  %cmp26 = icmp ne i64 noundef %final_len, 1
+  %cmp2 = and i1 %cmp26, %cmp.not
+  %or.cond = and i1 %cmp1, %cmp2
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @probe_cleanstack_witness(i64 noundef %final_len, i64 noundef %cs_flag, i64 noundef %bypass_kind) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp ne i64 noundef %bypass_kind, 1
+  %cmp1 = icmp ne i64 noundef %cs_flag, 0
+  %cmp26 = icmp ne i64 noundef %final_len, 1
+  %cmp2 = and i1 %cmp26, %cmp
+  %or.cond = and i1 %cmp1, %cmp2
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %final_len = #x0000000000000000 (0)
+i64 noundef %cs_flag = #x0000000000000001 (1)
+i64 noundef %bypass_kind = #x0000000000000004 (4)
+
+Source:
+i1 %cmp.not = #x0 (0)
+i1 %cmp1 = #x1 (1)
+i1 %cmp26 = #x1 (1)
+i1 %cmp2 = #x0 (0)
+i1 %or.cond = #x0 (0)
+i64 %. = #x0000000000000001 (1)
+i64 %#range_0_%. = #x0000000000000001 (1)
+
+Target:
+i1 %cmp = #x1 (1)
+i1 %cmp1 = #x1 (1)
+i1 %cmp26 = #x1 (1)
+i1 %cmp2 = #x1 (1)
+i1 %or.cond = #x1 (1)
+i64 %. = #x0000000000000078 (120)
+i64 %#range_0_%. = #x0000000000000078 (120)
+Source value: #x0000000000000001 (1)
+Target value: #x0000000000000078 (120)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-counterexample-as-expected

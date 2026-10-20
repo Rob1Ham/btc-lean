@@ -1,0 +1,98 @@
+# cell: exec-verify/C-L-w32-p2sh-stackcopy
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# expected: green
+# command: alive-tv build/c_cell_p2sh_stackcopy.ll build/l_cell_p2sh_stackcopy.ll
+
+----------------------------------------
+define i64 @cell_p2sh_stackcopy(i64 noundef %sig_n, i64 noundef %sig_e0, i64 noundef %sig_e1, i64 noundef %spk_n, i64 noundef %spk_e0, i64 noundef %spk_e1, i64 noundef %p2sh_flag) nofree willreturn memory(none) {
+entry:
+  %cond2.i = umin i64 noundef %sig_n, 2
+  %cmp.not = icmp eq i64 noundef %p2sh_flag, 0
+  %stack.sroa.0.0.extract.trunc = trunc nsw nuw i64 %cond2.i to i32
+  %stackCopy.sroa.0.0 = select i1 %cmp.not, i32 0, i32 %stack.sroa.0.0.extract.trunc
+  %cmp5 = icmp eq i64 noundef %spk_n, 0
+  br i1 %cmp5, label %cleanup36, label %if.end8
+
+if.end8:
+  %#0 = and i64 noundef %spk_e0, 127
+  %cmp.i.not82 = icmp eq i64 %#0, 0
+  %brmerge = or i1 %cmp.i.not82, %cmp.not
+  %.mux = select i1 %cmp.i.not82, i64 8, i64 1
+  br i1 %brmerge, label %cleanup36, label %if.end18
+
+if.end18:
+  %cmp20 = icmp eq i32 %stackCopy.sroa.0.0, 0
+  br i1 %cmp20, label %cleanup36, label %if.end23
+
+if.end23:
+  %cmp4.not.i = icmp eq i32 %stackCopy.sroa.0.0, 1
+  %#1 = or i1 %cmp.not, %cmp4.not.i
+  %#2 = shl i64 noundef %sig_e0, 8
+  %#3 = and i64 %#2, 65280
+  %#4 = or disjoint i64 %#3, 1
+  %or.i = select i1 %cmp.not, i64 1, i64 %#4
+  %cond.i = shl nsw nuw i32 %stackCopy.sroa.0.0, 16
+  %and1.i = add nsw nuw i32 %cond.i, 196608
+  %#5 = and i32 %and1.i, 196608
+  %shl3.i = zext nneg i32 %#5 to i64
+  %#6 = shl i64 noundef %sig_e1, 18
+  %#7 = and i64 %#6, 66846720
+  %shl7.i = select i1 %#1, i64 0, i64 %#7
+  %or4.i = or disjoint i64 %shl7.i, %or.i
+  %or8.i = or disjoint i64 %or4.i, %shl3.i
+  br label %cleanup36
+
+cleanup36:
+  %retval.1 = phi i64 [ %or8.i, %if.end23 ], [ 8, %entry ], [ %.mux, %if.end8 ], [ 4, %if.end18 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 67108864
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_p2sh_stackcopy(i64 noundef %sig_n, i64 noundef %sig_e0, i64 noundef %sig_e1, i64 noundef %spk_n, i64 noundef %spk_e0, i64 noundef %spk_e1, i64 noundef %p2sh_flag) nofree willreturn memory(none) {
+entry:
+  %cond2.i = umin i64 noundef %sig_n, 2
+  %stack1.sroa.0.0.extract.trunc = trunc nsw nuw i64 %cond2.i to i32
+  %cmp = icmp eq i64 noundef %spk_n, 0
+  %#0 = and i64 noundef %spk_e0, 127
+  %cmp.i.not = icmp eq i64 %#0, 0
+  %or.cond = or i1 %cmp, %cmp.i.not
+  br i1 %or.cond, label %cleanup, label %if.end
+
+if.end:
+  %cmp4.not = icmp eq i64 noundef %p2sh_flag, 0
+  br i1 %cmp4.not, label %cleanup, label %if.then5
+
+if.then5:
+  %cmp7 = icmp eq i64 noundef %sig_n, 0
+  br i1 %cmp7, label %cleanup, label %if.end10
+
+if.end10:
+  %sub = add nsw i32 %stack1.sroa.0.0.extract.trunc, 4294967295
+  %cmp16.not = icmp eq i32 %sub, 0
+  %conv24 = shl i64 noundef %sig_e0, 8
+  %shl.i = and i64 %conv24, 65280
+  %and1.i = shl nsw i32 %sub, 16
+  %#1 = and i32 %and1.i, 196608
+  %shl3.i = zext nneg i32 %#1 to i64
+  %#2 = shl i64 noundef %sig_e1, 18
+  %#3 = and i64 %#2, 66846720
+  %shl7.i = select i1 %cmp16.not, i64 0, i64 %#3
+  %or.i = or disjoint i64 %shl.i, %shl7.i
+  %or4.i = or disjoint i64 %or.i, %shl3.i
+  %or8.i = or disjoint i64 %or4.i, 1
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ %or8.i, %if.end10 ], [ 8, %entry ], [ 4, %if.then5 ], [ 1, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 67108864
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

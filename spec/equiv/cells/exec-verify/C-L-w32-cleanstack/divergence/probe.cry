@@ -1,0 +1,19 @@
+module Probe where
+
+// SCR-008 "implicit in witness" probe.  Core behaviour:
+//   bare witness program verified        (:2046-2057) -> stack.resize(1)
+//   P2SH-wrapped witness program verified (:2090-2103) -> stack.resize(1)
+// so the CLEANSTACK check at :2115 sees size 1 in both cases.
+// The Lean model (`verifyScriptFull`, Defs.lean:1395-1418) sets its
+// `finalLen` to 1 only when `isWitnessProgram spk`, i.e. only for the bare
+// case; it does not resize for the wrapped case.
+// `kind`: 0 = no witness program, 1 = bare, 2 = P2SH-wrapped.
+// This is the C (Core) postcondition.  The L leg is the same function with
+// `kind == 1` only, so this spec must FAIL on the L module at kind = 2.
+pack2 : [64] -> [64] -> [64]
+pack2 res err = (res % 4) + ((err % 64) * 4)
+
+spec_probe_cleanstack_witness : [64] -> [64] -> [64] -> [64]
+spec_probe_cleanstack_witness final_len cs kind =
+  if ((cs != 0) && (kind == 0) && (final_len != 1))
+    then (pack2 0 30) else (pack2 1 0)
