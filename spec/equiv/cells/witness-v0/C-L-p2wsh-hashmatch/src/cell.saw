@@ -1,0 +1,23 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_p2wsh_hashmatch.bc";
+mL <- llvm_load_module "l_cell_p2wsh_hashmatch.bc";
+
+let spec = do {
+  d0 <- llvm_fresh_var "digest0" (llvm_int 64);
+  d1 <- llvm_fresh_var "digest1" (llvm_int 64);
+  d2 <- llvm_fresh_var "digest2" (llvm_int 64);
+  d3 <- llvm_fresh_var "digest3" (llvm_int 64);
+  p0 <- llvm_fresh_var "program0" (llvm_int 64);
+  p1 <- llvm_fresh_var "program1" (llvm_int 64);
+  p2 <- llvm_fresh_var "program2" (llvm_int 64);
+  p3 <- llvm_fresh_var "program3" (llvm_int 64);
+  llvm_execute_func [llvm_term d0, llvm_term d1, llvm_term d2, llvm_term d3,
+                     llvm_term p0, llvm_term p1, llvm_term p2, llvm_term p3];
+  llvm_return (llvm_term {{ hashmatch d0 d1 d2 d3 p0 p1 p2 p3 }});
+};
+
+llvm_verify mC "cell_p2wsh_hashmatch" [] false spec abc;
+llvm_verify mL "cell_p2wsh_hashmatch" [] false spec abc;
+
+print "CELL_P2WSH_HASHMATCH_SAW_GREEN";

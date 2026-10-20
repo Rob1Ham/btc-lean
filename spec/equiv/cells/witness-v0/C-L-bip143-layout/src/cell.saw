@@ -1,0 +1,26 @@
+import "cell.cry";
+
+mF <- llvm_load_module "c_cell_bip143_field.bc";
+lF <- llvm_load_module "l_cell_bip143_field.bc";
+mT <- llvm_load_module "c_cell_bip143_total_len.bc";
+lT <- llvm_load_module "l_cell_bip143_total_len.bc";
+
+let spec_field = do {
+  f <- llvm_fresh_var "field" (llvm_int 64);
+  s <- llvm_fresh_var "script_len" (llvm_int 64);
+  llvm_execute_func [llvm_term f, llvm_term s];
+  llvm_return (llvm_term {{ bip143_field f s }});
+};
+
+let spec_total = do {
+  s <- llvm_fresh_var "script_len" (llvm_int 64);
+  llvm_execute_func [llvm_term s];
+  llvm_return (llvm_term {{ bip143_total_len s }});
+};
+
+llvm_verify mF "cell_bip143_field" [] false spec_field z3;
+llvm_verify lF "cell_bip143_field" [] false spec_field z3;
+llvm_verify mT "cell_bip143_total_len" [] false spec_total z3;
+llvm_verify lT "cell_bip143_total_len" [] false spec_total z3;
+
+print "CELL_BIP143_LAYOUT_SAW_GREEN";

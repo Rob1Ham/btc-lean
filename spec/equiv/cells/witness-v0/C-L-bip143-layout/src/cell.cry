@@ -1,0 +1,20 @@
+module Spec where
+
+// BIP143 10-field preimage layout (field order + amount slot).
+// `field` descriptor = width + offset * 256; field 5 is `amount`.
+bip143_field : [64] -> [64] -> [64]
+bip143_field f s =
+  if f == 0 then 4  + 0 * 256
+  else if f == 1 then 32 + 4 * 256
+  else if f == 2 then 32 + 36 * 256
+  else if f == 3 then 36 + 68 * 256
+  else if f == 4 then (1 + s) + 104 * 256
+  else if f == 5 then 8 + (105 + s) * 256
+  else if f == 6 then 4 + (113 + s) * 256
+  else if f == 7 then 32 + (117 + s) * 256
+  else if f == 8 then 4 + (149 + s) * 256
+  else if f == 9 then 4 + (153 + s) * 256
+  else 0
+
+bip143_total_len : [64] -> [64]
+bip143_total_len s = 157 + s

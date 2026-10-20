@@ -1,0 +1,14 @@
+module Spec where
+
+// EvalChecksigPreTapscript: sigversion != BASE skips FindAndDelete.
+// BASE=0, WITNESS_V0=1.  `found` and the two script ids are opaque.
+verdict : [64] -> [64] -> [64] -> [64]
+verdict sv found cflag =
+  if sv == 0 /\ found != 0 /\ cflag != 0 then 216   // (0,54) SIG_FINDANDDELETE
+  else 1                                            // (1,0)
+
+scriptcode : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+scriptcode sv found cflag sid fd =
+  if sv == 0 then
+    if found != 0 /\ cflag != 0 then sid else fd
+  else sid
