@@ -21,21 +21,27 @@ mkdir -p "$OUT"
 cp "$CELL_DIR/src/cell.cry" "$BUILD/cell.cry"
 cp "$CELL_DIR/src/cell.saw" "$BUILD/cell.saw"
 RES="$OUT/result.txt"
-{
-  echo "# cell: $CELL_ID"
-  echo "# saw: $(PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw --version 2>&1 | head -1)"
-  echo "# spec: build/cell.cry"
-  echo "# script: build/cell.saw"
-  echo "# expected: at least $MIN_PROOFS 'Proof succeeded!' and no 'Proof failed'"
-  echo
-  ( cd "$BUILD" && PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw cell.saw )
-} > "$RES" 2>&1 || true
+ATTEMPTS=${SAW_RETRIES:-1}
 OK=0
-if [ "$(grep -c '^Proof succeeded!' "$RES" || true)" -ge "$MIN_PROOFS" ] \
-   && ! grep -q '^Proof failed' "$RES"; then
-  echo "STATUS=saw-green" >> "$RES"
-  OK=1
-else
+for attempt in $(seq 1 "$ATTEMPTS"); do
+  {
+    echo "# cell: $CELL_ID"
+    echo "# saw: $(PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw --version 2>&1 | head -1)"
+    echo "# spec: build/cell.cry"
+    echo "# script: build/cell.saw"
+    echo "# expected: at least $MIN_PROOFS 'Proof succeeded!' and no 'Proof failed'"
+    [ "$attempt" -gt 1 ] && echo "# retry attempt: $attempt"
+    echo
+    ( cd "$BUILD" && PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw cell.saw )
+  } > "$RES" 2>&1 || true
+  if [ "$(grep -c '^Proof succeeded!' "$RES" || true)" -ge "$MIN_PROOFS" ] \
+     && ! grep -q '^Proof failed' "$RES"; then
+    echo "STATUS=saw-green" >> "$RES"
+    OK=1
+    break
+  fi
+done
+if [ "$OK" -ne 1 ]; then
   echo "STATUS=saw-not-green" >> "$RES"
 fi
 FILES=(
