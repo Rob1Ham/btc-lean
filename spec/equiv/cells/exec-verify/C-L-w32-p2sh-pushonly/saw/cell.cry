@@ -1,0 +1,27 @@
+module Spec where
+
+// SCR-006 spec: the P2SH arm's push-only gate.
+// pack: ABI (result, error) pair, result(2) | error(6) << 2.  Fields are
+// disjoint, so the arithmetic sum equals the C `|` packing on 64-bit words.
+pack2 : [64] -> [64] -> [64]
+pack2 res err = (res % 4) + ((err % 64) * 4)
+
+// The C leg takes the low 8 bits of n_ops before clamping (uint32_t cast of
+// `n_ops & 0xff`); mirror that byte projection here.
+clamp3 : [64] -> [64]
+clamp3 n = (if ((n % 256) > 3) then 3 else (n % 8))
+
+// CScript::IsPushOnly over decoded wire opcodes (script.cpp:266-282):
+// every opcode <= OP_16 (0x60); the parser is a cell abstraction.
+push_only : [64] -> [64] -> [64] -> [64] -> Bit
+push_only n w0 w1 w2 =
+  ((clamp3 n < 1) || ((w0 % 256) <= 96)) &&
+  ((clamp3 n < 2) || ((w1 % 256) <= 96)) &&
+  ((clamp3 n < 3) || ((w2 % 256) <= 96))
+
+// interpreter.cpp:2065-2066: SIG_PUSHONLY (26) only inside the P2SH arm.
+spec_cell_p2sh_pushonly_gate : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+spec_cell_p2sh_pushonly_gate n_ops w0 w1 w2 p2sh =
+  if (p2sh != 0) then
+    (if (push_only n_ops w0 w1 w2) then (pack2 1 0) else (pack2 0 26))
+  else (pack2 1 0)

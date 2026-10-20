@@ -1,0 +1,55 @@
+module Spec where
+
+// SCR-007 spec: stackCopy is taken after the scriptSig EvalScript and
+// restored before the redeem-script evaluation.
+// pack: result(2) | error(6)<<2 | redeem(8)<<8 | sub_n(2)<<16
+//       | sub_e0(8)<<18 | sub_e1(8)<<26.  Disjoint fields, so the arithmetic
+// sum equals the C packing of disjoint `|` fields on 64-bit words.
+pack2 : [64] -> [64] -> [64]
+pack2 res err = (res % 4) + ((err % 64) * 4)
+
+pack_stack : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pack_stack res err redeem n e0 e1 =
+  (pack2 res err)
+  + ((redeem % 256) * 256)
+  + ((n % 4) * 65536)
+  + ((e0 % 256) * 262144)
+  + ((e1 % 256) * 67108864)
+
+// Cell stack (depth, top byte, second byte); depth in [0,2].
+type Stack = ([64], [64], [64])
+
+clamp2 : [64] -> [64]
+clamp2 n = if (n > 2) then 2 else (n % 4)
+
+mk : [64] -> [64] -> [64] -> Stack
+mk n e0 e1 = (clamp2 n, e0 % 256, e1 % 256)
+
+// CastToBool of a one-byte element: nonzero and not 0x80.
+truthy : [64] -> Bit
+truthy b = (((b % 256) % 128) != 0)
+
+// Core popstack: drop the top element (head = top).
+pop : Stack -> Stack
+pop (n, e0, e1) =
+  if (n == 0) then (0, 0, 0)
+  else (n - 1, if (n >= 2) then e1 else 0, 0)
+
+// interpreter.cpp:2037-2040, :2062, :2069-2080.
+//   saved = post-scriptSig stack (:2032-2033)
+//   stack = post-scriptPubKey stack (:2034)
+//   observable = (redeem byte, stack handed to :2080)
+spec_cell_p2sh_stackcopy :
+  [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+spec_cell_p2sh_stackcopy sig_n sig_e0 sig_e1 spk_n spk_e0 spk_e1 p2sh =
+  if ((stack.0 == 0) || ((truthy stack.1) == False))
+    then (pack_stack 0 2 0 0 0 0)
+  else if (p2sh == 0)
+    then (pack_stack 1 0 0 0 0 0)
+  else if (saved.0 == 0)
+    then (pack_stack 0 1 0 0 0 0)
+  else (pack_stack 1 0 saved.1 rest.0 rest.1 rest.2)
+  where
+    saved = mk sig_n sig_e0 sig_e1
+    stack = mk spk_n spk_e0 spk_e1
+    rest = pop saved

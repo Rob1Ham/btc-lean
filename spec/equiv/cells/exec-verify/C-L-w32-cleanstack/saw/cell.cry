@@ -1,0 +1,11 @@
+module Spec where
+
+// SCR-008 (flag/policy face) spec: the terminal CLEANSTACK check.
+pack2 : [64] -> [64] -> [64]
+pack2 res err = (res % 4) + ((err % 64) * 4)
+
+// interpreter.cpp:2110-2118.  `final_len` is the cleanstack-relevant stack
+// length after all evaluation; CLEANSTACK (30) iff it is not exactly 1.
+spec_cell_cleanstack_flag : [64] -> [64] -> [64]
+spec_cell_cleanstack_flag final_len cs =
+  if ((cs != 0) && (final_len != 1)) then (pack2 0 30) else (pack2 1 0)

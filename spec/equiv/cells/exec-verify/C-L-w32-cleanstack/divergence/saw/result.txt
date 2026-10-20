@@ -1,0 +1,55 @@
+# cell: exec-verify/C-L-w32-cleanstack
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (copied from saw/cell.cry)
+# expected: red
+# solver: z3
+
+Loading file "cell.saw"
+Verifying probe_cleanstack_witness...
+Simulating probe_cleanstack_witness...
+Checking proof obligations probe_cleanstack_witness...
+Proof succeeded! probe_cleanstack_witness
+Verifying probe_cleanstack_witness...
+Simulating probe_cleanstack_witness...
+Checking proof obligations probe_cleanstack_witness...
+Subgoal failed: probe_cleanstack_witness cell.saw:12:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+spec_probe_cleanstack_witness probe_cleanstack_witness_a0`6318
+  probe_cleanstack_witness_a1`6319
+  probe_cleanstack_witness_a2`6320
+Actual term:
+let { _x`1 = Vec 1 Bool;
+      _x`2 = bvNat 1 0;
+      _x`3 = bvNat 1 1;
+      _x`4 = bvNat 64 1;
+    }
+ in ite (Vec 64 Bool)
+      (bvEq 1 _x`2
+         (bvAnd 1
+            (bvAnd 1
+               (ite _x`1 (bvEq 64 _x`4 probe_cleanstack_witness_a2`6320) _x`2
+                  _x`3)
+               (ite _x`1
+                  (bvEq 64 (bvNat 64 0) probe_cleanstack_witness_a1`6319)
+                  _x`2
+                  _x`3))
+            (ite _x`1 (bvEq 64 _x`4 probe_cleanstack_witness_a0`6318) _x`2
+               _x`3)))
+      _x`4
+      (bvNat 64 120)
+
+Goal size 86. Provers used: SBV->Z3
+----------Counterexample----------
+  probe_cleanstack_witness_a0: 18446744073709551614
+  probe_cleanstack_witness_a1: 18446743523953737727
+  probe_cleanstack_witness_a2: 18446744073675997183
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   cell.saw:12:104-12:106 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:12:1-12:106 (at top level)
+Proof failed.
+
+STATUS=saw-proof-failed-as-expected

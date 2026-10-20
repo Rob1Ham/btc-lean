@@ -1,0 +1,21 @@
+# Lean probe (Lean 4.35.0, spec/core) — exact command and output
+#
+# Reproduce from the repository root:
+#   cd spec/core && lake env lean \
+#     ../equiv/cells/exec-verify/C-L-w32-cleanstack/divergence/lean-probe.lean
+#
+# The probe builds a P2SH-wrapped P2WPKH spend (scriptSig = single push of the
+# 22-byte v0 program, scriptPubKey = HASH160 <hash160(redeem)> EQUAL, witness =
+# [sig, pubkey], stub EC checker) with flags {p2sh, witness} and policy
+# {cleanstack}, and evaluates `verifyScriptFull 64`.
+#
+# Core on the same tape succeeds: VerifyWitnessProgram returns true and then
+# `stack.resize(1)` (interpreter.cpp:2102) makes the CLEANSTACK check at :2115
+# see a one-element stack.  The Lean model returns CLEANSTACK because its
+# `finalLen` (Defs.lean:1395-1418) tests `isWitnessProgram spk`, which is false
+# for a P2SH scriptPubKey, and the model never resizes the stack for the
+# P2SH-wrapped witness arm.
+
+$ cd spec/core && lake env lean ../equiv/cells/exec-verify/C-L-w32-cleanstack/divergence/lean-probe.lean
+Bitcoin.Interpreter.VerifyOutcome.fail (Bitcoin.Interpreter.ExecError.cleanstack)
+"FAIL Bitcoin.Interpreter.ExecError.cleanstack"
