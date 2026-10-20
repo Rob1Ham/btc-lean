@@ -219,41 +219,69 @@ rows:
   summary: scriptSig must be push-only for P2SH evaluation
   core_ref: interpreter.cpp:VerifyScript:2065-2066@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-006 (scriptSig must be push-only for P2SH evaluation): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-w32-p2sh-pushonly
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-p2sh-pushonly
+    certificate: b6f5d20fdf377c0e77a907c36bf53141d4a77f789976da5fc5fc14d0b9740df3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-p2sh-pushonly
+    certificate: 3c4ec56f06e2a052f8e1425d8d73ad7d2435818c289c8f6cc03ed338a6ca657b
+    note: Proof succeeded! cell_p2sh_pushonly_gate
+  status: both-green
+  gap_note: null
 - id: SCR-007
   family: exec-verify
   summary: stackCopy (taken after scriptSig) is restored for subscript eval
   core_ref: interpreter.cpp:VerifyScript:2032-2033,2069@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-007 (stackCopy (taken after scriptSig) is restored for subscript eval): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-w32-p2sh-stackcopy
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-p2sh-stackcopy
+    certificate: 5412413fc1a55951bbf51bb6b3d74f795c0ab861fb7a7cdea6c5acae064db521
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-p2sh-stackcopy
+    certificate: 85948b4769abafd3cd299f4b758b406b837b6a6c6926d95d5edc92b32b1c5f2d
+    note: Proof succeeded! cell_p2sh_stackcopy
+  status: both-green
+  gap_note: null
 - id: SCR-008
   family: exec-verify
   summary: Exactly 1 element after all evaluation (flag; pol.; implicit in witness)
   core_ref: interpreter.cpp:VerifyScript:2110-2118@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - exec-verify/C-L-w32-cleanstack
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-008 (Exactly 1 element after all evaluation (flag; pol.; implicit in witness)): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-w32-cleanstack: partial.  Covered by this cell (both tools green):\n- the `flag` face: SCRIPT_VERIFY_CLEANSTACK on/off and the exact\n  `stack.size() != 1` test (interpreter.cpp:2110-2118),\n- the `pol.` face: the Lean model's `pol.cleanstack` reads the same bit\n  and reaches the same `cleanstack` error.\nNOT covered / blocked: the `implicit in witness` face.  Core resizes the\nstack to one element after a successful witness program, at\n:2057 (bare) and :2102 (P2SH-wrapped), so the check at :2115 cannot fire\nfor those spends.  The Lean model only reproduces the bare case:\n`verifyScriptFull` computes\n    finalLen := if flags.witness ∧ (isWitnessProgram spk).isSome then 1\n                else <re-evaluate the redeem script and take its length>\nand `isWitnessProgram spk` is false for a P2SH scriptPubKey, so the\nP2SH-wrapped witness spend keeps the inner length instead of 1.  The\nconcrete Lean evaluation and the Alive2 counterexample are in\n`divergence/` (wave-32 finding F-DIV-W32-01, proposed global id\nF-DIV-003).  SCR-008 stays partial until that is fixed or the row is\nre-scoped."
 - id: SCR-009
   family: exec-verify
   summary: Flag combination constraint
   core_ref: interpreter.cpp:VerifyScript:2113-2114 (assert)@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-009 (Flag combination constraint): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-w32-flag-combo
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-flag-combo
+    certificate: c511ac9b5c538b0d0a6e03433f00d2ce19df466be54b6f70c3c582541f21e3ef
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-flag-combo
+    certificate: 7cfa84d68153b0f2e789c4c26ab2c613e228873ed0e4597fe8763c0473a99a2b
+    note: Proof succeeded! cell_flag_combo_admissible
+  status: both-green
+  gap_note: null
 - id: SCR-010
   family: exec-verify
   summary: scriptSig push-only before eval (pol.)
@@ -2529,71 +2557,134 @@ rows:
   summary: (sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript
   core_ref: interpreter.cpp:1094-1113@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-156 ((sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript): interpreter.cpp:1094-1113 pops (sig,num,pk), adds the signature check result, and rejects outside tapscript. The stack effect is leaf-shaped but the signature check is the Schnorr/EC seam; no checker.'
+  cells:
+  - tapscript/C-L-w32-checksigadd
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 23f36e840881548a031774072d4730c97bbaa31dee10c8846e9d7fab746b52a5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 9e239c63038245f02c8c7ba008747e2d573f6a32b24105e1197154bcf52f3bfe
+    note: Proof succeeded! cell_add_dispatch
+  status: both-green
+  gap_note: null
 - id: SCR-157
   family: tapscript
   summary: CScriptNum(fRequireMinimal)
   core_ref: interpreter.cpp:1103@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-157 (CScriptNum(fRequireMinimal)): interpreter.cpp:1103 parses the numeric operand with CScriptNum(fRequireMinimal). A bounded ScriptNum leaf can judge the minimal-4-byte rule; not attempted.'
+  cells:
+  - tapscript/C-L-w32-checksigadd
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 23f36e840881548a031774072d4730c97bbaa31dee10c8846e9d7fab746b52a5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 9e239c63038245f02c8c7ba008747e2d573f6a32b24105e1197154bcf52f3bfe
+    note: Proof succeeded! cell_add_dispatch
+  status: both-green
+  gap_note: null
 - id: SCR-158
   family: tapscript
   summary: 0 ⇒ fail; 32 ⇒ schnorr; else upgradable
   core_ref: interpreter.cpp:377-392@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-158 (0 ⇒ fail; 32 ⇒ schnorr; else upgradable): interpreter.cpp:377-392 triages pubkey size: 0 fails, 32 enters the Schnorr lane, other non-empty sizes are upgradable. The size triage is a pure bounded predicate, judgeable with Schnorr success abstracted; not attempted.'
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 60308c6bab21d0d02f13d6a60b8c565e53368f74aad00f819da153f6007d8ccf
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
 - id: SCR-159
   family: tapscript
   summary: 'TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement'
   core_ref: interpreter.cpp:377-378@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-159 (TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement): interpreter.cpp:377-378 fails TAPSCRIPT_EMPTY_PUBKEY immediately after the validation-weight decrement. The pubkey-length predicate is judgeable as a bounded leaf; the weight decrement is a separate state step. Not attempted.'
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 60308c6bab21d0d02f13d6a60b8c565e53368f74aad00f819da153f6007d8ccf
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
 - id: SCR-160
   family: tapscript
   summary: 'An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged'
   core_ref: interpreter.cpp:367-368@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-160 (An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged): interpreter.cpp:367-368: an empty signature against a 32-byte x-only key fails the check and continues without Schnorr verification or weight charge. Requires the tapscript checksig and validation-weight state, both outside the dispatch seam.'
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 60308c6bab21d0d02f13d6a60b8c565e53368f74aad00f819da153f6007d8ccf
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
 - id: SCR-161
   family: tapscript
   summary: else SCHNORR_SIG_SIZE
   core_ref: interpreter.cpp:1736@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-161 (else SCHNORR_SIG_SIZE): interpreter.cpp:1736: Schnorr signatures are 64 or 65 bytes. Pure length predicate, judgeable as a bounded leaf; not attempted.'
+  cells:
+  - tapscript/C-L-w32-schnorr-shape
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: e1db0a292140a5454be84d62ee5b2787ebc33d18ce24de81344b67a14fd5ec0b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: 907cef4a4fbe4c60ace32988b68f06cad73e24cf5a0d8087d38416406681ea57
+    note: Proof succeeded! cell_schnorr_shape
+  status: both-green
+  gap_note: null
 - id: SCR-162
   family: tapscript
   summary: SIGHASH_DEFAULT invalid as explicit byte
   core_ref: interpreter.cpp:1741-1744@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-162 (SIGHASH_DEFAULT invalid as explicit byte): interpreter.cpp:1741-1744: a 65-byte signature with explicit hashtype 0x00 fails (SIGHASH_DEFAULT is implicit only). Pure byte predicate; judgeable, not attempted.'
+  cells:
+  - tapscript/C-L-w32-schnorr-shape
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: e1db0a292140a5454be84d62ee5b2787ebc33d18ce24de81344b67a14fd5ec0b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: 907cef4a4fbe4c60ace32988b68f06cad73e24cf5a0d8087d38416406681ea57
+    note: Proof succeeded! cell_schnorr_shape
+  status: both-green
+  gap_note: null
 - id: SCR-163
   family: tapscript
   summary: ≤0x03 or 0x81..0x83 else fail

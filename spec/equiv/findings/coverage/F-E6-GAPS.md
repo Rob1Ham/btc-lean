@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **95**
-- unjudged seam: **7**
-- filed gap: **81**
+- green: **105**
+- unjudged seam: **5**
+- filed gap: **73**
 - still planned: **0**
 - other: **0**
 
@@ -16,6 +16,9 @@ dispositions, not a new claim. Green rows are listed for completeness.
 |---|---|---|
 | SCR-002 | exec-verify | `exec-verify/C-L-w32-verify-final-truth` |
 | SCR-004 | exec-verify | `exec-verify/C-L-w32-witness-flag` |
+| SCR-006 | exec-verify | `exec-verify/C-L-w32-p2sh-pushonly` |
+| SCR-007 | exec-verify | `exec-verify/C-L-w32-p2sh-stackcopy` |
+| SCR-009 | exec-verify | `exec-verify/C-L-w32-flag-combo` |
 | SCR-014 | exec-verify | `exec-verify/C-L-w32-flags-combo` |
 | SCR-015 | exec-verify | `exec-verify/C-L-w32-block-flags` |
 | SCR-016 | exec-verify | `exec-verify/C-L-w32-flag-exceptions` |
@@ -92,6 +95,13 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-150 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
 | SCR-151 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
 | SCR-152 | tapscript | `tapscript/C-L-tapscript-isopsuccess` |
+| SCR-156 | tapscript | `tapscript/C-L-w32-checksigadd` |
+| SCR-157 | tapscript | `tapscript/C-L-w32-checksigadd` |
+| SCR-158 | tapscript | `tapscript/C-L-w32-pubkey-triage` |
+| SCR-159 | tapscript | `tapscript/C-L-w32-pubkey-triage` |
+| SCR-160 | tapscript | `tapscript/C-L-w32-pubkey-triage` |
+| SCR-161 | tapscript | `tapscript/C-L-w32-schnorr-shape` |
+| SCR-162 | tapscript | `tapscript/C-L-w32-schnorr-shape` |
 | SCR-163 | tapscript | `tapscript/C-L-w32-tap-hashtype` |
 | SCR-164 | tapscript | `tapscript/C-L-w32-tap-extslice` |
 | SCR-165 | tapscript | `tapscript/C-L-w32-tap-hashtype` |
@@ -119,8 +129,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-147 | tapscript | SCR-147 (32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key): interpreter.cpp:1913-1925 checks program == x(tweak(p, merkle_root)) and control[0]&1 == tweaked-key parity. Pure secp256k1 EC; outside the seam. |
 | SCR-153 | tapscript | SCR-153 (overrides all later checks (incl. size limits)): interpreter.cpp:1846-1862 scans the whole tapscript for OP_SUCCESSx before item-size and EvalScript, and returns success immediately. Needs a loop over symbolic script bytes and early-success control flow; the leaf harness is loop-free and does not parse scripts. |
 | SCR-154 | tapscript | SCR-154 (pol. flag fails them): interpreter.cpp:1857-1859 fails with DISCOURAGE_OP_SUCCESS during the same pre-scan. Same loop/early-success seam as SCR-153; additionally a policy-flag branch. Consensus=false. |
-| SCR-156 | tapscript | SCR-156 ((sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript): interpreter.cpp:1094-1113 pops (sig,num,pk), adds the signature check result, and rejects outside tapscript. The stack effect is leaf-shaped but the signature check is the Schnorr/EC seam; no checker. |
-| SCR-160 | tapscript | SCR-160 (An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged): interpreter.cpp:367-368: an empty signature against a 32-byte x-only key fails the check and continues without Schnorr verification or weight charge. Requires the tapscript checksig and validation-weight state, both outside the dispatch seam. |
 
 ## Filed gaps
 
@@ -129,10 +137,24 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-001 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-w32-verify-sequential: partial. Proved: (a) a scriptSig EvalScript error short-circuits before the scriptPubKey evaluation; (b) the scriptPubKey evaluation is applied to the post-scriptSig stack (depth, top and length are carried in, not reset and not concatenated); (c) the OP_DUP underflow and MAX_STACK_SIZE edges on that stack; (d) the final decision is taken on the stack the second evaluation produced. NOT proved: the CVE-2010-5141 parse-boundary witness (a push in scriptSig whose declared length would run into scriptPubKey bytes is truncated at the scriptSig end instead of consuming scriptPubKey). That needs GetScriptOp/the script-buffer boundary and the EvalScript loop, which this cell does not model; it is filed as the exact blocker in the wave-32 report. |
 | SCR-003 | exec-verify | SCR-003 (Empty/short script evaluates to success with unchanged stack): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-005 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-w32-p2sh-23byte: partial. Proved: (a) the 23-byte HASH160/EQUAL template predicate for every byte and length (so "23-byte HASH160 script" is exactly Core's IsPayToScriptHash, not an approximation); (b) the P2SH arm restores the post-scriptSig stack (stackCopy), removes exactly one element (the serialized redeem script, the last scriptSig stack element) and evaluates that subscript on the remainder; (c) the resulting stack's final truth is the decision; (d) the hash-equality gate and its precedence over the push-only check. NOT proved: the HASH160 computation itself (opaque seam — `hash_match` is a symbolic premise), the serialization of the redeem script bytes vs. the scriptSig push (`scriptSig == CScript() << pubKey2`, the WITNESS_MALLEATED_P2SH check, a different row SCR-012), the BIP16 activation rule, and sigop counting. The `GetSigOpCount`/P2SH preimage paths are out of scope. |
-| SCR-006 | exec-verify | SCR-006 (scriptSig must be push-only for P2SH evaluation): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-007 | exec-verify | SCR-007 (stackCopy (taken after scriptSig) is restored for subscript eval): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-008 | exec-verify | SCR-008 (Exactly 1 element after all evaluation (flag; pol.; implicit in witness)): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-009 | exec-verify | SCR-009 (Flag combination constraint): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
+| SCR-008 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-w32-cleanstack: partial.  Covered by this cell (both tools green):
+- the `flag` face: SCRIPT_VERIFY_CLEANSTACK on/off and the exact
+  `stack.size() != 1` test (interpreter.cpp:2110-2118),
+- the `pol.` face: the Lean model's `pol.cleanstack` reads the same bit
+  and reaches the same `cleanstack` error.
+NOT covered / blocked: the `implicit in witness` face.  Core resizes the
+stack to one element after a successful witness program, at
+:2057 (bare) and :2102 (P2SH-wrapped), so the check at :2115 cannot fire
+for those spends.  The Lean model only reproduces the bare case:
+`verifyScriptFull` computes
+    finalLen := if flags.witness ∧ (isWitnessProgram spk).isSome then 1
+                else <re-evaluate the redeem script and take its length>
+and `isWitnessProgram spk` is false for a P2SH scriptPubKey, so the
+P2SH-wrapped witness spend keeps the inner length instead of 1.  The
+concrete Lean evaluation and the Alive2 counterexample are in
+`divergence/` (wave-32 finding F-DIV-W32-01, proposed global id
+F-DIV-003).  SCR-008 stays partial until that is fixed or the row is
+re-scoped. |
 | SCR-010 | exec-verify | SCR-010 (scriptSig push-only before eval (pol.)): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-011 | exec-verify | SCR-011 (scriptSig == ∅ for bare witness programs): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-012 | exec-verify | SCR-012 (scriptSig == single push of redeemScript): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
@@ -257,11 +279,6 @@ into the annex/key/script dispatch. The row also names activation height
 outside VerifyWitnessProgram and have no block-height channel in
 contract/tape.md, so that arm is not exercised here. |
 | SCR-155 | tapscript | SCR-155 (the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_): interpreter.cpp:460-464 is the MAX_OPS guard, skipped for TAPSCRIPT. A bounded stepBody leaf can set opCount>201 and run OP_NOP in BASE/WITNESS_V0 and TAPSCRIPT; the twin has stepBody handlers. Not attempted. (This is the op-count budget, not sigops.) |
-| SCR-157 | tapscript | SCR-157 (CScriptNum(fRequireMinimal)): interpreter.cpp:1103 parses the numeric operand with CScriptNum(fRequireMinimal). A bounded ScriptNum leaf can judge the minimal-4-byte rule; not attempted. |
-| SCR-158 | tapscript | SCR-158 (0 ⇒ fail; 32 ⇒ schnorr; else upgradable): interpreter.cpp:377-392 triages pubkey size: 0 fails, 32 enters the Schnorr lane, other non-empty sizes are upgradable. The size triage is a pure bounded predicate, judgeable with Schnorr success abstracted; not attempted. |
-| SCR-159 | tapscript | SCR-159 (TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement): interpreter.cpp:377-378 fails TAPSCRIPT_EMPTY_PUBKEY immediately after the validation-weight decrement. The pubkey-length predicate is judgeable as a bounded leaf; the weight decrement is a separate state step. Not attempted. |
-| SCR-161 | tapscript | SCR-161 (else SCHNORR_SIG_SIZE): interpreter.cpp:1736: Schnorr signatures are 64 or 65 bytes. Pure length predicate, judgeable as a bounded leaf; not attempted. |
-| SCR-162 | tapscript | SCR-162 (SIGHASH_DEFAULT invalid as explicit byte): interpreter.cpp:1741-1744: a 65-byte signature with explicit hashtype 0x00 fails (SIGHASH_DEFAULT is implicit only). Pure byte predicate; judgeable, not attempted. |
 | SCR-167 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch's other branches are not modelled.  The Core loop itself is not executed by either tool. |
 | SCR-169 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-epoch-annex: partial — the epoch byte/position, the spend_type formula and the annex-hash inclusion/length/first-word placement are proved for all inputs in the domain; the SHA256 of the annex, the TapSighash tagged hash, the tx-level sub-hashes and the full SigMsg byte order are not modelled.  The row's own text names the digest, so the row is not claimed full. |
 | SCR-172 | disabled-opcodes | auto(cells): partial row coverage; disabled/C-L-w32-opsuccess-scan: partial. (a) The wire mapping is full: IsOpSuccess is proved over every byte 0x00..0xff, including all fifteen disabled bytes. (b) The success mechanism is proved for scripts of exactly two non-push opcodes: the scan returns success at the first success byte, in either position, before any evaluation, with the DISCOURAGE_OP_SUCCESS policy arm. Not machine-checked: the n-opcode induction for arbitrary script length (the scan is a fold of the same per-byte predicate), push-payload decode ordering (F-DIV-001), and the rest of ExecuteWitnessScript (item/stack limits, annex, control block), which is SCR-153/157/168 territory. |
