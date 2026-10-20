@@ -505,31 +505,58 @@ rows:
   summary: CMS key count ∈ [0,20] ⇒ PUBKEY_COUNT
   core_ref: interpreter.cpp:EvalScript:1127-1128; script.h:35@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-026 (CMS key count ∈ [0,20] ⇒ PUBKEY_COUNT): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
 - id: SCR-027
   family: limits
   summary: nSigsCount ∈ [0, nKeysCount] ⇒ SIG_COUNT
   core_ref: interpreter.cpp:EvalScript:1141-1142@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-027 (nSigsCount ∈ [0, nKeysCount] ⇒ SIG_COUNT): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
 - id: SCR-028
   family: limits
   summary: nOpCount += nKeysCount; ≤201
   core_ref: interpreter.cpp:EvalScript:1129-1131@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-028 (nOpCount += nKeysCount; ≤201): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
 - id: SCR-029
   family: limits
   summary: stack+altstack > 1000 ⇒ STACK_SIZE, checked per opcode
@@ -592,21 +619,39 @@ rows:
   summary: CHECKSIG=1; CHECKMULTISIG=20 (inaccurate)
   core_ref: script.cpp:GetSigOpCount(false):159-181@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-032 (CHECKSIG=1; CHECKMULTISIG=20 (inaccurate)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-sigop-site-weights
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: 4e75761bda7853c886cb8ae0a7b8358f658565d1c4e5ea6291f5e8de0c5d0883
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: bacdc68685fafd720bec44818003ce35ae642006c34b8184a6f47d4c05765690
+    note: Proof succeeded! cell_sigop_site_weight
+  status: both-green
+  gap_note: null
 - id: SCR-033
   family: limits
   summary: accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site
   core_ref: script.cpp:GetSigOpCount(true):173-177@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-033 (accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-sigop-site-weights
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: 4e75761bda7853c886cb8ae0a7b8358f658565d1c4e5ea6291f5e8de0c5d0883
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: bacdc68685fafd720bec44818003ce35ae642006c34b8184a6f47d4c05765690
+    note: Proof succeeded! cell_sigop_site_weight
+  status: both-green
+  gap_note: null
 - id: SCR-034
   family: limits
   summary: malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately
@@ -622,11 +667,20 @@ rows:
   summary: v0-20=1; v0-32=accurate(witness script); v1+=0
   core_ref: interpreter.cpp:WitnessSigOps:2133-2147@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-035 (v0-20=1; v0-32=accurate(witness script); v1+=0): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-witness-sigop-dispatch
+  alive2:
+    result: green
+    cell: limits/C-L-witness-sigop-dispatch
+    certificate: 0d2bb36a09f2661da174563e08ec7e9cac92177a089bd6db2c06a3397bb8c10d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-witness-sigop-dispatch
+    certificate: 7ea38e8d2d73f1f7931137d8d4e732f4ab13a89342f8b4a9293408c9b72ba72e
+    note: Proof succeeded! cell_witness_sigops
+  status: both-green
+  gap_note: null
 - id: SCR-036
   family: limits
   summary: push-only scriptSig; last element as program
@@ -642,61 +696,107 @@ rows:
   summary: cost in weight units
   core_ref: tx_verify.cpp:GetTransactionSigOpCost:149-168@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-037 (cost in weight units): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-sigop-cost-arith
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
 - id: SCR-038
   family: limits
   summary: cumulative block sigop cost <= MAX_BLOCK_SIGOPS_COST (80,000)
   core_ref: src/consensus/consensus.h:17; src/validation.cpp:2566-2569@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-038 (cumulative block sigop cost <= MAX_BLOCK_SIGOPS_COST (80,000)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-sigop-cost-arith
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
 - id: SCR-039
   family: limits
   summary: mempool policy per-tx limit
   core_ref: policy/policy.h:44; validation.cpp:905,939@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-039 (mempool policy per-tx limit): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-sigop-cost-arith
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
 - id: SCR-040
   family: limits
   summary: budget = serialized witness stack size (including the CompactSize item count) + 50 WU
   core_ref: interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - limits/C-L-tapscript-weight
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-040 (budget = serialized witness stack size (including the CompactSize item count) + 50 WU): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  gap_note: "auto(cells): partial row coverage; limits/C-L-tapscript-weight: - SCR-040 (budget = serialized witness stack size including the\n  CompactSize item count, + 50 WU): partial. The formula, the item-count\n  CompactSize and the per-item CompactSize+bytes are proved for 0..4 items\n  and all 32-bit item lengths; the CompactSize 1/3/5-byte branches are all\n  exercised. Missing: an unbounded item count (the cell has four length\n  arguments) and the 9-byte CompactSize branch (an item > 2^32-1 bytes,\n  unreachable in a valid serialized witness). It must not be cited as a\n  full SCR-040 green.\n- SCR-041 (decrement on non-empty sig regardless of validity; < 0 =>\n  TAPSCRIPT_VALIDATION_WEIGHT): full. The decrement by 50 is proved for\n  every non-empty signature and every signed weight value, the negative\n  test is exact, and its precedence over the pubkey rules is proved.\n  Signature validity is the `checker_ok` input, so the decrement is shown\n  for both outcomes, including an invalid signature.\n- SCR-042 (non-empty sig + upgradable key still decrements): full. For\n  pk_class = 2 (every size other than 0 and 32) with a non-empty signature,\n  the budget is decremented before the discouragement b"
 - id: SCR-041
   family: limits
   summary: decrement on non-empty sig regardless of validity; <0 ⇒ TAPSCRIPT_VALIDATION_WEIGHT
   core_ref: interpreter.cpp:EvalChecksigTapscript:367-376@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-041 (decrement on non-empty sig regardless of validity; <0 ⇒ TAPSCRIPT_VALIDATION_WEIGHT): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-tapscript-weight
+  alive2:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 8ed55a1207b7d1a541877614c12bbc63fa171136f6d48292a5d02790264a471b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 1b2196c49c21145089cf040d7dd88d09d19b005491692292470d3a3423a8de6f
+    note: Proof succeeded! cell_tapscript_budget
+  status: both-green
+  gap_note: null
 - id: SCR-042
   family: limits
   summary: non-empty sig + upgradable key still decrements
   core_ref: interpreter.cpp:EvalChecksigTapscript:368-376@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-042 (non-empty sig + upgradable key still decrements): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  cells:
+  - limits/C-L-tapscript-weight
+  alive2:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 8ed55a1207b7d1a541877614c12bbc63fa171136f6d48292a5d02790264a471b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 1b2196c49c21145089cf040d7dd88d09d19b005491692292470d3a3423a8de6f
+    note: Proof succeeded! cell_tapscript_budget
+  status: both-green
+  gap_note: null
 - id: SCR-043
   family: limits
   summary: tapscript multisig-mimic bound (miniscript-side resource limit)

@@ -620,10 +620,25 @@ def _leg_text(leg: Leg) -> str:
     return f"{leg.state}" + (f" ({detail})" if detail else "")
 
 
-def _partial_coverage(cell: Cell) -> bool:
-    """A cell that says it covers only part of an SCR row cannot green it."""
+def _partial_coverage(cell: Cell, rule_id: str) -> bool:
+    """A cell that says it covers only part of an SCR row cannot green it.
+
+    Coverage may be a per-row bullet list.  In that case only the named row's
+    bullet is consulted; a partial bullet for one row must not demote the
+    other rows the same cell fully covers.
+    """
     cov = cell.spec.get("scr_row_coverage")
-    return isinstance(cov, str) and cov.strip().lower().startswith("partial")
+    if not isinstance(cov, str):
+        return False
+    text = cov.strip()
+    if text.lower().startswith("partial"):
+        return True
+    for match in re.finditer(
+        r"(?ms)^\s*-\s*(SCR-\d+)\b(.*?)(?=^\s*-\s*SCR-\d+\b|\Z)", text
+    ):
+        if match.group(1) == rule_id and "partial" in match.group(2).lower():
+            return True
+    return False
 
 
 def _green_record(cell: Cell, leg: Leg) -> dict[str, Any]:
@@ -678,18 +693,18 @@ def compute_row_states(
         alive2_green = [
             cell
             for cell in row_cells
-            if cell.alive2.state == "green" and not _partial_coverage(cell)
+            if cell.alive2.state == "green" and not _partial_coverage(cell, rule_id)
         ]
         saw_green = [
             cell
             for cell in row_cells
-            if cell.saw.state == "green" and not _partial_coverage(cell)
+            if cell.saw.state == "green" and not _partial_coverage(cell, rule_id)
         ]
         partial_green = [
             cell
             for cell in row_cells
             if (cell.alive2.state == "green" or cell.saw.state == "green")
-            and _partial_coverage(cell)
+            and _partial_coverage(cell, rule_id)
         ]
         seam_cells = [cell for cell in row_cells if cell.seam_note]
 
