@@ -1,0 +1,22 @@
+module CellSigopSiteWeights where
+
+// Independent specification of one loop-body iteration of
+// CScript::GetSigOpCount (Core script.cpp:159-181) and of the Lean twin's
+// sigOpStep (Interpreter/SigOps.lean).
+//
+//   CHECKSIG / CHECKSIGVERIFY                     -> 1
+//   CHECKMULTISIG / CHECKMULTISIGVERIFY, accurate
+//     and previous opcode in OP_1..OP_16          -> prev - 0x50 (1..16)
+//   CHECKMULTISIG / CHECKMULTISIGVERIFY otherwise -> 20
+//   every other opcode                            -> 0
+//
+// The previous opcode is 0xff (OP_INVALIDOPCODE) before the first site,
+// which falls into the "otherwise" arm exactly as in Core.
+weight : [8] -> [8] -> [8] -> [32]
+weight prev cur accurate =
+  if (cur == 0xac) || (cur == 0xad) then 1
+  else if (cur == 0xae) || (cur == 0xaf) then
+    if (accurate != 0) && (prev >= 0x51) && (prev <= 0x60)
+      then zext (prev - 0x50)
+      else 20
+  else 0

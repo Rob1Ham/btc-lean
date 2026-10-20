@@ -1,0 +1,58 @@
+# cell: limits/C-L-witness-sigop-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt (limits_common.h sha256 recorded there)
+# command: alive-tv build/c_cell_witness_sigops.ll build/l_cell_witness_sigops.ll
+
+----------------------------------------
+define i32 @cell_witness_sigops(i8 noundef zeroext %witversion, i32 noundef %program_len, i8 noundef zeroext %witness_nonempty, i32 noundef %last_item_sigops) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i8 noundef zeroext %witversion, 0
+  br i1 %cmp.i, label %if.then.i, label %if.end6.i
+
+if.then.i:
+  %cmp1.i = icmp eq i32 noundef %program_len, 20
+  br i1 %cmp1.i, label %_ZL16c_witness_sigopshjhj.exit, label %if.end.i
+
+if.end.i:
+  %cmp3.i = icmp eq i32 noundef %program_len, 32
+  %tobool.i = icmp ne i8 noundef zeroext %witness_nonempty, 0
+  %or.cond.i = and i1 %cmp3.i, %tobool.i
+  br i1 %or.cond.i, label %_ZL16c_witness_sigopshjhj.exit, label %if.end6.i
+
+if.end6.i:
+  br label %_ZL16c_witness_sigopshjhj.exit
+
+_ZL16c_witness_sigopshjhj.exit:
+  %retval.0.i = phi i32 [ 0, %if.end6.i ], [ 1, %if.then.i ], [ noundef %last_item_sigops, %if.end.i ]
+  ret i32 %retval.0.i
+}
+=>
+define i32 @cell_witness_sigops(i8 noundef zeroext %witversion, i32 noundef %program_len, i8 noundef zeroext %witness_nonempty, i32 noundef %last_item_sigops) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i8 noundef zeroext %witversion, 0
+  br i1 %cmp.i, label %if.then.i, label %_ZL16l_witness_sigopshjhj.exit
+
+if.then.i:
+  %cmp1.i = icmp eq i32 noundef %program_len, 20
+  br i1 %cmp1.i, label %_ZL16l_witness_sigopshjhj.exit, label %if.end.i
+
+if.end.i:
+  %cmp3.i = icmp eq i32 noundef %program_len, 32
+  %cmp5.i = icmp ne i8 noundef zeroext %witness_nonempty, 0
+  %or.cond.i = and i1 %cmp3.i, %cmp5.i
+  %last_item_sigops..i = select i1 %or.cond.i, i32 noundef %last_item_sigops, i32 0
+  br label %_ZL16l_witness_sigopshjhj.exit
+
+_ZL16l_witness_sigopshjhj.exit:
+  %retval.0.i = phi i32 [ 1, %if.then.i ], [ %last_item_sigops..i, %if.end.i ], [ 0, %entry ]
+  ret i32 %retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green
