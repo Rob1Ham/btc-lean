@@ -1,0 +1,462 @@
+# cell: numeric/C-L-within-4byte
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops.h sha256 cc029e317e9b3d8b2fbc04158a25349b05441d9e1eb1148667a96a7592548795
+# build: build/build.txt
+# alive-tv flags: --smt-to=120000
+
+# command: alive-tv --smt-to=120000 build/c_cell_within.ll build/l_cell_within.ll
+
+----------------------------------------
+define i64 @cell_within(i32 noundef %wx, i32 noundef %lx, i32 noundef %wmn, i32 noundef %lmn, i32 noundef %wmx, i32 noundef %lmx) nofree willreturn memory(none) {
+if.end.i:
+  %and.i = and i32 noundef %lx, 7
+  %shr.i18 = lshr i32 noundef %wx, 8
+  %and2.i = and i32 noundef %lmn, 7
+  %shr.i4 = lshr i32 noundef %wmn, 8
+  %and9.i = and i32 noundef %lmx, 7
+  %shr.i = lshr i32 noundef %wmx, 8
+  %cmp.i61 = icmp samesign ult i32 %and.i, 5
+  br i1 %cmp.i61, label %if.end16.i63, label %_ZN12_GLOBAL__N_18c_withinERN4core5StackE.exit
+
+if.end16.i63:
+  %cmp.i78 = icmp eq i32 %and.i, 0
+  br i1 %cmp.i78, label %if.end7.i, label %if.then2.i
+
+if.then2.i:
+  %conv.i17.mask = and i32 noundef %wx, 255
+  %cmp4.not.i = icmp eq i32 %and.i, 1
+  br i1 %cmp4.not.i, label %_ZL8num_bytePKhj.exit.i, label %if.end9.i
+
+if.end9.i:
+  %or8.i410 = and i32 noundef %wx, 65535
+  %cmp10.i = icmp samesign ugt i32 %and.i, 2
+  br i1 %cmp10.i, label %if.end16.i83, label %_ZL8num_bytePKhj.exit.i
+
+if.end16.i83:
+  %or15.i411 = and i32 noundef %wx, 16777215
+  %cmp17.i84 = icmp eq i32 %and.i, 4
+  %spec.select = select i1 %cmp17.i84, i32 noundef %wx, i32 %or15.i411
+  %cond37.in.i.i.sroa.speculate.load.if.end16.i83.v.v = select i1 %cmp17.i84, i32 24, i32 16
+  %cond37.in.i.i.sroa.speculate.load.if.end16.i83.v = lshr i32 noundef %wx, %cond37.in.i.i.sroa.speculate.load.if.end16.i83.v.v
+  br label %_ZL8num_bytePKhj.exit.i
+
+_ZL8num_bytePKhj.exit.i:
+  %result.3.i315.in = phi i32 [ %or8.i410, %if.end9.i ], [ %conv.i17.mask, %if.then2.i ], [ %spec.select, %if.end16.i83 ]
+  %cond37.in.i.i.sroa.speculated.in = phi i32 [ %shr.i18, %if.end9.i ], [ noundef %wx, %if.then2.i ], [ %cond37.in.i.i.sroa.speculate.load.if.end16.i83.v, %if.end16.i83 ]
+  %result.3.i315 = zext i32 %result.3.i315.in to i64
+  %#0 = and i32 %cond37.in.i.i.sroa.speculated.in, 128
+  %cmp52.not.i = icmp eq i32 %#0, 0
+  br i1 %cmp52.not.i, label %if.end7.i, label %if.then53.i
+
+if.then53.i:
+  switch i32 %and.i, label %cond.false60.i [
+    i32 1, label %cond.end80.i
+    i32 2, label %cond.end80.fold.split.i
+    i32 3, label %cond.end80.fold.split119.i
+  ]
+
+cond.false60.i:
+  br label %cond.end80.i
+
+cond.end80.fold.split.i:
+  br label %cond.end80.i
+
+cond.end80.fold.split119.i:
+  br label %cond.end80.i
+
+cond.end80.i:
+  %cond81.i = phi i64 [ -129, %if.then53.i ], [ -2147483649, %cond.false60.i ], [ -32769, %cond.end80.fold.split.i ], [ -8388609, %cond.end80.fold.split119.i ]
+  %and82.i = and i64 %cond81.i, %result.3.i315
+  %sub83.i = sub nsw i64 0, %and82.i
+  br label %if.end7.i
+
+if.end7.i:
+  %bn1.i.0.ph = phi i64 [ %result.3.i315, %_ZL8num_bytePKhj.exit.i ], [ %sub83.i, %cond.end80.i ], [ 0, %if.end16.i63 ]
+  %cmp.i56 = icmp samesign ult i32 %and2.i, 5
+  br i1 %cmp.i56, label %if.end16.i58, label %_ZN12_GLOBAL__N_18c_withinERN4core5StackE.exit
+
+if.end16.i58:
+  %cmp.i89 = icmp eq i32 %and2.i, 0
+  br i1 %cmp.i89, label %if.end11.i, label %if.then2.i90
+
+if.then2.i90:
+  %conv.i3.mask = and i32 noundef %wmn, 255
+  %cmp4.not.i92 = icmp eq i32 %and2.i, 1
+  br i1 %cmp4.not.i92, label %_ZL8num_bytePKhj.exit.i109, label %if.end9.i98
+
+if.end9.i98:
+  %cmp10.i100 = icmp samesign ugt i32 %and2.i, 2
+  br i1 %cmp10.i100, label %if.end16.i101, label %cond.true2.i.i125
+
+if.end16.i101:
+  %cmp17.i103 = icmp eq i32 %and2.i, 4
+  %or15.i137446 = and i32 noundef %wmn, 16777215
+  %spec.select454 = select i1 %cmp17.i103, i32 noundef %wmn, i32 %or15.i137446
+  %spec.select455.v = select i1 %cmp17.i103, i32 24, i32 16
+  %spec.select455 = lshr i32 noundef %wmn, %spec.select455.v
+  br label %_ZL8num_bytePKhj.exit.i109
+
+cond.true2.i.i125:
+  %or8.i97445 = and i32 noundef %wmn, 65535
+  br label %_ZL8num_bytePKhj.exit.i109
+
+_ZL8num_bytePKhj.exit.i109:
+  %result.3.i105334.in = phi i32 [ %or8.i97445, %cond.true2.i.i125 ], [ %conv.i3.mask, %if.then2.i90 ], [ %spec.select454, %if.end16.i101 ]
+  %cond37.in.i.i110.sroa.speculated.in = phi i32 [ %shr.i4, %cond.true2.i.i125 ], [ noundef %wmn, %if.then2.i90 ], [ %spec.select455, %if.end16.i101 ]
+  %result.3.i105334 = zext i32 %result.3.i105334.in to i64
+  %#1 = and i32 %cond37.in.i.i110.sroa.speculated.in, 128
+  %cmp52.not.i113 = icmp eq i32 %#1, 0
+  br i1 %cmp52.not.i113, label %if.end11.i, label %if.then53.i114
+
+if.then53.i114:
+  switch i32 %and2.i, label %cond.false60.i122 [
+    i32 1, label %cond.end80.i116
+    i32 2, label %cond.end80.fold.split.i121
+    i32 3, label %cond.end80.fold.split119.i115
+  ]
+
+cond.false60.i122:
+  br label %cond.end80.i116
+
+cond.end80.fold.split.i121:
+  br label %cond.end80.i116
+
+cond.end80.fold.split119.i115:
+  br label %cond.end80.i116
+
+cond.end80.i116:
+  %cond81.i117 = phi i64 [ -129, %if.then53.i114 ], [ -2147483649, %cond.false60.i122 ], [ -32769, %cond.end80.fold.split.i121 ], [ -8388609, %cond.end80.fold.split119.i115 ]
+  %and82.i118 = and i64 %cond81.i117, %result.3.i105334
+  %sub83.i119 = sub nsw i64 0, %and82.i118
+  br label %if.end11.i
+
+if.end11.i:
+  %bn2.i.0.ph = phi i64 [ %result.3.i105334, %_ZL8num_bytePKhj.exit.i109 ], [ %sub83.i119, %cond.end80.i116 ], [ 0, %if.end16.i58 ]
+  %cmp.i54 = icmp samesign ult i32 %and9.i, 5
+  br i1 %cmp.i54, label %if.end16.i, label %_ZN12_GLOBAL__N_18c_withinERN4core5StackE.exit
+
+if.end16.i:
+  %cmp.i139 = icmp eq i32 %and9.i, 0
+  br i1 %cmp.i139, label %if.end3.i, label %if.then2.i140
+
+if.then2.i140:
+  %conv.i.mask = and i32 noundef %wmx, 255
+  %cmp4.not.i142 = icmp eq i32 %and9.i, 1
+  br i1 %cmp4.not.i142, label %_ZL8num_bytePKhj.exit.i159, label %if.end9.i148
+
+if.end9.i148:
+  %cmp10.i150 = icmp samesign ugt i32 %and9.i, 2
+  br i1 %cmp10.i150, label %if.end16.i151, label %cond.true2.i.i175
+
+if.end16.i151:
+  %cmp17.i153 = icmp eq i32 %and9.i, 4
+  %or15.i187449 = and i32 noundef %wmx, 16777215
+  %spec.select456 = select i1 %cmp17.i153, i32 noundef %wmx, i32 %or15.i187449
+  %spec.select457.v = select i1 %cmp17.i153, i32 24, i32 16
+  %spec.select457 = lshr i32 noundef %wmx, %spec.select457.v
+  br label %_ZL8num_bytePKhj.exit.i159
+
+cond.true2.i.i175:
+  %or8.i147448 = and i32 noundef %wmx, 65535
+  br label %_ZL8num_bytePKhj.exit.i159
+
+_ZL8num_bytePKhj.exit.i159:
+  %result.3.i155353.in = phi i32 [ %or8.i147448, %cond.true2.i.i175 ], [ %conv.i.mask, %if.then2.i140 ], [ %spec.select456, %if.end16.i151 ]
+  %cond37.in.i.i160.sroa.speculated.in = phi i32 [ %shr.i, %cond.true2.i.i175 ], [ noundef %wmx, %if.then2.i140 ], [ %spec.select457, %if.end16.i151 ]
+  %result.3.i155353 = zext i32 %result.3.i155353.in to i64
+  %#2 = and i32 %cond37.in.i.i160.sroa.speculated.in, 128
+  %cmp52.not.i163 = icmp eq i32 %#2, 0
+  br i1 %cmp52.not.i163, label %if.end3.i, label %if.then53.i164
+
+if.then53.i164:
+  switch i32 %and9.i, label %cond.false60.i172 [
+    i32 1, label %cond.end80.i166
+    i32 2, label %cond.end80.fold.split.i171
+    i32 3, label %cond.end80.fold.split119.i165
+  ]
+
+cond.false60.i172:
+  br label %cond.end80.i166
+
+cond.end80.fold.split.i171:
+  br label %cond.end80.i166
+
+cond.end80.fold.split119.i165:
+  br label %cond.end80.i166
+
+cond.end80.i166:
+  %cond81.i167 = phi i64 [ -129, %if.then53.i164 ], [ -2147483649, %cond.false60.i172 ], [ -32769, %cond.end80.fold.split.i171 ], [ -8388609, %cond.end80.fold.split119.i165 ]
+  %and82.i168 = and i64 %cond81.i167, %result.3.i155353
+  %sub83.i169 = sub nsw i64 0, %and82.i168
+  br label %if.end3.i
+
+if.end3.i:
+  %bn3.i.0.ph = phi i64 [ %result.3.i155353, %_ZL8num_bytePKhj.exit.i159 ], [ %sub83.i169, %cond.end80.i166 ], [ 0, %if.end16.i ]
+  %cmp16.i = icmp sle i64 %bn2.i.0.ph, %bn1.i.0.ph
+  %cmp17.i = icmp slt i64 %bn1.i.0.ph, %bn3.i.0.ph
+  %#3 = select i1 %cmp16.i, i1 %cmp17.i, i1 0
+  %spec.select458 = select i1 %#3, i64 35073, i64 264
+  br label %_ZN12_GLOBAL__N_18c_withinERN4core5StackE.exit
+
+_ZN12_GLOBAL__N_18c_withinERN4core5StackE.exit:
+  %retval.1.i = phi i64 [ 16, %if.end.i ], [ 16, %if.end7.i ], [ 16, %if.end11.i ], [ %spec.select458, %if.end3.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 16, i64 35074
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_within(i32 noundef %wx, i32 noundef %lx, i32 noundef %wmn, i32 noundef %lmn, i32 noundef %wmx, i32 noundef %lmx) nofree willreturn memory(none) {
+if.end3.i:
+  %and.i = and i32 noundef %lx, 7
+  %conv.i188 = trunc i32 noundef %wx to i8
+  %shr.i = lshr i32 noundef %wx, 8
+  %conv2.i = trunc i32 %shr.i to i8
+  %shr4.i = lshr i32 noundef %wx, 16
+  %conv6.i = trunc i32 %shr4.i to i8
+  %shr8.i = lshr i32 noundef %wx, 24
+  %conv10.i = trunc nuw i32 %shr8.i to i8
+  %cmp4.not.i = icmp eq i32 %and.i, 0
+  br i1 %cmp4.not.i, label %if.end3.i223, label %if.then5.i
+
+if.then5.i:
+  %cmp2.i286.not = icmp eq i32 %and.i, 1
+  br i1 %cmp2.i286.not, label %if.end3.i223, label %if.end6.i287
+
+if.end6.i287:
+  %cmp7.i288 = icmp samesign ugt i32 %and.i, 2
+  br i1 %cmp7.i288, label %if.end11.i289, label %if.end3.i223
+
+if.end11.i289:
+  %cmp12.i290.not = icmp eq i32 %and.i, 3
+  br i1 %cmp12.i290.not, label %if.end3.i223, label %if.end16.i291
+
+if.end16.i291:
+  %#0 = and i32 noundef %wx, 4278190080
+  %#1 = zext i32 %#0 to i64
+  br label %if.end3.i223
+
+if.end3.i223:
+  %st.i.sroa.7.0 = phi i8 [ 0, %if.end3.i ], [ 0, %if.then5.i ], [ %conv6.i, %if.end11.i289 ], [ %conv6.i, %if.end16.i291 ], [ 0, %if.end6.i287 ]
+  %st.i.sroa.9.0 = phi i8 [ 0, %if.end3.i ], [ 0, %if.then5.i ], [ 0, %if.end11.i289 ], [ %conv10.i, %if.end16.i291 ], [ 0, %if.end6.i287 ]
+  %st.i.sroa.5.0 = phi i8 [ 0, %if.end3.i ], [ 0, %if.then5.i ], [ %conv2.i, %if.end11.i289 ], [ %conv2.i, %if.end16.i291 ], [ %conv2.i, %if.end6.i287 ]
+  %st.i.sroa.3.0 = phi i8 [ 0, %if.end3.i ], [ %conv.i188, %if.then5.i ], [ %conv.i188, %if.end11.i289 ], [ %conv.i188, %if.end16.i291 ], [ %conv.i188, %if.end6.i287 ]
+  %conv112.i470 = phi i64 [ 0, %if.end3.i ], [ 0, %if.then5.i ], [ 0, %if.end11.i289 ], [ %#1, %if.end16.i291 ], [ 0, %if.end6.i287 ]
+  %and3.i = and i32 noundef %lmn, 7
+  %conv.i189 = trunc i32 noundef %wmn to i8
+  %shr.i190 = lshr i32 noundef %wmn, 8
+  %conv2.i191 = trunc i32 %shr.i190 to i8
+  %shr4.i193 = lshr i32 noundef %wmn, 16
+  %conv6.i194 = trunc i32 %shr4.i193 to i8
+  %shr8.i196 = lshr i32 noundef %wmn, 24
+  %conv10.i197 = trunc nuw i32 %shr8.i196 to i8
+  %cmp4.not.i224 = icmp eq i32 %and3.i, 0
+  br i1 %cmp4.not.i224, label %if.end3.i237, label %if.then5.i225
+
+if.then5.i225:
+  %cmp2.i256.not = icmp eq i32 %and3.i, 1
+  br i1 %cmp2.i256.not, label %if.end3.i237, label %if.end6.i257
+
+if.end6.i257:
+  %cmp7.i258 = icmp samesign ugt i32 %and3.i, 2
+  br i1 %cmp7.i258, label %if.end11.i259, label %if.end3.i237
+
+if.end11.i259:
+  %cmp12.i260.not = icmp eq i32 %and3.i, 3
+  br i1 %cmp12.i260.not, label %if.end3.i237, label %if.end16.i261
+
+if.end16.i261:
+  %#2 = and i32 noundef %wmn, 4278190080
+  %#3 = zext i32 %#2 to i64
+  br label %if.end3.i237
+
+if.end3.i237:
+  %st.i.sroa.11853.0 = phi i8 [ 0, %if.end3.i223 ], [ %conv.i189, %if.then5.i225 ], [ %conv.i189, %if.end11.i259 ], [ %conv.i189, %if.end16.i261 ], [ %conv.i189, %if.end6.i257 ]
+  %st.i.sroa.13.0 = phi i8 [ 0, %if.end3.i223 ], [ 0, %if.then5.i225 ], [ %conv2.i191, %if.end11.i259 ], [ %conv2.i191, %if.end16.i261 ], [ %conv2.i191, %if.end6.i257 ]
+  %st.i.sroa.15.0 = phi i8 [ 0, %if.end3.i223 ], [ 0, %if.then5.i225 ], [ %conv6.i194, %if.end11.i259 ], [ %conv6.i194, %if.end16.i261 ], [ 0, %if.end6.i257 ]
+  %st.i.sroa.17.0 = phi i8 [ 0, %if.end3.i223 ], [ 0, %if.then5.i225 ], [ 0, %if.end11.i259 ], [ %conv10.i197, %if.end16.i261 ], [ 0, %if.end6.i257 ]
+  %conv112.i387 = phi i64 [ 0, %if.end3.i223 ], [ 0, %if.then5.i225 ], [ 0, %if.end11.i259 ], [ %#3, %if.end16.i261 ], [ 0, %if.end6.i257 ]
+  %and10.i = and i32 noundef %lmx, 7
+  %conv.i203 = trunc i32 noundef %wmx to i8
+  %shr.i204 = lshr i32 noundef %wmx, 8
+  %conv2.i205 = trunc i32 %shr.i204 to i8
+  %shr4.i207 = lshr i32 noundef %wmx, 16
+  %conv6.i208 = trunc i32 %shr4.i207 to i8
+  %shr8.i210 = lshr i32 noundef %wmx, 24
+  %conv10.i211 = trunc nuw i32 %shr8.i210 to i8
+  %cmp4.not.i238 = icmp eq i32 %and10.i, 0
+  br i1 %cmp4.not.i238, label %if.end.i179, label %if.then5.i239
+
+if.then5.i239:
+  %cmp2.i.not = icmp eq i32 %and10.i, 1
+  br i1 %cmp2.i.not, label %if.end.i179, label %if.end6.i
+
+if.end6.i:
+  %cmp7.i = icmp samesign ugt i32 %and10.i, 2
+  br i1 %cmp7.i, label %if.end11.i, label %if.end.i179
+
+if.end11.i:
+  %cmp12.i.not = icmp eq i32 %and10.i, 3
+  br i1 %cmp12.i.not, label %if.end.i179, label %if.end16.i250
+
+if.end16.i250:
+  %#4 = and i32 noundef %wmx, 4278190080
+  %#5 = zext i32 %#4 to i64
+  br label %if.end.i179
+
+if.end.i179:
+  %st.i.sroa.19854.0 = phi i8 [ 0, %if.end3.i237 ], [ %conv.i203, %if.then5.i239 ], [ %conv.i203, %if.end11.i ], [ %conv.i203, %if.end16.i250 ], [ %conv.i203, %if.end6.i ]
+  %st.i.sroa.21.0 = phi i8 [ 0, %if.end3.i237 ], [ 0, %if.then5.i239 ], [ %conv2.i205, %if.end11.i ], [ %conv2.i205, %if.end16.i250 ], [ %conv2.i205, %if.end6.i ]
+  %st.i.sroa.23.0 = phi i8 [ 0, %if.end3.i237 ], [ 0, %if.then5.i239 ], [ %conv6.i208, %if.end11.i ], [ %conv6.i208, %if.end16.i250 ], [ 0, %if.end6.i ]
+  %st.i.sroa.25.0 = phi i8 [ 0, %if.end3.i237 ], [ 0, %if.then5.i239 ], [ 0, %if.end11.i ], [ %conv10.i211, %if.end16.i250 ], [ 0, %if.end6.i ]
+  %conv112.i = phi i64 [ 0, %if.end3.i237 ], [ 0, %if.then5.i239 ], [ 0, %if.end11.i ], [ %#5, %if.end16.i250 ], [ 0, %if.end6.i ]
+  %cmp.i425 = icmp samesign ugt i32 %and.i, 4
+  br i1 %cmp.i425, label %_ZN12_GLOBAL__N_18l_withinEjjjjjj.exit, label %if.end87.i429
+
+if.end87.i429:
+  br i1 %cmp4.not.i, label %if.end9.i181, label %if.then92.i431
+
+if.then92.i431:
+  %conv94.i432 = zext i8 %st.i.sroa.3.0 to i64
+  %cmp96.not.i433 = icmp eq i32 %and.i, 1
+  br i1 %cmp96.not.i433, label %cond.end185.i451, label %if.end101.i439
+
+if.end101.i439:
+  %conv99.i436 = zext i8 %st.i.sroa.5.0 to i64
+  %shl.i437 = shl nsw nuw i64 %conv99.i436, 8
+  %or100.i438 = or disjoint i64 %shl.i437, %conv94.i432
+  %cmp102.i441 = icmp samesign ugt i32 %and.i, 2
+  br i1 %cmp102.i441, label %if.end108.i442, label %cond.end185.i451
+
+if.end108.i442:
+  %conv105.i475 = zext i8 %st.i.sroa.7.0 to i64
+  %shl106.i476 = shl nsw nuw i64 %conv105.i475, 16
+  %cmp109.i444 = icmp eq i32 %and.i, 4
+  %or114.i472 = select i1 %cmp109.i444, i64 %conv112.i470, i64 0
+  %#6 = or i64 %or114.i472, %shl106.i476
+  %spec.select856 = or i64 %#6, %or100.i438
+  %spec.select857 = select i1 %cmp109.i444, i8 %st.i.sroa.9.0, i8 %st.i.sroa.7.0
+  br label %cond.end185.i451
+
+cond.end185.i451:
+  %v.3.i446687 = phi i64 [ %conv94.i432, %if.then92.i431 ], [ %or100.i438, %if.end101.i439 ], [ %spec.select856, %if.end108.i442 ]
+  %cond186.in.i452.sroa.speculated = phi i8 [ %st.i.sroa.3.0, %if.then92.i431 ], [ %st.i.sroa.5.0, %if.end101.i439 ], [ %spec.select857, %if.end108.i442 ]
+  %switch.selectcmp.i454 = icmp eq i32 %and.i, 3
+  %switch.select.i455 = select i1 %switch.selectcmp.i454, i64 -8388609, i64 -2147483649
+  %switch.selectcmp314.i456 = icmp eq i32 %and.i, 2
+  %switch.select315.i457 = select i1 %switch.selectcmp314.i456, i64 -32769, i64 %switch.select.i455
+  %cond219.i458 = select i1 %cmp96.not.i433, i64 -129, i64 %switch.select315.i457
+  %and220.i459 = and i64 %v.3.i446687, %cond219.i458
+  %sub.i460 = sub nsw i64 0, %and220.i459
+  %cmp222.not312.i461 = icmp slt i8 %cond186.in.i452.sroa.speculated, 0
+  %cond228.i462 = select i1 %cmp222.not312.i461, i64 %sub.i460, i64 %and220.i459
+  br label %if.end9.i181
+
+if.end9.i181:
+  %a.i.0.ph = phi i64 [ 0, %if.end87.i429 ], [ %cond228.i462, %cond.end185.i451 ]
+  %cmp.i342 = icmp samesign ugt i32 %and3.i, 4
+  br i1 %cmp.i342, label %_ZN12_GLOBAL__N_18l_withinEjjjjjj.exit, label %if.end87.i346
+
+if.end87.i346:
+  br i1 %cmp4.not.i224, label %if.end16.i182, label %if.then92.i348
+
+if.then92.i348:
+  %conv94.i349 = zext i8 %st.i.sroa.11853.0 to i64
+  %cmp96.not.i350 = icmp eq i32 %and3.i, 1
+  br i1 %cmp96.not.i350, label %cond.end185.i368, label %if.end101.i356
+
+if.end101.i356:
+  %conv99.i353 = zext i8 %st.i.sroa.13.0 to i64
+  %shl.i354 = shl nsw nuw i64 %conv99.i353, 8
+  %or100.i355 = or disjoint i64 %shl.i354, %conv94.i349
+  %cmp102.i358 = icmp samesign ugt i32 %and3.i, 2
+  br i1 %cmp102.i358, label %if.end108.i359, label %cond.end185.i368
+
+if.end108.i359:
+  %conv105.i392 = zext i8 %st.i.sroa.15.0 to i64
+  %shl106.i393 = shl nsw nuw i64 %conv105.i392, 16
+  %cmp109.i361 = icmp eq i32 %and3.i, 4
+  %or114.i389 = select i1 %cmp109.i361, i64 %conv112.i387, i64 0
+  %#7 = or i64 %shl106.i393, %or114.i389
+  %spec.select858 = or i64 %#7, %or100.i355
+  %spec.select859 = select i1 %cmp109.i361, i8 %st.i.sroa.17.0, i8 %st.i.sroa.15.0
+  br label %cond.end185.i368
+
+cond.end185.i368:
+  %v.3.i363705 = phi i64 [ %conv94.i349, %if.then92.i348 ], [ %or100.i355, %if.end101.i356 ], [ %spec.select858, %if.end108.i359 ]
+  %cond186.in.i369.sroa.speculated = phi i8 [ %st.i.sroa.11853.0, %if.then92.i348 ], [ %st.i.sroa.13.0, %if.end101.i356 ], [ %spec.select859, %if.end108.i359 ]
+  %switch.selectcmp.i371 = icmp eq i32 %and3.i, 3
+  %switch.select.i372 = select i1 %switch.selectcmp.i371, i64 -8388609, i64 -2147483649
+  %switch.selectcmp314.i373 = icmp eq i32 %and3.i, 2
+  %switch.select315.i374 = select i1 %switch.selectcmp314.i373, i64 -32769, i64 %switch.select.i372
+  %cond219.i375 = select i1 %cmp96.not.i350, i64 -129, i64 %switch.select315.i374
+  %and220.i376 = and i64 %v.3.i363705, %cond219.i375
+  %sub.i377 = sub nsw i64 0, %and220.i376
+  %cmp222.not312.i378 = icmp slt i8 %cond186.in.i369.sroa.speculated, 0
+  %cond228.i379 = select i1 %cmp222.not312.i378, i64 %sub.i377, i64 %and220.i376
+  br label %if.end16.i182
+
+if.end16.i182:
+  %b.i178.0.ph = phi i64 [ 0, %if.end87.i346 ], [ %cond228.i379, %cond.end185.i368 ]
+  %cmp.i333 = icmp samesign ugt i32 %and10.i, 4
+  br i1 %cmp.i333, label %_ZN12_GLOBAL__N_18l_withinEjjjjjj.exit, label %if.end87.i
+
+if.end87.i:
+  br i1 %cmp4.not.i238, label %if.end4.i, label %if.then92.i
+
+if.then92.i:
+  %conv94.i = zext i8 %st.i.sroa.19854.0 to i64
+  %cmp96.not.i = icmp eq i32 %and10.i, 1
+  br i1 %cmp96.not.i, label %cond.end185.i, label %if.end101.i
+
+if.end101.i:
+  %conv99.i = zext i8 %st.i.sroa.21.0 to i64
+  %shl.i336 = shl nsw nuw i64 %conv99.i, 8
+  %or100.i = or disjoint i64 %shl.i336, %conv94.i
+  %cmp102.i = icmp samesign ugt i32 %and10.i, 2
+  br i1 %cmp102.i, label %if.end108.i, label %cond.end185.i
+
+if.end108.i:
+  %conv105.i = zext i8 %st.i.sroa.23.0 to i64
+  %shl106.i = shl nsw nuw i64 %conv105.i, 16
+  %cmp109.i = icmp eq i32 %and10.i, 4
+  %or114.i = select i1 %cmp109.i, i64 %conv112.i, i64 0
+  %#8 = or i64 %shl106.i, %or114.i
+  %spec.select860 = or i64 %#8, %or100.i
+  %spec.select861 = select i1 %cmp109.i, i8 %st.i.sroa.25.0, i8 %st.i.sroa.23.0
+  br label %cond.end185.i
+
+cond.end185.i:
+  %v.3.i723 = phi i64 [ %conv94.i, %if.then92.i ], [ %or100.i, %if.end101.i ], [ %spec.select860, %if.end108.i ]
+  %cond186.in.i.sroa.speculated = phi i8 [ %st.i.sroa.19854.0, %if.then92.i ], [ %st.i.sroa.21.0, %if.end101.i ], [ %spec.select861, %if.end108.i ]
+  %switch.selectcmp.i = icmp eq i32 %and10.i, 3
+  %switch.select.i = select i1 %switch.selectcmp.i, i64 -8388609, i64 -2147483649
+  %switch.selectcmp314.i = icmp eq i32 %and10.i, 2
+  %switch.select315.i = select i1 %switch.selectcmp314.i, i64 -32769, i64 %switch.select.i
+  %cond219.i = select i1 %cmp96.not.i, i64 -129, i64 %switch.select315.i
+  %and220.i = and i64 %v.3.i723, %cond219.i
+  %sub.i337 = sub nsw i64 0, %and220.i
+  %cmp222.not312.i = icmp slt i8 %cond186.in.i.sroa.speculated, 0
+  %cond228.i = select i1 %cmp222.not312.i, i64 %sub.i337, i64 %and220.i
+  br label %if.end4.i
+
+if.end4.i:
+  %c.i.0.ph = phi i64 [ 0, %if.end87.i ], [ %cond228.i, %cond.end185.i ]
+  %cmp27.i = icmp sle i64 %b.i178.0.ph, %a.i.0.ph
+  %cmp28.i = icmp slt i64 %a.i.0.ph, %c.i.0.ph
+  %#9 = select i1 %cmp27.i, i1 %cmp28.i, i1 0
+  %spec.select = select i1 %#9, i64 35073, i64 264
+  br label %_ZN12_GLOBAL__N_18l_withinEjjjjjj.exit
+
+_ZN12_GLOBAL__N_18l_withinEjjjjjj.exit:
+  %retval.0.i = phi i64 [ 16, %if.end16.i182 ], [ 16, %if.end9.i181 ], [ 16, %if.end.i179 ], [ %spec.select, %if.end4.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 16, i64 35074
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

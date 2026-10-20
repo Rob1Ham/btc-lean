@@ -1,0 +1,265 @@
+# cell: numeric/C-L-binary-4byte
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (tools/num.cry as module CellSpec)
+# script: build/cell.saw
+# expected: at least 26 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_add...
+Simulating cell_add...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add...
+Proof succeeded! cell_add
+Verifying cell_add...
+Simulating cell_add...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_add...
+Proof succeeded! cell_add
+cell.saw:135:1-135:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_sub.bc";
+^^
+cell.saw:130:1-130:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_add.bc";
+^^
+cell.saw:136:1-136:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_sub.bc";
+^^
+cell.saw:131:1-131:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_add.bc";
+^^
+Verifying cell_sub...
+Simulating cell_sub...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_sub...
+Proof succeeded! cell_sub
+Verifying cell_sub...
+Simulating cell_sub...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_sub...
+Proof succeeded! cell_sub
+cell.saw:140:1-140:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_booland.bc";
+^^
+cell.saw:135:1-135:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_sub.bc";
+^^
+cell.saw:141:1-141:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_booland.bc";
+^^
+cell.saw:136:1-136:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_sub.bc";
+^^
+Verifying cell_booland...
+Simulating cell_booland...
+Checking proof obligations cell_booland...
+Proof succeeded! cell_booland
+Verifying cell_booland...
+Simulating cell_booland...
+Checking proof obligations cell_booland...
+Proof succeeded! cell_booland
+cell.saw:145:1-145:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_boolor.bc";
+^^
+cell.saw:140:1-140:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_booland.bc";
+^^
+cell.saw:146:1-146:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_boolor.bc";
+^^
+cell.saw:141:1-141:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_booland.bc";
+^^
+Verifying cell_boolor...
+Simulating cell_boolor...
+Checking proof obligations cell_boolor...
+Proof succeeded! cell_boolor
+Verifying cell_boolor...
+Simulating cell_boolor...
+Checking proof obligations cell_boolor...
+Proof succeeded! cell_boolor
+cell.saw:150:1-150:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_numequal.bc";
+^^
+cell.saw:145:1-145:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_boolor.bc";
+^^
+cell.saw:151:1-151:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_numequal.bc";
+^^
+cell.saw:146:1-146:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_boolor.bc";
+^^
+Verifying cell_numequal...
+Simulating cell_numequal...
+Checking proof obligations cell_numequal...
+Proof succeeded! cell_numequal
+Verifying cell_numequal...
+Simulating cell_numequal...
+Checking proof obligations cell_numequal...
+Proof succeeded! cell_numequal
+cell.saw:155:1-155:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_numequalverify.bc";
+^^
+cell.saw:150:1-150:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_numequal.bc";
+^^
+cell.saw:156:1-156:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_numequalverify.bc";
+^^
+cell.saw:151:1-151:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_numequal.bc";
+^^
+Verifying cell_numequalverify...
+Simulating cell_numequalverify...
+Checking proof obligations cell_numequalverify...
+Proof succeeded! cell_numequalverify
+Verifying cell_numequalverify...
+Simulating cell_numequalverify...
+Checking proof obligations cell_numequalverify...
+Proof succeeded! cell_numequalverify
+cell.saw:160:1-160:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_numnotequal.bc";
+^^
+cell.saw:155:1-155:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_numequalverify.bc";
+^^
+cell.saw:161:1-161:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_numnotequal.bc";
+^^
+cell.saw:156:1-156:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_numequalverify.bc";
+^^
+Verifying cell_numnotequal...
+Simulating cell_numnotequal...
+Checking proof obligations cell_numnotequal...
+Proof succeeded! cell_numnotequal
+Verifying cell_numnotequal...
+Simulating cell_numnotequal...
+Checking proof obligations cell_numnotequal...
+Proof succeeded! cell_numnotequal
+cell.saw:165:1-165:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_lessthan.bc";
+^^
+cell.saw:160:1-160:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_numnotequal.bc";
+^^
+cell.saw:166:1-166:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_lessthan.bc";
+^^
+cell.saw:161:1-161:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_numnotequal.bc";
+^^
+Verifying cell_lessthan...
+Simulating cell_lessthan...
+Checking proof obligations cell_lessthan...
+Proof succeeded! cell_lessthan
+Verifying cell_lessthan...
+Simulating cell_lessthan...
+Checking proof obligations cell_lessthan...
+Proof succeeded! cell_lessthan
+cell.saw:170:1-170:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_greaterthan.bc";
+^^
+cell.saw:165:1-165:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_lessthan.bc";
+^^
+cell.saw:171:1-171:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_greaterthan.bc";
+^^
+cell.saw:166:1-166:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_lessthan.bc";
+^^
+Verifying cell_greaterthan...
+Simulating cell_greaterthan...
+Checking proof obligations cell_greaterthan...
+Proof succeeded! cell_greaterthan
+Verifying cell_greaterthan...
+Simulating cell_greaterthan...
+Checking proof obligations cell_greaterthan...
+Proof succeeded! cell_greaterthan
+cell.saw:175:1-175:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_lessthanorequal.bc";
+^^
+cell.saw:170:1-170:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_greaterthan.bc";
+^^
+cell.saw:176:1-176:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_lessthanorequal.bc";
+^^
+cell.saw:171:1-171:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_greaterthan.bc";
+^^
+Verifying cell_lessthanorequal...
+Simulating cell_lessthanorequal...
+Checking proof obligations cell_lessthanorequal...
+Proof succeeded! cell_lessthanorequal
+Verifying cell_lessthanorequal...
+Simulating cell_lessthanorequal...
+Checking proof obligations cell_lessthanorequal...
+Proof succeeded! cell_lessthanorequal
+cell.saw:180:1-180:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_greaterthanorequal.bc";
+^^
+cell.saw:175:1-175:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_lessthanorequal.bc";
+^^
+cell.saw:181:1-181:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_greaterthanorequal.bc";
+^^
+cell.saw:176:1-176:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_lessthanorequal.bc";
+^^
+Verifying cell_greaterthanorequal...
+Simulating cell_greaterthanorequal...
+Checking proof obligations cell_greaterthanorequal...
+Proof succeeded! cell_greaterthanorequal
+Verifying cell_greaterthanorequal...
+Simulating cell_greaterthanorequal...
+Checking proof obligations cell_greaterthanorequal...
+Proof succeeded! cell_greaterthanorequal
+cell.saw:185:1-185:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_min.bc";
+^^
+cell.saw:180:1-180:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_greaterthanorequal.bc";
+^^
+cell.saw:186:1-186:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_min.bc";
+^^
+cell.saw:181:1-181:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_greaterthanorequal.bc";
+^^
+Verifying cell_min...
+Simulating cell_min...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_min...
+Proof succeeded! cell_min
+Verifying cell_min...
+Simulating cell_min...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_min...
+Proof succeeded! cell_min
+cell.saw:190:1-190:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_max.bc";
+^^
+cell.saw:185:1-185:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_min.bc";
+^^
+cell.saw:191:1-191:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_max.bc";
+^^
+cell.saw:186:1-186:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_min.bc";
+^^
+Verifying cell_max...
+Simulating cell_max...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_max...
+Proof succeeded! cell_max
+Verifying cell_max...
+Simulating cell_max...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_max...
+Proof succeeded! cell_max
+CELL_W16_BINARY_SAW_GREEN
+STATUS=saw-green
