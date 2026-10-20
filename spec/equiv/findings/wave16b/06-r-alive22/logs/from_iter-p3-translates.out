@@ -1,0 +1,268 @@
+
+----------------------------------------
+declare void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+declare ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64, noundef allocalign i64) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+declare void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64, i64) noreturn
+
+define void @_ZN111_$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..spec_from_iter_nested..SpecFromIterNested$LT$T$C$I$GT$$GT$9from_iter17h4edb8bfb10638b77E(ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator) {
+bb3:
+  %#0 = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 16
+  %iterator.val = load i64, ptr %#0, align 8
+  assume_welldefined i64 %iterator.val
+  %#1 = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 24
+  %iterator.val1 = load i64, ptr %#1, align 8
+  assume_welldefined i64 %iterator.val1
+  %spec.select.i.i = usub_sat i64 %iterator.val1, %iterator.val
+  %_33.0.i.i = shl i64 %spec.select.i.i, 5
+  %_33.1.i.i = icmp ugt i64 %spec.select.i.i, 576460752303423487
+  %_38.not.i.i = icmp ugt i64 %_33.0.i.i, 9223372036854775800
+  %or.cond.i.i = or i1 %_33.1.i.i, %_38.not.i.i
+  br i1 %or.cond.i.i, label %bb3.i, label %bb18.i.i
+
+bb18.i.i:
+  %#2 = icmp eq i64 %_33.0.i.i, 0
+  br i1 %#2, label %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i, label %bb3.i.i
+
+bb3.i.i:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_0_8 = !range i64 8, i64 1, i64 -9223372036854775807, welldefined
+  %#range_1_%#range_0_8 = !range i64 %#range_0_8, i64 1, i64 9, welldefined
+  %#range_2_%#range_1_%#range_0_8 = !range i64 %#range_1_%#range_0_8, i64 1, i64 -9223372036854775807, welldefined
+  %#3 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %_33.0.i.i, noundef allocalign i64 %#range_2_%#range_1_%#range_0_8) noundef align(8) noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#4 = icmp eq ptr %#3, null
+  br i1 %#4, label %bb3.i, label %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i
+
+_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i:
+  %_4.sroa.4.0.i = phi i64 [ 0, %bb18.i.i ], [ %spec.select.i.i, %bb3.i.i ]
+  %__constexpr_0 = inttoptr i64 8 to ptr
+  %_4.sroa.10.0.i = phi ptr [ %__constexpr_0, %bb18.i.i ], [ %#3, %bb3.i.i ]
+  %_7.i = icmp samesign ule i64 %spec.select.i.i, %_4.sroa.4.0.i
+  assume i1 %_7.i
+  %_11.sroa.0.0.copyload = load ptr, ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, align 8
+  %_11.sroa.0.0.copyload_nonnull = !nonnull ptr %_11.sroa.0.0.copyload
+  assume_welldefined ptr %_11.sroa.0.0.copyload_nonnull
+  %_0.i.i.i9.i.i.i.i.i = icmp ult i64 %iterator.val, %iterator.val1
+  br i1 %_0.i.i.i9.i.i.i.i.i, label %bb3.lr.ph.i.i.i.i.i, label %_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit
+
+bb3.lr.ph.i.i.i.i.i:
+  %_11.sroa.4.0.iterator.sroa_idx = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 8
+  %_11.sroa.4.0.copyload = load ptr, ptr %_11.sroa.4.0.iterator.sroa_idx, align 8
+  %_11.sroa.4.0.copyload_nonnull = !nonnull ptr %_11.sroa.4.0.copyload
+  assume_welldefined ptr %_11.sroa.4.0.copyload_nonnull
+  %#5 = gep inbounds nuw ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 24
+  %#6 = gep ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 8
+  %#7 = gep ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 16
+  br label %bb3.i.i.i.i.i
+
+bb3.i.i.i.i.i:
+  %#8 = phi i64 [ 0, %bb3.lr.ph.i.i.i.i.i ], [ %#12, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  %self.sroa.0.010.i.i.i.i.i = phi i64 [ %iterator.val, %bb3.lr.ph.i.i.i.i.i ], [ %_0.i1.i.i.i.i.i.i.i, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  %_0.i1.i.i.i.i.i.i.i = add i64 %self.sroa.0.010.i.i.i.i.i, 1
+  %_4.i.i3.i.i.i.i.i = load i64, ptr %_11.sroa.0.0.copyload_nonnull, align 8
+  assume_welldefined i64 %_4.i.i3.i.i.i.i.i
+  %_3.i.i.i.i.i.i.i = icmp eq i64 %self.sroa.0.010.i.i.i.i.i, %_4.i.i3.i.i.i.i.i
+  br i1 %_3.i.i.i.i.i.i.i, label %bb1.i.i.i.i.i.i.i, label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i
+
+bb1.i.i.i.i.i.i.i:
+  %_8.i.i.i.i.i.i.i = load i64, ptr %#5, align 8
+  assume_welldefined i64 %_8.i.i.i.i.i.i.i
+  %_7.val.i.i.i.i.i.i.i = load ptr, ptr %#6, align 8
+  %_7.val.i.i.i.i.i.i.i_nonnull = !nonnull ptr %_7.val.i.i.i.i.i.i.i
+  assume_welldefined ptr %_7.val.i.i.i.i.i.i.i_nonnull
+  %_7.val1.i.i.i.i.i.i.i = load i64, ptr %#7, align 8
+  assume_welldefined i64 %_7.val1.i.i.i.i.i.i.i
+  %#9 = icmp eq i64 %_7.val1.i.i.i.i.i.i.i, 0
+  br i1 %#9, label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i, label %bb3.i.i.i.i.i.i.i.i.i.i.i
+
+bb3.i.i.i.i.i.i.i.i.i.i.i:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_3_1 = !range i64 1, i64 1, i64 -9223372036854775807, welldefined
+  %#range_4_%_7.val1.i.i.i.i.i.i.i = !range i64 %_7.val1.i.i.i.i.i.i.i, i64 0, i64 -9223372036854775808, welldefined
+  %#range_5_%#range_3_1 = !range i64 %#range_3_1, i64 1, i64 9, welldefined
+  %#range_6_%#range_5_%#range_3_1 = !range i64 %#range_5_%#range_3_1, i64 1, i64 -9223372036854775807, welldefined
+  %#10 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %#range_4_%_7.val1.i.i.i.i.i.i.i, noundef allocalign i64 %#range_6_%#range_5_%#range_3_1) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#11 = icmp eq ptr %#10, null
+  br i1 %#11, label %bb3.i.i.i.i.i.i.i.i.i.i, label %bb1.i.i.i.i.i.i.i.i.i
+
+bb3.i.i.i.i.i.i.i.i.i.i:
+  %#range_7_1 = !range i64 1, i64 0, i64 -9223372036854775807, welldefined
+  %#range_8_%#range_7_1 = !range i64 %#range_7_1, i64 0, i64 -9223372036854775807, welldefined
+  %#range_9_%_7.val1.i.i.i.i.i.i.i = !range i64 %_7.val1.i.i.i.i.i.i.i, i64 0, i64 -9223372036854775808
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64 %#range_8_%#range_7_1, i64 %#range_9_%_7.val1.i.i.i.i.i.i.i) noreturn
+  assume i1 0
+
+bb1.i.i.i.i.i.i.i.i.i:
+  tail memcpy ptr %#10 align 1, ptr %_7.val.i.i.i.i.i.i.i_nonnull align 1, i64 %_7.val1.i.i.i.i.i.i.i
+  br label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i
+
+_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i:
+  %_8.sink.i.i.i.i.i.i.i = phi i64 [ 0, %bb3.i.i.i.i.i ], [ %_8.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i ], [ %_8.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i.i.i ]
+  %_7.val1.sink1.i.i.i.i.i.i.i = phi i64 [ 0, %bb3.i.i.i.i.i ], [ 0, %bb1.i.i.i.i.i.i.i ], [ %_7.val1.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i.i.i ]
+  %__constexpr_1 = inttoptr i64 1 to ptr
+  %__constexpr_2 = inttoptr i64 1 to ptr
+  %_10.sroa.5.0.sink.i.i.i.i.i.i.i = phi ptr [ %__constexpr_1, %bb3.i.i.i.i.i ], [ %__constexpr_2, %bb1.i.i.i.i.i.i.i ], [ %#10, %bb1.i.i.i.i.i.i.i.i.i ]
+  %_3.i.i.i5.i.i.i.i.i = gep inbounds nuw ptr %_4.sroa.10.0.i, 32 x i64 %#8
+  store i64 %_7.val1.sink1.i.i.i.i.i.i.i, ptr %_3.i.i.i5.i.i.i.i.i, align 8
+  %_5.sroa.4.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 8
+  store ptr %_10.sroa.5.0.sink.i.i.i.i.i.i.i, ptr %_5.sroa.4.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %_5.sroa.5.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 16
+  store i64 %_7.val1.sink1.i.i.i.i.i.i.i, ptr %_5.sroa.5.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %_5.sroa.6.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 24
+  store i64 %_8.sink.i.i.i.i.i.i.i, ptr %_5.sroa.6.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %#12 = add nuw i64 %#8, 1
+  %exitcond.not.i.i.i.i.i = icmp eq i64 %_0.i1.i.i.i.i.i.i.i, %iterator.val1
+  br i1 %exitcond.not.i.i.i.i.i, label %_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit, label %bb3.i.i.i.i.i
+
+_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit:
+  %f.val2.i.i.i.i.i = phi i64 [ 0, %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i ], [ %#12, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  store i64 %_4.sroa.4.0.i, ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, align 8
+  %vector.sroa.4.0._0.sroa_idx = gep inbounds nuw ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, 1 x i64 8
+  store ptr %_4.sroa.10.0.i, ptr %vector.sroa.4.0._0.sroa_idx, align 8
+  %vector.sroa.6.0._0.sroa_idx = gep inbounds nuw ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, 1 x i64 16
+  store i64 %f.val2.i.i.i.i.i, ptr %vector.sroa.6.0._0.sroa_idx, align 8
+  ret void
+
+bb3.i:
+  %_4.sroa.4.0.ph.i = phi i64 [ 8, %bb3.i.i ], [ 0, %bb3 ]
+  %#range_10_%_4.sroa.4.0.ph.i = !range i64 %_4.sroa.4.0.ph.i, i64 0, i64 -9223372036854775807, welldefined
+  %#range_11_%#range_10_%_4.sroa.4.0.ph.i = !range i64 %#range_10_%_4.sroa.4.0.ph.i, i64 0, i64 -9223372036854775807, welldefined
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64 %#range_11_%#range_10_%_4.sroa.4.0.ph.i, i64 %_33.0.i.i) noreturn
+  assume i1 0
+}
+=>
+declare void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+declare ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64, noundef allocalign i64) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+declare void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64, i64) noreturn
+
+define void @_ZN111_$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..spec_from_iter_nested..SpecFromIterNested$LT$T$C$I$GT$$GT$9from_iter17h4edb8bfb10638b77E(ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator) {
+bb3:
+  %#0 = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 16
+  %iterator.val = load i64, ptr %#0, align 8
+  assume_welldefined i64 %iterator.val
+  %#1 = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 24
+  %iterator.val1 = load i64, ptr %#1, align 8
+  assume_welldefined i64 %iterator.val1
+  %spec.select.i.i = usub_sat i64 %iterator.val1, %iterator.val
+  %_33.0.i.i = shl i64 %spec.select.i.i, 5
+  %_33.1.i.i = icmp ugt i64 %spec.select.i.i, 576460752303423487
+  %_38.not.i.i = icmp ugt i64 %_33.0.i.i, 9223372036854775800
+  %or.cond.i.i = or i1 %_33.1.i.i, %_38.not.i.i
+  br i1 %or.cond.i.i, label %bb3.i, label %bb18.i.i
+
+bb18.i.i:
+  %#2 = icmp eq i64 %_33.0.i.i, 0
+  br i1 %#2, label %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i, label %bb3.i.i
+
+bb3.i.i:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_0_8 = !range i64 8, i64 1, i64 -9223372036854775807, welldefined
+  %#range_1_%#range_0_8 = !range i64 %#range_0_8, i64 1, i64 9, welldefined
+  %#range_2_%#range_1_%#range_0_8 = !range i64 %#range_1_%#range_0_8, i64 1, i64 -9223372036854775807, welldefined
+  %#3 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %_33.0.i.i, noundef allocalign i64 %#range_2_%#range_1_%#range_0_8) noundef align(8) noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#4 = icmp eq ptr %#3, null
+  br i1 %#4, label %bb3.i, label %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i
+
+_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i:
+  %_4.sroa.4.0.i = phi i64 [ 0, %bb18.i.i ], [ %spec.select.i.i, %bb3.i.i ]
+  %__constexpr_0 = inttoptr i64 8 to ptr
+  %_4.sroa.10.0.i = phi ptr [ %__constexpr_0, %bb18.i.i ], [ %#3, %bb3.i.i ]
+  %_7.i = icmp samesign ule i64 %spec.select.i.i, %_4.sroa.4.0.i
+  assume i1 %_7.i
+  %_11.sroa.0.0.copyload = load ptr, ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, align 8
+  %_11.sroa.0.0.copyload_nonnull = !nonnull ptr %_11.sroa.0.0.copyload
+  assume_welldefined ptr %_11.sroa.0.0.copyload_nonnull
+  %_0.i.i.i9.i.i.i.i.i = icmp ult i64 %iterator.val, %iterator.val1
+  br i1 %_0.i.i.i9.i.i.i.i.i, label %bb3.lr.ph.i.i.i.i.i, label %_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit
+
+bb3.lr.ph.i.i.i.i.i:
+  %_11.sroa.4.0.iterator.sroa_idx = gep inbounds nuw ptr nonnull nocapture nowrite dereferenceable(32) noundef align(8) dead_on_return %iterator, 1 x i64 8
+  %_11.sroa.4.0.copyload = load ptr, ptr %_11.sroa.4.0.iterator.sroa_idx, align 8
+  %_11.sroa.4.0.copyload_nonnull = !nonnull ptr %_11.sroa.4.0.copyload
+  assume_welldefined ptr %_11.sroa.4.0.copyload_nonnull
+  %#5 = gep inbounds nuw ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 24
+  %#6 = gep ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 8
+  %#7 = gep ptr %_11.sroa.4.0.copyload_nonnull, 1 x i64 16
+  br label %bb3.i.i.i.i.i
+
+bb3.i.i.i.i.i:
+  %#8 = phi i64 [ 0, %bb3.lr.ph.i.i.i.i.i ], [ %#12, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  %self.sroa.0.010.i.i.i.i.i = phi i64 [ %iterator.val, %bb3.lr.ph.i.i.i.i.i ], [ %_0.i1.i.i.i.i.i.i.i, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  %_0.i1.i.i.i.i.i.i.i = add i64 %self.sroa.0.010.i.i.i.i.i, 1
+  %_4.i.i3.i.i.i.i.i = load i64, ptr %_11.sroa.0.0.copyload_nonnull, align 8
+  assume_welldefined i64 %_4.i.i3.i.i.i.i.i
+  %_3.i.i.i.i.i.i.i = icmp eq i64 %self.sroa.0.010.i.i.i.i.i, %_4.i.i3.i.i.i.i.i
+  br i1 %_3.i.i.i.i.i.i.i, label %bb1.i.i.i.i.i.i.i, label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i
+
+bb1.i.i.i.i.i.i.i:
+  %_8.i.i.i.i.i.i.i = load i64, ptr %#5, align 8
+  assume_welldefined i64 %_8.i.i.i.i.i.i.i
+  %_7.val.i.i.i.i.i.i.i = load ptr, ptr %#6, align 8
+  %_7.val.i.i.i.i.i.i.i_nonnull = !nonnull ptr %_7.val.i.i.i.i.i.i.i
+  assume_welldefined ptr %_7.val.i.i.i.i.i.i.i_nonnull
+  %_7.val1.i.i.i.i.i.i.i = load i64, ptr %#7, align 8
+  assume_welldefined i64 %_7.val1.i.i.i.i.i.i.i
+  %#9 = icmp eq i64 %_7.val1.i.i.i.i.i.i.i, 0
+  br i1 %#9, label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i, label %bb3.i.i.i.i.i.i.i.i.i.i.i
+
+bb3.i.i.i.i.i.i.i.i.i.i.i:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_3_1 = !range i64 1, i64 1, i64 -9223372036854775807, welldefined
+  %#range_4_%_7.val1.i.i.i.i.i.i.i = !range i64 %_7.val1.i.i.i.i.i.i.i, i64 0, i64 -9223372036854775808, welldefined
+  %#range_5_%#range_3_1 = !range i64 %#range_3_1, i64 1, i64 9, welldefined
+  %#range_6_%#range_5_%#range_3_1 = !range i64 %#range_5_%#range_3_1, i64 1, i64 -9223372036854775807, welldefined
+  %#10 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %#range_4_%_7.val1.i.i.i.i.i.i.i, noundef allocalign i64 %#range_6_%#range_5_%#range_3_1) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#11 = icmp eq ptr %#10, null
+  br i1 %#11, label %bb3.i.i.i.i.i.i.i.i.i.i, label %bb1.i.i.i.i.i.i.i.i.i
+
+bb3.i.i.i.i.i.i.i.i.i.i:
+  %#range_7_1 = !range i64 1, i64 0, i64 -9223372036854775807, welldefined
+  %#range_8_%#range_7_1 = !range i64 %#range_7_1, i64 0, i64 -9223372036854775807, welldefined
+  %#range_9_%_7.val1.i.i.i.i.i.i.i = !range i64 %_7.val1.i.i.i.i.i.i.i, i64 0, i64 -9223372036854775808
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64 %#range_8_%#range_7_1, i64 %#range_9_%_7.val1.i.i.i.i.i.i.i) noreturn
+  assume i1 0
+
+bb1.i.i.i.i.i.i.i.i.i:
+  tail memcpy ptr %#10 align 1, ptr %_7.val.i.i.i.i.i.i.i_nonnull align 1, i64 %_7.val1.i.i.i.i.i.i.i
+  br label %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i
+
+_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i:
+  %_8.sink.i.i.i.i.i.i.i = phi i64 [ 0, %bb3.i.i.i.i.i ], [ %_8.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i ], [ %_8.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i.i.i ]
+  %_7.val1.sink1.i.i.i.i.i.i.i = phi i64 [ 0, %bb3.i.i.i.i.i ], [ 0, %bb1.i.i.i.i.i.i.i ], [ %_7.val1.i.i.i.i.i.i.i, %bb1.i.i.i.i.i.i.i.i.i ]
+  %__constexpr_1 = inttoptr i64 1 to ptr
+  %__constexpr_2 = inttoptr i64 1 to ptr
+  %_10.sroa.5.0.sink.i.i.i.i.i.i.i = phi ptr [ %__constexpr_1, %bb3.i.i.i.i.i ], [ %__constexpr_2, %bb1.i.i.i.i.i.i.i ], [ %#10, %bb1.i.i.i.i.i.i.i.i.i ]
+  %_3.i.i.i5.i.i.i.i.i = gep inbounds nuw ptr %_4.sroa.10.0.i, 32 x i64 %#8
+  store i64 %_7.val1.sink1.i.i.i.i.i.i.i, ptr %_3.i.i.i5.i.i.i.i.i, align 8
+  %_5.sroa.4.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 8
+  store ptr %_10.sroa.5.0.sink.i.i.i.i.i.i.i, ptr %_5.sroa.4.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %_5.sroa.5.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 16
+  store i64 %_7.val1.sink1.i.i.i.i.i.i.i, ptr %_5.sroa.5.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %_5.sroa.6.0._3.i.i.sroa_idx.i.i.i.i.i.i = gep inbounds nuw ptr %_3.i.i.i5.i.i.i.i.i, 1 x i64 24
+  store i64 %_8.sink.i.i.i.i.i.i.i, ptr %_5.sroa.6.0._3.i.i.sroa_idx.i.i.i.i.i.i, align 8
+  %#12 = add nuw i64 %#8, 1
+  %exitcond.not.i.i.i.i.i = icmp eq i64 %_0.i1.i.i.i.i.i.i.i, %iterator.val1
+  br i1 %exitcond.not.i.i.i.i.i, label %_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit, label %bb3.i.i.i.i.i
+
+_ZN97_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$alloc..vec..spec_extend..SpecExtend$LT$T$C$I$GT$$GT$11spec_extend17h96bb259d1f25c1b1E.exit:
+  %f.val2.i.i.i.i.i = phi i64 [ 0, %_ZN5alloc3vec16Vec$LT$T$C$A$GT$7reserve17h2ef5308c87538310E.exit.i.i ], [ %#12, %_ZN4core4iter8adapters3map8map_fold28_$u7b$$u7b$closure$u7d$$u7d$17h837f94b8d4ce32e9E.exit.i.i.i.i.i ]
+  store i64 %_4.sroa.4.0.i, ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, align 8
+  %vector.sroa.4.0._0.sroa_idx = gep inbounds nuw ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, 1 x i64 8
+  store ptr %_4.sroa.10.0.i, ptr %vector.sroa.4.0._0.sroa_idx, align 8
+  %vector.sroa.6.0._0.sroa_idx = gep inbounds nuw ptr nonnull nocapture noread dereferenceable(24) noundef align(8) dead_on_unwind writable %_0, 1 x i64 16
+  store i64 %f.val2.i.i.i.i.i, ptr %vector.sroa.6.0._0.sroa_idx, align 8
+  ret void
+
+bb3.i:
+  %_4.sroa.4.0.ph.i = phi i64 [ 8, %bb3.i.i ], [ 0, %bb3 ]
+  %#range_10_%_4.sroa.4.0.ph.i = !range i64 %_4.sroa.4.0.ph.i, i64 0, i64 -9223372036854775807, welldefined
+  %#range_11_%#range_10_%_4.sroa.4.0.ph.i = !range i64 %#range_10_%_4.sroa.4.0.ph.i, i64 0, i64 -9223372036854775807, welldefined
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc7raw_vec12handle_error(noundef i64 %#range_11_%#range_10_%_4.sroa.4.0.ph.i, i64 %_33.0.i.i) noreturn
+  assume i1 0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

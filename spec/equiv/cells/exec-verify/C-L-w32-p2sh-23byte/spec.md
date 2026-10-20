@@ -54,7 +54,7 @@ scr_row_coverage: >-
   rule, and sigop counting. The `GetSigOpCount`/P2SH preimage paths are out of
   scope.
 patches: none
-source_citations:
+source_citations: |
   - script.cpp:224-231 (CScript::IsPayToScriptHash, 23 bytes / a9 / 14 / 87)
   - interpreter.cpp:2062-2066 (P2SH flag + template, push-only check)
   - interpreter.cpp:2068-2078 (swap(stack, stackCopy); top = redeem; popstack)

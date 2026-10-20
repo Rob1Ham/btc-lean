@@ -149,21 +149,31 @@ rows:
   summary: Sequential evaluation, not concatenation
   core_ref: interpreter.cpp:VerifyScript:2026-2036@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - exec-verify/C-L-w32-verify-sequential
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-001 (Sequential evaluation, not concatenation): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-w32-verify-sequential: partial. Proved: (a) a scriptSig EvalScript error short-circuits before the scriptPubKey evaluation; (b) the scriptPubKey evaluation is applied to the post-scriptSig stack (depth, top and length are carried in, not reset and not concatenated); (c) the OP_DUP underflow and MAX_STACK_SIZE edges on that stack; (d) the final decision is taken on the stack the second evaluation produced. NOT proved: the CVE-2010-5141 parse-boundary witness (a push in scriptSig whose declared length would run into scriptPubKey bytes is truncated at the scriptSig end instead of consuming scriptPubKey). That needs GetScriptOp/the script-buffer boundary and the EvalScript loop, which this cell does not model; it is filed as the exact blocker in the wave-32 report.'
 - id: SCR-002
   family: exec-verify
   summary: After scriptPubKey eval, stack non-empty and top CastToBool-true
   core_ref: interpreter.cpp:VerifyScript:2037-2040@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-002 (After scriptPubKey eval, stack non-empty and top CastToBool-true): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-w32-verify-final-truth
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-verify-final-truth
+    certificate: 9a0f442b55a86cc85a8c94733cba880654db31725062490a9cf9faa3c5396f43
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-verify-final-truth
+    certificate: 1650e51b03a6b9fdc3e5e484638ac8cc98a0563ba88dc1264cd81b43609c8934
+    note: Proof succeeded! cell_verify_final
+  status: both-green
+  gap_note: null
 - id: SCR-003
   family: exec-verify
   summary: Empty/short script evaluates to success with unchanged stack
@@ -179,21 +189,31 @@ rows:
   summary: with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNESS_UNEXPECTED because an empty scriptPubKey is not a witness program (the cited theorem also assumes SIGPUSHONLY and CLEANSTACK off; the one-element CLEANSTACK-on arm is unproved)
   core_ref: interpreter.cpp:VerifyScript:2037 + scriptSig@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-004 (with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNE): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  cells:
+  - exec-verify/C-L-w32-witness-flag
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-witness-flag
+    certificate: 9d983603410827f4e1008e0ef410f0d2b766eb63750dae7fdecd292c88f0e09d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-witness-flag
+    certificate: 429f1beddedf3862cfbd47032808c8e31237b567053aeb6d2691a38b5e5298a7
+    note: Proof succeeded! cell_witness_flag
+  status: both-green
+  gap_note: null
 - id: SCR-005
   family: exec-verify
   summary: '23-byte HASH160 script: re-eval last scriptSig stack element as subscript'
   core_ref: interpreter.cpp:VerifyScript:2062-2105@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - exec-verify/C-L-w32-p2sh-23byte
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-005 (23-byte HASH160 script: re-eval last scriptSig stack element as subscript): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-w32-p2sh-23byte: partial. Proved: (a) the 23-byte HASH160/EQUAL template predicate for every byte and length (so "23-byte HASH160 script" is exactly Core''s IsPayToScriptHash, not an approximation); (b) the P2SH arm restores the post-scriptSig stack (stackCopy), removes exactly one element (the serialized redeem script, the last scriptSig stack element) and evaluates that subscript on the remainder; (c) the resulting stack''s final truth is the decision; (d) the hash-equality gate and its precedence over the push-only check. NOT proved: the HASH160 computation itself (opaque seam — `hash_match` is a symbolic premise), the serialization of the redeem script bytes vs. the scriptSig push (`scriptSig == CScript() << pubKey2`, the WITNESS_MALLEATED_P2SH check, a different row SCR-012), the BIP16 activation rule, and sigop counting. The `GetSigOpCount`/P2SH preimage paths are out of scope.'
 - id: SCR-006
   family: exec-verify
   summary: scriptSig must be push-only for P2SH evaluation
@@ -932,132 +952,249 @@ rows:
   summary: CastToBool of top (NOTIF inverts); pop
   core_ref: interpreter.cpp:EvalScript:613-645@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-056 (CastToBool of top (NOTIF inverts); pop): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
 - id: SCR-057
   family: control-flow
   summary: any nonzero byte = true; lone 0x80 = false; ∅ = false
   core_ref: interpreter.cpp:46-59@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-057 (any nonzero byte = true; lone 0x80 = false; ∅ = false): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-casttobool
+  alive2:
+    result: green
+    cell: control-flow/C-L-casttobool
+    certificate: 789876477bdb6dfe39b5f5c44bee78cf471ba66eef8dd6b0fa6f223364d43919
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: control-flow/C-L-casttobool
+    certificate: 24e3085116c11252df1f434cc965c6932012a9836aa0268a36378511abdb0e66
+    note: Proof succeeded! cell_cast_empty
+  status: both-green
+  gap_note: null
 - id: SCR-058
   family: control-flow
   summary: IF/NOTIF arg ∈ {∅, 01} else TAPSCRIPT_MINIMALIF
   core_ref: interpreter.cpp:EvalScript:624-630@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-058 (IF/NOTIF arg ∈ {∅, 01} else TAPSCRIPT_MINIMALIF): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
 - id: SCR-059
   family: control-flow
   summary: same check under flag
   core_ref: interpreter.cpp:EvalScript:632-637@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-059 (same check under flag): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
 - id: SCR-060
   family: control-flow
   summary: no stack pop when skipped
   core_ref: interpreter.cpp:EvalScript:617-643@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-060 (no stack pop when skipped): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
 - id: SCR-061
   family: control-flow
   summary: toggle_top; empty cond-stack ⇒ UNBALANCED_CONDITIONAL
   core_ref: interpreter.cpp:EvalScript:647-653@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-061 (toggle_top; empty cond-stack ⇒ UNBALANCED_CONDITIONAL): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
 - id: SCR-062
   family: control-flow
   summary: empty cond-stack ⇒ UNBALANCED_CONDITIONAL
   core_ref: interpreter.cpp:EvalScript:655-661@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-062 (empty cond-stack ⇒ UNBALANCED_CONDITIONAL): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
 - id: SCR-063
   family: control-flow
   summary: non-empty cond-stack after loop ⇒ fail
   core_ref: interpreter.cpp:EvalScript:1245-1246@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-063 (non-empty cond-stack after loop ⇒ fail): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
 - id: SCR-064
   family: control-flow
   summary: in [OP_IF..OP_ENDIF] gate
   core_ref: interpreter.cpp:EvalScript:493@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-064 (in [OP_IF..OP_ENDIF] gate): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
 - id: SCR-065
   family: control-flow
   summary: BAD_OPCODE even in unexecuted branches
   core_ref: interpreter.cpp:EvalScript:493,1227-1228@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-065 (BAD_OPCODE even in unexecuted branches): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-bad-opcode
+  alive2:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 1694200919ad3c2f183f41ca0505742b1ecb8c83aed2e5c32fa97db7b584528a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 9925764d22f02700814e60b4a893c8fa5f47bb7cc66fa399e26598bc9f051c5a
+    note: Proof succeeded! cell_bad
+  status: both-green
+  gap_note: null
 - id: SCR-066
   family: control-flow
   summary: BAD_OPCODE when executed; unexecuted OP_VER passes
   core_ref: interpreter.cpp:EvalScript:1227-1228@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-066 (BAD_OPCODE when executed; unexecuted OP_VER passes): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-bad-opcode
+  alive2:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 1694200919ad3c2f183f41ca0505742b1ecb8c83aed2e5c32fa97db7b584528a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 9925764d22f02700814e60b4a893c8fa5f47bb7cc66fa399e26598bc9f051c5a
+    note: Proof succeeded! cell_bad
+  status: both-green
+  gap_note: null
 - id: SCR-067
   family: control-flow
   summary: each IF counts 1 opcode
   core_ref: interpreter.cpp:EvalScript:460-464@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-067 (each IF counts 1 opcode): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-opcount
+  alive2:
+    result: green
+    cell: control-flow/C-L-opcount
+    certificate: 0c2df4479a3d8885df89c10e2f4e00370550795786cc897c02ea00154e5e0597
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-opcount
+    certificate: 70b4c155b3fb42fa3617734aab0430485ce546b527a6a1b9f74c00bafaceaa9e
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
 - id: SCR-068
   family: control-flow
   summary: pop iff true else VERIFY
   core_ref: interpreter.cpp:EvalScript:663-675@cce32b168
   consensus: true
   cells:
+  - control-flow/C-L-verify
   - stack/C-L-verify
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; stack/C-L-verify: partial — closed branches only: true (pop), false (VERIFY), and empty-stack (INVALID_STACK_OPERATION); no symbolic truth values, no flags, no scriptSig.'
+  alive2:
+    result: green
+    cell: control-flow/C-L-verify
+    certificate: d05d65cc0aa0671d9f671e37acb455829d4423eb40f61d07fe3ed331da4d74a9
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-verify
+    certificate: 86f3ab6be0cd38cde07eaa6093bd458288cb57bf45e4d9467cae42adc3ac7eb8
+    note: Proof succeeded! cell_verify_len0
+  status: both-green
+  gap_note: null
 - id: SCR-069
   family: control-flow
   summary: OP_RETURN error
@@ -1082,11 +1219,20 @@ rows:
   summary: first-byte OP_RETURN or >10k script ⇒ never spendable
   core_ref: script.h:IsUnspendable:564-567@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-070 (first-byte OP_RETURN or >10k script ⇒ never spendable): E2 control cell covers SCR-069/071/072 only; this row''s branch, signature version, or policy flag is not modeled. No green is claimed.'
+  cells:
+  - control-flow/C-L-unspendable
+  alive2:
+    result: green
+    cell: control-flow/C-L-unspendable
+    certificate: 63165685dc9450309f106fec52469c09a49fc1f259825d03529f6bede532ab1b
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: control-flow/C-L-unspendable
+    certificate: 1a83471ed25a7e852f4748f816560b1c940186f36a0add0a3e3e9aaba835766f
+    note: Proof succeeded! cell_unspendable
+  status: both-green
+  gap_note: null
 - id: SCR-071
   family: control-flow
   summary: OP_NOP1 and OP_NOP4..OP_NOP10 are no-ops and succeed in a block
@@ -1437,71 +1583,126 @@ rows:
   summary: 9..73 bytes; strict DER structure; consensus since BIP66
   core_ref: interpreter.cpp:118-181@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-102 (9..73 bytes; strict DER structure; consensus since BIP66): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-der
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 1dfefd833bbf6e589bef08d0f2bc020252db08dcc4c0ffc3556638b60d12078e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 4afa00465c92698f736dfe69d69299fdbc53974b35fee96731258ff0505bea29
+    note: Proof succeeded! cell_der
+  status: both-green
+  gap_note: null
 - id: SCR-103
   family: checksig
   summary: applied from BIP66 height 363725
   core_ref: validation.cpp:2262-2270@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-103 (applied from BIP66 height 363725): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-bip66
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-bip66
+    certificate: b070a537e16ba17f660a835c550d7fdd41abe2116a015fb8d4d7dfa9398bb862
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-bip66
+    certificate: b2255cb2ed88d02cead887a3fbfa4a4b4132d91dfe456220009a15623ddc56c2
+    note: Proof succeeded! cell_dersig_flag
+  status: both-green
+  gap_note: null
 - id: SCR-104
   family: checksig
   summary: S ≤ order/2 under LOW_S (pol.)
   core_ref: interpreter.cpp:183-198; pubkey.cpp:393-399@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - checksig/C-L-checksig-lows
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-104 (S ≤ order/2 under LOW_S (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial'
 - id: SCR-105
   family: checksig
   summary: last byte & ~0x80 ∈ {1,2,3} (pol.)
   core_ref: interpreter.cpp:200-209@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-105 (last byte & ~0x80 ∈ {1,2,3} (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: ba9c6ae01624a761de06d0673152a528d9fe97d8399d562a5bbcdbb0ff9628d6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b846f9148a55f9009fe9b29b47ea0cc6893a1572eed39b5dd25bc2d40ad65288
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
 - id: SCR-106
   family: checksig
   summary: 33B 02/03 or 65B 04 (pol.)
   core_ref: interpreter.cpp:74-94,228-231@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-106 (33B 02/03 or 65B 04 (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: ba9c6ae01624a761de06d0673152a528d9fe97d8399d562a5bbcdbb0ff9628d6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b846f9148a55f9009fe9b29b47ea0cc6893a1572eed39b5dd25bc2d40ad65288
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
 - id: SCR-107
   family: checksig
   summary: v0 witness pubkeys compressed (pol.)
   core_ref: interpreter.cpp:96-106,233-235@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-107 (v0 witness pubkeys compressed (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: ba9c6ae01624a761de06d0673152a528d9fe97d8399d562a5bbcdbb0ff9628d6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b846f9148a55f9009fe9b29b47ea0cc6893a1572eed39b5dd25bc2d40ad65288
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
 - id: SCR-108
   family: checksig
   summary: ∅ sig bypasses DER checks
   core_ref: interpreter.cpp:213-216@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-108 (∅ sig bypasses DER checks): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-der
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 1dfefd833bbf6e589bef08d0f2bc020252db08dcc4c0ffc3556638b60d12078e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 4afa00465c92698f736dfe69d69299fdbc53974b35fee96731258ff0505bea29
+    note: Proof succeeded! cell_der
+  status: both-green
+  gap_note: null
 - id: SCR-109
   family: checksig
   summary: OP_CHECKSIG pushes FALSE on ∅ sig
@@ -1509,51 +1710,87 @@ rows:
   consensus: true
   cells:
   - checksig/C-L-checksig-empty
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-empty: partial — only the empty-signature push-false arm and the CHECKSIGVERIFY error ordinal 14 are modeled. The checker is a shared model returning false for the empty signature, not a proof of Core/libsecp or rbitcoin crypto. DER (SCR-102/103), LOW_S (SCR-104), STRICTENC (SCR-105/106), WITNESS_PUBKEYTYPE (SCR-107), NULLFAIL (SCR-110), sighash (SCR-111), pubkey-failure continuation (SCR-112) and CHECKMULTISIG (SCR-114..121) are not covered; their rows remain gaps/seams.'
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-empty
+    certificate: 180540a434e884458f9e967f21b83da6f044ae05e95513654029163bb823f341
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-empty
+    certificate: 3123909922efd1e83db5e9ec4b4128368e86964b8c131a78bedabce9d7c1ee23
+    note: Proof succeeded! cell_checksig_empty
+  status: both-green
+  gap_note: null
 - id: SCR-110
   family: checksig
   summary: failed check w/ non-empty sig ⇒ SIG_NULLFAIL (pol.)
   core_ref: interpreter.cpp:351-352,1196-1197@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-110 (failed check w/ non-empty sig ⇒ SIG_NULLFAIL (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-nullfail-hashtype
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: f68cd09a396226e000f6b8677160973ad6ced991f4e0a7cfb1137ac59fdfa83e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: 667014fdb75a867109111cf1bb85c151b4ff992521cabc1d767d0f0b587d56c3
+    note: Proof succeeded! cell_checksig_nullfail
+  status: both-green
+  gap_note: null
 - id: SCR-111
   family: checksig
   summary: ANYONECANPAY bit passed through
   core_ref: interpreter.cpp:1712-1713@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-111 (ANYONECANPAY bit passed through): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-nullfail-hashtype
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: f68cd09a396226e000f6b8677160973ad6ced991f4e0a7cfb1137ac59fdfa83e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: 667014fdb75a867109111cf1bb85c151b4ff992521cabc1d767d0f0b587d56c3
+    note: Proof succeeded! cell_checksig_nullfail
+  status: both-green
+  gap_note: null
 - id: SCR-112
   family: checksig
   summary: an invalid pubkey makes CHECKSIG push false and continue in a block; the pubkey-encoding abort is policy (STRICTENC on SCR-106, WITNESS_PUBKEYTYPE on SCR-107), and tapscript x-only size rules stay on SCR-158/SCR-159
   core_ref: interpreter.cpp:1704-1706@cce32b168 (CheckPubKeyEncoding interpreter.cpp:228-237)
   consensus: true
   cells:
+  - checksig/C-L-checksig-invalid-pubkey
   - e3-checksig/C-L-checksig-dispatch
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; e3-checksig/C-L-checksig-dispatch: partial'
+  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial'
 - id: SCR-113
   family: checksig
   summary: each executed op counts 1 toward 201
   core_ref: src/script/interpreter.cpp:460-464@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-113 (each executed op counts 1 toward 201): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-checksig-opcount
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-opcount
+    certificate: 7feeb52ba4c17ca6d9ccdf20de55c0cac2325f7170f839bd3a42d0866c117ae0
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-opcount
+    certificate: e575474b81a7f8f4eec936c80a8446d7f25cd762661a13d447e65a1d6e425d4d
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
 - id: SCR-114
   family: checkmultisig
   summary: nKeys∈[0,20], nSigs∈[0,nKeys], depth checks
@@ -2362,71 +2599,118 @@ rows:
   summary: ≤0x03 or 0x81..0x83 else fail
   core_ref: interpreter.cpp:1526@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-163 (≤0x03 or 0x81..0x83 else fail): interpreter.cpp:1526: valid BIP341 hashtypes are <=0x03 or 0x81..0x83. Pure byte-set predicate; judgeable as a table leaf, not attempted.'
+  cells:
+  - tapscript/C-L-w32-tap-hashtype
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: b5b169f6013d27d05637f1cfbab5d0407c9065ab7de74c0010ec96adfc2c1479
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: eacf2fe5ee3f4f98d91c2ddfb6f5f623c22182a3906e73037e30aed23c744f86
+    note: Proof succeeded! cell_ht_valid
+  status: both-green
+  gap_note: null
 - id: SCR-164
   family: tapscript
   summary: tapleaf hash, key_version=0, codeseparator_pos
   core_ref: interpreter.cpp:1570-1576@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-164 (tapleaf hash, key_version=0, codeseparator_pos): interpreter.cpp:1570-1576 appends tapleaf_hash, key_version=0 and codeseparator_pos to the BIP341 preimage. Requires the sighash serializer and execdata state; outside the seam.'
+  cells:
+  - tapscript/C-L-w32-tap-extslice
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-extslice
+    certificate: dfe434aaca0d9d84e6d16b60e170e578243eb2014ba6daf0ef7e996664a904d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-extslice
+    certificate: b3356bab1bae761a296beb56a90ee5dd4464aead33621627aca31a119046c293
+    note: Proof succeeded! cell_ext_w0
+  status: both-green
+  gap_note: null
 - id: SCR-165
   family: tapscript
   summary: only for 64-byte key-path sigs
   core_ref: interpreter.cpp:1524,1740@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-165 (only for 64-byte key-path sigs): interpreter.cpp:1524,1740: a 64-byte key-path signature means SIGHASH_DEFAULT and is treated as ALL without an explicit byte. Pure length/hashtype normalization; judgeable, not attempted. The surrounding preimage/hash is SCR-169.'
+  cells:
+  - tapscript/C-L-w32-tap-hashtype
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: b5b169f6013d27d05637f1cfbab5d0407c9065ab7de74c0010ec96adfc2c1479
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: eacf2fe5ee3f4f98d91c2ddfb6f5f623c22182a3906e73037e30aed23c744f86
+    note: Proof succeeded! cell_ht_valid
+  status: both-green
+  gap_note: null
 - id: SCR-166
   family: tapscript
   summary: in_pos ≥ vout.size ⇒ construction fails ⇒ SCHNORR_SIG_HASHTYPE
   core_ref: interpreter.cpp:1559-1560@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-166 (in_pos ≥ vout.size ⇒ construction fails ⇒ SCHNORR_SIG_HASHTYPE): interpreter.cpp:1559-1560: in_pos >= vout.size() makes preimage construction fail and maps to SCHNORR_SIG_HASHTYPE. Requires the tx output vector and sighash constructor; outside the seam.'
+  cells:
+  - tapscript/C-L-w32-tap-single-output
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-single-output
+    certificate: 8c3a162346fac5291fcdd978e999dbd06efdcfbe2ed87744f2b0fef36779a9e6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-single-output
+    certificate: 8c74b77fdf8d8a3f45f6300fa816a1fdbfb2831250390c758db1d27f9d9a1615
+    note: Proof succeeded! cell_single_output
+  status: both-green
+  gap_note: null
 - id: SCR-167
   family: tapscript
   summary: Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065). The candidate's State.codeSepPos is a UInt32 initialized to 0xFFFFFFFF and set to the current 0-based instruction index on each executed separator; the byte offset in State.codeSep remains for the legacy scriptCode path.
   core_ref: interpreter.cpp:1065,444-445@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - tapscript/C-L-w32-tap-codesep-pos
   alive2: null
   saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-167 (Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065): interpreter.cpp:1065,444-445 records the 0-based opcode index of each executed OP_CODESEPARATOR, initialized 0xFFFFFFFF. The update is in the EvalScript loop and depends on parsed-but-unexecuted opcodes and multi-byte push counting; the leaf seam has no opcode walk.'
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch''s other branches are not modelled.  The Core loop itself is not executed by either tool.'
 - id: SCR-168
   family: tapscript
   summary: budget may reach exactly 0
   core_ref: interpreter.cpp:373-375@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-168 (budget may reach exactly 0): interpreter.cpp:373-375 checks validation_weight_left < 0 (not <=0), so a budget of exactly zero succeeds. Pure integer predicate over checksig step inputs; judgeable, not attempted.'
+  cells:
+  - tapscript/C-L-w32-tap-vw-zero
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-vw-zero
+    certificate: 6b152a4bb6271bc975207052349a9000da4b62e4132bc452454a0a118e59a58f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-vw-zero
+    certificate: f1951b03a10690542d2d5ddb8e06c5273f148762e5aa9d622017b960d956c7f2
+    note: Proof succeeded! cell_eval_checksig
+  status: both-green
+  gap_note: null
 - id: SCR-169
   family: tapscript
   summary: epoch 0; spend_type; annex hash
   core_ref: interpreter.cpp:1492-1580@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - tapscript/C-L-w32-tap-epoch-annex
   alive2: null
   saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-169 (epoch 0; spend_type; annex hash): interpreter.cpp:1492-1580 constructs the full tapscript sighash preimage and hashes it. Requires tx serialization, SHA256 and annex/ tapleaf execdata; outside the seam.'
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-epoch-annex: partial — the epoch byte/position, the spend_type formula and the annex-hash inclusion/length/first-word placement are proved for all inputs in the domain; the SHA256 of the annex, the TapSighash tagged hash, the tx-level sub-hashes and the full SigMsg byte order are not modelled.  The row''s own text names the digest, so the row is not claimed full.'
 - id: SCR-170
   family: disabled-opcodes
   summary: CAT,SUBSTR,LEFT,RIGHT,INVERT,AND,OR,XOR,2MUL,2DIV,MUL,DIV,MOD,LSHIFT,RSHIFT ⇒ DISABLED_OPCODE in base/witness-v0, even unexecuted, unless the 201-op budget is already exhausted (OP_COUNT then preempts). Tapscript treats these bytes as OP_SUCCESSx, so they never reach stepBody there.

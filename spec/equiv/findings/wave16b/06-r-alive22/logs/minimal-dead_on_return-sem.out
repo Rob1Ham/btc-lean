@@ -1,0 +1,22 @@
+
+----------------------------------------
+declare void @f(dead_on_return ptr)
+
+define void @src() {
+#0:
+  %p = alloca i64 1, align 1
+  call void @f(dead_on_return ptr %p)
+  store i8 0, ptr %p, align 1
+  ret void
+}
+=>
+declare void @f(dead_on_return ptr)
+
+define void @tgt() {
+#0:
+  %p = alloca i64 1, align 1
+  call void @f(dead_on_return ptr %p)
+  ret void
+}
+Transformation seems to be correct!
+

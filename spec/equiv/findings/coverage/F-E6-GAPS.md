@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **64**
-- unjudged seam: **11**
-- filed gap: **108**
+- green: **95**
+- unjudged seam: **7**
+- filed gap: **81**
 - still planned: **0**
 - other: **0**
 
@@ -14,6 +14,8 @@ dispositions, not a new claim. Green rows are listed for completeness.
 
 | SCR | family | cells |
 |---|---|---|
+| SCR-002 | exec-verify | `exec-verify/C-L-w32-verify-final-truth` |
+| SCR-004 | exec-verify | `exec-verify/C-L-w32-witness-flag` |
 | SCR-014 | exec-verify | `exec-verify/C-L-w32-flags-combo` |
 | SCR-015 | exec-verify | `exec-verify/C-L-w32-block-flags` |
 | SCR-016 | exec-verify | `exec-verify/C-L-w32-flag-exceptions` |
@@ -38,9 +40,33 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-039 | limits | `limits/C-L-sigop-cost-arith` |
 | SCR-041 | limits | `limits/C-L-tapscript-weight` |
 | SCR-042 | limits | `limits/C-L-tapscript-weight` |
+| SCR-056 | control-flow | `control-flow/C-L-if-notif` |
+| SCR-057 | control-flow | `control-flow/C-L-casttobool` |
+| SCR-058 | control-flow | `control-flow/C-L-if-notif` |
+| SCR-059 | control-flow | `control-flow/C-L-if-notif` |
+| SCR-060 | control-flow | `control-flow/C-L-if-notif` |
+| SCR-061 | control-flow | `control-flow/C-L-conditional-stack` |
+| SCR-062 | control-flow | `control-flow/C-L-conditional-stack` |
+| SCR-063 | control-flow | `control-flow/C-L-conditional-stack` |
+| SCR-064 | control-flow | `control-flow/C-L-conditional-stack` |
+| SCR-065 | control-flow | `control-flow/C-L-bad-opcode` |
+| SCR-066 | control-flow | `control-flow/C-L-bad-opcode` |
+| SCR-067 | control-flow | `control-flow/C-L-opcount` |
+| SCR-068 | control-flow | `control-flow/C-L-verify`, `stack/C-L-verify` |
 | SCR-069 | control-flow | `control-flow/C-L-nop-return` |
+| SCR-070 | control-flow | `control-flow/C-L-unspendable` |
 | SCR-071 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-094 | hash-ops | `e2-hash/hash160-vector`, `hash-ops/C-L-hash-compose` |
+| SCR-102 | checksig | `checksig/C-L-checksig-der` |
+| SCR-103 | checksig | `checksig/C-L-checksig-bip66` |
+| SCR-105 | checksig | `checksig/C-L-checksig-policy` |
+| SCR-106 | checksig | `checksig/C-L-checksig-policy` |
+| SCR-107 | checksig | `checksig/C-L-checksig-policy` |
+| SCR-108 | checksig | `checksig/C-L-checksig-der` |
+| SCR-109 | checksig | `checksig/C-L-checksig-empty` |
+| SCR-110 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
+| SCR-111 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
+| SCR-113 | checksig | `checksig/C-L-checksig-opcount` |
 | SCR-122 | locktime | `locktime/C-L-cltv-op` |
 | SCR-123 | locktime | `locktime/C-L-cltv-op` |
 | SCR-124 | locktime | `locktime/C-L-cltv-op` |
@@ -66,6 +92,11 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-150 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
 | SCR-151 | tapscript | `tapscript/C-L-taproot-scriptpath-dispatch` |
 | SCR-152 | tapscript | `tapscript/C-L-tapscript-isopsuccess` |
+| SCR-163 | tapscript | `tapscript/C-L-w32-tap-hashtype` |
+| SCR-164 | tapscript | `tapscript/C-L-w32-tap-extslice` |
+| SCR-165 | tapscript | `tapscript/C-L-w32-tap-hashtype` |
+| SCR-166 | tapscript | `tapscript/C-L-w32-tap-single-output` |
+| SCR-168 | tapscript | `tapscript/C-L-w32-tap-vw-zero` |
 | SCR-170 | disabled-opcodes | `disabled/C-L-w32-disabled-dispatch` |
 | SCR-171 | disabled-opcodes | `disabled/C-L-w32-disabled-dispatch` |
 | SCR-173 | disabled-opcodes | `disabled/C-L-w32-opname-table` |
@@ -90,20 +121,14 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-154 | tapscript | SCR-154 (pol. flag fails them): interpreter.cpp:1857-1859 fails with DISCOURAGE_OP_SUCCESS during the same pre-scan. Same loop/early-success seam as SCR-153; additionally a policy-flag branch. Consensus=false. |
 | SCR-156 | tapscript | SCR-156 ((sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript): interpreter.cpp:1094-1113 pops (sig,num,pk), adds the signature check result, and rejects outside tapscript. The stack effect is leaf-shaped but the signature check is the Schnorr/EC seam; no checker. |
 | SCR-160 | tapscript | SCR-160 (An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged): interpreter.cpp:367-368: an empty signature against a 32-byte x-only key fails the check and continues without Schnorr verification or weight charge. Requires the tapscript checksig and validation-weight state, both outside the dispatch seam. |
-| SCR-164 | tapscript | SCR-164 (tapleaf hash, key_version=0, codeseparator_pos): interpreter.cpp:1570-1576 appends tapleaf_hash, key_version=0 and codeseparator_pos to the BIP341 preimage. Requires the sighash serializer and execdata state; outside the seam. |
-| SCR-166 | tapscript | SCR-166 (in_pos ≥ vout.size ⇒ construction fails ⇒ SCHNORR_SIG_HASHTYPE): interpreter.cpp:1559-1560: in_pos >= vout.size() makes preimage construction fail and maps to SCHNORR_SIG_HASHTYPE. Requires the tx output vector and sighash constructor; outside the seam. |
-| SCR-167 | tapscript | SCR-167 (Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065): interpreter.cpp:1065,444-445 records the 0-based opcode index of each executed OP_CODESEPARATOR, initialized 0xFFFFFFFF. The update is in the EvalScript loop and depends on parsed-but-unexecuted opcodes and multi-byte push counting; the leaf seam has no opcode walk. |
-| SCR-169 | tapscript | SCR-169 (epoch 0; spend_type; annex hash): interpreter.cpp:1492-1580 constructs the full tapscript sighash preimage and hashes it. Requires tx serialization, SHA256 and annex/ tapleaf execdata; outside the seam. |
 
 ## Filed gaps
 
 | SCR | family | disposition |
 |---|---|---|
-| SCR-001 | exec-verify | SCR-001 (Sequential evaluation, not concatenation): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-002 | exec-verify | SCR-002 (After scriptPubKey eval, stack non-empty and top CastToBool-true): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
+| SCR-001 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-w32-verify-sequential: partial. Proved: (a) a scriptSig EvalScript error short-circuits before the scriptPubKey evaluation; (b) the scriptPubKey evaluation is applied to the post-scriptSig stack (depth, top and length are carried in, not reset and not concatenated); (c) the OP_DUP underflow and MAX_STACK_SIZE edges on that stack; (d) the final decision is taken on the stack the second evaluation produced. NOT proved: the CVE-2010-5141 parse-boundary witness (a push in scriptSig whose declared length would run into scriptPubKey bytes is truncated at the scriptSig end instead of consuming scriptPubKey). That needs GetScriptOp/the script-buffer boundary and the EvalScript loop, which this cell does not model; it is filed as the exact blocker in the wave-32 report. |
 | SCR-003 | exec-verify | SCR-003 (Empty/short script evaluates to success with unchanged stack): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-004 | exec-verify | SCR-004 (with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNE): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
-| SCR-005 | exec-verify | SCR-005 (23-byte HASH160 script: re-eval last scriptSig stack element as subscript): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
+| SCR-005 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-w32-p2sh-23byte: partial. Proved: (a) the 23-byte HASH160/EQUAL template predicate for every byte and length (so "23-byte HASH160 script" is exactly Core's IsPayToScriptHash, not an approximation); (b) the P2SH arm restores the post-scriptSig stack (stackCopy), removes exactly one element (the serialized redeem script, the last scriptSig stack element) and evaluates that subscript on the remainder; (c) the resulting stack's final truth is the decision; (d) the hash-equality gate and its precedence over the push-only check. NOT proved: the HASH160 computation itself (opaque seam — `hash_match` is a symbolic premise), the serialization of the redeem script bytes vs. the scriptSig push (`scriptSig == CScript() << pubKey2`, the WITNESS_MALLEATED_P2SH check, a different row SCR-012), the BIP16 activation rule, and sigop counting. The `GetSigOpCount`/P2SH preimage paths are out of scope. |
 | SCR-006 | exec-verify | SCR-006 (scriptSig must be push-only for P2SH evaluation): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-007 | exec-verify | SCR-007 (stackCopy (taken after scriptSig) is restored for subscript eval): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
 | SCR-008 | exec-verify | SCR-008 (Exactly 1 element after all evaluation (flag; pol.; implicit in witness)): whole VerifyScript/EvalScript path is the E5 scoped residual (findings/e5/E5-RESIDUAL.md); no bounded cell exercises this row. No green is claimed. |
@@ -152,20 +177,6 @@ not over real scripts. |
 | SCR-053 | push-encoding | SCR-053 (4..42 bytes; OP_0/OP_N + exact-length push; program 2..40): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
 | SCR-054 | push-encoding | SCR-054 (23-byte HASH160 pattern): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
 | SCR-055 | push-encoding | SCR-055 (OP_1 0x4e73 (4-byte script / 2-byte v1 program)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
-| SCR-056 | control-flow | SCR-056 (CastToBool of top (NOTIF inverts); pop): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-057 | control-flow | SCR-057 (any nonzero byte = true; lone 0x80 = false; ∅ = false): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-058 | control-flow | SCR-058 (IF/NOTIF arg ∈ {∅, 01} else TAPSCRIPT_MINIMALIF): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-059 | control-flow | SCR-059 (same check under flag): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-060 | control-flow | SCR-060 (no stack pop when skipped): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-061 | control-flow | SCR-061 (toggle_top; empty cond-stack ⇒ UNBALANCED_CONDITIONAL): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-062 | control-flow | SCR-062 (empty cond-stack ⇒ UNBALANCED_CONDITIONAL): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-063 | control-flow | SCR-063 (non-empty cond-stack after loop ⇒ fail): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-064 | control-flow | SCR-064 (in [OP_IF..OP_ENDIF] gate): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-065 | control-flow | SCR-065 (BAD_OPCODE even in unexecuted branches): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-066 | control-flow | SCR-066 (BAD_OPCODE when executed; unexecuted OP_VER passes): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-067 | control-flow | SCR-067 (each IF counts 1 opcode): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
-| SCR-068 | control-flow | auto(cells): partial row coverage; stack/C-L-verify: partial — closed branches only: true (pop), false (VERIFY), and empty-stack (INVALID_STACK_OPERATION); no symbolic truth values, no flags, no scriptSig. |
-| SCR-070 | control-flow | SCR-070 (first-byte OP_RETURN or >10k script ⇒ never spendable): E2 control cell covers SCR-069/071/072 only; this row's branch, signature version, or policy flag is not modeled. No green is claimed. |
 | SCR-072 | control-flow | SCR-072: withdrawn from green after independent audit. The control-flow cell covers NOP/NOP1/NOP4..OP_NOP10/OP_RETURN only; it does not execute CLTV (0xb1) or CSV (0xb2) with the activation flag off, so the pre-activation NOP behavior named by the row is not modelled. Needs a bounded flag-off CLTV/CSV cell; no green is claimed. |
 | SCR-073 | stack-ops | auto(cells): partial row coverage; e1-altstack/roundtrip: partial success branch only: TOALTSTACK/FROMALTSTACK roundtrip with budget available and nonempty stacks; empty-main/empty-alt failures and the OP_COUNT edge of SCR-073 are not exercised.; stack/C-L-altstack: partial — closed branches only: empty-alt FROMALTSTACK, empty-main TOALTSTACK, and a success roundtrip; no opcode-budget/OP_COUNT edge, no symbolic stacks. |
 | SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
@@ -195,18 +206,8 @@ not over real scripts. |
 | SCR-099 | checksig | SCR-099 (found>0 ⇒ SIG_FINDANDDELETE (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
 | SCR-100 | checksig | SCR-100 (BASE, even unexecuted (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
 | SCR-101 | checksig | SCR-101 (1-byte opcodes removed from serialization): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-102 | checksig | SCR-102 (9..73 bytes; strict DER structure; consensus since BIP66): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-103 | checksig | SCR-103 (applied from BIP66 height 363725): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-104 | checksig | SCR-104 (S ≤ order/2 under LOW_S (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-105 | checksig | SCR-105 (last byte & ~0x80 ∈ {1,2,3} (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-106 | checksig | SCR-106 (33B 02/03 or 65B 04 (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-107 | checksig | SCR-107 (v0 witness pubkeys compressed (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-108 | checksig | SCR-108 (∅ sig bypasses DER checks): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-109 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-empty: partial — only the empty-signature push-false arm and the CHECKSIGVERIFY error ordinal 14 are modeled. The checker is a shared model returning false for the empty signature, not a proof of Core/libsecp or rbitcoin crypto. DER (SCR-102/103), LOW_S (SCR-104), STRICTENC (SCR-105/106), WITNESS_PUBKEYTYPE (SCR-107), NULLFAIL (SCR-110), sighash (SCR-111), pubkey-failure continuation (SCR-112) and CHECKMULTISIG (SCR-114..121) are not covered; their rows remain gaps/seams. |
-| SCR-110 | checksig | SCR-110 (failed check w/ non-empty sig ⇒ SIG_NULLFAIL (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-111 | checksig | SCR-111 (ANYONECANPAY bit passed through): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
-| SCR-112 | checksig | auto(cells): partial row coverage; e3-checksig/C-L-checksig-dispatch: partial |
-| SCR-113 | checksig | SCR-113 (each executed op counts 1 toward 201): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed. |
+| SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial |
+| SCR-112 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial |
 | SCR-114 | checkmultisig | auto(cells): partial row coverage; e3-cms/C-L-cms-1of1: partial |
 | SCR-115 | checkmultisig | SCR-115 (all nSigsCount sigs FindAndDelete'd before any check (BASE)): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed. |
 | SCR-116 | checkmultisig | SCR-116 (sigs to keys in order; early fail when sigs>keys remain): E3 CMS attempt did not cover this row; R is domain-limited (F-HARNESS-002), and the CMS loop/error-enum equality is not a green cell. No green is claimed. |
@@ -261,8 +262,7 @@ contract/tape.md, so that arm is not exercised here. |
 | SCR-159 | tapscript | SCR-159 (TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement): interpreter.cpp:377-378 fails TAPSCRIPT_EMPTY_PUBKEY immediately after the validation-weight decrement. The pubkey-length predicate is judgeable as a bounded leaf; the weight decrement is a separate state step. Not attempted. |
 | SCR-161 | tapscript | SCR-161 (else SCHNORR_SIG_SIZE): interpreter.cpp:1736: Schnorr signatures are 64 or 65 bytes. Pure length predicate, judgeable as a bounded leaf; not attempted. |
 | SCR-162 | tapscript | SCR-162 (SIGHASH_DEFAULT invalid as explicit byte): interpreter.cpp:1741-1744: a 65-byte signature with explicit hashtype 0x00 fails (SIGHASH_DEFAULT is implicit only). Pure byte predicate; judgeable, not attempted. |
-| SCR-163 | tapscript | SCR-163 (≤0x03 or 0x81..0x83 else fail): interpreter.cpp:1526: valid BIP341 hashtypes are <=0x03 or 0x81..0x83. Pure byte-set predicate; judgeable as a table leaf, not attempted. |
-| SCR-165 | tapscript | SCR-165 (only for 64-byte key-path sigs): interpreter.cpp:1524,1740: a 64-byte key-path signature means SIGHASH_DEFAULT and is treated as ALL without an explicit byte. Pure length/hashtype normalization; judgeable, not attempted. The surrounding preimage/hash is SCR-169. |
-| SCR-168 | tapscript | SCR-168 (budget may reach exactly 0): interpreter.cpp:373-375 checks validation_weight_left < 0 (not <=0), so a budget of exactly zero succeeds. Pure integer predicate over checksig step inputs; judgeable, not attempted. |
+| SCR-167 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch's other branches are not modelled.  The Core loop itself is not executed by either tool. |
+| SCR-169 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-tap-epoch-annex: partial — the epoch byte/position, the spend_type formula and the annex-hash inclusion/length/first-word placement are proved for all inputs in the domain; the SHA256 of the annex, the TapSighash tagged hash, the tx-level sub-hashes and the full SigMsg byte order are not modelled.  The row's own text names the digest, so the row is not claimed full. |
 | SCR-172 | disabled-opcodes | auto(cells): partial row coverage; disabled/C-L-w32-opsuccess-scan: partial. (a) The wire mapping is full: IsOpSuccess is proved over every byte 0x00..0xff, including all fifteen disabled bytes. (b) The success mechanism is proved for scripts of exactly two non-push opcodes: the scan returns success at the first success byte, in either position, before any evaluation, with the DISCOURAGE_OP_SUCCESS policy arm. Not machine-checked: the n-opcode induction for arbitrary script length (the scan is a fold of the same per-byte predicate), push-payload decode ordering (F-DIV-001), and the rest of ExecuteWitnessScript (item/stack limits, annex, control block), which is SCR-153/157/168 territory. |
 | SCR-175 | policy-flags | auto(cells): partial row coverage; policy-flags/C-L-lows-policy: partial |

@@ -1,0 +1,1547 @@
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr %self, i32 0, i32 1 acquire monotonic, align 4, !dbg !16, !no
+ERROR: Could not translate '_RNvMs0_NtNtNtCsjrHSEGnQ3l9_3std4sync4mpmc5wakerNtB5_9SyncWaker10disconnect' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvMs0_NtNtNtCsjrHSEGnQ3l9_3std4sync4mpmc5wakerNtB5_9SyncWaker10unregister' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i8, ptr %_22 seq_cst, align 8, !dbg !29
+ERROR: Could not translate '_RNvMs0_NtNtNtCsjrHSEGnQ3l9_3std4sync4mpmc5wakerNtB5_9SyncWaker6notify' to Alive IR
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr %self, i32 0, i32 1 acquire monotonic, align 4, !dbg !16, !no
+ERROR: Could not translate '_RNvMs0_NtNtNtCsjrHSEGnQ3l9_3std4sync4mpmc5wakerNtB5_9SyncWaker8register' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvMsa_NtCsgvbsrvnw3yD_9hashbrown3rawNtB5_13RawTableInner15rehash_in_place' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !1720), !dbg !17
+ERROR: Could not translate '_RNvNtCsgEmfK2I1SDS_4core3ptr25swap_nonoverlapping_bytes' to Alive IR
+
+----------------------------------------
+declare void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+declare ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64, noundef allocalign i64) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+declare void @_RNvNtCslNYArtu3iFV_5alloc5alloc18handle_alloc_error(noundef i64, noundef i64) noreturn
+
+define ptr @_RNvNtCslNYArtu3iFV_5alloc5boxed14box_new_uninit(i64 noundef %layout.0, i64 noundef %layout.1) nonnull noundef noalias {
+init:
+  %#range_0_%layout.0 = !range i64 noundef %layout.0, i64 1, i64 129, welldefined
+  %#range_1_%layout.1 = !range i64 noundef %layout.1, i64 1, i64 641, welldefined
+  br label %start
+
+start:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_2_%#range_0_%layout.0 = !range i64 %#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_3_%#range_2_%#range_0_%layout.0 = !range i64 %#range_2_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_4_%#range_3_%#range_2_%#range_0_%layout.0 = !range i64 %#range_3_%#range_2_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#0 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %#range_1_%layout.1, noundef allocalign i64 %#range_4_%#range_3_%#range_2_%#range_0_%layout.0) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#1 = icmp eq ptr %#0, null
+  br i1 %#1, label %bb2, label %bb3
+
+bb3:
+  ret ptr %#0
+
+bb2:
+  %#range_5_%#range_0_%layout.0 = !range i64 %#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_6_%#range_5_%#range_0_%layout.0 = !range i64 %#range_5_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc5alloc18handle_alloc_error(noundef i64 %#range_6_%#range_5_%#range_0_%layout.0, noundef i64 %#range_1_%layout.1) noreturn
+  assume i1 0
+}
+=>
+declare void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+declare ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64, noundef allocalign i64) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+declare void @_RNvNtCslNYArtu3iFV_5alloc5alloc18handle_alloc_error(noundef i64, noundef i64) noreturn
+
+define ptr @_RNvNtCslNYArtu3iFV_5alloc5boxed14box_new_uninit(i64 noundef %layout.0, i64 noundef %layout.1) nonnull noundef noalias {
+init:
+  %#range_0_%layout.0 = !range i64 noundef %layout.0, i64 1, i64 129, welldefined
+  %#range_1_%layout.1 = !range i64 noundef %layout.1, i64 1, i64 641, welldefined
+  br label %start
+
+start:
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc35___rust_no_alloc_shim_is_unstable_v2()
+  %#range_2_%#range_0_%layout.0 = !range i64 %#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_3_%#range_2_%#range_0_%layout.0 = !range i64 %#range_2_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_4_%#range_3_%#range_2_%#range_0_%layout.0 = !range i64 %#range_3_%#range_2_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#0 = tail call ptr @_RNvCsfLfy6EI15iL_7___rustc12___rust_alloc(noundef i64 %#range_1_%layout.1, noundef allocalign i64 %#range_4_%#range_3_%#range_2_%#range_0_%layout.0) noundef noalias alloc-family(__rust_alloc) allockind(alloc, uninitialized, aligned) allocsize(0)
+  %#1 = icmp eq ptr %#0, null
+  br i1 %#1, label %bb2, label %bb3
+
+bb3:
+  ret ptr %#0
+
+bb2:
+  %#range_5_%#range_0_%layout.0 = !range i64 %#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  %#range_6_%#range_5_%#range_0_%layout.0 = !range i64 %#range_5_%#range_0_%layout.0, i64 1, i64 -9223372036854775807, welldefined
+  tail call void @_RNvNtCslNYArtu3iFV_5alloc5alloc18handle_alloc_error(noundef i64 %#range_6_%#range_5_%#range_0_%layout.0, noundef i64 %#range_1_%layout.1) noreturn
+  assume i1 0
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_RNvXs5_NtNtCsgEmfK2I1SDS_4core3num5errorNtB5_15TryFromIntErrorNtNtB9_3fmt5Debug3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_RNvXs9_NtNtCsgEmfK2I1SDS_4core3str5errorNtB5_9Utf8ErrorNtNtB9_3fmt5Debug3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvXsK_NtCsgEmfK2I1SDS_4core3fmtNtB5_5ErrorNtB5_5Debug3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvXsZ_NtCslNYArtu3iFV_5alloc6stringNtB5_6StringNtNtCsgEmfK2I1SDS_4core3fmt5Write10write_char' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvXsZ_NtCslNYArtu3iFV_5alloc6stringNtB5_6StringNtNtCsgEmfK2I1SDS_4core3fmt5Write9write_str' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_RNvXsZ_NtNtCsgEmfK2I1SDS_4core3fmt3numjNtB7_5Debug3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_RNvXsq_NtCslNYArtu3iFV_5alloc6stringNtB5_6StringNtNtCsgEmfK2I1SDS_4core3fmt7Display3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_RNvXsz_NtCsjrHSEGnQ3l9_3std4timeNtB5_15SystemTimeErrorNtNtCsgEmfK2I1SDS_4core3fmt5Debug3fmt' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN102_$LT$bitcoin..blockdata..transaction..Transaction$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h9f03637807390b8fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN10bitcoin_io5Write9write_all17h1848a3cfcd33efa8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN111_$LT$alloc..vec..Vec$LT$T$GT$$u20$as$u20$alloc..vec..spec_from_iter_nested..SpecFromIterNested$LT$T$C$I$GT$$GT$9from_iter17h4edb8bfb10638b77E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN118_$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxIn$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h1926462f313dba3eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN118_$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxIn$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h7c0f149dd6b8fee2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN118_$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxIn$GT$$u20$as$u20$bitcoin..consensus..encode..Encodable$GT$16consensus_encode17hba3d449c0ac7f345E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN119_$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxOut$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h443241f0af1231a0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN119_$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxOut$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h6ee01285b6d04d80E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN124_$LT$arc_swap..strategy..hybrid..HybridStrategy$LT$Cfg$GT$$u20$as$u20$arc_swap..strategy..sealed..InnerStrategy$LT$T$GT$$GT$4load28_$u7b$$u7b$closure$u7d$$u7d$17h1e8b3187420a6089E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN135_$LT$rbitcoin_consensus..error..ConsensusError$u20$as$u20$core..convert..From$LT$rbitcoin_primitives..scriptnum..ScriptNumError$GT$$GT$4from17h560bc9a4e4f929f2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN14bitcoin_hashes4Hash4hash17h0c6cd049fe8a3fa5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN14bitcoin_hashes4Hash4hash17ha1931f230c6e1e50E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([64 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad16regtest_coinbase17hb3fda25d3521f61eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad17grind_regtest_pow17h5df1da854703a7e5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([104 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad18mine_empty_regtest17h2a29545881ff3e94E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([104 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad19mine_regtest_paying17hd8e22927ca4b7b79E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad25grind_header_midstate_one17h2cabb0e39c4cd950E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad25prepare_regtest_candidate17h814113dac772a47eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([104 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus11regtest_pad26mine_op_true_signet_paying17ha5c96a00f1e874b5E' to Alive IR
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+
+----------------------------------------
+declare ptr @llvm.threadlocal.address.p0(nonnull ptr) nonnull nofree willreturn memory(none)
+declare void @_ZN18rbitcoin_consensus11script_pool11steal_chunk17h1b6bd7636234be3cE(nonnull nocapture dereferenceable(24) noundef align(8) dead_on_unwind writable ptr)
+declare void @_ZN18rbitcoin_consensus11script_pool8run_held17h7059b41292a36327E(noundef i64, noundef i64, nonnull noundef ptr)
+
+@_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E = global 1 bytes, align 1
+
+define i1 @_ZN18rbitcoin_consensus11script_pool10help_steal17h096a5a2b170dece4E() noundef zeroext {
+start:
+  %_4 = alloca i64 24, align 8, dead
+  %_3.i.i.i.i.i = tail call ptr @llvm.threadlocal.address.p0(nonnull ptr @_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E) nonnull nofree noundef willreturn memory(none)
+  %self3.val.i.i.i = load i8, ptr %_3.i.i.i.i.i, align 1
+  %self3.val.i.i.i_range = !range i8 %self3.val.i.i.i, i8 0, i8 2
+  assume_welldefined i8 %self3.val.i.i.i_range
+  %r.i.i = trunc nuw i8 %self3.val.i.i.i_range to i1
+  br i1 %r.i.i, label %bb7, label %bb3
+
+bb3:
+  start_lifetime ptr %_4
+  call void @_ZN18rbitcoin_consensus11script_pool11steal_chunk17h1b6bd7636234be3cE(nonnull nocapture dereferenceable(24) noundef align(8) dead_on_unwind writable ptr %_4)
+  %#0 = gep inbounds nuw ptr %_4, 1 x i64 16
+  %#1 = load ptr, ptr %#0, align 8
+  assume_welldefined ptr %#1
+  %.not = icmp eq ptr %#1, null
+  br i1 %.not, label %bb8, label %bb5
+
+bb8:
+  end_lifetime ptr %_4
+  br label %bb7
+
+bb5:
+  %range.0 = load i64, ptr %_4, align 8
+  assume_welldefined i64 %range.0
+  %#2 = gep inbounds nuw ptr %_4, 1 x i64 8
+  %range.1 = load i64, ptr %#2, align 8
+  assume_welldefined i64 %range.1
+  end_lifetime ptr %_4
+  tail call void @_ZN18rbitcoin_consensus11script_pool8run_held17h7059b41292a36327E(noundef i64 %range.0, noundef i64 %range.1, nonnull noundef ptr %#1)
+  br label %bb7
+
+bb7:
+  %_0.sroa.0.0 = phi i1 [ 0, %bb8 ], [ 1, %bb5 ], [ 0, %start ]
+  ret i1 %_0.sroa.0.0
+}
+=>
+declare ptr @llvm.threadlocal.address.p0(nonnull ptr) nonnull nofree willreturn memory(none)
+declare void @_ZN18rbitcoin_consensus11script_pool11steal_chunk17h1b6bd7636234be3cE(nonnull nocapture dereferenceable(24) noundef align(8) dead_on_unwind writable ptr)
+declare void @_ZN18rbitcoin_consensus11script_pool8run_held17h7059b41292a36327E(noundef i64, noundef i64, nonnull noundef ptr)
+
+@_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E = global 1 bytes, align 1
+
+define i1 @_ZN18rbitcoin_consensus11script_pool10help_steal17h096a5a2b170dece4E() noundef zeroext {
+start:
+  %_4 = alloca i64 24, align 8, dead
+  %_3.i.i.i.i.i = tail call ptr @llvm.threadlocal.address.p0(nonnull ptr @_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E) nonnull nofree noundef willreturn memory(none)
+  %self3.val.i.i.i = load i8, ptr %_3.i.i.i.i.i, align 1
+  %self3.val.i.i.i_range = !range i8 %self3.val.i.i.i, i8 0, i8 2
+  assume_welldefined i8 %self3.val.i.i.i_range
+  %r.i.i = trunc nuw i8 %self3.val.i.i.i_range to i1
+  br i1 %r.i.i, label %bb7, label %bb3
+
+bb3:
+  start_lifetime ptr %_4
+  call void @_ZN18rbitcoin_consensus11script_pool11steal_chunk17h1b6bd7636234be3cE(nonnull nocapture dereferenceable(24) noundef align(8) dead_on_unwind writable ptr %_4)
+  %#0 = gep inbounds nuw ptr %_4, 1 x i64 16
+  %#1 = load ptr, ptr %#0, align 8
+  assume_welldefined ptr %#1
+  %.not = icmp eq ptr %#1, null
+  br i1 %.not, label %bb8, label %bb5
+
+bb8:
+  end_lifetime ptr %_4
+  br label %bb7
+
+bb5:
+  %range.0 = load i64, ptr %_4, align 8
+  assume_welldefined i64 %range.0
+  %#2 = gep inbounds nuw ptr %_4, 1 x i64 8
+  %range.1 = load i64, ptr %#2, align 8
+  assume_welldefined i64 %range.1
+  end_lifetime ptr %_4
+  tail call void @_ZN18rbitcoin_consensus11script_pool8run_held17h7059b41292a36327E(noundef i64 %range.0, noundef i64 %range.1, nonnull noundef ptr %#1)
+  br label %bb7
+
+bb7:
+  %_0.sroa.0.0 = phi i1 [ 0, %bb8 ], [ 1, %bb5 ], [ 0, %start ]
+  ret i1 %_0.sroa.0.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool11steal_chunk17h1b6bd7636234be3cE' to Alive IR
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported instruction:   %3 = cmpxchg ptr %pool, i32 0, i32 1 acquire monotonic, align 4, !dbg !22, !no
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool12steal_or_job17h7b67932e90222c3dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool12unpublish_fg17h68d041e9b6e53e1eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool13publish_waves17h94b2e41b1db529cbE' to Alive IR
+
+----------------------------------------
+declare ptr @llvm.threadlocal.address.p0(nonnull ptr) nonnull nofree willreturn memory(none)
+
+@_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E = global 1 bytes, align 1
+
+define i1 @_ZN18rbitcoin_consensus11script_pool15on_steal_worker17h747197e8dfb55ad4E() nofree noundef willreturn zeroext memory(globals: read, errno: read, other: read) {
+start:
+  %_3.i.i.i.i = tail call ptr @llvm.threadlocal.address.p0(nonnull ptr @_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E) nonnull nofree noundef willreturn memory(none)
+  %self3.val.i.i = load i8, ptr %_3.i.i.i.i, align 1
+  %self3.val.i.i_range = !range i8 %self3.val.i.i, i8 0, i8 2
+  assume_welldefined i8 %self3.val.i.i_range
+  %r.i = trunc nuw i8 %self3.val.i.i_range to i1
+  ret i1 %r.i
+}
+=>
+declare ptr @llvm.threadlocal.address.p0(nonnull ptr) nonnull nofree willreturn memory(none)
+
+@_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E = global 1 bytes, align 1
+
+define i1 @_ZN18rbitcoin_consensus11script_pool15on_steal_worker17h747197e8dfb55ad4E() nofree noundef willreturn zeroext memory(globals: read, errno: read, other: read) {
+start:
+  %_3.i.i.i.i = tail call ptr @llvm.threadlocal.address.p0(nonnull ptr @_ZN18rbitcoin_consensus11script_pool15ON_STEAL_WORKER29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h833d523262e15541E) nonnull nofree noundef willreturn memory(none)
+  %self3.val.i.i = load i8, ptr %_3.i.i.i.i, align 1
+  %self3.val.i.i_range = !range i8 %self3.val.i.i, i8 0, i8 2
+  assume_welldefined i8 %self3.val.i.i_range
+  %r.i = trunc nuw i8 %self3.val.i.i_range to i1
+  ret i1 %r.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr @_ZN18rbitcoin_consensus11script_pool10STEAL_TEST17hafdb9841e
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool15steal_test_gate17hf6881e2f64a28df0E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr getelementptr inbounds nuw (i8, ptr @_ZN18rbitcoin_c
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool16fg_has_unclaimed17h883f79d9f5aef75dE' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr getelementptr inbounds nuw (i8, ptr @_ZN18rbitcoin_c
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool18wake_steal_workers17h4627477d25bc3400E' to Alive IR
+ERROR: Unsupported instruction:   %1 = cmpxchg ptr @_ZN18rbitcoin_consensus11script_pool10PUBLISHERS17hbdac3505f
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool20set_script_publisher17h8f7cfcb65069e1afE' to Alive IR
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr @_ZN18rbitcoin_consensus11script_pool10PUBLISHERS17hbdac3505f
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool23unpark_script_publisher17h20200f6c52c28cb8E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i64, ptr %_8 monotonic, align 8, !dbg !27
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool4Wave11is_complete17hbbac05e4c787a122E' to Alive IR
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr %_4, i32 0, i32 1 acquire monotonic, align 4, !dbg !15, !noal
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool4Wave9wait_done17h0f9f9f1a1f422d4fE' to Alive IR
+ERROR: Unsupported instruction:   %3 = load atomic i8, ptr %_22.i.i.i.i acquire, align 1, !dbg !79, !noalias !89
+ERROR: Could not translate '_ZN18rbitcoin_consensus11script_pool8run_held17h7059b41292a36327E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute12finish_spent17h3070fca5bdfe7547E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([376 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute12from_tx_wire17hd96b0f0856f1eb4cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([33 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute12hash_outputs17h4ebb43f4dd1efd77E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute13from_tx_inner17hbcd6fce6a3f4c28eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([33 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute13hash_prevouts17hd0f28c93c0096b11E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([33 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute13hash_sequence17h1a18aa9734a83c13E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([376 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute15from_tx_connect17h2a5143fe8be3c3d8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute22fill_sighash_midstates17h64d64aa13de4cf27E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([376 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute12TxPrecompute7from_tx17hf895ca84a5171cceE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute17hash_wire_sighash17hc081b6b4eb069c54E' to Alive IR
+
+----------------------------------------
+define i64 @_ZN18rbitcoin_consensus13tx_precompute24block_wire_len_from_pres17hf694a99d7e07586eE(i64 noundef %n_tx, ptr nonnull nocapture nowrite noundef align(8) %pres.0, i64 noundef %pres.1) nofree noundef memory(argmem: read) {
+init:
+  %#range_0_%pres.1 = !range i64 noundef %pres.1, i64 0, i64 24530244778869085, welldefined
+  br label %start
+
+start:
+  %_13 = icmp ult i64 noundef %n_tx, 253
+  br i1 %_13, label %bb1, label %bb4
+
+bb4:
+  %_11 = icmp ult i64 noundef %n_tx, 65536
+  br i1 %_11, label %bb1, label %bb6
+
+bb6:
+  %_9 = icmp ult i64 noundef %n_tx, 4294967296
+  %. = select i1 %_9, i64 85, i64 89
+  br label %bb1
+
+bb1:
+  %_4.sroa.0.0 = phi i64 [ 83, %bb4 ], [ %., %bb6 ], [ 81, %start ]
+  %#0 = icmp eq i64 %#range_0_%pres.1, 0
+  br i1 %#0, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.preheader
+
+bb8.i.preheader:
+  %xtraiter = and i64 %#range_0_%pres.1, 3
+  %#1 = icmp samesign ult i64 %#range_0_%pres.1, 4
+  br i1 %#1, label %bb8.i.epil.preheader, label %bb8.i.preheader.new
+
+bb8.i.preheader.new:
+  %unroll_iter = and i64 %#range_0_%pres.1, 36028797018963964
+  br label %bb8.i
+
+bb8.i:
+  %i.sroa.0.0.i = phi i64 [ 0, %bb8.i.preheader.new ], [ %_27.i.3, %bb8.i ]
+  %acc.sroa.0.0.i = phi i64 [ 0, %bb8.i.preheader.new ], [ %_4.0.i.i.i.3, %bb8.i ]
+  %niter = phi i64 [ 0, %bb8.i.preheader.new ], [ %niter.next.3, %bb8.i ]
+  %_45.i = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#2 = gep ptr %_45.i, 1 x i64 72
+  %_45.val.i = load i64, ptr %#2, align 8
+  assume_welldefined i64 %_45.val.i
+  %_4.0.i.i.i = add i64 %_45.val.i, %acc.sroa.0.0.i
+  %#3 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#4 = gep ptr %#3, 1 x i64 448
+  %_45.val.i.1 = load i64, ptr %#4, align 8
+  assume_welldefined i64 %_45.val.i.1
+  %_4.0.i.i.i.1 = add i64 %_45.val.i.1, %_4.0.i.i.i
+  %#5 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#6 = gep ptr %#5, 1 x i64 824
+  %_45.val.i.2 = load i64, ptr %#6, align 8
+  assume_welldefined i64 %_45.val.i.2
+  %_4.0.i.i.i.2 = add i64 %_45.val.i.2, %_4.0.i.i.i.1
+  %#7 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#8 = gep ptr %#7, 1 x i64 1200
+  %_45.val.i.3 = load i64, ptr %#8, align 8
+  assume_welldefined i64 %_45.val.i.3
+  %_4.0.i.i.i.3 = add i64 %_45.val.i.3, %_4.0.i.i.i.2
+  %_27.i.3 = add nsw nuw i64 %i.sroa.0.0.i, 4
+  %niter.next.3 = add i64 %niter, 4
+  %niter.ncmp.3 = icmp eq i64 %niter.next.3, %unroll_iter
+  br i1 %niter.ncmp.3, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa, label %bb8.i
+
+_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa:
+  %lcmp.mod.not = icmp eq i64 %xtraiter, 0
+  br i1 %lcmp.mod.not, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.epil.preheader
+
+bb8.i.epil.preheader:
+  %i.sroa.0.0.i.epil.init = phi i64 [ 0, %bb8.i.preheader ], [ %_27.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ]
+  %acc.sroa.0.0.i.epil.init = phi i64 [ 0, %bb8.i.preheader ], [ %_4.0.i.i.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ]
+  %lcmp.mod4 = icmp ne i64 %xtraiter, 0
+  assume i1 %lcmp.mod4
+  br label %bb8.i.epil
+
+bb8.i.epil:
+  %i.sroa.0.0.i.epil = phi i64 [ %_27.i.epil, %bb8.i.epil ], [ %i.sroa.0.0.i.epil.init, %bb8.i.epil.preheader ]
+  %acc.sroa.0.0.i.epil = phi i64 [ %_4.0.i.i.i.epil, %bb8.i.epil ], [ %acc.sroa.0.0.i.epil.init, %bb8.i.epil.preheader ]
+  %epil.iter = phi i64 [ %epil.iter.next, %bb8.i.epil ], [ 0, %bb8.i.epil.preheader ]
+  %_45.i.epil = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i.epil
+  %#9 = gep ptr %_45.i.epil, 1 x i64 72
+  %_45.val.i.epil = load i64, ptr %#9, align 8
+  assume_welldefined i64 %_45.val.i.epil
+  %_4.0.i.i.i.epil = add i64 %_45.val.i.epil, %acc.sroa.0.0.i.epil
+  %_27.i.epil = add nsw nuw i64 %i.sroa.0.0.i.epil, 1
+  %epil.iter.next = add i64 %epil.iter, 1
+  %epil.iter.cmp.not = icmp eq i64 %epil.iter.next, %xtraiter
+  br i1 %epil.iter.cmp.not, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.epil
+
+_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit:
+  %_0.sroa.0.0.i = phi i64 [ 0, %bb1 ], [ %_4.0.i.i.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ], [ %_4.0.i.i.i.epil, %bb8.i.epil ]
+  %_0 = add i64 %_0.sroa.0.0.i, %_4.sroa.0.0
+  ret i64 %_0
+}
+=>
+define i64 @_ZN18rbitcoin_consensus13tx_precompute24block_wire_len_from_pres17hf694a99d7e07586eE(i64 noundef %n_tx, ptr nonnull nocapture nowrite noundef align(8) %pres.0, i64 noundef %pres.1) nofree noundef memory(argmem: read) {
+init:
+  %#range_0_%pres.1 = !range i64 noundef %pres.1, i64 0, i64 24530244778869085, welldefined
+  br label %start
+
+start:
+  %_13 = icmp ult i64 noundef %n_tx, 253
+  br i1 %_13, label %bb1, label %bb4
+
+bb4:
+  %_11 = icmp ult i64 noundef %n_tx, 65536
+  br i1 %_11, label %bb1, label %bb6
+
+bb6:
+  %_9 = icmp ult i64 noundef %n_tx, 4294967296
+  %. = select i1 %_9, i64 85, i64 89
+  br label %bb1
+
+bb1:
+  %_4.sroa.0.0 = phi i64 [ 83, %bb4 ], [ %., %bb6 ], [ 81, %start ]
+  %#0 = icmp eq i64 %#range_0_%pres.1, 0
+  br i1 %#0, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.preheader
+
+bb8.i.preheader:
+  %xtraiter = and i64 %#range_0_%pres.1, 3
+  %#1 = icmp samesign ult i64 %#range_0_%pres.1, 4
+  br i1 %#1, label %bb8.i.epil.preheader, label %bb8.i.preheader.new
+
+bb8.i.preheader.new:
+  %unroll_iter = and i64 %#range_0_%pres.1, 36028797018963964
+  br label %bb8.i
+
+bb8.i:
+  %i.sroa.0.0.i = phi i64 [ 0, %bb8.i.preheader.new ], [ %_27.i.3, %bb8.i ]
+  %acc.sroa.0.0.i = phi i64 [ 0, %bb8.i.preheader.new ], [ %_4.0.i.i.i.3, %bb8.i ]
+  %niter = phi i64 [ 0, %bb8.i.preheader.new ], [ %niter.next.3, %bb8.i ]
+  %_45.i = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#2 = gep ptr %_45.i, 1 x i64 72
+  %_45.val.i = load i64, ptr %#2, align 8
+  assume_welldefined i64 %_45.val.i
+  %_4.0.i.i.i = add i64 %_45.val.i, %acc.sroa.0.0.i
+  %#3 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#4 = gep ptr %#3, 1 x i64 448
+  %_45.val.i.1 = load i64, ptr %#4, align 8
+  assume_welldefined i64 %_45.val.i.1
+  %_4.0.i.i.i.1 = add i64 %_45.val.i.1, %_4.0.i.i.i
+  %#5 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#6 = gep ptr %#5, 1 x i64 824
+  %_45.val.i.2 = load i64, ptr %#6, align 8
+  assume_welldefined i64 %_45.val.i.2
+  %_4.0.i.i.i.2 = add i64 %_45.val.i.2, %_4.0.i.i.i.1
+  %#7 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i
+  %#8 = gep ptr %#7, 1 x i64 1200
+  %_45.val.i.3 = load i64, ptr %#8, align 8
+  assume_welldefined i64 %_45.val.i.3
+  %_4.0.i.i.i.3 = add i64 %_45.val.i.3, %_4.0.i.i.i.2
+  %_27.i.3 = add nsw nuw i64 %i.sroa.0.0.i, 4
+  %niter.next.3 = add i64 %niter, 4
+  %niter.ncmp.3 = icmp eq i64 %niter.next.3, %unroll_iter
+  br i1 %niter.ncmp.3, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa, label %bb8.i
+
+_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa:
+  %lcmp.mod.not = icmp eq i64 %xtraiter, 0
+  br i1 %lcmp.mod.not, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.epil.preheader
+
+bb8.i.epil.preheader:
+  %i.sroa.0.0.i.epil.init = phi i64 [ 0, %bb8.i.preheader ], [ %_27.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ]
+  %acc.sroa.0.0.i.epil.init = phi i64 [ 0, %bb8.i.preheader ], [ %_4.0.i.i.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ]
+  %lcmp.mod4 = icmp ne i64 %xtraiter, 0
+  assume i1 %lcmp.mod4
+  br label %bb8.i.epil
+
+bb8.i.epil:
+  %i.sroa.0.0.i.epil = phi i64 [ %_27.i.epil, %bb8.i.epil ], [ %i.sroa.0.0.i.epil.init, %bb8.i.epil.preheader ]
+  %acc.sroa.0.0.i.epil = phi i64 [ %_4.0.i.i.i.epil, %bb8.i.epil ], [ %acc.sroa.0.0.i.epil.init, %bb8.i.epil.preheader ]
+  %epil.iter = phi i64 [ %epil.iter.next, %bb8.i.epil ], [ 0, %bb8.i.epil.preheader ]
+  %_45.i.epil = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %pres.0, 376 x i64 %i.sroa.0.0.i.epil
+  %#9 = gep ptr %_45.i.epil, 1 x i64 72
+  %_45.val.i.epil = load i64, ptr %#9, align 8
+  assume_welldefined i64 %_45.val.i.epil
+  %_4.0.i.i.i.epil = add i64 %_45.val.i.epil, %acc.sroa.0.0.i.epil
+  %_27.i.epil = add nsw nuw i64 %i.sroa.0.0.i.epil, 1
+  %epil.iter.next = add i64 %epil.iter, 1
+  %epil.iter.cmp.not = icmp eq i64 %epil.iter.next, %xtraiter
+  br i1 %epil.iter.cmp.not, label %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit, label %bb8.i.epil
+
+_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit:
+  %_0.sroa.0.0.i = phi i64 [ 0, %bb1 ], [ %_4.0.i.i.i.3, %_ZN91_$LT$core..slice..iter..Iter$LT$T$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$4fold17ha51d8455dcfdeae2E.exit.loopexit.unr-lcssa ], [ %_4.0.i.i.i.epil, %bb8.i.epil ]
+  %_0 = add i64 %_0.sroa.0.0.i, %_4.sroa.0.0
+  ret i64 %_0
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([136 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus13tx_precompute24decode_block_precomputes17h3c557fd7573f3436E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([64 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus15silent_payments13tweak_from_tx17h2a68f54acf71b078E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus15silent_payments20taproot_matches_scan17h5eeb8b15faaaf11fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus15silent_payments22witness_items_no_annex17hf8c7b2f2a1125461E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus15silent_payments30last_compressed_witness_pubkey17h2d5adb2d41245d4aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus26verify_tx_scripts_detached17h463ad60e9dd90612E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus28verify_tx_scripts_with_flags17h4bd1f8dff3279ed4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus32verify_tx_scripts_detached_forks17h02c6add1e81c8e24E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block11is_final_tx17h4915279e4121e295E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block13block_subsidy17h3e3a8518a88668c4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block13tx_sigop_cost17h665b50068e24b343E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([32 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block14ScriptCheckJob13prevout_parts17h01871a5b1fcedc6fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block14ScriptCheckJob14prevout_script17h40bbc664b82b488cE' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr %_18.i.i acquire, align 8, !dbg !57
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block14ScriptCheckJob3pre17h1cde7f808aba0c49E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr %_18.i acquire, align 8, !dbg !55
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block14ScriptCheckJob7job_pre17h6e51e0b30bfa367fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block14check_tx_local17h30cf2eb81d5eaf6eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block16check_block_wire17h934c9f49a37701a0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block16last_script_push17h7221f9744d5e38c6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([32 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block17merkle_root_bytes17h67364cfbdf2f2fbcE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block18legacy_sigop_count17hf70cf06c16279cdeE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block18prevout_spk_sigops17hc29ee87cb52e8671E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block19bip34_height_script17hcbffa6b23bbfd0f7E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block20check_bip34_coinbase17hedc78b5fed1c6cb1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block21assemble_tx_value_out17h892c125e51e5d62aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block22check_coinbase_subsidy17h9a1ad72b06bb36f0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block24apply_witness_commitment17hb328cea69537ec09E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block24sequence_locks_satisfied17h6ea1e70a528f8ea2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block24validate_block_structure17ha462b76583693707E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block25reject_witness_malleation17h792497e26ee8701eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block29witness_commitment_vout_index17h9fb3bee2f254ad31E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block30block_mutated_without_coinbase17h59f2a7f0c3344d64E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([32 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block31validate_block_structure_hashed17h710f251ce06831f1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block34validate_block_structure_with_pres17h9b6bbc301eb578feE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts10add_sigops17h3d46b30f6156b58bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts12add_value_in17h083b99ed209b8034E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts15fee_from_values17h766e8c24df651993E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts16reject_non_final17hd13b75be09f4075dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts17require_next_work17h283879fd208f05c4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts20median_or_bad_header17hfada1cdd4b3c29e3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts20reject_confirm_batch17hcead243e994db675E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts21reject_sequence_locks17h47f48ee3a47de288E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts24reject_csv_create_height17hdd8cfe3b1334d850E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts25require_same_block_output17h49fc6bb289fe1360E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus5block5facts7add_fee17h90513a8088cfdac0E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i64, ptr %_3 seq_cst, align 8, !dbg !27
+ERROR: Could not translate '_ZN18rbitcoin_consensus5clock9NodeClock21connection_attempt_at17h43b051a9ee0ffc5bE' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i64, ptr %self monotonic, align 8, !dbg !14
+ERROR: Could not translate '_ZN18rbitcoin_consensus5clock9NodeClock23note_connection_attempt17hc4629d7bebd9e5ecE' to Alive IR
+ERROR: Unsupported metadata: 8
+ERROR: Could not translate '_ZN18rbitcoin_consensus5clock9NodeClock3new17hb6088cfc60faf6d3E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i64, ptr %self monotonic, align 8, !dbg !14
+ERROR: Could not translate '_ZN18rbitcoin_consensus5clock9NodeClock8now_secs17h5e8b1e0a585ff7b1E' to Alive IR
+ERROR: Unsupported instruction:   store atomic i64 %..i, ptr %self seq_cst, align 8, !dbg !21
+ERROR: Could not translate '_ZN18rbitcoin_consensus5clock9NodeClock8set_mock17h2d2a22a751df0b3bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN18rbitcoin_consensus5error17script_flag_paren17h2764813c1ec3ef70E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN18rbitcoin_consensus5error19block_reject_reason17h7671f4ede8f72f43E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6header21pow_hash_meets_target17hef3cae7367578c82E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6header25validate_header_on_parent17h3267c73bcdee0eb6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6header36check_header_version_and_future_time17h1a70bea73ec75be9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams11for_network17h5f258e6e8bf8ff6eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams13custom_signet17hde28c775a5a52801E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams24subsidy_halving_interval17he6d9d2be4df64870E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams28parse_test_activation_height17h12d01ceb00b12111E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams32overlay_subsidy_halving_interval17h8ea8819fa3da782aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams6signet17h073dd355a0a78c06E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams7mainnet17h50a53c855e78685aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams7regtest17he05e13ba54ba281aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([304 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params11ChainParams7testnet17hd63cce22a7b89a7dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([104 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params13genesis_block17h956202d55c714327E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([65 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params24default_milestone_anchor17h0177060d2c957478E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([33 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params25default_min_chain_work_be17hc65227adb6aed9f9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params25min_work_from_display_hex17h3e4fcdce1854289bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([32 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6params27block_hash_from_display_hex17h724377c7f33daadaE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6policy17check_libre_annex17hc58f4ae4d485c2faE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6policy17check_libre_shape17hab898b4e6477c6bdE' to Alive IR
+
+----------------------------------------
+define i1 @_ZN18rbitcoin_consensus6policy19meets_min_relay_fee17h06ab982968b30e5bE(i64 noundef %fee_sat, i64 noundef %weight) nofree noundef willreturn zeroext memory(none) {
+start:
+  %_7.i = icmp ugt i64 noundef %weight, -5
+  br i1 %_7.i, label %bb4.i, label %bb7.i
+
+bb7.i:
+  %_8.i = add nuw i64 noundef %weight, 3
+  %#0 = lshr i64 %_8.i, 2
+  %_5.i = icmp eq i64 %#0, 0
+  br i1 %_5.i, label %_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit, label %bb4.i
+
+bb4.i:
+  %vsize.sroa.0.0.i = phi i64 [ %#0, %bb7.i ], [ 4611686018427387903, %start ]
+  %#1 = umul_overflow i64 noundef %fee_sat, 1000
+  %_12.0.i = extractvalue {i64, i1, i56} %#1, 0
+  %_12.1.i = extractvalue {i64, i1, i56} %#1, 1
+  br i1 %_12.1.i, label %bb9.i, label %bb8.i
+
+bb9.i:
+  br label %bb8.i
+
+bb8.i:
+  %_10.sroa.0.0.i = phi i64 [ -1, %bb9.i ], [ %_12.0.i, %bb4.i ]
+  %#2 = umul_overflow i64 %vsize.sroa.0.0.i, 100
+  %_16.0.i = extractvalue {i64, i1, i56} %#2, 0
+  %_16.1.i = extractvalue {i64, i1, i56} %#2, 1
+  br i1 %_16.1.i, label %bb13.i, label %bb12.i
+
+bb13.i:
+  br label %bb12.i
+
+bb12.i:
+  %_14.sroa.0.0.i = phi i64 [ -1, %bb13.i ], [ %_16.0.i, %bb8.i ]
+  %#3 = icmp uge i64 %_10.sroa.0.0.i, %_14.sroa.0.0.i
+  br label %_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit
+
+_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit:
+  %_0.sroa.0.0.i = phi i1 [ 0, %bb7.i ], [ %#3, %bb12.i ]
+  ret i1 %_0.sroa.0.0.i
+}
+=>
+define i1 @_ZN18rbitcoin_consensus6policy19meets_min_relay_fee17h06ab982968b30e5bE(i64 noundef %fee_sat, i64 noundef %weight) nofree noundef willreturn zeroext memory(none) {
+start:
+  %_7.i = icmp ugt i64 noundef %weight, -5
+  br i1 %_7.i, label %bb4.i, label %bb7.i
+
+bb7.i:
+  %_8.i = add nuw i64 noundef %weight, 3
+  %#0 = lshr i64 %_8.i, 2
+  %_5.i = icmp eq i64 %#0, 0
+  br i1 %_5.i, label %_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit, label %bb4.i
+
+bb4.i:
+  %vsize.sroa.0.0.i = phi i64 [ %#0, %bb7.i ], [ 4611686018427387903, %start ]
+  %#1 = umul_overflow i64 noundef %fee_sat, 1000
+  %_12.0.i = extractvalue {i64, i1, i56} %#1, 0
+  %_12.1.i = extractvalue {i64, i1, i56} %#1, 1
+  br i1 %_12.1.i, label %bb9.i, label %bb8.i
+
+bb9.i:
+  br label %bb8.i
+
+bb8.i:
+  %_10.sroa.0.0.i = phi i64 [ -1, %bb9.i ], [ %_12.0.i, %bb4.i ]
+  %#2 = umul_overflow i64 %vsize.sroa.0.0.i, 100
+  %_16.0.i = extractvalue {i64, i1, i56} %#2, 0
+  %_16.1.i = extractvalue {i64, i1, i56} %#2, 1
+  br i1 %_16.1.i, label %bb13.i, label %bb12.i
+
+bb13.i:
+  br label %bb12.i
+
+bb12.i:
+  %_14.sroa.0.0.i = phi i64 [ -1, %bb13.i ], [ %_16.0.i, %bb8.i ]
+  %#3 = icmp uge i64 %_10.sroa.0.0.i, %_14.sroa.0.0.i
+  br label %_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit
+
+_ZN18rbitcoin_consensus6policy22meets_min_relay_fee_at17h5456e701ce50feffE.exit:
+  %_0.sroa.0.0.i = phi i1 [ 0, %bb7.i ], [ %#3, %bb12.i ]
+  ret i1 %_0.sroa.0.0.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6policy21check_libre_admission17hb5eab4923e9244efE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6policy24check_libre_admission_at17h9700ee63875269b0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6policy28zero_value_spendable_is_dust17h241dc154a8650499E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter10decode_i6417hae25098d53c6d99dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter11EvalContext8from_job17haa9392c982f52d58E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter11bool_encode17h6cf3d3beab52c352E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter11eval_script17h9bf99c7ab3467ea9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter11eval_script28_$u7b$$u7b$closure$u7d$$u7d$17heb075e8674a2226aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter11op_checksig17h9fc43a5a76d407e8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter14op_checksigadd17h58d983ce716c8d23E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter15find_and_delete17hfaacad7d693096edE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter16op_checkmultisig17h93c6fdf44d13f186E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter16require_true_top17h76ce33fcef3bbfe4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter17ecdsa_sig_matches17h31f8e044450ef79eE' to Alive IR
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Unsupported attribute: captures(address, read_provenance)
+
+----------------------------------------
+declare void @_RNvNtNtCsgEmfK2I1SDS_4core5slice5index16slice_index_fail(noundef i64, noundef i64, noundef i64, nowrite dereferenceable(24) noundef align(8) ptr) noreturn
+
+@alloc_ed7ef490eb9982594db0729b00e3e41b = constant 24 bytes, align 8
+@alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f = constant 52 bytes, align 1
+
+define {ptr, i64} @_ZN18rbitcoin_consensus6script11interpreter17script_code_bytes17h40d2a455b3d63addE(ptr nonnull nocapture nowrite noundef align(8) %ctx) {
+init:
+  %__copy_0 = {ptr, [16 x i8]} { @alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f, { 51, 0, 0, 0, 0, 0, 0, 0, 229, 4, 0, 0, 27, 0, 0, 0 } }
+  store [52 x i8] { 99, 114, 97, 116, 101, 115, 47, 114, 98, 105, 116, 99, 111, 105, 110, 45, 99, 111, 110, 115, 101, 110, 115, 117, 115, 47, 115, 114, 99, 47, 115, 99, 114, 105, 112, 116, 47, 105, 110, 116, 101, 114, 112, 114, 101, 116, 101, 114, 46, 114, 115, 0 }, ptr @alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f, align 1
+  store {ptr, [16 x i8]} %__copy_0, ptr @alloc_ed7ef490eb9982594db0729b00e3e41b, align 8
+  br label %start
+
+start:
+  %#0 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 144
+  %_5.0 = load ptr, ptr %#0, align 8
+  %_5.0_nonnull = !nonnull ptr %_5.0
+  %_5.0_nonnull_align = !align ptr %_5.0_nonnull, i64 1
+  assume_welldefined ptr %_5.0_nonnull_align
+  %#1 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 152
+  %_5.1 = load i64, ptr %#1, align 8
+  assume_welldefined i64 %_5.1
+  %_7 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 128
+  %#2 = load i64, ptr %_7, align 8
+  %#2_range = !range i64 %#2, i64 0, i64 2
+  assume_welldefined i64 %#2_range
+  %#3 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 136
+  %#4 = load i64, ptr %#3, align 8
+  %#5 = trunc nuw i64 %#2_range to i1
+  br i1 %#5, label %bb2, label %bb3
+
+bb2:
+  %_8 = icmp ugt i64 %#4, %_5.1
+  br i1 %_8, label %bb4, label %bb5
+
+bb4:
+  tail call void @_RNvNtNtCsgEmfK2I1SDS_4core5slice5index16slice_index_fail(noundef i64 %#4, noundef i64 %_5.1, noundef i64 %_5.1, nowrite dereferenceable(24) noundef align(8) ptr @alloc_ed7ef490eb9982594db0729b00e3e41b) noreturn
+  assume i1 0
+
+bb5:
+  %_11 = sub nuw i64 %_5.1, %#4
+  %_15 = gep inbounds nuw ptr %_5.0_nonnull_align, 1 x i64 %#4
+  br label %bb3
+
+bb3:
+  %full.sroa.4.0 = phi i64 [ %_11, %bb5 ], [ %_5.1, %start ]
+  %full.sroa.0.0 = phi ptr [ %_15, %bb5 ], [ %_5.0_nonnull_align, %start ]
+  %#6 = insertvalue {ptr, i64} poison, ptr %full.sroa.0.0, 0
+  %#7 = insertvalue {ptr, i64} %#6, i64 %full.sroa.4.0, 1
+  ret {ptr, i64} %#7
+}
+=>
+declare void @_RNvNtNtCsgEmfK2I1SDS_4core5slice5index16slice_index_fail(noundef i64, noundef i64, noundef i64, nowrite dereferenceable(24) noundef align(8) ptr) noreturn
+
+@alloc_ed7ef490eb9982594db0729b00e3e41b = constant 24 bytes, align 8
+@alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f = constant 52 bytes, align 1
+
+define {ptr, i64} @_ZN18rbitcoin_consensus6script11interpreter17script_code_bytes17h40d2a455b3d63addE(ptr nonnull nocapture nowrite noundef align(8) %ctx) {
+init:
+  %__copy_0 = {ptr, [16 x i8]} { @alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f, { 51, 0, 0, 0, 0, 0, 0, 0, 229, 4, 0, 0, 27, 0, 0, 0 } }
+  store [52 x i8] { 99, 114, 97, 116, 101, 115, 47, 114, 98, 105, 116, 99, 111, 105, 110, 45, 99, 111, 110, 115, 101, 110, 115, 117, 115, 47, 115, 114, 99, 47, 115, 99, 114, 105, 112, 116, 47, 105, 110, 116, 101, 114, 112, 114, 101, 116, 101, 114, 46, 114, 115, 0 }, ptr @alloc_bb5a37fb2038f22eb8aff6ab83ba2e3f, align 1
+  store {ptr, [16 x i8]} %__copy_0, ptr @alloc_ed7ef490eb9982594db0729b00e3e41b, align 8
+  br label %start
+
+start:
+  %#0 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 144
+  %_5.0 = load ptr, ptr %#0, align 8
+  %_5.0_nonnull = !nonnull ptr %_5.0
+  %_5.0_nonnull_align = !align ptr %_5.0_nonnull, i64 1
+  assume_welldefined ptr %_5.0_nonnull_align
+  %#1 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 152
+  %_5.1 = load i64, ptr %#1, align 8
+  assume_welldefined i64 %_5.1
+  %_7 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 128
+  %#2 = load i64, ptr %_7, align 8
+  %#2_range = !range i64 %#2, i64 0, i64 2
+  assume_welldefined i64 %#2_range
+  %#3 = gep inbounds nuw ptr nonnull nocapture nowrite noundef align(8) %ctx, 1 x i64 136
+  %#4 = load i64, ptr %#3, align 8
+  %#5 = trunc nuw i64 %#2_range to i1
+  br i1 %#5, label %bb2, label %bb3
+
+bb2:
+  %_8 = icmp ugt i64 %#4, %_5.1
+  br i1 %_8, label %bb4, label %bb5
+
+bb4:
+  tail call void @_RNvNtNtCsgEmfK2I1SDS_4core5slice5index16slice_index_fail(noundef i64 %#4, noundef i64 %_5.1, noundef i64 %_5.1, nowrite dereferenceable(24) noundef align(8) ptr @alloc_ed7ef490eb9982594db0729b00e3e41b) noreturn
+  assume i1 0
+
+bb5:
+  %_11 = sub nuw i64 %_5.1, %#4
+  %_15 = gep inbounds nuw ptr %_5.0_nonnull_align, 1 x i64 %#4
+  br label %bb3
+
+bb3:
+  %full.sroa.4.0 = phi i64 [ %_11, %bb5 ], [ %_5.1, %start ]
+  %full.sroa.0.0 = phi ptr [ %_15, %bb5 ], [ %_5.0_nonnull_align, %start ]
+  %#6 = insertvalue {ptr, i64} poison, ptr %full.sroa.0.0, 0
+  %#7 = insertvalue {ptr, i64} %#6, i64 %full.sroa.4.0, 1
+  ret {ptr, i64} %#7
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter18require_clean_true17hf8de5a20150475aeE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter19checkmultisig_pairs17h0ac635b31c29d3e5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter20tapscript_sig_result17h68fcfc2ef4d4bcf1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter3pop17hd57423e0432511c0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter4push17h9901103c7688f27aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17h2f973f8e0b9535c3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17h4011a77626a82398E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17h553f7ce6705c6daaE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17h90c71f3b60f04393E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17ha2aa4046e5746b0aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter7bin_cmp17hf6aeffa5975d17bcE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter9bin_arith17h413fa78bc0791c0dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter9bin_arith17hd7711d4ba5bd900eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11interpreter9require_n17hbcc66569d6d3f2a9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script11verify_bare17h87998aafddaec793E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script19annotate_script_err17h4495154bd795afe8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script21verify_job_all_inputs17hec2b63d5a6ca2118E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script21verify_native_witness17h24e61ae1a7cbb68fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script27p2pkh_scriptsig_shape_error17h7a6eb8bb1e705f17E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script4p2tr15verify_key_path28_$u7b$$u7b$closure$u7d$$u7d$17hd63500792d1ca703E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script4p2tr6verify17hde13908640ff8424E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script5p2pkh6verify17hbdf0257106c7acebE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script5p2pkh6verify28_$u7b$$u7b$closure$u7d$$u7d$17ha61cfca6ea99bb32E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script5p2wsh22verify_with_scripthash17hc11c443587e0093cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto12parse_pubkey17hb742b33fc6c665bdE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto12verify_ecdsa17h6459bd20ed506b98E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto13parse_der_sig17h08333ed9a3f7f088E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto18tap_signature_hash17he31efda056df634cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto18tap_signature_hash28_$u7b$$u7b$closure$u7d$$u7d$17h9e96071e309281beE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto21bip143_signature_hash17hf6c10d6ce51059acE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto28bip143_p2wpkh_signature_hash17h42449adc0fad4b83E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto4sha117h43ec7d90f07f0c1cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto6sha25617h5457b5a3ce962158E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6crypto7hash16017hd4348c3b7381f5ddE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6nested18verify_p2sh_legacy17hacec859f1b3fb750E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6nested21p2sh_script_sig_stack17h76e14dbb9d4c8221E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6nested22check_p2sh_redeem_hash17h4b6a94c018315be0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6nested22try_p2sh_nested_segwit17ha132b6377f3b8d59E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6p2wpkh18verify_interpreted17hf90cc7b05f56cd91E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6p2wpkh19verify_with_keyhash17h64d92d9d0218ada1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script6p2wpkh6verify17h45d0256e9ce45817E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script8classify15witness_program17h1a8a738cfa789081E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6script8classify8classify17hd36f69fb5e76d9aaE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6signet12signet_magic17hb091581cdf37f9aeE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6signet24default_signet_challenge17hd25ddbbf98169501E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([128 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6signet29signet_challenge_transactions17hcd77db71a35ee18bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: sret([24 x i8])
+ERROR: Could not translate '_ZN18rbitcoin_consensus6signet30validate_signet_block_solution17h9e8c188ea2159b00E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN18rbitcoin_consensus6signet9push_data17h3ffcbd7304ae9931E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Could not translate '_ZN3std3sys12thread_local6native4lazy20Storage$LT$T$C$D$GT$16get_or_init_slow17h1a7e3e30fe01b2e5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Could not translate '_ZN3std3sys12thread_local6native4lazy20Storage$LT$T$C$D$GT$16get_or_init_slow17h209b268a7e2790cdE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Could not translate '_ZN3std3sys12thread_local6native4lazy20Storage$LT$T$C$D$GT$16get_or_init_slow17hb823be30fdb23a6bE' to Alive IR
+
+----------------------------------------
+declare void @_ZN73_$LT$arc_swap..debt..list..LocalNode$u20$as$u20$core..ops..drop..Drop$GT$4drop17h9048ba6f0a964543E(dereferenceable(24) noundef align(8) ptr)
+
+define void @_ZN3std3sys12thread_local6native4lazy7destroy17h4745efdf743bf743E(ptr noundef %#0) {
+start:
+  %_11.i.i = gep inbounds nuw ptr noundef %#0, 1 x i64 24
+  %_4.i.i = load i8, ptr %_11.i.i, align 1
+  %_4.i.i_range = !range i8 %_4.i.i, i8 0, i8 3
+  assume_welldefined i8 %_4.i.i_range
+  store i8 2, ptr %_11.i.i, align 1
+  %#1 = icmp eq i8 %_4.i.i_range, 1
+  br i1 %#1, label %bb1.i.i, label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit
+
+bb1.i.i:
+  tail call void @_ZN73_$LT$arc_swap..debt..list..LocalNode$u20$as$u20$core..ops..drop..Drop$GT$4drop17h9048ba6f0a964543E(nonnull dereferenceable(24) noundef align(8) ptr noundef %#0)
+  br label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit
+
+_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit:
+  ret void
+}
+=>
+declare void @_ZN73_$LT$arc_swap..debt..list..LocalNode$u20$as$u20$core..ops..drop..Drop$GT$4drop17h9048ba6f0a964543E(dereferenceable(24) noundef align(8) ptr)
+
+define void @_ZN3std3sys12thread_local6native4lazy7destroy17h4745efdf743bf743E(ptr noundef %#0) {
+start:
+  %_11.i.i = gep inbounds nuw ptr noundef %#0, 1 x i64 24
+  %_4.i.i = load i8, ptr %_11.i.i, align 1
+  %_4.i.i_range = !range i8 %_4.i.i, i8 0, i8 3
+  assume_welldefined i8 %_4.i.i_range
+  store i8 2, ptr %_11.i.i, align 1
+  %#1 = icmp eq i8 %_4.i.i_range, 1
+  br i1 %#1, label %bb1.i.i, label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit
+
+bb1.i.i:
+  tail call void @_ZN73_$LT$arc_swap..debt..list..LocalNode$u20$as$u20$core..ops..drop..Drop$GT$4drop17h9048ba6f0a964543E(nonnull dereferenceable(24) noundef align(8) ptr noundef %#0)
+  br label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit
+
+_ZN3std3sys12thread_local20abort_on_dtor_unwind17h1451f159548941a3E.exit:
+  ret void
+}
+Transformation seems to be correct! (syntactically equal)
+
+
+----------------------------------------
+declare i64 @rustsecp256k1_v0_10_0_context_preallocated_clone_size(noundef ptr) noundef
+declare void @rustsecp256k1_v0_10_0_context_preallocated_destroy(nonnull noundef ptr)
+declare void @_ZN90_$LT$secp256k1..context..alloc_only..VerifyOnly$u20$as$u20$secp256k1..context..Context$GT$10deallocate17h5885aed1dc388fc0E(noundef ptr, noundef i64)
+
+define void @_ZN3std3sys12thread_local6native4lazy7destroy17h700c5e1733901bdfE(ptr nocapture noundef %#0) {
+start:
+  %_11.i.i = gep inbounds nuw ptr nocapture noundef %#0, 1 x i64 8
+  %_4.i.i = load i8, ptr %_11.i.i, align 1
+  %_4.i.i_range = !range i8 %_4.i.i, i8 0, i8 3
+  assume_welldefined i8 %_4.i.i_range
+  store i8 2, ptr %_11.i.i, align 1
+  %#1 = icmp eq i8 %_4.i.i_range, 1
+  br i1 %#1, label %bb1.i.i, label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit
+
+bb1.i.i:
+  %_3.val.i.i = load ptr, ptr nocapture noundef %#0, align 8
+  %_3.val.i.i_nonnull = !nonnull ptr %_3.val.i.i
+  assume_welldefined ptr %_3.val.i.i_nonnull
+  %size.i.i.i.i = tail call i64 @rustsecp256k1_v0_10_0_context_preallocated_clone_size(nonnull noundef ptr %_3.val.i.i_nonnull) noundef
+  tail call void @rustsecp256k1_v0_10_0_context_preallocated_destroy(nonnull noundef ptr %_3.val.i.i_nonnull)
+  tail call void @_ZN90_$LT$secp256k1..context..alloc_only..VerifyOnly$u20$as$u20$secp256k1..context..Context$GT$10deallocate17h5885aed1dc388fc0E(nonnull noundef ptr %_3.val.i.i_nonnull, noundef i64 %size.i.i.i.i)
+  br label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit
+
+_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit:
+  ret void
+}
+=>
+declare i64 @rustsecp256k1_v0_10_0_context_preallocated_clone_size(noundef ptr) noundef
+declare void @rustsecp256k1_v0_10_0_context_preallocated_destroy(nonnull noundef ptr)
+declare void @_ZN90_$LT$secp256k1..context..alloc_only..VerifyOnly$u20$as$u20$secp256k1..context..Context$GT$10deallocate17h5885aed1dc388fc0E(noundef ptr, noundef i64)
+
+define void @_ZN3std3sys12thread_local6native4lazy7destroy17h700c5e1733901bdfE(ptr nocapture noundef %#0) {
+start:
+  %_11.i.i = gep inbounds nuw ptr nocapture noundef %#0, 1 x i64 8
+  %_4.i.i = load i8, ptr %_11.i.i, align 1
+  %_4.i.i_range = !range i8 %_4.i.i, i8 0, i8 3
+  assume_welldefined i8 %_4.i.i_range
+  store i8 2, ptr %_11.i.i, align 1
+  %#1 = icmp eq i8 %_4.i.i_range, 1
+  br i1 %#1, label %bb1.i.i, label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit
+
+bb1.i.i:
+  %_3.val.i.i = load ptr, ptr nocapture noundef %#0, align 8
+  %_3.val.i.i_nonnull = !nonnull ptr %_3.val.i.i
+  assume_welldefined ptr %_3.val.i.i_nonnull
+  %size.i.i.i.i = tail call i64 @rustsecp256k1_v0_10_0_context_preallocated_clone_size(nonnull noundef ptr %_3.val.i.i_nonnull) noundef
+  tail call void @rustsecp256k1_v0_10_0_context_preallocated_destroy(nonnull noundef ptr %_3.val.i.i_nonnull)
+  tail call void @_ZN90_$LT$secp256k1..context..alloc_only..VerifyOnly$u20$as$u20$secp256k1..context..Context$GT$10deallocate17h5885aed1dc388fc0E(nonnull noundef ptr %_3.val.i.i_nonnull, noundef i64 %size.i.i.i.i)
+  br label %_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit
+
+_ZN3std3sys12thread_local20abort_on_dtor_unwind17h6316c558530ecdbdE.exit:
+  ret void
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !57741), !dbg !5
+ERROR: Could not translate '_ZN3std3sys12thread_local6native4lazy7destroy17hef6d1fe31a2dc3d2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std3sys9backtrace28__rust_begin_short_backtrace17h022d459937d08e53E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std3sys9backtrace28__rust_begin_short_backtrace17h54297802333b3980E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i64, ptr %_11.i acquire, align 8, !dbg !61
+ERROR: Could not translate '_ZN3std3sys9backtrace28__rust_begin_short_backtrace17he3e35a33965a77d2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc12sync_channel17h7bc92763c1c83f25E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc15Sender$LT$T$GT$4send17hc2756963db2a944fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc17Receiver$LT$T$GT$4recv17h76dba84653e5868bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc4list16Channel$LT$T$GT$4recv28_$u7b$$u7b$closure$u7d$$u7d$17hb6d2b163132548f4E' to Alive IR
+ERROR: Unsupported instruction:   %0 = cmpxchg ptr %self, i32 0, i32 1 acquire monotonic, align 4, !dbg !16, !no
+ERROR: Could not translate '_ZN3std4sync4mpmc4zero16Channel$LT$T$GT$10disconnect17hab79d8cff2c56220E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc4zero16Channel$LT$T$GT$4recv28_$u7b$$u7b$closure$u7d$$u7d$17h2327e6ae0d111be6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc4zero16Channel$LT$T$GT$4send28_$u7b$$u7b$closure$u7d$$u7d$17h5b557ddef47764e0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc5array16Channel$LT$T$GT$4recv28_$u7b$$u7b$closure$u7d$$u7d$17hec8b178ad0a1df2cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc5array16Channel$LT$T$GT$4send28_$u7b$$u7b$closure$u7d$$u7d$17hdfaccfb925d90268E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc7context7Context4with28_$u7b$$u7b$closure$u7d$$u7d$17h1714f2099a72dbc4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4mpmc7context7Context4with28_$u7b$$u7b$closure$u7d$$u7d$17h2cefb228361da6a0E' to Alive IR
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported instruction:   %2 = atomicrmw sub ptr %0, i64 1 release, align 8, !dbg !41, !noalias !62
+ERROR: Could not translate '_ZN3std4sync4mpmc7context7Context4with28_$u7b$$u7b$closure$u7d$$u7d$17h42385d3310b49921E' to Alive IR
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported instruction:   %2 = atomicrmw sub ptr %0, i64 1 release, align 8, !dbg !41, !noalias !62
+ERROR: Could not translate '_ZN3std4sync4mpmc7context7Context4with28_$u7b$$u7b$closure$u7d$$u7d$17hc40516e457010f6cE' to Alive IR
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported instruction:   %2 = atomicrmw sub ptr %0, i64 1 release, align 8, !dbg !41, !noalias !62
+ERROR: Could not translate '_ZN3std4sync4mpmc7context7Context4with28_$u7b$$u7b$closure$u7d$$u7d$17hd7bbce1144a55e65E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h0904ec3e2d46477dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h1b0b3bc8060b0394E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h296f722f10eb24b5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h2b748dd89f5637e5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h791f1bc146865ee8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17h7bec4eea7732a87bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17hae2e504ab4a5288dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17hbdc73c57b4e3a23bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync4once4Once15call_once_force28_$u7b$$u7b$closure$u7d$$u7d$17hd178ee6e8ee08eecE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h0ed840fa03d532ffE' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr %_6 acquire, align 8, !dbg !18, !noalias !41
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h2f7d9ee43671a8c9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h46a68e6fc490198aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h52f7f34e58a824c3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h5acb4473d45c307eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h6bf978fed2b1d5b8E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr getelementptr inbounds nuw (i8, ptr @_ZN18rbitcoin_c
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17h6e7cc899a2ad6696E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr getelementptr inbounds nuw (i8, ptr @_ZN18rbitcoin_c
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17hb38de6dbd008fde0E' to Alive IR
+ERROR: Unsupported instruction:   %0 = load atomic i32, ptr getelementptr inbounds nuw (i8, ptr @_ZN18rbitcoin_c
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17he3962147d62b54a5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17hea260f2df0b03871E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN3std4sync9once_lock17OnceLock$LT$T$GT$10initialize17hef718d15f85346f5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h16a6dd8744fefb06E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h1ba60ca72c8b1779E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h1ec009df4b0bc35aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h2d96b2f05be019d6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h2e77cef75aa0273bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h2f726fc205f319c0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h36ee9921ed0c4d6bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h717bfbcace58f508E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17h8022f4b8c0ce13e6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17hb691aee6e247f328E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17hb721b0aafb80444eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17hbf6e3661f3a5167fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17hc516041721cdbacfE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN42_$LT$$RF$T$u20$as$u20$core..fmt..Debug$GT$3fmt17hd55ee8383faadb34E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN44_$LT$$RF$T$u20$as$u20$core..fmt..Display$GT$3fmt17h1dbf366600a89465E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN44_$LT$$RF$T$u20$as$u20$core..fmt..Display$GT$3fmt17h660ed4c55cd79c76E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN44_$LT$$RF$T$u20$as$u20$core..fmt..Display$GT$3fmt17heb02bd67da3f8303E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN45_$LT$$RF$T$u20$as$u20$core..fmt..LowerHex$GT$3fmt17h379d2a8abc0ec61aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3fmt5Write9write_fmt17hca5ca6d4d270b6a0E' to Alive IR
+ERROR: Unsupported metadata: 8
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h07e5303b7edfc9abE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64709), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h0900df62b363bf1bE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64801), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h1a85f2722ec30ddfE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64872), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h20a81c29ab596436E' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64898), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h210e5443400f1d53E' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64940), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h2ecf7e889490e0acE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !64978), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h3631a78f6f9df93fE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65023), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h4c062afa60d1480eE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65072), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h7400e7530a08f8caE' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65095), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h769901c442a77785E' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65140), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h9a79fcc325a5a2a8E' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65211), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17ha78417bfa2cfecf2E' to Alive IR
+ERROR: Unsupported type: metadata
+ERROR: Unsupported instruction:   tail call void @llvm.experimental.noalias.scope.decl(metadata !65284), !dbg !6
+ERROR: Could not translate '_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17heb0543731de93aeeE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr129drop_in_place$LT$core..result..Result$LT$bitcoin..blockdata..transaction..Transaction$C$bitcoin..consensus..encode..Error$GT$$GT$17h4ef2a713d7819ba1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr131drop_in_place$LT$std..sync..poison..PoisonError$LT$std..sync..poison..mutex..MutexGuard$LT$std..sync..mpmc..zero..Inner$GT$$GT$$GT$17h0ed970e96c395df1E' to Alive IR
+ERROR: Unsupported instruction:   %73 = atomicrmw sub ptr %_15.i29.i.i, i64 1 acq_rel, align 8, !dbg !554
+ERROR: Could not translate '_ZN4core3ptr134drop_in_place$LT$std..sync..mpsc..Receiver$LT$core..result..Result$LT$$LP$$RP$$C$rbitcoin_consensus..error..ConsensusError$GT$$GT$$GT$17hc874f5ac2ed2fe7aE' to Alive IR
+ERROR: Unsupported instruction:   %19 = atomicrmw sub ptr %_15.i11.i.i, i64 1 acq_rel, align 8, !dbg !217
+ERROR: Could not translate '_ZN4core3ptr136drop_in_place$LT$std..sync..mpsc..SyncSender$LT$core..result..Result$LT$$LP$$RP$$C$rbitcoin_consensus..error..ConsensusError$GT$$GT$$GT$17hcef4817bd755c3baE' to Alive IR
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+
+----------------------------------------
+declare void @_RNvCsfLfy6EI15iL_7___rustc14___rust_dealloc(noundef allocptr ptr, noundef i64, noundef i64) alloc-family(__rust_alloc) allockind(free)
+
+define void @_ZN4core3ptr168drop_in_place$LT$std..collections..hash..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17ha506b2ab1a7377e6E(ptr %_1.0.val, i64 %_1.8.val) {
+start:
+  %#0 = icmp eq i64 %_1.8.val, 0
+  br i1 %#0, label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit, label %bb2.i.i.i.i.i
+
+bb2.i.i.i.i.i:
+  %_9.i.i.i.i.i = shl i64 %_1.8.val, 5
+  %#1 = add i64 %_9.i.i.i.i.i, 32
+  %rhs5.i.i.i.i.i.i = add i64 %_1.8.val, 17
+  %_42.0.i.i.i.i.i.i = add i64 %rhs5.i.i.i.i.i.i, %#1
+  %_42.1.i.i.i.i.i.i = icmp uge i64 %_42.0.i.i.i.i.i.i, %#1
+  %_22.i.i.i.i.i.i = icmp ult i64 %_42.0.i.i.i.i.i.i, 9223372036854775793
+  assume i1 %_42.1.i.i.i.i.i.i
+  assume i1 %_22.i.i.i.i.i.i
+  %#2 = icmp ne ptr %_1.0.val, null
+  assume i1 %#2
+  %#3 = icmp eq i64 %_42.0.i.i.i.i.i.i, 0
+  br i1 %#3, label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit, label %bb1.i2.i.i.i.i.i
+
+bb1.i2.i.i.i.i.i:
+  %_17.i.i.i.i.i = sub nsw nuw i64 -32, %_9.i.i.i.i.i
+  %ptr.i.i.i.i.i = gep inbounds ptr %_1.0.val, 1 x i64 %_17.i.i.i.i.i
+  %#range_0_16 = !range i64 16, i64 1, i64 -9223372036854775807, welldefined
+  %#range_1_%#range_0_16 = !range i64 %#range_0_16, i64 1, i64 -9223372036854775807, welldefined
+  %#range_2_%#range_1_%#range_0_16 = !range i64 %#range_1_%#range_0_16, i64 1, i64 -9223372036854775807, welldefined
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc14___rust_dealloc(nonnull noundef allocptr ptr %ptr.i.i.i.i.i, noundef i64 %_42.0.i.i.i.i.i.i, noundef i64 %#range_2_%#range_1_%#range_0_16) alloc-family(__rust_alloc) allockind(free)
+  br label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit
+
+_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit:
+  ret void
+}
+=>
+declare void @_RNvCsfLfy6EI15iL_7___rustc14___rust_dealloc(noundef allocptr ptr, noundef i64, noundef i64) alloc-family(__rust_alloc) allockind(free)
+
+define void @_ZN4core3ptr168drop_in_place$LT$std..collections..hash..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17ha506b2ab1a7377e6E(ptr %_1.0.val, i64 %_1.8.val) {
+start:
+  %#0 = icmp eq i64 %_1.8.val, 0
+  br i1 %#0, label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit, label %bb2.i.i.i.i.i
+
+bb2.i.i.i.i.i:
+  %_9.i.i.i.i.i = shl i64 %_1.8.val, 5
+  %#1 = add i64 %_9.i.i.i.i.i, 32
+  %rhs5.i.i.i.i.i.i = add i64 %_1.8.val, 17
+  %_42.0.i.i.i.i.i.i = add i64 %rhs5.i.i.i.i.i.i, %#1
+  %_42.1.i.i.i.i.i.i = icmp uge i64 %_42.0.i.i.i.i.i.i, %#1
+  %_22.i.i.i.i.i.i = icmp ult i64 %_42.0.i.i.i.i.i.i, 9223372036854775793
+  assume i1 %_42.1.i.i.i.i.i.i
+  assume i1 %_22.i.i.i.i.i.i
+  %#2 = icmp ne ptr %_1.0.val, null
+  assume i1 %#2
+  %#3 = icmp eq i64 %_42.0.i.i.i.i.i.i, 0
+  br i1 %#3, label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit, label %bb1.i2.i.i.i.i.i
+
+bb1.i2.i.i.i.i.i:
+  %_17.i.i.i.i.i = sub nsw nuw i64 -32, %_9.i.i.i.i.i
+  %ptr.i.i.i.i.i = gep inbounds ptr %_1.0.val, 1 x i64 %_17.i.i.i.i.i
+  %#range_0_16 = !range i64 16, i64 1, i64 -9223372036854775807, welldefined
+  %#range_1_%#range_0_16 = !range i64 %#range_0_16, i64 1, i64 -9223372036854775807, welldefined
+  %#range_2_%#range_1_%#range_0_16 = !range i64 %#range_1_%#range_0_16, i64 1, i64 -9223372036854775807, welldefined
+  tail call void @_RNvCsfLfy6EI15iL_7___rustc14___rust_dealloc(nonnull noundef allocptr ptr %ptr.i.i.i.i.i, noundef i64 %_42.0.i.i.i.i.i.i, noundef i64 %#range_2_%#range_1_%#range_0_16) alloc-family(__rust_alloc) allockind(free)
+  br label %_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit
+
+_ZN4core3ptr155drop_in_place$LT$hashbrown..set..HashSet$LT$$u5b$u8$u3b$$u20$32$u5d$$C$core..hash..BuildHasherDefault$LT$rbitcoin_consensus..id_map..TxidHasher$GT$$GT$$GT$17h80caa1cb5bb20393E.exit:
+  ret void
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr205drop_in_place$LT$alloc..boxed..Box$LT$std..sync..mpmc..counter..Counter$LT$std..sync..mpmc..list..Channel$LT$core..result..Result$LT$$LP$$RP$$C$rbitcoin_consensus..error..ConsensusError$GT$$GT$$GT$$GT$$GT$17hc5a57fe597b36108E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr206drop_in_place$LT$std..thread..lifecycle..spawn_unchecked$LT$rbitcoin_consensus..script_pool..workers..$u7b$$u7b$closure$u7d$$u7d$..$u7b$$u7b$closure$u7d$$u7d$$C$$LP$$RP$$GT$..$u7b$$u7b$closure$u7d$$u7d$$GT$17hdd20036a9648a4faE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr220drop_in_place$LT$std..thread..lifecycle..spawn_unchecked$LT$rbitcoin_consensus..regtest_pad..grind_header_midstate..$u7b$$u7b$closure$u7d$$u7d$..$u7b$$u7b$closure$u7d$$u7d$$C$$LP$$RP$$GT$..$u7b$$u7b$closure$u7d$$u7d$$GT$17h513f3d6a1e90c7afE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr268drop_in_place$LT$rbitcoin_consensus..script_pool..run_detached_join$LT$core..result..Result$LT$$LP$$RP$$C$rbitcoin_consensus..error..ConsensusError$GT$$C$rbitcoin_consensus..verify_tx_scripts_with_flags..$u7b$$u7b$closure$u7d$$u7d$$GT$..$u7b$$u7b$closure$u7d$$u7d$$GT$17had249cb59e08f65bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr272drop_in_place$LT$rbitcoin_consensus..script_pool..run_detached_join$LT$core..result..Result$LT$$LP$$RP$$C$rbitcoin_consensus..error..ConsensusError$GT$$C$rbitcoin_consensus..verify_tx_scripts_detached_forks..$u7b$$u7b$closure$u7d$$u7d$$GT$..$u7b$$u7b$closure$u7d$$u7d$$GT$17h7a3fc250f29b5b10E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr42drop_in_place$LT$alloc..string..String$GT$17h190b31c31ee743a6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr42drop_in_place$LT$std..io..error..Error$GT$17hbe6f8ff90e84569cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr45drop_in_place$LT$bitcoin_io..error..Error$GT$17hdde6c945115c26e6E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr46drop_in_place$LT$alloc..vec..Vec$LT$u8$GT$$GT$17habf1172fc55987e2E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr50drop_in_place$LT$std..sync..mpmc..waker..Waker$GT$17h8ae32402b34f08e9E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr60drop_in_place$LT$std..thread..spawnhook..ChildSpawnHooks$GT$17hd1238598560dfc79E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr62drop_in_place$LT$rbitcoin_consensus..block..ScriptCheckJob$GT$17he78640d821a12119E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr62drop_in_place$LT$rbitcoin_consensus..error..ConsensusError$GT$17h4683c4b96bddfc0eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr65drop_in_place$LT$bitcoin..blockdata..transaction..Transaction$GT$17hf825258e6f9cd544E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr69drop_in_place$LT$alloc..vec..Vec$LT$alloc..vec..Vec$LT$u8$GT$$GT$$GT$17h7b48a73008bf9d8aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr73drop_in_place$LT$rbitcoin_consensus..script..interpreter..EvalContext$GT$17h2f06f6227a5b57ddE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr81drop_in_place$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxIn$GT$$GT$17hcd5d543b0e56c134E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3ptr82drop_in_place$LT$alloc..vec..Vec$LT$bitcoin..blockdata..transaction..TxOut$GT$$GT$17he255ca79333cc8e0E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core3str7pattern13simd_contains28_$u7b$$u7b$closure$u7d$$u7d$17h5b17692e6b10ac4bE' to Alive IR
+ERROR: Unsupported attribute: captures(ret: address, provenance)
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Unsupported metadata: 8
+ERROR: Could not translate '_ZN4core4cell4once17OnceCell$LT$T$GT$8try_init17hac5f9f9326177b1fE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core4hash11BuildHasher8hash_one17h1ae06a5e8418ee6bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN4core5slice29_$LT$impl$u20$$u5b$T$u5d$$GT$11rotate_left17hfa23e888e30e0f72E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc11collections9vec_deque21VecDeque$LT$T$C$A$GT$4grow17h102d21865b8a0098E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc3vec16Vec$LT$T$C$A$GT$6remove17h5557be3c5b5ee181E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h17a0f15612ffcd75E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h181f582b6c78e8ecE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h1b503c9d92dfa02eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h3c911d8bea05f053E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h3f6b8a9c38ddcc58E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h589c211a31aec23aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17h974b03d8ecb1a17cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17he20313b73ace62bcE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc4sync16Arc$LT$T$C$A$GT$9drop_slow17hee26f5abb851060dE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17h0fae475a6d2bca58E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17h2fb14d38d4fac95bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17h986731f3076b0a13E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17hc5faafe696e31664E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17he303019fe4099d61E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec19RawVec$LT$T$C$A$GT$8grow_one17hf3e17396fa8baf03E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec20RawVecInner$LT$A$GT$11finish_grow17hfaa3996c6f2587b8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec20RawVecInner$LT$A$GT$15try_allocate_in17h863d84537b3ee1b3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN5alloc7raw_vec20RawVecInner$LT$A$GT$7reserve21do_reserve_and_handle17hbca3e8f0e1fd0ff5E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN61_$LT$bitcoin_io..error..Error$u20$as$u20$core..fmt..Debug$GT$3fmt17hf91713317a752333E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN65_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$core..fmt..Debug$GT$3fmt17hb3c74199bb70396aE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN65_$LT$bitcoin_io..error..ErrorKind$u20$as$u20$core..fmt..Debug$GT$3fmt17h7511c4e525f5764eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN67_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$core..clone..Clone$GT$5clone17h05e56106bcf56d52E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN67_$LT$alloc..vec..Vec$LT$T$C$A$GT$$u20$as$u20$core..clone..Clone$GT$5clone17hb1b34ee757dcdfc4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN71_$LT$secp256k1..key..InvalidParityValue$u20$as$u20$core..fmt..Debug$GT$3fmt17h8693416b17746934E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN76_$LT$bitcoin..blockdata..transaction..Txid$u20$as$u20$core..fmt..Display$GT$3fmt17ha103fbde5029b6d3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(ret: address, read_provenance)
+ERROR: Could not translate '_ZN76_$LT$rbitcoin_consensus..block..JobTx$u20$as$u20$core..ops..deref..Deref$GT$5deref17h104404b456a8ee99E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN76_$LT$std..sync..poison..PoisonError$LT$T$GT$$u20$as$u20$core..fmt..Debug$GT$3fmt17h567e075943e63c11E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN77_$LT$arrayvec..errors..CapacityError$LT$T$GT$$u20$as$u20$core..fmt..Debug$GT$3fmt17hb40737d18b39a45eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN77_$LT$hex_conservative..error..HexToArrayError$u20$as$u20$core..fmt..Debug$GT$3fmt17hdf2cd75af17045a7E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN77_$LT$hex_conservative..error..HexToBytesError$u20$as$u20$core..fmt..Debug$GT$3fmt17hbe52aae8de160969E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN78_$LT$rbitcoin_consensus..error..ConsensusError$u20$as$u20$core..fmt..Debug$GT$3fmt17h5d40f0636f1d9030E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN7bitcoin6crypto7sighash21SighashCache$LT$R$GT$21legacy_signature_hash17h584922621cca2a9cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN7bitcoin9blockdata7witness7Witness10from_slice17h000c576c13d7565bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN7bitcoin9blockdata9constants13genesis_block17hc11963ce74db75f4E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN7bitcoin9consensus6encode9Decodable35consensus_decode_from_finite_reader17h35d46211a0a97703E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN7bitcoin9consensus6encode9Decodable35consensus_decode_from_finite_reader17heb93649a925294c3E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address, read_provenance)
+ERROR: Could not translate '_ZN80_$LT$rbitcoin_consensus..error..ConsensusError$u20$as$u20$core..fmt..Display$GT$3fmt17had78c454565bf6c1E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN81_$LT$rbitcoin_consensus..script_pool..InWave$u20$as$u20$core..ops..drop..Drop$GT$4drop17h56f61ce41e660100E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN83_$LT$alloc..vec..Vec$LT$u8$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h59837843f4f7ac24E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN83_$LT$alloc..vec..Vec$LT$u8$GT$$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$35consensus_decode_from_finite_reader17h7cbfbf021a5932daE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN83_$LT$bitcoin..blockdata..transaction..Transaction$u20$as$u20$core..clone..Clone$GT$5clone17hacce3612cccff2a7E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN86_$LT$rbitcoin_consensus..tx_precompute..TxPrecompute$u20$as$u20$core..clone..Clone$GT$5clone17h1b554db07cb4f8e8E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN8arc_swap4debt4Debt7pay_all28_$u7b$$u7b$closure$u7d$$u7d$17hc9aee246e2863043E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Unsupported attribute: captures(address)
+ERROR: Could not translate '_ZN8arc_swap4debt4list9LocalNode4with17h81e25c0a67328734E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN92_$LT$bitcoin..consensus..encode..VarInt$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$16consensus_decode17h17fca8dbd3b42d82E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN92_$LT$bitcoin..consensus..encode..VarInt$u20$as$u20$bitcoin..consensus..encode..Decodable$GT$16consensus_decode17h35d20e5e1770fe47E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN92_$LT$bitcoin..consensus..encode..VarInt$u20$as$u20$bitcoin..consensus..encode..Encodable$GT$16consensus_encode17h6e61d4374e6a1858E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN92_$LT$bitcoin..consensus..encode..VarInt$u20$as$u20$bitcoin..consensus..encode..Encodable$GT$16consensus_encode17hebc2e758b57d2f99E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN9hashbrown3raw13RawTableInner22fallible_with_capacity17he20b23240144b836E' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17h02d4092b044e4e4eE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17hc09d67d673972c0cE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash28_$u7b$$u7b$closure$u7d$$u7d$17h2af53c6ebee3834bE' to Alive IR
+ERROR: Unsupported attribute: noalias
+ERROR: Could not translate '_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash28_$u7b$$u7b$closure$u7d$$u7d$17hb88fb0eb415b1245E' to Alive IR
+ERROR: Unsupported attribute: captures(address_is_null)
+ERROR: Unsupported metadata: 8
+ERROR: Could not translate 'rbtc_rust_verify' to Alive IR
+Summary:
+  9 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  342 Alive2 errors
