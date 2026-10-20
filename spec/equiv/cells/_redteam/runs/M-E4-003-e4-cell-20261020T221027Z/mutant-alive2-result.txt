@@ -1,0 +1,195 @@
+# cell: tapscript/C-L-taproot-scriptpath-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_control_size =====
+# c IR sha256: 6015e7b1748ad860c7fcdb2fbfe2ab8b2313479348e9f6f81e92545fc0b09dae
+# l IR sha256: b2b0869fda1efe0e5442ee0920cd4ab5129c168c7a94c8089b00bac7e6abdc1a
+
+----------------------------------------
+define i64 @cell_control_size(i64 noundef %size) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %size, -33
+  %or.cond.i = icmp ult i64 %#0, 4097
+  %#1 = and i64 noundef %size, 31
+  %cmp3.not.i = icmp eq i64 %#1, 1
+  %or.cond7.i = and i1 %or.cond.i, %cmp3.not.i
+  %. = select i1 %or.cond7.i, i64 1, i64 192
+  %#range_0_%. = !range i64 %., i64 1, i64 193
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @cell_control_size(i64 noundef %size) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %size, -33
+  %or.cond.i = icmp ult i64 %#0, 4097
+  %#1 = and i64 noundef %size, 31
+  %cmp2.i = icmp eq i64 %#1, 1
+  %#2 = and i1 %or.cond.i, %cmp2.i
+  %. = select i1 %#2, i64 1, i64 192
+  %#range_0_%. = !range i64 %., i64 1, i64 193
+  ret i64 %#range_0_%.
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_control_size=alive2-green
+===== cell_leaf_version =====
+# c IR sha256: 3cba0ac5da0127a1c85321fbe394805d2ec0f16df7638e3c22685d32ad14d4e1
+# l IR sha256: 07093b523deaa279115def1c2e6f3e7b44e9deaeef2e97982085ff7b7694c4b7
+
+----------------------------------------
+define i64 @cell_leaf_version(i64 noundef %control0, i64 noundef %discourage_taproot) nofree noundef willreturn memory(none) {
+entry:
+  %and1.i = and i64 noundef %control0, 254
+  %cmp.i = icmp eq i64 %and1.i, 192
+  %cmp2.not.i = icmp eq i64 noundef %discourage_taproot, 0
+  %. = select i1 %cmp2.not.i, i64 1, i64 140
+  %retval.0.i = select i1 %cmp.i, i64 2, i64 %.
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 141
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_leaf_version(i64 noundef %control0, i64 noundef %discourage_taproot) nofree noundef willreturn memory(none) {
+entry:
+  %and.i = and i64 noundef %control0, 255
+  %cmp.i = icmp eq i64 %and.i, 192
+  %cmp2.not.i = icmp eq i64 noundef %discourage_taproot, 0
+  %. = select i1 %cmp2.not.i, i64 1, i64 140
+  %retval.0.i = select i1 %cmp.i, i64 2, i64 %.
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 141
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %control0 = #x00000000000000c1 (193)
+i64 noundef %discourage_taproot = #x0000000000000000 (0)
+
+Source:
+i64 %and1.i = #x00000000000000c0 (192)
+i1 %cmp.i = #x1 (1)
+i1 %cmp2.not.i = #x1 (1)
+i64 %. = #x0000000000000001 (1)
+i64 %retval.0.i = #x0000000000000002 (2)
+i64 %#range_0_%retval.0.i = #x0000000000000002 (2)
+
+Target:
+i64 %and.i = #x00000000000000c1 (193)
+i1 %cmp.i = #x0 (0)
+i1 %cmp2.not.i = #x1 (1)
+i64 %. = #x0000000000000001 (1)
+i64 %retval.0.i = #x0000000000000001 (1)
+i64 %#range_0_%retval.0.i = #x0000000000000001 (1)
+Source value: #x0000000000000002 (2)
+Target value: #x0000000000000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_leaf_version=alive2-not-green
+===== cell_tail =====
+# c IR sha256: b133bbb346a6983c9577b735d8732f7d0adcfec71ec2fea8be22d9b9cc3adfc4
+# l IR sha256: 8f1ea0e1d1b2432b4c2e991f7af40730e95885195b53edac95d0227b86a9da5d
+
+----------------------------------------
+define i64 @cell_tail(i64 noundef %version, i64 noundef %program_len, i64 noundef %prog0, i64 noundef %prog1, i64 noundef %is_p2sh, i64 noundef %discourage_witness) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %version, -17
+  %or.cond.i = icmp ult i64 %#0, -16
+  br i1 %or.cond.i, label %_ZL6c_tailmmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %version, 1
+  %cmp3.i = icmp eq i64 noundef %program_len, 32
+  %or.cond27.i = and i1 %cmp2.i, %cmp3.i
+  %cmp5.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond28.i = and i1 %or.cond27.i, %cmp5.i
+  br i1 %or.cond28.i, label %_ZL6c_tailmmmmmm.exit, label %if.end8.i
+
+if.end8.i:
+  %cmp13.i = icmp eq i64 noundef %program_len, 2
+  %and.i = and i64 noundef %prog0, 255
+  %cmp15.i = icmp eq i64 %and.i, 78
+  %#1 = and i1 %cmp13.i, %cmp15.i
+  %and17.i = and i64 noundef %prog1, 255
+  %cmp18.i = icmp eq i64 %and17.i, 115
+  %#2 = and i1 %#1, %cmp18.i
+  %#3 = and i1 %cmp2.i, %#2
+  %or.cond37.i = and i1 %cmp5.i, %#3
+  br i1 %or.cond37.i, label %_ZL6c_tailmmmmmm.exit, label %if.end21.i
+
+if.end21.i:
+  %cmp22.not.i = icmp eq i64 noundef %discourage_witness, 0
+  %. = select i1 %cmp22.not.i, i64 1, i64 136
+  br label %_ZL6c_tailmmmmmm.exit
+
+_ZL6c_tailmmmmmm.exit:
+  %retval.0.i = phi i64 [ 3, %entry ], [ 3, %if.end.i ], [ 1, %if.end8.i ], [ %., %if.end21.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 137
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_tail(i64 noundef %version, i64 noundef %program_len, i64 noundef %prog0, i64 noundef %prog1, i64 noundef %is_p2sh, i64 noundef %discourage_witness) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %version, -17
+  %or.cond.i = icmp ult i64 %#0, -16
+  br i1 %or.cond.i, label %_ZL6l_tailmmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %version, 1
+  %cmp3.i = icmp eq i64 noundef %program_len, 32
+  %or.cond20.i = and i1 %cmp2.i, %cmp3.i
+  %cmp5.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond21.i = and i1 %or.cond20.i, %cmp5.i
+  br i1 %or.cond21.i, label %_ZL6l_tailmmmmmm.exit, label %if.end8.i
+
+if.end8.i:
+  br i1 %cmp5.i, label %land.lhs.true10.i, label %if.end14.i
+
+land.lhs.true10.i:
+  %cmp1.i = icmp eq i64 noundef %program_len, 2
+  %and.i = and i64 noundef %prog0, 255
+  %cmp3.i2 = icmp eq i64 %and.i, 78
+  %#1 = and i1 %cmp1.i, %cmp3.i2
+  %and4.i = and i64 noundef %prog1, 255
+  %cmp5.i3 = icmp eq i64 %and4.i, 115
+  %#2 = and i1 %#1, %cmp5.i3
+  %or.cond = and i1 %cmp2.i, %#2
+  br i1 %or.cond, label %_ZL6l_tailmmmmmm.exit, label %if.end14.i
+
+if.end14.i:
+  %cmp15.not.i = icmp eq i64 noundef %discourage_witness, 0
+  %. = select i1 %cmp15.not.i, i64 1, i64 136
+  br label %_ZL6l_tailmmmmmm.exit
+
+_ZL6l_tailmmmmmm.exit:
+  %retval.0.i = phi i64 [ 3, %entry ], [ 3, %if.end.i ], [ %., %if.end14.i ], [ 1, %land.lhs.true10.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 137
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_tail=alive2-green
+STATUS=alive2-not-green

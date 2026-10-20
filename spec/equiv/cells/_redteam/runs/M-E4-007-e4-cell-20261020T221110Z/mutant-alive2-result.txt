@@ -1,0 +1,100 @@
+# cell: tapscript/C-L-tapscript-isopsuccess
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_cell_is_op_success.ll build/l_cell_is_op_success.ll
+
+===== cell_is_op_success =====
+# c IR sha256: f17cf6d6fe2e542faaf70fed0d2051c9ecb2bf147139afa060a0247b7fb4dc2d
+# l IR sha256: 75b850d9d346b4e76aa3004dfca836f5f867f06abe1bdb3befb0189edebbe4e4
+
+----------------------------------------
+define i64 @cell_is_op_success(i64 noundef %opcode) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %opcode, label %lor.rhs.i [
+    i64 98, label %_ZL15c_is_op_successm.exit
+    i64 80, label %_ZL15c_is_op_successm.exit
+    i64 153, label %_ZL15c_is_op_successm.exit
+    i64 152, label %_ZL15c_is_op_successm.exit
+    i64 151, label %_ZL15c_is_op_successm.exit
+    i64 150, label %_ZL15c_is_op_successm.exit
+    i64 149, label %_ZL15c_is_op_successm.exit
+    i64 142, label %_ZL15c_is_op_successm.exit
+    i64 141, label %_ZL15c_is_op_successm.exit
+    i64 138, label %_ZL15c_is_op_successm.exit
+    i64 137, label %_ZL15c_is_op_successm.exit
+    i64 134, label %_ZL15c_is_op_successm.exit
+    i64 133, label %_ZL15c_is_op_successm.exit
+    i64 132, label %_ZL15c_is_op_successm.exit
+    i64 131, label %_ZL15c_is_op_successm.exit
+    i64 129, label %_ZL15c_is_op_successm.exit
+    i64 128, label %_ZL15c_is_op_successm.exit
+    i64 127, label %_ZL15c_is_op_successm.exit
+    i64 126, label %_ZL15c_is_op_successm.exit
+  ]
+
+lor.rhs.i:
+  %#0 = add i64 noundef %opcode, -187
+  %#1 = icmp ult i64 %#0, 68
+  %#2 = zext i1 %#1 to i64
+  br label %_ZL15c_is_op_successm.exit
+
+_ZL15c_is_op_successm.exit:
+  %conv.i = phi i64 [ 1, %entry ], [ %#2, %lor.rhs.i ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ]
+  %#range_0_%conv.i = !range i64 %conv.i, i64 0, i64 2
+  ret i64 %#range_0_%conv.i
+}
+=>
+define i64 @cell_is_op_success(i64 noundef %opcode) nofree willreturn memory(none) {
+entry:
+  %switch.tableidx = add i64 noundef %opcode, -126
+  %#0 = icmp ult i64 %switch.tableidx, 28
+  br i1 %#0, label %switch.hole_check, label %lor.rhs.i
+
+switch.hole_check:
+  %switch.maskindex = trunc nuw i64 %switch.tableidx to i32
+  %switch.shifted = lshr i32 260151791, %switch.maskindex
+  %switch.lobit = trunc i32 %switch.shifted to i1
+  br i1 %switch.lobit, label %_ZL15l_is_op_successm.exit, label %lor.rhs.i
+
+lor.rhs.i:
+  %#1 = add i64 noundef %opcode, -187
+  %#2 = icmp ult i64 %#1, 68
+  %#3 = zext i1 %#2 to i64
+  br label %_ZL15l_is_op_successm.exit
+
+_ZL15l_is_op_successm.exit:
+  %conv.i = phi i64 [ %#3, %lor.rhs.i ], [ 1, %switch.hole_check ]
+  %#range_0_%conv.i = !range i64 %conv.i, i64 0, i64 2
+  ret i64 %#range_0_%conv.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %opcode = #x0000000000000050 (80)
+
+Source:
+  >> Jump to %_ZL15c_is_op_successm.exit
+i64 %conv.i = #x0000000000000001 (1)
+i64 %#range_0_%conv.i = #x0000000000000001 (1)
+
+Target:
+i64 %switch.tableidx = #xffffffffffffffd2 (18446744073709551570, -46)
+i1 %#0 = #x0 (0)
+  >> Jump to %lor.rhs.i
+i64 %#1 = #xffffffffffffff95 (18446744073709551509, -107)
+i1 %#2 = #x0 (0)
+i64 %#3 = #x0000000000000000 (0)
+  >> Jump to %_ZL15l_is_op_successm.exit
+i64 %conv.i = #x0000000000000000 (0)
+i64 %#range_0_%conv.i = #x0000000000000000 (0)
+Source value: #x0000000000000001 (1)
+Target value: #x0000000000000000 (0)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-not-green

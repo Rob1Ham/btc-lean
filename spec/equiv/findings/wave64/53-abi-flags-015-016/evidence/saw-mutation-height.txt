@@ -1,0 +1,67 @@
+Loading file "spec.saw"
+Verifying cell_block_flags...
+Simulating cell_block_flags...
+Checking proof obligations cell_block_flags...
+Subgoal failed: cell_block_flags spec.saw:12:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+block_flags h0 h1 h2 h3 height
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = Vec 1 Bool;
+      _x`3 = bvNat 1 0;
+      _x`4 = bvNat 1 1;
+      _x`5 = bvNat 64 0;
+      _x`6 = ite _x`1
+               (bvEq 1 _x`3
+                  (bvAnd 1
+                     (bvAnd 1
+                        (bvAnd 1 (ite _x`2 (bvEq 64 (bvNat 64 732) h0) _x`4 _x`3)
+                           (ite _x`2 (bvEq 64 (bvNat 64 8461960187183834093) h1) _x`4
+                              _x`3))
+                        (ite _x`2 (bvEq 64 (bvNat 64 10173856033184745707) h2) _x`4
+                           _x`3))
+                     (ite _x`2 (bvEq 64 (bvNat 64 10714550084660337698) h3) _x`4
+                        _x`3)))
+               (ite _x`1
+                  (bvEq 1 _x`3
+                     (bvAnd 1
+                        (bvAnd 1
+                           (bvAnd 1 (ite _x`2 (bvEq 64 _x`5 h0) _x`4 _x`3)
+                              (ite _x`2 (bvEq 64 (bvNat 64 4244953931547678) h1) _x`4 _x`3))
+                           (ite _x`2 (bvEq 64 (bvNat 64 10982789945460573573) h2) _x`4
+                              _x`3))
+                        (ite _x`2 (bvEq 64 (bvNat 64 15420295843745600941) h3) _x`4
+                           _x`3)))
+                  (bvNat 64 133121)
+                  (bvNat 64 2049))
+               _x`5;
+      _x`7 = ite _x`1 (bvult 32 (bvNat 32 363724) height)
+               (bvOr 64 (bvNat 64 4) _x`6)
+               _x`6;
+      _x`8 = ite _x`1 (bvult 32 (bvNat 32 388380) height)
+               (bvOr 64 (bvNat 64 512) _x`7)
+               _x`7;
+      _x`9 = ite _x`1 (bvult 32 (bvNat 32 419327) height)
+               (bvOr 64 (bvNat 64 1024) _x`8)
+               _x`8;
+    }
+ in ite _x`1 (bvult 32 (bvNat 32 481823) height)
+      (bvOr 64 (bvNat 64 16) _x`9)
+      _x`9
+
+Goal size 626. Provers used: SBV->Z3
+----------Counterexample----------
+  h0: 0
+  h1: 0
+  h2: 0
+  h3: 0
+  height: 363725
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   spec.saw:12:49-12:51 in (callback)
+   (builtin) in llvm_verify
+   spec.saw:12:1-12:51 (at top level)
+Proof failed.
+

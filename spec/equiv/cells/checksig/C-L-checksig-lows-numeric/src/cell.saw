@@ -1,0 +1,21 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let spec_lows_numeric = do {
+  lowS <- llvm_fresh_var "lowS" (llvm_int 32);
+  s0   <- llvm_fresh_var "s0"   (llvm_int 64);
+  s1   <- llvm_fresh_var "s1"   (llvm_int 64);
+  s2   <- llvm_fresh_var "s2"   (llvm_int 64);
+  s3   <- llvm_fresh_var "s3"   (llvm_int 64);
+  llvm_execute_func [llvm_term lowS, llvm_term s0, llvm_term s1,
+                     llvm_term s2, llvm_term s3];
+  llvm_return (llvm_term {{ lowNumeric lowS s0 s1 s2 s3 }});
+};
+
+r1 <- llvm_verify mC "cell_lows_numeric" [] false spec_lows_numeric abc;
+print "PROOF cell_lows_numeric C";
+r2 <- llvm_verify mL "cell_lows_numeric" [] false spec_lows_numeric abc;
+print "PROOF cell_lows_numeric L";
+print "CELL_LOWS_NUMERIC_SAW_GREEN";

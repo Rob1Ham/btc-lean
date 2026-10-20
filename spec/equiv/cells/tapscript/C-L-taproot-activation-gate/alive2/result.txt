@@ -1,0 +1,106 @@
+# cell: tapscript/C-L-taproot-activation-gate
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_cell_taproot_activation.ll build/l_cell_taproot_activation.ll
+
+===== cell_taproot_activation =====
+# c IR sha256: e487a4fe2a0fa1cb245d61881e0f123e12397c562e9fb2514d0b6bf1e6f1f354
+# l IR sha256: e09a3939ed8e900ae6425dd61f24e2524cbfa412d7cfe9adc17d097870c5958f
+
+----------------------------------------
+define i64 @cell_taproot_activation(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i32 noundef %height, i64 noundef %version, i64 noundef %program_len, i64 noundef %is_p2sh, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  %cmp.i5 = icmp eq i64 noundef %h0, 732
+  %cmp1.i6 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i7 = and i1 %cmp.i5, %cmp1.i6
+  %cmp3.i8 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i7, %cmp3.i8
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i9 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i9, label %_ZL13c_block_flagsmmmmj.exit, label %if.else.i
+
+if.else.i:
+  %cmp.i10 = icmp eq i64 noundef %h0, 0
+  %cmp1.i11 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i12 = and i1 %cmp.i10, %cmp1.i11
+  %cmp3.i13 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i14 = and i1 %or.cond.i12, %cmp3.i13
+  %cmp4.i15 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i16 = and i1 %or.cond5.i14, %cmp4.i15
+  %spec.select.i = select i1 %spec.select.i16, i64 2049, i64 133121
+  br label %_ZL13c_block_flagsmmmmj.exit
+
+_ZL13c_block_flagsmmmmj.exit:
+  %flags.0.i = phi i64 [ 0, %entry ], [ %spec.select.i, %if.else.i ]
+  %cmp.i3 = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %program_len, 32
+  %or.cond.i = and i1 %cmp.i3, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond12.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond12.i, label %if.then.i, label %_ZL18c_interpreter_gatemmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.0.i, 131072
+  br i1 %tobool.not.i, label %_ZL18c_interpreter_gatemmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp5.i = icmp eq i64 noundef %witness_n, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL18c_interpreter_gatemmmmm.exit
+
+_ZL18c_interpreter_gatemmmmm.exit:
+  %retval.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.end.i ], [ 3, %_ZL13c_block_flagsmmmmj.exit ]
+  %#0 = lshr i64 %flags.0.i, 9
+  %shl = and i64 %#0, 256
+  %or = or disjoint i64 %retval.0.i, %shl
+  %#range_0_%or = !range i64 %or, i64 1, i64 512
+  ret i64 %#range_0_%or
+}
+=>
+define i64 @cell_taproot_activation(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i32 noundef %height, i64 noundef %version, i64 noundef %program_len, i64 noundef %is_p2sh, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond33.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp5.i8 = icmp eq i64 noundef %h3, -7732193989049213918
+  %or.cond34.i = and i1 %or.cond33.i, %cmp5.i8
+  br i1 %or.cond34.i, label %_ZL23l_mainnet_exception_mapmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp6.i = icmp ne i64 noundef %h0, 0
+  %cmp8.i = icmp ne i64 noundef %h1, 4244953931547678
+  %or.cond35.i.not20 = or i1 %cmp6.i, %cmp8.i
+  %cmp10.i = icmp ne i64 noundef %h2, -7463954128248978043
+  %or.cond36.i.not19 = or i1 %or.cond35.i.not20, %cmp10.i
+  %cmp12.i = icmp ne i64 noundef %h3, -3026448229963950675
+  %or.cond37.i.not = or i1 %or.cond36.i.not19, %cmp12.i
+  br label %_ZL23l_mainnet_exception_mapmmmm.exit
+
+_ZL23l_mainnet_exception_mapmmmm.exit:
+  %retval.sroa.0.0.i10 = phi i1 [ 0, %entry ], [ %or.cond37.i.not, %if.else.i ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %program_len, 32
+  %or.cond.i.not22.not24 = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond12.i.not21.not23 = and i1 %or.cond.i.not22.not24, %cmp3.i
+  %cmp5.i = icmp eq i64 noundef %witness_n, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  %.mux = select i1 %retval.sroa.0.0.i10, i64 %., i64 1
+  %retval.0.i = select i1 %or.cond12.i.not21.not23, i64 %.mux, i64 3
+  %conv = select i1 %retval.sroa.0.0.i10, i64 256, i64 0
+  %or = or disjoint i64 %retval.0.i, %conv
+  %#range_0_%or = !range i64 %or, i64 1, i64 512
+  ret i64 %#range_0_%or
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

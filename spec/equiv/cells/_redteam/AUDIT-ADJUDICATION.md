@@ -40,3 +40,19 @@ results are unaffected; mutation evidence is a separate control.
 A future admissible run must: record the actual mutant result, populate the
 JSON record with `outcome: killed`, a witness, and log hashes, and revert to
 the baseline hash with a green post-revert cell.
+
+## Wave64 update (2026-10-20)
+
+This section is additive; the adjudication above is retained unchanged.
+
+Five new admissible runs now satisfy that bar (see
+`cells/_redteam/WAVE64-ADJUDICATION.md` and `WAVE64-MATRIX.md`):
+
+- E3: `M-E3-002` and `M-E3-008` are **KILLED** (2/5 required).
+- E4: `M-E4-003`, `M-E4-004` and `M-E4-007` are **KILLED** (3/5 required).
+
+The two 2026-10-19 pending records for `M-E3-008` and `M-E4-004` are
+superseded by the new runs but are retained unchanged. The six withdrawn
+reports above remain withdrawn. **No required set is complete and no mutation
+PASS is claimed.** All five new kills are L-leg transliteration sites; the
+protocol's model-site and core-copy pairing for E3/E4 is still unmet.

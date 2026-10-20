@@ -51,7 +51,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA = "redteam-mutant-v1"
-CATALOGUE_VERSION = "0.1-planned"
+CATALOGUE_VERSION = "0.2-wave64"
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_OUT_DIR = SCRIPT_DIR / "mutants"
 PINS_PATH = SCRIPT_DIR.parents[1] / "PINS.lock"  # spec/equiv/PINS.lock
@@ -248,9 +248,12 @@ CATALOGUE: list[dict[str, Any]] = [
     _m(
         "M-E3-002", "e3-cms",
         "NULLDUMMY check dropped",
-        ["cells/e3-cms/nulldummy"], ["saw", "error-enum"],
+        # wave64: the planned e3-cms/nulldummy cell was materialized as the
+        # function cell_cms_nulldummy inside C-L-cms-1of1.
+        ["cells/e3-cms/C-L-cms-1of1"], ["alive2", "saw", "error-enum"],
         twin_anchor="twin NULLDUMMY gate",
         core_anchor="interpreter.cpp: NULLDUMMY",
+        e3_anchor="E3 reviewed l_cms NULLDUMMY gate",
     ),
     _m(
         "M-E3-003", "e3-cms",
@@ -314,9 +317,13 @@ CATALOGUE: list[dict[str, Any]] = [
     _m(
         "M-E4-003", "e4-taproot",
         "taproot leaf version accepted/compared with the wrong value or mask",
-        ["cells/e4-taproot/leaf-version"], ["saw", "differential"],
+        # wave64: the planned e4-taproot/leaf-version cell was materialized as
+        # cell_leaf_version inside tapscript/C-L-taproot-scriptpath-dispatch.
+        ["cells/tapscript/C-L-taproot-scriptpath-dispatch"],
+        ["alive2", "saw"],
         twin_anchor="twin taproot leaf version",
         core_anchor="interpreter.cpp: TAPROOT_LEAF_VERSION",
+        e4_anchor="E4 tapscript l_leg leaf-version mask",
     ),
     _m(
         "M-E4-004", "e4-witness",
@@ -343,9 +350,12 @@ CATALOGUE: list[dict[str, Any]] = [
     _m(
         "M-E4-007", "e4-taproot",
         "OP_SUCCESSx treated as BAD_OPCODE (or not immediate success)",
-        ["cells/e4-taproot/opsuccess"], ["saw", "differential"],
+        # wave64: the planned e4-taproot/opsuccess cell was materialized as
+        # cell_is_op_success inside tapscript/C-L-tapscript-isopsuccess.
+        ["cells/tapscript/C-L-tapscript-isopsuccess"], ["alive2", "saw"],
         twin_anchor="twin OP_SUCCESSx handling",
         core_anchor="interpreter.cpp: OP_SUCCESSx",
+        e4_anchor="E4 tapscript l_leg IsOpSuccess byte set",
     ),
     _m(
         "M-E4-008", "e4-taproot",
@@ -477,6 +487,26 @@ _calibrate(
     "e3-cell",
     '''    return TWIN_CHECKMULTISIGVERIFY;''',
     '''    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE''',
+)
+_calibrate(
+    "M-E3-002",
+    "e3-cell",
+    '''  if (null_dummy && st.stack.len[st.stack.n - 1] != 0) return TWIN_SIG_NULLDUMMY;
+''',
+    '''  // M-E3-002 mutant: NULLDUMMY gate dropped
+''',
+)
+_calibrate(
+    "M-E4-003",
+    "e4-cell",
+    '''  const uint64_t leaf = (control0 & 0xffu) & TAP_LEAF_MASK;  // leafVersionOf''',
+    '''  const uint64_t leaf = (control0 & 0xffu) & 0xffu;  // M-E4-003 mutant: wrong leaf mask''',
+)
+_calibrate(
+    "M-E4-007",
+    "e4-cell",
+    '''  const bool r = w == 80u || w == 98u || (126u <= w && w <= 129u) ||''',
+    '''  const bool r = (126u <= w && w <= 129u) ||  // M-E4-007 mutant: drop OP_SUCCESS 80/98''',
 )
 
 
@@ -636,7 +666,7 @@ def cmd_list() -> int:
         for name, v in entry["variants"].items():
             print(f"  anchor[{name}]: {v['anchor_hint']}")
         print()
-    print(f"# {len(CATALOGUE)} mutations; none are calibrated at {CATALOGUE_VERSION}.")
+    print(f"# {len(CATALOGUE)} mutations; apply only variants reported as calibrated.")
     return 0
 
 

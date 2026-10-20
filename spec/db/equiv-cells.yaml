@@ -907,7 +907,7 @@ rows:
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+  gap_note: 'SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): inapplicable to the script-interpreter harness, not a missing bounded limit cell. script.h:37-38 only defines MAX_PUBKEYS_PER_MULTI_A=999; at the pin the interpreter never reads it (no reference in interpreter.cpp/.h or consensus/). Its src uses are wallet construction code: miniscript.h:1879,2404,2418, miniscript.cpp:79, solver.cpp:124, descriptor.cpp:2469-2470. The consensus limits in this area are MAX_PUBKEYS_PER_MULTISIG=20 (interpreter.cpp:1195, SCR-026) and MAX_STACK_SIZE=1000 (interpreter.cpp:1309, SCR-029). The Lean model agrees (Rules.lean:346-351: "not an interpreter check ... bounds script construction") and proves only the constant identity PDW36.MAX_PUBKEYS_PER_MULTI_A_eq (rfl). A miniscript-parse cell is blocked: the pinned Lean tree has no Miniscript FromString parser (Wallet/Miniscript.lean scope note; wallet obligation MS-035 is unmodelled, WALLET-OBLIGATIONS.md:403-408) and Node.lean:442 checks an already-built AST, not parse input. No C/L pair exists in this harness, so no cell and no green are claimed. Report: spec/equiv/findings/coverage/SCR-043-miniscript-bound.md. Census flag consensus:true is inconsistent with the row text and with wallet MS-035 (consensus:false); rules.yaml is generated and was not hand-edited.'
 - id: SCR-044
   family: limits
   summary: lower bound for serialized tx weight
@@ -2002,10 +2002,11 @@ rows:
   consensus: false
   cells:
   - checksig/C-L-checksig-lows
+  - checksig/C-L-checksig-lows-numeric
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial'
+  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial; checksig/C-L-checksig-lows-numeric: partial'
 - id: SCR-105
   family: checksig
   summary: last byte & ~0x80 ∈ {1,2,3} (pol.)
@@ -2754,21 +2755,12 @@ rows:
   core_ref: interpreter.cpp:1959@cce32b168
   consensus: true
   cells:
+  - tapscript/C-L-taproot-activation-gate
   - tapscript/C-L-taproot-gate
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-taproot-gate: partial. The in-function gate is proved total: flag off -> success with no
-
-    witness inspection; flag on -> empty witness fails 39, non-empty continues
-
-    into the annex/key/script dispatch. The row also names activation height
-
-    709632 and exception block 692261. Those are caller-side flag assembly
-
-    outside VerifyWitnessProgram and have no block-height channel in
-
-    contract/tape.md, so that arm is not exercised here.'
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-taproot-activation-gate: partial, and the remaining gap is now exact.\n- COVERED: \"with the flag, a v1-32 non-P2SH spend is not anyone-can-spend\"\n  (empty witness -> error 39; non-empty -> continuation) for every\n  hash/height/shape.  COVERED: \"without the flag it succeeds silently\"\n  for the taproot exception block, hash `…1e395ad` at height 692261, and\n  for the same hash at every other height.  COVERED/NEGATIVE: the pinned\n  assembly has no height term for TAPROOT, so the cell proves height\n  709631 and 709632 produce identical results (the historical \"only\n  pre-activation\" window is not a property of this pin).\n- NOT COVERED: the row's historical clause \"only pre-activation (height\n  709632 ...)\" as a height-gated behaviour.  At cce32b168 there is no\n  DEPLOYMENT_TAPROOT and no height compare on the TAPROOT bit; the BIP9\n  window survives only as a historical Lean record\n  (Activation/Taproot.lean, TPR-075/078, min_activation 709632).  The\n  exact missing contract context is filed in GAP-CONTEXT.md: the tape has\n  no block-height/block-hash flag-assembly channel, and the pin has no\n  function to transliterate.  A cell asserting a"
 - id: SCR-143
   family: tapscript
   summary: ≥2 items, last non-empty, first byte 0x50

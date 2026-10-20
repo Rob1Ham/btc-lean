@@ -1,0 +1,89 @@
+# cell: e4-witness/C-L-witness-v0-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv build/c_cell_v0_dispatch.ll build/l_cell_v0_dispatch.ll
+
+----------------------------------------
+define i64 @cell_v0_dispatch(i64 noundef %program_len, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %program_len, label %_ZL13c_v0_dispatchmm.exit [
+    i64 32, label %if.then.i
+    i64 20, label %if.then5.i
+  ]
+
+if.then5.i:
+  %cmp6.not.i = icmp eq i64 noundef %witness_n, 2
+  %.1 = select i1 %cmp6.not.i, i64 1, i64 160
+  br label %_ZL13c_v0_dispatchmm.exit
+
+if.then.i:
+  %cmp1.i = icmp eq i64 noundef %witness_n, 0
+  %. = select i1 %cmp1.i, i64 156, i64 1
+  br label %_ZL13c_v0_dispatchmm.exit
+
+_ZL13c_v0_dispatchmm.exit:
+  %retval.0.i = phi i64 [ %., %if.then.i ], [ %.1, %if.then5.i ], [ 152, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 161
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_v0_dispatch(i64 noundef %program_len, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %program_len, label %_ZL9l_v0_stepmm.exit [
+    i64 32, label %if.then.i
+    i64 20, label %if.then6.i
+  ]
+
+if.then6.i:
+  %cmp7.i.inv = icmp ugt i64 noundef %witness_n, 1
+  %.20.i = select i1 %cmp7.i.inv, i64 1, i64 171798691840
+  br label %_ZL9l_v0_stepmm.exit
+
+if.then.i:
+  %cmp1.i = icmp eq i64 noundef %witness_n, 0
+  %..i = select i1 %cmp1.i, i64 167503724544, i64 1
+  br label %_ZL9l_v0_stepmm.exit
+
+_ZL9l_v0_stepmm.exit:
+  %retval.sroa.0.0.insert.insert.i = phi i64 [ %..i, %if.then.i ], [ %.20.i, %if.then6.i ], [ 163208757248, %entry ]
+  %sh.diff = lshr i64 %retval.sroa.0.0.insert.insert.i, 30
+  %retval.sroa.0.0.insert.insert.i.masked = and i64 %retval.sroa.0.0.insert.insert.i, 1
+  %or.i = or disjoint i64 %retval.sroa.0.0.insert.insert.i.masked, %sh.diff
+  %#range_0_%or.i = !range i64 %or.i, i64 0, i64 162
+  ret i64 %#range_0_%or.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %program_len = #x0000000000000014 (20)
+i64 noundef %witness_n = #x0000000000000004 (4)
+
+Source:
+  >> Jump to %if.then5.i
+i1 %cmp6.not.i = #x0 (0)
+i64 %.1 = #x00000000000000a0 (160)
+  >> Jump to %_ZL13c_v0_dispatchmm.exit
+i64 %retval.0.i = #x00000000000000a0 (160)
+i64 %#range_0_%retval.0.i = #x00000000000000a0 (160)
+
+Target:
+  >> Jump to %if.then6.i
+i1 %cmp7.i.inv = #x1 (1)
+i64 %.20.i = #x0000000000000001 (1)
+  >> Jump to %_ZL9l_v0_stepmm.exit
+i64 %retval.sroa.0.0.insert.insert.i = #x0000000000000001 (1)
+i64 %sh.diff = #x0000000000000000 (0)
+i64 %retval.sroa.0.0.insert.insert.i.masked = #x0000000000000001 (1)
+i64 %or.i = #x0000000000000001 (1)
+i64 %#range_0_%or.i = #x0000000000000001 (1)
+Source value: #x00000000000000a0 (160)
+Target value: #x0000000000000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-not-green

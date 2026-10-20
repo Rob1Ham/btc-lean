@@ -1,0 +1,73 @@
+{
+  "applied_at_utc": "2026-10-20T22:10:35+00:00",
+  "catalogue_version": "0.2-wave64",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": "KILLED",
+  "description": "taproot leaf version accepted/compared with the wrong value or mask",
+  "diff": "--- a/spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/l_leg.cpp\n+++ b/spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/l_leg.cpp\n@@ -47,7 +47,7 @@\n // LeafVersion.lean:36-40, 62-70 (the masked test)\n TAP_INLINE uint64_t l_leaf_version(uint64_t control0,\n                                    uint64_t discourage_taproot) {\n-  const uint64_t leaf = (control0 & 0xffu) & TAP_LEAF_MASK;  // leafVersionOf\n+  const uint64_t leaf = (control0 & 0xffu) & 0xffu;  // M-E4-003 mutant: wrong leaf mask\n   if (leaf == TAP_LEAF_TAPSCRIPT) return tap_pack(TAP_TAPSCRIPT, 0u);\n   if (discourage_taproot != 0u) {\n     return tap_pack(TAP_FAIL, TAP_ERR_DISCOURAGE_UPGRADABLE_TAPROOT_VERSION);\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/tapscript/C-L-taproot-scriptpath-dispatch"
+  ],
+  "family": "e4-taproot",
+  "find": "  const uint64_t leaf = (control0 & 0xffu) & TAP_LEAF_MASK;  // leafVersionOf",
+  "git_head": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "log_hashes": [
+    "bdd635a8e96b2dfc9fcb77e3e885d5254ad1c29edc0b56fca6c64ba46de1b101  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/apply.log",
+    "9e613651a4cfb2623886b17a28c01f74fb27db9e50ddb16e9207c2b1212f7f19  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-after-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-after-alive2.log",
+    "4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-after-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-after-saw.log",
+    "9e613651a4cfb2623886b17a28c01f74fb27db9e50ddb16e9207c2b1212f7f19  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-before-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-before-alive2.log",
+    "4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-before-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/baseline-before-saw.log",
+    "9a4686ce91f11f814d8ce5cdfcb2a9823e90f91cd0835934dca9006d7bc7bd14  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/dry-run.log",
+    "3c5cf6f34ef3530b2013c5594644118f9236b86ba71016ffcb7d799c75a1dc3d  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/mutant-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/mutant-alive2.log",
+    "cd1b9402f43a87dff74e38307d4322d554c746349e33cbf1f5a844a428185da6  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/mutant-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/mutant-saw.log",
+    "da73b2c9f998ed3368757b651e8c297a86db0b955152a7e116c2b7d372ca4ed2  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/plan.md",
+    "66b40df880bd6c9331d0d3addd2555f87907b31d78b20834d558ba10800bf17e  spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/revert.log"
+  ],
+  "mutant_id": "M-E4-003",
+  "observed": {
+    "baseline_after": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (6/6 proofs)"
+    },
+    "baseline_before": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (6/6 proofs)"
+    },
+    "cell": "cells/tapscript/C-L-taproot-scriptpath-dispatch",
+    "exit_codes_mutant": {
+      "alive2": 1,
+      "saw": 1
+    },
+    "mutant": {
+      "alive2": "alive2-not-green",
+      "saw": "saw-not-green (3/6 proofs)"
+    }
+  },
+  "operator": "wave64/48-mutations-e3e4 (subagent)",
+  "outcome": "killed",
+  "pins_sha256": "84a2d3cf9eb9f36aff00d0441ee4b98b4f9320415d511cb775a029f36f0e4400",
+  "replace": "  const uint64_t leaf = (control0 & 0xffu) & 0xffu;  // M-E4-003 mutant: wrong leaf mask",
+  "reverted_at_utc": "2026-10-20T22:10:49+00:00",
+  "run_meta": "spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/meta.json",
+  "run_report": "spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/report.md",
+  "schema": "redteam-mutant-v1",
+  "status": "reverted",
+  "target": {
+    "path": "/tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/l_leg.cpp",
+    "path_relative_to_repo": "spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/l_leg.cpp",
+    "sha256_after": "58e11a9f9b3d916c85ec760cf5b2d6d34c272da615e657928452da288578df99",
+    "sha256_before": "27f8ab24ac699e1b85d315d7c2bf892ba436de1601838979c64243f901d97bd2"
+  },
+  "target_kind": "e4-cell",
+  "witness": "alive2:\n=====\nSource value: #x0000000000000002 (2)\nTarget value: #x0000000000000001 (1)\nsaw:\nc: 18446744073709551553\n  d: 0"
+}

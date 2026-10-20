@@ -1,16 +1,23 @@
 # Mutation catalogue (planned, E1–E4)
 
-**Status:** design + raw runs; **mutation evidence not admitted**. **Version:** 0.2-adjudicated. **Owner:** REDTEAM.
+**Status:** design + raw runs; **E3/E4 mutation evidence partially admitted**.
+**Version:** 0.3-wave64. **Owner:** REDTEAM.
 **Machine-readable twin of this file:** `cells/_redteam/mutate.py` (`--list`).
-**Execution status:** eight runs were recorded on 2026-10-19. **Six reports
-are withdrawn as evidence** because their pasted tail is green while their
-header says `KILLED`; two runs (`M-E3-008`, `M-E4-004`) show genuine non-green
-mutant output but their JSON records remain pending. No required mutation set
-is complete and no mutation PASS is claimed. Raw records are in
-`cells/_redteam/runs/`; adjudication is in
-`cells/_redteam/AUDIT-ADJUDICATION.md`. The E1/E2/E4 anchors are calibrated
-against the current sources; every other anchor remains uncalibrated pending a
-patched Core copy and the later cells. No source was left mutated.
+**Execution status:** eight runs were recorded on 2026-10-19; six reports
+remain withdrawn because their pasted tail is green while their header says
+`KILLED`. The two 2026-10-19 runs with genuine non-green tails
+(`M-E3-008`, `M-E4-004`) had pending machine records; wave64 re-ran both and
+added three more admissible E3/E4 kills (five total), all with
+`outcome: killed`, a concrete witness, log hashes, a clean revert, and a green
+post-revert baseline. The original pending records are retained unchanged and
+are superseded, not rewritten. See `cells/_redteam/WAVE64-ADJUDICATION.md`
+and `cells/_redteam/WAVE64-MATRIX.md`. **No required mutation set is complete
+and no mutation PASS is claimed.** Raw records are in `cells/_redteam/runs/`;
+adjudication is in `cells/_redteam/AUDIT-ADJUDICATION.md` (2026-10-19
+baseline) and `cells/_redteam/WAVE64-ADJUDICATION.md` (wave64 update). The
+E1/E2/E4 anchors are calibrated against the current sources; every other
+anchor remains uncalibrated pending a patched Core copy and the later cells.
+No source was left mutated.
 
 This file is the human-readable catalogue. `mutate.py` is the only permitted
 way to apply a mutation: it records target hashes, a diff, and a mutant record
@@ -130,13 +137,13 @@ engine logic around the checker, not libsecp internals.
 | ID | Mutation | Site | Expected failing cell | Catcher | Kill witness / observable |
 |---|---|---|---|---|---|
 | **M-E3-001** | CMS loop advances/selects the wrong index on failure (signature/key iteration order swapped) | T+C | `cells/e3-cms/sig-key-order` | SAW, DIFF | 2-of-3 CMS with signatures that match only `(sig1,key2)`, `(sig2,key3)`; symbolic checker true only for matching pairs: baseline pass, mutant fail |
-| **M-E3-002** | `NULLDUMMY` check dropped (empty-dummy rule not enforced) | T+C | `cells/e3-cms/nulldummy` | SAW, ENUM | 1-of-1 CMS with dummy `OP_1` and a valid signature + `NULLDUMMY` flag: baseline `EQUIV_ERR_SIG_NULLDUMMY`, mutant pass |
+| **M-E3-002** | `NULLDUMMY` check dropped (empty-dummy rule not enforced) | T+C | `cells/e3-cms/C-L-cms-1of1` (`cell_cms_nulldummy`) | SAW, ENUM | 1-of-1 CMS with dummy `OP_1` and a valid signature + `NULLDUMMY` flag: baseline `EQUIV_ERR_SIG_NULLDUMMY=28`, mutant result 1/error 0. **KILLED 2026-10-20 both tools**; report `runs/M-E3-002-e3-cell-20261020T220746Z/report.md` |
 | **M-E3-003** | `NULLFAIL` cleanup check dropped (non-empty failing signature not rejected) | T+C | `cells/e3-cms/nullfail` | SAW, ENUM | CMS with an invalid but non-empty signature + `NULLFAIL`: baseline `EQUIV_ERR_SIG_NULLFAIL`, mutant `EQUIV_ERR_EVAL_FALSE` |
 | **M-E3-004** | `HIGH_S`/low-S gate skipped | T+C | `cells/e3-checksig/high-s` | SAW, DIFF | CHECKSIG with a high-S DER signature + `LOW_S`: baseline `EQUIV_ERR_SIG_HIGH_S`, mutant pass (checker override accepts) |
 | **M-E3-005** | CMS count bounds relaxed (`nSigs > nKeys` or `nKeys > 20` accepted) | T+C | `cells/e3-cms/count-bounds` | A2, SAW | CMS with `nKeys=21`, `nSigs=1`: baseline `EQUIV_ERR_PUBKEY_COUNT`; or `nSigs>nKeys`: baseline `EQUIV_ERR_SIG_COUNT`; mutant proceeds |
 | **M-E3-006** | `FindAndDelete` applied in witness v0 (must be base-only) | T+C | `cells/e3-checksig/findanddelete-v0` | SAW, DIFF | v0 CHECKSIG whose signature bytes also appear in `scriptCode`; checker is scriptCode-sensitive: baseline sees the signature, mutant deletes it |
 | **M-E3-007** | `OP_CODESEPARATOR` offset off by one (scriptCode starts before/after the separator byte) | T+C | `cells/e3-checksig/codesep` | SAW, DIFF | CHECKSIG after `OP_CODESEPARATOR`; checker is scriptCode-sensitive: baseline pass, mutant fail |
-| **M-E3-008** | `OP_CHECKMULTISIGVERIFY` failure maps to `EQUIV_ERR_EVAL_FALSE` instead of `EQUIV_ERR_CHECKMULTISIGVERIFY` | T+C | `cells/e3-cms/verify-error-kind` / `cells/e3-cms/C-L-cms-1of1` | ENUM, SAW | CMSVERIFY with a false result: baseline `EQUIV_ERR_CHECKMULTISIGVERIFY`, mutant `EQUIV_ERR_EVAL_FALSE`; verdict is fail in both, so **error kind** is the kill. Executed on the bounded 1-of-1 cell; run report in `runs/M-E3-008-e3-cell-20261019T230115Z.md` |
+| **M-E3-008** | `OP_CHECKMULTISIGVERIFY` failure maps to `EQUIV_ERR_EVAL_FALSE` instead of `EQUIV_ERR_CHECKMULTISIGVERIFY` | T+C | `cells/e3-cms/C-L-cms-1of1` (`cell_cmsverify`) | ENUM, SAW | CMSVERIFY with a false result: baseline `EQUIV_ERR_CHECKMULTISIGVERIFY=13`, mutant `EQUIV_ERR_EVAL_FALSE=2`; verdict is fail in both, so **error kind** is the kill. **KILLED 2026-10-20 both tools**; report `runs/M-E3-008-e3-cell-20261020T220846Z/report.md` |
 
 Notes:
 
@@ -160,11 +167,11 @@ Notes:
 |---|---|---|---|---|---|
 | **M-E4-001** | P2SH redeem script taken from the wrong source (scriptPubKey / first push instead of the last stack item) | T+C | `cells/e4-p2sh/redeem-source` | SAW, DIFF | P2SH spk `HASH160 <hash> EQUAL` with redeem script pushed by scriptSig: baseline executes redeem, mutant fails/hash mismatch |
 | **M-E4-002** | witness stack order reversed when building the v0 execution stack | T+C | `cells/e4-witness/stack-order` | SAW, DIFF | P2WSH witness `[script, arg1, arg2]`; baseline pass, mutant executes with args reversed/fails |
-| **M-E4-003** | taproot leaf version accepted/compared with the wrong value (0xc0 vs 0xc2, or wrong mask) | T+C | `cells/e4-taproot/leaf-version` | SAW, DIFF | script-path spend with leaf version `0xc0`; mutant requires `0xc2` or masks to accept the wrong byte: baseline pass, mutant fail |
-| **M-E4-004** | v0 witness program length check accepts a bad length (e.g. 30 bytes; v0 allows 20 or 32) | T+C | `cells/e4-witness/program-length` | SAW, ENUM | 30-byte v0 program with matching witness: baseline `EQUIV_ERR_WITNESS_PROGRAM_WRONG_LENGTH`, mutant proceeds |
+| **M-E4-003** | taproot leaf version accepted/compared with the wrong value (0xc0 vs 0xc2, or wrong mask) | T+C | `cells/tapscript/C-L-taproot-scriptpath-dispatch` (`cell_leaf_version`) | SAW, DIFF | script-path spend with leaf version `0xc0`; mutant requires `0xc2` or masks to accept the wrong byte: baseline result 2, mutant result 1. **KILLED 2026-10-20 both tools**; report `runs/M-E4-003-e4-cell-20261020T221027Z/report.md` |
+| **M-E4-004** | v0 witness program length check accepts a bad length (e.g. 30 bytes; v0 allows 20 or 32) | T+C | `cells/e4-witness/C-L-witness-v0-dispatch` (`cell_v0_dispatch`) | SAW, ENUM | 20-byte P2WPKH program with `witness_n=3`: baseline `EQUIV_ERR_WITNESS_PROGRAM_MISMATCH=40` (packed 160), mutant success (packed 1). **KILLED 2026-10-20 both tools**; report `runs/M-E4-004-e4-cell-20261020T221054Z/report.md` |
 | **M-E4-005** | P2WSH script hash uses `HASH160` instead of `SHA256` | T+C | `cells/e4-witness/p2wsh-hash` | SAW, DIFF | P2WSH spk with 32-byte SHA256 program and valid witness script: baseline pass, mutant `EQUIV_ERR_WITNESS_PROGRAM_MISMATCH` |
 | **M-E4-006** | taproot annex treated as a stack element instead of stripped/detected | T+C | `cells/e4-taproot/annex` | SAW, DIFF | key-path spend with final witness element `0x50...`: baseline pass, mutant fails or executes a different stack |
-| **M-E4-007** | `OP_SUCCESSx` in tapscript treated as `BAD_OPCODE` (or not treated as immediate success) | T+C | `cells/e4-taproot/opsuccess` | SAW, DIFF | tapscript with an `OP_SUCCESSx` byte followed by a would-be-invalid opcode: baseline success, mutant `EQUIV_ERR_BAD_OPCODE` |
+| **M-E4-007** | `OP_SUCCESSx` in tapscript treated as `BAD_OPCODE` (or not treated as immediate success) | T+C | `cells/tapscript/C-L-tapscript-isopsuccess` (`cell_is_op_success`) | SAW, DIFF | `OP_SUCCESS80` (`w=80`) and `OP_SUCCESS98` (`w=98`): baseline 1, mutant 0 (the byte would be classified as non-success). **KILLED 2026-10-20 both tools**; report `runs/M-E4-007-e4-cell-20261020T221110Z/report.md` |
 | **M-E4-008** | control-block size bounds off by one (accept 32 or 4130; reject 33/4129) | T+C | `cells/e4-taproot/control-size` | SAW, ENUM | script-path spend with 32-byte control block: baseline `EQUIV_ERR_TAPROOT_WRONG_CONTROL_SIZE`, mutant accepts; mirror at 4129/4130 |
 
 Notes:
@@ -178,6 +185,22 @@ Notes:
   key-path success and never includes an annex, the mutant is a coverage gap.
 - `M-E4-007`: `OP_SUCCESSx` is a consensus rule in tapscript; a "disabled
   opcode" cell is not a substitute.
+
+Wave64 calibration/remap note (2026-10-20):
+
+- The planned cell names `cells/e3-cms/nulldummy`,
+  `cells/e4-taproot/leaf-version`, `cells/e4-taproot/opsuccess` and
+  `cells/e4-witness/program-length` were never materialized. The existing
+  cells that observe the same predicates are `cells/e3-cms/C-L-cms-1of1`
+  (`cell_cms_nulldummy`), `cells/tapscript/C-L-taproot-scriptpath-dispatch`
+  (`cell_leaf_version`), `cells/tapscript/C-L-tapscript-isopsuccess`
+  (`cell_is_op_success`) and `cells/e4-witness/C-L-witness-v0-dispatch`
+  (`cell_v0_dispatch`). The catalogue now names the materialized cells for
+  these variants; the original planned names are retained here as history.
+- `M-E3-001`, `M-E3-003`, `M-E3-004`–`M-E3-007`, `M-E4-001`, `M-E4-002`,
+  `M-E4-005`, `M-E4-006` and `M-E4-008` remain **unobserved**: no existing
+  cell exercises their witness on the declared domain. They are not
+  equivalent-mutant claims; they are coverage blockers.
 
 ---
 

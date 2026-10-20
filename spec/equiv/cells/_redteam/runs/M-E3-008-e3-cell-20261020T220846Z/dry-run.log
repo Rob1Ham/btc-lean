@@ -1,0 +1,21 @@
+DRY RUN — no write, no record
+mutation:    M-E3-008 (e3-cms)
+target:      /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp
+target kind: e3-cell
+sha256 before: f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41
+sha256 after:  7aefca80f280dcaf92c15af22fd375365e3ba2fe8cb96bd25e7b4af6d7be1434
+expected failing cells: cells/e3-cms/C-L-cms-1of1
+catchers: alive2, saw, error-enum
+
+--- a/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp
++++ b/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp
+@@ -66,7 +66,7 @@
+   if (pe != TWIN_OK) return pe;
+   if (wire == 0xaf) {
+     if (fSuccess) { st.stack.n -= 1; return TWIN_OK; }
+-    return TWIN_CHECKMULTISIGVERIFY;
++    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE
+   }
+   return TWIN_OK;
+ }
+

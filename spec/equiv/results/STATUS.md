@@ -1,6 +1,6 @@
 # STATUS — three-leg LLVM IR equivalence
 
-**Last updated:** 2026-10-20 (wave 16/32 integration checkpoint)
+**Last updated:** 2026-10-20 (wave 16/32 integration + wave64 E3/E4 mutation update)
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
 `make e0`, `make pins`, `make gate-ir-pin`, and `make equiv` all exit 0.
@@ -18,8 +18,8 @@ whole-engine equivalence proof; see the limits below.
 | **E0** | Harness/ABI, three hello-world shims, tool install + pins, capability matrix, `PINS.lock` | **PASS** | `make e0` green; 4/4 tapes; `results/e0/`; `tools/capability-matrix.md` |
 | **E1** | Stack-op family, Alive2 + SAW, REDTEAM mutation test | **PASS (cells); mutation evidence incomplete** | 9 E1/stack control cells; SCR-069/071 green; SCR-072/074 demoted after audit; 6/8 mutation reports withdrawn, 2 observed, 0 admitted (`cells/_redteam/AUDIT-ADJUDICATION.md`) |
 | **E2** | Flow / ScriptNum / hash families | **attempted; partial cells, rows filed gap** | `cells/e2-numeric/within-boundary` and `cells/e2-hash/hash160-vector` both tools green but row coverage partial; `findings/e2/report.md` |
-| **E3** | CHECKSIG/CHECKMULTISIG + symbolic checker + error-enum equality | **attempted; partial cells, rows filed gap** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; exact ordinals 2/13/14/18/28; `M-E3-008` observed non-green, record pending |
-| **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cell + 38-row inventory** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` observed non-green, record pending |
+| **E3** | CHECKSIG/CHECKMULTISIG + symbolic checker + error-enum equality | **attempted; partial cells, rows filed gap** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; exact ordinals 2/13/14/18/28; **mutation 2/5 required** (`M-E3-002`, `M-E3-008` killed; three rows unobserved) — `cells/_redteam/WAVE64-MATRIX.md` |
+| **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cell + 38-row inventory** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only), `cells/tapscript/C-L-taproot-scriptpath-dispatch`, `cells/tapscript/C-L-tapscript-isopsuccess`; `findings/e4/seams.md`; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed; two rows unobserved) — `cells/_redteam/WAVE64-MATRIX.md` |
 | **E5** | Whole-function `VerifyScript` (SAW invariants) or scoped residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`, `findings/e5/F-TOOL-001.md`; no whole-function proof; green empty-script run is concolic/non-pin |
 | **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 141 cells, 0 red; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
 | **E6+** | Wave 16/32 row-family cells integrated | **partial, additive** | 143 total green: tapscript 21, limits 22, checksig 16, control-flow 16, exec-verify 13, locktime 11, push-encoding 10, policy 7, witness-v0 6, numeric 6, checkmultisig 5, disabled 4, stack-ops 4, hash 1, reimport 1; see `findings/wave16/` and `findings/wave32/` |
@@ -75,11 +75,15 @@ remain partial/seam/gap and are not promoted.
   not.
 - E2, E3, and E4 cells are deliberately **partial**. Their SCR rows are gaps,
   with the missing branches named in `findings/coverage/F-E6-GAPS.md`.
-- **No mutation PASS.** Six of eight recorded mutation reports are withdrawn
-  because their green tails contradict their `KILLED` headers; two show
-  genuine non-green output but have pending records. The required E2/E3/E4
-  mutation sets are incomplete. This is a separate control from the cell
-  Alive2/SAW results.
+- **No mutation PASS.** Six of eight recorded 2026-10-19 mutation reports are
+  withdrawn because their green tails contradict their `KILLED` headers; the
+  two genuine non-green runs had pending records. Wave64 added five admissible
+  kills (`M-E3-002`, `M-E3-008`, `M-E4-003`, `M-E4-004`, `M-E4-007`), but the
+  required sets are still incomplete: **E3 2/5, E4 3/5**, E2 0/4. All five new
+  kills are L-leg transliteration sites; the required model-site/core-copy
+  pairing is unmet. See `cells/_redteam/WAVE64-ADJUDICATION.md` and
+  `WAVE64-MATRIX.md`. This is a separate control from the cell Alive2/SAW
+  results.
 - Crypto is abstracted on both legs; see `docs/DECISION-lax-ecdsa.md`. No
   libsecp256k1-internals claim.
 

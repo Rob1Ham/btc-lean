@@ -1,0 +1,17 @@
+# cell: tapscript/C-L-taproot-activation-gate
+# command: clang++-20 -O1 behavior/driver.cpp c_leg.cpp && ./build/behavior_driver
+# note: behavioral witness only; not proof evidence
+
+taproot exception hash, its height             h=692261 v=1 plen=32 p2sh=0 wn=0 -> 0x001 (result=1 err=0 taproot=0)  [ok]
+taproot exception hash, activation height      h=709632 v=1 plen=32 p2sh=0 wn=0 -> 0x001 (result=1 err=0 taproot=0)  [ok]
+taproot exception hash, non-empty witness      h=692261 v=1 plen=32 p2sh=0 wn=3 -> 0x001 (result=1 err=0 taproot=0)  [ok]
+bip16 exception hash, its height               h=170060 v=1 plen=32 p2sh=0 wn=0 -> 0x001 (result=1 err=0 taproot=0)  [ok]
+last pre-activation height 709631, empty       h=709631 v=1 plen=32 p2sh=0 wn=0 -> 0x19c (result=0 err=39 taproot=1)  [ok]
+activation height 709632, empty                h=709632 v=1 plen=32 p2sh=0 wn=0 -> 0x19c (result=0 err=39 taproot=1)  [ok]
+activation height 709632, non-empty            h=709632 v=1 plen=32 p2sh=0 wn=2 -> 0x102 (result=2 err=0 taproot=1)  [ok]
+near-miss hash, last limb flipped              h=709632 v=1 plen=32 p2sh=0 wn=0 -> 0x19c (result=0 err=39 taproot=1)  [ok]
+v1 31-byte program                             h=709632 v=1 plen=31 p2sh=0 wn=0 -> 0x103 (result=3 err=0 taproot=1)  [ok]
+v1 32-byte P2SH-wrapped                        h=709632 v=1 plen=32 p2sh=1 wn=0 -> 0x103 (result=3 err=0 taproot=1)  [ok]
+v0 32-byte program                             h=709632 v=0 plen=32 p2sh=0 wn=0 -> 0x103 (result=3 err=0 taproot=1)  [ok]
+vectors=11 mismatches=0
+STATUS=behavior-match

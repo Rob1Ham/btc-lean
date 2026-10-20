@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **151**
+- green: **152**
 - unjudged seam: **2**
-- filed gap: **30**
+- filed gap: **29**
 - still planned: **0**
 - other: **0**
 
@@ -83,6 +83,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-079 | numeric | `numeric/C-L-scriptnum-width` |
 | SCR-082 | numeric | `numeric/C-L-scriptnum-sign` |
 | SCR-083 | numeric | `numeric/C-L-w64-negzero` |
+| SCR-084 | numeric | `numeric/C-L-scriptnum-signext-exception` |
 | SCR-087 | numeric | `numeric/C-L-unary-4byte` |
 | SCR-088 | numeric | `numeric/C-L-binary-4byte` |
 | SCR-089 | numeric | `e2-numeric/within-boundary`, `numeric/C-L-within-4byte` |
@@ -245,17 +246,16 @@ dispositions, not a new claim. Green rows are listed for completeness.
 - SCR-042 (non-empty sig + upgradable key still decrements): full. For
   pk_class = 2 (every size other than 0 and 32) with a non-empty signature,
   the budget is decremented before the discouragement b |
-| SCR-043 | limits | SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
+| SCR-043 | limits | SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): inapplicable to the script-interpreter harness, not a missing bounded limit cell. script.h:37-38 only defines MAX_PUBKEYS_PER_MULTI_A=999; at the pin the interpreter never reads it (no reference in interpreter.cpp/.h or consensus/). Its src uses are wallet construction code: miniscript.h:1879,2404,2418, miniscript.cpp:79, solver.cpp:124, descriptor.cpp:2469-2470. The consensus limits in this area are MAX_PUBKEYS_PER_MULTISIG=20 (interpreter.cpp:1195, SCR-026) and MAX_STACK_SIZE=1000 (interpreter.cpp:1309, SCR-029). The Lean model agrees (Rules.lean:346-351: "not an interpreter check ... bounds script construction") and proves only the constant identity PDW36.MAX_PUBKEYS_PER_MULTI_A_eq (rfl). A miniscript-parse cell is blocked: the pinned Lean tree has no Miniscript FromString parser (Wallet/Miniscript.lean scope note; wallet obligation MS-035 is unmodelled, WALLET-OBLIGATIONS.md:403-408) and Node.lean:442 checks an already-built AST, not parse input. No C/L pair exists in this harness, so no cell and no green are claimed. Report: spec/equiv/findings/coverage/SCR-043-miniscript-bound.md. Census flag consensus:true is inconsistent with the row text and with wallet MS-035 (consensus:false); rules.yaml is generated and was not hand-edited. |
 | SCR-044 | limits | SCR-044 (lower bound for serialized tx weight): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-051 | push-encoding | auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers. |
 | SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-078 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-080 | numeric | SCR-080 (all numeric opcodes): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-081 | numeric | SCR-081 (nMaxNumSize=5 special case): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-084 | numeric | SCR-084 (CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception ): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-085 | numeric | SCR-085 (only re-interpretation enforces limit): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-086 | numeric | SCR-086 (clamp to int32 for depth/count uses): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial |
+| SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial; checksig/C-L-checksig-lows-numeric: partial |
 | SCR-112 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial |
 | SCR-115 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial; e3-cms/C-L-w32-cms-finddelete: partial |
 | SCR-133 | witness-v0 | auto(cells): partial row coverage; e4-witness/C-L-w32-witness-hash-compare: partial for SCR-133.  The comparison half is full: for all 2^256
@@ -292,12 +292,23 @@ script lengths in [0,75].  It does not model the field CONTENTS: the three
 sub-hashes (hashPrevouts/hashSequence/hashOutputs), the transaction
 serializer, or the final double SHA256.  Those keep SCR-140 partial; it is
 not promoted to full. |
-| SCR-142 | tapscript | auto(cells): partial row coverage; tapscript/C-L-taproot-gate: partial. The in-function gate is proved total: flag off -> success with no
-witness inspection; flag on -> empty witness fails 39, non-empty continues
-into the annex/key/script dispatch. The row also names activation height
-709632 and exception block 692261. Those are caller-side flag assembly
-outside VerifyWitnessProgram and have no block-height channel in
-contract/tape.md, so that arm is not exercised here. |
+| SCR-142 | tapscript | auto(cells): partial row coverage; tapscript/C-L-taproot-activation-gate: partial, and the remaining gap is now exact.
+- COVERED: "with the flag, a v1-32 non-P2SH spend is not anyone-can-spend"
+  (empty witness -> error 39; non-empty -> continuation) for every
+  hash/height/shape.  COVERED: "without the flag it succeeds silently"
+  for the taproot exception block, hash `…1e395ad` at height 692261, and
+  for the same hash at every other height.  COVERED/NEGATIVE: the pinned
+  assembly has no height term for TAPROOT, so the cell proves height
+  709631 and 709632 produce identical results (the historical "only
+  pre-activation" window is not a property of this pin).
+- NOT COVERED: the row's historical clause "only pre-activation (height
+  709632 ...)" as a height-gated behaviour.  At cce32b168 there is no
+  DEPLOYMENT_TAPROOT and no height compare on the TAPROOT bit; the BIP9
+  window survives only as a historical Lean record
+  (Activation/Taproot.lean, TPR-075/078, min_activation 709632).  The
+  exact missing contract context is filed in GAP-CONTEXT.md: the tape has
+  no block-height/block-hash flag-assembly channel, and the pin has no
+  function to transliterate.  A cell asserting a |
 | SCR-153 | tapscript | auto(cells): partial row coverage; tapscript/C-L-w32-op-success-prescan: partial for both rows; the bound and the two exclusions are exact:
 - SCR-153 "overrides all later checks (incl. size limits)": partial —
   proved for every script of length <= 4 over all byte values: an OP_SUCCESSx

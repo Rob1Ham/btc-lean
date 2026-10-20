@@ -1,0 +1,24 @@
+module cell where
+
+// Independent Cryptol statement of the numeric LOW_S predicate.
+// S is a raw 256-bit magnitude (the value after BIP66 zero-stripping) and
+// lowS is the SCRIPT_VERIFY_LOW_S policy bit.  low-S means the canonical
+// scalar s mod n is at most floor(n/2); 27 = EQUIV_ERR_SIG_HIGH_S.
+//
+// n is close enough to 2^256 that s < 2n, so the remainder is one conditional
+// subtraction.  This is a mathematical statement, not extracted from either
+// leg.
+
+n : [256]
+n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+
+halfN : [256]
+halfN = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0
+
+lowNumeric : [32] -> [64] -> [64] -> [64] -> [64] -> [64]
+lowNumeric lowS s0 s1 s2 s3 =
+  if lowS == 0 then 0
+  else if red <= halfN then 0 else 27
+  where
+    s = join (reverse [s0, s1, s2, s3]) : [256]
+    red = if s >= n then s - n else s
