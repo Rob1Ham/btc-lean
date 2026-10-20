@@ -1,0 +1,788 @@
+import "cell.cry";
+
+mc_cell_2drop_d0 <- llvm_load_module "c_cell_2drop_d0.bc";
+ml_cell_2drop_d0 <- llvm_load_module "l_cell_2drop_d0.bc";
+
+mc_cell_2drop_d1 <- llvm_load_module "c_cell_2drop_d1.bc";
+ml_cell_2drop_d1 <- llvm_load_module "l_cell_2drop_d1.bc";
+
+mc_cell_2drop_ok <- llvm_load_module "c_cell_2drop_ok.bc";
+ml_cell_2drop_ok <- llvm_load_module "l_cell_2drop_ok.bc";
+
+mc_cell_2dup_d0 <- llvm_load_module "c_cell_2dup_d0.bc";
+ml_cell_2dup_d0 <- llvm_load_module "l_cell_2dup_d0.bc";
+
+mc_cell_2dup_d1 <- llvm_load_module "c_cell_2dup_d1.bc";
+ml_cell_2dup_d1 <- llvm_load_module "l_cell_2dup_d1.bc";
+
+mc_cell_2dup_ok <- llvm_load_module "c_cell_2dup_ok.bc";
+ml_cell_2dup_ok <- llvm_load_module "l_cell_2dup_ok.bc";
+
+mc_cell_3dup_d0 <- llvm_load_module "c_cell_3dup_d0.bc";
+ml_cell_3dup_d0 <- llvm_load_module "l_cell_3dup_d0.bc";
+
+mc_cell_3dup_d1 <- llvm_load_module "c_cell_3dup_d1.bc";
+ml_cell_3dup_d1 <- llvm_load_module "l_cell_3dup_d1.bc";
+
+mc_cell_3dup_d2 <- llvm_load_module "c_cell_3dup_d2.bc";
+ml_cell_3dup_d2 <- llvm_load_module "l_cell_3dup_d2.bc";
+
+mc_cell_3dup_ok <- llvm_load_module "c_cell_3dup_ok.bc";
+ml_cell_3dup_ok <- llvm_load_module "l_cell_3dup_ok.bc";
+
+mc_cell_2over_d0 <- llvm_load_module "c_cell_2over_d0.bc";
+ml_cell_2over_d0 <- llvm_load_module "l_cell_2over_d0.bc";
+
+mc_cell_2over_d1 <- llvm_load_module "c_cell_2over_d1.bc";
+ml_cell_2over_d1 <- llvm_load_module "l_cell_2over_d1.bc";
+
+mc_cell_2over_d2 <- llvm_load_module "c_cell_2over_d2.bc";
+ml_cell_2over_d2 <- llvm_load_module "l_cell_2over_d2.bc";
+
+mc_cell_2over_d3 <- llvm_load_module "c_cell_2over_d3.bc";
+ml_cell_2over_d3 <- llvm_load_module "l_cell_2over_d3.bc";
+
+mc_cell_2over_ok <- llvm_load_module "c_cell_2over_ok.bc";
+ml_cell_2over_ok <- llvm_load_module "l_cell_2over_ok.bc";
+
+mc_cell_2rot_d0 <- llvm_load_module "c_cell_2rot_d0.bc";
+ml_cell_2rot_d0 <- llvm_load_module "l_cell_2rot_d0.bc";
+
+mc_cell_2rot_d1 <- llvm_load_module "c_cell_2rot_d1.bc";
+ml_cell_2rot_d1 <- llvm_load_module "l_cell_2rot_d1.bc";
+
+mc_cell_2rot_d2 <- llvm_load_module "c_cell_2rot_d2.bc";
+ml_cell_2rot_d2 <- llvm_load_module "l_cell_2rot_d2.bc";
+
+mc_cell_2rot_d3 <- llvm_load_module "c_cell_2rot_d3.bc";
+ml_cell_2rot_d3 <- llvm_load_module "l_cell_2rot_d3.bc";
+
+mc_cell_2rot_d4 <- llvm_load_module "c_cell_2rot_d4.bc";
+ml_cell_2rot_d4 <- llvm_load_module "l_cell_2rot_d4.bc";
+
+mc_cell_2rot_d5 <- llvm_load_module "c_cell_2rot_d5.bc";
+ml_cell_2rot_d5 <- llvm_load_module "l_cell_2rot_d5.bc";
+
+mc_cell_2rot_ok <- llvm_load_module "c_cell_2rot_ok.bc";
+ml_cell_2rot_ok <- llvm_load_module "l_cell_2rot_ok.bc";
+
+mc_cell_2swap_d0 <- llvm_load_module "c_cell_2swap_d0.bc";
+ml_cell_2swap_d0 <- llvm_load_module "l_cell_2swap_d0.bc";
+
+mc_cell_2swap_d1 <- llvm_load_module "c_cell_2swap_d1.bc";
+ml_cell_2swap_d1 <- llvm_load_module "l_cell_2swap_d1.bc";
+
+mc_cell_2swap_d2 <- llvm_load_module "c_cell_2swap_d2.bc";
+ml_cell_2swap_d2 <- llvm_load_module "l_cell_2swap_d2.bc";
+
+mc_cell_2swap_d3 <- llvm_load_module "c_cell_2swap_d3.bc";
+ml_cell_2swap_d3 <- llvm_load_module "l_cell_2swap_d3.bc";
+
+mc_cell_2swap_ok <- llvm_load_module "c_cell_2swap_ok.bc";
+ml_cell_2swap_ok <- llvm_load_module "l_cell_2swap_ok.bc";
+
+mc_cell_ifdup_d0 <- llvm_load_module "c_cell_ifdup_d0.bc";
+ml_cell_ifdup_d0 <- llvm_load_module "l_cell_ifdup_d0.bc";
+
+mc_cell_ifdup_ok <- llvm_load_module "c_cell_ifdup_ok.bc";
+ml_cell_ifdup_ok <- llvm_load_module "l_cell_ifdup_ok.bc";
+
+mc_cell_drop_d0 <- llvm_load_module "c_cell_drop_d0.bc";
+ml_cell_drop_d0 <- llvm_load_module "l_cell_drop_d0.bc";
+
+mc_cell_drop_ok <- llvm_load_module "c_cell_drop_ok.bc";
+ml_cell_drop_ok <- llvm_load_module "l_cell_drop_ok.bc";
+
+mc_cell_dup_d0 <- llvm_load_module "c_cell_dup_d0.bc";
+ml_cell_dup_d0 <- llvm_load_module "l_cell_dup_d0.bc";
+
+mc_cell_dup_ok <- llvm_load_module "c_cell_dup_ok.bc";
+ml_cell_dup_ok <- llvm_load_module "l_cell_dup_ok.bc";
+
+mc_cell_nip_d0 <- llvm_load_module "c_cell_nip_d0.bc";
+ml_cell_nip_d0 <- llvm_load_module "l_cell_nip_d0.bc";
+
+mc_cell_nip_d1 <- llvm_load_module "c_cell_nip_d1.bc";
+ml_cell_nip_d1 <- llvm_load_module "l_cell_nip_d1.bc";
+
+mc_cell_nip_ok <- llvm_load_module "c_cell_nip_ok.bc";
+ml_cell_nip_ok <- llvm_load_module "l_cell_nip_ok.bc";
+
+mc_cell_over_d0 <- llvm_load_module "c_cell_over_d0.bc";
+ml_cell_over_d0 <- llvm_load_module "l_cell_over_d0.bc";
+
+mc_cell_over_d1 <- llvm_load_module "c_cell_over_d1.bc";
+ml_cell_over_d1 <- llvm_load_module "l_cell_over_d1.bc";
+
+mc_cell_over_ok <- llvm_load_module "c_cell_over_ok.bc";
+ml_cell_over_ok <- llvm_load_module "l_cell_over_ok.bc";
+
+mc_cell_pick_d0 <- llvm_load_module "c_cell_pick_d0.bc";
+ml_cell_pick_d0 <- llvm_load_module "l_cell_pick_d0.bc";
+
+mc_cell_pick_d1 <- llvm_load_module "c_cell_pick_d1.bc";
+ml_cell_pick_d1 <- llvm_load_module "l_cell_pick_d1.bc";
+
+mc_cell_pick_ok <- llvm_load_module "c_cell_pick_ok.bc";
+ml_cell_pick_ok <- llvm_load_module "l_cell_pick_ok.bc";
+
+mc_cell_roll_d0 <- llvm_load_module "c_cell_roll_d0.bc";
+ml_cell_roll_d0 <- llvm_load_module "l_cell_roll_d0.bc";
+
+mc_cell_roll_d1 <- llvm_load_module "c_cell_roll_d1.bc";
+ml_cell_roll_d1 <- llvm_load_module "l_cell_roll_d1.bc";
+
+mc_cell_roll_ok <- llvm_load_module "c_cell_roll_ok.bc";
+ml_cell_roll_ok <- llvm_load_module "l_cell_roll_ok.bc";
+
+mc_cell_rot_d0 <- llvm_load_module "c_cell_rot_d0.bc";
+ml_cell_rot_d0 <- llvm_load_module "l_cell_rot_d0.bc";
+
+mc_cell_rot_d1 <- llvm_load_module "c_cell_rot_d1.bc";
+ml_cell_rot_d1 <- llvm_load_module "l_cell_rot_d1.bc";
+
+mc_cell_rot_d2 <- llvm_load_module "c_cell_rot_d2.bc";
+ml_cell_rot_d2 <- llvm_load_module "l_cell_rot_d2.bc";
+
+mc_cell_rot_ok <- llvm_load_module "c_cell_rot_ok.bc";
+ml_cell_rot_ok <- llvm_load_module "l_cell_rot_ok.bc";
+
+mc_cell_swap_d0 <- llvm_load_module "c_cell_swap_d0.bc";
+ml_cell_swap_d0 <- llvm_load_module "l_cell_swap_d0.bc";
+
+mc_cell_swap_d1 <- llvm_load_module "c_cell_swap_d1.bc";
+ml_cell_swap_d1 <- llvm_load_module "l_cell_swap_d1.bc";
+
+mc_cell_swap_ok <- llvm_load_module "c_cell_swap_ok.bc";
+ml_cell_swap_ok <- llvm_load_module "l_cell_swap_ok.bc";
+
+mc_cell_tuck_d0 <- llvm_load_module "c_cell_tuck_d0.bc";
+ml_cell_tuck_d0 <- llvm_load_module "l_cell_tuck_d0.bc";
+
+mc_cell_tuck_d1 <- llvm_load_module "c_cell_tuck_d1.bc";
+ml_cell_tuck_d1 <- llvm_load_module "l_cell_tuck_d1.bc";
+
+mc_cell_tuck_ok <- llvm_load_module "c_cell_tuck_ok.bc";
+ml_cell_tuck_ok <- llvm_load_module "l_cell_tuck_ok.bc";
+
+let spec_cell_2drop_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2drop_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2drop_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 0 }});
+};
+
+let spec_cell_2dup_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2dup_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2dup_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 4 }});
+};
+
+let spec_cell_3dup_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_3dup_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_3dup_d2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_3dup_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 6 }});
+};
+
+let spec_cell_2over_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2over_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2over_d2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2over_d3 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2over_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 6 }});
+};
+
+let spec_cell_2rot_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_d2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_d3 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_d4 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_d5 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2rot_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 6 }});
+};
+
+let spec_cell_2swap_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2swap_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2swap_d2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2swap_d3 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_2swap_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 4 }});
+};
+
+let spec_cell_ifdup_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_ifdup_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 2 }});
+};
+
+let spec_cell_drop_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_drop_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 0 }});
+};
+
+let spec_cell_dup_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_dup_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 2 }});
+};
+
+let spec_cell_nip_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_nip_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_nip_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 1 }});
+};
+
+let spec_cell_over_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_over_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_over_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 3 }});
+};
+
+let spec_cell_pick_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_pick_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_pick_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 2 }});
+};
+
+let spec_cell_roll_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_roll_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_roll_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 1 }});
+};
+
+let spec_cell_rot_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_rot_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_rot_d2 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_rot_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 3 }});
+};
+
+let spec_cell_swap_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_swap_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_swap_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 2 }});
+};
+
+let spec_cell_tuck_d0 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_tuck_d1 = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  b5 <- llvm_fresh_var "b5" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2, llvm_term b3, llvm_term b4, llvm_term b5];
+  llvm_return (llvm_term {{ underflowv }});
+};
+
+let spec_cell_tuck_ok = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ obs 3 }});
+};
+
+llvm_verify mc_cell_2drop_d0 "cell_2drop_d0" [] false spec_cell_2drop_d0 abc;
+llvm_verify ml_cell_2drop_d0 "cell_2drop_d0" [] false spec_cell_2drop_d0 abc;
+llvm_verify mc_cell_2drop_d1 "cell_2drop_d1" [] false spec_cell_2drop_d1 abc;
+llvm_verify ml_cell_2drop_d1 "cell_2drop_d1" [] false spec_cell_2drop_d1 abc;
+llvm_verify mc_cell_2drop_ok "cell_2drop_ok" [] false spec_cell_2drop_ok abc;
+llvm_verify ml_cell_2drop_ok "cell_2drop_ok" [] false spec_cell_2drop_ok abc;
+llvm_verify mc_cell_2dup_d0 "cell_2dup_d0" [] false spec_cell_2dup_d0 abc;
+llvm_verify ml_cell_2dup_d0 "cell_2dup_d0" [] false spec_cell_2dup_d0 abc;
+llvm_verify mc_cell_2dup_d1 "cell_2dup_d1" [] false spec_cell_2dup_d1 abc;
+llvm_verify ml_cell_2dup_d1 "cell_2dup_d1" [] false spec_cell_2dup_d1 abc;
+llvm_verify mc_cell_2dup_ok "cell_2dup_ok" [] false spec_cell_2dup_ok abc;
+llvm_verify ml_cell_2dup_ok "cell_2dup_ok" [] false spec_cell_2dup_ok abc;
+llvm_verify mc_cell_3dup_d0 "cell_3dup_d0" [] false spec_cell_3dup_d0 abc;
+llvm_verify ml_cell_3dup_d0 "cell_3dup_d0" [] false spec_cell_3dup_d0 abc;
+llvm_verify mc_cell_3dup_d1 "cell_3dup_d1" [] false spec_cell_3dup_d1 abc;
+llvm_verify ml_cell_3dup_d1 "cell_3dup_d1" [] false spec_cell_3dup_d1 abc;
+llvm_verify mc_cell_3dup_d2 "cell_3dup_d2" [] false spec_cell_3dup_d2 abc;
+llvm_verify ml_cell_3dup_d2 "cell_3dup_d2" [] false spec_cell_3dup_d2 abc;
+llvm_verify mc_cell_3dup_ok "cell_3dup_ok" [] false spec_cell_3dup_ok abc;
+llvm_verify ml_cell_3dup_ok "cell_3dup_ok" [] false spec_cell_3dup_ok abc;
+llvm_verify mc_cell_2over_d0 "cell_2over_d0" [] false spec_cell_2over_d0 abc;
+llvm_verify ml_cell_2over_d0 "cell_2over_d0" [] false spec_cell_2over_d0 abc;
+llvm_verify mc_cell_2over_d1 "cell_2over_d1" [] false spec_cell_2over_d1 abc;
+llvm_verify ml_cell_2over_d1 "cell_2over_d1" [] false spec_cell_2over_d1 abc;
+llvm_verify mc_cell_2over_d2 "cell_2over_d2" [] false spec_cell_2over_d2 abc;
+llvm_verify ml_cell_2over_d2 "cell_2over_d2" [] false spec_cell_2over_d2 abc;
+llvm_verify mc_cell_2over_d3 "cell_2over_d3" [] false spec_cell_2over_d3 abc;
+llvm_verify ml_cell_2over_d3 "cell_2over_d3" [] false spec_cell_2over_d3 abc;
+llvm_verify mc_cell_2over_ok "cell_2over_ok" [] false spec_cell_2over_ok abc;
+llvm_verify ml_cell_2over_ok "cell_2over_ok" [] false spec_cell_2over_ok abc;
+llvm_verify mc_cell_2rot_d0 "cell_2rot_d0" [] false spec_cell_2rot_d0 abc;
+llvm_verify ml_cell_2rot_d0 "cell_2rot_d0" [] false spec_cell_2rot_d0 abc;
+llvm_verify mc_cell_2rot_d1 "cell_2rot_d1" [] false spec_cell_2rot_d1 abc;
+llvm_verify ml_cell_2rot_d1 "cell_2rot_d1" [] false spec_cell_2rot_d1 abc;
+llvm_verify mc_cell_2rot_d2 "cell_2rot_d2" [] false spec_cell_2rot_d2 abc;
+llvm_verify ml_cell_2rot_d2 "cell_2rot_d2" [] false spec_cell_2rot_d2 abc;
+llvm_verify mc_cell_2rot_d3 "cell_2rot_d3" [] false spec_cell_2rot_d3 abc;
+llvm_verify ml_cell_2rot_d3 "cell_2rot_d3" [] false spec_cell_2rot_d3 abc;
+llvm_verify mc_cell_2rot_d4 "cell_2rot_d4" [] false spec_cell_2rot_d4 abc;
+llvm_verify ml_cell_2rot_d4 "cell_2rot_d4" [] false spec_cell_2rot_d4 abc;
+llvm_verify mc_cell_2rot_d5 "cell_2rot_d5" [] false spec_cell_2rot_d5 abc;
+llvm_verify ml_cell_2rot_d5 "cell_2rot_d5" [] false spec_cell_2rot_d5 abc;
+llvm_verify mc_cell_2rot_ok "cell_2rot_ok" [] false spec_cell_2rot_ok abc;
+llvm_verify ml_cell_2rot_ok "cell_2rot_ok" [] false spec_cell_2rot_ok abc;
+llvm_verify mc_cell_2swap_d0 "cell_2swap_d0" [] false spec_cell_2swap_d0 abc;
+llvm_verify ml_cell_2swap_d0 "cell_2swap_d0" [] false spec_cell_2swap_d0 abc;
+llvm_verify mc_cell_2swap_d1 "cell_2swap_d1" [] false spec_cell_2swap_d1 abc;
+llvm_verify ml_cell_2swap_d1 "cell_2swap_d1" [] false spec_cell_2swap_d1 abc;
+llvm_verify mc_cell_2swap_d2 "cell_2swap_d2" [] false spec_cell_2swap_d2 abc;
+llvm_verify ml_cell_2swap_d2 "cell_2swap_d2" [] false spec_cell_2swap_d2 abc;
+llvm_verify mc_cell_2swap_d3 "cell_2swap_d3" [] false spec_cell_2swap_d3 abc;
+llvm_verify ml_cell_2swap_d3 "cell_2swap_d3" [] false spec_cell_2swap_d3 abc;
+llvm_verify mc_cell_2swap_ok "cell_2swap_ok" [] false spec_cell_2swap_ok abc;
+llvm_verify ml_cell_2swap_ok "cell_2swap_ok" [] false spec_cell_2swap_ok abc;
+llvm_verify mc_cell_ifdup_d0 "cell_ifdup_d0" [] false spec_cell_ifdup_d0 abc;
+llvm_verify ml_cell_ifdup_d0 "cell_ifdup_d0" [] false spec_cell_ifdup_d0 abc;
+llvm_verify mc_cell_ifdup_ok "cell_ifdup_ok" [] false spec_cell_ifdup_ok abc;
+llvm_verify ml_cell_ifdup_ok "cell_ifdup_ok" [] false spec_cell_ifdup_ok abc;
+llvm_verify mc_cell_drop_d0 "cell_drop_d0" [] false spec_cell_drop_d0 abc;
+llvm_verify ml_cell_drop_d0 "cell_drop_d0" [] false spec_cell_drop_d0 abc;
+llvm_verify mc_cell_drop_ok "cell_drop_ok" [] false spec_cell_drop_ok abc;
+llvm_verify ml_cell_drop_ok "cell_drop_ok" [] false spec_cell_drop_ok abc;
+llvm_verify mc_cell_dup_d0 "cell_dup_d0" [] false spec_cell_dup_d0 abc;
+llvm_verify ml_cell_dup_d0 "cell_dup_d0" [] false spec_cell_dup_d0 abc;
+llvm_verify mc_cell_dup_ok "cell_dup_ok" [] false spec_cell_dup_ok abc;
+llvm_verify ml_cell_dup_ok "cell_dup_ok" [] false spec_cell_dup_ok abc;
+llvm_verify mc_cell_nip_d0 "cell_nip_d0" [] false spec_cell_nip_d0 abc;
+llvm_verify ml_cell_nip_d0 "cell_nip_d0" [] false spec_cell_nip_d0 abc;
+llvm_verify mc_cell_nip_d1 "cell_nip_d1" [] false spec_cell_nip_d1 abc;
+llvm_verify ml_cell_nip_d1 "cell_nip_d1" [] false spec_cell_nip_d1 abc;
+llvm_verify mc_cell_nip_ok "cell_nip_ok" [] false spec_cell_nip_ok abc;
+llvm_verify ml_cell_nip_ok "cell_nip_ok" [] false spec_cell_nip_ok abc;
+llvm_verify mc_cell_over_d0 "cell_over_d0" [] false spec_cell_over_d0 abc;
+llvm_verify ml_cell_over_d0 "cell_over_d0" [] false spec_cell_over_d0 abc;
+llvm_verify mc_cell_over_d1 "cell_over_d1" [] false spec_cell_over_d1 abc;
+llvm_verify ml_cell_over_d1 "cell_over_d1" [] false spec_cell_over_d1 abc;
+llvm_verify mc_cell_over_ok "cell_over_ok" [] false spec_cell_over_ok abc;
+llvm_verify ml_cell_over_ok "cell_over_ok" [] false spec_cell_over_ok abc;
+llvm_verify mc_cell_pick_d0 "cell_pick_d0" [] false spec_cell_pick_d0 abc;
+llvm_verify ml_cell_pick_d0 "cell_pick_d0" [] false spec_cell_pick_d0 abc;
+llvm_verify mc_cell_pick_d1 "cell_pick_d1" [] false spec_cell_pick_d1 abc;
+llvm_verify ml_cell_pick_d1 "cell_pick_d1" [] false spec_cell_pick_d1 abc;
+llvm_verify mc_cell_pick_ok "cell_pick_ok" [] false spec_cell_pick_ok abc;
+llvm_verify ml_cell_pick_ok "cell_pick_ok" [] false spec_cell_pick_ok abc;
+llvm_verify mc_cell_roll_d0 "cell_roll_d0" [] false spec_cell_roll_d0 abc;
+llvm_verify ml_cell_roll_d0 "cell_roll_d0" [] false spec_cell_roll_d0 abc;
+llvm_verify mc_cell_roll_d1 "cell_roll_d1" [] false spec_cell_roll_d1 abc;
+llvm_verify ml_cell_roll_d1 "cell_roll_d1" [] false spec_cell_roll_d1 abc;
+llvm_verify mc_cell_roll_ok "cell_roll_ok" [] false spec_cell_roll_ok abc;
+llvm_verify ml_cell_roll_ok "cell_roll_ok" [] false spec_cell_roll_ok abc;
+llvm_verify mc_cell_rot_d0 "cell_rot_d0" [] false spec_cell_rot_d0 abc;
+llvm_verify ml_cell_rot_d0 "cell_rot_d0" [] false spec_cell_rot_d0 abc;
+llvm_verify mc_cell_rot_d1 "cell_rot_d1" [] false spec_cell_rot_d1 abc;
+llvm_verify ml_cell_rot_d1 "cell_rot_d1" [] false spec_cell_rot_d1 abc;
+llvm_verify mc_cell_rot_d2 "cell_rot_d2" [] false spec_cell_rot_d2 abc;
+llvm_verify ml_cell_rot_d2 "cell_rot_d2" [] false spec_cell_rot_d2 abc;
+llvm_verify mc_cell_rot_ok "cell_rot_ok" [] false spec_cell_rot_ok abc;
+llvm_verify ml_cell_rot_ok "cell_rot_ok" [] false spec_cell_rot_ok abc;
+llvm_verify mc_cell_swap_d0 "cell_swap_d0" [] false spec_cell_swap_d0 abc;
+llvm_verify ml_cell_swap_d0 "cell_swap_d0" [] false spec_cell_swap_d0 abc;
+llvm_verify mc_cell_swap_d1 "cell_swap_d1" [] false spec_cell_swap_d1 abc;
+llvm_verify ml_cell_swap_d1 "cell_swap_d1" [] false spec_cell_swap_d1 abc;
+llvm_verify mc_cell_swap_ok "cell_swap_ok" [] false spec_cell_swap_ok abc;
+llvm_verify ml_cell_swap_ok "cell_swap_ok" [] false spec_cell_swap_ok abc;
+llvm_verify mc_cell_tuck_d0 "cell_tuck_d0" [] false spec_cell_tuck_d0 abc;
+llvm_verify ml_cell_tuck_d0 "cell_tuck_d0" [] false spec_cell_tuck_d0 abc;
+llvm_verify mc_cell_tuck_d1 "cell_tuck_d1" [] false spec_cell_tuck_d1 abc;
+llvm_verify ml_cell_tuck_d1 "cell_tuck_d1" [] false spec_cell_tuck_d1 abc;
+llvm_verify mc_cell_tuck_ok "cell_tuck_ok" [] false spec_cell_tuck_ok abc;
+llvm_verify ml_cell_tuck_ok "cell_tuck_ok" [] false spec_cell_tuck_ok abc;
+
+print "CELL_arity_SAW_GREEN";

@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **154**
+- green: **155**
 - unjudged seam: **2**
-- filed gap: **27**
+- filed gap: **26**
 - still planned: **0**
 - other: **0**
 
@@ -76,6 +76,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-071 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-072 | control-flow | `control-flow/C-L-cltv-csv-nop` |
 | SCR-073 | stack-ops | `e1-altstack/roundtrip`, `stack-ops/C-L-w32-altstack-step`, `stack/C-L-altstack` |
+| SCR-074 | stack-ops | `e1-stack/dup-order`, `e1-stack/rot-direction`, `e1-stack/swap-order`, `stack-ops/C-L-arity`, `stack/C-L-dup-drop-swap` |
 | SCR-075 | stack-ops | `e1-stack/pick-depth`, `stack-ops/C-L-pick` |
 | SCR-076 | stack-ops | `e1-stack/depth-count`, `stack-ops/C-L-depth-size` |
 | SCR-077 | stack-ops | `stack-ops/C-L-ifdup` |
@@ -267,7 +268,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-043 | limits | SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): inapplicable to the script-interpreter harness, not a missing bounded limit cell. script.h:37-38 only defines MAX_PUBKEYS_PER_MULTI_A=999; at the pin the interpreter never reads it (no reference in interpreter.cpp/.h or consensus/). Its src uses are wallet construction code: miniscript.h:1879,2404,2418, miniscript.cpp:79, solver.cpp:124, descriptor.cpp:2469-2470. The consensus limits in this area are MAX_PUBKEYS_PER_MULTISIG=20 (interpreter.cpp:1195, SCR-026) and MAX_STACK_SIZE=1000 (interpreter.cpp:1309, SCR-029). The Lean model agrees (Rules.lean:346-351: "not an interpreter check ... bounds script construction") and proves only the constant identity PDW36.MAX_PUBKEYS_PER_MULTI_A_eq (rfl). A miniscript-parse cell is blocked: the pinned Lean tree has no Miniscript FromString parser (Wallet/Miniscript.lean scope note; wallet obligation MS-035 is unmodelled, WALLET-OBLIGATIONS.md:403-408) and Node.lean:442 checks an already-built AST, not parse input. No C/L pair exists in this harness, so no cell and no green are claimed. Report: spec/equiv/findings/coverage/SCR-043-miniscript-bound.md. Census flag consensus:true is inconsistent with the row text and with wallet MS-035 (consensus:false); rules.yaml is generated and was not hand-edited. |
 | SCR-044 | limits | SCR-044 (lower bound for serialized tx weight): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-051 | push-encoding | auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers. |
-| SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-078 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-086 | numeric | auto(cells): partial row coverage; e2-numeric/C-L-w32-cms-getint-counts: partial for SCR-086, with the CMS count call site now proved.
 - The int32 clamp itself is isolated: both arms fire and are proved

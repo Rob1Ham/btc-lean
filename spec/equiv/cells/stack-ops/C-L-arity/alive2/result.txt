@@ -1,19 +1,23 @@
 # cell: stack-ops/C-L-arity
 # alive-tv: Ubuntu LLVM version 20.1.2
 # clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
-# twin_ops source: build/twin_ops.h sha256 eb7aa6e1b93311c66f74b47ec4fc4bb9583a6063509031322008f42b0cf6b5eb
-# command: alive-tv build/c_cell_2drop.ll build/l_cell_2drop.ll
+# twin_ops.h sha256 eb7aa6e1b93311c66f74b47ec4fc4bb9583a6063509031322008f42b0cf6b5eb
+# twin_extras.h sha256 fc69636cde4864bd186e03194cac77eb9e18492880d5b6cd90000db3d7aaf2ee
+# twin/runtime.inc sha256 465388db548f053bd06dbc93f1620600f7233cbcfb58f410ff505c6c5828725c
+# twin/ops_ir.py sha256 6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5
+# flags: --smt-to=30000 --src-unroll=16 --tgt-unroll=16
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2drop_d0.ll build/l_cell_2drop_d0.ll
 
 ----------------------------------------
-define i64 @cell_2drop() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_2drop() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -22,18 +26,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_2dup.ll build/l_cell_2dup.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2drop_d1.ll build/l_cell_2drop_d1.ll
 
 ----------------------------------------
-define i64 @cell_2dup() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_2dup() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -42,18 +46,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_3dup.ll build/l_cell_3dup.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2drop_ok.ll build/l_cell_2drop_ok.ll
 
 ----------------------------------------
-define i64 @cell_3dup() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_ok() nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_1 = !range i64 1, i64 1, i64 576460752303423488
+  ret i64 %#range_0_1
 }
 =>
-define i64 @cell_3dup() nofree noundef willreturn memory(none) {
+define i64 @cell_2drop_ok() nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 1
 }
 Transformation seems to be correct!
 
@@ -62,18 +66,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_2over.ll build/l_cell_2over.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2dup_d0.ll build/l_cell_2dup_d0.ll
 
 ----------------------------------------
-define i64 @cell_2over() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_2over() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -82,18 +86,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_2rot.ll build/l_cell_2rot.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2dup_d1.ll build/l_cell_2dup_d1.ll
 
 ----------------------------------------
-define i64 @cell_2rot() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_2rot() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -102,18 +106,19 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_2swap.ll build/l_cell_2swap.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2dup_ok.ll build/l_cell_2dup_ok.ll
 
 ----------------------------------------
-define i64 @cell_2swap() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_ok() nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_34494483457 = !range i64 34494483457, i64 1, i64 576460752303423488
+  ret i64 %#range_0_34494483457
 }
 =>
-define i64 @cell_2swap() nofree noundef willreturn memory(none) {
+define i64 @cell_2dup_ok() nofree willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  %#range_0_34494483457 = !range i64 34494483457, i64 1, i64 576460752303423488
+  ret i64 %#range_0_34494483457
 }
 Transformation seems to be correct!
 
@@ -122,18 +127,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_ifdup.ll build/l_cell_ifdup.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_3dup_d0.ll build/l_cell_3dup_d0.ll
 
 ----------------------------------------
-define i64 @cell_ifdup() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_ifdup() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -142,18 +147,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_drop.ll build/l_cell_drop.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_3dup_d1.ll build/l_cell_3dup_d1.ll
 
 ----------------------------------------
-define i64 @cell_drop() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_drop() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -162,18 +167,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_dup.ll build/l_cell_dup.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_3dup_d2.ll build/l_cell_3dup_d2.ll
 
 ----------------------------------------
-define i64 @cell_dup() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_dup() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -182,18 +187,249 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_nip.ll build/l_cell_nip.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_3dup_ok.ll build/l_cell_3dup_ok.ll
 
 ----------------------------------------
-define i64 @cell_nip() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_ok() nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_2260630401191425 = !range i64 2260630401191425, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2260630401191425
 }
 =>
-define i64 @cell_nip() nofree noundef willreturn memory(none) {
+define i64 @cell_3dup_ok() nofree willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  %st.i = alloca i64 152, align 8, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 8, i8 0, i64 152
+  %alt.i = gep inbounds nuw ptr %st.i, 1 x i64 36
+  store i32 0, ptr %alt.i, align 4
+  %saved.i = gep inbounds nuw ptr %st.i, 1 x i64 72
+  store i32 0, ptr %saved.i, align 8
+  %vf_n.i = gep inbounds nuw ptr %st.i, 1 x i64 112
+  store i32 0, ptr %vf_n.i, align 8
+  %opCount.i = gep inbounds nuw ptr %st.i, 1 x i64 116
+  store i32 0, ptr %opCount.i, align 4
+  %codeSep.i = gep inbounds nuw ptr %st.i, 1 x i64 120
+  store i32 0, ptr %codeSep.i, align 8
+  %codeSepPos.i = gep inbounds nuw ptr %st.i, 1 x i64 124
+  store i32 4294967295, ptr %codeSepPos.i, align 4
+  %opcodeIndex.i = gep inbounds nuw ptr %st.i, 1 x i64 128
+  store i32 0, ptr %opcodeIndex.i, align 8
+  %vwLeft.i = gep inbounds nuw ptr %st.i, 1 x i64 136
+  store i64 0, ptr %vwLeft.i, align 8
+  %has_vw.i = gep inbounds nuw ptr %st.i, 1 x i64 144
+  store i8 0, ptr %has_vw.i, align 8
+  %e.i59 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  store i8 1, ptr %e.i59, align 4
+  %len8.i63 = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len8.i63, align 4
+  store i32 1, ptr %st.i, align 8
+  %arrayidx.i75 = gep inbounds nuw ptr %st.i, 1 x i64 29
+  store i8 1, ptr %arrayidx.i75, align 1
+  %arrayidx11.i79 = gep inbounds nuw ptr %st.i, 1 x i64 8
+  store i32 1, ptr %arrayidx11.i79, align 8
+  store i32 2, ptr %st.i, align 8
+  %arrayidx.i89 = gep inbounds nuw ptr %st.i, 1 x i64 30
+  store i8 1, ptr %arrayidx.i89, align 2
+  %arrayidx11.i93 = gep inbounds nuw ptr %st.i, 1 x i64 12
+  store i32 1, ptr %arrayidx11.i93, align 4
+  store i32 3, ptr %st.i, align 8
+  %len.i8 = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len.i8, align 4
+  %arrayidx10.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#1 = load i32, ptr %arrayidx10.i, align 8
+  %arrayidx17.i = gep inbounds nuw ptr %st.i, 1 x i64 12
+  %#2 = load i32, ptr %arrayidx17.i, align 4
+  %e.i11 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %cmp.not.i112 = icmp eq i32 %#0, 0
+  %#3 = load i8, ptr %e.i11, align 4
+  %x1.i.sroa.0.0 = select i1 %cmp.not.i112, i8 undef, i8 %#3
+  %cmp2.i115 = icmp ult i32 %#0, 2
+  %cmp.not.i104 = icmp eq i32 %#1, 0
+  %arrayidx32.i = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#4 = load i8, ptr %arrayidx32.i, align 1
+  %x2.i.sroa.0.0 = select i1 %cmp.not.i104, i8 undef, i8 %#4
+  %cmp2.i107 = icmp ugt i32 %#1, 1
+  %cmp.not.i = icmp eq i32 %#2, 0
+  %arrayidx41.i = gep inbounds nuw ptr %st.i, 1 x i64 30
+  %#5 = load i8, ptr %arrayidx41.i, align 2
+  %x3.i.sroa.0.0 = select i1 %cmp.not.i, i8 undef, i8 %#5
+  %cmp2.i = icmp ugt i32 %#2, 1
+  br i1 %cmp2.i115, label %if.end3.i42, label %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit54
+
+if.end3.i42:
+  br i1 %cmp.not.i112, label %if.end7.i48, label %if.then5.i44
+
+if.then5.i44:
+  %arrayidx.i47 = gep inbounds nuw ptr %st.i, 1 x i64 31
+  store i8 %x1.i.sroa.0.0, ptr %arrayidx.i47, align 1
+  br label %if.end7.i48
+
+if.end7.i48:
+  %arrayidx11.i51 = gep inbounds nuw ptr %st.i, 1 x i64 16
+  store i32 %#0, ptr %arrayidx11.i51, align 8
+  store i32 4, ptr %st.i, align 8
+  br label %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit54
+
+_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit54:
+  %retval.0.i53 = phi i32 [ 0, %if.end7.i48 ], [ 2, %entry ]
+  br i1 %cmp2.i115, label %if.end48.i, label %_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+if.end48.i:
+  br i1 %cmp2.i107, label %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit38, label %if.end.i24
+
+if.end.i24:
+  %#6 = load i32, ptr %st.i, align 8
+  %cmp1.i25 = icmp ugt i32 %#6, 5
+  br i1 %cmp1.i25, label %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit38, label %if.end3.i26
+
+if.end3.i26:
+  br i1 %cmp.not.i104, label %if.end7.i32, label %if.then5.i28
+
+if.then5.i28:
+  %idxprom.i30 = zext nneg i32 %#6 to i64
+  %arrayidx.i31 = gep inbounds nuw ptr %e.i11, 6 x i64 0, 1 x i64 %idxprom.i30
+  store i8 %x2.i.sroa.0.0, ptr %arrayidx.i31, align 1
+  br label %if.end7.i32
+
+if.end7.i32:
+  %idxprom10.i34 = zext nneg i32 %#6 to i64
+  %arrayidx11.i35 = gep inbounds nuw ptr %len.i8, 24 x i64 0, 4 x i64 %idxprom10.i34
+  store i32 %#1, ptr %arrayidx11.i35, align 4
+  %add.i36 = add nsw nuw i32 %#6, 1
+  store i32 %add.i36, ptr %st.i, align 8
+  br label %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit38
+
+_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit38:
+  %cmp52.not.i.not = phi i1 [ 0, %if.end7.i32 ], [ 1, %if.end48.i ], [ 1, %if.end.i24 ]
+  %retval.0.i37 = phi i32 [ 0, %if.end7.i32 ], [ 2, %if.end48.i ], [ 4, %if.end.i24 ]
+  %brmerge = select i1 %cmp52.not.i.not, i1 1, i1 %cmp2.i
+  %retval.0.i37.mux = select i1 %cmp52.not.i.not, i32 %retval.0.i37, i32 2
+  br i1 %brmerge, label %_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end.i18
+
+if.end.i18:
+  %#7 = load i32, ptr %st.i, align 8
+  %cmp1.i = icmp ugt i32 %#7, 5
+  br i1 %cmp1.i, label %_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end3.i
+
+if.end3.i:
+  br i1 %cmp.not.i, label %if.end7.i, label %if.then5.i
+
+if.then5.i:
+  %idxprom.i20 = zext nneg i32 %#7 to i64
+  %arrayidx.i21 = gep inbounds nuw ptr %e.i11, 6 x i64 0, 1 x i64 %idxprom.i20
+  store i8 %x3.i.sroa.0.0, ptr %arrayidx.i21, align 1
+  br label %if.end7.i
+
+if.end7.i:
+  %idxprom10.i = zext nneg i32 %#7 to i64
+  %arrayidx11.i = gep inbounds nuw ptr %len.i8, 24 x i64 0, 4 x i64 %idxprom10.i
+  store i32 %#2, ptr %arrayidx11.i, align 4
+  %add.i = add nsw nuw i32 %#7, 1
+  store i32 %add.i, ptr %st.i, align 8
+  br label %_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit:
+  %retval.1.i14 = phi i32 [ %retval.0.i53, %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit54 ], [ %retval.0.i37.mux, %_ZN8twinleafL7st_pushERNS_5StackEPKhj.exit38 ], [ 0, %if.end7.i ], [ 4, %if.end.i18 ]
+  switch i32 %retval.1.i14, label %default.unreachable [
+    i32 0, label %if.end86.i
+    i32 4, label %sw.bb4.i
+    i32 1, label %_ZL5l_runjjPKh.exit
+    i32 2, label %sw.bb2.i
+    i32 3, label %sw.bb3.i
+  ]
+
+default.unreachable:
+  assume i1 0
+
+if.end86.i:
+  %#8 = load i32, ptr %st.i, align 8
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#9 = load i32, ptr %len.i, align 4
+  %e93.i = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %#10 = load i8, ptr %e93.i, align 4
+  %arrayidx101.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#11 = load i32, ptr %arrayidx101.i, align 8
+  %arrayidx106.i = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#12 = load i8, ptr %arrayidx106.i, align 1
+  %arrayidx113.i = gep inbounds nuw ptr %st.i, 1 x i64 12
+  %#13 = load i32, ptr %arrayidx113.i, align 4
+  %arrayidx118.i = gep inbounds nuw ptr %st.i, 1 x i64 30
+  %#14 = load i8, ptr %arrayidx118.i, align 2
+  %arrayidx125.i = gep inbounds nuw ptr %st.i, 1 x i64 16
+  %#15 = load i32, ptr %arrayidx125.i, align 8
+  %arrayidx130.i = gep inbounds nuw ptr %st.i, 1 x i64 31
+  %#16 = load i8, ptr %arrayidx130.i, align 1
+  %arrayidx137.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  %#17 = load i32, ptr %arrayidx137.i, align 4
+  %arrayidx142.i = gep inbounds nuw ptr %st.i, 1 x i64 32
+  %#18 = load i8, ptr %arrayidx142.i, align 8
+  %arrayidx149.i = gep inbounds nuw ptr %st.i, 1 x i64 24
+  %#19 = load i32, ptr %arrayidx149.i, align 8
+  %arrayidx154.i = gep inbounds nuw ptr %st.i, 1 x i64 33
+  %#20 = load i8, ptr %arrayidx154.i, align 1
+  %and1.i = shl i32 %#8, 8
+  %#21 = and i32 %and1.i, 1792
+  %cmp.i170 = icmp eq i32 %#8, 0
+  %cmp1.not.i175 = icmp eq i32 %#9, 0
+  %or.cond = select i1 %cmp.i170, i1 1, i1 %cmp1.not.i175
+  %conv.i179 = zext i8 %#10 to i32
+  %#22 = shl nsw nuw i32 %conv.i179, 11
+  %#23 = select i1 %or.cond, i32 0, i32 %#22
+  %cmp.i159 = icmp ult i32 %#8, 2
+  %cmp1.not.i164 = icmp eq i32 %#11, 0
+  %or.cond188 = select i1 %cmp.i159, i1 1, i1 %cmp1.not.i164
+  %conv.i168 = zext i8 %#12 to i32
+  %#24 = shl nsw nuw i32 %conv.i168, 19
+  %#25 = select i1 %or.cond188, i32 0, i32 %#24
+  %#26 = or disjoint i32 %#21, %#23
+  %or538.i = or disjoint i32 %#26, %#25
+  %or939.i = or disjoint i32 %or538.i, 1
+  %or9.i = zext nneg i32 %or939.i to i64
+  %cmp.i148 = icmp ult i32 %#8, 3
+  %cmp1.not.i153 = icmp eq i32 %#13, 0
+  %or.cond189 = select i1 %cmp.i148, i1 1, i1 %cmp1.not.i153
+  %#27 = zext i8 %#14 to i64
+  %#28 = shl nsw nuw i64 %#27, 27
+  %shl12.i = select i1 %or.cond189, i64 0, i64 %#28
+  %or13.i = or i64 %shl12.i, %or9.i
+  %cmp.i137 = icmp ult i32 %#8, 4
+  %cmp1.not.i142 = icmp eq i32 %#15, 0
+  %or.cond190 = select i1 %cmp.i137, i1 1, i1 %cmp1.not.i142
+  %#29 = zext i8 %#16 to i64
+  %#30 = shl nsw nuw i64 %#29, 35
+  %shl16.i = select i1 %or.cond190, i64 0, i64 %#30
+  %or17.i = or disjoint i64 %or13.i, %shl16.i
+  %cmp.i126 = icmp ult i32 %#8, 5
+  %cmp1.not.i131 = icmp eq i32 %#17, 0
+  %or.cond191 = select i1 %cmp.i126, i1 1, i1 %cmp1.not.i131
+  %#31 = zext i8 %#18 to i64
+  %#32 = shl nsw nuw i64 %#31, 43
+  %shl20.i = select i1 %or.cond191, i64 0, i64 %#32
+  %or21.i = or disjoint i64 %or17.i, %shl20.i
+  %cmp.i121 = icmp ult i32 %#8, 6
+  %cmp1.not.i124 = icmp eq i32 %#19, 0
+  %or.cond192 = select i1 %cmp.i121, i1 1, i1 %cmp1.not.i124
+  %#33 = zext i8 %#20 to i64
+  %#34 = shl nsw nuw i64 %#33, 51
+  %shl24.i = select i1 %or.cond192, i64 0, i64 %#34
+  %or25.i = or i64 %or21.i, %shl24.i
+  br label %_ZL5l_runjjPKh.exit
+
+sw.bb4.i:
+  br label %_ZL5l_runjjPKh.exit
+
+sw.bb2.i:
+  br label %_ZL5l_runjjPKh.exit
+
+sw.bb3.i:
+  br label %_ZL5l_runjjPKh.exit
+
+_ZL5l_runjjPKh.exit:
+  %retval.1.i = phi i64 [ %or25.i, %if.end86.i ], [ 32, %sw.bb4.i ], [ 28, %sw.bb3.i ], [ 24, %sw.bb2.i ], [ 64, %_ZN8twinleafL10op_OP_3DUPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit ]
+  end_lifetime ptr %st.i
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 576460752303423488
+  ret i64 %#range_0_%retval.1.i
 }
 Transformation seems to be correct!
 
@@ -202,18 +438,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_over.ll build/l_cell_over.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2over_d0.ll build/l_cell_2over_d0.ll
 
 ----------------------------------------
-define i64 @cell_over() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_over() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -222,18 +458,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_pick.ll build/l_cell_pick.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2over_d1.ll build/l_cell_2over_d1.ll
 
 ----------------------------------------
-define i64 @cell_pick() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_pick() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -242,18 +478,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_roll.ll build/l_cell_roll.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2over_d2.ll build/l_cell_2over_d2.ll
 
 ----------------------------------------
-define i64 @cell_roll() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_roll() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -262,18 +498,18 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_rot.ll build/l_cell_rot.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2over_d3.ll build/l_cell_2over_d3.ll
 
 ----------------------------------------
-define i64 @cell_rot() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
 }
 =>
-define i64 @cell_rot() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  ret i64 72
 }
 Transformation seems to be correct!
 
@@ -282,18 +518,203 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_swap.ll build/l_cell_swap.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2over_ok.ll build/l_cell_2over_ok.ll
 
 ----------------------------------------
-define i64 @cell_swap() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_ok() nofree noundef willreturn memory(none) {
 entry:
-  ret i64 72
+  %#range_0_2260630401191425 = !range i64 2260630401191425, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2260630401191425
 }
 =>
-define i64 @cell_swap() nofree noundef willreturn memory(none) {
+define i64 @cell_2over_ok() nofree willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
-  ret i64 %#range_0_72
+  %st.i = alloca i64 152, align 8, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 8, i8 0, i64 152
+  %alt.i = gep inbounds nuw ptr %st.i, 1 x i64 36
+  store i32 0, ptr %alt.i, align 4
+  %saved.i = gep inbounds nuw ptr %st.i, 1 x i64 72
+  store i32 0, ptr %saved.i, align 8
+  %vf_n.i = gep inbounds nuw ptr %st.i, 1 x i64 112
+  store i32 0, ptr %vf_n.i, align 8
+  %opCount.i = gep inbounds nuw ptr %st.i, 1 x i64 116
+  store i32 0, ptr %opCount.i, align 4
+  %codeSep.i = gep inbounds nuw ptr %st.i, 1 x i64 120
+  store i32 0, ptr %codeSep.i, align 8
+  %codeSepPos.i = gep inbounds nuw ptr %st.i, 1 x i64 124
+  store i32 4294967295, ptr %codeSepPos.i, align 4
+  %opcodeIndex.i = gep inbounds nuw ptr %st.i, 1 x i64 128
+  store i32 0, ptr %opcodeIndex.i, align 8
+  %vwLeft.i = gep inbounds nuw ptr %st.i, 1 x i64 136
+  store i64 0, ptr %vwLeft.i, align 8
+  %has_vw.i = gep inbounds nuw ptr %st.i, 1 x i64 144
+  store i8 0, ptr %has_vw.i, align 8
+  %e.i47 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  store i8 1, ptr %e.i47, align 4
+  %len8.i51 = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len8.i51, align 4
+  store i32 1, ptr %st.i, align 8
+  %arrayidx.i63 = gep inbounds nuw ptr %st.i, 1 x i64 29
+  store i8 1, ptr %arrayidx.i63, align 1
+  %arrayidx11.i67 = gep inbounds nuw ptr %st.i, 1 x i64 8
+  store i32 1, ptr %arrayidx11.i67, align 8
+  store i32 2, ptr %st.i, align 8
+  %arrayidx.i77 = gep inbounds nuw ptr %st.i, 1 x i64 30
+  store i8 1, ptr %arrayidx.i77, align 2
+  %arrayidx11.i81 = gep inbounds nuw ptr %st.i, 1 x i64 12
+  store i32 1, ptr %arrayidx11.i81, align 4
+  store i32 3, ptr %st.i, align 8
+  %arrayidx.i91 = gep inbounds nuw ptr %st.i, 1 x i64 31
+  store i8 1, ptr %arrayidx.i91, align 1
+  %arrayidx11.i95 = gep inbounds nuw ptr %st.i, 1 x i64 16
+  store i32 1, ptr %arrayidx11.i95, align 8
+  store i32 4, ptr %st.i, align 8
+  %len.i10 = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len.i10, align 4
+  %arrayidx10.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#1 = load i32, ptr %arrayidx10.i, align 8
+  %e.i13 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %cmp.not.i106 = icmp eq i32 %#0, 0
+  %#2 = load i8, ptr %e.i13, align 4
+  %x1.i.sroa.0.0 = select i1 %cmp.not.i106, i8 undef, i8 %#2
+  %cmp2.i109 = icmp ugt i32 %#0, 1
+  %cmp.not.i = icmp eq i32 %#1, 0
+  %arrayidx25.i15 = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#3 = load i8, ptr %arrayidx25.i15, align 1
+  %x2.i.sroa.0.0 = select i1 %cmp.not.i, i8 undef, i8 %#3
+  %cmp2.i = icmp ugt i32 %#1, 1
+  br i1 %cmp2.i109, label %_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end3.i30
+
+if.end3.i30:
+  br i1 %cmp.not.i106, label %if.end7.i36, label %if.then5.i32
+
+if.then5.i32:
+  %arrayidx.i35 = gep inbounds nuw ptr %st.i, 1 x i64 32
+  store i8 %x1.i.sroa.0.0, ptr %arrayidx.i35, align 8
+  br label %if.end7.i36
+
+if.end7.i36:
+  %arrayidx11.i39 = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i32 %#0, ptr %arrayidx11.i39, align 4
+  store i32 5, ptr %st.i, align 8
+  br i1 %cmp2.i, label %_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end.i22
+
+if.end.i22:
+  %#4 = load i32, ptr %st.i, align 8
+  %cmp1.i = icmp ugt i32 %#4, 5
+  br i1 %cmp1.i, label %_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end3.i
+
+if.end3.i:
+  br i1 %cmp.not.i, label %if.end7.i, label %if.then5.i
+
+if.then5.i:
+  %idxprom.i24 = zext nneg i32 %#4 to i64
+  %arrayidx.i25 = gep inbounds nuw ptr %e.i13, 6 x i64 0, 1 x i64 %idxprom.i24
+  store i8 %x2.i.sroa.0.0, ptr %arrayidx.i25, align 1
+  br label %if.end7.i
+
+if.end7.i:
+  %idxprom10.i = zext nneg i32 %#4 to i64
+  %arrayidx11.i = gep inbounds nuw ptr %len.i10, 24 x i64 0, 4 x i64 %idxprom10.i
+  store i32 %#1, ptr %arrayidx11.i, align 4
+  %add.i = add nsw nuw i32 %#4, 1
+  store i32 %add.i, ptr %st.i, align 8
+  br label %_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit:
+  %retval.1.i18 = phi i32 [ 2, %if.end7.i36 ], [ 0, %if.end7.i ], [ 4, %if.end.i22 ], [ 2, %entry ]
+  switch i32 %retval.1.i18, label %default.unreachable [
+    i32 0, label %if.end86.i
+    i32 4, label %sw.bb4.i
+    i32 2, label %_ZL5l_runjjPKh.exit
+  ]
+
+default.unreachable:
+  assume i1 0
+
+if.end86.i:
+  %#5 = load i32, ptr %st.i, align 8
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#6 = load i32, ptr %len.i, align 4
+  %e93.i = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %#7 = load i8, ptr %e93.i, align 4
+  %arrayidx101.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#8 = load i32, ptr %arrayidx101.i, align 8
+  %arrayidx106.i = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#9 = load i8, ptr %arrayidx106.i, align 1
+  %arrayidx113.i = gep inbounds nuw ptr %st.i, 1 x i64 12
+  %#10 = load i32, ptr %arrayidx113.i, align 4
+  %arrayidx118.i = gep inbounds nuw ptr %st.i, 1 x i64 30
+  %#11 = load i8, ptr %arrayidx118.i, align 2
+  %arrayidx125.i = gep inbounds nuw ptr %st.i, 1 x i64 16
+  %#12 = load i32, ptr %arrayidx125.i, align 8
+  %arrayidx130.i = gep inbounds nuw ptr %st.i, 1 x i64 31
+  %#13 = load i8, ptr %arrayidx130.i, align 1
+  %arrayidx137.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  %#14 = load i32, ptr %arrayidx137.i, align 4
+  %arrayidx142.i = gep inbounds nuw ptr %st.i, 1 x i64 32
+  %#15 = load i8, ptr %arrayidx142.i, align 8
+  %arrayidx149.i = gep inbounds nuw ptr %st.i, 1 x i64 24
+  %#16 = load i32, ptr %arrayidx149.i, align 8
+  %arrayidx154.i = gep inbounds nuw ptr %st.i, 1 x i64 33
+  %#17 = load i8, ptr %arrayidx154.i, align 1
+  %and1.i = shl i32 %#5, 8
+  %#18 = and i32 %and1.i, 1792
+  %cmp.i164 = icmp eq i32 %#5, 0
+  %cmp1.not.i169 = icmp eq i32 %#6, 0
+  %or.cond = select i1 %cmp.i164, i1 1, i1 %cmp1.not.i169
+  %conv.i173 = zext i8 %#7 to i32
+  %#19 = shl nsw nuw i32 %conv.i173, 11
+  %#20 = select i1 %or.cond, i32 0, i32 %#19
+  %cmp.i153 = icmp ult i32 %#5, 2
+  %cmp1.not.i158 = icmp eq i32 %#8, 0
+  %or.cond182 = select i1 %cmp.i153, i1 1, i1 %cmp1.not.i158
+  %conv.i162 = zext i8 %#9 to i32
+  %#21 = shl nsw nuw i32 %conv.i162, 19
+  %#22 = select i1 %or.cond182, i32 0, i32 %#21
+  %#23 = or disjoint i32 %#18, %#20
+  %or538.i = or disjoint i32 %#23, %#22
+  %or939.i = or disjoint i32 %or538.i, 1
+  %or9.i = zext nneg i32 %or939.i to i64
+  %cmp.i142 = icmp ult i32 %#5, 3
+  %cmp1.not.i147 = icmp eq i32 %#10, 0
+  %or.cond183 = select i1 %cmp.i142, i1 1, i1 %cmp1.not.i147
+  %#24 = zext i8 %#11 to i64
+  %#25 = shl nsw nuw i64 %#24, 27
+  %shl12.i = select i1 %or.cond183, i64 0, i64 %#25
+  %or13.i = or i64 %shl12.i, %or9.i
+  %cmp.i131 = icmp ult i32 %#5, 4
+  %cmp1.not.i136 = icmp eq i32 %#12, 0
+  %or.cond184 = select i1 %cmp.i131, i1 1, i1 %cmp1.not.i136
+  %#26 = zext i8 %#13 to i64
+  %#27 = shl nsw nuw i64 %#26, 35
+  %shl16.i = select i1 %or.cond184, i64 0, i64 %#27
+  %or17.i = or disjoint i64 %or13.i, %shl16.i
+  %cmp.i120 = icmp ult i32 %#5, 5
+  %cmp1.not.i125 = icmp eq i32 %#14, 0
+  %or.cond185 = select i1 %cmp.i120, i1 1, i1 %cmp1.not.i125
+  %#28 = zext i8 %#15 to i64
+  %#29 = shl nsw nuw i64 %#28, 43
+  %shl20.i = select i1 %or.cond185, i64 0, i64 %#29
+  %or21.i = or disjoint i64 %or17.i, %shl20.i
+  %cmp.i115 = icmp ult i32 %#5, 6
+  %cmp1.not.i118 = icmp eq i32 %#16, 0
+  %or.cond186 = select i1 %cmp.i115, i1 1, i1 %cmp1.not.i118
+  %#30 = zext i8 %#17 to i64
+  %#31 = shl nsw nuw i64 %#30, 51
+  %shl24.i = select i1 %or.cond186, i64 0, i64 %#31
+  %or25.i = or i64 %or21.i, %shl24.i
+  br label %_ZL5l_runjjPKh.exit
+
+sw.bb4.i:
+  br label %_ZL5l_runjjPKh.exit
+
+_ZL5l_runjjPKh.exit:
+  %retval.1.i = phi i64 [ %or25.i, %if.end86.i ], [ 32, %sw.bb4.i ], [ 24, %_ZN8twinleafL11op_OP_2OVERERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit ]
+  end_lifetime ptr %st.i
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 576460752303423488
+  ret i64 %#range_0_%retval.1.i
 }
 Transformation seems to be correct!
 
@@ -302,18 +723,1496 @@ Summary:
   0 incorrect transformations
   0 failed-to-prove transformations
   0 Alive2 errors
-# command: alive-tv build/c_cell_tuck.ll build/l_cell_tuck.ll
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d0.ll build/l_cell_2rot_d0.ll
 
 ----------------------------------------
-define i64 @cell_tuck() nofree noundef willreturn memory(none) {
+define i64 @cell_2rot_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
   ret i64 72
 }
-=>
-define i64 @cell_tuck() nofree noundef willreturn memory(none) {
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d1.ll build/l_cell_2rot_d1.ll
+
+----------------------------------------
+define i64 @cell_2rot_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
 entry:
-  %#range_0_72 = !range i64 72, i64 0, i64 2199023255552
+  %#range_0_72 = !range i64 72, i64 7, i64 73
   ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d2.ll build/l_cell_2rot_d2.ll
+
+----------------------------------------
+define i64 @cell_2rot_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d3.ll build/l_cell_2rot_d3.ll
+
+----------------------------------------
+define i64 @cell_2rot_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d4.ll build/l_cell_2rot_d4.ll
+
+----------------------------------------
+define i64 @cell_2rot_d4(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d4(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_d5.ll build/l_cell_2rot_d5.ll
+
+----------------------------------------
+define i64 @cell_2rot_d5(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2rot_d5(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2rot_ok.ll build/l_cell_2rot_ok.ll
+
+----------------------------------------
+define i64 @cell_2rot_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_2260630401191425 = !range i64 2260630401191425, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2260630401191425
+}
+=>
+define i64 @cell_2rot_ok() nofree willreturn memory(none) {
+entry:
+  %st.i = alloca i64 152, align 8, dead
+  start_lifetime ptr %st.i
+  memset ptr %st.i align 8, i8 0, i64 152
+  %alt.i = gep inbounds nuw ptr %st.i, 1 x i64 36
+  store i32 0, ptr %alt.i, align 4
+  %saved.i = gep inbounds nuw ptr %st.i, 1 x i64 72
+  store i32 0, ptr %saved.i, align 8
+  %vf_n.i = gep inbounds nuw ptr %st.i, 1 x i64 112
+  store i32 0, ptr %vf_n.i, align 8
+  %opCount.i = gep inbounds nuw ptr %st.i, 1 x i64 116
+  store i32 0, ptr %opCount.i, align 4
+  %codeSep.i = gep inbounds nuw ptr %st.i, 1 x i64 120
+  store i32 0, ptr %codeSep.i, align 8
+  %codeSepPos.i = gep inbounds nuw ptr %st.i, 1 x i64 124
+  store i32 4294967295, ptr %codeSepPos.i, align 4
+  %opcodeIndex.i = gep inbounds nuw ptr %st.i, 1 x i64 128
+  store i32 0, ptr %opcodeIndex.i, align 8
+  %vwLeft.i = gep inbounds nuw ptr %st.i, 1 x i64 136
+  store i64 0, ptr %vwLeft.i, align 8
+  %has_vw.i = gep inbounds nuw ptr %st.i, 1 x i64 144
+  store i8 0, ptr %has_vw.i, align 8
+  %e.i27 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  store i8 1, ptr %e.i27, align 4
+  %len8.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  store i32 1, ptr %len8.i, align 4
+  store i32 1, ptr %st.i, align 8
+  %arrayidx.i37 = gep inbounds nuw ptr %st.i, 1 x i64 29
+  store i8 1, ptr %arrayidx.i37, align 1
+  %arrayidx11.i40 = gep inbounds nuw ptr %st.i, 1 x i64 8
+  store i32 1, ptr %arrayidx11.i40, align 8
+  store i32 2, ptr %st.i, align 8
+  %arrayidx.i49 = gep inbounds nuw ptr %st.i, 1 x i64 30
+  store i8 1, ptr %arrayidx.i49, align 2
+  %arrayidx11.i52 = gep inbounds nuw ptr %st.i, 1 x i64 12
+  store i32 1, ptr %arrayidx11.i52, align 4
+  store i32 3, ptr %st.i, align 8
+  %arrayidx.i61 = gep inbounds nuw ptr %st.i, 1 x i64 31
+  store i8 1, ptr %arrayidx.i61, align 1
+  %arrayidx11.i64 = gep inbounds nuw ptr %st.i, 1 x i64 16
+  store i32 1, ptr %arrayidx11.i64, align 8
+  store i32 4, ptr %st.i, align 8
+  %arrayidx.i73 = gep inbounds nuw ptr %st.i, 1 x i64 32
+  store i8 1, ptr %arrayidx.i73, align 8
+  %arrayidx11.i76 = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i32 1, ptr %arrayidx11.i76, align 4
+  store i32 5, ptr %st.i, align 8
+  %arrayidx.i85 = gep inbounds nuw ptr %st.i, 1 x i64 33
+  store i8 1, ptr %arrayidx.i85, align 1
+  %arrayidx11.i88 = gep inbounds nuw ptr %st.i, 1 x i64 24
+  store i32 1, ptr %arrayidx11.i88, align 8
+  store i32 6, ptr %st.i, align 8
+  %len.i14 = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#0 = load i32, ptr %len.i14, align 4
+  %arrayidx10.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#1 = load i32, ptr %arrayidx10.i, align 8
+  %e.i17 = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %cmp.not.i123 = icmp eq i32 %#0, 0
+  %#2 = load i8, ptr %e.i17, align 4
+  %x1.i.sroa.0.0 = select i1 %cmp.not.i123, i8 undef, i8 %#2
+  %cmp.not.i115 = icmp eq i32 %#1, 0
+  %arrayidx25.i19 = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#3 = load i8, ptr %arrayidx25.i19, align 1
+  %x2.i.sroa.0.0 = select i1 %cmp.not.i115, i8 undef, i8 %#3
+  br label %for.body.i23
+
+for.body.i23:
+  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit ]
+  %#4 = add nsw nuw i64 %indvars.iv, 2
+  %arrayidx38.i = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv
+  %arrayidx43.i24 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4
+  %arrayidx48.i = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4
+  %#5 = load i32, ptr %arrayidx48.i, align 4
+  %cmp.not.i = icmp eq i32 %#5, 0
+  br i1 %cmp.not.i, label %if.end.i98, label %if.then.i
+
+if.then.i:
+  %#6 = load i8, ptr %arrayidx43.i24, align 1
+  store i8 %#6, ptr %arrayidx38.i, align 1
+  br label %if.end.i98
+
+if.end.i98:
+  %cmp2.i = icmp ugt i32 %#5, 1
+  br i1 %cmp2.i, label %if.then3.i, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit
+
+if.then3.i:
+  %arrayidx4.i = gep inbounds nuw ptr %arrayidx43.i24, 1 x i64 1
+  %#7 = load i8, ptr %arrayidx4.i, align 1
+  %arrayidx5.i = gep inbounds nuw ptr %arrayidx38.i, 1 x i64 1
+  store i8 %#7, ptr %arrayidx5.i, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit:
+  %#8 = load i32, ptr %arrayidx48.i, align 4
+  %arrayidx56.i = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv
+  store i32 %#8, ptr %arrayidx56.i, align 4
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %exitcond.not = icmp eq i64 %indvars.iv.next, 4
+  br i1 %exitcond.not, label %for.cond.cleanup.i, label %for.body.i23#2
+
+for.body.i23#2:
+  %indvars.iv#2 = phi i64 [ %indvars.iv.next, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit ]
+  %#4#2 = add nsw nuw i64 %indvars.iv#2, 2
+  %arrayidx38.i#2 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#2
+  %arrayidx43.i24#2 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#2
+  %arrayidx48.i#2 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#2
+  %#5#2 = load i32, ptr %arrayidx48.i#2, align 4
+  %cmp.not.i#2 = icmp eq i32 %#5#2, 0
+  br i1 %cmp.not.i#2, label %if.end.i98#2, label %if.then.i#2
+
+if.then.i#2:
+  %#6#2 = load i8, ptr %arrayidx43.i24#2, align 1
+  store i8 %#6#2, ptr %arrayidx38.i#2, align 1
+  br label %if.end.i98#2
+
+if.end.i98#2:
+  %cmp2.i#2 = icmp ugt i32 %#5#2, 1
+  br i1 %cmp2.i#2, label %if.then3.i#2, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#2
+
+if.then3.i#2:
+  %arrayidx4.i#2 = gep inbounds nuw ptr %arrayidx43.i24#2, 1 x i64 1
+  %#7#2 = load i8, ptr %arrayidx4.i#2, align 1
+  %arrayidx5.i#2 = gep inbounds nuw ptr %arrayidx38.i#2, 1 x i64 1
+  store i8 %#7#2, ptr %arrayidx5.i#2, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#2
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#2:
+  %#8#2 = load i32, ptr %arrayidx48.i#2, align 4
+  %arrayidx56.i#2 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#2
+  store i32 %#8#2, ptr %arrayidx56.i#2, align 4
+  %indvars.iv.next#2 = add nsw nuw i64 %indvars.iv#2, 1
+  %exitcond.not#2 = icmp eq i64 %indvars.iv.next#2, 4
+  br i1 %exitcond.not#2, label %for.cond.cleanup.i, label %for.body.i23#3
+
+for.body.i23#3:
+  %indvars.iv#3 = phi i64 [ %indvars.iv.next#2, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#2 ]
+  %#4#3 = add nsw nuw i64 %indvars.iv#3, 2
+  %arrayidx38.i#3 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#3
+  %arrayidx43.i24#3 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#3
+  %arrayidx48.i#3 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#3
+  %#5#3 = load i32, ptr %arrayidx48.i#3, align 4
+  %cmp.not.i#3 = icmp eq i32 %#5#3, 0
+  br i1 %cmp.not.i#3, label %if.end.i98#3, label %if.then.i#3
+
+if.then.i#3:
+  %#6#3 = load i8, ptr %arrayidx43.i24#3, align 1
+  store i8 %#6#3, ptr %arrayidx38.i#3, align 1
+  br label %if.end.i98#3
+
+if.end.i98#3:
+  %cmp2.i#3 = icmp ugt i32 %#5#3, 1
+  br i1 %cmp2.i#3, label %if.then3.i#3, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#3
+
+if.then3.i#3:
+  %arrayidx4.i#3 = gep inbounds nuw ptr %arrayidx43.i24#3, 1 x i64 1
+  %#7#3 = load i8, ptr %arrayidx4.i#3, align 1
+  %arrayidx5.i#3 = gep inbounds nuw ptr %arrayidx38.i#3, 1 x i64 1
+  store i8 %#7#3, ptr %arrayidx5.i#3, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#3
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#3:
+  %#8#3 = load i32, ptr %arrayidx48.i#3, align 4
+  %arrayidx56.i#3 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#3
+  store i32 %#8#3, ptr %arrayidx56.i#3, align 4
+  %indvars.iv.next#3 = add nsw nuw i64 %indvars.iv#3, 1
+  %exitcond.not#3 = icmp eq i64 %indvars.iv.next#3, 4
+  br i1 %exitcond.not#3, label %for.cond.cleanup.i, label %for.body.i23#4
+
+for.body.i23#4:
+  %indvars.iv#4 = phi i64 [ %indvars.iv.next#3, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#3 ]
+  %#4#4 = add nsw nuw i64 %indvars.iv#4, 2
+  %arrayidx38.i#4 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#4
+  %arrayidx43.i24#4 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#4
+  %arrayidx48.i#4 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#4
+  %#5#4 = load i32, ptr %arrayidx48.i#4, align 4
+  %cmp.not.i#4 = icmp eq i32 %#5#4, 0
+  br i1 %cmp.not.i#4, label %if.end.i98#4, label %if.then.i#4
+
+if.then.i#4:
+  %#6#4 = load i8, ptr %arrayidx43.i24#4, align 1
+  store i8 %#6#4, ptr %arrayidx38.i#4, align 1
+  br label %if.end.i98#4
+
+if.end.i98#4:
+  %cmp2.i#4 = icmp ugt i32 %#5#4, 1
+  br i1 %cmp2.i#4, label %if.then3.i#4, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#4
+
+if.then3.i#4:
+  %arrayidx4.i#4 = gep inbounds nuw ptr %arrayidx43.i24#4, 1 x i64 1
+  %#7#4 = load i8, ptr %arrayidx4.i#4, align 1
+  %arrayidx5.i#4 = gep inbounds nuw ptr %arrayidx38.i#4, 1 x i64 1
+  store i8 %#7#4, ptr %arrayidx5.i#4, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#4
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#4:
+  %#8#4 = load i32, ptr %arrayidx48.i#4, align 4
+  %arrayidx56.i#4 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#4
+  store i32 %#8#4, ptr %arrayidx56.i#4, align 4
+  %indvars.iv.next#4 = add nsw nuw i64 %indvars.iv#4, 1
+  %exitcond.not#4 = icmp eq i64 %indvars.iv.next#4, 4
+  br i1 %exitcond.not#4, label %for.cond.cleanup.i, label %for.body.i23#5
+
+for.body.i23#5:
+  %indvars.iv#5 = phi i64 [ %indvars.iv.next#4, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#4 ]
+  %#4#5 = add nsw nuw i64 %indvars.iv#5, 2
+  %arrayidx38.i#5 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#5
+  %arrayidx43.i24#5 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#5
+  %arrayidx48.i#5 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#5
+  %#5#5 = load i32, ptr %arrayidx48.i#5, align 4
+  %cmp.not.i#5 = icmp eq i32 %#5#5, 0
+  br i1 %cmp.not.i#5, label %if.end.i98#5, label %if.then.i#5
+
+if.then.i#5:
+  %#6#5 = load i8, ptr %arrayidx43.i24#5, align 1
+  store i8 %#6#5, ptr %arrayidx38.i#5, align 1
+  br label %if.end.i98#5
+
+if.end.i98#5:
+  %cmp2.i#5 = icmp ugt i32 %#5#5, 1
+  br i1 %cmp2.i#5, label %if.then3.i#5, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#5
+
+if.then3.i#5:
+  %arrayidx4.i#5 = gep inbounds nuw ptr %arrayidx43.i24#5, 1 x i64 1
+  %#7#5 = load i8, ptr %arrayidx4.i#5, align 1
+  %arrayidx5.i#5 = gep inbounds nuw ptr %arrayidx38.i#5, 1 x i64 1
+  store i8 %#7#5, ptr %arrayidx5.i#5, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#5
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#5:
+  %#8#5 = load i32, ptr %arrayidx48.i#5, align 4
+  %arrayidx56.i#5 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#5
+  store i32 %#8#5, ptr %arrayidx56.i#5, align 4
+  %indvars.iv.next#5 = add nsw nuw i64 %indvars.iv#5, 1
+  %exitcond.not#5 = icmp eq i64 %indvars.iv.next#5, 4
+  br i1 %exitcond.not#5, label %for.cond.cleanup.i, label %for.body.i23#6
+
+for.body.i23#6:
+  %indvars.iv#6 = phi i64 [ %indvars.iv.next#5, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#5 ]
+  %#4#6 = add nsw nuw i64 %indvars.iv#6, 2
+  %arrayidx38.i#6 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#6
+  %arrayidx43.i24#6 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#6
+  %arrayidx48.i#6 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#6
+  %#5#6 = load i32, ptr %arrayidx48.i#6, align 4
+  %cmp.not.i#6 = icmp eq i32 %#5#6, 0
+  br i1 %cmp.not.i#6, label %if.end.i98#6, label %if.then.i#6
+
+if.then.i#6:
+  %#6#6 = load i8, ptr %arrayidx43.i24#6, align 1
+  store i8 %#6#6, ptr %arrayidx38.i#6, align 1
+  br label %if.end.i98#6
+
+if.end.i98#6:
+  %cmp2.i#6 = icmp ugt i32 %#5#6, 1
+  br i1 %cmp2.i#6, label %if.then3.i#6, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#6
+
+if.then3.i#6:
+  %arrayidx4.i#6 = gep inbounds nuw ptr %arrayidx43.i24#6, 1 x i64 1
+  %#7#6 = load i8, ptr %arrayidx4.i#6, align 1
+  %arrayidx5.i#6 = gep inbounds nuw ptr %arrayidx38.i#6, 1 x i64 1
+  store i8 %#7#6, ptr %arrayidx5.i#6, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#6
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#6:
+  %#8#6 = load i32, ptr %arrayidx48.i#6, align 4
+  %arrayidx56.i#6 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#6
+  store i32 %#8#6, ptr %arrayidx56.i#6, align 4
+  %indvars.iv.next#6 = add nsw nuw i64 %indvars.iv#6, 1
+  %exitcond.not#6 = icmp eq i64 %indvars.iv.next#6, 4
+  br i1 %exitcond.not#6, label %for.cond.cleanup.i, label %for.body.i23#7
+
+for.body.i23#7:
+  %indvars.iv#7 = phi i64 [ %indvars.iv.next#6, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#6 ]
+  %#4#7 = add nsw nuw i64 %indvars.iv#7, 2
+  %arrayidx38.i#7 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#7
+  %arrayidx43.i24#7 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#7
+  %arrayidx48.i#7 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#7
+  %#5#7 = load i32, ptr %arrayidx48.i#7, align 4
+  %cmp.not.i#7 = icmp eq i32 %#5#7, 0
+  br i1 %cmp.not.i#7, label %if.end.i98#7, label %if.then.i#7
+
+if.then.i#7:
+  %#6#7 = load i8, ptr %arrayidx43.i24#7, align 1
+  store i8 %#6#7, ptr %arrayidx38.i#7, align 1
+  br label %if.end.i98#7
+
+if.end.i98#7:
+  %cmp2.i#7 = icmp ugt i32 %#5#7, 1
+  br i1 %cmp2.i#7, label %if.then3.i#7, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#7
+
+if.then3.i#7:
+  %arrayidx4.i#7 = gep inbounds nuw ptr %arrayidx43.i24#7, 1 x i64 1
+  %#7#7 = load i8, ptr %arrayidx4.i#7, align 1
+  %arrayidx5.i#7 = gep inbounds nuw ptr %arrayidx38.i#7, 1 x i64 1
+  store i8 %#7#7, ptr %arrayidx5.i#7, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#7
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#7:
+  %#8#7 = load i32, ptr %arrayidx48.i#7, align 4
+  %arrayidx56.i#7 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#7
+  store i32 %#8#7, ptr %arrayidx56.i#7, align 4
+  %indvars.iv.next#7 = add nsw nuw i64 %indvars.iv#7, 1
+  %exitcond.not#7 = icmp eq i64 %indvars.iv.next#7, 4
+  br i1 %exitcond.not#7, label %for.cond.cleanup.i, label %for.body.i23#8
+
+for.body.i23#8:
+  %indvars.iv#8 = phi i64 [ %indvars.iv.next#7, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#7 ]
+  %#4#8 = add nsw nuw i64 %indvars.iv#8, 2
+  %arrayidx38.i#8 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#8
+  %arrayidx43.i24#8 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#8
+  %arrayidx48.i#8 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#8
+  %#5#8 = load i32, ptr %arrayidx48.i#8, align 4
+  %cmp.not.i#8 = icmp eq i32 %#5#8, 0
+  br i1 %cmp.not.i#8, label %if.end.i98#8, label %if.then.i#8
+
+if.then.i#8:
+  %#6#8 = load i8, ptr %arrayidx43.i24#8, align 1
+  store i8 %#6#8, ptr %arrayidx38.i#8, align 1
+  br label %if.end.i98#8
+
+if.end.i98#8:
+  %cmp2.i#8 = icmp ugt i32 %#5#8, 1
+  br i1 %cmp2.i#8, label %if.then3.i#8, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#8
+
+if.then3.i#8:
+  %arrayidx4.i#8 = gep inbounds nuw ptr %arrayidx43.i24#8, 1 x i64 1
+  %#7#8 = load i8, ptr %arrayidx4.i#8, align 1
+  %arrayidx5.i#8 = gep inbounds nuw ptr %arrayidx38.i#8, 1 x i64 1
+  store i8 %#7#8, ptr %arrayidx5.i#8, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#8
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#8:
+  %#8#8 = load i32, ptr %arrayidx48.i#8, align 4
+  %arrayidx56.i#8 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#8
+  store i32 %#8#8, ptr %arrayidx56.i#8, align 4
+  %indvars.iv.next#8 = add nsw nuw i64 %indvars.iv#8, 1
+  %exitcond.not#8 = icmp eq i64 %indvars.iv.next#8, 4
+  br i1 %exitcond.not#8, label %for.cond.cleanup.i, label %for.body.i23#9
+
+for.body.i23#9:
+  %indvars.iv#9 = phi i64 [ %indvars.iv.next#8, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#8 ]
+  %#4#9 = add nsw nuw i64 %indvars.iv#9, 2
+  %arrayidx38.i#9 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#9
+  %arrayidx43.i24#9 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#9
+  %arrayidx48.i#9 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#9
+  %#5#9 = load i32, ptr %arrayidx48.i#9, align 4
+  %cmp.not.i#9 = icmp eq i32 %#5#9, 0
+  br i1 %cmp.not.i#9, label %if.end.i98#9, label %if.then.i#9
+
+if.then.i#9:
+  %#6#9 = load i8, ptr %arrayidx43.i24#9, align 1
+  store i8 %#6#9, ptr %arrayidx38.i#9, align 1
+  br label %if.end.i98#9
+
+if.end.i98#9:
+  %cmp2.i#9 = icmp ugt i32 %#5#9, 1
+  br i1 %cmp2.i#9, label %if.then3.i#9, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#9
+
+if.then3.i#9:
+  %arrayidx4.i#9 = gep inbounds nuw ptr %arrayidx43.i24#9, 1 x i64 1
+  %#7#9 = load i8, ptr %arrayidx4.i#9, align 1
+  %arrayidx5.i#9 = gep inbounds nuw ptr %arrayidx38.i#9, 1 x i64 1
+  store i8 %#7#9, ptr %arrayidx5.i#9, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#9
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#9:
+  %#8#9 = load i32, ptr %arrayidx48.i#9, align 4
+  %arrayidx56.i#9 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#9
+  store i32 %#8#9, ptr %arrayidx56.i#9, align 4
+  %indvars.iv.next#9 = add nsw nuw i64 %indvars.iv#9, 1
+  %exitcond.not#9 = icmp eq i64 %indvars.iv.next#9, 4
+  br i1 %exitcond.not#9, label %for.cond.cleanup.i, label %for.body.i23#10
+
+for.body.i23#10:
+  %indvars.iv#10 = phi i64 [ %indvars.iv.next#9, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#9 ]
+  %#4#10 = add nsw nuw i64 %indvars.iv#10, 2
+  %arrayidx38.i#10 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#10
+  %arrayidx43.i24#10 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#10
+  %arrayidx48.i#10 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#10
+  %#5#10 = load i32, ptr %arrayidx48.i#10, align 4
+  %cmp.not.i#10 = icmp eq i32 %#5#10, 0
+  br i1 %cmp.not.i#10, label %if.end.i98#10, label %if.then.i#10
+
+if.then.i#10:
+  %#6#10 = load i8, ptr %arrayidx43.i24#10, align 1
+  store i8 %#6#10, ptr %arrayidx38.i#10, align 1
+  br label %if.end.i98#10
+
+if.end.i98#10:
+  %cmp2.i#10 = icmp ugt i32 %#5#10, 1
+  br i1 %cmp2.i#10, label %if.then3.i#10, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#10
+
+if.then3.i#10:
+  %arrayidx4.i#10 = gep inbounds nuw ptr %arrayidx43.i24#10, 1 x i64 1
+  %#7#10 = load i8, ptr %arrayidx4.i#10, align 1
+  %arrayidx5.i#10 = gep inbounds nuw ptr %arrayidx38.i#10, 1 x i64 1
+  store i8 %#7#10, ptr %arrayidx5.i#10, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#10
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#10:
+  %#8#10 = load i32, ptr %arrayidx48.i#10, align 4
+  %arrayidx56.i#10 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#10
+  store i32 %#8#10, ptr %arrayidx56.i#10, align 4
+  %indvars.iv.next#10 = add nsw nuw i64 %indvars.iv#10, 1
+  %exitcond.not#10 = icmp eq i64 %indvars.iv.next#10, 4
+  br i1 %exitcond.not#10, label %for.cond.cleanup.i, label %for.body.i23#11
+
+for.body.i23#11:
+  %indvars.iv#11 = phi i64 [ %indvars.iv.next#10, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#10 ]
+  %#4#11 = add nsw nuw i64 %indvars.iv#11, 2
+  %arrayidx38.i#11 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#11
+  %arrayidx43.i24#11 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#11
+  %arrayidx48.i#11 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#11
+  %#5#11 = load i32, ptr %arrayidx48.i#11, align 4
+  %cmp.not.i#11 = icmp eq i32 %#5#11, 0
+  br i1 %cmp.not.i#11, label %if.end.i98#11, label %if.then.i#11
+
+if.then.i#11:
+  %#6#11 = load i8, ptr %arrayidx43.i24#11, align 1
+  store i8 %#6#11, ptr %arrayidx38.i#11, align 1
+  br label %if.end.i98#11
+
+if.end.i98#11:
+  %cmp2.i#11 = icmp ugt i32 %#5#11, 1
+  br i1 %cmp2.i#11, label %if.then3.i#11, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#11
+
+if.then3.i#11:
+  %arrayidx4.i#11 = gep inbounds nuw ptr %arrayidx43.i24#11, 1 x i64 1
+  %#7#11 = load i8, ptr %arrayidx4.i#11, align 1
+  %arrayidx5.i#11 = gep inbounds nuw ptr %arrayidx38.i#11, 1 x i64 1
+  store i8 %#7#11, ptr %arrayidx5.i#11, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#11
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#11:
+  %#8#11 = load i32, ptr %arrayidx48.i#11, align 4
+  %arrayidx56.i#11 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#11
+  store i32 %#8#11, ptr %arrayidx56.i#11, align 4
+  %indvars.iv.next#11 = add nsw nuw i64 %indvars.iv#11, 1
+  %exitcond.not#11 = icmp eq i64 %indvars.iv.next#11, 4
+  br i1 %exitcond.not#11, label %for.cond.cleanup.i, label %for.body.i23#12
+
+for.body.i23#12:
+  %indvars.iv#12 = phi i64 [ %indvars.iv.next#11, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#11 ]
+  %#4#12 = add nsw nuw i64 %indvars.iv#12, 2
+  %arrayidx38.i#12 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#12
+  %arrayidx43.i24#12 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#12
+  %arrayidx48.i#12 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#12
+  %#5#12 = load i32, ptr %arrayidx48.i#12, align 4
+  %cmp.not.i#12 = icmp eq i32 %#5#12, 0
+  br i1 %cmp.not.i#12, label %if.end.i98#12, label %if.then.i#12
+
+if.then.i#12:
+  %#6#12 = load i8, ptr %arrayidx43.i24#12, align 1
+  store i8 %#6#12, ptr %arrayidx38.i#12, align 1
+  br label %if.end.i98#12
+
+if.end.i98#12:
+  %cmp2.i#12 = icmp ugt i32 %#5#12, 1
+  br i1 %cmp2.i#12, label %if.then3.i#12, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#12
+
+if.then3.i#12:
+  %arrayidx4.i#12 = gep inbounds nuw ptr %arrayidx43.i24#12, 1 x i64 1
+  %#7#12 = load i8, ptr %arrayidx4.i#12, align 1
+  %arrayidx5.i#12 = gep inbounds nuw ptr %arrayidx38.i#12, 1 x i64 1
+  store i8 %#7#12, ptr %arrayidx5.i#12, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#12
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#12:
+  %#8#12 = load i32, ptr %arrayidx48.i#12, align 4
+  %arrayidx56.i#12 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#12
+  store i32 %#8#12, ptr %arrayidx56.i#12, align 4
+  %indvars.iv.next#12 = add nsw nuw i64 %indvars.iv#12, 1
+  %exitcond.not#12 = icmp eq i64 %indvars.iv.next#12, 4
+  br i1 %exitcond.not#12, label %for.cond.cleanup.i, label %for.body.i23#13
+
+for.body.i23#13:
+  %indvars.iv#13 = phi i64 [ %indvars.iv.next#12, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#12 ]
+  %#4#13 = add nsw nuw i64 %indvars.iv#13, 2
+  %arrayidx38.i#13 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#13
+  %arrayidx43.i24#13 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#13
+  %arrayidx48.i#13 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#13
+  %#5#13 = load i32, ptr %arrayidx48.i#13, align 4
+  %cmp.not.i#13 = icmp eq i32 %#5#13, 0
+  br i1 %cmp.not.i#13, label %if.end.i98#13, label %if.then.i#13
+
+if.then.i#13:
+  %#6#13 = load i8, ptr %arrayidx43.i24#13, align 1
+  store i8 %#6#13, ptr %arrayidx38.i#13, align 1
+  br label %if.end.i98#13
+
+if.end.i98#13:
+  %cmp2.i#13 = icmp ugt i32 %#5#13, 1
+  br i1 %cmp2.i#13, label %if.then3.i#13, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#13
+
+if.then3.i#13:
+  %arrayidx4.i#13 = gep inbounds nuw ptr %arrayidx43.i24#13, 1 x i64 1
+  %#7#13 = load i8, ptr %arrayidx4.i#13, align 1
+  %arrayidx5.i#13 = gep inbounds nuw ptr %arrayidx38.i#13, 1 x i64 1
+  store i8 %#7#13, ptr %arrayidx5.i#13, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#13
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#13:
+  %#8#13 = load i32, ptr %arrayidx48.i#13, align 4
+  %arrayidx56.i#13 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#13
+  store i32 %#8#13, ptr %arrayidx56.i#13, align 4
+  %indvars.iv.next#13 = add nsw nuw i64 %indvars.iv#13, 1
+  %exitcond.not#13 = icmp eq i64 %indvars.iv.next#13, 4
+  br i1 %exitcond.not#13, label %for.cond.cleanup.i, label %for.body.i23#14
+
+for.body.i23#14:
+  %indvars.iv#14 = phi i64 [ %indvars.iv.next#13, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#13 ]
+  %#4#14 = add nsw nuw i64 %indvars.iv#14, 2
+  %arrayidx38.i#14 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#14
+  %arrayidx43.i24#14 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#14
+  %arrayidx48.i#14 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#14
+  %#5#14 = load i32, ptr %arrayidx48.i#14, align 4
+  %cmp.not.i#14 = icmp eq i32 %#5#14, 0
+  br i1 %cmp.not.i#14, label %if.end.i98#14, label %if.then.i#14
+
+if.then.i#14:
+  %#6#14 = load i8, ptr %arrayidx43.i24#14, align 1
+  store i8 %#6#14, ptr %arrayidx38.i#14, align 1
+  br label %if.end.i98#14
+
+if.end.i98#14:
+  %cmp2.i#14 = icmp ugt i32 %#5#14, 1
+  br i1 %cmp2.i#14, label %if.then3.i#14, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#14
+
+if.then3.i#14:
+  %arrayidx4.i#14 = gep inbounds nuw ptr %arrayidx43.i24#14, 1 x i64 1
+  %#7#14 = load i8, ptr %arrayidx4.i#14, align 1
+  %arrayidx5.i#14 = gep inbounds nuw ptr %arrayidx38.i#14, 1 x i64 1
+  store i8 %#7#14, ptr %arrayidx5.i#14, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#14
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#14:
+  %#8#14 = load i32, ptr %arrayidx48.i#14, align 4
+  %arrayidx56.i#14 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#14
+  store i32 %#8#14, ptr %arrayidx56.i#14, align 4
+  %indvars.iv.next#14 = add nsw nuw i64 %indvars.iv#14, 1
+  %exitcond.not#14 = icmp eq i64 %indvars.iv.next#14, 4
+  br i1 %exitcond.not#14, label %for.cond.cleanup.i, label %for.body.i23#15
+
+for.body.i23#15:
+  %indvars.iv#15 = phi i64 [ %indvars.iv.next#14, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#14 ]
+  %#4#15 = add nsw nuw i64 %indvars.iv#15, 2
+  %arrayidx38.i#15 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#15
+  %arrayidx43.i24#15 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#15
+  %arrayidx48.i#15 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#15
+  %#5#15 = load i32, ptr %arrayidx48.i#15, align 4
+  %cmp.not.i#15 = icmp eq i32 %#5#15, 0
+  br i1 %cmp.not.i#15, label %if.end.i98#15, label %if.then.i#15
+
+if.then.i#15:
+  %#6#15 = load i8, ptr %arrayidx43.i24#15, align 1
+  store i8 %#6#15, ptr %arrayidx38.i#15, align 1
+  br label %if.end.i98#15
+
+if.end.i98#15:
+  %cmp2.i#15 = icmp ugt i32 %#5#15, 1
+  br i1 %cmp2.i#15, label %if.then3.i#15, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#15
+
+if.then3.i#15:
+  %arrayidx4.i#15 = gep inbounds nuw ptr %arrayidx43.i24#15, 1 x i64 1
+  %#7#15 = load i8, ptr %arrayidx4.i#15, align 1
+  %arrayidx5.i#15 = gep inbounds nuw ptr %arrayidx38.i#15, 1 x i64 1
+  store i8 %#7#15, ptr %arrayidx5.i#15, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#15
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#15:
+  %#8#15 = load i32, ptr %arrayidx48.i#15, align 4
+  %arrayidx56.i#15 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#15
+  store i32 %#8#15, ptr %arrayidx56.i#15, align 4
+  %indvars.iv.next#15 = add nsw nuw i64 %indvars.iv#15, 1
+  %exitcond.not#15 = icmp eq i64 %indvars.iv.next#15, 4
+  br i1 %exitcond.not#15, label %for.cond.cleanup.i, label %for.body.i23#16
+
+for.body.i23#16:
+  %indvars.iv#16 = phi i64 [ %indvars.iv.next#15, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#15 ]
+  %#4#16 = add nsw nuw i64 %indvars.iv#16, 2
+  %arrayidx38.i#16 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#16
+  %arrayidx43.i24#16 = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#16
+  %arrayidx48.i#16 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#16
+  %#5#16 = load i32, ptr %arrayidx48.i#16, align 4
+  %cmp.not.i#16 = icmp eq i32 %#5#16, 0
+  br i1 %cmp.not.i#16, label %if.end.i98#16, label %if.then.i#16
+
+if.then.i#16:
+  %#6#16 = load i8, ptr %arrayidx43.i24#16, align 1
+  store i8 %#6#16, ptr %arrayidx38.i#16, align 1
+  br label %if.end.i98#16
+
+if.end.i98#16:
+  %cmp2.i#16 = icmp ugt i32 %#5#16, 1
+  br i1 %cmp2.i#16, label %if.then3.i#16, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#16
+
+if.then3.i#16:
+  %arrayidx4.i#16 = gep inbounds nuw ptr %arrayidx43.i24#16, 1 x i64 1
+  %#7#16 = load i8, ptr %arrayidx4.i#16, align 1
+  %arrayidx5.i#16 = gep inbounds nuw ptr %arrayidx38.i#16, 1 x i64 1
+  store i8 %#7#16, ptr %arrayidx5.i#16, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#16
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#16:
+  %#8#16 = load i32, ptr %arrayidx48.i#16, align 4
+  %arrayidx56.i#16 = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %indvars.iv#16
+  store i32 %#8#16, ptr %arrayidx56.i#16, align 4
+  %indvars.iv.next#16 = add nsw nuw i64 %indvars.iv#16, 1
+  %exitcond.not#16 = icmp eq i64 %indvars.iv.next#16, 4
+  br i1 %exitcond.not#16, label %for.cond.cleanup.i, label %for.body.i23#exit
+
+for.body.i23#exit:
+  %indvars.iv#exit = phi i64 [ %indvars.iv.next#16, %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit#16 ]
+  %#4#exit = add nsw nuw i64 %indvars.iv#exit, 2
+  %arrayidx38.i#exit = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %indvars.iv#exit
+  %arrayidx43.i24#exit = gep inbounds nuw ptr %e.i17, 6 x i64 0, 1 x i64 %#4#exit
+  %arrayidx48.i#exit = gep inbounds nuw ptr %len.i14, 24 x i64 0, 4 x i64 %#4#exit
+  %#5#exit = load i32, ptr %arrayidx48.i#exit, align 4
+  %cmp.not.i#exit = icmp eq i32 %#5#exit, 0
+  br i1 %cmp.not.i#exit, label #sink, label #sink
+
+for.cond.cleanup.i:
+  br i1 %cmp.not.i123, label %if.end.i109, label %if.then.i108
+
+if.then.i108:
+  %arrayidx63.i = gep inbounds nuw ptr %st.i, 1 x i64 32
+  store i8 %x1.i.sroa.0.0, ptr %arrayidx63.i, align 8
+  br label %if.end.i109
+
+if.end.i109:
+  %arrayidx72.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  store i32 %#0, ptr %arrayidx72.i, align 4
+  br i1 %cmp.not.i115, label %if.end.i101, label %if.then.i100
+
+if.then.i100:
+  %arrayidx79.i = gep inbounds nuw ptr %st.i, 1 x i64 33
+  store i8 %x2.i.sroa.0.0, ptr %arrayidx79.i, align 1
+  br label %if.end.i101
+
+if.end.i101:
+  %arrayidx88.i = gep inbounds nuw ptr %st.i, 1 x i64 24
+  store i32 %#1, ptr %arrayidx88.i, align 8
+  %arrayidx113.i = gep inbounds nuw ptr %st.i, 1 x i64 12
+  %#9 = load i32, ptr %arrayidx113.i, align 4
+  %cmp1.not.i164 = icmp eq i32 %#9, 0
+  %arrayidx118.i = gep inbounds nuw ptr %st.i, 1 x i64 30
+  %#10 = load i8, ptr %arrayidx118.i, align 2
+  %#11 = zext i8 %#10 to i64
+  %#12 = shl nsw nuw i64 %#11, 27
+  %shl12.i = select i1 %cmp1.not.i164, i64 0, i64 %#12
+  %len.i = gep inbounds nuw ptr %st.i, 1 x i64 4
+  %#13 = load i32, ptr %len.i, align 4
+  %cmp1.not.i186 = icmp eq i32 %#13, 0
+  %e93.i = gep inbounds nuw ptr %st.i, 1 x i64 28
+  %#14 = load i8, ptr %e93.i, align 4
+  %conv.i190 = zext i8 %#14 to i64
+  %#15 = shl nsw nuw i64 %conv.i190, 11
+  %#16 = or disjoint i64 %#15, 1537
+  %or538.i = select i1 %cmp1.not.i186, i64 1537, i64 %#16
+  %arrayidx101.i = gep inbounds nuw ptr %st.i, 1 x i64 8
+  %#17 = load i32, ptr %arrayidx101.i, align 8
+  %cmp1.not.i175 = icmp eq i32 %#17, 0
+  %arrayidx106.i = gep inbounds nuw ptr %st.i, 1 x i64 29
+  %#18 = load i8, ptr %arrayidx106.i, align 1
+  %conv.i179 = zext i8 %#18 to i64
+  %#19 = shl nsw nuw i64 %conv.i179, 19
+  %#20 = select i1 %cmp1.not.i175, i64 0, i64 %#19
+  %or939.i = or disjoint i64 %or538.i, %#20
+  %or13.i = or disjoint i64 %shl12.i, %or939.i
+  %arrayidx125.i = gep inbounds nuw ptr %st.i, 1 x i64 16
+  %#21 = load i32, ptr %arrayidx125.i, align 8
+  %cmp1.not.i153 = icmp eq i32 %#21, 0
+  %arrayidx130.i = gep inbounds nuw ptr %st.i, 1 x i64 31
+  %#22 = load i8, ptr %arrayidx130.i, align 1
+  %#23 = zext i8 %#22 to i64
+  %#24 = shl nsw nuw i64 %#23, 35
+  %shl16.i = select i1 %cmp1.not.i153, i64 0, i64 %#24
+  %or17.i = or disjoint i64 %or13.i, %shl16.i
+  %arrayidx137.i = gep inbounds nuw ptr %st.i, 1 x i64 20
+  %#25 = load i32, ptr %arrayidx137.i, align 4
+  %cmp1.not.i142 = icmp eq i32 %#25, 0
+  %arrayidx142.i = gep inbounds nuw ptr %st.i, 1 x i64 32
+  %#26 = load i8, ptr %arrayidx142.i, align 8
+  %#27 = zext i8 %#26 to i64
+  %#28 = shl nsw nuw i64 %#27, 43
+  %shl20.i = select i1 %cmp1.not.i142, i64 0, i64 %#28
+  %or21.i = or disjoint i64 %or17.i, %shl20.i
+  %arrayidx149.i = gep inbounds nuw ptr %st.i, 1 x i64 24
+  %#29 = load i32, ptr %arrayidx149.i, align 8
+  %cmp1.not.i135 = icmp eq i32 %#29, 0
+  %arrayidx154.i = gep inbounds nuw ptr %st.i, 1 x i64 33
+  %#30 = load i8, ptr %arrayidx154.i, align 1
+  %#31 = zext i8 %#30 to i64
+  %#32 = shl nsw nuw i64 %#31, 51
+  %shl24.i = select i1 %cmp1.not.i135, i64 0, i64 %#32
+  %or25.i = or i64 %or21.i, %shl24.i
+  end_lifetime ptr %st.i
+  %#range_0_%or25.i = !range i64 %or25.i, i64 1537, i64 576460752303423488
+  ret i64 %#range_0_%or25.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2swap_d0.ll build/l_cell_2swap_d0.ll
+
+----------------------------------------
+define i64 @cell_2swap_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2swap_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2swap_d1.ll build/l_cell_2swap_d1.ll
+
+----------------------------------------
+define i64 @cell_2swap_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2swap_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2swap_d2.ll build/l_cell_2swap_d2.ll
+
+----------------------------------------
+define i64 @cell_2swap_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2swap_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2swap_d3.ll build/l_cell_2swap_d3.ll
+
+----------------------------------------
+define i64 @cell_2swap_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_2swap_d3(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_2swap_ok.ll build/l_cell_2swap_ok.ll
+
+----------------------------------------
+define i64 @cell_2swap_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_34494483457 = !range i64 34494483457, i64 1, i64 576460752303423488
+  ret i64 %#range_0_34494483457
+}
+=>
+define i64 @cell_2swap_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 34494483457
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_ifdup_d0.ll build/l_cell_ifdup_d0.ll
+
+----------------------------------------
+define i64 @cell_ifdup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_ifdup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_ifdup_ok.ll build/l_cell_ifdup_ok.ll
+
+----------------------------------------
+define i64 @cell_ifdup_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_526849 = !range i64 526849, i64 1, i64 576460752303423488
+  ret i64 %#range_0_526849
+}
+=>
+define i64 @cell_ifdup_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 526849
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_drop_d0.ll build/l_cell_drop_d0.ll
+
+----------------------------------------
+define i64 @cell_drop_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_drop_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_drop_ok.ll build/l_cell_drop_ok.ll
+
+----------------------------------------
+define i64 @cell_drop_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_1 = !range i64 1, i64 1, i64 576460752303423488
+  ret i64 %#range_0_1
+}
+=>
+define i64 @cell_drop_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_dup_d0.ll build/l_cell_dup_d0.ll
+
+----------------------------------------
+define i64 @cell_dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_dup_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_dup_ok.ll build/l_cell_dup_ok.ll
+
+----------------------------------------
+define i64 @cell_dup_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_526849 = !range i64 526849, i64 1, i64 576460752303423488
+  ret i64 %#range_0_526849
+}
+=>
+define i64 @cell_dup_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 526849
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_nip_d0.ll build/l_cell_nip_d0.ll
+
+----------------------------------------
+define i64 @cell_nip_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_nip_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_nip_d1.ll build/l_cell_nip_d1.ll
+
+----------------------------------------
+define i64 @cell_nip_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_nip_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_nip_ok.ll build/l_cell_nip_ok.ll
+
+----------------------------------------
+define i64 @cell_nip_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_2305 = !range i64 2305, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2305
+}
+=>
+define i64 @cell_nip_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 2305
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_over_d0.ll build/l_cell_over_d0.ll
+
+----------------------------------------
+define i64 @cell_over_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_over_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_over_d1.ll build/l_cell_over_d1.ll
+
+----------------------------------------
+define i64 @cell_over_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_over_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_over_ok.ll build/l_cell_over_ok.ll
+
+----------------------------------------
+define i64 @cell_over_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_134744833 = !range i64 134744833, i64 1, i64 576460752303423488
+  ret i64 %#range_0_134744833
+}
+=>
+define i64 @cell_over_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 134744833
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_pick_d0.ll build/l_cell_pick_d0.ll
+
+----------------------------------------
+define i64 @cell_pick_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_pick_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_pick_d1.ll build/l_cell_pick_d1.ll
+
+----------------------------------------
+define i64 @cell_pick_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_pick_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_pick_ok.ll build/l_cell_pick_ok.ll
+
+----------------------------------------
+define i64 @cell_pick_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_526849 = !range i64 526849, i64 1, i64 576460752303423488
+  ret i64 %#range_0_526849
+}
+=>
+define i64 @cell_pick_ok() nofree willreturn memory(none) {
+entry:
+  %#range_0_526849 = !range i64 526849, i64 1, i64 576460752303423488
+  ret i64 %#range_0_526849
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_roll_d0.ll build/l_cell_roll_d0.ll
+
+----------------------------------------
+define i64 @cell_roll_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_roll_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_roll_d1.ll build/l_cell_roll_d1.ll
+
+----------------------------------------
+define i64 @cell_roll_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_roll_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_roll_ok.ll build/l_cell_roll_ok.ll
+
+----------------------------------------
+define i64 @cell_roll_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_2305 = !range i64 2305, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2305
+}
+=>
+define i64 @cell_roll_ok() nofree willreturn memory(none) {
+entry:
+  %#range_0_2305 = !range i64 2305, i64 1, i64 576460752303423488
+  ret i64 %#range_0_2305
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_rot_d0.ll build/l_cell_rot_d0.ll
+
+----------------------------------------
+define i64 @cell_rot_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_rot_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_rot_d1.ll build/l_cell_rot_d1.ll
+
+----------------------------------------
+define i64 @cell_rot_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_rot_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_rot_d2.ll build/l_cell_rot_d2.ll
+
+----------------------------------------
+define i64 @cell_rot_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_rot_d2(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_rot_ok.ll build/l_cell_rot_ok.ll
+
+----------------------------------------
+define i64 @cell_rot_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_134744833 = !range i64 134744833, i64 1, i64 576460752303423488
+  ret i64 %#range_0_134744833
+}
+=>
+define i64 @cell_rot_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 134744833
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_swap_d0.ll build/l_cell_swap_d0.ll
+
+----------------------------------------
+define i64 @cell_swap_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_swap_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_swap_d1.ll build/l_cell_swap_d1.ll
+
+----------------------------------------
+define i64 @cell_swap_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_swap_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_swap_ok.ll build/l_cell_swap_ok.ll
+
+----------------------------------------
+define i64 @cell_swap_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_526849 = !range i64 526849, i64 1, i64 576460752303423488
+  ret i64 %#range_0_526849
+}
+=>
+define i64 @cell_swap_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 526849
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_tuck_d0.ll build/l_cell_tuck_d0.ll
+
+----------------------------------------
+define i64 @cell_tuck_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_tuck_d0(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_tuck_d1.ll build/l_cell_tuck_d1.ll
+
+----------------------------------------
+define i64 @cell_tuck_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 7, i64 73
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_tuck_d1(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %b5) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --smt-to=30000 --src-unroll=16 --tgt-unroll=16 build/c_cell_tuck_ok.ll build/l_cell_tuck_ok.ll
+
+----------------------------------------
+define i64 @cell_tuck_ok() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_134744833 = !range i64 134744833, i64 1, i64 576460752303423488
+  ret i64 %#range_0_134744833
+}
+=>
+define i64 @cell_tuck_ok() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 134744833
 }
 Transformation seems to be correct!
 
