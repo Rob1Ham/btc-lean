@@ -1,0 +1,597 @@
+# cell: C-L-cms-nullfail-loop
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_sig (same symbol both legs)
+# checker return annotated noundef (C bool return; same-crypto premise)
+# c_leaf sha256: 24e7e22e7621d64d65415470cbc53818907e4c18f0137a09a606017e5ce13f0b
+# l_leaf sha256: 77e0f3a8017ab8238dc1d784716d1f4063ae4504090f8cec77f0e85c84e019ac
+
+===== cell_cms_nullfail =====
+# command: /opt/equiv-tools/alive-tv-v20.0 --bidirectional build/c_cell_cms_nullfail.ll build/l_cell_cms_nullfail.ll
+# c IR sha256: fbb7cb81e682ca8fdb6a1906822d51e48681ec2658ebaee051e4378d69aa0239
+# l IR sha256: 6099f0ce7727b5db2718d96f3e6530e31d4ef2b9b2471c0103110359de8c4f93
+
+----------------------------------------
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_cms_nullfail(i32 noundef %nkeys, i32 noundef %nsigs, i32 noundef %nullfail, i32 noundef %nulldummy, i32 noundef %sig0, i32 noundef %sig1, i32 noundef %dummylen) {
+entry:
+  %cmp = icmp ugt i32 noundef %nkeys, 2
+  %cmp1 = icmp ugt i32 noundef %nsigs, noundef %nkeys
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %conv2 = zext nneg i32 noundef %nkeys to i64
+  %cmp3.not = icmp eq i32 noundef %nsigs, 0
+  br i1 %cmp3.not, label %if.end18, label %if.then4
+
+if.then4:
+  %conv = zext nneg i32 noundef %nsigs to i64
+  %cond.not.i = icmp eq i32 noundef %sig0, 0
+  %or.i = select i1 %cond.not.i, i32 64, i32 65600
+  %call7 = tail call i8 @btc_equiv_check_sig(noundef i32 %or.i, noundef i32 65600, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp9.not = icmp ne i8 %call7, 0
+  %spec.select = zext i1 %cmp9.not to i32
+  %sub = sext i1 %cmp9.not to i64
+  %spec.select355 = add nsw i64 %sub, %conv
+  %sub14 = add nsw i64 %conv2, -1
+  %cmp15.not = icmp slt i64 %spec.select355, %conv2
+  %fs.0 = zext i1 %cmp15.not to i8
+  br label %if.end18
+
+if.end18:
+  %fs.1 = phi i8 [ %fs.0, %if.then4 ], [ 1, %if.end ]
+  %keyPos.0 = phi i32 [ 65601, %if.then4 ], [ 65600, %if.end ]
+  %sigId.1 = phi i32 [ %spec.select, %if.then4 ], [ 0, %if.end ]
+  %nKeysLeft.0 = phi i64 [ %sub14, %if.then4 ], [ %conv2, %if.end ]
+  %nSigsLeft.1 = phi i64 [ %spec.select355, %if.then4 ], [ 0, %if.end ]
+  %loadedv19 = trunc nuw i8 %fs.1 to i1
+  %cmp21 = icmp sgt i64 %nSigsLeft.1, 0
+  %or.cond219 = and i1 %cmp21, %loadedv19
+  br i1 %or.cond219, label %if.then22, label %if.end43
+
+if.then22:
+  %cmp.i = icmp eq i32 %sigId.1, 0
+  %cond.v.i = select i1 %cmp.i, i32 noundef %sig0, i32 noundef %sig1
+  %cond.not.i360 = icmp eq i32 %cond.v.i, 0
+  %shl.i361 = select i1 %cond.not.i360, i32 0, i32 65536
+  %add.i = or disjoint i32 %sigId.1, %shl.i361
+  %or.i362 = or disjoint i32 %add.i, 64
+  %call29 = tail call i8 @btc_equiv_check_sig(noundef i32 %or.i362, noundef i32 %keyPos.0, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp31.not = icmp ne i8 %call29, 0
+  %sub36 = sext i1 %cmp31.not to i64
+  %spec.select356 = add nsw i64 %nSigsLeft.1, %sub36
+  %cmp40.not = icmp slt i64 %spec.select356, %nKeysLeft.0
+  %fs.2 = select i1 %cmp40.not, i8 %fs.1, i8 0
+  br label %if.end43
+
+if.end43:
+  %fs.3 = phi i8 [ %fs.2, %if.then22 ], [ %fs.1, %if.end18 ]
+  %add44 = add nsw nuw i32 noundef %nsigs, noundef %nkeys
+  %add5.i366 = add nsw nuw i32 noundef %nkeys, 2
+  %cmp97.not = icmp eq i32 %add44, 0
+  br i1 %cmp97.not, label %if.end120, label %if.then98
+
+if.then98:
+  %or.cond33.i371.not = icmp eq i32 noundef %nkeys, 0
+  br i1 %or.cond33.i371.not, label %if.end8.i372, label %_ZL11nf_item_lenjjjjj.exit375
+
+if.end8.i372:
+  %add13.i = add nsw nuw i32 %add5.i366, noundef %nsigs
+  %cmp14.not.i = icmp samesign ult i32 %add13.i, 3
+  br i1 %cmp14.not.i, label %_ZL11nf_item_lenjjjjj.exit375, label %if.then15.i
+
+if.then15.i:
+  %cond21.in.i = icmp ne i32 noundef %sig0, 0
+  %cond21.i = zext i1 %cond21.in.i to i32
+  br label %_ZL11nf_item_lenjjjjj.exit375
+
+_ZL11nf_item_lenjjjjj.exit375:
+  %retval.0.i374 = phi i32 [ %cond21.i, %if.then15.i ], [ 1, %if.then98 ], [ 0, %if.end8.i372 ]
+  %loadedv108 = trunc nuw i8 %fs.3 to i1
+  %loadedv108.not = xor i1 %loadedv108, 1
+  %cmp110 = icmp ne i32 noundef %nullfail, 0
+  %or.cond231 = and i1 %cmp110, %loadedv108.not
+  %cmp112 = icmp eq i32 noundef %nkeys, 0
+  %or.cond232 = and i1 %cmp112, %or.cond231
+  %cmp114 = icmp ne i32 %retval.0.i374, 0
+  %or.cond233 = and i1 %or.cond232, %cmp114
+  %. = select i1 %or.cond233, i32 3, i32 0
+  %nkeys. = select i1 %or.cond233, i32 noundef %nkeys, i32 7
+  %call107. = select i1 %or.cond233, i32 %retval.0.i374, i32 2
+  %.357 = select i1 %or.cond233, i32 32, i32 0
+  %.358 = zext i1 %or.cond233 to i8
+  %.359 = select i1 %or.cond233, i32 2, i32 3
+  br label %if.end120
+
+if.end120:
+  %firePos.5 = phi i32 [ %., %_ZL11nf_item_lenjjjjj.exit375 ], [ 0, %if.end43 ]
+  %ikey2Fire.5 = phi i32 [ %nkeys., %_ZL11nf_item_lenjjjjj.exit375 ], [ 7, %if.end43 ]
+  %fireLen.5 = phi i32 [ %call107., %_ZL11nf_item_lenjjjjj.exit375 ], [ 2, %if.end43 ]
+  %err.5 = phi i32 [ %.357, %_ZL11nf_item_lenjjjjj.exit375 ], [ 0, %if.end43 ]
+  %errored.5 = phi i8 [ %.358, %_ZL11nf_item_lenjjjjj.exit375 ], [ 0, %if.end43 ]
+  %popped.5 = phi i32 [ %.359, %_ZL11nf_item_lenjjjjj.exit375 ], [ 2, %if.end43 ]
+  %loadedv121 = trunc nuw i8 %errored.5 to i1
+  %cmp123 = icmp ult i32 %add44, 2
+  %or.cond234.not = or i1 %cmp123, %loadedv121
+  br i1 %or.cond234.not, label %if.end146, label %if.then124
+
+if.then124:
+  %or.cond33.i380 = icmp ugt i32 noundef %nkeys, 1
+  br i1 %or.cond33.i380, label %_ZL11nf_item_lenjjjjj.exit394, label %if.end8.i381
+
+if.end8.i381:
+  %add13.i386 = add nsw nuw i32 %add5.i366, noundef %nsigs
+  %cmp14.not.i387 = icmp samesign ult i32 %add13.i386, 4
+  br i1 %cmp14.not.i387, label %_ZL11nf_item_lenjjjjj.exit394, label %if.then15.i388
+
+if.then15.i388:
+  %cmp17.i389 = icmp eq i32 noundef %nkeys, 1
+  %sig0.sig1.i390 = select i1 %cmp17.i389, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i391 = icmp ne i32 %sig0.sig1.i390, 0
+  %cond21.i392 = zext i1 %cond21.in.i391 to i32
+  br label %_ZL11nf_item_lenjjjjj.exit394
+
+_ZL11nf_item_lenjjjjj.exit394:
+  %retval.0.i393 = phi i32 [ %cond21.i392, %if.then15.i388 ], [ 1, %if.then124 ], [ 0, %if.end8.i381 ]
+  %loadedv134 = trunc nuw i8 %fs.3 to i1
+  %loadedv134.not = xor i1 %loadedv134, 1
+  %cmp136 = icmp ne i32 noundef %nullfail, 0
+  %or.cond236 = and i1 %cmp136, %loadedv134.not
+  %cmp138 = icmp ne i32 noundef %nkeys, 2
+  %or.cond237 = and i1 %cmp138, %or.cond236
+  %cmp140 = icmp ne i32 %retval.0.i393, 0
+  %or.cond238 = and i1 %or.cond237, %cmp140
+  br i1 %or.cond238, label %if.end146, label %if.else143
+
+if.else143:
+  %add144 = add nsw nuw i32 %popped.5, 1
+  br label %if.end146
+
+if.end146:
+  %firePos.7 = phi i32 [ %firePos.5, %if.end120 ], [ %firePos.5, %if.else143 ], [ 4, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %ikey2Fire.7 = phi i32 [ %ikey2Fire.5, %if.end120 ], [ %ikey2Fire.5, %if.else143 ], [ 0, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %fireLen.7 = phi i32 [ %fireLen.5, %if.end120 ], [ %fireLen.5, %if.else143 ], [ %retval.0.i393, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %err.7 = phi i32 [ %err.5, %if.end120 ], [ %err.5, %if.else143 ], [ 32, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %errored.7 = phi i8 [ %errored.5, %if.end120 ], [ %errored.5, %if.else143 ], [ 1, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %popped.7 = phi i32 [ %popped.5, %if.end120 ], [ %add144, %if.else143 ], [ %popped.5, %_ZL11nf_item_lenjjjjj.exit394 ]
+  %loadedv147 = trunc nuw i8 %errored.7 to i1
+  %cmp149 = icmp ult i32 %add44, 3
+  %or.cond239.not = or i1 %cmp149, %loadedv147
+  br i1 %or.cond239.not, label %if.end172, label %if.then150
+
+if.then150:
+  %or.cond33.i399 = icmp ugt i32 noundef %nkeys, 2
+  br i1 %or.cond33.i399, label %_ZL11nf_item_lenjjjjj.exit413, label %if.end8.i400
+
+if.end8.i400:
+  %add13.i405 = add nsw nuw i32 %add5.i366, noundef %nsigs
+  %cmp14.not.i406 = icmp samesign ult i32 %add13.i405, 5
+  br i1 %cmp14.not.i406, label %_ZL11nf_item_lenjjjjj.exit413, label %if.then15.i407
+
+if.then15.i407:
+  %cmp17.i408 = icmp eq i32 noundef %nkeys, 2
+  %sig0.sig1.i409 = select i1 %cmp17.i408, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i410 = icmp ne i32 %sig0.sig1.i409, 0
+  %cond21.i411 = zext i1 %cond21.in.i410 to i32
+  br label %_ZL11nf_item_lenjjjjj.exit413
+
+_ZL11nf_item_lenjjjjj.exit413:
+  %retval.0.i412 = phi i32 [ %cond21.i411, %if.then15.i407 ], [ 1, %if.then150 ], [ 0, %if.end8.i400 ]
+  %loadedv160 = trunc nuw i8 %fs.3 to i1
+  %loadedv160.not = xor i1 %loadedv160, 1
+  %cmp162 = icmp ne i32 noundef %nullfail, 0
+  %or.cond241 = and i1 %cmp162, %loadedv160.not
+  %cmp166 = icmp ne i32 %retval.0.i412, 0
+  %or.cond243 = and i1 %or.cond241, %cmp166
+  br i1 %or.cond243, label %if.end172, label %if.else169
+
+if.else169:
+  %add170 = add nsw nuw i32 %popped.7, 1
+  br label %if.end172
+
+if.end172:
+  %firePos.9 = phi i32 [ %firePos.7, %if.end146 ], [ %firePos.7, %if.else169 ], [ 5, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %ikey2Fire.9 = phi i32 [ %ikey2Fire.7, %if.end146 ], [ %ikey2Fire.7, %if.else169 ], [ 0, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %fireLen.9 = phi i32 [ %fireLen.7, %if.end146 ], [ %fireLen.7, %if.else169 ], [ %retval.0.i412, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %err.9 = phi i32 [ %err.7, %if.end146 ], [ %err.7, %if.else169 ], [ 32, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %errored.9 = phi i8 [ %errored.7, %if.end146 ], [ %errored.7, %if.else169 ], [ 1, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %popped.9 = phi i32 [ %popped.7, %if.end146 ], [ %add170, %if.else169 ], [ %popped.7, %_ZL11nf_item_lenjjjjj.exit413 ]
+  %loadedv173 = trunc nuw i8 %errored.9 to i1
+  %cmp175 = icmp ult i32 %add44, 4
+  %or.cond244.not = or i1 %cmp175, %loadedv173
+  br i1 %or.cond244.not, label %if.end198, label %if.then176
+
+if.then176:
+  %or.cond33.i418 = icmp ugt i32 noundef %nkeys, 3
+  br i1 %or.cond33.i418, label %_ZL11nf_item_lenjjjjj.exit432, label %if.end8.i419
+
+if.end8.i419:
+  %add13.i424 = add nsw nuw i32 %add5.i366, noundef %nsigs
+  %cmp14.not.i425 = icmp samesign ult i32 %add13.i424, 6
+  br i1 %cmp14.not.i425, label %_ZL11nf_item_lenjjjjj.exit432, label %if.then15.i426
+
+if.then15.i426:
+  %cmp17.i427 = icmp eq i32 noundef %nkeys, 3
+  %sig0.sig1.i428 = select i1 %cmp17.i427, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i429 = icmp ne i32 %sig0.sig1.i428, 0
+  %cond21.i430 = zext i1 %cond21.in.i429 to i32
+  br label %_ZL11nf_item_lenjjjjj.exit432
+
+_ZL11nf_item_lenjjjjj.exit432:
+  %retval.0.i431 = phi i32 [ %cond21.i430, %if.then15.i426 ], [ 1, %if.then176 ], [ 0, %if.end8.i419 ]
+  %loadedv186 = trunc nuw i8 %fs.3 to i1
+  %loadedv186.not = xor i1 %loadedv186, 1
+  %cmp188 = icmp ne i32 noundef %nullfail, 0
+  %or.cond246 = and i1 %cmp188, %loadedv186.not
+  %cmp192 = icmp ne i32 %retval.0.i431, 0
+  %or.cond248 = and i1 %or.cond246, %cmp192
+  br i1 %or.cond248, label %if.end198, label %if.else195
+
+if.else195:
+  %add196 = add nsw nuw i32 %popped.9, 1
+  br label %if.end198
+
+if.end198:
+  %firePos.11 = phi i32 [ %firePos.9, %if.end172 ], [ %firePos.9, %if.else195 ], [ 6, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %ikey2Fire.11 = phi i32 [ %ikey2Fire.9, %if.end172 ], [ %ikey2Fire.9, %if.else195 ], [ 0, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %fireLen.11 = phi i32 [ %fireLen.9, %if.end172 ], [ %fireLen.9, %if.else195 ], [ %retval.0.i431, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %err.11 = phi i32 [ %err.9, %if.end172 ], [ %err.9, %if.else195 ], [ 32, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %errored.11 = phi i8 [ %errored.9, %if.end172 ], [ %errored.9, %if.else195 ], [ 1, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %popped.11 = phi i32 [ %popped.9, %if.end172 ], [ %add196, %if.else195 ], [ %popped.9, %_ZL11nf_item_lenjjjjj.exit432 ]
+  %add200 = add nsw nuw i32 %add44, 3
+  %sub201 = sub i32 %add200, %popped.11
+  %loadedv202 = trunc nuw i8 %errored.11 to i1
+  br i1 %loadedv202, label %if.end211, label %if.then203
+
+if.then203:
+  %cmp204 = icmp ne i32 noundef %nulldummy, 0
+  %cmp206 = icmp ne i32 noundef %dummylen, 0
+  %or.cond249 = and i1 %cmp204, %cmp206
+  br i1 %or.cond249, label %if.end211, label %if.else208
+
+if.else208:
+  %#0 = and i8 %fs.3, 1
+  %cond = zext nneg i8 %#0 to i32
+  %#1 = shl nsw nuw i32 %cond, 27
+  br label %if.end211
+
+if.end211:
+  %err.12 = phi i32 [ %err.11, %if.end198 ], [ %err.11, %if.else208 ], [ 28, %if.then203 ]
+  %errored.12 = phi i8 [ %errored.11, %if.end198 ], [ %errored.11, %if.else208 ], [ 1, %if.then203 ]
+  %pushed.0 = phi i32 [ 268435456, %if.end198 ], [ %#1, %if.else208 ], [ 268435456, %if.then203 ]
+  %finalDepth.0 = phi i32 [ 0, %if.end198 ], [ 536870912, %if.else208 ], [ 0, %if.then203 ]
+  %#2 = and i8 %errored.12, 1
+  %#3 = xor i8 %#2, 1
+  %cond213 = zext nneg i8 %#3 to i32
+  %cmp214.not = icmp eq i32 noundef %dummylen, 0
+  %#4 = and i8 %fs.3, 1
+  %cond217 = zext nneg i8 %#4 to i32
+  %#5 = shl nsw nuw i32 %err.12, 2
+  %or351.i = or disjoint i32 %#5, %cond213
+  %and4.i = shl i32 %popped.11, 8
+  %#6 = and i32 %and4.i, 3840
+  %or752.i = add nsw nuw i32 %or351.i, %#6
+  %#7 = shl nsw nuw i32 %firePos.11, 12
+  %or1153.i = add nsw nuw i32 %or752.i, %#7
+  %#8 = shl nsw nuw i32 %ikey2Fire.11, 16
+  %or1554.i = add nsw nuw i32 %or1153.i, %#8
+  %and16.i = shl nsw nuw i32 %fireLen.11, 19
+  %#9 = and i32 %and16.i, 1572864
+  %or1955.i = add nsw nuw i32 %or1554.i, %#9
+  %and20.i = shl i32 %sub201, 21
+  %#10 = and i32 %and20.i, 31457280
+  %or2356.i = add nsw nuw i32 %or1955.i, %#10
+  %#11 = select i1 %cmp214.not, i32 0, i32 33554432
+  %#12 = shl nsw nuw i32 %cond217, 30
+  %or2757.i = or disjoint i32 %#12, %#11
+  %or3158.i = or i32 %or2757.i, %pushed.0
+  %or3559.i = or i32 %or3158.i, %finalDepth.0
+  %or3960.i = or i32 %or3559.i, %or2356.i
+  %or39.i = zext nneg i32 %or3960.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or39.i, %if.end211 ], [ 65535, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.0
+}
+=>
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_cms_nullfail(i32 noundef %nkeys, i32 noundef %nsigs, i32 noundef %nullfail, i32 noundef %nulldummy, i32 noundef %sig0, i32 noundef %sig1, i32 noundef %dummylen) {
+entry:
+  %cmp = icmp ugt i32 noundef %nkeys, 2
+  %cmp1 = icmp ugt i32 noundef %nsigs, noundef %nkeys
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %conv2 = zext nneg i32 noundef %nkeys to i64
+  %cmp3.not = icmp eq i32 noundef %nsigs, 0
+  br i1 %cmp3.not, label %if.end23, label %if.then4
+
+if.then4:
+  %conv = zext nneg i32 noundef %nsigs to i64
+  %cond.not.i = icmp eq i32 noundef %sig0, 0
+  %or.i = select i1 %cond.not.i, i32 64, i32 65600
+  %call7 = tail call i8 @btc_equiv_check_sig(noundef i32 %or.i, noundef i32 65600, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp9.not = icmp ne i8 %call7, 0
+  %sub = sext i1 %cmp9.not to i64
+  %cond15 = add nsw i64 %sub, %conv
+  %sub18 = add nsw i64 %conv2, -1
+  %cmp20.not = icmp slt i64 %cond15, %conv2
+  %spec.select = zext i1 %cmp20.not to i8
+  %#0 = zext i1 %cmp9.not to i32
+  br label %if.end23
+
+if.end23:
+  %fs.1 = phi i8 [ %spec.select, %if.then4 ], [ 1, %if.end ]
+  %keyPos.0 = phi i32 [ 65601, %if.then4 ], [ 65600, %if.end ]
+  %sigId.0 = phi i32 [ %#0, %if.then4 ], [ 0, %if.end ]
+  %nKeys.0 = phi i64 [ %sub18, %if.then4 ], [ %conv2, %if.end ]
+  %nSigs.0 = phi i64 [ %cond15, %if.then4 ], [ 0, %if.end ]
+  %loadedv24 = trunc nuw i8 %fs.1 to i1
+  %cmp26 = icmp sgt i64 %nSigs.0, 0
+  %or.cond268 = and i1 %cmp26, %loadedv24
+  br i1 %or.cond268, label %if.then27, label %if.end61
+
+if.then27:
+  %cmp.i = icmp eq i32 %sigId.0, 0
+  %cond.v.i = select i1 %cmp.i, i32 noundef %sig0, i32 noundef %sig1
+  %cond.not.i409 = icmp eq i32 %cond.v.i, 0
+  %shl.i410 = select i1 %cond.not.i409, i32 0, i32 65536
+  %add.i = or disjoint i32 %sigId.0, %shl.i410
+  %or.i411 = or disjoint i32 %add.i, 64
+  %call34 = tail call i8 @btc_equiv_check_sig(noundef i32 %or.i411, noundef i32 %keyPos.0, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp36.not = icmp ne i8 %call34, 0
+  %sub48 = sext i1 %cmp36.not to i64
+  %cond51 = add nsw i64 %nSigs.0, %sub48
+  %cmp58.not = icmp slt i64 %cond51, %nKeys.0
+  %spec.select405 = select i1 %cmp58.not, i8 %fs.1, i8 0
+  br label %if.end61
+
+if.end61:
+  %fs.3 = phi i8 [ %spec.select405, %if.then27 ], [ %fs.1, %if.end23 ]
+  %add62 = add nsw nuw i32 noundef %nsigs, noundef %nkeys
+  %add5.i415 = add nsw nuw i32 noundef %nkeys, 2
+  %cmp125.not = icmp eq i32 %add62, 0
+  br i1 %cmp125.not, label %if.end153, label %if.then126
+
+if.then126:
+  %or.cond33.i420.not = icmp eq i32 noundef %nkeys, 0
+  br i1 %or.cond33.i420.not, label %if.end8.i421, label %_ZL10nf_top_lenjjjjj.exit424
+
+if.end8.i421:
+  %add13.i = add nsw nuw i32 %add5.i415, noundef %nsigs
+  %cmp14.not.i = icmp samesign ult i32 %add13.i, 3
+  br i1 %cmp14.not.i, label %_ZL10nf_top_lenjjjjj.exit424, label %if.then15.i
+
+if.then15.i:
+  %cond21.in.i = icmp ne i32 noundef %sig0, 0
+  %cond21.i = zext i1 %cond21.in.i to i32
+  br label %_ZL10nf_top_lenjjjjj.exit424
+
+_ZL10nf_top_lenjjjjj.exit424:
+  %retval.0.i423 = phi i32 [ %cond21.i, %if.then15.i ], [ 1, %if.then126 ], [ 0, %if.end8.i421 ]
+  %loadedv141 = trunc nuw i8 %fs.3 to i1
+  %loadedv141.not = xor i1 %loadedv141, 1
+  %cmp143 = icmp ne i32 noundef %nullfail, 0
+  %or.cond278 = and i1 %cmp143, %loadedv141.not
+  %cmp145 = icmp eq i32 noundef %nkeys, 0
+  %or.cond279 = and i1 %cmp145, %or.cond278
+  %cmp147 = icmp ne i32 %retval.0.i423, 0
+  %or.cond280 = and i1 %or.cond279, %cmp147
+  %. = zext i1 %or.cond280 to i8
+  %.406 = select i1 %or.cond280, i32 32, i32 0
+  %call140. = select i1 %or.cond280, i32 %retval.0.i423, i32 2
+  %nkeys. = select i1 %or.cond280, i32 noundef %nkeys, i32 7
+  %.407 = select i1 %or.cond280, i32 3, i32 0
+  %.408 = select i1 %or.cond280, i32 2, i32 3
+  br label %if.end153
+
+if.end153:
+  %errored.5 = phi i8 [ %., %_ZL10nf_top_lenjjjjj.exit424 ], [ 0, %if.end61 ]
+  %err.5 = phi i32 [ %.406, %_ZL10nf_top_lenjjjjj.exit424 ], [ 0, %if.end61 ]
+  %fireLen.5 = phi i32 [ %call140., %_ZL10nf_top_lenjjjjj.exit424 ], [ 2, %if.end61 ]
+  %ikey2Fire.5 = phi i32 [ %nkeys., %_ZL10nf_top_lenjjjjj.exit424 ], [ 7, %if.end61 ]
+  %firePos.5 = phi i32 [ %.407, %_ZL10nf_top_lenjjjjj.exit424 ], [ 0, %if.end61 ]
+  %popped.5 = phi i32 [ %.408, %_ZL10nf_top_lenjjjjj.exit424 ], [ 2, %if.end61 ]
+  %loadedv154 = trunc nuw i8 %errored.5 to i1
+  %cmp156 = icmp ult i32 %add62, 2
+  %or.cond281.not = or i1 %cmp156, %loadedv154
+  br i1 %or.cond281.not, label %if.end184, label %if.then157
+
+if.then157:
+  %or.cond33.i429 = icmp ugt i32 noundef %nkeys, 1
+  br i1 %or.cond33.i429, label %_ZL10nf_top_lenjjjjj.exit443, label %if.end8.i430
+
+if.end8.i430:
+  %add13.i435 = add nsw nuw i32 %add5.i415, noundef %nsigs
+  %cmp14.not.i436 = icmp samesign ult i32 %add13.i435, 4
+  br i1 %cmp14.not.i436, label %_ZL10nf_top_lenjjjjj.exit443, label %if.then15.i437
+
+if.then15.i437:
+  %cmp17.i438 = icmp eq i32 noundef %nkeys, 1
+  %sig0.sig1.i439 = select i1 %cmp17.i438, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i440 = icmp ne i32 %sig0.sig1.i439, 0
+  %cond21.i441 = zext i1 %cond21.in.i440 to i32
+  br label %_ZL10nf_top_lenjjjjj.exit443
+
+_ZL10nf_top_lenjjjjj.exit443:
+  %retval.0.i442 = phi i32 [ %cond21.i441, %if.then15.i437 ], [ 1, %if.then157 ], [ 0, %if.end8.i430 ]
+  %loadedv172 = trunc nuw i8 %fs.3 to i1
+  %loadedv172.not = xor i1 %loadedv172, 1
+  %cmp174 = icmp ne i32 noundef %nullfail, 0
+  %or.cond282 = and i1 %cmp174, %loadedv172.not
+  %cmp176 = icmp ne i32 noundef %nkeys, 2
+  %or.cond283 = and i1 %cmp176, %or.cond282
+  %cmp178 = icmp ne i32 %retval.0.i442, 0
+  %or.cond284 = and i1 %or.cond283, %cmp178
+  br i1 %or.cond284, label %if.end184, label %if.else181
+
+if.else181:
+  %add182 = add nsw nuw i32 %popped.5, 1
+  br label %if.end184
+
+if.end184:
+  %errored.7 = phi i8 [ %errored.5, %if.end153 ], [ %errored.5, %if.else181 ], [ 1, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %err.7 = phi i32 [ %err.5, %if.end153 ], [ %err.5, %if.else181 ], [ 32, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %fireLen.7 = phi i32 [ %fireLen.5, %if.end153 ], [ %fireLen.5, %if.else181 ], [ %retval.0.i442, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %ikey2Fire.7 = phi i32 [ %ikey2Fire.5, %if.end153 ], [ %ikey2Fire.5, %if.else181 ], [ 0, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %firePos.7 = phi i32 [ %firePos.5, %if.end153 ], [ %firePos.5, %if.else181 ], [ 4, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %popped.7 = phi i32 [ %popped.5, %if.end153 ], [ %add182, %if.else181 ], [ %popped.5, %_ZL10nf_top_lenjjjjj.exit443 ]
+  %loadedv185 = trunc nuw i8 %errored.7 to i1
+  %cmp187 = icmp ult i32 %add62, 3
+  %or.cond285.not = or i1 %cmp187, %loadedv185
+  br i1 %or.cond285.not, label %if.end215, label %if.then188
+
+if.then188:
+  %or.cond33.i448 = icmp ugt i32 noundef %nkeys, 2
+  br i1 %or.cond33.i448, label %_ZL10nf_top_lenjjjjj.exit462, label %if.end8.i449
+
+if.end8.i449:
+  %add13.i454 = add nsw nuw i32 %add5.i415, noundef %nsigs
+  %cmp14.not.i455 = icmp samesign ult i32 %add13.i454, 5
+  br i1 %cmp14.not.i455, label %_ZL10nf_top_lenjjjjj.exit462, label %if.then15.i456
+
+if.then15.i456:
+  %cmp17.i457 = icmp eq i32 noundef %nkeys, 2
+  %sig0.sig1.i458 = select i1 %cmp17.i457, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i459 = icmp ne i32 %sig0.sig1.i458, 0
+  %cond21.i460 = zext i1 %cond21.in.i459 to i32
+  br label %_ZL10nf_top_lenjjjjj.exit462
+
+_ZL10nf_top_lenjjjjj.exit462:
+  %retval.0.i461 = phi i32 [ %cond21.i460, %if.then15.i456 ], [ 1, %if.then188 ], [ 0, %if.end8.i449 ]
+  %loadedv203 = trunc nuw i8 %fs.3 to i1
+  %loadedv203.not = xor i1 %loadedv203, 1
+  %cmp205 = icmp ne i32 noundef %nullfail, 0
+  %or.cond286 = and i1 %cmp205, %loadedv203.not
+  %cmp209 = icmp ne i32 %retval.0.i461, 0
+  %or.cond288 = and i1 %or.cond286, %cmp209
+  br i1 %or.cond288, label %if.end215, label %if.else212
+
+if.else212:
+  %add213 = add nsw nuw i32 %popped.7, 1
+  br label %if.end215
+
+if.end215:
+  %errored.9 = phi i8 [ %errored.7, %if.end184 ], [ %errored.7, %if.else212 ], [ 1, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %err.9 = phi i32 [ %err.7, %if.end184 ], [ %err.7, %if.else212 ], [ 32, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %fireLen.9 = phi i32 [ %fireLen.7, %if.end184 ], [ %fireLen.7, %if.else212 ], [ %retval.0.i461, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %ikey2Fire.9 = phi i32 [ %ikey2Fire.7, %if.end184 ], [ %ikey2Fire.7, %if.else212 ], [ 0, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %firePos.9 = phi i32 [ %firePos.7, %if.end184 ], [ %firePos.7, %if.else212 ], [ 5, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %popped.9 = phi i32 [ %popped.7, %if.end184 ], [ %add213, %if.else212 ], [ %popped.7, %_ZL10nf_top_lenjjjjj.exit462 ]
+  %loadedv216 = trunc nuw i8 %errored.9 to i1
+  %cmp218 = icmp ult i32 %add62, 4
+  %or.cond289.not = or i1 %cmp218, %loadedv216
+  br i1 %or.cond289.not, label %if.end246, label %if.then219
+
+if.then219:
+  %or.cond33.i467 = icmp ugt i32 noundef %nkeys, 3
+  br i1 %or.cond33.i467, label %_ZL10nf_top_lenjjjjj.exit481, label %if.end8.i468
+
+if.end8.i468:
+  %add13.i473 = add nsw nuw i32 %add5.i415, noundef %nsigs
+  %cmp14.not.i474 = icmp samesign ult i32 %add13.i473, 6
+  br i1 %cmp14.not.i474, label %_ZL10nf_top_lenjjjjj.exit481, label %if.then15.i475
+
+if.then15.i475:
+  %cmp17.i476 = icmp eq i32 noundef %nkeys, 3
+  %sig0.sig1.i477 = select i1 %cmp17.i476, i32 noundef %sig0, i32 noundef %sig1
+  %cond21.in.i478 = icmp ne i32 %sig0.sig1.i477, 0
+  %cond21.i479 = zext i1 %cond21.in.i478 to i32
+  br label %_ZL10nf_top_lenjjjjj.exit481
+
+_ZL10nf_top_lenjjjjj.exit481:
+  %retval.0.i480 = phi i32 [ %cond21.i479, %if.then15.i475 ], [ 1, %if.then219 ], [ 0, %if.end8.i468 ]
+  %loadedv234 = trunc nuw i8 %fs.3 to i1
+  %loadedv234.not = xor i1 %loadedv234, 1
+  %cmp236 = icmp ne i32 noundef %nullfail, 0
+  %or.cond290 = and i1 %cmp236, %loadedv234.not
+  %cmp240 = icmp ne i32 %retval.0.i480, 0
+  %or.cond292 = and i1 %or.cond290, %cmp240
+  br i1 %or.cond292, label %if.end246, label %if.else243
+
+if.else243:
+  %add244 = add nsw nuw i32 %popped.9, 1
+  br label %if.end246
+
+if.end246:
+  %errored.11 = phi i8 [ %errored.9, %if.end215 ], [ %errored.9, %if.else243 ], [ 1, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %err.11 = phi i32 [ %err.9, %if.end215 ], [ %err.9, %if.else243 ], [ 32, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %fireLen.11 = phi i32 [ %fireLen.9, %if.end215 ], [ %fireLen.9, %if.else243 ], [ %retval.0.i480, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %ikey2Fire.11 = phi i32 [ %ikey2Fire.9, %if.end215 ], [ %ikey2Fire.9, %if.else243 ], [ 0, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %firePos.11 = phi i32 [ %firePos.9, %if.end215 ], [ %firePos.9, %if.else243 ], [ 6, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %popped.11 = phi i32 [ %popped.9, %if.end215 ], [ %add244, %if.else243 ], [ %popped.9, %_ZL10nf_top_lenjjjjj.exit481 ]
+  %add248 = add nsw nuw i32 %add62, 3
+  %sub249 = sub i32 %add248, %popped.11
+  %loadedv250 = trunc nuw i8 %errored.11 to i1
+  br i1 %loadedv250, label %if.end260, label %if.then251
+
+if.then251:
+  %cmp252 = icmp ne i32 noundef %nulldummy, 0
+  %cmp254 = icmp ne i32 noundef %dummylen, 0
+  %or.cond293 = and i1 %cmp252, %cmp254
+  br i1 %or.cond293, label %if.end260, label %if.else256
+
+if.else256:
+  %#1 = and i8 %fs.3, 1
+  %cond258 = zext nneg i8 %#1 to i32
+  %#2 = shl nsw nuw i32 %cond258, 27
+  br label %if.end260
+
+if.end260:
+  %errored.12 = phi i8 [ %errored.11, %if.end246 ], [ %errored.11, %if.else256 ], [ 1, %if.then251 ]
+  %err.12 = phi i32 [ %err.11, %if.end246 ], [ %err.11, %if.else256 ], [ 28, %if.then251 ]
+  %pushed.0 = phi i32 [ 268435456, %if.end246 ], [ %#2, %if.else256 ], [ 268435456, %if.then251 ]
+  %finalDepth.0 = phi i32 [ 0, %if.end246 ], [ 536870912, %if.else256 ], [ 0, %if.then251 ]
+  %#3 = and i8 %errored.12, 1
+  %#4 = xor i8 %#3, 1
+  %cond262 = zext nneg i8 %#4 to i32
+  %cmp263.not = icmp eq i32 noundef %dummylen, 0
+  %#5 = and i8 %fs.3, 1
+  %cond266 = zext nneg i8 %#5 to i32
+  %#6 = shl nsw nuw i32 %err.12, 2
+  %or351.i = or disjoint i32 %#6, %cond262
+  %and4.i = shl i32 %popped.11, 8
+  %#7 = and i32 %and4.i, 3840
+  %or752.i = add nsw nuw i32 %or351.i, %#7
+  %#8 = shl nsw nuw i32 %firePos.11, 12
+  %or1153.i = add nsw nuw i32 %or752.i, %#8
+  %#9 = shl nsw nuw i32 %ikey2Fire.11, 16
+  %or1554.i = add nsw nuw i32 %or1153.i, %#9
+  %and16.i = shl nsw nuw i32 %fireLen.11, 19
+  %#10 = and i32 %and16.i, 1572864
+  %or1955.i = add nsw nuw i32 %or1554.i, %#10
+  %and20.i = shl i32 %sub249, 21
+  %#11 = and i32 %and20.i, 31457280
+  %or2356.i = add nsw nuw i32 %or1955.i, %#11
+  %#12 = select i1 %cmp263.not, i32 0, i32 33554432
+  %#13 = shl nsw nuw i32 %cond266, 30
+  %or2757.i = or disjoint i32 %#13, %#12
+  %or3158.i = or i32 %or2757.i, %pushed.0
+  %or3559.i = or i32 %or3158.i, %finalDepth.0
+  %or3960.i = or i32 %or3559.i, %or2356.i
+  %or39.i = zext nneg i32 %or3960.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or39.i, %if.end260 ], [ 65535, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_cms_nullfail=alive2-green
+STATUS=alive2-green

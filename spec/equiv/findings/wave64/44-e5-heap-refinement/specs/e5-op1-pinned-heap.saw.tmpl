@@ -1,0 +1,55 @@
+// wave64/44-e5-heap-refinement -- E5 OP_1 through allocator M2 on the PINNED
+// probe lane.  Generated from this template with @MODULE@ substituted.
+//
+// Module: pinned-probe-heap-<cap>.bc = interp-script-roots3.bc (2795c02e...,
+// built from PINS [core.ir] f5718af7... + script.cpp 657530a8...) linked with
+// model M2 at the chosen CAP.
+//
+// Concrete input (same as cells/e5-whole/saw/e5-verifyscript-op1-linked3.saw):
+// scriptSig size 0, scriptPubKey size 1 byte 0x51, null witness, flags 0.
+//
+// Post-state pins the allocation trace: 2 calls, 1-byte inner vector, 24-byte
+// outer vector, cumulative 41 bytes.  At CAP=41 the proof must succeed; at
+// CAP=40 the same spec must stop at the uninterpreted throw helper.  No
+// llvm_unsafe_assume_spec.
+m <- llvm_load_module "@MODULE@";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     llvm_alloc_global "w64_heap";
+     llvm_alloc_global "w64_off";
+     llvm_alloc_global "w64_hw";
+     llvm_alloc_global "w64_calls";
+     llvm_alloc_global "w64_failed";
+     llvm_alloc_global "w64_first_n";
+     llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+     llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ ([0x51] # (zero : [35][8]) # [0x01,0x00,0x00,0x00]) : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     // machine-checked allocation trace
+     llvm_points_to (llvm_global "w64_calls")   (llvm_term {{ 2  : [64] }});
+     llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 1  : [64] }});
+     llvm_points_to (llvm_global "w64_last_n")  (llvm_term {{ 24 : [64] }});
+     llvm_points_to (llvm_global "w64_off")     (llvm_term {{ 41 : [64] }});
+     llvm_points_to (llvm_global "w64_hw")      (llvm_term {{ 41 : [64] }});
+     llvm_points_to (llvm_global "w64_failed")  (llvm_term {{ 0  : [64] }});
+     llvm_return (llvm_term {{ 1 : [1] }});
+   }) z3;
+
+print "W64_E5_OP1_PINNED_HEAP_DONE";

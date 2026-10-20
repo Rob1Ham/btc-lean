@@ -1,0 +1,149 @@
+// Independent Cryptol oracle for the SCR-110 CHECKMULTISIG NULLFAIL cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1132-1215 at the pin and from the
+// Lean equations (Defs.lean:672-700 cmsLoop, 702-718 cmsCleanup,
+// 1091-1127 checkMultiSig), NOT from either cell leg.  The packing mirrors the
+// documented harness layout in src/cms_nullfail_obs.h.
+//
+// The clean-up scan restates the site:
+//   while (i-- > 1) {
+//     if (!fSuccess && (flags & NULLFAIL) && !ikey2 && stacktop(-1).size())
+//       return SIG_NULLFAIL;                       // 32
+//     if (ikey2 > 0) ikey2--;
+//     popstack(stack);
+//   }
+// with ikey2 = nKeys+2 at the top of the scan and i-1 = nKeys+nSigs+2 pops.
+// The *pre-decrement* ikey2 of pop p is nKeys+2-(p-1) clamped at 0.  Only the
+// signature region (p >= nKeys+3) can therefore satisfy ikey2 = 0; all items
+// above it (the counts and the keys) are non-empty in this canonical stack.
+//
+// After the scan: the dummy is on top; NULLDUMMY reads only its size (28);
+// then it is popped unconditionally and vchTrue/vchFalse is pushed.  The
+// slice ends at the push (VERIFY's pop and the script-end EVAL_FALSE are the
+// tail cell's rows).
+//
+// The loop is the two-body unroll of cmsLoop: one key is consumed per body,
+// so 0 <= nSigs <= nKeys <= 2 needs at most two bodies; fuel
+// nKeys+nSigs+1 >= bodies entered, and nSigs = 0 short-circuits to ok true.
+module cms_nullfail_model where
+
+z64 : [32] -> [64]
+z64 x = zext x
+
+// empty/non-empty length bucket
+nv : [32] -> [32]
+nv x = if x == 0x00000000 then 0x00000000 else 0x00000001
+
+// family element word at the checker seam: (len << 16) | first byte
+sigWord : [32] -> [32] -> [32]
+sigWord s i =
+  (if s != 0x00000000 then 0x00010000 else 0x00000000) + 0x00000040 + i
+
+keyWord : [32] -> [32]
+keyWord j = 0x00010040 + j
+
+// (fSuccess, nSigs, sigId, keyPos, nKeys)
+type NF = (Bit, [32], [32], [32], [32])
+
+loopStep : ([32] -> [32] -> Bit) -> [32] -> [32] -> NF -> NF
+loopStep chk s0 s1 s =
+  if s.0 && (s.1 != 0x00000000) then
+    ( if nSigs' > nKeys' then False else s.0,
+      nSigs',
+      if ok then s.2 + 0x00000001 else s.2,
+      s.3 + 0x00000001,
+      nKeys' )
+  else s
+  where
+    ok = chk (sigWord (if s.2 == 0x00000000 then s0 else s1) s.2) (keyWord s.3)
+    nSigs' = if ok then s.1 - 0x00000001 else s.1
+    nKeys' = s.4 - 0x00000001
+
+loopFs : ([32] -> [32] -> Bit) -> [32] -> [32] -> [32] -> [32] -> [32]
+loopFs chk nk ns s0 s1 =
+  if fs2 then 0x00000001 else 0x00000000
+  where
+    fs2 = (loopStep chk s0 s1
+            (loopStep chk s0 s1
+               (True, ns, 0x00000000, 0x00000000, nk))).0
+
+// cleanup step: (errored, popped, firePos, ikey2Fire, fireLen, err)
+type SC = (Bit, [32], [32], [32], [32], [32])
+
+itemLen : [32] -> [32] -> [32] -> [32] -> [32] -> [32]
+itemLen p nk ns s0 s1 =
+  if p == 0x00000001 then 0x00000001
+  else if (p >= 0x00000002) && (p <= nk + 0x00000001) then 0x00000001
+  else if p == nk + 0x00000002 then 0x00000001
+  else if (p >= nk + 0x00000003) && (p <= nk + ns + 0x00000002)
+       then if p - (nk + 0x00000003) == 0x00000000 then nv s0 else nv s1
+  else 0x00000000
+
+scanStep : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> Bit -> SC -> SC
+scanStep p nk ns nf s0 s1 fs s =
+  if s.0 || (p > pops) then s
+  else if (fs == False) && (nf != 0x00000000) && (k2 == 0x00000000)
+          && (len != 0x00000000)
+       then (True, s.1, p, k2, len, 0x00000020)
+       else (s.0, s.1 + 0x00000001, s.2, s.3, s.4, s.5)
+  where
+    pops = nk + ns + 0x00000002
+    k2 = if (nk + 0x00000002) >= (p - 0x00000001)
+         then nk + 0x00000002 - (p - 0x00000001)
+         else 0x00000000
+    len = itemLen p nk ns s0 s1
+
+sc0 : SC
+sc0 = (False, 0x00000000, 0x00000000, 0x00000007, 0x00000002, 0x00000000)
+
+sixPops : [32] -> [32] -> [32] -> [32] -> [32] -> Bit -> SC
+sixPops nk ns nf s0 s1 fs =
+  scanStep 0x00000006 nk ns nf s0 s1 fs
+    (scanStep 0x00000005 nk ns nf s0 s1 fs
+      (scanStep 0x00000004 nk ns nf s0 s1 fs
+        (scanStep 0x00000003 nk ns nf s0 s1 fs
+          (scanStep 0x00000002 nk ns nf s0 s1 fs
+            (scanStep 0x00000001 nk ns nf s0 s1 fs sc0)))))
+
+run : ([32] -> [32] -> Bit) -> [32] -> [32] -> [32] -> [32] -> [32]
+      -> [32] -> [32] -> [64]
+run chk nk ns nf nd s0 s1 dl =
+  if (nk > 0x00000002) || (ns > nk) then 0x000000000000ffff
+  else (z64 res) || (z64 errT << 2) || (z64 popped << 8)
+       || (z64 firePos << 12) || (z64 k2Fire << 16) || (z64 fireLen << 19)
+       || (z64 depthAfter << 21) || (z64 dLenB << 25)
+       || (z64 pushed << 27) || (z64 finalDepth << 29)
+       || (z64 fsv << 30)
+  where
+    fsv = loopFs chk nk ns s0 s1
+    fsb = fsv != 0x00000000
+    sc = sixPops nk ns nf s0 s1 fsb
+    scanErr = sc.0
+    tailErr = (nd != 0x00000000) && (dl != 0x00000000)
+    errored = scanErr || tailErr
+    errT = if scanErr then 0x00000020
+           else if tailErr then 0x0000001c
+           else 0x00000000
+    res = if errored then 0x00000000 else 0x00000001
+    popped = sc.1
+    firePos = sc.2
+    k2Fire = sc.3
+    fireLen = sc.4
+    depthAfter = nk + ns + 0x00000003 - popped
+    dLenB = nv dl
+    pushed = if errored then 0x00000002 else fsv
+    finalDepth = if errored then 0x00000000 else 0x00000001
+
+// Checker instances mirroring the shared SAW stub: case 0 always false,
+// case 1 always true.  Alive2 quantifies over the checker instead.
+chk0 : [32] -> [32] -> Bit
+chk0 s p = False
+
+chk1 : [32] -> [32] -> Bit
+chk1 s p = True
+
+cms_nullfail0 : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+cms_nullfail0 nk ns nf nd s0 s1 dl = run chk0 nk ns nf nd s0 s1 dl
+
+cms_nullfail1 : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+cms_nullfail1 nk ns nf nd s0 s1 dl = run chk1 nk ns nf nd s0 s1 dl

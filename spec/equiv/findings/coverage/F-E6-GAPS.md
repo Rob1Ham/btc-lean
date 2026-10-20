@@ -109,7 +109,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-107 | checksig | `checksig/C-L-checksig-policy` |
 | SCR-108 | checksig | `checksig/C-L-checksig-der` |
 | SCR-109 | checksig | `checksig/C-L-checksig-empty` |
-| SCR-110 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
+| SCR-110 | checksig | `checkmultisig/C-L-cms-nullfail-loop`, `checksig/C-L-checksig-nullfail-hashtype` |
 | SCR-111 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
 | SCR-113 | checksig | `checksig/C-L-checksig-opcount` |
 | SCR-114 | checkmultisig | `checkmultisig/C-L-cms-layout-sym`, `e3-cms/C-L-cms-1of1`, `e3-cms/C-L-w32-cms-counts` |

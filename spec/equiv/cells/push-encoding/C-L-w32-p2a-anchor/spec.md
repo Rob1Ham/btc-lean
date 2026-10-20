@@ -6,7 +6,7 @@ pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
 legs: C, L
 cell: push-encoding/C-L-w32-p2a-anchor
 family: push-encoding
-tool_status: both-green (symbolic predicate; L is a reviewed Lean transcription)
+tool_status: both-green (symbolic predicate; L transcription, twin hook filed — see trust_note)
 precondition: |
   - the predicate does not read flags, sigversion or policy.
   - the decoded witness (version, program) pair is given: version is the
@@ -38,5 +38,18 @@ trust_note: >
   direct, reviewed four-conjunct transcription of Defs.lean:523-526, not a
   call into generated twin code; the transcription is in the certificate.
   The C-L binding of the predicate into VerifyWitnessProgram's P2A branch is
-  not proved by this cell.  No Core or twin patch is used.
+  not proved by this cell.
+  The exact twin hook that removes both caveats is filed, with a patch that
+  was built and proved in a scratch tree (Alive2 bidirectional green, SAW
+  4/4, twin smoke 147/147, contract-entry table 8/8 Core verdicts + 2
+  declared E4 boundaries):
+  findings/handoffs/CELLS-to-TWIN-002-p2a-anchor-hook.md.  It cannot land
+  from this cell because twin/runtime.inc is content-addressed by 21 cells
+  (42 certificates) that `make gate-ir-pin` replays; the
+  determination and evidence are in
+  findings/wave64/61-p2a-l-link/report.md.
+  The Lean side already proves the binding (PDW57.isPayToAnchor_iff tagged
+  SCR-055; PDW41.verifyWitnessProgram_p2a_ok; PDW59 v1 anchor/P2SH arms), but
+  rules.yaml SCR-055 points lean_target at isWitnessProgram; the ledger ask
+  is in the same handoff.  This cell uses no Core or twin patch.
 ---

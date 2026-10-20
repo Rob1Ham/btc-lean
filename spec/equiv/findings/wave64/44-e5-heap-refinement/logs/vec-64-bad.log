@@ -1,0 +1,24 @@
+Loading file "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-64-bad.saw"
+Verifying w64_growth_bad_64...
+Simulating w64_growth_bad_64...
+Checking proof obligations w64_growth_bad_64...
+Subgoal failed: w64_growth_bad_64 /tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-64-bad.saw:30:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 32;
+    }
+ in ecNumber (TCNum 1) (seq _x`1 Bool) (PLiteralSeqBool _x`1)
+Actual term:
+bvNat 32 0
+
+Goal size 8. Provers used: SBV->Z3
+----------Counterexample----------
+<<All settings of the symbolic variables constitute a counterexample>>
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   /tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-64-bad.saw:30:60-30:62 in (callback)
+   (builtin) in llvm_verify
+   /tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-64-bad.saw:30:1-30:62 (at top level)
+Proof failed.
+

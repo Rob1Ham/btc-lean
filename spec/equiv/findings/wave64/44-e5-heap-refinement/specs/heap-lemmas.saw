@@ -1,0 +1,226 @@
+// wave64/44-e5-heap-refinement -- allocator model M2 lemmas (CAP = 64 MiB).
+//
+// Module: cap64/lemmas-linked.bc = heap-model.ll + heap-lemmas.ll, generated
+// by build/gen_heap_model.py at CAP=67108864 and assembled with llvm-as.
+//
+// Every spec proves `llvm_return 1`, i.e. a predicate the wrapper computes.
+// No llvm_unsafe_assume_spec.  These are properties of the abstraction; the
+// refinement to glibc/libstdc++ is O6 in REFINEMENT.md.
+m <- llvm_load_module "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/cap64/lemmas-linked.bc";
+
+// 1. any request inside the usable capacity succeeds on a fresh arena
+let nonnull_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 1 /\ n <= 67108863 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 2. a request that cannot fit returns NULL (failure is observable)
+let oversize_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 67108864 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 3. two successful requests have distinct addresses
+let disjoint_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  a <- llvm_fresh_var "a" (llvm_int 64);
+  b <- llvm_fresh_var "b" (llvm_int 64);
+  llvm_precond {{ a >= 1 /\ a <= 16777216 /\ b >= 1 /\ b <= 16777216 }};
+  llvm_execute_func [llvm_term a, llvm_term b];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 4. three successful requests are pairwise distinct
+let three_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  a <- llvm_fresh_var "a" (llvm_int 64);
+  b <- llvm_fresh_var "b" (llvm_int 64);
+  c <- llvm_fresh_var "c" (llvm_int 64);
+  llvm_precond {{ a >= 1 /\ a <= 8388608 /\ b >= 1 /\ b <= 8388608 /\ c >= 1 /\ c <= 8388608 }};
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 5. cursor invariant after three successful requests
+let cursor_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  a <- llvm_fresh_var "a" (llvm_int 64);
+  b <- llvm_fresh_var "b" (llvm_int 64);
+  c <- llvm_fresh_var "c" (llvm_int 64);
+  llvm_precond {{ a >= 1 /\ a <= 8388608 /\ b >= 1 /\ b <= 8388608 /\ c >= 1 /\ c <= 8388608 }};
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 6. malloc is non-null throughout its usable range
+let malloc_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 1 /\ n <= 67108847 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 7. full arena: raw request fails AND the failure counter advances
+let failed_counted_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// 8. full arena: malloc reports NULL
+let malloc_full_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+let realloc_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+  llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+print "W64_ALLOC_LEMMAS_BEGIN";
+llvm_verify m "w64_lemma_nonnull"          [] false nonnull_spec          z3;
+print "W64_LEMMA_NONNULL_OK";
+llvm_verify m "w64_lemma_oversize"         [] false oversize_spec         z3;
+print "W64_LEMMA_OVERSIZE_OK";
+llvm_verify m "w64_lemma_disjoint"         [] false disjoint_spec         z3;
+print "W64_LEMMA_DISJOINT_OK";
+llvm_verify m "w64_lemma_three_distinct"   [] false three_spec            z3;
+print "W64_LEMMA_THREE_DISTINCT_OK";
+llvm_verify m "w64_lemma_alignment"   [] false cursor_spec           z3;
+print "W64_LEMMA_ALIGNMENT_OK";
+llvm_verify m "w64_lemma_malloc_nonnull"   [] false malloc_spec           z3;
+print "W64_LEMMA_MALLOC_NONNULL_OK";
+llvm_verify m "w64_lemma_failed_counted"   [] false failed_counted_spec   z3;
+print "W64_LEMMA_FAILED_COUNTED_OK";
+llvm_verify m "w64_lemma_malloc_full_null" [] false malloc_full_spec      z3;
+print "W64_LEMMA_MALLOC_FULL_NULL_OK";
+llvm_verify m "w64_lemma_realloc_preserve" [] false realloc_spec          z3;
+print "W64_LEMMA_REALLOC_PRESERVE_OK";
+print "W64_ALLOC_LEMMAS_DONE";

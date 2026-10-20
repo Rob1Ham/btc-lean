@@ -1,0 +1,505 @@
+Loading file "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-5-cap41-good.saw"
+Verifying w64_growth_bound_5...
+Simulating w64_growth_bound_5...
+Stack trace:
+   (builtin) in llvm_verify
+   /tmp/opencode/wave64/44-e5-heap-refinement-scratch/specs/vec-5-cap41-good.saw:33:1-33:59 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  internal: error: in _Znwm
+  Failed to load function handle: _ZSt17__throw_bad_allocv
+  Details:
+    No implementation or override found for pointer
+Stack frame _Znwm
+  Writes:
+    Indexed chunk:
+      99 |->   *(99, 0x0:[64]) := 0x1:[64]
+Stack frame _ZNSt15__new_allocatorIhE8allocateEmPKv
+  Allocations:
+    StackAlloc 402 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 401 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 400 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 399 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      399 |->   *(399, 0x0:[64]) := (110, 0x0:[64])
+      400 |->   *(400, 0x0:[64]) := (110, 0x0:[64])
+      401 |->   *(401, 0x0:[64]) := 0x1:[64]
+      402 |->   *(402, 0x0:[64]) := 0x0:[64]
+Stack frame _ZNSt12_Vector_baseIhSaIhEE11_M_allocateEm
+  Allocations:
+    StackAlloc 398 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 397 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 396 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 395 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 394 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 393 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      393 |->   *(393, 0x0:[64]) := (110, 0x0:[64])
+      394 |->   *(394, 0x0:[64]) := 0x1:[64]
+      395 |->   *(395, 0x0:[64]) := (110, 0x0:[64])
+      396 |->   *(396, 0x0:[64]) := 0x1:[64]
+      397 |->   *(397, 0x0:[64]) := (110, 0x0:[64])
+      398 |->   *(398, 0x0:[64]) := 0x1:[64]
+Stack frame _ZNSt12_Vector_baseIhSaIhEE17_M_create_storageEm
+  Allocations:
+    StackAlloc 392 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 391 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      391 |->   *(391, 0x0:[64]) := (110, 0x0:[64])
+      392 |->   *(392, 0x0:[64]) := 0x1:[64]
+Stack frame _ZNSt12_Vector_baseIhSaIhEEC2EmRKS0_
+  Allocations:
+    StackAlloc 383 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 382 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 381 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      110 |->   memset (110, 0x10:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x8:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x0:[64]) 0x0:[8] 0x8:[64]
+      381 |->   *(381, 0x0:[64]) := (110, 0x0:[64])
+      382 |->   *(382, 0x0:[64]) := 0x1:[64]
+      383 |->   *(383, 0x0:[64]) := (112, 0x0:[64])
+      384 |->   *(384, 0x0:[64]) := (110, 0x0:[64])
+      385 |->   *(385, 0x0:[64]) := (112, 0x0:[64])
+      386 |->   *(386, 0x0:[64]) := (110, 0x0:[64])
+      387 |->   *(387, 0x0:[64]) := (112, 0x0:[64])
+      388 |->   *(388, 0x0:[64]) := (110, 0x0:[64])
+      389 |->   *(389, 0x0:[64]) := (112, 0x0:[64])
+      390 |->   *(390, 0x0:[64]) := (110, 0x0:[64])
+Stack frame _ZNSt6vectorIhSaIhEEC2EmRKhRKS0_
+  Allocations:
+    StackAlloc 365 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 364 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 363 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 362 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      362 |->   *(362, 0x0:[64]) := (110, 0x0:[64])
+      363 |->   *(363, 0x0:[64]) := 0x1:[64]
+      364 |->   *(364, 0x0:[64]) := (111, 0x0:[64])
+      365 |->   *(365, 0x0:[64]) := (112, 0x0:[64])
+      366 |->   *(366, 0x0:[64]) := (373, 0x0:[64])
+      367 |->   *(367, 0x0:[64]) := (112, 0x0:[64])
+      368 |->   *(368, 0x0:[64]) := (373, 0x0:[64])
+      369 |->   *(369, 0x0:[64]) := (112, 0x0:[64])
+      370 |->   *(370, 0x0:[64]) := (373, 0x0:[64])
+      371 |->   *(371, 0x0:[64]) := 0x1:[64]
+      372 |->   *(372, 0x0:[64]) := (112, 0x0:[64])
+      374 |->   *(374, 0x0:[64]) := (373, 0x0:[64])
+      375 |->   *(375, 0x0:[64]) := (373, 0x0:[64])
+      376 |->   *(376, 0x0:[64]) := 0x7fffffffffffffff:[64]
+      377 |->   *(377, 0x0:[64]) := 0xffffffffffffffff:[64]
+      378 |->   *(378, 0x0:[64]) := (376, 0x0:[64])
+      379 |->   *(379, 0x0:[64]) := (376, 0x0:[64])
+      380 |->   *(380, 0x0:[64]) := (377, 0x0:[64])
+Stack frame w64_growth_bound_5
+  Allocations:
+    StackAlloc 112 0x1:[64] Mutable 1-byte-aligned internal
+    StackAlloc 111 0x1:[64] Mutable 1-byte-aligned internal
+    StackAlloc 110 0x18:[64] Mutable 8-byte-aligned internal
+    StackAlloc 109 0x4:[64] Mutable 4-byte-aligned internal
+    StackAlloc 108 0x18:[64] Mutable 8-byte-aligned internal
+    StackAlloc 107 0x1:[64] Mutable 1-byte-aligned internal
+    StackAlloc 106 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 105 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 104 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      96 |->   *(96, 0x0:[64]) := 0x10:[64]
+               *(96, 0x0:[64]) := 0x0:[64]
+      97 |->   *(97, 0x0:[64]) := 0x18:[64]
+               *(97, 0x0:[64]) := 0x1:[64]
+      98 |->   *(98, 0x0:[64]) := 0x1:[64]
+      100 |->   *(100, 0x0:[64]) := 0x2:[64]
+                *(100, 0x0:[64]) := 0x1:[64]
+      101 |->   *(101, 0x0:[64]) := 0x29:[64]
+                *(101, 0x0:[64]) := 0x2:[64]
+      102 |->   *(102, 0x0:[64]) := 0x29:[64]
+                *(102, 0x0:[64]) := 0x2:[64]
+      103 |->   *(103, 0x20:[64]) := (103, 0x1:[64])
+                *(103, 0x18:[64]) := (103, 0x1:[64])
+                *(103, 0x10:[64]) := (103, 0x0:[64])
+                memset (103, 0x0:[64]) c@126:bv 0x1:[64]
+      104 |->   *(104, 0x0:[64]) := (112, 0x0:[64])
+                *(104, 0x0:[64]) := (112, 0x0:[64])
+      105 |->   *(105, 0x0:[64]) := (112, 0x0:[64])
+      106 |->   *(106, 0x0:[64]) := (112, 0x0:[64])
+                *(106, 0x0:[64]) := (112, 0x0:[64])
+      107 |->   *(107, 0x0:[64]) := c@126:bv
+      108 |->   *(108, 0x10:[64]) := (103, 0x28:[64])
+                *(108, 0x8:[64]) := (103, 0x28:[64])
+                *(108, 0x0:[64]) := (103, 0x10:[64])
+                memset (108, 0x10:[64]) 0x0:[8] 0x8:[64]
+                memset (108, 0x8:[64]) 0x0:[8] 0x8:[64]
+                memset (108, 0x0:[64]) 0x0:[8] 0x8:[64]
+      109 |->   *(109, 0x0:[64]) := 0x1:[32]
+                memset (109, 0x0:[64]) 0x0:[8] 0x4:[64]
+      110 |->   memset (110, 0x0:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x8:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x10:[64]) 0x0:[8] 0x8:[64]
+                *(110, 0x8:[64]) := (103, 0x1:[64])
+                *(110, 0x10:[64]) := (103, 0x1:[64])
+                *(110, 0x8:[64]) := (103, 0x0:[64])
+                *(110, 0x0:[64]) := (103, 0x0:[64])
+                memset (110, 0x10:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x8:[64]) 0x0:[8] 0x8:[64]
+                memset (110, 0x0:[64]) 0x0:[8] 0x8:[64]
+      111 |->
+        *(111, 0x0:[64]) := bvSelect 0 8 (bvSum (bvZext 32 c@126:bv) 0x1:[32])
+        *(111, 0x0:[64]) := c@126:bv
+      113 |->   *(113, 0x0:[64]) := (108, 0x0:[64])
+      114 |->   *(114, 0x0:[64]) := (108, 0x0:[64])
+      115 |->   *(115, 0x0:[64]) := (108, 0x0:[64])
+      116 |->   *(116, 0x0:[64]) := (108, 0x0:[64])
+      117 |->   *(117, 0x0:[64]) := (108, 0x0:[64])
+      118 |->   *(118, 0x0:[64]) := (108, 0x0:[64])
+      119 |->   *(119, 0x0:[64]) := (110, 0x0:[64])
+      120 |->   *(120, 0x0:[64]) := 0x1:[64]
+      121 |->   *(121, 0x0:[64]) := (111, 0x0:[64])
+      122 |->   *(122, 0x0:[64]) := (112, 0x0:[64])
+      123 |->   *(123, 0x0:[64]) := (130, 0x0:[64])
+      124 |->   *(124, 0x0:[64]) := (112, 0x0:[64])
+      125 |->   *(125, 0x0:[64]) := (130, 0x0:[64])
+      126 |->   *(126, 0x0:[64]) := (112, 0x0:[64])
+      127 |->   *(127, 0x0:[64]) := (130, 0x0:[64])
+      128 |->   *(128, 0x0:[64]) := 0x1:[64]
+      129 |->   *(129, 0x0:[64]) := (112, 0x0:[64])
+      131 |->   *(131, 0x0:[64]) := (130, 0x0:[64])
+      132 |->   *(132, 0x0:[64]) := (130, 0x0:[64])
+      133 |->   *(133, 0x0:[64]) := 0x7fffffffffffffff:[64]
+      134 |->   *(134, 0x0:[64]) := 0xffffffffffffffff:[64]
+      135 |->   *(135, 0x0:[64]) := (133, 0x0:[64])
+      136 |->   *(136, 0x0:[64]) := (133, 0x0:[64])
+      137 |->   *(137, 0x0:[64]) := (134, 0x0:[64])
+      138 |->   *(138, 0x0:[64]) := (110, 0x0:[64])
+      139 |->   *(139, 0x0:[64]) := 0x1:[64]
+      140 |->   *(140, 0x0:[64]) := (112, 0x0:[64])
+      141 |->   *(141, 0x0:[64]) := (110, 0x0:[64])
+      142 |->   *(142, 0x0:[64]) := (112, 0x0:[64])
+      143 |->   *(143, 0x0:[64]) := (110, 0x0:[64])
+      144 |->   *(144, 0x0:[64]) := (112, 0x0:[64])
+      145 |->   *(145, 0x0:[64]) := (110, 0x0:[64])
+      146 |->   *(146, 0x0:[64]) := (112, 0x0:[64])
+      147 |->   *(147, 0x0:[64]) := (110, 0x0:[64])
+      148 |->   *(148, 0x0:[64]) := (110, 0x0:[64])
+      149 |->   *(149, 0x0:[64]) := 0x1:[64]
+      150 |->   *(150, 0x0:[64]) := (110, 0x0:[64])
+      151 |->   *(151, 0x0:[64]) := 0x1:[64]
+      152 |->   *(152, 0x0:[64]) := (110, 0x0:[64])
+      153 |->   *(153, 0x0:[64]) := 0x1:[64]
+      154 |->   *(154, 0x0:[64]) := (110, 0x0:[64])
+      155 |->   *(155, 0x0:[64]) := 0x1:[64]
+      156 |->   *(156, 0x0:[64]) := (110, 0x0:[64])
+      157 |->   *(157, 0x0:[64]) := (110, 0x0:[64])
+      158 |->   *(158, 0x0:[64]) := 0x1:[64]
+      159 |->   *(159, 0x0:[64]) := 0x0:[64]
+      160 |->   *(160, 0x0:[64]) := (110, 0x0:[64])
+      161 |->   *(161, 0x0:[64]) := 0x1:[64]
+      162 |->   *(162, 0x0:[64]) := (111, 0x0:[64])
+      163 |->   *(163, 0x0:[64]) := (110, 0x0:[64])
+      164 |->   *(164, 0x0:[64]) := (103, 0x0:[64])
+      165 |->   *(165, 0x0:[64]) := 0x1:[64]
+      166 |->   *(166, 0x0:[64]) := (111, 0x0:[64])
+      167 |->   *(167, 0x0:[64]) := (110, 0x0:[64])
+      168 |->   *(168, 0x0:[64]) := (103, 0x0:[64])
+      169 |->   *(169, 0x0:[64]) := 0x1:[64]
+      170 |->   *(170, 0x0:[64]) := (111, 0x0:[64])
+      171 |->   *(171, 0x0:[64]) := 0x1:[8]
+      172 |->   *(172, 0x0:[64]) := (103, 0x0:[64])
+      173 |->   *(173, 0x0:[64]) := 0x1:[64]
+      174 |->   *(174, 0x0:[64]) := (111, 0x0:[64])
+      175 |->   *(175, 0x0:[64]) := (176, 0x0:[64])
+      176 |->   *(176, 0x0:[64]) := (103, 0x0:[64])
+      177 |->   *(177, 0x0:[64]) := 0x1:[64]
+      178 |->   *(178, 0x0:[64]) := (111, 0x0:[64])
+      181 |->   *(181, 0x0:[64]) := 0x1:[64]
+      182 |->   *(182, 0x0:[64]) := (103, 0x1:[64])
+      184 |->   *(184, 0x0:[64]) := (103, 0x0:[64])
+      185 |->   *(185, 0x0:[64]) := 0x1:[64]
+      186 |->   *(186, 0x0:[64]) := (111, 0x0:[64])
+      187 |->   *(187, 0x0:[64]) := (103, 0x0:[64])
+      188 |->   *(188, 0x0:[64]) := (103, 0x1:[64])
+      189 |->   *(189, 0x0:[64]) := (111, 0x0:[64])
+      190 |->   *(190, 0x0:[64]) := (103, 0x0:[64])
+      191 |->   *(191, 0x0:[64]) := (103, 0x1:[64])
+      192 |->   *(192, 0x0:[64]) := (111, 0x0:[64])
+      193 |->   *(193, 0x0:[64]) := c@126:bv
+      194 |->   *(194, 0x0:[64]) := 0x1:[64]
+      195 |->   *(195, 0x0:[64]) := (108, 0x0:[64])
+      196 |->   *(196, 0x0:[64]) := (110, 0x0:[64])
+      200 |->   *(200, 0x0:[64]) := (108, 0x0:[64])
+      201 |->   *(201, 0x0:[64]) := (110, 0x0:[64])
+      202 |->   *(202, 0x0:[64]) := 0x0:[64]
+      203 |->   *(203, 0x0:[64]) := 0x0:[64]
+      204 |->   *(204, 0x0:[64]) := (108, 0x0:[64])
+      205 |->   *(205, 0x0:[64]) := (203, 0x0:[64])
+      206 |->   *(206, 0x0:[64]) := (108, 0x8:[64])
+      207 |->   *(207, 0x0:[64]) := (108, 0x0:[64])
+      208 |->   *(208, 0x0:[64]) := (103, 0x10:[64])
+      209 |->   *(209, 0x0:[64]) := (110, 0x0:[64])
+      210 |->   *(210, 0x0:[64]) := 0x0:[64]
+      211 |->   *(211, 0x0:[64]) := (108, 0x0:[64])
+      212 |->   *(212, 0x0:[64]) := (110, 0x0:[64])
+      213 |->   *(213, 0x0:[64]) := 0x1:[64]
+      214 |->   *(214, 0x0:[64]) := 0x0:[64]
+      215 |->   *(215, 0x0:[64]) := 0x0:[64]
+      216 |->   *(216, 0x0:[64]) := 0x0:[64]
+      217 |->   *(217, 0x0:[64]) := 0x0:[64]
+      218 |->   *(218, 0x0:[64]) := (103, 0x10:[64])
+      219 |->   *(219, 0x0:[64]) := (103, 0x28:[64])
+                *(219, 0x0:[64]) := (103, 0x28:[64])
+                *(219, 0x0:[64]) := (103, 0x10:[64])
+                memset (219, 0x0:[64]) 0x0:[8] 0x8:[64]
+                *(219, 0x0:[64]) := (103, 0x10:[64])
+      220 |->   *(220, 0x0:[64]) := (108, 0x0:[64])
+      221 |->   *(221, 0x0:[64]) := 0x1:[64]
+      222 |->   *(222, 0x0:[64]) := (94, 0x0:[64])
+      223 |->   *(223, 0x0:[64]) := 0x1:[64]
+      224 |->   *(224, 0x0:[64]) := 0x0:[64]
+      225 |->   *(225, 0x0:[64]) := (108, 0x0:[64])
+      226 |->   *(226, 0x0:[64]) := (108, 0x0:[64])
+      227 |->   *(227, 0x0:[64]) := (108, 0x0:[64])
+      228 |->   *(228, 0x0:[64]) := (108, 0x0:[64])
+      229 |->   *(229, 0x0:[64]) := 0x555555555555555:[64]
+      230 |->   *(230, 0x0:[64]) := 0xaaaaaaaaaaaaaaa:[64]
+      231 |->   *(231, 0x0:[64]) := (229, 0x0:[64])
+      232 |->   *(232, 0x0:[64]) := (229, 0x0:[64])
+      233 |->   *(233, 0x0:[64]) := (230, 0x0:[64])
+      234 |->   *(234, 0x0:[64]) := (108, 0x0:[64])
+      235 |->   *(235, 0x0:[64]) := (108, 0x0:[64])
+      236 |->   *(236, 0x0:[64]) := (108, 0x0:[64])
+      237 |->   *(237, 0x0:[64]) := (221, 0x0:[64])
+      238 |->   *(238, 0x0:[64]) := (224, 0x0:[64])
+      239 |->   *(239, 0x0:[64]) := (221, 0x0:[64])
+      240 |->   *(240, 0x0:[64]) := (108, 0x0:[64])
+      241 |->   *(241, 0x0:[64]) := (108, 0x0:[64])
+      242 |->   *(242, 0x0:[64]) := (108, 0x0:[64])
+      243 |->   *(243, 0x0:[64]) := (108, 0x0:[64])
+      244 |->   *(244, 0x0:[64]) := (108, 0x0:[64])
+      245 |->   *(245, 0x0:[64]) := 0x555555555555555:[64]
+      246 |->   *(246, 0x0:[64]) := 0xaaaaaaaaaaaaaaa:[64]
+      247 |->   *(247, 0x0:[64]) := (245, 0x0:[64])
+      248 |->   *(248, 0x0:[64]) := (245, 0x0:[64])
+      249 |->   *(249, 0x0:[64]) := (246, 0x0:[64])
+      250 |->   *(250, 0x0:[64]) := 0x0:[64]
+      251 |->   *(251, 0x0:[64]) := (108, 0x0:[64])
+      252 |->   *(252, 0x0:[64]) := (250, 0x0:[64])
+      253 |->   *(253, 0x0:[64]) := (108, 0x0:[64])
+      254 |->   *(254, 0x0:[64]) := (210, 0x0:[64])
+      255 |->   *(255, 0x0:[64]) := (217, 0x0:[64])
+      256 |->   *(256, 0x0:[64]) := (210, 0x0:[64])
+      257 |->   *(257, 0x0:[64]) := (217, 0x0:[64])
+      258 |->   *(258, 0x0:[64]) := (108, 0x0:[64])
+      259 |->   *(259, 0x0:[64]) := 0x1:[64]
+      260 |->   *(260, 0x0:[64]) := (108, 0x0:[64])
+      261 |->   *(261, 0x0:[64]) := 0x1:[64]
+      262 |->   *(262, 0x0:[64]) := (108, 0x0:[64])
+      263 |->   *(263, 0x0:[64]) := 0x1:[64]
+      264 |->   *(264, 0x0:[64]) := (108, 0x0:[64])
+      265 |->   *(265, 0x0:[64]) := (108, 0x0:[64])
+      266 |->   *(266, 0x0:[64]) := 0x1:[64]
+      267 |->   *(267, 0x0:[64]) := 0x0:[64]
+      268 |->   *(268, 0x0:[64]) := (103, 0x10:[64])
+      269 |->   *(269, 0x0:[64]) := (110, 0x0:[64])
+      270 |->   *(270, 0x0:[64]) := (103, 0x10:[64])
+      271 |->   *(271, 0x0:[64]) := (110, 0x0:[64])
+      272 |->   *(272, 0x0:[64]) := (103, 0x10:[64])
+      273 |->   *(273, 0x0:[64]) := (110, 0x0:[64])
+      274 |->   *(274, 0x0:[64]) := (103, 0x10:[64])
+      275 |->   *(275, 0x0:[64]) := (110, 0x0:[64])
+      276 |->   *(276, 0x0:[64]) := (103, 0x10:[64])
+      277 |->   *(277, 0x0:[64]) := (110, 0x0:[64])
+      278 |->   *(278, 0x0:[64]) := (103, 0x10:[64])
+      279 |->   *(279, 0x0:[64]) := (110, 0x0:[64])
+      280 |->   *(280, 0x0:[64]) := (103, 0x10:[64])
+      281 |->   *(281, 0x0:[64]) := (110, 0x0:[64])
+      282 |->   *(282, 0x0:[64]) := (210, 0x0:[64])
+      283 |->   *(283, 0x0:[64]) := (108, 0x0:[64])
+      284 |->   *(284, 0x0:[64]) := 0x0:[64]
+      285 |->   *(285, 0x0:[64]) := 0x0:[64]
+      286 |->   *(286, 0x0:[64]) := (103, 0x10:[64])
+      287 |->   *(287, 0x0:[64]) := (108, 0x0:[64])
+      288 |->   *(288, 0x0:[64]) := 0x0:[64]
+      289 |->   *(289, 0x0:[64]) := 0x0:[64]
+      290 |->   *(290, 0x0:[64]) := (103, 0x10:[64])
+      291 |->   *(291, 0x0:[64]) := (108, 0x0:[64])
+      292 |->   *(292, 0x0:[64]) := 0x0:[64]
+      293 |->   *(293, 0x0:[64]) := 0x0:[64]
+      294 |->   *(294, 0x0:[64]) := (103, 0x10:[64])
+      295 |->   *(295, 0x0:[64]) := 0x0:[64]
+      296 |->   *(296, 0x0:[64]) := 0x0:[64]
+      297 |->   *(297, 0x0:[64]) := (103, 0x10:[64])
+      298 |->   *(298, 0x0:[64]) := (108, 0x0:[64])
+      299 |->   *(299, 0x0:[64]) := (103, 0x10:[64])
+      300 |->   *(300, 0x0:[64]) := (210, 0x0:[64])
+      301 |->   *(301, 0x0:[64]) := (108, 0x0:[64])
+      302 |->   *(302, 0x0:[64]) := 0x0:[64]
+      303 |->   *(303, 0x0:[64]) := 0x0:[64]
+      304 |->   *(304, 0x0:[64]) := (103, 0x28:[64])
+      305 |->   *(305, 0x0:[64]) := (108, 0x0:[64])
+      306 |->   *(306, 0x0:[64]) := 0x0:[64]
+      307 |->   *(307, 0x0:[64]) := 0x0:[64]
+      308 |->   *(308, 0x0:[64]) := (103, 0x28:[64])
+      309 |->   *(309, 0x0:[64]) := (108, 0x0:[64])
+      310 |->   *(310, 0x0:[64]) := 0x0:[64]
+      311 |->   *(311, 0x0:[64]) := 0x0:[64]
+      312 |->   *(312, 0x0:[64]) := (103, 0x28:[64])
+      313 |->   *(313, 0x0:[64]) := 0x0:[64]
+      314 |->   *(314, 0x0:[64]) := 0x0:[64]
+      315 |->   *(315, 0x0:[64]) := (103, 0x28:[64])
+      316 |->   *(316, 0x0:[64]) := (108, 0x0:[64])
+      317 |->   *(317, 0x0:[64]) := (103, 0x28:[64])
+      324 |->   *(324, 0x0:[64]) := (108, 0x0:[64])
+      325 |->   *(325, 0x0:[64]) := 0x0:[64]
+      326 |->   *(326, 0x0:[64]) := 0x0:[64]
+      327 |->   *(327, 0x0:[64]) := (108, 0x0:[64])
+      328 |->   *(328, 0x0:[64]) := (103, 0x10:[64])
+      329 |->   *(329, 0x0:[64]) := (103, 0x28:[64])
+      330 |->   *(330, 0x0:[64]) := (103, 0x28:[64])
+      331 |->   *(331, 0x0:[64]) := (108, 0x0:[64])
+      332 |->   *(332, 0x0:[64]) := (330, 0x0:[64])
+      333 |->   *(333, 0x0:[64]) := (108, 0x8:[64])
+      334 |->   *(334, 0x0:[64]) := (103, 0x10:[64])
+      335 |->   *(335, 0x0:[64]) := (329, 0x0:[64])
+      336 |->   *(336, 0x0:[64]) := 0x1:[64]
+      337 |->   *(337, 0x0:[64]) := (103, 0x10:[64])
+      338 |->   *(338, 0x0:[64]) := (334, 0x0:[64])
+      339 |->   *(339, 0x0:[64]) := (337, 0x0:[64])
+      340 |->   *(340, 0x0:[64]) := (328, 0x0:[64])
+      341 |->   *(341, 0x0:[64]) := 0x0:[64]
+      342 |->   *(342, 0x0:[64]) := 0x0:[64]
+      343 |->   *(343, 0x0:[64]) := (110, 0x0:[64])
+      344 |->   *(344, 0x0:[64]) := (110, 0x0:[64])
+      345 |->   *(345, 0x0:[64]) := (110, 0x0:[64])
+      346 |->   *(346, 0x0:[64]) := 0x0:[64]
+      347 |->   *(347, 0x0:[64]) := 0x0:[64]
+      348 |->   *(348, 0x0:[64]) := 0x0:[64]
+      349 |->   *(349, 0x0:[64]) := 0x0:[64]
+      350 |->   *(350, 0x0:[64]) := (110, 0x0:[64])
+      357 |->   *(357, 0x0:[64]) := (110, 0x0:[64])
+      358 |->   *(358, 0x0:[64]) := 0x0:[64]
+      359 |->   *(359, 0x0:[64]) := 0x0:[64]
+      360 |->   *(360, 0x0:[64]) := (110, 0x0:[64])
+      361 |->   *(361, 0x0:[64]) := (110, 0x0:[64])
+Base memory
+  Allocations:
+    GlobalAlloc 103 0x29:[64] Mutable 16-byte-aligned w64_heap
+    GlobalAlloc 102 0x8:[64] Mutable 8-byte-aligned w64_off
+    GlobalAlloc 101 0x8:[64] Mutable 8-byte-aligned w64_hw
+    GlobalAlloc 100 0x8:[64] Mutable 8-byte-aligned w64_calls
+    GlobalAlloc 99 0x8:[64] Mutable 8-byte-aligned w64_failed
+    GlobalAlloc 98 0x8:[64] Mutable 8-byte-aligned w64_first_n
+    GlobalAlloc 97 0x8:[64] Mutable 8-byte-aligned w64_last_n
+    GlobalAlloc 96 0x8:[64] Mutable 8-byte-aligned w64_last_start
+    GlobalAlloc 95 0x31:[64] Immutable 1-byte-aligned [global variable  ] .str.1
+    GlobalAlloc 94 0x1a:[64] Immutable 1-byte-aligned [global variable  ] .str
+    GlobalAlloc 93 0x0:[64] Immutable 1-byte-aligned [defined function ] realloc
+    GlobalAlloc 92 0x0:[64] Immutable 1-byte-aligned [defined function ] free
+    GlobalAlloc 91 0x0:[64] Immutable 1-byte-aligned [defined function ] calloc
+    GlobalAlloc 90 0x0:[64] Immutable 1-byte-aligned [defined function ] malloc
+    GlobalAlloc 89 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdaPv
+    GlobalAlloc 88 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPvm
+    GlobalAlloc 87 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPv
+    GlobalAlloc 86 0x0:[64] Immutable 1-byte-aligned [defined function ] _Znam
+    GlobalAlloc 85 0x0:[64] Immutable 1-byte-aligned [defined function ] _Znwm
+    GlobalAlloc 84 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_raw_alloc
+    GlobalAlloc 83 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_reset
+    GlobalAlloc 82 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_growth_bad_5
+    GlobalAlloc 81 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE17_Vector_impl_dataC2Ev
+    GlobalAlloc 80 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE12_Vector_implC2EvQ26is_default_constructible_vIN9__gnu_cxx14__alloc_traitsIT0_NS8_10value_typeEE6rebindIT_E5otherEE
+    GlobalAlloc 79 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EEC2Ev
+    GlobalAlloc 78 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE11_S_max_sizeERKS0_
+    GlobalAlloc 77 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_Vector_impl_dataC2Ev
+    GlobalAlloc 76 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorIhE8allocateEmPKv
+    GlobalAlloc 75 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE11_M_allocateEm
+    GlobalAlloc 74 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_M_create_storageEm
+    GlobalAlloc 73 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implC2ERKS0_
+    GlobalAlloc 72 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt9__fill_a1IhEN9__gnu_cxx11__enable_ifIXsr9__is_byteIT_EE7__valueEvE6__typeEPS2_S5_RKS2_
+    GlobalAlloc 71 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8__fill_aIPhhEvT_S1_RKT0_
+    GlobalAlloc 70 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt10__fill_n_aIPhmhET_S1_T0_RKT1_St26random_access_iterator_tag
+    GlobalAlloc 69 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt17__size_to_integerm
+    GlobalAlloc 68 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt6fill_nIPhmhET_S1_T0_RKT1_
+    GlobalAlloc 67 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt22__uninitialized_fill_nILb1EE15__uninit_fill_nIPhmhEET_S3_T0_RKT1_
+    GlobalAlloc 66 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt20uninitialized_fill_nIPhmhET_S1_T0_RKT1_
+    GlobalAlloc 65 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt24__uninitialized_fill_n_aIPhmhhET_S1_T0_RKT1_RSaIT2_E
+    GlobalAlloc 64 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE18_M_fill_initializeEmRKh
+    GlobalAlloc 63 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEEC2EmRKS0_
+    GlobalAlloc 62 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE17_S_check_init_lenEmRKS0_
+    GlobalAlloc 61 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_Vector_impl_dataC2EOS2_
+    GlobalAlloc 60 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implC2EOS2_
+    GlobalAlloc 59 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEEC2EOS1_
+    GlobalAlloc 58 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEC2EOS1_
+    GlobalAlloc 57 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt3minImERKT_S2_S2_
+    GlobalAlloc 56 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE11_S_max_sizeERKS2_
+    GlobalAlloc 55 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE19_M_get_Tp_allocatorEv
+    GlobalAlloc 54 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt3maxImERKT_S2_S2_
+    GlobalAlloc 53 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE8max_sizeEv
+    GlobalAlloc 52 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorISt6vectorIhSaIhEEE8allocateEmPKv
+    GlobalAlloc 51 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt19__relocate_object_aISt6vectorIhSaIhEES2_SaIS2_EEvPT_PT0_RT1_
+    GlobalAlloc 50 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt14__relocate_a_1IPSt6vectorIhSaIhEES3_SaIS2_EET0_T_S6_S5_RT1_
+    GlobalAlloc 49 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__niter_baseIPSt6vectorIhSaIhEEET_S4_
+    GlobalAlloc 48 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__relocate_aIPSt6vectorIhSaIhEES3_SaIS2_EET0_T_S6_S5_RT1_
+    GlobalAlloc 47 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE11_S_relocateEPS1_S4_S4_RS2_
+    GlobalAlloc 46 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEE4baseEv
+    GlobalAlloc 45 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE11_M_allocateEm
+    GlobalAlloc 44 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxxmiIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKSA_SD_
+    GlobalAlloc 43 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE5beginEv
+    GlobalAlloc 42 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE12_M_check_lenEmPKc
+    GlobalAlloc 41 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEC2ERKS4_
+    GlobalAlloc 40 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEdeEv
+    GlobalAlloc 39 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEmiEl
+    GlobalAlloc 38 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE4backEv
+    GlobalAlloc 37 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE17_M_realloc_insertIJS1_EEEvN9__gnu_cxx17__normal_iteratorIPS1_S3_EEDpOT_
+    GlobalAlloc 36 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE3endEv
+    GlobalAlloc 35 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12construct_atISt6vectorIhSaIhEEJS2_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS4_DpOS5_
+    GlobalAlloc 34 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE12emplace_backIJS1_EEERS1_DpOT_
+    GlobalAlloc 33 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Destroy_auxILb1EE9__destroyIPhEEvT_S3_
+    GlobalAlloc 32 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorIhE10deallocateEPhm
+    GlobalAlloc 31 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implD2Ev
+    GlobalAlloc 30 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE13_M_deallocateEPhm
+    GlobalAlloc 29 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEED2Ev
+    GlobalAlloc 28 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyIPhEvT_S1_
+    GlobalAlloc 27 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE19_M_get_Tp_allocatorEv
+    GlobalAlloc 26 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEixEm
+    GlobalAlloc 25 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIhSaIhEE4sizeEv
+    GlobalAlloc 24 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EEixEm
+    GlobalAlloc 23 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE8capacityEv
+    GlobalAlloc 22 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE4sizeEv
+    GlobalAlloc 21 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt10destroy_atISt6vectorIhSaIhEEEvPT_
+    GlobalAlloc 20 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyISt6vectorIhSaIhEEEvPT_
+    GlobalAlloc 19 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Destroy_auxILb0EE9__destroyIPSt6vectorIhSaIhEEEEvT_S6_
+    GlobalAlloc 18 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorISt6vectorIhSaIhEEE10deallocateEPS2_m
+    GlobalAlloc 17 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE12_Vector_implD2Ev
+    GlobalAlloc 16 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE13_M_deallocateEPS2_m
+    GlobalAlloc 15 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EED2Ev
+    GlobalAlloc 14 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyIPSt6vectorIhSaIhEEEvT_S4_
+    GlobalAlloc 13 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE19_M_get_Tp_allocatorEv
+    GlobalAlloc 12 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EED2Ev
+    GlobalAlloc 11 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZL5checkRSt6vectorIS_IhSaIhEESaIS1_EEhy
+    GlobalAlloc 10 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEED2Ev
+    GlobalAlloc 9 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE9push_backEOS1_
+    GlobalAlloc 8 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEC2EmRKhRKS0_
+    GlobalAlloc 7 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EEC2Ev
+    GlobalAlloc 6 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_growth_bound_5
+    GlobalAlloc 5 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memcpy.p0.p0.i64
+    GlobalAlloc 4 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memset.p0.i64
+    GlobalAlloc 3 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt20__throw_length_errorPKc
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt17__throw_bad_allocv
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt28__throw_bad_array_new_lengthv
+  Writes:
+    Indexed chunk:
+      94 |->   *(94, 0x0:[64]) := "vector::_M_realloc_insert\NUL"
+      95 |->
+        *(95, 0x0:[64]) := "cannot create std::vector larger than max_size()\NUL"
+      97 |->   *(97, 0x0:[64]) := 0x0:[64]
+      98 |->   *(98, 0x0:[64]) := 0x0:[64]
+      99 |->   *(99, 0x0:[64]) := 0x0:[64]
+      100 |->   *(100, 0x0:[64]) := 0x0:[64]
+      101 |->   *(101, 0x0:[64]) := 0x0:[64]
+      102 |->   *(102, 0x0:[64]) := 0x0:[64]
+
+

@@ -1,0 +1,39 @@
+// wave64/44-e5-heap-refinement -- NEGATIVE CONTROL for the pinned OP_1 proof.
+//
+// Identical input and module as e5-op1-pinned-heap.saw, but the postcondition
+// claims VerifyScript returns false (0).  SAW must report "Proof failed.".
+// This makes the positive OP_1 result non-vacuous.
+m <- llvm_load_module "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/pinned-probe-heap-41.bc";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     llvm_alloc_global "w64_heap";
+     llvm_alloc_global "w64_off";
+     llvm_alloc_global "w64_hw";
+     llvm_alloc_global "w64_calls";
+     llvm_alloc_global "w64_failed";
+     llvm_alloc_global "w64_first_n";
+     llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+     llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ ([0x51] # (zero : [35][8]) # [0x01,0x00,0x00,0x00]) : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     llvm_return (llvm_term {{ 0 : [1] }});
+   }) z3;
+
+print "UNEXPECTED_SUCCESS";
