@@ -4,10 +4,10 @@
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
 `make e0`, `make pins`, `make gate-ir-pin`, and `make equiv` all exit 0.
-The cell suite contains **96 recorded cells**, all with both Alive2 and SAW
-attempts; `make equiv` reports **96 cells with >=1 green tool, 0 red, 0 TODO**.
-The ledger has **183/183 SCR rows adjudicated**: 105 both-tool green rows,
-5 unjudged seams, 73 filed gaps, and **0 planned**. `coverage_report.py
+The cell suite contains **101 recorded cells**, all with both Alive2 and SAW
+attempts; `make equiv` reports **101 cells with >=1 green tool, 0 red, 0 TODO**.
+The ledger has **183/183 SCR rows adjudicated**: 111 both-tool green rows,
+4 unjudged seams, 68 filed gaps, and **0 planned**. `coverage_report.py
 --strict` passes. This is **not** an all-rows-green claim and not a
 whole-engine equivalence proof; see the limits below.
 
@@ -21,8 +21,8 @@ whole-engine equivalence proof; see the limits below.
 | **E3** | CHECKSIG/CHECKMULTISIG + symbolic checker + error-enum equality | **attempted; partial cells, rows filed gap** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; exact ordinals 2/13/14/18/28; `M-E3-008` observed non-green, record pending |
 | **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cell + 38-row inventory** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` observed non-green, record pending |
 | **E5** | Whole-function `VerifyScript` (SAW invariants) or scoped residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`, `findings/e5/F-TOOL-001.md`; no whole-function proof; green empty-script run is concolic/non-pin |
-| **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 96 cells, 0 red; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| **E6+** | Wave 16/32 row-family cells integrated | **partial, additive** | 105 total green: control-flow 16, limits 21, tapscript 20, locktime 11, checksig 10, exec 8, policy 7, witness-v0 6, disabled 4, hash 1, reimport 1; see `findings/wave16/` and `findings/wave32/` |
+| **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 101 cells, 0 red; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| **E6+** | Wave 16/32 row-family cells integrated | **partial, additive** | 111 total green: control-flow 16, limits 21, tapscript 20, locktime 11, checksig 10, exec 8, policy 7, push-encoding 6, witness-v0 6, disabled 4, hash 1, reimport 1; see `findings/wave16/` and `findings/wave32/` |
 
 ## Ledger snapshot
 
@@ -31,14 +31,14 @@ whole-engine equivalence proof; see the limits below.
 | SCR rows in `spec/db/rules.yaml` | 183 |
 | Ledger entries in `spec/db/equiv-cells.yaml` | 183 |
 | Families | 15 |
-| Proof-cell directories (recorded) | 96 |
+| Proof-cell directories (recorded) | 101 |
 | `planned` | 0 |
-| Both-tool green rows | 105 |
+| Both-tool green rows | 111 |
 | Alive2-only / SAW-only green rows | 0 / 0 |
-| `unjudged-seam` | 5 |
-| Filed `gap` | 73 |
+| `unjudged-seam` | 4 |
+| Filed `gap` | 68 |
 | Malformed cell records | 0 |
-| `make equiv` | 96 cells green, 0 red, 0 TODO |
+| `make equiv` | 101 cells green, 0 red, 0 TODO |
 | `make gate-ir-pin` | PASS (0 failures, 0 warnings) |
 | `coverage_report.py --strict` | PASS — all 183 rows adjudicated |
 
@@ -53,6 +53,7 @@ Green rows by family (the authoritative list is `results/matrix.md`):
 - **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
 - **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
 - **exec-verify (8):** SCR-002, 004, 006, 007, 009, 014–016.
+- **push-encoding (6):** SCR-045–050.
 - **disabled-opcodes (4):** SCR-170, 171, 173, 174.
 - **hash-ops (1):** SCR-094.
 

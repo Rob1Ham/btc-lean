@@ -259,9 +259,10 @@ def check_certificates() -> None:
     Alive2 and SAW legs the raw result.txt must also be covered.
     """
     print("\n== 4. certificates ==")
-    certs = sorted(CELLS.glob("*/*/alive2/certificate.sha256"))
-    certs += sorted(CELLS.glob("*/*/saw/certificate.sha256"))
-    certs += sorted(CELLS.glob("*/*/behavior/certificate.sha256"))
+    certs = sorted(
+        p for p in CELLS.rglob("certificate.sha256")
+        if "build" not in p.parts and "__pycache__" not in p.parts
+    )
     if not certs:
         warn("no cell certificates found")
         return

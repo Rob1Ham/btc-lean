@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **105**
-- unjudged seam: **5**
-- filed gap: **73**
+- green: **111**
+- unjudged seam: **4**
+- filed gap: **68**
 - still planned: **0**
 - other: **0**
 
@@ -43,6 +43,12 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-039 | limits | `limits/C-L-sigop-cost-arith` |
 | SCR-041 | limits | `limits/C-L-tapscript-weight` |
 | SCR-042 | limits | `limits/C-L-tapscript-weight` |
+| SCR-045 | push-encoding | `push-encoding/C-L-w32-push-parse` |
+| SCR-046 | push-encoding | `push-encoding/C-L-w32-pushnum` |
+| SCR-047 | push-encoding | `push-encoding/C-L-w32-pushnum` |
+| SCR-048 | push-encoding | `push-encoding/C-L-w32-checkminimalpush` |
+| SCR-049 | push-encoding | `push-encoding/C-L-w32-fexec-push` |
+| SCR-050 | push-encoding | `push-encoding/C-L-w32-cscriptnum-minimal` |
 | SCR-056 | control-flow | `control-flow/C-L-if-notif` |
 | SCR-057 | control-flow | `control-flow/C-L-casttobool` |
 | SCR-058 | control-flow | `control-flow/C-L-if-notif` |
@@ -124,7 +130,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
 
 | SCR | family | disposition |
 |---|---|---|
-| SCR-045 | push-encoding | SCR-045 (pushdata1/2/4 length parsing; truncation ⇒ false (⇒ BAD_OPCODE in EvalScript)): F-DIV-001 seam — Lean eager parseWire vs Core streaming GetOp changes the error kind on malformed tails; excluded per findings/cross/F-DIV-001-eager-parse.md. This is a model seam, not a tool failure. |
 | SCR-146 | tapscript | SCR-146 (TaggedHash("TapLeaf", leaf_ver, CompactSize, script); leaf_ver = control[0]&0xfe): interpreter.cpp:1882-1885 computes TaggedHash("TapLeaf", leaf_version, CompactSize(script), script). Requires SHA256 and the BIP340 tagged-hash construction; outside the seam. |
 | SCR-147 | tapscript | SCR-147 (32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key): interpreter.cpp:1913-1925 checks program == x(tweak(p, merkle_root)) and control[0]&1 == tweaked-key parity. Pure secp256k1 EC; outside the seam. |
 | SCR-153 | tapscript | SCR-153 (overrides all later checks (incl. size limits)): interpreter.cpp:1846-1862 scans the whole tapscript for OP_SUCCESSx before item-size and EvalScript, and returns success immediately. Needs a loop over symbolic script bytes and early-success control flow; the leaf harness is loop-free and does not parse scripts. |
@@ -189,11 +194,6 @@ not over real scripts. |
   the budget is decremented before the discouragement b |
 | SCR-043 | limits | SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-044 | limits | SCR-044 (lower bound for serialized tx weight): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
-| SCR-046 | push-encoding | SCR-046 (OP_0→∅; OP_1..16→single byte 0x01..0x10): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
-| SCR-047 | push-encoding | SCR-047 (OP_1NEGATE (0x4f) pushes the single byte 0x81: encodeScriptNum (-1) false = serU8 0x81, and an executed OP_1NEGATE pushes it with no MINIMALDATA gate): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
-| SCR-048 | push-encoding | SCR-048 (canonical push opcode for each data length (under MINIMALDATA, pol.)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
-| SCR-049 | push-encoding | SCR-049 (fExec-gated (unexecuted non-minimal pushes OK)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
-| SCR-050 | push-encoding | SCR-050 (top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
 | SCR-051 | push-encoding | SCR-051 (minimal numeric operands under MINIMALDATA (policy, not consensus)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
 | SCR-052 | push-encoding | SCR-052 (opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |
 | SCR-053 | push-encoding | SCR-053 (4..42 bytes; OP_0/OP_N + exact-length push; program 2..40): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed. |

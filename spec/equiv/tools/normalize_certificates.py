@@ -82,8 +82,12 @@ def main() -> int:
     args = ap.parse_args()
     changed = 0
     missing = 0
-    for cert in sorted(CELLS.glob("*/*/*/certificate.sha256")):
+    for cert in sorted(CELLS.rglob("certificate.sha256")):
+        if "build" in cert.parts or "__pycache__" in cert.parts:
+            continue
         cell = cert.parent.parent
+        if cell.name == "divergence":
+            cell = cell.parent
         leg = cert.parent.name
         files: set[Path] = set(old_paths(cert))
         for p in cell.rglob("*"):

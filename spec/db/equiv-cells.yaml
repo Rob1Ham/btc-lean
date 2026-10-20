@@ -870,61 +870,115 @@ rows:
   summary: pushdata1/2/4 length parsing; truncation ⇒ false (⇒ BAD_OPCODE in EvalScript)
   core_ref: script.cpp:GetScriptOp:313-363@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-045 (pushdata1/2/4 length parsing; truncation ⇒ false (⇒ BAD_OPCODE in EvalScript)): F-DIV-001 seam — Lean eager parseWire vs Core streaming GetOp changes the error kind on malformed tails; excluded per findings/cross/F-DIV-001-eager-parse.md. This is a model seam, not a tool failure.'
+  cells:
+  - push-encoding/C-L-w32-push-parse
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-push-parse
+    certificate: b0ba567a8e69d5508b478b64e5ebbe4678248698c35ff31ad1ba369cdf461507
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-push-parse
+    certificate: 659441cfcabb9cc016fbf9a4ae3c0af27aa2568cf61d264586c4c5183c749041
+    note: Proof succeeded! cell_parse_meta
+  status: both-green
+  gap_note: null
 - id: SCR-046
   family: push-encoding
   summary: OP_0→∅; OP_1..16→single byte 0x01..0x10
   core_ref: interpreter.cpp:EvalScript:499-523@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-046 (OP_0→∅; OP_1..16→single byte 0x01..0x10): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-pushnum
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 5917b66299c33aab7e64e9cf0acb56daa4bb2c3c1cfe9b1b1d7251b25a650618
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 0c3209d2994648a5ec53adc8f380673ffaeff4eadf3e1b78ea4178eb8d4ec320
+    note: Proof succeeded! cell_pushnum
+  status: both-green
+  gap_note: null
 - id: SCR-047
   family: push-encoding
   summary: 'OP_1NEGATE (0x4f) pushes the single byte 0x81: encodeScriptNum (-1) false = serU8 0x81, and an executed OP_1NEGATE pushes it with no MINIMALDATA gate'
   core_ref: interpreter.cpp:EvalScript:499-523@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-047 (OP_1NEGATE (0x4f) pushes the single byte 0x81: encodeScriptNum (-1) false = serU8 0x81, and an executed OP_1NEGATE pushes it with no MINIMALDATA gate): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-pushnum
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 5917b66299c33aab7e64e9cf0acb56daa4bb2c3c1cfe9b1b1d7251b25a650618
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 0c3209d2994648a5ec53adc8f380673ffaeff4eadf3e1b78ea4178eb8d4ec320
+    note: Proof succeeded! cell_pushnum
+  status: both-green
+  gap_note: null
 - id: SCR-048
   family: push-encoding
   summary: canonical push opcode for each data length (under MINIMALDATA, pol.)
   core_ref: script.cpp:CheckMinimalPush:373-396@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-048 (canonical push opcode for each data length (under MINIMALDATA, pol.)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-checkminimalpush
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-checkminimalpush
+    certificate: a5a200c8342b216859f48913fb28dff380970cbeb026d4fe5c1aeb8530dbd96b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-checkminimalpush
+    certificate: 3e84665b57880275eac363a09eaa2eef0352407534b9bf8ac6ec8cd67b3108dd
+    note: Proof succeeded! cell_minpush
+  status: both-green
+  gap_note: null
 - id: SCR-049
   family: push-encoding
   summary: fExec-gated (unexecuted non-minimal pushes OK)
   core_ref: interpreter.cpp:EvalScript:488-492@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-049 (fExec-gated (unexecuted non-minimal pushes OK)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-fexec-push
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-fexec-push
+    certificate: b06b5f1d7d483304bb113643b28ef92b8516ae7391d99e66c2e5beceea9135ae
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-fexec-push
+    certificate: 630aad9bfd25bf91b028a338242fbdc3a15549bbe522a22b8dc9a61aa329af9f
+    note: Proof succeeded! cell_fexec_false
+  status: both-green
+  gap_note: null
 - id: SCR-050
   family: push-encoding
   summary: top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal)
   core_ref: script.h:CScriptNum:252-268@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-050 (top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal)): no push-encoding cell was built for this row; E1/E2 leaves cover only OP_0/OP_1..16 and fixed pushes; the parse/truncation seam is recorded separately (F-DIV-001). No green is claimed.'
+  cells:
+  - push-encoding/C-L-w32-cscriptnum-minimal
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-cscriptnum-minimal
+    certificate: 79fbe50fd0e05b024cdad2c42e7414f03aed3e80d1ae24cccadbae1672a7a052
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-cscriptnum-minimal
+    certificate: 9ba61ee91c2eeef6abf4500ca01a2e9d72175a0c1de33f693f2afc847338d9dd
+    note: Proof succeeded! cell_cscriptnum
+  status: both-green
+  gap_note: null
 - id: SCR-051
   family: push-encoding
   summary: minimal numeric operands under MINIMALDATA (policy, not consensus)
