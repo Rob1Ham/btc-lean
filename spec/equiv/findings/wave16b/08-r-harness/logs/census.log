@@ -1,0 +1,123 @@
+rbitcoin source: /tmp/opencode/equiv-work/rbitcoin-clean
+adapter:         /tmp/opencode/wave16b/08-r-harness/spec/equiv/findings/wave16b/08-r-harness/adapter/entry_r3.rs
+source tokens:   108
+adapter literals:78 mapped, 25 internal
+
+  CHECKMULTISIG disabled in tapscript              mapped           50  x1
+  CHECKMULTISIGVERIFY                              mapped           13  x1
+  CHECKMULTISIGVERIFY disabled in tapscript        mapped           50  x1
+  CHECKSIGVERIFY                                   mapped           14  x1
+  CHECKSIGVERIFY empty                             mapped           14  x1
+  CLTV                                             mapped           22  x1
+  CLTV final sequence                              mapped           22  x1
+  CLTV negative                                    mapped           21  x1
+  CLTV type                                        mapped           22  x1
+  CSV                                              mapped           22  x1
+  CSV negative                                     mapped           21  x1
+  CSV version                                      mapped           22  x1
+  DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM            mapped           34  x2
+  EVAL_FALSE                                       mapped            2  x2
+  MINIMALDATA                                      mapped           25  x1
+  MINIMALIF                                        mapped           31  x2
+  NULLDUMMY                                        mapped           28  x1
+  NULLFAIL                                         mapped           32  x2
+  OP_CODESEPARATOR                                 mapped           53  x1
+  OP_ELSE                                          mapped           20  x1
+  OP_ENDIF                                         mapped           20  x1
+  OP_EQUALVERIFY                                   mapped           12  x1
+  OP_NUMEQUALVERIFY                                mapped           15  x1
+  OP_PICK                                          mapped           18  x1
+  OP_ROLL                                          mapped           18  x1
+  OP_VERIF                                         mapped           16  x1
+  OP_VERIFY                                        mapped           11  x1
+  PUBKEYTYPE                                       mapped           29  x1
+  PUSH_SIZE                                        mapped            6  x3
+  SIG_DER                                          mapped           24  x1
+  SIG_FINDANDDELETE                                mapped           54  x2
+  SIG_HASHTYPE                                     mapped           23  x1
+  SIG_HIGH_S                                       mapped           27  x1
+  TAPROOT_WRONG_CONTROL_SIZE                       mapped           48  x2
+  WITNESS_MALLEATED                                mapped           41  x1
+  WITNESS_MALLEATED_P2SH                           mapped           42  x1
+  WITNESS_PROGRAM_MISMATCH                         mapped           40  x3
+  WITNESS_PROGRAM_WRONG_LENGTH                     mapped           38  x2
+  WITNESS_PUBKEYTYPE                               mapped           44  x2
+  WITNESS_UNEXPECTED                               mapped           43  x2
+  altstack empty                                   mapped           19  x1
+  bip143 amount                                    internal          3  x1
+  bip143 input index                               internal          3  x1
+  bip143 locktime                                  internal          3  x1
+  bip143 nSequence                                 internal          3  x1
+  bip143 not p2wpkh                                internal          3  x1
+  bip143 outpoint                                  internal          3  x1
+  bip143 scriptCode                                internal          3  x1
+  bip143 single output                             internal          3  x1
+  bip143 version                                   internal          3  x1
+  cleanstack                                       mapped           30  x1
+  der sig                                          mapped           -1  x3
+  disabled opcode 0x                               mapped-dynamic   17  x1
+  empty sig                                        mapped            2  x1
+  input index                                      internal          3  x1
+  invariant: sighash midstate missing              internal          3  x1
+  invariant: tapscript spend without tapleaf hash  internal          3  x1
+  legacy sighash                                   internal          3  x1
+  multisig m                                       mapped            9  x1
+  multisig n                                       mapped           10  x1
+  op count                                         mapped            7  x2
+  p2pkh ecdsa                                      mapped            2  x1
+  p2pkh pubkey hash                                mapped           12  x1
+  p2pkh scriptSig                                  internal          3  x2
+  p2pkh scriptSig len                              internal          3  x1
+  p2pkh scriptSig unexpected op                    internal          3  x1
+  p2pkh sighash                                    internal          3  x1
+  p2sh empty scriptSig                             mapped           18  x1
+  p2sh redeem hash                                 mapped            2  x1
+  p2sh scriptSig op                                mapped           26  x1
+  p2sh spk                                         internal          3  x1
+  p2tr empty witness                               mapped           39  x1
+  p2tr schnorr                                     mapped           47  x1
+  p2tr schnorr parse                               mapped           47  x1
+  p2tr script path short                           internal          3  x1
+  p2tr sig                                         mapped           45  x1
+  p2tr sig len                                     mapped           45  x1
+  p2tr sighash type                                mapped           46  x2
+  p2tr xonly                                       mapped           47  x1
+  p2wpkh ecdsa                                     mapped            2  x1
+  p2wpkh empty witness item                        gap                  x1
+  p2wpkh pubkey hash                               mapped           12  x1
+  p2wpkh witness                                   internal          3  x4
+  p2wpkh witness len                               mapped           40  x3
+  p2wsh empty witness                              mapped           39  x1
+  p2wsh script hash                                mapped           40  x1
+  p2wsh witness                                    internal          3  x1
+  prevout count                                    internal          3  x1
+  pubkey                                           mapped            2  x1
+  push too large                                   mapped            6  x1
+  script false                                     mapped            2  x2
+  script parse                                     mapped           16  x1
+  script too large                                 mapped            5  x1
+  scriptSig non-push                               test-only            x1
+  scriptSig parse                                  test-only            x1
+  stack empty                                      mapped           18  x2
+  stack size                                       mapped            8  x3
+  tapscript CHECKSIG failed                        mapped           47  x1
+  tapscript empty pubkey                           mapped           52  x1
+  tapscript sighash                                mapped           46  x1
+  tapscript sighash input                          internal          3  x1
+  tapscript sighash prevouts                       internal          3  x2
+  tapscript sighash single                         internal          3  x1
+  tapscript validation weight                      mapped           49  x1
+  tapscript xonly                                  mapped           47  x1
+  unbalanced IF                                    mapped           20  x1
+  unknown opcode 0x                                mapped-dynamic   16  x1
+  unknown opcode 0xba                              mapped-dynamic   16  x1
+
+stale mapped literals (in adapter, not in engine source):
+  none
+
+unclassified source tokens (would return EQUIV_ERR_UNKNOWN_ERROR):
+  none
+
+classification counts: gap=1, internal=25, mapped=77, mapped-dynamic=3, test-only=2
+
+CENSUS_OK

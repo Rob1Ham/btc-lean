@@ -1,6 +1,6 @@
 # STATE — three-leg LLVM IR equivalence
 
-**Snapshot:** `2026-10-20T00:00:00Z` (UTC), post-wave16 integration
+**Snapshot:** `2026-10-20 (wave 16/32 integration)`
 **Owner:** orchestrator; independent evaluator snapshot archived at
 `docs/archive/STATE-2026-10-19T223700Z.md`
 **Tree:** `spec/equiv/` on PR branch `equiv/llvm-three-leg`
@@ -19,9 +19,9 @@ present; `make pins`, `make e0`, `make gate-ir-pin`, and `make equiv` pass.
 
 It is **not** an all-rows-green result and **not** a whole-engine proof:
 
-- 22 of 183 SCR rows are both-tool green;
-- 17 are explicitly `unjudged-seam`;
-- 144 are filed `gap`s with named blockers;
+- 64 of 183 SCR rows are both-tool green;
+- 11 are explicitly `unjudged-seam`;
+- 108 are filed `gap`s with named blockers;
 - 0 are `planned`;
 - no `EvalScript`/`VerifyScript` whole-function proof exists (E5 residual);
 - no admissible R proof-lane artifact exists (the R behavioral E0 leg does);
@@ -35,13 +35,13 @@ conditional and must remain so.
 | Milestone | State | Evidence |
 |---|---|---|
 | E0 harness/ABI, three shims, tools, pins, capability matrix | **PASS** | `make pins` rc 0; `make e0` rc 0, 4/4 tapes; `results/e0/`; `tools/capability-matrix.md` |
-| E1 stack/altstack, Alive2 + SAW, mutation | **PASS (cells + mutations)** | 9 E1/stack control cells; SCR-069/071/072/074 green; 8 mutation runs, 7 distinct IDs, all killed |
+| E1 stack/altstack, Alive2 + SAW, mutation | **PASS (cells); mutation evidence incomplete** | 9 E1/stack control cells; SCR-069/071 green; SCR-072/074 demoted; 6/8 mutation reports withdrawn, 2 observed, 0 admitted (`cells/_redteam/AUDIT-ADJUDICATION.md`) |
 | E2 flow/ScriptNum/hash | **attempted, partial** | `cells/e2-numeric/within-boundary` (SCR-089 partial), `cells/e2-hash/hash160-vector` (SCR-093/094 partial); both tools green; rows filed gap |
-| E3 CHECKSIG/CHECKMULTISIG + symbolic checker + error enum | **attempted, partial** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; ordinals 2/13/14/18/28; `M-E3-008` killed |
-| E4 SegWit v0/taproot dispatch, seam inventory | **attempted, partial** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` killed; 38 seam/gap rows adjudicated |
-| E5 whole-function VerifyScript or residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`; no whole-function proof; SAW stops at GetScriptOp, `_Znwm`, EvalScript loop, exception edges; green empty-script line is concolic/non-pin |
-| E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 28 cells, 0 red, 0 TODO; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| E6+ wave16 limits/tapscript cells | **partial, additive** | 10 limits rows + 8 tapscript rows both-tool green; `findings/wave16/`; 22 total green |
+| E3 CHECKSIG/CHECKMULTISIG + symbolic checker + error enum | **attempted, partial** | `cells/e3-checksig/C-L-checksig-dispatch`, `cells/e3-cms/C-L-cms-1of1`, fallback `cells/checksig/C-L-checksig-empty`; ordinals 2/13/14/18/28; `M-E3-008` observed non-green, record pending |
+| E4 SegWit v0/taproot dispatch, seam inventory | **attempted, partial** | `cells/e4-witness/C-L-witness-v0-dispatch` (dispatch predicates only); `findings/e4/seams.md`; `M-E4-004` observed non-green, record pending; 38 seam/gap rows adjudicated |
+| E5 whole-function VerifyScript or residual | **scoped residual** | `findings/e5/E5-RESIDUAL.md`; no whole-function proof; bounded B1/B2 probes (`findings/wave16b/02`, `03`) but the symbolic EvalScript loop, allocator refinement, and exception edges remain; the empty-script line is concolic/non-pin |
+| E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `make equiv` 65 cells, 0 red, 0 TODO; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
+| E6+ wave16/32 row-family cells | **partial, additive** | 64 total green: limits 21, locktime 11, tapscript 8, policy 7, witness-v0 6, disabled 4, exec 3, control 2, hash 1, reimport 1; `findings/wave16/`, `findings/wave32/` |
 
 ## 3. Ledger and cells
 
@@ -51,7 +51,7 @@ Commands at this snapshot:
 make pins          -> RESULT: OK (pins complete and tool probes passed)
 make e0            -> RESULT: PASS (E0_TRIPLE_OK; 4/4 tapes)
 make gate-ir-pin   -> RESULT: PASS (0 failures, 0 warnings)
-make equiv         -> summary: 28 cell(s) with >=1 green tool, 0 red, 0 TODO
+make equiv         -> summary: 65 cell(s) with >=1 green tool, 0 red, 0 TODO
 update_ledger.py --check -> up to date
 coverage_report.py --strict -> PASS; all 183 SCR rows adjudicated
 ```
@@ -60,37 +60,28 @@ Ledger counts:
 
 | Status | Rows |
 |---|---:|
-| `both-green` | 22 |
+| `both-green` | 64 |
 | `alive2-green` / `saw-green` | 0 / 0 |
-| `unjudged-seam` | 17 |
-| `gap` | 144 |
+| `unjudged-seam` | 11 |
+| `gap` | 108 |
 | `planned` | 0 |
 | **Total** | **183** |
 
-Green rows:
+Green rows by family (authoritative list: `results/matrix.md`):
 
-- **SCR-018, SCR-019, SCR-020, SCR-022, SCR-023, SCR-024, SCR-025, SCR-029,
-  SCR-030, SCR-031** — bounded limits cells (`C-L-script-size`,
-  `C-L-push-size`, `C-L-opcount`, `C-L-stack-limit`,
-  `C-L-tapscript-precheck`). SCR-021 is tool-green but partial and remains a
-  gap.
-- **SCR-069, SCR-071, SCR-072** — `cells/control-flow/C-L-nop-return`;
-  Alive2 and SAW green on the NOP4..NOP10 straight-line control cell.
-- **SCR-074** — `cells/stack-ops/C-L-arity` (16 opcodes, 16 Alive2 + 32 SAW
-  green), corroborated by `e1-stack/dup-order`,
-  `e1-stack/rot-direction`, `e1-stack/swap-order`, and
-  `stack/C-L-dup-drop-swap`.
-- **SCR-143, SCR-144, SCR-145, SCR-148, SCR-149, SCR-150, SCR-151, SCR-152**
-  — tapscript dispatch cells. SCR-144 (key path) is conditional on the
-  same-crypto premise P12. SCR-142 is tool-green but partial (activation
-  height is absent from the tape) and remains a gap.
+- **limits (21):** SCR-018–020, 022–033, 035, 037–039, 041, 042.
+- **locktime (11):** SCR-122–132.
+- **tapscript (8):** SCR-143–145, 148–152; SCR-144 is conditional on the
+  same-crypto premise P12.
+- **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
+- **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
+- **disabled-opcodes (4):** SCR-170, 171, 173, 174.
+- **exec-verify (3):** SCR-014–016; **control-flow (2):** SCR-069, 071;
+  **hash-ops (1):** SCR-094.
 
-The remaining recorded cells are tool-green but their SCR coverage is
-`partial`, or they are corroborating witnesses; the updater therefore does
-**not** promote those rows. The 17 seams are the E4 hash/EC/dispatch/sighash/
-clean-stack families plus SCR-045 (F-DIV-001 eager-parse seam). The 144 gaps
-are indexed in `findings/coverage/F-E6-GAPS.md`, each with a row-specific
-blocker.
+SCR-021, 040, 072, 074, 133, 136, 140, 142, 175, and the remaining rows are
+partial, seam, or gap and are not promoted. The 11 seams and 108 gaps are
+indexed in `findings/coverage/F-E6-GAPS.md`, each with a row-specific blocker.
 
 ## 4. What is established
 
@@ -106,9 +97,11 @@ blocker.
 3. **E0.** `make e0` executes the three shims on four tapes; C, L, R agree
    with exact Core ordinals. This is a harness/ABI gate, not IR evidence.
 4. **E1 cells and mutation.** All recorded E1/stack cells have Alive2 and SAW
-   success markers. `M-E1-001` (twin and core-slice), `M-E1-002`,
-   `M-E1-006`, `M-E1-008`, `M-E2-010`, `M-E4-004`, and `M-E3-008` were
-   killed by both tools, with clean source restoration and green baselines.
+   success markers. The mutation control is **not** passed: six of eight raw
+   reports are withdrawn because their green tails contradict their `KILLED`
+   headers; `M-E3-008` and `M-E4-004` show genuine non-green output but their
+   JSON records remain pending. See `cells/_redteam/AUDIT-ADJUDICATION.md`.
+   No required mutation set is complete.
 5. **E2.** A symbolic one-byte `OP_WITHIN` cell (2^24 triples) and a concrete
    HASH160 plumbing cell are both tools-green. They are partial by design;
    the hash transform is opaque and the numeric width/edge cases are outside
@@ -130,7 +123,7 @@ blocker.
    is true. The pinned rustc 1.95/LLVM-22 R IR is not Alive2-ingestible; the
    rustc 1.88/LLVM-20 lane is advisory and not the official artifact.
 10. **Matrix.** `results/matrix.md` is generated deterministically and names
-    the source, tool, contract, IR, and E5 premises, plus the 22/17/144
+    the source, tool, contract, IR, and E5 premises, plus the 64/11/108
     coverage counts and cell links.
 
 ## 5. What is not established
@@ -138,9 +131,9 @@ blocker.
 - **No unconditional equivalence.** The matrix claim is conditional on
   Alive2/SAW semantics, the shims, the twin/translations, the contract, and
   same-crypto.
-- **No engine proof.** 144 gaps include all `exec-verify`, most limits,
-  locktime, policy, most disabled-opcode, and most tapscript rows. E5 is a
-  residual.
+- **No engine proof.** 108 gaps include the whole E5 path, most tapscript and
+  policy branches, checksig/multisig, crypto/hash leaves, and whole-engine
+  composition. E5 is a residual, not a proved row.
 - **No R proof lane.** R behavioral E0 is green; the pinned 1.95 IR is
   rejected by Alive2 (`F-TOOL-001`), and the 1.88/LLVM-20 lane is non-pin.
   No R green cell is claimed.
@@ -151,7 +144,8 @@ blocker.
 - **Core patches remain PROPOSED.** P-CORE-01/02/03 are not used by any green
   cell and have no differential evidence; no consensus-changing patch exists.
 - **Tree state.** The evidence is committed on PR branch
-  `equiv/llvm-three-leg`; wave worktrees are isolated and not yet all merged.
+  `equiv/llvm-three-leg`; additive wave branches are integrated through
+  isolated worktrees, not pushed to `main`.
 
 ## 6. Findings and dispositions
 
@@ -160,9 +154,10 @@ The historical evaluator audit is
 resolutions. In brief:
 
 - **B-06 resolved:** contract v3 includes `error_enum.md`.
-- **B-01 resolved for the evidence tier:** 0 planned rows; 22 green, 17 seam,
-  144 gap; no row is silently omitted.
-- **B-09 resolved:** mutations were executed and killed.
+- **B-01 resolved for the evidence tier:** 0 planned rows; 64 green, 11 seam,
+  108 gap; no row is silently omitted.
+- **B-09 open:** mutation evidence is not admitted; six reports are withdrawn
+  and two observed runs have pending records.
 - **B-10 resolved:** `make equiv` parses `result.txt`, skips aux dirs, and
   reports 28 cells / 0 red / 0 TODO.
 - **M-15 resolved:** PINS records the ABI shim source hash.
@@ -174,7 +169,8 @@ resolutions. In brief:
 - **B-05 open:** Core patches remain PROPOSED and unused.
 - **B-07 fixed:** seam validator accepts a named finding id in addition to
   `DECISION-lax-ecdsa.md`.
-- **B-08 open:** `spec/equiv/` is untracked (no commits by instruction).
+- **B-08 resolved:** `spec/equiv/` is tracked on PR #29; wave branches are
+  integrated into `equiv/llvm-three-leg`.
 
 Every non-green row is a filed gap or seam in the ledger and in
 `findings/coverage/F-E6-GAPS.md`; no unfiled row remains.

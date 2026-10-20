@@ -1,0 +1,37 @@
+--- /tmp/opencode/wave16b-scratch/12-witness-exec/l_cell.cpp	2026-10-20 18:57:30.689374446 +0000
++++ /tmp/opencode/wave16b-scratch/12-witness-exec/mutation/l_cell.cpp	2026-10-20 19:07:24.308972568 +0000
+@@ -104,7 +104,7 @@
+ W2INLINE VOut l_cleanstack(uint32_t n, bool top_truthy) {
+     VOut o{};
+     o.fn = n & 3u;
+-    if (n != 1) {
++    if (n < 1) {
+         o.result = 0;
+         o.error = w2::ERR_CLEANSTACK;
+         return o;
+@@ -171,7 +171,9 @@
+     if (hash_eq == 0) {
+         o.result = 0;
+         o.error = w2::ERR_EQUALVERIFY;
+-        o.fn = 2;
++        // evalScriptBytes pops the two inputs and pushes pushBoolV false
++        // before the .equalVerifyFailed return, so [sig,pubkey,false].
++        o.fn = 3;
+         return o;
+     }
+     o.hash_ok = 1;
+@@ -231,12 +233,14 @@
+         // if witness.length ≠ 2 then .fail .witnessProgramMismatch
+         if (wit_n != 2) {
+             o.error = w2::ERR_MISMATCH;
++            o.fn = (uint32_t)(wit_n & 3u);  // dispatch returns before evalScript
+             return w2::w2_pack(o);
+         }
+         return w2::w2_pack(l_exec_p2wpkh(hash_eq, sig_ok, fd_found, const_sc));
+     }
+     // else .fail .witnessProgramWrongLength
+     o.error = w2::ERR_WRONG_LENGTH;
++    o.fn = (uint32_t)(wit_n & 3u);  // dispatch returns before evalScript
+     return w2::w2_pack(o);
+ }
+ 

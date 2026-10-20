@@ -1854,6 +1854,7 @@ rows:
   consensus: true
   cells:
   - e4-witness/C-L-w32-witness-hash-compare
+  - witness-v0/C-L-p2wsh-hashmatch
   alive2: null
   saw: null
   status: gap
@@ -1871,7 +1872,19 @@ rows:
 
     closed: no SHA256 model exists at the leaf seam (see the task report for the
 
-    exact blocker and the smallest next experiment).'
+    exact blocker and the smallest next experiment).; witness-v0/C-L-p2wsh-hashmatch: partial.  The row''s stated check is "SHA256(witnessScript) == program".  The
+
+    32-byte equality and the mismatch/continue dispatch are proved completely
+
+    and for every input, but SHA256(witnessScript) is an abstract digest input,
+
+    so the hash computation itself is not proved.  The row stays partial; it is
+
+    not promoted as a hash proof.  Because equality is invariant under any fixed
+
+    byte permutation, the four-word encoding is an exact representation of
+
+    memcmp(digest, program, 32) == 0, not a weakened comparison.'
 - id: SCR-134
   family: witness-v0
   summary: empty ⇒ WITNESS_PROGRAM_WITNESS_EMPTY
@@ -1880,6 +1893,7 @@ rows:
   cells:
   - e4-witness/C-L-w32-witness-v0-error-total
   - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
   alive2:
     result: green
     cell: e4-witness/C-L-w32-witness-v0-error-total
@@ -1900,6 +1914,7 @@ rows:
   cells:
   - e4-witness/C-L-w32-witness-v0-error-total
   - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
   alive2:
     result: green
     cell: e4-witness/C-L-w32-witness-v0-error-total
@@ -1919,6 +1934,7 @@ rows:
   consensus: true
   cells:
   - e4-witness/C-L-w32-p2wpkh-build
+  - witness-v0/C-L-p2wpkh-script
   alive2: null
   saw: null
   status: gap
@@ -1936,7 +1952,17 @@ rows:
 
     HASH160, ECDSA CHECKSIG, cleanstack) -- is not modelled and remains a
 
-    blocker; see the task report.'
+    blocker; see the task report.; witness-v0/C-L-p2wpkh-script: partial.  The row''s script bytes are fully reconstructed and proved for
+
+    every symbolic program: DUP HASH160 <20-byte program> EQUALVERIFY CHECKSIG.
+
+    What is missing is the row''s second half, `ExecuteWitnessScript` on those
+
+    bytes (interpreter.cpp:1953): the EvalScript loop, push parsing, HASH160 and
+
+    ECDSA/CHECKSIG are not modelled.  SCR-136 therefore stays partial and is not
+
+    promoted to full.'
 - id: SCR-137
   family: witness-v0
   summary: else WRONG_LENGTH
@@ -1945,6 +1971,7 @@ rows:
   cells:
   - e4-witness/C-L-w32-witness-v0-error-total
   - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
   alive2:
     result: green
     cell: e4-witness/C-L-w32-witness-v0-error-total
@@ -1962,41 +1989,81 @@ rows:
   summary: exactly 1 true element (cons.)
   core_ref: interpreter.cpp:ExecuteWitnessScript:1876-1879@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-138 (exactly 1 true element (cons.)): interpreter.cpp:1876-1879 checks the stack after EvalScript returns: exactly one item and CastToBool true. This is an EvalScript post-state property; the leaf dispatch cell never runs the interpreter and cannot observe the final stack.'
+  cells:
+  - witness-v0/C-L-witness-v0-cleanstack
+  alive2:
+    result: green
+    cell: witness-v0/C-L-witness-v0-cleanstack
+    certificate: 4c182d88a90e52ac7af7419118420a618db78f5104d38cc6e6558776b8de8ac8
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: witness-v0/C-L-witness-v0-cleanstack
+    certificate: 8907f5a858c5f7395cb8c7fa8212803bb4d28d33d305ca98cc0cf3e65f3b4a02
+    note: Proof succeeded! cell_v0_cleanstack
+  status: both-green
+  gap_note: null
 - id: SCR-139
   family: witness-v0
   summary: sigversion≠BASE skips deletion
   core_ref: interpreter.cpp:333-343@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-139 (sigversion≠BASE skips deletion): Branch predicate in EvalChecksigPreTapscript: sigversion != BASE skips FindAndDelete on the scriptCode (interpreter.cpp:333-343). Expressible as a bounded EvalChecksig leaf with an abstract signature checker; not attempted. Next action: two-scriptCode leaf.'
+  cells:
+  - witness-v0/C-L-sigversion-findanddelete
+  alive2:
+    result: green
+    cell: witness-v0/C-L-sigversion-findanddelete
+    certificate: e5c6c03c67a2f8b7a8e8648a62e7ada15eae42520f6f02763dbbb8eeff96169f
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: witness-v0/C-L-sigversion-findanddelete
+    certificate: 02eafc377c4e41acb205baf44e1e44c4dda793992fd60e146606b3bec8ad80f5
+    note: Proof succeeded! cell_checksig_verdict
+  status: both-green
+  gap_note: null
 - id: SCR-140
   family: witness-v0
   summary: field order per BIP143; amount included
   core_ref: interpreter.cpp:1633-1670@cce32b168
   consensus: true
-  cells: []
+  cells:
+  - witness-v0/C-L-bip143-layout
   alive2: null
   saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-140 (field order per BIP143; amount included): interpreter.cpp:1633-1670 builds the BIP143 preimage (field order, amount, prevouts, outputs, hashOutputs) and hashes it. Requires the tx serializer and hash model; no tx decoder is in the seam.'
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; witness-v0/C-L-bip143-layout: partial.  The row asks for "field order per BIP143; amount included".  This
+
+    cell proves the complete 10-field order, every width and offset, and the
+
+    presence/position of the 8-byte amount, for all field ids and all
+
+    script lengths in [0,75].  It does not model the field CONTENTS: the three
+
+    sub-hashes (hashPrevouts/hashSequence/hashOutputs), the transaction
+
+    serializer, or the final double SHA256.  Those keep SCR-140 partial; it is
+
+    not promoted to full.'
 - id: SCR-141
   family: witness-v0
   summary: hashOutputs = 0 (not uint256::ONE)
   core_ref: interpreter.cpp:1647-1653@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-141 (hashOutputs = 0 (not uint256::ONE)): interpreter.cpp:1647-1653 selects a zero hashOutputs when the SINGLE input index is out of range. The branch is pure, but it is defined over the serialized output vector and feeds the sighash preimage; the tape decoder and hash are outside the seam.'
+  cells:
+  - witness-v0/C-L-bip143-hashoutputs-single-oor
+  alive2:
+    result: green
+    cell: witness-v0/C-L-bip143-hashoutputs-single-oor
+    certificate: 3fb4ebd493ccc12c9d669d1af38e753f6dca57226271c6c2b5d5702aa321639f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: witness-v0/C-L-bip143-hashoutputs-single-oor
+    certificate: 2b7e0444bc93f8f6a5ec1c3741a51f10dd4d5f7d4f859976fe0ec4daf3918f32
+    note: Proof succeeded! cell_bip143_hashoutputs_mode
+  status: both-green
+  gap_note: null
 - id: SCR-142
   family: tapscript
   summary: 'TAPROOT gate: with the flag, a v1-32 non-P2SH spend is not anyone-can-spend; without the flag it succeeds silently only pre-activation (height 709632, except block 692261)'

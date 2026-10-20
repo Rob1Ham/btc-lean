@@ -40,7 +40,7 @@ scr_row_coverage: |
   byte permutation, the four-word encoding is an exact representation of
   memcmp(digest, program, 32) == 0, not a weakened comparison.
 patches: none
-source_citations:
+source_citations: |
   - interpreter.cpp:1939-1940 (SpanPopBack of the witnessScript and
     exec_script construction; precondition)
   - interpreter.cpp:1941-1942 (single CSHA256 over exec_script; abstracted)

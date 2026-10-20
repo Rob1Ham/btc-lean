@@ -1,0 +1,52 @@
+Loading file "alloc-and-vector-lemmas.saw"
+W16B_ALLOC_LEMMAS_BEGIN
+Verifying w16b_lemma_nonnull...
+Simulating w16b_lemma_nonnull...
+Checking proof obligations w16b_lemma_nonnull...
+Proof succeeded! w16b_lemma_nonnull
+W16B_LEMMA_NONNULL_OK
+Verifying w16b_lemma_oversize...
+Simulating w16b_lemma_oversize...
+Checking proof obligations w16b_lemma_oversize...
+Proof succeeded! w16b_lemma_oversize
+W16B_LEMMA_OVERSIZE_OK
+Verifying w16b_lemma_disjoint...
+Simulating w16b_lemma_disjoint...
+Checking proof obligations w16b_lemma_disjoint...
+Proof succeeded! w16b_lemma_disjoint
+W16B_LEMMA_DISJOINT_OK
+Verifying w16b_vec_push1...
+Simulating w16b_vec_push1...
+Checking proof obligations w16b_vec_push1...
+Proof succeeded! w16b_vec_push1
+W16B_VEC_PUSH1_OK
+Verifying w16b_stack_grow...
+Simulating w16b_stack_grow...
+Stack trace:
+   (builtin) in llvm_verify
+   alloc-and-vector-lemmas.saw:130:1-130:64 (at top level)
+at alloc-and-vector-lemmas.saw:86:3:
+Error when loading through pointer that appeared in the override's points-to precondition(s):
+Precondition:
+  Pointer: concrete pointer: allocation = 150, offset = 0
+  Pointee: let { _x`1 = TCNum 8;
+                 _x`2 = seq _x`1 Bool;
+                 _x`3 = PLiteralSeqBool _x`1;
+                 _x`4 = PRingSeqBool _x`1;
+               }
+   in [ seed
+      , ecPlus _x`2 _x`4 seed (ecNumber (TCNum 1) _x`2 _x`3)
+      , ecPlus _x`2 _x`4 seed (ecNumber (TCNum 2) _x`2 _x`3)
+      , ecPlus _x`2 _x`4 seed (ecNumber (TCNum 3) _x`2 _x`3)
+      , ecPlus _x`2 _x`4 seed
+          (ecNumber (TCNum 4) _x`2 _x`3) ] : [5][8]
+
+  Assertion made at: alloc-and-vector-lemmas.saw:86:3
+Failure reason: 
+  When reading through pointer: (150, 0x0:[64])
+  in the  postcondition of an override
+  Tried to read something of size: 5
+  And type: [5 x i8]
+  Found 1 possibly matching allocation(s):
+  - HeapAlloc 150 0x5:[64] Mutable 1-byte-aligned alloc-and-vector-lemmas.saw:84:3
+

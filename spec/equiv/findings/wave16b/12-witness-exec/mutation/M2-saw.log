@@ -1,0 +1,64 @@
+Loading file "cell.saw"
+Verifying cell_v0_exec...
+Simulating cell_v0_exec...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_v0_exec...
+Proof succeeded! cell_v0_exec
+Verifying cell_v0_exec...
+Simulating cell_v0_exec...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_v0_exec...
+Proof succeeded! cell_v0_exec
+Verifying cell_checksig_gate...
+Simulating cell_checksig_gate...
+Checking proof obligations cell_checksig_gate...
+Proof succeeded! cell_checksig_gate
+Verifying cell_checksig_gate...
+Simulating cell_checksig_gate...
+Checking proof obligations cell_checksig_gate...
+Subgoal failed: cell_checksig_gate cell.saw:30:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+gate sv`6353 fdfound`6354 constsc`6355
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = Vec 1 Bool;
+      _x`3 = bvNat 1 0;
+      _x`4 = bvNat 1 1;
+      _x`5 = bvNat 64 1;
+      _x`6 = bvNat 64 0;
+      _x`7 = bvEq 64 _x`6 fdfound`6354;
+    }
+ in ite _x`1
+      (bvult 64 (bvOr 64 (bvOr 64 sv`6353 fdfound`6354) constsc`6355)
+         (bvNat 64 2))
+      (bvOr 64
+         (bvOr 64
+            (bvOr 64
+               (bvOr 64 _x`5
+                  (bvAnd 64 (bvNat 64 8589934590)
+                     (bvShl 64 fdfound`6354 (bvToNat 64 _x`5))))
+               (ite _x`1 _x`7 _x`6 (bvNat 64 4)))
+            (ite _x`1
+               (bvEq 1 _x`3
+                  (bvAnd 1 (ite _x`2 _x`7 _x`3 _x`4)
+                     (ite _x`2 (bvEq 64 _x`6 constsc`6355) _x`3 _x`4)))
+               _x`6
+               (bvNat 64 432)))
+         (bvAnd 64 (bvNat 64 1536)
+            (bvShl 64 sv`6353 (bvToNat 64 (bvNat 64 9)))))
+      (bvNat 64 18446744073709551615)
+
+Goal size 199. Provers used: abc_verilog
+----------Counterexample----------
+  sv: 1
+  fdfound: 1
+  constsc: 1
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:30:56-30:59 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:30:1-30:59 (at top level)
+Proof failed.
+

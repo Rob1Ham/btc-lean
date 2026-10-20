@@ -20,6 +20,17 @@ equivalence claim.
 > heap, dispatch loop, exceptions) are independent of that scope. Do not cite
 > the green line as a pinned equivalence artifact.
 
+> **Prototype update (2026-10-20, no green row).** B1 and B2 now have bounded,
+> machine-checked probes, but they do **not** form a ledger cell:
+> `findings/wave16b/02-e5-getscriptop/` links the real `script.cpp` and proves
+> concrete/symbolic `GetScriptOp` lemmas plus concrete non-empty
+> `VerifyScript` inputs; `findings/wave16b/03-e5-heap/` supplies a bounded
+> allocator model and proves OP_1 at capacity 41 (and failure at 40). The
+> remaining E5 blockers are still B3 (symbolic dispatch-loop invariant), the
+> allocator refinement/capacity proof, B4/B5/B7, and the non-pin probe
+> provenance. `findings/wave16b/11-patch-evalstep/` evaluates P-CORE-04/05 and
+> finds the loop still symbolic-trip. None of this is promoted.
+
 ---
 
 ## 1. What was run, and what happened
@@ -260,6 +271,7 @@ Module hashes used above:
   P-CORE-01/02/03 patches.
 - `ptrtoint`, the heap, crypto, and the checker seam are untouched beyond
   naming them.
-- The next concrete engineering step is B1+B2 (real `GetScriptOp` definition
-  and a heap model) on top of `roots.bc`, followed by the B3 invariant. Until
+- B1+B2 have bounded prototype probes (above), but not a pinned refinement;
+  the next concrete engineering step is the B3 symbolic-loop invariant on the
+  pinned lane, followed by allocator refinement and the remaining externals. Until
   all three exist, an E5 green cell would be dishonest.

@@ -1,0 +1,23 @@
+// wave16b/03-e5-heap -- FAILURE DISCLOSURE (expected to fail).
+//
+// vector::resize(100000000, 0xab) on an empty vector requests 100 MB from
+// _Znwm; the 64 MiB arena cannot satisfy it, so operator new takes its throw
+// branch.  SAW must stop at the uninterpreted _ZSt17__throw_bad_allocv.
+// Expected exit code 2; "UNEXPECTED_SUCCESS" would mean the failure path was
+// silently swallowed.
+//
+// Module: vec-probe-linked.bc (see build/build-heap-probe.sh).
+m <- llvm_load_module "/tmp/opencode/wave16b-scratch/03-e5-heap/vec-probe-linked.bc";
+
+let big_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [llvm_term {{ 100000000 : [64] }}];
+  llvm_return (llvm_term {{ 100000000 : [64] }});
+};
+
+llvm_verify m "w16b_vec_resize_big" [] false big_spec z3;
+print "UNEXPECTED_SUCCESS";

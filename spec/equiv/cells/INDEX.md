@@ -1,20 +1,24 @@
 # Cell index — all recorded cells
 
-**Snapshot:** `2026-10-19T23:10:00Z` (post-E6 integration)
+**Snapshot:** `2026-10-20` (post wave 16/32 integration)
 Contract: `f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6`.
 Pinned Core: `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`.
 
-There are **17 valid cell directories**; all have Alive2 and SAW success
-markers and a certificate. Only cells whose `scr_row_coverage` is `full`
-promote a ledger row. The current ledger is **4 both-green, 20 unjudged-seam,
-159 filed gap, 0 planned**. See `../results/matrix.md` and
+There are **65 valid cell directories**; all have Alive2 and SAW attempts
+and replayable certificates. Only cells whose `scr_row_coverage` is `full`
+for the named row promote that ledger row; per-row `partial` coverage is
+honoured. The current ledger is **64 both-green, 11 unjudged-seam, 108 filed
+gap, 0 planned**. See `../results/matrix.md` and
 `../findings/coverage/F-E6-GAPS.md` for the authoritative generated view.
+
+The table below is retained as the historical E1/E2/E3/E4 core-cell set; the
+wave-16/32 cells are listed in the generated matrix and find gaps.
 
 | Cell | Family | Alive2 | SAW | SCR rows | Row coverage |
 |---|---|---|---|---|---|
-| `control-flow/C-L-nop-return` | control-flow | green | green | SCR-069/071/072 | **full** (flags=0; policy branch gap) |
-| `stack-ops/C-L-arity` | stack-ops | 16/16 | 32/32 | SCR-074 | **full** |
-| `stack/C-L-dup-drop-swap` | stack-ops | green | green | SCR-074/076/078 | partial (corroborates 074) |
+| `control-flow/C-L-nop-return` | control-flow | green | green | SCR-069/071 | **full** for 069/071; 072 not covered |
+| `stack-ops/C-L-arity` | stack-ops | 16/16 | 32/32 | SCR-074 | **partial** (empty-stack only; 074 gap) |
+| `stack/C-L-dup-drop-swap` | stack-ops | green | green | SCR-074/076/078 | partial; these rows remain gaps |
 | `stack/C-L-altstack` | stack-ops | green | green | SCR-073 | partial |
 | `stack/C-L-verify` | control-flow | green | green | SCR-068 | partial |
 | `e1-stack/swap-order` | stack-ops | green | green | SCR-074/078 | partial |

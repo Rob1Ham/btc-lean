@@ -1,0 +1,27 @@
+# P-CORE-05 span-leaf probe: ptrtoint counts
+# tool: clang++-20 (20.1.2), -g0 -emit-llvm; pin = cce32b16
+# patch: P-CORE-05-span-leaves-proposal.patch (span overloads + internal call sites)
+#
+# Command shape:
+#   clang++-20 -std=c++20 -O{0,1} -g0 -emit-llvm -c \
+#     -I core/src -I core/build-ir/src -I core/src/secp256k1/include \
+#     -I core/src/univalue/include src/script/interpreter.cpp
+#   llvm-dis-20 ... ; ir_metrics-style ptrtoint count
+#
+## Full Core TU
+variant            ptrtoint inttoptr  CastToBool-ptrtoint
+O0 pin                  104        0  [0]
+O0 +P-CORE-05           104        0  [0, 0]
+O1 pin                  559        4  [2]
+O1 +P-CORE-05           567        4  [2]
+
+## Standalone leaf experiment (leaf-experiment.cpp)
+function                                 ptrtoint
+-- O0
+_Z14CastToBoolSpanSt4spanIKhLm1844674407        0
+_Z13CastToBoolVecRKSt6vectorIhSaIhEE            0
+_Z13CastToBoolPtrPKhm                           0
+-- O1
+_Z14CastToBoolSpanSt4spanIKhLm1844674407        0
+_Z13CastToBoolVecRKSt6vectorIhSaIhEE            2
+_Z13CastToBoolPtrPKhm                           0

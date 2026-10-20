@@ -1,0 +1,519 @@
+
+----------------------------------------
+define i64 @cell_v0_exec(i64 noundef %wit_n, i64 noundef %program_len, i64 noundef %hash_eq, i64 noundef %script_kind, i64 noundef %sig_ok, i64 noundef %fd_found, i64 noundef %const_sc) nofree willreturn memory(none) {
+entry:
+  %#0 = or i64 noundef %script_kind, noundef %wit_n
+  %#1 = icmp ugt i64 %#0, 3
+  %#2 = or i64 noundef %fd_found, noundef %const_sc
+  %#3 = or i64 %#2, noundef %hash_eq
+  %#4 = or i64 %#3, noundef %sig_ok
+  %#5 = icmp ugt i64 %#4, 1
+  %or.cond45 = or i1 %#1, %#5
+  br i1 %or.cond45, label %return, label %if.end
+
+if.end:
+  switch i64 noundef %program_len, label %if.end36 [
+    i64 32, label %if.then11
+    i64 20, label %if.then27
+  ]
+
+if.end36:
+  %and11.i = shl nsw nuw i64 noundef %wit_n, 11
+  %or1477.i = or disjoint i64 %and11.i, 152
+  br label %return
+
+if.then11:
+  switch i64 noundef %wit_n, label %return [
+    i64 0, label %if.then13
+    i64 1, label %if.end17
+  ]
+
+if.then13:
+  br label %return
+
+if.end17:
+  %cmp18 = icmp eq i64 noundef %hash_eq, 0
+  br i1 %cmp18, label %return, label %if.end22
+
+if.end22:
+  %conv = trunc nsw nuw i64 noundef %script_kind to i32
+  switch i32 %conv, label %entry.unreachabledefault.i [
+    i32 0, label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302
+    i32 1, label %if.then2.i
+    i32 2, label %if.then5.i
+    i32 3, label %if.else6.i
+  ]
+
+entry.unreachabledefault.i:
+  assume i1 0
+
+if.then2.i:
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302
+
+if.then5.i:
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302
+
+if.else6.i:
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302
+
+_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302:
+  %code.0 = phi i64 [ 30033, %if.else6.i ], [ 1364292945, %if.then5.i ], [ 30033, %if.then2.i ], [ 5338449, %if.end22 ]
+  %cmp.i287 = phi i1 [ 0, %if.else6.i ], [ 1, %if.then5.i ], [ 1, %if.then2.i ], [ 1, %if.end22 ]
+  %cmp.i279 = phi i1 [ 0, %if.else6.i ], [ 1, %if.then5.i ], [ 0, %if.then2.i ], [ 0, %if.end22 ]
+  %len.0 = phi i64 [ 144115188075855872, %if.else6.i ], [ 288230376151711744, %if.then5.i ], [ 216172782113783808, %if.then2.i ], [ 216172782113783808, %if.end22 ]
+  br i1 %cmp.i287, label %if.then.i291, label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294
+
+if.then.i291:
+  %shr.i292 = lshr i64 %code.0, 16
+  %conv.i293 = trunc i64 %shr.i292 to i8
+  switch i8 %conv.i293, label %if.end22.i388 [
+    i8 0, label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294
+    i8 81, label %if.then4.i382
+  ]
+
+if.end22.i388:
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294
+
+if.then4.i382:
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294
+
+_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294:
+  %st.i.5 = phi i64 [ 0, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302 ], [ 257, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 0, %if.then.i291 ]
+  %n.i.5 = phi i32 [ 0, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302 ], [ 1, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 1, %if.then.i291 ]
+  %cmp1.i280 = phi i1 [ 1, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302 ], [ 1, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 1, %if.then.i291 ]
+  %err.i.5 = phi i32 [ 0, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302 ], [ 0, %if.then4.i382 ], [ 16, %if.end22.i388 ], [ 0, %if.then.i291 ]
+  %or.cond.i281 = and i1 %cmp.i279, %cmp1.i280
+  br i1 %or.cond.i281, label %if.then.i283, label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286
+
+if.then.i283:
+  %shr.i284 = lshr i64 %code.0, 24
+  %conv.i285 = trunc nsw nuw i64 %shr.i284 to i8
+  switch i8 %conv.i285, label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286 [
+    i8 0, label %if.then.i425
+    i8 81, label %if.then4.i422
+  ]
+
+if.then.i425:
+  %add.i658 = add nsw nuw i32 %n.i.5, 1
+  %shl.i659 = shl nsw nuw i64 %st.i.5, 16
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286
+
+if.then4.i422:
+  %add.i661 = add nsw nuw i32 %n.i.5, 1
+  %shl.i662 = shl nsw nuw i64 %st.i.5, 16
+  %or.i663 = or disjoint i64 %shl.i662, 257
+  br label %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286
+
+_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286:
+  %st.i.4 = phi i64 [ %st.i.5, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294 ], [ %or.i663, %if.then4.i422 ], [ %shl.i659, %if.then.i425 ], [ %st.i.5, %if.then.i283 ]
+  %n.i.4 = phi i32 [ %n.i.5, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294 ], [ %add.i661, %if.then4.i422 ], [ %add.i658, %if.then.i425 ], [ %n.i.5, %if.then.i283 ]
+  %err.i.4 = phi i32 [ %err.i.5, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294 ], [ %err.i.5, %if.then4.i422 ], [ %err.i.5, %if.then.i425 ], [ 16, %if.then.i283 ]
+  %cmp.not.i = icmp eq i32 %err.i.4, 0
+  br i1 %cmp.not.i, label %if.end.i, label %_ZN12_GLOBAL__N_113c_exec_scriptEmj.exit
+
+if.end.i:
+  %#6 = trunc nsw nuw i64 %st.i.4 to i32
+  %conv.i324 = and i32 %#6, 255
+  %cmp.i325 = icmp eq i32 %conv.i324, 0
+  br i1 %cmp.i325, label %_ZN2w2L9w2_truthyEm.exit, label %lor.rhs.i
+
+lor.rhs.i:
+  %and1.i247 = and i64 %st.i.4, 65280
+  %cmp3.i = icmp ne i32 %conv.i324, 1
+  %cmp4.i = icmp ne i64 %and1.i247, 0
+  %.not.i = select i1 %cmp3.i, i1 1, i1 %cmp4.i
+  br label %_ZN2w2L9w2_truthyEm.exit
+
+_ZN2w2L9w2_truthyEm.exit:
+  %lnot.i = phi i1 [ 0, %if.end.i ], [ %.not.i, %lor.rhs.i ]
+  %cmp.not.i315 = icmp eq i32 %n.i.4, 1
+  %.951 = select i1 %lnot.i, i32 0, i32 2
+  %narrow = select i1 %cmp.not.i315, i1 %lnot.i, i1 0
+  %ref.tmp.sroa.0.1 = zext i1 %narrow to i32
+  %ref.tmp.sroa.9.1 = select i1 %cmp.not.i315, i32 %.951, i32 30
+  br label %_ZN12_GLOBAL__N_113c_exec_scriptEmj.exit
+
+_ZN12_GLOBAL__N_113c_exec_scriptEmj.exit:
+  %ref.tmp.sroa.0.0 = phi i32 [ %ref.tmp.sroa.0.1, %_ZN2w2L9w2_truthyEm.exit ], [ 0, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286 ]
+  %ref.tmp.sroa.9.0 = phi i32 [ %ref.tmp.sroa.9.1, %_ZN2w2L9w2_truthyEm.exit ], [ %err.i.4, %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286 ]
+  %and1.i134 = shl nsw nuw i32 %ref.tmp.sroa.9.0, 2
+  %#7 = and i32 %and1.i134, 252
+  %ref.tmp.sroa.13734.0 = shl nsw nuw i32 %n.i.4, 11
+  %and11.i143 = and i32 %ref.tmp.sroa.13734.0, 6144
+  %and23.i153 = shl nsw nuw i64 %code.0, 16
+  %or74.i135 = or disjoint i32 %and11.i143, %ref.tmp.sroa.0.0
+  %or675.i138 = or disjoint i32 %or74.i135, %#7
+  %#8 = or disjoint i32 %or675.i138, 1968267520
+  %or30.i157 = zext nneg i32 %#8 to i64
+  %or40.i161 = or disjoint i64 %len.0, %and23.i153
+  %or49.i168 = or i64 %or40.i161, %or30.i157
+  br label %return
+
+if.then27:
+  %cmp28.not = icmp eq i64 noundef %wit_n, 2
+  br i1 %cmp28.not, label %if.end33, label %if.then29
+
+if.end33:
+  %cmp.i = icmp eq i64 noundef %hash_eq, 0
+  %cmp1.i.not.not = icmp eq i64 noundef %sig_ok, 0
+  %.953 = select i1 %cmp1.i.not.not, i64 8, i64 0
+  %#9 = or disjoint i64 noundef %sig_ok, %.953
+  %#10 = or disjoint i64 %#9, 1850003169266280704
+  %or1878.i73 = select i1 %cmp.i, i64 1850003169266276656, i64 %#10
+  br label %return
+
+if.then29:
+  %and11.i106 = shl nsw nuw i64 noundef %wit_n, 11
+  %or1477.i107 = or disjoint i64 %and11.i106, 160
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ -1, %entry ], [ 156, %if.then13 ], [ %or49.i168, %_ZN12_GLOBAL__N_113c_exec_scriptEmj.exit ], [ %or1477.i107, %if.then29 ], [ %or1878.i73, %if.end33 ], [ %or1477.i, %if.end36 ], [ -1, %if.then11 ], [ 160, %if.end17 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 -1, i64 4611686018427387904
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_v0_exec(i64 noundef %wit_n, i64 noundef %program_len, i64 noundef %hash_eq, i64 noundef %script_kind, i64 noundef %sig_ok, i64 noundef %fd_found, i64 noundef %const_sc) nofree willreturn memory(none) {
+entry:
+  %#0 = or i64 noundef %script_kind, noundef %wit_n
+  %#1 = icmp ugt i64 %#0, 3
+  %#2 = or i64 noundef %fd_found, noundef %const_sc
+  %#3 = or i64 %#2, noundef %hash_eq
+  %#4 = or i64 %#3, noundef %sig_ok
+  %#5 = icmp ugt i64 %#4, 1
+  %or.cond45 = or i1 %#1, %#5
+  br i1 %or.cond45, label %return, label %if.end
+
+if.end:
+  switch i64 noundef %program_len, label %if.end36 [
+    i64 32, label %if.then11
+    i64 20, label %if.then27
+  ]
+
+if.end36:
+  %and11.i = shl nsw nuw i64 noundef %wit_n, 11
+  %or1477.i = or disjoint i64 %and11.i, 152
+  br label %return
+
+if.then11:
+  switch i64 noundef %wit_n, label %return [
+    i64 0, label %if.then13
+    i64 1, label %if.end17
+  ]
+
+if.then13:
+  br label %return
+
+if.end17:
+  %cmp18 = icmp eq i64 noundef %hash_eq, 0
+  br i1 %cmp18, label %return, label %if.end22
+
+if.end22:
+  %conv = trunc nsw nuw i64 noundef %script_kind to i32
+  switch i32 %conv, label %entry.unreachabledefault.i [
+    i32 0, label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302
+    i32 1, label %if.then2.i
+    i32 2, label %if.then5.i
+    i32 3, label %if.else6.i
+  ]
+
+entry.unreachabledefault.i:
+  assume i1 0
+
+if.then2.i:
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302
+
+if.then5.i:
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302
+
+if.else6.i:
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302
+
+_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302:
+  %code.0 = phi i64 [ 30033, %if.else6.i ], [ 1364292945, %if.then5.i ], [ 30033, %if.then2.i ], [ 5338449, %if.end22 ]
+  %cmp.i287 = phi i1 [ 0, %if.else6.i ], [ 1, %if.then5.i ], [ 1, %if.then2.i ], [ 1, %if.end22 ]
+  %cmp.i279 = phi i1 [ 0, %if.else6.i ], [ 1, %if.then5.i ], [ 0, %if.then2.i ], [ 0, %if.end22 ]
+  %len.0 = phi i64 [ 144115188075855872, %if.else6.i ], [ 288230376151711744, %if.then5.i ], [ 216172782113783808, %if.then2.i ], [ 216172782113783808, %if.end22 ]
+  br i1 %cmp.i287, label %if.then.i291, label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294
+
+if.then.i291:
+  %shr.i292 = lshr i64 %code.0, 16
+  %conv.i293 = trunc i64 %shr.i292 to i8
+  switch i8 %conv.i293, label %if.end22.i388 [
+    i8 0, label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294
+    i8 81, label %if.then4.i382
+  ]
+
+if.end22.i388:
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294
+
+if.then4.i382:
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294
+
+_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294:
+  %st.i.5 = phi i64 [ 0, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302 ], [ 257, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 0, %if.then.i291 ]
+  %n.i.5 = phi i32 [ 0, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302 ], [ 1, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 1, %if.then.i291 ]
+  %cmp1.i280 = phi i1 [ 1, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302 ], [ 1, %if.then4.i382 ], [ 0, %if.end22.i388 ], [ 1, %if.then.i291 ]
+  %err.i.5 = phi i32 [ 0, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302 ], [ 0, %if.then4.i382 ], [ 16, %if.end22.i388 ], [ 0, %if.then.i291 ]
+  %or.cond.i281 = and i1 %cmp.i279, %cmp1.i280
+  br i1 %or.cond.i281, label %if.then.i283, label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286
+
+if.then.i283:
+  %shr.i284 = lshr i64 %code.0, 24
+  %conv.i285 = trunc nsw nuw i64 %shr.i284 to i8
+  switch i8 %conv.i285, label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286 [
+    i8 0, label %if.then.i425
+    i8 81, label %if.then4.i422
+  ]
+
+if.then.i425:
+  %add.i658 = add nsw nuw i32 %n.i.5, 1
+  %shl.i659 = shl nsw nuw i64 %st.i.5, 16
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286
+
+if.then4.i422:
+  %add.i661 = add nsw nuw i32 %n.i.5, 1
+  %shl.i662 = shl nsw nuw i64 %st.i.5, 16
+  %or.i663 = or disjoint i64 %shl.i662, 257
+  br label %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286
+
+_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286:
+  %st.i.4 = phi i64 [ %st.i.5, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294 ], [ %or.i663, %if.then4.i422 ], [ %shl.i659, %if.then.i425 ], [ %st.i.5, %if.then.i283 ]
+  %n.i.4 = phi i32 [ %n.i.5, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294 ], [ %add.i661, %if.then4.i422 ], [ %add.i658, %if.then.i425 ], [ %n.i.5, %if.then.i283 ]
+  %err.i.4 = phi i32 [ %err.i.5, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294 ], [ %err.i.5, %if.then4.i422 ], [ %err.i.5, %if.then.i425 ], [ 16, %if.then.i283 ]
+  %cmp.not.i = icmp eq i32 %err.i.4, 0
+  br i1 %cmp.not.i, label %if.end.i, label %_ZN12_GLOBAL__N_113l_exec_scriptEmj.exit
+
+if.end.i:
+  %#6 = trunc nsw nuw i64 %st.i.4 to i32
+  %conv.i324 = and i32 %#6, 255
+  %cmp.i325 = icmp eq i32 %conv.i324, 0
+  br i1 %cmp.i325, label %_ZN2w2L9w2_truthyEm.exit, label %lor.rhs.i
+
+lor.rhs.i:
+  %and1.i247 = and i64 %st.i.4, 65280
+  %cmp3.i = icmp ne i32 %conv.i324, 1
+  %cmp4.i = icmp ne i64 %and1.i247, 0
+  %.not.i = select i1 %cmp3.i, i1 1, i1 %cmp4.i
+  br label %_ZN2w2L9w2_truthyEm.exit
+
+_ZN2w2L9w2_truthyEm.exit:
+  %lnot.i = phi i1 [ 0, %if.end.i ], [ %.not.i, %lor.rhs.i ]
+  %cmp.i315 = icmp ne i32 %n.i.4, 0
+  %.951 = select i1 %lnot.i, i32 0, i32 2
+  %narrow = select i1 %cmp.i315, i1 %lnot.i, i1 0
+  %ref.tmp.sroa.0.1 = zext i1 %narrow to i32
+  %ref.tmp.sroa.9.1 = select i1 %cmp.i315, i32 %.951, i32 30
+  br label %_ZN12_GLOBAL__N_113l_exec_scriptEmj.exit
+
+_ZN12_GLOBAL__N_113l_exec_scriptEmj.exit:
+  %ref.tmp.sroa.0.0 = phi i32 [ %ref.tmp.sroa.0.1, %_ZN2w2L9w2_truthyEm.exit ], [ 0, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286 ]
+  %ref.tmp.sroa.9.0 = phi i32 [ %ref.tmp.sroa.9.1, %_ZN2w2L9w2_truthyEm.exit ], [ %err.i.4, %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286 ]
+  %and1.i134 = shl nsw nuw i32 %ref.tmp.sroa.9.0, 2
+  %#7 = and i32 %and1.i134, 252
+  %ref.tmp.sroa.13734.0 = shl nsw nuw i32 %n.i.4, 11
+  %and11.i143 = and i32 %ref.tmp.sroa.13734.0, 6144
+  %and23.i153 = shl nsw nuw i64 %code.0, 16
+  %or74.i135 = or disjoint i32 %and11.i143, %ref.tmp.sroa.0.0
+  %or675.i138 = or disjoint i32 %or74.i135, %#7
+  %#8 = or disjoint i32 %or675.i138, 1968267520
+  %or30.i157 = zext nneg i32 %#8 to i64
+  %or40.i161 = or disjoint i64 %len.0, %and23.i153
+  %or49.i168 = or i64 %or40.i161, %or30.i157
+  br label %return
+
+if.then27:
+  %cmp28.not = icmp eq i64 noundef %wit_n, 2
+  br i1 %cmp28.not, label %if.end33, label %if.then29
+
+if.end33:
+  %cmp.i = icmp eq i64 noundef %hash_eq, 0
+  %cmp1.i.not.not = icmp eq i64 noundef %sig_ok, 0
+  %.953 = select i1 %cmp1.i.not.not, i64 8, i64 0
+  %#9 = or disjoint i64 noundef %sig_ok, %.953
+  %#10 = or disjoint i64 %#9, 1850003169266280704
+  %or1878.i73 = select i1 %cmp.i, i64 1850003169266276656, i64 %#10
+  br label %return
+
+if.then29:
+  %and11.i106 = shl nsw nuw i64 noundef %wit_n, 11
+  %or1477.i107 = or disjoint i64 %and11.i106, 160
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ -1, %entry ], [ 156, %if.then13 ], [ %or49.i168, %_ZN12_GLOBAL__N_113l_exec_scriptEmj.exit ], [ %or1477.i107, %if.then29 ], [ %or1878.i73, %if.end33 ], [ %or1477.i, %if.end36 ], [ -1, %if.then11 ], [ 160, %if.end17 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 -1, i64 4611686018427387904
+  ret i64 %#range_0_%retval.1
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %wit_n = #x0000000000000001 (1)
+i64 noundef %program_len = #x0000000000000020 (32)
+i64 noundef %hash_eq = #x0000000000000001 (1)
+i64 noundef %script_kind = #x0000000000000002 (2)
+i64 noundef %sig_ok = #x0000000000000000 (0)
+i64 noundef %fd_found = #x0000000000000000 (0)
+i64 noundef %const_sc = #x0000000000000000 (0)
+
+Source:
+i64 %#0 = #x0000000000000003 (3)
+i1 %#1 = #x0 (0)
+i64 %#2 = #x0000000000000000 (0)
+i64 %#3 = #x0000000000000001 (1)
+i64 %#4 = #x0000000000000001 (1)
+i1 %#5 = #x0 (0)
+i1 %or.cond45 = #x0 (0)
+  >> Jump to %if.end
+  >> Jump to %if.then11
+  >> Jump to %if.end17
+i1 %cmp18 = #x0 (0)
+  >> Jump to %if.end22
+i32 %conv = #x00000002 (2)
+  >> Jump to %if.then5.i
+  >> Jump to %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit302
+i64 %code.0 = #x0000000051517551 (1364292945)
+i1 %cmp.i287 = #x1 (1)
+i1 %cmp.i279 = #x1 (1)
+i64 %len.0 = #x0400000000000000 (288230376151711744)
+  >> Jump to %if.then.i291
+i64 %shr.i292 = #x0000000000005151 (20817)
+i8 %conv.i293 = #x51 (81)
+  >> Jump to %if.then4.i382
+  >> Jump to %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit294
+i64 %st.i.5 = #x0000000000000101 (257)
+i32 %n.i.5 = #x00000001 (1)
+i1 %cmp1.i280 = #x1 (1)
+i32 %err.i.5 = #x00000000 (0)
+i1 %or.cond.i281 = #x1 (1)
+  >> Jump to %if.then.i283
+i64 %shr.i284 = #x0000000000000051 (81)
+i8 %conv.i285 = #x51 (81)
+  >> Jump to %if.then4.i422
+i32 %add.i661 = #x00000002 (2)
+i64 %shl.i662 = #x0000000001010000 (16842752)
+i64 %or.i663 = #x0000000001010101 (16843009)
+  >> Jump to %_ZN12_GLOBAL__N_19c_step_atEmjjRmRjS1_.exit286
+i64 %st.i.4 = #x0000000001010101 (16843009)
+i32 %n.i.4 = #x00000002 (2)
+i32 %err.i.4 = #x00000000 (0)
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end.i
+i32 %#6 = #x01010101 (16843009)
+i32 %conv.i324 = #x00000001 (1)
+i1 %cmp.i325 = #x0 (0)
+  >> Jump to %lor.rhs.i
+i64 %and1.i247 = #x0000000000000100 (256)
+i1 %cmp3.i = #x0 (0)
+i1 %cmp4.i = #x1 (1)
+i1 %.not.i = #x1 (1)
+  >> Jump to %_ZN2w2L9w2_truthyEm.exit
+i1 %lnot.i = #x1 (1)
+i1 %cmp.not.i315 = #x0 (0)
+i32 %.951 = #x00000000 (0)
+i1 %narrow = #x0 (0)
+i32 %ref.tmp.sroa.0.1 = #x00000000 (0)
+i32 %ref.tmp.sroa.9.1 = #x0000001e (30)
+  >> Jump to %_ZN12_GLOBAL__N_113c_exec_scriptEmj.exit
+i32 %ref.tmp.sroa.0.0 = #x00000000 (0)
+i32 %ref.tmp.sroa.9.0 = #x0000001e (30)
+i32 %and1.i134 = #x00000078 (120)
+i32 %#7 = #x00000078 (120)
+i32 %ref.tmp.sroa.13734.0 = #x00001000 (4096)
+i32 %and11.i143 = #x00001000 (4096)
+i64 %and23.i153 = #x0000515175510000 (89410302443520)
+i32 %or74.i135 = #x00001000 (4096)
+i32 %or675.i138 = #x00001078 (4216)
+i32 %#8 = #x75517178 (1968271736)
+i64 %or30.i157 = #x0000000075517178 (1968271736)
+i64 %or40.i161 = #x0400515175510000 (288319786454155264)
+i64 %or49.i168 = #x0400515175517178 (288319786454184312)
+  >> Jump to %return
+i64 %retval.1 = #x0400515175517178 (288319786454184312)
+i64 %#range_0_%retval.1 = #x0400515175517178 (288319786454184312)
+
+Target:
+i64 %#0 = #x0000000000000003 (3)
+i1 %#1 = #x0 (0)
+i64 %#2 = #x0000000000000000 (0)
+i64 %#3 = #x0000000000000001 (1)
+i64 %#4 = #x0000000000000001 (1)
+i1 %#5 = #x0 (0)
+i1 %or.cond45 = #x0 (0)
+  >> Jump to %if.end
+  >> Jump to %if.then11
+  >> Jump to %if.end17
+i1 %cmp18 = #x0 (0)
+  >> Jump to %if.end22
+i32 %conv = #x00000002 (2)
+  >> Jump to %if.then5.i
+  >> Jump to %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit302
+i64 %code.0 = #x0000000051517551 (1364292945)
+i1 %cmp.i287 = #x1 (1)
+i1 %cmp.i279 = #x1 (1)
+i64 %len.0 = #x0400000000000000 (288230376151711744)
+  >> Jump to %if.then.i291
+i64 %shr.i292 = #x0000000000005151 (20817)
+i8 %conv.i293 = #x51 (81)
+  >> Jump to %if.then4.i382
+  >> Jump to %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit294
+i64 %st.i.5 = #x0000000000000101 (257)
+i32 %n.i.5 = #x00000001 (1)
+i1 %cmp1.i280 = #x1 (1)
+i32 %err.i.5 = #x00000000 (0)
+i1 %or.cond.i281 = #x1 (1)
+  >> Jump to %if.then.i283
+i64 %shr.i284 = #x0000000000000051 (81)
+i8 %conv.i285 = #x51 (81)
+  >> Jump to %if.then4.i422
+i32 %add.i661 = #x00000002 (2)
+i64 %shl.i662 = #x0000000001010000 (16842752)
+i64 %or.i663 = #x0000000001010101 (16843009)
+  >> Jump to %_ZN12_GLOBAL__N_19l_step_atEmjjRmRjS1_.exit286
+i64 %st.i.4 = #x0000000001010101 (16843009)
+i32 %n.i.4 = #x00000002 (2)
+i32 %err.i.4 = #x00000000 (0)
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end.i
+i32 %#6 = #x01010101 (16843009)
+i32 %conv.i324 = #x00000001 (1)
+i1 %cmp.i325 = #x0 (0)
+  >> Jump to %lor.rhs.i
+i64 %and1.i247 = #x0000000000000100 (256)
+i1 %cmp3.i = #x0 (0)
+i1 %cmp4.i = #x1 (1)
+i1 %.not.i = #x1 (1)
+  >> Jump to %_ZN2w2L9w2_truthyEm.exit
+i1 %lnot.i = #x1 (1)
+i1 %cmp.i315 = #x1 (1)
+i32 %.951 = #x00000000 (0)
+i1 %narrow = #x1 (1)
+i32 %ref.tmp.sroa.0.1 = #x00000001 (1)
+i32 %ref.tmp.sroa.9.1 = #x00000000 (0)
+  >> Jump to %_ZN12_GLOBAL__N_113l_exec_scriptEmj.exit
+i32 %ref.tmp.sroa.0.0 = #x00000001 (1)
+i32 %ref.tmp.sroa.9.0 = #x00000000 (0)
+i32 %and1.i134 = #x00000000 (0)
+i32 %#7 = #x00000000 (0)
+i32 %ref.tmp.sroa.13734.0 = #x00001000 (4096)
+i32 %and11.i143 = #x00001000 (4096)
+i64 %and23.i153 = #x0000515175510000 (89410302443520)
+i32 %or74.i135 = #x00001001 (4097)
+i32 %or675.i138 = #x00001001 (4097)
+i32 %#8 = #x75517101 (1968271617)
+i64 %or30.i157 = #x0000000075517101 (1968271617)
+i64 %or40.i161 = #x0400515175510000 (288319786454155264)
+i64 %or49.i168 = #x0400515175517101 (288319786454184193)
+  >> Jump to %return
+i64 %retval.1 = #x0400515175517101 (288319786454184193)
+i64 %#range_0_%retval.1 = #x0400515175517101 (288319786454184193)
+Source value: #x0400515175517178 (288319786454184312)
+Target value: #x0400515175517101 (288319786454184193)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

@@ -45,7 +45,7 @@ scr_row_coverage: |
   flag value.  FindAndDelete's internal algorithm and the bytes compared are a
   separate rule, not part of SCR-139.
 patches: none
-source_citations:
+source_citations: |
   - interpreter.cpp:331-333 (EvalChecksigPreTapscript signature and
     sigversion assert: BASE or WITNESS_V0)
   - interpreter.cpp:336 (CScript scriptCode(pbegincodehash, pend))

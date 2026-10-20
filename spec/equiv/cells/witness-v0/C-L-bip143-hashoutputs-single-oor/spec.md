@@ -45,7 +45,7 @@ scr_row_coverage: |
   zero arm and the ALL/in-range arms so the selection is total.  The hash
   bytes themselves are not modelled and are not part of this row.
 patches: none
-source_citations:
+source_citations: |
   - interpreter.cpp:1633-1635 (WITNESS_V0 arm; uint256 hashPrevouts /
     hashSequence / hashOutputs declarations, default zero)
   - interpreter.cpp:1647-1648 (ALL/unrecognised -> SHA256d over all outputs)

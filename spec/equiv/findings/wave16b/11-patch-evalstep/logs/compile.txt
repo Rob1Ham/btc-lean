@@ -1,0 +1,18 @@
+# P-CORE-04 compile probes (clang++-20 20.1.2, -O0 -g0 -emit-llvm)
+
+## pin (REF)
+$ clang++-20 -std=c++20 -O0 -g0 -emit-llvm -c -I core/src -I core/build-ir/src -I core/src/secp256k1/include -I core/src/univalue/include core/src/script/interpreter.cpp -o interpreter-O0-ref.bc
+exit=0; stdout/stderr: empty
+
+## pin + P-CORE-04 (NEW)
+$ python3 mk_evalstep.py core/src/script/interpreter.cpp variants/interpreter-p4.cpp
+$ clang++-20 -std=c++20 -O0 -g0 -emit-llvm -c ... variants/interpreter-p4.cpp -o interpreter-O0-evalstep.bc
+exit=0; stdout/stderr: empty
+
+## pin + P-CORE-01/02/03 + P-CORE-04 (composed lane)
+$ clang++-20 -std=c++20 -O0 -g0 -DBTC_EQUIV_NO_SCRIPTNUM_THROW -DBTC_EQUIV_HOIST_STATICS -DBTC_EQUIV_DEVIRT -emit-llvm -c -I core-proto/src ... variants/interpreter-p4-on-123.cpp -o interpreter-O0-p4-123.bc
+exit=0; log:
+# (empty; the composed lane's tree was a copy of /tmp/opencode/equiv-work/bitcoin-proto,
+#  i.e. the pin + P-CORE-01/02/03 applied, transformed with
+#  mk_evalstep.py <tree>/src/script/interpreter.cpp out.cpp and compiled with the
+#  three lane macros.  The file is not committed because it is a generated copy.)

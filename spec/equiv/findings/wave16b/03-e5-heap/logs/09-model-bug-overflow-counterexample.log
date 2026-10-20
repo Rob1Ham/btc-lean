@@ -1,0 +1,33 @@
+Loading file "alloc-and-vector-lemmas.saw"
+W16B_ALLOC_LEMMAS_BEGIN
+Verifying w16b_lemma_nonnull...
+Simulating w16b_lemma_nonnull...
+Checking proof obligations w16b_lemma_nonnull...
+Proof succeeded! w16b_lemma_nonnull
+W16B_LEMMA_NONNULL_OK
+Verifying w16b_lemma_oversize...
+Simulating w16b_lemma_oversize...
+Checking proof obligations w16b_lemma_oversize...
+Subgoal failed: w16b_lemma_oversize alloc-and-vector-lemmas.saw:124:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 1;
+    }
+ in ecNumber _x`1 (seq _x`1 Bool) (PLiteralSeqBool _x`1)
+Actual term:
+ite (Vec 1 Bool)
+  (bvult 64 (bvNat 64 67108864) (bvAdd 64 (bvNat 64 1) n`6309))
+  (bvNat 1 1)
+  (bvNat 1 0)
+
+Goal size 104. Provers used: SBV->Z3
+----------Counterexample----------
+  n: 18446744073709551615
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   alloc-and-vector-lemmas.saw:124:60-124:62 in (callback)
+   (builtin) in llvm_verify
+   alloc-and-vector-lemmas.saw:124:1-124:62 (at top level)
+Proof failed.
+

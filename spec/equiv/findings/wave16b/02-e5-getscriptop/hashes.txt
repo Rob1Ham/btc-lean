@@ -1,0 +1,48 @@
+# Module / artifact hashes -- wave16B 02-e5-getscriptop
+
+Core pin (bitcoin/bitcoin): cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66 (v32.99)
+clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+LLVM tools: /usr/lib/llvm-20/bin (20.1.2)
+SAW: 1.6 (68eed5f release-1.6)
+solver: z3 bundled with SAW 1.6 (z3 4.8.14)
+
+## Inputs
+
+f5718af79c56ccfd5a5437a313d957573cb87c0de0cdf5641013991268801b2c  /tmp/opencode/equiv-work/ir20/interpreter-O0.bc
+    # pinned single-TU interpreter bitcode, PINS.lock [core.ir] O0_bc_sha256
+2b9f683c4fdd3550e4eab43083a4c528ce785d37956f0f24b75311ec756f04a8  /tmp/opencode/equiv-work/ir20-proto/roots.bc
+    # P-CORE-01/02/03 patched + erased + internalized, PINS.lock [core.ir.proposed]
+cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66  git HEAD of /tmp/opencode/equiv-work/bitcoin (clean)
+
+## Build stages (builder/build-pinned-linked.sh; full log in logs/build-pinned-linked.raw.log)
+
+657530a8d18741b40e09653a681c5d11438ed453bcccf8bde14f0b2037a6d51c  build/out/script-O0.bc
+    # real src/script/script.cpp, clang++-20 -std=c++20 -O0 -g0 -emit-llvm
+    # byte-identical to ir/script-O0.bc in findings/e5/E5-RESIDUAL.md section 4
+f52f6a9d26ea176fa6b1c4de1cf8b12dea626320d51762574de8f0bae9c998aa  build/out/interp-script-O0.bc
+    # llvm-link interpreter-O0.bc(PIN) + script-O0.bc; UNPATCHED
+03714b5fb4e5962fcd82903c6400f16d79840273bdc48c1374f85b6d38fa738c  build/out/interp-script-O0-noexc-s.bc
+    # exceptions erased (825 invokes -> calls, 343 landingpads neutralised) + simplifycfg
+47a83dc561717df93322262e2dfb14e2fce6ae05e7540656c42e9333039004e9  build/out/interp-script-roots.bc
+    # internalize,globaldce to the five-symbol API
+2795c02ea67c77ff3674d16da074b1f8b884861fc6f157b6274feba9d8227ae1  build/out/interp-script-roots3.bc
+    # ABI stub + 3 __cxa_guard variables pinned to 1; module used by all proofs
+
+Symbol facts in build/out/interp-script-roots3.bc:
+  T _Z11GetScriptOpRN9prevectorILj36EhjiE14const_iteratorES1_R10opcodetypePSt6vectorIhSaIhEE
+  T _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t
+  U _Znwm        (B2, next blocker)
+  U _ZdlPvm, malloc, free, realloc, __assert_fail, SHA256/RIPEMD160, memcmp, CheckMinimalPush,
+    the four btc_equiv_check_* hooks (unchanged real-library externals)
+
+## Logs and specs
+
+Per-file SHA-256 is in
+  spec/equiv/cells/e5-whole/PROTO-w16b-getscriptop/SHA256SUMS
+(the same logs are duplicated under this finding's logs/ directory).
+
+## Commands used
+
+Exact commands are in commands.md. Build-time assertions in
+builder/build-pinned-linked.sh refuse to run if the pin hash or Core HEAD do not
+match the values above.

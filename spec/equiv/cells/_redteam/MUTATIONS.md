@@ -1,16 +1,16 @@
 # Mutation catalogue (planned, E1–E4)
 
-**Status:** design + first executed kills. **Version:** 0.2-executed. **Owner:** REDTEAM.
+**Status:** design + raw runs; **mutation evidence not admitted**. **Version:** 0.2-adjudicated. **Owner:** REDTEAM.
 **Machine-readable twin of this file:** `cells/_redteam/mutate.py` (`--list`).
-**Execution status:** eight runs executed on 2026-10-19 — `M-E1-001` (twin),
-`M-E1-002`, `M-E1-006`, `M-E1-001` (core-slice), `M-E2-010` (twin),
-`M-E1-008` (twin `OP_2DROP`), `M-E4-004` (E4 witness-v0 cell), and
-`M-E3-008` (E3 CMS error-enum cell); all killed by both Alive2 and SAW with
-clean reverts. Raw evidence is in
-`cells/_redteam/runs/`; see `findings/redteam/redteam-report.md` §9. The
-E1/E2/E4 anchors are calibrated against the current sources; every other
-anchor remains uncalibrated pending a patched Core copy and the later cells.
-No source was left mutated.
+**Execution status:** eight runs were recorded on 2026-10-19. **Six reports
+are withdrawn as evidence** because their pasted tail is green while their
+header says `KILLED`; two runs (`M-E3-008`, `M-E4-004`) show genuine non-green
+mutant output but their JSON records remain pending. No required mutation set
+is complete and no mutation PASS is claimed. Raw records are in
+`cells/_redteam/runs/`; adjudication is in
+`cells/_redteam/AUDIT-ADJUDICATION.md`. The E1/E2/E4 anchors are calibrated
+against the current sources; every other anchor remains uncalibrated pending a
+patched Core copy and the later cells. No source was left mutated.
 
 This file is the human-readable catalogue. `mutate.py` is the only permitted
 way to apply a mutation: it records target hashes, a diff, and a mutant record

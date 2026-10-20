@@ -1,6 +1,6 @@
-# LEDGER REPORT — SCR coverage ledger bootstrap (E0)
+# LEDGER REPORT — current SCR coverage ledger
 
-**Date:** 2026-10-19
+**Date:** 2026-10-20 (post wave 16/32 integration; E0 bootstrap retained in the family mapping)
 **Census pin:** Bitcoin Core v32.99 @ `cce32b168`
 **Scope:** `spec/db/rules.yaml` → `spec/db/equiv-cells.yaml`
 
@@ -17,16 +17,16 @@
 | Families | **15** |
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
-| Ledger status `planned` | **183** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / 0 |
-| `unjudged-seam` | 0 |
-| Filed `gap` | 0 |
+| Ledger status `planned` | **0** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **64** |
+| `unjudged-seam` | **11** |
+| Filed `gap` | **108** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
-Current `coverage_report.py --strict` result: **FAIL**, with exactly one
-issue — all 183 rows are still `planned`. That is the correct E0 state, not a
-schema failure.
+Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
+adjudicated; the 64 green rows are listed in `results/matrix.md` and the
+non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
 ## 2. Family mapping
 

@@ -1,8 +1,10 @@
 # REDTEAM report — adversarial validation design (E0)
 
-**Status:** design complete; **eight mutation runs (seven distinct IDs) have now
-been executed and killed** (see §9 addendum). The original design text below
-is retained.
+**Status:** design complete; **mutation evidence is not admitted**. Eight raw
+runs were recorded, but six reports are withdrawn (green tail contradicts the
+`KILLED` header) and the two observed non-green runs have pending records. See
+`cells/_redteam/AUDIT-ADJUDICATION.md`. The original design text below is
+retained.
 **Date:** 2026-10-19. **Owner:** REDTEAM.
 **Companion artifacts:** `cells/_redteam/PROTOCOL.md`,
 `cells/_redteam/MUTATIONS.md`, `cells/_redteam/mutate.py`,
@@ -46,12 +48,12 @@ Deliverables:
 | `findings/redteam/README.md` | written; finding format, dispositions, acceptance rule |
 | `findings/redteam/redteam-report.md` | this file |
 
-**Execution status:** eight mutant runs against campaign sources (seven
-distinct IDs: `M-E1-001` twin and core-slice, `M-E1-002`, `M-E1-006`,
-`M-E1-008`, `M-E2-010`, `M-E3-008`, `M-E4-004`) were executed and killed by
-both Alive2 and SAW; see §9. The driver's apply/revert path was also exercised
-on a synthetic `/tmp` fixture, validating hashing, diff capture, record
-writing, and byte-identical reversion.
+**Execution status:** eight raw mutant runs against campaign sources were
+recorded, but **not admitted**. Six reports are withdrawn; only `M-E3-008` and
+`M-E4-004` show genuine non-green mutant tails, and their records are pending.
+See §9 and `cells/_redteam/AUDIT-ADJUDICATION.md`. The driver's apply/revert
+path was exercised on a synthetic `/tmp` fixture, validating hashing, diff
+capture, record writing, and byte-identical reversion.
 
 ---
 
@@ -251,11 +253,12 @@ revert records are in `cells/_redteam/mutants/`.
 | `M-E4-004` | E4 cell `l_cell.cpp` 20-byte arm | `e4-witness/C-L-witness-v0-dispatch` | not-green | not-green | restored, green |
 | `M-E3-008` | E3 reviewed `l_cms.cpp` CHECKMULTISIGVERIFY | `e3-cms/C-L-cms-1of1` | not-green | not-green (11/16) | restored, green (16/16) |
 
-**Result:** PASS for the E1/E2/E3/E4 mutation requirement: seven distinct mutant
-IDs, model-site and core-slice applications, all killed by both tools, with
-byte-identical source restoration. The E1 cell role also records independent
-kills of `M-E1-003`, `M-E1-004`, and `M-E1-007` in a disposable copy under
-`findings/cells/mutations/`; those are not re-run here.
+**Result:** **NOT PASS.** The required mutation sets are incomplete (E2 0/4,
+E3 1/5 observed, E4 1/5 observed). Six of the eight reports are withdrawn
+because their green tails contradict their `KILLED` headers. The E1 cell role
+records independent kills of `M-E1-003`, `M-E1-004`, and `M-E1-007` in a
+disposable copy under `findings/cells/mutations/`; those are not re-run or
+admitted here.
 
 **Residual:** the core application is the **line-cited Core source-excerpt
 slice** used by the cell, not a rebuild of the whole Core translation unit.
@@ -263,5 +266,6 @@ A full-Core rebuild mutation remains `E1-CORE-RESIDUAL`; it is not claimed as
 done. The core-slice mutation is labelled as such in the run report and in
 `mutate.py`.
 
-No survivor was observed. A survivor would be a finding, not a green.
+No admissible survivor/kill set exists at this head. A survivor would be a
+finding, not a green; so is an inadmissible kill report.
 
