@@ -1,0 +1,85 @@
+# cell: locktime/C-L-cltv-op
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# contract: contract/error_kind.h sha256 7a5f778f4aed8947a7768da3d3856c99eec2715f5502cb8f59af576c72dca170
+# command: alive-tv build/c_cell_cltv.ll build/l_cell_cltv.ll
+
+----------------------------------------
+define i32 @cell_cltv(i64 noundef %operand, i1 noundef zeroext %cltv_flag, i32 noundef %tx_locktime, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  br i1 noundef zeroext %cltv_flag, label %if.end.i, label %_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+if.end.i:
+  %cmp.i.i = icmp slt i64 noundef %operand, 0
+  br i1 %cmp.i.i, label %_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit, label %if.end7.i
+
+if.end7.i:
+  %cmp.i = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp.i.i7 = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i.i7, %cmp.i
+  %conv.old.i = zext i32 noundef %tx_locktime to i64
+  %cmp.i36.old.i = icmp sgt i64 noundef %operand, %conv.old.i
+  br i1 %or.cond.i, label %if.end.i10, label %lor.rhs.i
+
+if.end.i10:
+  br i1 %cmp.i36.old.i, label %_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit, label %if.end26.i
+
+lor.rhs.i:
+  %#0 = or i1 %cmp.i.i7, %cmp.i36.old.i
+  %or.cond38.i = or i1 %cmp.i, %#0
+  br i1 %or.cond38.i, label %_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit, label %if.end26.i
+
+if.end26.i:
+  %cmp28.i.not = icmp eq i32 noundef %tx_sequence, 4294967295
+  %#1 = select i1 %cmp28.i.not, i32 22, i32 0
+  br label %_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+_ZN10core_slice27eval_op_checklocktimeverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit:
+  %retval.0.i = phi i32 [ 0, %entry ], [ 21, %if.end.i ], [ 22, %if.end.i10 ], [ %#1, %if.end26.i ], [ 22, %lor.rhs.i ]
+  %#range_0_%retval.0.i = !range i32 %retval.0.i, i32 0, i32 23
+  ret i32 %#range_0_%retval.0.i
+}
+=>
+define i32 @cell_cltv(i64 noundef %n, i1 noundef zeroext %cltv_flag, i32 noundef %tx_locktime, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  br i1 noundef zeroext %cltv_flag, label %if.end, label %return
+
+if.end:
+  %cmp = icmp slt i64 noundef %n, 0
+  br i1 %cmp, label %return, label %if.end2
+
+if.end2:
+  %conv.i = zext i32 noundef %tx_locktime to i64
+  %cmp.i = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp1.i = icmp slt i64 noundef %n, 500000000
+  %or.cond.i = and i1 %cmp1.i, %cmp.i
+  %cmp5.old.i = icmp sgt i64 noundef %n, %conv.i
+  br i1 %or.cond.i, label %if.else.i, label %lor.lhs.false.i
+
+if.else.i:
+  br i1 %cmp5.old.i, label %return, label %if.else7.i
+
+lor.lhs.false.i:
+  %#0 = or i1 %cmp.i, %cmp5.old.i
+  %or.cond17.i = or i1 %cmp1.i, %#0
+  br i1 %or.cond17.i, label %return, label %if.else7.i
+
+if.else7.i:
+  %cmp8.i.not = icmp eq i32 noundef %tx_sequence, 4294967295
+  %#1 = select i1 %cmp8.i.not, i32 22, i32 0
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 0, %entry ], [ 21, %if.end ], [ 22, %lor.lhs.false.i ], [ 22, %if.else.i ], [ %#1, %if.else7.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 0, i32 23
+  ret i32 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

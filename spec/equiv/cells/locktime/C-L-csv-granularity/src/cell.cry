@@ -1,0 +1,48 @@
+module CellCsvGranularity where
+
+// Independent specification for SCR-131, written from the Core text
+// (interpreter.cpp:1812-1833, tx_verify.cpp:79-111) and the BIP68 constants
+// (primitives/transaction.h:94-115).  It shares no code with either leg.
+//
+// Three claims:
+//   masked_verdict  -- the script-level comparison uses the raw BIP68-masked
+//                      values (0x0040ffff) and no granularity scaling;
+//   mask_probe      -- toggling bits outside that mask never changes it;
+//   granularity     -- the SequenceLocks time value is the masked payload
+//                      shifted by GRANULARITY = 9, i.e. multiplied by 512;
+//   seq_time_ok     -- the time lane's acceptance predicate
+//                      (last invalid time < block MTP).
+
+to64 : [32] -> [64]
+to64 x = zext x
+
+tx_masked : [32] -> [64]
+tx_masked s = to64 (s && 0x0040ffff)
+
+n_masked : [64] -> [64]
+n_masked n = n && 0x000000000040ffff
+
+same_type : [64] -> [64] -> Bit
+same_type a b =
+  ((a < 0x0000000000400000) && (b < 0x0000000000400000)) ||
+  ((a >= 0x0000000000400000) && (b >= 0x0000000000400000))
+
+masked_ok : [64] -> [32] -> Bit
+masked_ok n s = same_type (tx_masked s) (n_masked n) && ~ (n_masked n > tx_masked s)
+
+masked_verdict : [64] -> [32] -> [32]
+masked_verdict n s = if masked_ok n s then 0 else 22
+
+mask_probe : [64] -> [32] -> [32] -> [32]
+mask_probe n s junk =
+  if masked_verdict n s ==
+       masked_verdict (n ^ to64 (junk && 0x7fbf0000)) (s ^ (junk && 0x7fbf0000))
+    then 1 else 0
+
+granularity : [32] -> [64]
+granularity s = to64 (s && 0x0000ffff) * 512
+
+seq_time_ok : [32] -> [32] -> [32] -> [32]
+seq_time_ok parent s block =
+  if (s && 0x00400000) == 0 then 1
+  else if to64 block >= to64 parent + granularity s then 1 else 0

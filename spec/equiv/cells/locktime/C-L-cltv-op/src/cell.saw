@@ -1,0 +1,17 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_cltv.bc";
+mL <- llvm_load_module "l_cell_cltv.bc";
+
+// Both legs are verified against the same independent Cryptol predicate for
+// every (operand, flag, tx nLockTime, tx nSequence) tuple, i.e. 2^129 points.
+let spec = do {
+  n   <- llvm_fresh_var "n"   (llvm_int 64);
+  f   <- llvm_fresh_var "flag" (llvm_int 1);
+  lt  <- llvm_fresh_var "lt"  (llvm_int 32);
+  seq <- llvm_fresh_var "seq" (llvm_int 32);
+  llvm_execute_func [llvm_term n, llvm_term f, llvm_term lt, llvm_term seq];
+  llvm_return (llvm_term {{ cltv n (f == 1) lt seq }});
+};
+llvm_verify mC "cell_cltv" [] false spec abc;
+llvm_verify mL "cell_cltv" [] false spec abc;
+print "CELL_LOCKTIME_CLTV_SAW_GREEN";

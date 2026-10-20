@@ -1,0 +1,99 @@
+# cell: locktime/C-L-csv-op
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# contract: contract/error_kind.h sha256 7a5f778f4aed8947a7768da3d3856c99eec2715f5502cb8f59af576c72dca170
+# command: alive-tv build/c_cell_csv.ll build/l_cell_csv.ll
+
+----------------------------------------
+define i32 @cell_csv(i64 noundef %operand, i1 noundef zeroext %csv_flag, i32 noundef %tx_version, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  br i1 noundef zeroext %csv_flag, label %if.end.i, label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+if.end.i:
+  %cmp.i.i = icmp slt i64 noundef %operand, 0
+  br i1 %cmp.i.i, label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit, label %if.end7.i
+
+if.end7.i:
+  %and.i.i = and i64 noundef %operand, 2147483648
+  %cmp.i26.i = icmp eq i64 %and.i.i, 0
+  br i1 %cmp.i26.i, label %if.end15.i, label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+if.end15.i:
+  %cmp.i = icmp ugt i32 noundef %tx_version, 1
+  %tobool.not.i = icmp sgt i32 noundef %tx_sequence, 4294967295
+  %or.cond.i = and i1 %cmp.i, %tobool.not.i
+  br i1 %or.cond.i, label %if.end5.i, label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+if.end5.i:
+  %#0 = and i32 noundef %tx_sequence, 4259839
+  %and.i.i8 = and i64 noundef %operand, 4259839
+  %cmp7.i = icmp samesign ult i32 %#0, 4194304
+  %cmp.i.i9 = icmp samesign ult i64 %and.i.i8, 4194304
+  %or.cond = xor i1 %cmp.i.i9, %cmp7.i
+  br i1 %or.cond, label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit, label %if.end23.i
+
+if.end23.i:
+  %and6.i = zext nneg i32 %#0 to i64
+  %cmp.i39.i.not = icmp samesign ugt i64 %and.i.i8, %and6.i
+  %#1 = select i1 %cmp.i39.i.not, i32 22, i32 0
+  br label %_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit
+
+_ZN10core_slice27eval_op_checksequenceverifyEjRKNS_20BaseSignatureCheckerERKNS_10CScriptNumEP16equiv_error_kind.exit:
+  %retval.0.i = phi i32 [ 0, %entry ], [ 0, %if.end7.i ], [ 21, %if.end.i ], [ 22, %if.end15.i ], [ %#1, %if.end23.i ], [ 22, %if.end5.i ]
+  %#range_0_%retval.0.i = !range i32 %retval.0.i, i32 0, i32 23
+  ret i32 %#range_0_%retval.0.i
+}
+=>
+define i32 @cell_csv(i64 noundef %n, i1 noundef zeroext %csv_flag, i32 noundef %tx_version, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  br i1 noundef zeroext %csv_flag, label %if.end, label %return
+
+if.end:
+  %cmp = icmp slt i64 noundef %n, 0
+  br i1 %cmp, label %return, label %if.end2
+
+if.end2:
+  %and = and i64 noundef %n, 2147483648
+  %cmp3.not = icmp eq i64 %and, 0
+  br i1 %cmp3.not, label %if.end5, label %return
+
+if.end5:
+  %cmp.i = icmp ugt i32 noundef %tx_version, 1
+  %cmp1.not.i = icmp sgt i32 noundef %tx_sequence, 4294967295
+  %or.cond = and i1 %cmp.i, %cmp1.not.i
+  br i1 %or.cond, label %if.end3.i, label %return
+
+if.end3.i:
+  %and4.i = and i32 noundef %tx_sequence, 4259839
+  %conv.i = trunc i64 noundef %n to i32
+  %and5.i = and i32 %conv.i, 4259839
+  %#0 = or i32 noundef %tx_sequence, %conv.i
+  %#1 = and i32 %#0, 4194304
+  %or.cond.i = icmp eq i32 %#1, 0
+  br i1 %or.cond.i, label %if.end12.i, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  %cmp8.i = icmp samesign ugt i32 %and4.i, 4194303
+  %cmp10.i = icmp samesign ugt i32 %and5.i, 4194303
+  %or.cond17.i = select i1 %cmp8.i, i1 %cmp10.i, i1 0
+  br i1 %or.cond17.i, label %if.end12.i, label %return
+
+if.end12.i:
+  %cmp13.i.not = icmp samesign ugt i32 %and5.i, %and4.i
+  %#2 = select i1 %cmp13.i.not, i32 22, i32 0
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 0, %entry ], [ 21, %if.end ], [ 0, %if.end2 ], [ 22, %if.end5 ], [ %#2, %if.end12.i ], [ 22, %lor.lhs.false.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 0, i32 23
+  ret i32 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

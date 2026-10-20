@@ -1,0 +1,41 @@
+module CellCsv where
+
+// Independent specification of the OP_CHECKSEQUENCEVERIFY verdict, written
+// from the Core source text (interpreter.cpp:571-603, 1792-1836) and the
+// constants in primitives/transaction.h:62-119.  It shares no code with
+// either leg.
+//
+// Encoding: the ScriptError ordinal the opcode leaves behind
+// (0 OK/NOP, 21 NEGATIVE_LOCKTIME, 22 UNSATISFIED_LOCKTIME) per
+// contract/error_kind.h.  `n` is the already-decoded 5-byte CScriptNum,
+// `ver` the transaction version (uint32) and `seq` the transaction's
+// vin[nIn].nSequence (uint32).  Literals in 64-bit positions are written
+// with 16 hex digits so they have type [64].
+
+tx_masked : [32] -> [64]
+tx_masked s = (zext s) && 0x000000000040ffff
+
+n_masked : [64] -> [64]
+n_masked n = n && 0x000000000040ffff
+
+// nSequenceMasked <  SEQUENCE_LOCKTIME_TYPE_FLAG on both sides, or
+// nSequenceMasked >= SEQUENCE_LOCKTIME_TYPE_FLAG on both sides.
+same_type : [64] -> [64] -> Bit
+same_type a b =
+  ((a < 0x0000000000400000) && (b < 0x0000000000400000)) ||
+  ((a >= 0x0000000000400000) && (b >= 0x0000000000400000))
+
+check_sequence : [32] -> [32] -> [64] -> Bit
+check_sequence ver seq n =
+  if ver < 2 then False
+  else if (seq && 0x80000000) != 0 then False
+  else if ~ (same_type (tx_masked seq) (n_masked n)) then False
+  else ~ (n_masked n > tx_masked seq)
+
+csv : [64] -> Bit -> [32] -> [32] -> [32]
+csv n flag ver seq =
+  if flag
+    then (if n <$ 0 then 21
+          else if (n && 0x0000000080000000) != 0 then 0
+          else if check_sequence ver seq n then 0 else 22)
+    else 0
