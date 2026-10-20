@@ -1,0 +1,114 @@
+# cell: C-L-eval-empty
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_eval_frame
+# command: alive-tv  build/c_cell_eval_frame.ll build/l_cell_eval_frame.ll
+
+----------------------------------------
+define i64 @cell_eval_frame(i64 noundef %ops_len, i64 noundef %vf_depth, i64 noundef %st_n, i64 noundef %b0, i64 noundef %b1, i64 noundef %b2, i64 noundef %b3) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %ops_len, 3
+  %and2 = and i64 noundef %st_n, 3
+  %and3 = and i64 noundef %b0, 255
+  %and4 = and i64 noundef %b1, 255
+  %and5 = and i64 noundef %b2, 255
+  %and6 = and i64 noundef %b3, 255
+  %cmp.not.i = icmp eq i64 %and, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %shl.i20 = shl nsw nuw i64 %and2, 8
+  %shl2.i22 = shl nsw nuw i64 %and3, 10
+  %or.i21 = or disjoint i64 %shl2.i22, %shl.i20
+  %shl5.i24 = shl nsw nuw i64 %and4, 18
+  %or3.i23 = or disjoint i64 %or.i21, %shl5.i24
+  %shl8.i26 = shl nsw nuw i64 %and5, 26
+  %or6.i25 = or disjoint i64 %or3.i23, %shl8.i26
+  %shl11.i28 = shl nsw nuw i64 %and6, 34
+  %or9.i27 = or disjoint i64 %or6.i25, %shl11.i28
+  %or12.i29 = or disjoint i64 %or9.i27, 7
+  br label %_ZL12c_eval_framemmmmmmm.exit
+
+if.end.i:
+  %and1 = and i64 noundef %vf_depth, 3
+  %cmp1.not.i = icmp eq i64 %and1, 0
+  %shl.i = shl nsw nuw i64 %and2, 8
+  %shl2.i = shl nsw nuw i64 %and3, 10
+  %or.i = or disjoint i64 %shl2.i, %shl.i
+  %shl5.i = shl nsw nuw i64 %and4, 18
+  %or3.i = or disjoint i64 %or.i, %shl5.i
+  %shl8.i = shl nsw nuw i64 %and5, 26
+  %or6.i = or disjoint i64 %or3.i, %shl8.i
+  %shl11.i = shl nsw nuw i64 %and6, 34
+  %or9.i = or disjoint i64 %or6.i, %shl11.i
+  br i1 %cmp1.not.i, label %if.end4.i, label %if.then2.i
+
+if.end4.i:
+  %or12.i = or disjoint i64 %or9.i, 1
+  br label %_ZL12c_eval_framemmmmmmm.exit
+
+if.then2.i:
+  %or12.i18 = or disjoint i64 %or9.i, 80
+  br label %_ZL12c_eval_framemmmmmmm.exit
+
+_ZL12c_eval_framemmmmmmm.exit:
+  %retval.0.i = phi i64 [ %or12.i29, %if.then.i ], [ %or12.i18, %if.then2.i ], [ %or12.i, %if.end4.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 4398046511104
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_eval_frame(i64 noundef %ops_len, i64 noundef %vf_depth, i64 noundef %st_n, i64 noundef %b0, i64 noundef %b1, i64 noundef %b2, i64 noundef %b3) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %ops_len, 3
+  %and2 = and i64 noundef %st_n, 3
+  %and3 = and i64 noundef %b0, 255
+  %and4 = and i64 noundef %b1, 255
+  %and5 = and i64 noundef %b2, 255
+  %and6 = and i64 noundef %b3, 255
+  %cmp.not.i = icmp eq i64 %and, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %shl.i9 = shl nsw nuw i64 %and2, 8
+  %shl2.i11 = shl nsw nuw i64 %and3, 10
+  %or.i10 = or disjoint i64 %shl2.i11, %shl.i9
+  %shl5.i13 = shl nsw nuw i64 %and4, 18
+  %or3.i12 = or disjoint i64 %or.i10, %shl5.i13
+  %shl8.i15 = shl nsw nuw i64 %and5, 26
+  %or6.i14 = or disjoint i64 %or3.i12, %shl8.i15
+  %shl11.i17 = shl nsw nuw i64 %and6, 34
+  %or9.i16 = or disjoint i64 %or6.i14, %shl11.i17
+  %or12.i18 = or disjoint i64 %or9.i16, 7
+  br label %_ZL12l_eval_framemmmmmmm.exit
+
+if.end.i:
+  %and1 = and i64 noundef %vf_depth, 3
+  %cmp1.i = icmp eq i64 %and1, 0
+  %cond.i = zext i1 %cmp1.i to i64
+  %conv4.i = select i1 %cmp1.i, i64 0, i64 80
+  %or.i20 = or disjoint i64 %conv4.i, %cond.i
+  %shl.i = shl nsw nuw i64 %and2, 8
+  %or.i = or disjoint i64 %or.i20, %shl.i
+  %shl2.i = shl nsw nuw i64 %and3, 10
+  %or3.i = or disjoint i64 %or.i, %shl2.i
+  %shl5.i = shl nsw nuw i64 %and4, 18
+  %or6.i = or disjoint i64 %or3.i, %shl5.i
+  %shl8.i = shl nsw nuw i64 %and5, 26
+  %or9.i = or disjoint i64 %or6.i, %shl8.i
+  %shl11.i = shl nsw nuw i64 %and6, 34
+  %or12.i = or disjoint i64 %or9.i, %shl11.i
+  br label %_ZL12l_eval_framemmmmmmm.exit
+
+_ZL12l_eval_framemmmmmmm.exit:
+  %retval.0.i = phi i64 [ %or12.i18, %if.then.i ], [ %or12.i, %if.end.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 4398046511104
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

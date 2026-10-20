@@ -1,0 +1,157 @@
+# cell: C-L-p2sh-handoff
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_p2sh_shape cell_p2sh_handoff
+# command: alive-tv  build/c_cell_p2sh_shape.ll build/l_cell_p2sh_shape.ll
+
+----------------------------------------
+define i64 @cell_p2sh_shape(i64 noundef %len, i64 noundef %b0, i64 noundef %b1, i64 noundef %b_last) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %len, 63
+  %and1 = and i64 noundef %b0, 255
+  %and2 = and i64 noundef %b1, 255
+  %and3 = and i64 noundef %b_last, 255
+  %cmp.i = icmp eq i64 %and, 23
+  %cmp1.i = icmp eq i64 %and1, 169
+  %and10.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 %and2, 20
+  %and511.i = and i1 %and10.i, %cmp3.i
+  %cmp6.i = icmp eq i64 %and3, 135
+  %and812.i = and i1 %and511.i, %cmp6.i
+  %conv9.i = zext i1 %and812.i to i64
+  %#range_0_%conv9.i = !range i64 %conv9.i, i64 0, i64 2
+  ret i64 %#range_0_%conv9.i
+}
+=>
+define i64 @cell_p2sh_shape(i64 noundef %len, i64 noundef %b0, i64 noundef %b1, i64 noundef %b_last) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %len, 63
+  %and1 = and i64 noundef %b0, 255
+  %and2 = and i64 noundef %b1, 255
+  %and3 = and i64 noundef %b_last, 255
+  %cmp.i = icmp eq i64 %and, 23
+  %cmp1.i = icmp eq i64 %and1, 169
+  %cmp3.i = icmp eq i64 %and2, 20
+  %cmp5.i = icmp eq i64 %and3, 135
+  %and9.i = and i1 %cmp.i, %cmp1.i
+  %and710.i = and i1 %and9.i, %cmp3.i
+  %and811.i = and i1 %and710.i, %cmp5.i
+  %and8.i = zext i1 %and811.i to i64
+  %#range_0_%and8.i = !range i64 %and8.i, i64 0, i64 2
+  ret i64 %#range_0_%and8.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv  build/c_cell_p2sh_handoff.ll build/l_cell_p2sh_handoff.ll
+
+----------------------------------------
+define i64 @cell_p2sh_handoff(i64 noundef %p2sh, i64 noundef %spk_shape, i64 noundef %sn, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2) nofree willreturn memory(none) {
+entry:
+  %and2 = and i64 noundef %sn, 3
+  %and3 = and i64 noundef %t0, 255
+  %and4 = and i64 noundef %t1, 255
+  %and5 = and i64 noundef %t2, 255
+  %#0 = and i64 noundef %p2sh, 1
+  %#1 = and i64 %#0, noundef %spk_shape
+  %or.cond.i.not19 = icmp eq i64 %#1, 0
+  %cmp.i = icmp eq i64 %and2, 0
+  %or.cond = or i1 %or.cond.i.not19, %cmp.i
+  br i1 %or.cond, label %_ZL14c_p2sh_handoffmmmmmm.exit, label %if.end4.i
+
+if.end4.i:
+  %sub.i = add nsw i64 %and2, -1
+  switch i64 %and2, label %if.end3.i [
+    i64 1, label %_ZL6c_elemmmmmm.exit
+    i64 2, label %if.then2.i17
+  ]
+
+if.end3.i:
+  br label %_ZL6c_elemmmmmm.exit
+
+if.then2.i17:
+  br label %_ZL6c_elemmmmmm.exit
+
+_ZL6c_elemmmmmm.exit:
+  %retval.0.i18 = phi i64 [ %and4, %if.then2.i17 ], [ %and5, %if.end3.i ], [ %and3, %if.end4.i ]
+  %cmp7.not.i = icmp eq i64 %sub.i, 0
+  %cmp9.i = icmp ugt i64 %sub.i, 1
+  %shl.i = shl nsw nuw i64 %sub.i, 8
+  %#2 = shl nsw nuw i64 %and3, 10
+  %shl2.i = select i1 %cmp7.not.i, i64 0, i64 %#2
+  %#3 = shl nsw nuw i64 %and4, 18
+  %shl5.i = select i1 %cmp9.i, i64 %#3, i64 1
+  %shl11.i = shl nsw nuw i64 %retval.0.i18, 34
+  %or.i = or i64 %shl.i, %shl2.i
+  %or3.i = or i64 %or.i, %shl5.i
+  %or6.i = or i64 %or3.i, %shl11.i
+  %or15.i = or i64 %or6.i, 4398046511105
+  br label %_ZL14c_p2sh_handoffmmmmmm.exit
+
+_ZL14c_p2sh_handoffmmmmmm.exit:
+  %retval.0.i = phi i64 [ %or15.i, %_ZL6c_elemmmmmm.exit ], [ 3, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 8796093022208
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_p2sh_handoff(i64 noundef %p2sh, i64 noundef %spk_shape, i64 noundef %sn, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2) nofree willreturn memory(none) {
+entry:
+  %and2 = and i64 noundef %sn, 3
+  %and3 = and i64 noundef %t0, 255
+  %and4 = and i64 noundef %t1, 255
+  %and5 = and i64 noundef %t2, 255
+  %and1 = and i64 noundef %p2sh, 1
+  %and.i = and i64 %and1, noundef %spk_shape
+  %tobool.not.i = icmp eq i64 %and.i, 0
+  br i1 %tobool.not.i, label %_ZL14l_p2sh_handoffmmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.i = icmp eq i64 %and2, 0
+  br i1 %cmp.i, label %if.end10.i, label %if.else.i
+
+if.else.i:
+  switch i64 %and2, label %if.else7.i [
+    i64 1, label %if.end10.i
+    i64 2, label %if.then6.i
+  ]
+
+if.else7.i:
+  %#0 = shl nsw nuw i64 %and4, 18
+  br label %if.end10.i
+
+if.then6.i:
+  br label %if.end10.i
+
+if.end10.i:
+  %cmp15.i = phi i64 [ %and3, %if.then6.i ], [ %and3, %if.else7.i ], [ 0, %if.end.i ], [ 0, %if.else.i ]
+  %cmp21.i = phi i64 [ 0, %if.then6.i ], [ %#0, %if.else7.i ], [ 0, %if.end.i ], [ 0, %if.else.i ]
+  %rest_n.0.i = phi i64 [ 257, %if.then6.i ], [ 513, %if.else7.i ], [ 1, %if.end.i ], [ %and2, %if.else.i ]
+  %pubKeySerialized.0.i = phi i64 [ %and4, %if.then6.i ], [ %and5, %if.else7.i ], [ 0, %if.end.i ], [ %and3, %if.else.i ]
+  br i1 %cmp.i, label %_ZL14l_p2sh_handoffmmmmmm.exit, label %if.end14.i
+
+if.end14.i:
+  %shl2.i = shl nsw nuw i64 %cmp15.i, 10
+  %or3.i = or disjoint i64 %rest_n.0.i, %shl2.i
+  %or6.i = or disjoint i64 %or3.i, %cmp21.i
+  %shl11.i = shl nsw nuw i64 %pubKeySerialized.0.i, 34
+  %or12.i = add nsw nuw i64 %or6.i, %shl11.i
+  %or15.i = add nsw nuw i64 %or12.i, 4398046511104
+  br label %_ZL14l_p2sh_handoffmmmmmm.exit
+
+_ZL14l_p2sh_handoffmmmmmm.exit:
+  %retval.1.i = phi i64 [ %or15.i, %if.end14.i ], [ 3, %entry ], [ 3, %if.end10.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 3, i64 8778980261888
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

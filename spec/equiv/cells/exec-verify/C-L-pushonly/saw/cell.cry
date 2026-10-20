@@ -1,0 +1,120 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-pushonly.
+//
+// Read off spec.md, which is read off script.cpp:266-285, 313-363 and
+// interpreter.cpp:2022-2024, 2065-2066 at pin cce32b168.  Error ordinal from
+// contract/error_kind.h: SIG_PUSHONLY 26.
+//
+// The spec is a third encoding: a bounded 8-step fold that decodes the packed
+// script exactly as GetScriptOp does (direct push, PUSHDATA1/2/4
+// little-endian lengths, truncation) while recording whether every decoded
+// wire byte is <= OP_16 (0x60).  A script longer than the 8-byte bound is the
+// marker 3.  Script bytes are little-endian in the packed word: byte i is
+// (script >> (8*i)) & 0xff.
+
+zero : [64]
+zero = 0x0000000000000000
+one : [64]
+one = 0x0000000000000001
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m4 : [64] -> [64]
+m4 x = x && 0x000000000000000f
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2)
+
+// Script bytes, index 0 = first byte.
+bytes : [64] -> [8][8]
+bytes script = reverse (split script)
+
+byte_at : [8][8] -> [64] -> [8]
+byte_at bs i = bs @ (drop`{3} i)
+
+// State: (pc, parse_ok, all_wire_push_only).
+type St = ([64], Bit, Bit)
+
+pd2_len : [8][8] -> [64] -> [64]
+pd2_len bs p = zext (byte_at bs (p + one)) +
+               0x0000000000000100 * zext (byte_at bs (p + 0x0000000000000002))
+
+pd4_len : [8][8] -> [64] -> [64]
+pd4_len bs p = zext (byte_at bs (p + one)) +
+               0x0000000000000100 * zext (byte_at bs (p + 0x0000000000000002)) +
+               0x0000000000010000 * zext (byte_at bs (p + 0x0000000000000003)) +
+               0x0000000001000000 * zext (byte_at bs (p + 0x0000000000000004))
+
+// 0x01-0x4b: the opcode is the payload length.
+step_direct : [64] -> [8][8] -> [64] -> Bit -> St
+step_direct len bs pc push =
+  if pc + one + zext (byte_at bs pc) > len
+    then (pc, False, push)
+    else (pc + one + zext (byte_at bs pc), True, push)
+
+// 0x4c: one little-endian length byte.
+step_pd1 : [64] -> [8][8] -> [64] -> Bit -> St
+step_pd1 len bs pc push =
+  if pc + 0x0000000000000002 > len
+    then (pc, False, push)
+    else if pc + 0x0000000000000002 + zext (byte_at bs (pc + one)) > len
+      then (pc, False, push)
+      else (pc + 0x0000000000000002 + zext (byte_at bs (pc + one)), True, push)
+
+// 0x4d: two little-endian length bytes.
+step_pd2 : [64] -> [8][8] -> [64] -> Bit -> St
+step_pd2 len bs pc push =
+  if pc + 0x0000000000000003 > len
+    then (pc, False, push)
+    else if pc + 0x0000000000000003 + pd2_len bs pc > len
+      then (pc, False, push)
+      else (pc + 0x0000000000000003 + pd2_len bs pc, True, push)
+
+// 0x4e: four little-endian length bytes.
+step_pd4 : [64] -> [8][8] -> [64] -> Bit -> St
+step_pd4 len bs pc push =
+  if pc + 0x0000000000000005 > len
+    then (pc, False, push)
+    else if pc + 0x0000000000000005 + pd4_len bs pc > len
+      then (pc, False, push)
+      else (pc + 0x0000000000000005 + pd4_len bs pc, True, push)
+
+step : [64] -> [8][8] -> St -> [64] -> St
+step len bs (pc, ok, push) _ =
+  if ok then
+    (if pc >= len then (pc, ok, push)
+     else if pc >= 0x0000000000000008 then (pc, False, push)
+     else if byte_at bs pc <= 0x4b then step_direct len bs pc push
+     else if byte_at bs pc == 0x4c then step_pd1 len bs pc push
+     else if byte_at bs pc == 0x4d then step_pd2 len bs pc push
+     else if byte_at bs pc == 0x4e then step_pd4 len bs pc push
+     else (pc + one, True, push && (byte_at bs pc <= 0x60)))
+  else (pc, ok, push)
+
+st_result : St -> [64]
+st_result (_, ok, push) = if ok && push then one else zero
+
+is_push_only : [64] -> [64] -> [64]
+is_push_only len script =
+  if m4 len > 0x0000000000000008 then 0x0000000000000003
+  else st_result (foldl (step (m4 len) (bytes script))
+                        (zero, True, True)
+                        [ 0x0000000000000000, 0x0000000000000001,
+                          0x0000000000000002, 0x0000000000000003,
+                          0x0000000000000004, 0x0000000000000005,
+                          0x0000000000000006, 0x0000000000000007 ])
+
+pushonly_early : [64] -> [64] -> [64] -> [64]
+pushonly_early flag len script =
+  if m1 flag == zero then pack one zero
+  else if m4 len > 0x0000000000000008 then pack 0x0000000000000003 zero
+  else if is_push_only len script == zero then pack zero 0x000000000000001a
+  else pack one zero
+
+pushonly_p2sh : [64] -> [64] -> [64] -> [64] -> [64]
+pushonly_p2sh p2sh spk_p2sh len script =
+  if (m1 p2sh && m1 spk_p2sh) == zero then pack one zero
+  else if m4 len > 0x0000000000000008 then pack 0x0000000000000003 zero
+  else if is_push_only len script == zero then pack zero 0x000000000000001a
+  else pack one zero

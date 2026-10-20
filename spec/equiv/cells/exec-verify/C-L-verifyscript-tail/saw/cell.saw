@@ -1,0 +1,48 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_push =
+  do {
+    sl <- llvm_fresh_var "sig_len" (llvm_int 64);
+    s0 <- llvm_fresh_var "sig_b0" (llvm_int 64);
+    s1 <- llvm_fresh_var "sig_b1" (llvm_int 64);
+    s2 <- llvm_fresh_var "sig_b2" (llvm_int 64);
+    rl <- llvm_fresh_var "redeem_len" (llvm_int 64);
+    r0 <- llvm_fresh_var "redeem_b0" (llvm_int 64);
+    r1 <- llvm_fresh_var "redeem_b1" (llvm_int 64);
+    llvm_execute_func [llvm_term sl, llvm_term s0, llvm_term s1, llvm_term s2,
+                       llvm_term rl, llvm_term r0, llvm_term r1];
+    llvm_return (llvm_term {{ single_push_eq sl s0 s1 s2 rl r0 r1 }});
+  };
+
+let spec_tail =
+  do {
+    w     <- llvm_fresh_var "witness" (llvm_int 64);
+    p     <- llvm_fresh_var "p2sh" (llvm_int 64);
+    cs    <- llvm_fresh_var "cleanstack" (llvm_int 64);
+    n     <- llvm_fresh_var "st_n" (llvm_int 64);
+    tl    <- llvm_fresh_var "top_len" (llvm_int 64);
+    tb    <- llvm_fresh_var "top_b" (llvm_int 64);
+    spkw  <- llvm_fresh_var "spk_wit" (llvm_int 64);
+    spkp  <- llvm_fresh_var "spk_p2sh" (llvm_int 64);
+    sign  <- llvm_fresh_var "sig_n" (llvm_int 64);
+    pshok <- llvm_fresh_var "sig_push_ok" (llvm_int 64);
+    witn  <- llvm_fresh_var "wit_n" (llvm_int 64);
+    pwit  <- llvm_fresh_var "p2sh_wit_prog" (llvm_int 64);
+    plen  <- llvm_fresh_var "p2sh_len" (llvm_int 64);
+    llvm_execute_func [llvm_term w, llvm_term p, llvm_term cs, llvm_term n,
+                       llvm_term tl, llvm_term tb, llvm_term spkw,
+                       llvm_term spkp, llvm_term sign, llvm_term pshok,
+                       llvm_term witn, llvm_term pwit, llvm_term plen];
+    llvm_return (llvm_term {{ vs_tail w p cs n tl tb spkw spkp sign pshok
+                                      witn pwit plen }});
+  };
+
+llvm_verify mC "cell_single_push_eq" [] false spec_push z3;
+llvm_verify mL "cell_single_push_eq" [] false spec_push z3;
+llvm_verify mC "cell_vs_tail" [] false spec_tail z3;
+llvm_verify mL "cell_vs_tail" [] false spec_tail z3;
+
+print "CELL_C_L_verifyscript_tail_SAW_GREEN";

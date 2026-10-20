@@ -1,0 +1,42 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-failure-propagation.
+//
+// Read off spec.md, which is read off the five return-false call sites in
+// VerifyScript at pin cce32b168 (interpreter.cpp:2029-2031, 2034-2036,
+// 2052-2054, 2080-2082, 2097-2099).
+//
+// Observable: verdict(2) | error(6)<<2 | site(3)<<8.  verdict 0 = input
+// invalid, 1 = no reached callee failed; site 1..5 = first failure in Core's
+// order; the error is the callee's own ordinal, unchanged.  The gating
+// booleans act3/act4/act5 are declared arm-activity inputs (the arm dispatch
+// is the tail cell's subject).
+
+zero : [64]
+zero = 0x0000000000000000
+one : [64]
+one = 0x0000000000000001
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m6 : [64] -> [64]
+m6 x = x && 0x000000000000003f
+m3 : [64] -> [64]
+m3 x = x && 0x0000000000000007
+
+pack : [64] -> [64] -> [64] -> [64]
+pack r e s = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2) ||
+             ((s && 0x0000000000000007) << 8)
+
+failprop : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] ->
+           [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+failprop ok1 e1 ok2 e2 act3 ok3 e3 act4 ok4 e4 act5 ok5 e5 =
+  if m1 ok1 == zero then pack zero (m6 e1) one
+  else if m1 ok2 == zero then pack zero (m6 e2) 0x0000000000000002
+  else if (m1 act3 != zero) && (m1 ok3 == zero)
+    then pack zero (m6 e3) 0x0000000000000003
+  else if (m1 act4 != zero) && (m1 ok4 == zero)
+    then pack zero (m6 e4) 0x0000000000000004
+  else if (m1 act4 != zero) && (m1 act5 != zero) && (m1 ok5 == zero)
+    then pack zero (m6 e5) 0x0000000000000005
+  else pack one zero zero
