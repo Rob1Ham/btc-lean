@@ -1,0 +1,640 @@
+# cell: checksig/C-L-checksig-der
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: 031f2d5f80fb1ce9694397076f809971b07cdd90fef4e7990bc444314759230c
+# l source sha256: 08308528caf1990cfdb59adcd4456bd226c9b69b97c1b4f3dc4a2324b86149f6
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_der =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_der.ll build/l_cell_der.ll
+# c IR sha256: 2e77aa8c1485d96ad0083dab506eb25d629a8d2cda4288d89477c4c80828fa53
+# l IR sha256: 1f00608466d5170a09415eca854b9532cc743d476722a1723a39578209882239
+
+----------------------------------------
+define i64 @cell_der(i32 noundef %n, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %w3, i64 noundef %w4, i64 noundef %w5, i64 noundef %w6, i64 noundef %w7, i64 noundef %w8, i64 noundef %w9) nofree willreturn memory(none) {
+entry:
+  %s = alloca i64 80, align 8, dead
+  start_lifetime ptr %s
+  store i64 noundef %w0, ptr %s, align 8
+  %arrayidx11.i = gep inbounds nuw ptr %s, 1 x i64 8
+  store i64 noundef %w1, ptr %arrayidx11.i, align 8
+  %arrayidx13.i = gep inbounds nuw ptr %s, 1 x i64 16
+  store i64 noundef %w2, ptr %arrayidx13.i, align 8
+  %arrayidx15.i = gep inbounds nuw ptr %s, 1 x i64 24
+  store i64 noundef %w3, ptr %arrayidx15.i, align 8
+  %arrayidx17.i = gep inbounds nuw ptr %s, 1 x i64 32
+  store i64 noundef %w4, ptr %arrayidx17.i, align 8
+  %arrayidx19.i = gep inbounds nuw ptr %s, 1 x i64 40
+  store i64 noundef %w5, ptr %arrayidx19.i, align 8
+  %arrayidx21.i = gep inbounds nuw ptr %s, 1 x i64 48
+  store i64 noundef %w6, ptr %arrayidx21.i, align 8
+  %arrayidx23.i = gep inbounds nuw ptr %s, 1 x i64 56
+  store i64 noundef %w7, ptr %arrayidx23.i, align 8
+  %arrayidx25.i = gep inbounds nuw ptr %s, 1 x i64 64
+  store i64 noundef %w8, ptr %arrayidx25.i, align 8
+  %arrayidx27.i = gep inbounds nuw ptr %s, 1 x i64 72
+  store i64 noundef %w9, ptr %arrayidx27.i, align 8
+  %#0 = add i32 noundef %n, 4294967287
+  %or.cond.i = icmp ult i32 %#0, 65
+  %conv.i5255 = and i64 noundef %w0, 255
+  %cmp4.not.i = icmp eq i64 %conv.i5255, 48
+  %or.cond = and i1 %or.cond.i, %cmp4.not.i
+  br i1 %or.cond, label %if.end6.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end6.i:
+  %#1 = trunc i64 noundef %w0 to i32
+  %#2 = lshr i32 %#1, 8
+  %conv.i49 = and i32 %#2, 255
+  %sub.i = add nsw i32 noundef %n, 4294967293
+  %cmp8.not.i = icmp eq i32 %conv.i49, %sub.i
+  br i1 %cmp8.not.i, label %if.end10.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end10.i:
+  %#3 = trunc i64 noundef %w0 to i32
+  %#4 = lshr i32 %#3, 24
+  %add.i = add nsw nuw i32 %#4, 5
+  %cmp12.not.i = icmp ult i32 %add.i, noundef %n
+  br i1 %cmp12.not.i, label %if.end14.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end14.i:
+  %shr.i36 = lshr i32 %add.i, 3
+  %idxprom.i37 = zext nneg i32 %shr.i36 to i64
+  %arrayidx.i38 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i37
+  %#5 = load i64, ptr %arrayidx.i38, align 8
+  %and.i39 = shl nsw nuw i32 %add.i, 3
+  %mul.i40 = and i32 %and.i39, 56
+  %sh_prom.i41 = zext nneg i32 %mul.i40 to i64
+  %shr1.i42 = lshr i64 %#5, %sh_prom.i41
+  %#6 = trunc i64 %shr1.i42 to i32
+  %conv.i43 = and i32 %#6, 255
+  %add17.i = add nsw nuw i32 %#4, 7
+  %add18.i = add nsw nuw i32 %add17.i, %conv.i43
+  %cmp19.not.i = icmp eq i32 %add18.i, noundef %n
+  br i1 %cmp19.not.i, label %if.end21.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end21.i:
+  %#7 = and i64 noundef %w0, 16711680
+  %cmp23.not.i = icmp ne i64 %#7, 131072
+  %cmp26.i = icmp ult i32 %#3, 16777216
+  %or.cond93.i = or i1 %cmp23.not.i, %cmp26.i
+  br i1 %or.cond93.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit, label %if.end28.i
+
+if.end28.i:
+  %shr1.i31 = lshr i64 noundef %w0, 32
+  %#8 = trunc nuw i64 %shr1.i31 to i32
+  %conv.i32 = and i32 %#8, 255
+  %tobool.not.i = icmp samesign ult i32 %conv.i32, 128
+  br i1 %tobool.not.i, label %if.end31.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end31.i:
+  %cmp32.not.i = icmp ne i32 %#4, 1
+  %cmp34.i = icmp eq i32 %conv.i32, 0
+  %or.cond53 = and i1 %cmp32.not.i, %cmp34.i
+  %#9 = and i64 noundef %w0, 140737488355328
+  %tobool38.not.i.not.not = icmp eq i64 %#9, 0
+  %or.cond59 = and i1 %tobool38.not.i.not.not, %or.cond53
+  br i1 %or.cond59, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit, label %if.end40.i
+
+if.end40.i:
+  %add41.i = add nsw nuw i32 %#4, 4
+  %shr.i19 = lshr i32 %add41.i, 3
+  %idxprom.i20 = zext nneg i32 %shr.i19 to i64
+  %arrayidx.i21 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i20
+  %#10 = load i64, ptr %arrayidx.i21, align 8
+  %and.i22 = shl nsw nuw i32 %add41.i, 3
+  %mul.i23 = and i32 %and.i22, 56
+  %sh_prom.i24 = zext nneg i32 %mul.i23 to i64
+  %shr1.i25 = lshr i64 %#10, %sh_prom.i24
+  %conv.i2657 = and i64 %shr1.i25, 255
+  %cmp43.not.i = icmp ne i64 %conv.i2657, 2
+  %cmp46.i = icmp eq i32 %conv.i43, 0
+  %or.cond94.i = or i1 %cmp46.i, %cmp43.not.i
+  br i1 %or.cond94.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit, label %if.end48.i
+
+if.end48.i:
+  %add49.i = add nsw nuw i32 %#4, 6
+  %shr.i11 = lshr i32 %add49.i, 3
+  %idxprom.i12 = zext nneg i32 %shr.i11 to i64
+  %arrayidx.i13 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i12
+  %#11 = load i64, ptr %arrayidx.i13, align 8
+  %and.i14 = shl nsw nuw i32 %add49.i, 3
+  %mul.i15 = and i32 %and.i14, 56
+  %sh_prom.i16 = zext nneg i32 %mul.i15 to i64
+  %shr1.i17 = lshr i64 %#11, %sh_prom.i16
+  %#12 = trunc i64 %shr1.i17 to i32
+  %conv.i18 = and i32 %#12, 255
+  %tobool52.not.i = icmp samesign ult i32 %conv.i18, 128
+  br i1 %tobool52.not.i, label %if.end54.i, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+if.end54.i:
+  %cmp55.not.i = icmp ne i32 %conv.i43, 1
+  %cmp59.i = icmp eq i32 %conv.i18, 0
+  %or.cond54 = and i1 %cmp55.not.i, %cmp59.i
+  br i1 %or.cond54, label %land.lhs.true60.i, label %if.end66.i
+
+land.lhs.true60.i:
+  %add61.i = add nsw nuw i32 %#4, 7
+  %shr.i = lshr i32 %add61.i, 3
+  %idxprom.i = zext nneg i32 %shr.i to i64
+  %arrayidx.i = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i
+  %#13 = load i64, ptr %arrayidx.i, align 8
+  %and.i = shl nsw nuw i32 %add61.i, 3
+  %mul.i = and i32 %and.i, 56
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %#14 = shl nuw i64 128, %sh_prom.i
+  %#15 = and i64 %#13, %#14
+  %tobool64.not.i.not.not = icmp eq i64 %#15, 0
+  br i1 %tobool64.not.i.not.not, label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit, label %if.end66.i
+
+if.end66.i:
+  br label %_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit
+
+_ZL32core_is_valid_signature_encodingjRK6W16Sig.exit:
+  %retval.2.i = phi i64 [ 0, %entry ], [ 0, %if.end6.i ], [ 0, %if.end10.i ], [ 1, %if.end66.i ], [ 0, %if.end14.i ], [ 0, %if.end21.i ], [ 0, %if.end28.i ], [ 0, %if.end40.i ], [ 0, %if.end48.i ], [ 0, %land.lhs.true60.i ], [ 0, %if.end31.i ]
+  end_lifetime ptr %s
+  %#range_0_%retval.2.i = !range i64 %retval.2.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.2.i
+}
+=>
+define i64 @cell_der(i32 noundef %n, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %w3, i64 noundef %w4, i64 noundef %w5, i64 noundef %w6, i64 noundef %w7, i64 noundef %w8, i64 noundef %w9) nofree willreturn memory(none) {
+entry:
+  %s = alloca i64 80, align 8, dead
+  start_lifetime ptr %s
+  store i64 noundef %w0, ptr %s, align 8
+  %arrayidx11.i = gep inbounds nuw ptr %s, 1 x i64 8
+  store i64 noundef %w1, ptr %arrayidx11.i, align 8
+  %arrayidx13.i = gep inbounds nuw ptr %s, 1 x i64 16
+  store i64 noundef %w2, ptr %arrayidx13.i, align 8
+  %arrayidx15.i = gep inbounds nuw ptr %s, 1 x i64 24
+  store i64 noundef %w3, ptr %arrayidx15.i, align 8
+  %arrayidx17.i = gep inbounds nuw ptr %s, 1 x i64 32
+  store i64 noundef %w4, ptr %arrayidx17.i, align 8
+  %arrayidx19.i = gep inbounds nuw ptr %s, 1 x i64 40
+  store i64 noundef %w5, ptr %arrayidx19.i, align 8
+  %arrayidx21.i = gep inbounds nuw ptr %s, 1 x i64 48
+  store i64 noundef %w6, ptr %arrayidx21.i, align 8
+  %arrayidx23.i = gep inbounds nuw ptr %s, 1 x i64 56
+  store i64 noundef %w7, ptr %arrayidx23.i, align 8
+  %arrayidx25.i = gep inbounds nuw ptr %s, 1 x i64 64
+  store i64 noundef %w8, ptr %arrayidx25.i, align 8
+  %arrayidx27.i = gep inbounds nuw ptr %s, 1 x i64 72
+  store i64 noundef %w9, ptr %arrayidx27.i, align 8
+  %#0 = add i32 noundef %n, 4294967287
+  %or.cond.i = icmp ult i32 %#0, 65
+  %conv.i5255 = and i64 noundef %w0, 255
+  %cmp2.not.i = icmp eq i64 %conv.i5255, 48
+  %or.cond = and i1 %or.cond.i, %cmp2.not.i
+  br i1 %or.cond, label %if.end4.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end4.i:
+  %#1 = trunc i64 noundef %w0 to i32
+  %#2 = lshr i32 %#1, 8
+  %conv.i49 = and i32 %#2, 255
+  %sub.i = add nsw i32 noundef %n, 4294967293
+  %cmp6.not.i = icmp eq i32 %conv.i49, %sub.i
+  br i1 %cmp6.not.i, label %if.end8.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end8.i:
+  %#3 = trunc i64 noundef %w0 to i32
+  %#4 = lshr i32 %#3, 24
+  %add.i = add nsw nuw i32 %#4, 5
+  %cmp10.not.i = icmp ult i32 %add.i, noundef %n
+  br i1 %cmp10.not.i, label %if.end12.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end12.i:
+  %shr.i36 = lshr i32 %add.i, 3
+  %idxprom.i37 = zext nneg i32 %shr.i36 to i64
+  %arrayidx.i38 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i37
+  %#5 = load i64, ptr %arrayidx.i38, align 8
+  %and.i39 = shl nsw nuw i32 %add.i, 3
+  %mul.i40 = and i32 %and.i39, 56
+  %sh_prom.i41 = zext nneg i32 %mul.i40 to i64
+  %shr1.i42 = lshr i64 %#5, %sh_prom.i41
+  %#6 = trunc i64 %shr1.i42 to i32
+  %conv.i43 = and i32 %#6, 255
+  %add15.i = add nsw nuw i32 %#4, 7
+  %add16.i = add nsw nuw i32 %add15.i, %conv.i43
+  %cmp17.not.i = icmp eq i32 %add16.i, noundef %n
+  br i1 %cmp17.not.i, label %if.end19.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end19.i:
+  %#7 = and i64 noundef %w0, 16711680
+  %cmp21.not.i = icmp ne i64 %#7, 131072
+  %cmp24.i = icmp ult i32 %#3, 16777216
+  %or.cond99.i = or i1 %cmp21.not.i, %cmp24.i
+  br i1 %or.cond99.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit, label %if.end26.i
+
+if.end26.i:
+  %shr1.i31 = lshr i64 noundef %w0, 32
+  %#8 = trunc nuw i64 %shr1.i31 to i32
+  %conv.i32 = and i32 %#8, 255
+  %cmp28.not.i = icmp samesign ult i32 %conv.i32, 128
+  br i1 %cmp28.not.i, label %if.end30.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end30.i:
+  %cmp31.not.i = icmp ne i32 %#4, 1
+  %cmp33.i = icmp eq i32 %conv.i32, 0
+  %or.cond53 = and i1 %cmp31.not.i, %cmp33.i
+  %#9 = and i64 noundef %w0, 140737488355328
+  %cmp38.not.not.i.not.not = icmp eq i64 %#9, 0
+  %or.cond59 = and i1 %cmp38.not.not.i.not.not, %or.cond53
+  br i1 %or.cond59, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit, label %if.end40.i
+
+if.end40.i:
+  %add41.i = add nsw nuw i32 %#4, 4
+  %shr.i19 = lshr i32 %add41.i, 3
+  %idxprom.i20 = zext nneg i32 %shr.i19 to i64
+  %arrayidx.i21 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i20
+  %#10 = load i64, ptr %arrayidx.i21, align 8
+  %and.i22 = shl nsw nuw i32 %add41.i, 3
+  %mul.i23 = and i32 %and.i22, 56
+  %sh_prom.i24 = zext nneg i32 %mul.i23 to i64
+  %shr1.i25 = lshr i64 %#10, %sh_prom.i24
+  %conv.i2657 = and i64 %shr1.i25, 255
+  %cmp43.not.i = icmp ne i64 %conv.i2657, 2
+  %cmp46.i = icmp eq i32 %conv.i43, 0
+  %or.cond100.i = or i1 %cmp46.i, %cmp43.not.i
+  br i1 %or.cond100.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit, label %if.end48.i
+
+if.end48.i:
+  %add49.i = add nsw nuw i32 %#4, 6
+  %shr.i11 = lshr i32 %add49.i, 3
+  %idxprom.i12 = zext nneg i32 %shr.i11 to i64
+  %arrayidx.i13 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i12
+  %#11 = load i64, ptr %arrayidx.i13, align 8
+  %and.i14 = shl nsw nuw i32 %add49.i, 3
+  %mul.i15 = and i32 %and.i14, 56
+  %sh_prom.i16 = zext nneg i32 %mul.i15 to i64
+  %shr1.i17 = lshr i64 %#11, %sh_prom.i16
+  %#12 = trunc i64 %shr1.i17 to i32
+  %conv.i18 = and i32 %#12, 255
+  %cmp53.not.i = icmp samesign ult i32 %conv.i18, 128
+  br i1 %cmp53.not.i, label %if.end55.i, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+if.end55.i:
+  %cmp56.not.i = icmp ne i32 %conv.i43, 1
+  %cmp60.i = icmp eq i32 %conv.i18, 0
+  %or.cond54 = and i1 %cmp56.not.i, %cmp60.i
+  br i1 %or.cond54, label %land.lhs.true61.i, label %if.end68.i
+
+land.lhs.true61.i:
+  %add62.i = add nsw nuw i32 %#4, 7
+  %shr.i = lshr i32 %add62.i, 3
+  %idxprom.i = zext nneg i32 %shr.i to i64
+  %arrayidx.i = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i
+  %#13 = load i64, ptr %arrayidx.i, align 8
+  %and.i = shl nsw nuw i32 %add62.i, 3
+  %mul.i = and i32 %and.i, 56
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %#14 = shl nuw i64 128, %sh_prom.i
+  %#15 = and i64 %#13, %#14
+  %cmp66.not.not.i.not.not = icmp eq i64 %#15, 0
+  br i1 %cmp66.not.not.i.not.not, label %_ZL20lean_is_dersignaturejRK6W16Sig.exit, label %if.end68.i
+
+if.end68.i:
+  br label %_ZL20lean_is_dersignaturejRK6W16Sig.exit
+
+_ZL20lean_is_dersignaturejRK6W16Sig.exit:
+  %retval.2.i = phi i64 [ 0, %entry ], [ 0, %if.end4.i ], [ 0, %if.end8.i ], [ 1, %if.end68.i ], [ 0, %if.end12.i ], [ 0, %if.end19.i ], [ 0, %if.end26.i ], [ 0, %if.end40.i ], [ 0, %if.end48.i ], [ 0, %land.lhs.true61.i ], [ 0, %if.end30.i ]
+  end_lifetime ptr %s
+  %#range_0_%retval.2.i = !range i64 %retval.2.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.2.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_der=alive2-green
+===== cell_der_gate =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_der_gate.ll build/l_cell_der_gate.ll
+# c IR sha256: 681bd586de99f1d8aef02cf4c0ec809bd8e4e08712347e42a66a83a87661b3ed
+# l IR sha256: e6011b0ec0f47318b5ee87e0a612946ac1833d42d43c44a279136237261fd691
+
+----------------------------------------
+define i64 @cell_der_gate(i32 noundef %dersig, i32 noundef %lowS, i32 noundef %strictEnc, i32 noundef %n, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %w3, i64 noundef %w4, i64 noundef %w5, i64 noundef %w6, i64 noundef %w7, i64 noundef %w8, i64 noundef %w9) nofree willreturn memory(none) {
+entry:
+  %s = alloca i64 80, align 8, dead
+  start_lifetime ptr %s
+  store i64 noundef %w0, ptr %s, align 8
+  %arrayidx11.i = gep inbounds nuw ptr %s, 1 x i64 8
+  store i64 noundef %w1, ptr %arrayidx11.i, align 8
+  %arrayidx13.i = gep inbounds nuw ptr %s, 1 x i64 16
+  store i64 noundef %w2, ptr %arrayidx13.i, align 8
+  %arrayidx15.i = gep inbounds nuw ptr %s, 1 x i64 24
+  store i64 noundef %w3, ptr %arrayidx15.i, align 8
+  %arrayidx17.i = gep inbounds nuw ptr %s, 1 x i64 32
+  store i64 noundef %w4, ptr %arrayidx17.i, align 8
+  %arrayidx19.i = gep inbounds nuw ptr %s, 1 x i64 40
+  store i64 noundef %w5, ptr %arrayidx19.i, align 8
+  %arrayidx21.i = gep inbounds nuw ptr %s, 1 x i64 48
+  store i64 noundef %w6, ptr %arrayidx21.i, align 8
+  %arrayidx23.i = gep inbounds nuw ptr %s, 1 x i64 56
+  store i64 noundef %w7, ptr %arrayidx23.i, align 8
+  %arrayidx25.i = gep inbounds nuw ptr %s, 1 x i64 64
+  store i64 noundef %w8, ptr %arrayidx25.i, align 8
+  %arrayidx27.i = gep inbounds nuw ptr %s, 1 x i64 72
+  store i64 noundef %w9, ptr %arrayidx27.i, align 8
+  %cmp.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %if.end.i
+
+if.end.i:
+  %or.i = or i32 noundef %lowS, noundef %dersig
+  %or1.i = or i32 %or.i, noundef %strictEnc
+  %cmp2.not.i = icmp eq i32 %or1.i, 0
+  br i1 %cmp2.not.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %#0 = add i32 noundef %n, 4294967287
+  %or.cond.i.i = icmp ult i32 %#0, 65
+  %conv.i5255 = and i64 noundef %w0, 255
+  %cmp4.not.i.i = icmp eq i64 %conv.i5255, 48
+  %or.cond = and i1 %or.cond.i.i, %cmp4.not.i.i
+  br i1 %or.cond, label %if.end6.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end6.i.i:
+  %#1 = trunc i64 noundef %w0 to i32
+  %#2 = lshr i32 %#1, 8
+  %conv.i49 = and i32 %#2, 255
+  %sub.i.i = add nsw i32 noundef %n, 4294967293
+  %cmp8.not.i.i = icmp eq i32 %conv.i49, %sub.i.i
+  br i1 %cmp8.not.i.i, label %if.end10.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end10.i.i:
+  %#3 = trunc i64 noundef %w0 to i32
+  %#4 = lshr i32 %#3, 24
+  %add.i.i = add nsw nuw i32 %#4, 5
+  %cmp12.not.i.i = icmp ult i32 %add.i.i, noundef %n
+  br i1 %cmp12.not.i.i, label %if.end14.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end14.i.i:
+  %shr.i36 = lshr i32 %add.i.i, 3
+  %idxprom.i37 = zext nneg i32 %shr.i36 to i64
+  %arrayidx.i38 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i37
+  %#5 = load i64, ptr %arrayidx.i38, align 8
+  %and.i39 = shl nsw nuw i32 %add.i.i, 3
+  %mul.i40 = and i32 %and.i39, 56
+  %sh_prom.i41 = zext nneg i32 %mul.i40 to i64
+  %shr1.i42 = lshr i64 %#5, %sh_prom.i41
+  %#6 = trunc i64 %shr1.i42 to i32
+  %conv.i43 = and i32 %#6, 255
+  %add17.i.i = add nsw nuw i32 %#4, 7
+  %add18.i.i = add nsw nuw i32 %add17.i.i, %conv.i43
+  %cmp19.not.i.i = icmp eq i32 %add18.i.i, noundef %n
+  br i1 %cmp19.not.i.i, label %if.end21.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end21.i.i:
+  %#7 = and i64 noundef %w0, 16711680
+  %cmp23.not.i.i = icmp ne i64 %#7, 131072
+  %cmp26.i.i = icmp ult i32 %#3, 16777216
+  %or.cond93.i.i = or i1 %cmp23.not.i.i, %cmp26.i.i
+  br i1 %or.cond93.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %if.end28.i.i
+
+if.end28.i.i:
+  %shr1.i31 = lshr i64 noundef %w0, 32
+  %#8 = trunc nuw i64 %shr1.i31 to i32
+  %conv.i32 = and i32 %#8, 255
+  %tobool.not.i.i = icmp samesign ult i32 %conv.i32, 128
+  br i1 %tobool.not.i.i, label %if.end31.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end31.i.i:
+  %cmp32.not.i.i = icmp ne i32 %#4, 1
+  %cmp34.i.i = icmp eq i32 %conv.i32, 0
+  %or.cond53 = and i1 %cmp32.not.i.i, %cmp34.i.i
+  %#9 = and i64 noundef %w0, 140737488355328
+  %tobool38.not.i.i.not.not = icmp eq i64 %#9, 0
+  %or.cond59 = and i1 %tobool38.not.i.i.not.not, %or.cond53
+  br i1 %or.cond59, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %if.end40.i.i
+
+if.end40.i.i:
+  %add41.i.i = add nsw nuw i32 %#4, 4
+  %shr.i19 = lshr i32 %add41.i.i, 3
+  %idxprom.i20 = zext nneg i32 %shr.i19 to i64
+  %arrayidx.i21 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i20
+  %#10 = load i64, ptr %arrayidx.i21, align 8
+  %and.i22 = shl nsw nuw i32 %add41.i.i, 3
+  %mul.i23 = and i32 %and.i22, 56
+  %sh_prom.i24 = zext nneg i32 %mul.i23 to i64
+  %shr1.i25 = lshr i64 %#10, %sh_prom.i24
+  %conv.i2657 = and i64 %shr1.i25, 255
+  %cmp43.not.i.i = icmp ne i64 %conv.i2657, 2
+  %cmp46.i.i = icmp eq i32 %conv.i43, 0
+  %or.cond94.i.i = or i1 %cmp46.i.i, %cmp43.not.i.i
+  br i1 %or.cond94.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %if.end48.i.i
+
+if.end48.i.i:
+  %add49.i.i = add nsw nuw i32 %#4, 6
+  %shr.i11 = lshr i32 %add49.i.i, 3
+  %idxprom.i12 = zext nneg i32 %shr.i11 to i64
+  %arrayidx.i13 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i12
+  %#11 = load i64, ptr %arrayidx.i13, align 8
+  %and.i14 = shl nsw nuw i32 %add49.i.i, 3
+  %mul.i15 = and i32 %and.i14, 56
+  %sh_prom.i16 = zext nneg i32 %mul.i15 to i64
+  %shr1.i17 = lshr i64 %#11, %sh_prom.i16
+  %#12 = trunc i64 %shr1.i17 to i32
+  %conv.i18 = and i32 %#12, 255
+  %tobool52.not.i.i = icmp samesign ult i32 %conv.i18, 128
+  br i1 %tobool52.not.i.i, label %if.end54.i.i, label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+if.end54.i.i:
+  %cmp55.not.i.i = icmp ne i32 %conv.i43, 1
+  %cmp59.i.i = icmp eq i32 %conv.i18, 0
+  %or.cond54 = and i1 %cmp55.not.i.i, %cmp59.i.i
+  br i1 %or.cond54, label %land.lhs.true60.i.i, label %if.end66.i.i
+
+land.lhs.true60.i.i:
+  %add61.i.i = add nsw nuw i32 %#4, 7
+  %shr.i = lshr i32 %add61.i.i, 3
+  %idxprom.i = zext nneg i32 %shr.i to i64
+  %arrayidx.i = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i
+  %#13 = load i64, ptr %arrayidx.i, align 8
+  %and.i = shl nsw nuw i32 %add61.i.i, 3
+  %mul.i = and i32 %and.i, 56
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %#14 = shl nuw i64 128, %sh_prom.i
+  %#15 = and i64 %#13, %#14
+  %tobool64.not.i.i.not.not = icmp eq i64 %#15, 0
+  br i1 %tobool64.not.i.i.not.not, label %_ZL13core_der_gatejjjjRK6W16Sig.exit, label %if.end66.i.i
+
+if.end66.i.i:
+  br label %_ZL13core_der_gatejjjjRK6W16Sig.exit
+
+_ZL13core_der_gatejjjjRK6W16Sig.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ 0, %if.end66.i.i ], [ 0, %if.end.i ], [ 24, %if.end31.i.i ], [ 24, %land.lhs.true60.i.i ], [ 24, %if.end48.i.i ], [ 24, %if.end40.i.i ], [ 24, %if.end28.i.i ], [ 24, %if.end21.i.i ], [ 24, %if.end14.i.i ], [ 24, %if.end10.i.i ], [ 24, %if.end6.i.i ], [ 24, %land.lhs.true.i ]
+  end_lifetime ptr %s
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_der_gate(i32 noundef %dersig, i32 noundef %lowS, i32 noundef %strictEnc, i32 noundef %n, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %w3, i64 noundef %w4, i64 noundef %w5, i64 noundef %w6, i64 noundef %w7, i64 noundef %w8, i64 noundef %w9) nofree willreturn memory(none) {
+entry:
+  %s = alloca i64 80, align 8, dead
+  start_lifetime ptr %s
+  store i64 noundef %w0, ptr %s, align 8
+  %arrayidx11.i = gep inbounds nuw ptr %s, 1 x i64 8
+  store i64 noundef %w1, ptr %arrayidx11.i, align 8
+  %arrayidx13.i = gep inbounds nuw ptr %s, 1 x i64 16
+  store i64 noundef %w2, ptr %arrayidx13.i, align 8
+  %arrayidx15.i = gep inbounds nuw ptr %s, 1 x i64 24
+  store i64 noundef %w3, ptr %arrayidx15.i, align 8
+  %arrayidx17.i = gep inbounds nuw ptr %s, 1 x i64 32
+  store i64 noundef %w4, ptr %arrayidx17.i, align 8
+  %arrayidx19.i = gep inbounds nuw ptr %s, 1 x i64 40
+  store i64 noundef %w5, ptr %arrayidx19.i, align 8
+  %arrayidx21.i = gep inbounds nuw ptr %s, 1 x i64 48
+  store i64 noundef %w6, ptr %arrayidx21.i, align 8
+  %arrayidx23.i = gep inbounds nuw ptr %s, 1 x i64 56
+  store i64 noundef %w7, ptr %arrayidx23.i, align 8
+  %arrayidx25.i = gep inbounds nuw ptr %s, 1 x i64 64
+  store i64 noundef %w8, ptr %arrayidx25.i, align 8
+  %arrayidx27.i = gep inbounds nuw ptr %s, 1 x i64 72
+  store i64 noundef %w9, ptr %arrayidx27.i, align 8
+  %cmp.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %if.end.i
+
+if.end.i:
+  %#0 = or i32 noundef %lowS, noundef %dersig
+  %#1 = or i32 %#0, noundef %strictEnc
+  %or.cond7.not.i = icmp eq i32 %#1, 0
+  br i1 %or.cond7.not.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %#2 = add i32 noundef %n, 4294967287
+  %or.cond.i.i = icmp ult i32 %#2, 65
+  %conv.i5255 = and i64 noundef %w0, 255
+  %cmp2.not.i.i = icmp eq i64 %conv.i5255, 48
+  %or.cond = and i1 %or.cond.i.i, %cmp2.not.i.i
+  br i1 %or.cond, label %if.end4.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end4.i.i:
+  %#3 = trunc i64 noundef %w0 to i32
+  %#4 = lshr i32 %#3, 8
+  %conv.i49 = and i32 %#4, 255
+  %sub.i.i = add nsw i32 noundef %n, 4294967293
+  %cmp6.not.i.i = icmp eq i32 %conv.i49, %sub.i.i
+  br i1 %cmp6.not.i.i, label %if.end8.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end8.i.i:
+  %#5 = trunc i64 noundef %w0 to i32
+  %#6 = lshr i32 %#5, 24
+  %add.i.i = add nsw nuw i32 %#6, 5
+  %cmp10.not.i.i = icmp ult i32 %add.i.i, noundef %n
+  br i1 %cmp10.not.i.i, label %if.end12.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end12.i.i:
+  %shr.i36 = lshr i32 %add.i.i, 3
+  %idxprom.i37 = zext nneg i32 %shr.i36 to i64
+  %arrayidx.i38 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i37
+  %#7 = load i64, ptr %arrayidx.i38, align 8
+  %and.i39 = shl nsw nuw i32 %add.i.i, 3
+  %mul.i40 = and i32 %and.i39, 56
+  %sh_prom.i41 = zext nneg i32 %mul.i40 to i64
+  %shr1.i42 = lshr i64 %#7, %sh_prom.i41
+  %#8 = trunc i64 %shr1.i42 to i32
+  %conv.i43 = and i32 %#8, 255
+  %add15.i.i = add nsw nuw i32 %#6, 7
+  %add16.i.i = add nsw nuw i32 %add15.i.i, %conv.i43
+  %cmp17.not.i.i = icmp eq i32 %add16.i.i, noundef %n
+  br i1 %cmp17.not.i.i, label %if.end19.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end19.i.i:
+  %#9 = and i64 noundef %w0, 16711680
+  %cmp21.not.i.i = icmp ne i64 %#9, 131072
+  %cmp24.i.i = icmp ult i32 %#5, 16777216
+  %or.cond99.i.i = or i1 %cmp21.not.i.i, %cmp24.i.i
+  br i1 %or.cond99.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %if.end26.i.i
+
+if.end26.i.i:
+  %shr1.i31 = lshr i64 noundef %w0, 32
+  %#10 = trunc nuw i64 %shr1.i31 to i32
+  %conv.i32 = and i32 %#10, 255
+  %cmp28.not.i.i = icmp samesign ult i32 %conv.i32, 128
+  br i1 %cmp28.not.i.i, label %if.end30.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end30.i.i:
+  %cmp31.not.i.i = icmp ne i32 %#6, 1
+  %cmp33.i.i = icmp eq i32 %conv.i32, 0
+  %or.cond53 = and i1 %cmp31.not.i.i, %cmp33.i.i
+  %#11 = and i64 noundef %w0, 140737488355328
+  %cmp38.not.not.i.i.not.not = icmp eq i64 %#11, 0
+  %or.cond59 = and i1 %cmp38.not.not.i.i.not.not, %or.cond53
+  br i1 %or.cond59, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %if.end40.i.i
+
+if.end40.i.i:
+  %add41.i.i = add nsw nuw i32 %#6, 4
+  %shr.i19 = lshr i32 %add41.i.i, 3
+  %idxprom.i20 = zext nneg i32 %shr.i19 to i64
+  %arrayidx.i21 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i20
+  %#12 = load i64, ptr %arrayidx.i21, align 8
+  %and.i22 = shl nsw nuw i32 %add41.i.i, 3
+  %mul.i23 = and i32 %and.i22, 56
+  %sh_prom.i24 = zext nneg i32 %mul.i23 to i64
+  %shr1.i25 = lshr i64 %#12, %sh_prom.i24
+  %conv.i2657 = and i64 %shr1.i25, 255
+  %cmp43.not.i.i = icmp ne i64 %conv.i2657, 2
+  %cmp46.i.i = icmp eq i32 %conv.i43, 0
+  %or.cond100.i.i = or i1 %cmp46.i.i, %cmp43.not.i.i
+  br i1 %or.cond100.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %if.end48.i.i
+
+if.end48.i.i:
+  %add49.i.i = add nsw nuw i32 %#6, 6
+  %shr.i11 = lshr i32 %add49.i.i, 3
+  %idxprom.i12 = zext nneg i32 %shr.i11 to i64
+  %arrayidx.i13 = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i12
+  %#13 = load i64, ptr %arrayidx.i13, align 8
+  %and.i14 = shl nsw nuw i32 %add49.i.i, 3
+  %mul.i15 = and i32 %and.i14, 56
+  %sh_prom.i16 = zext nneg i32 %mul.i15 to i64
+  %shr1.i17 = lshr i64 %#13, %sh_prom.i16
+  %#14 = trunc i64 %shr1.i17 to i32
+  %conv.i18 = and i32 %#14, 255
+  %cmp53.not.i.i = icmp samesign ult i32 %conv.i18, 128
+  br i1 %cmp53.not.i.i, label %if.end55.i.i, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+if.end55.i.i:
+  %cmp56.not.i.i = icmp ne i32 %conv.i43, 1
+  %cmp60.i.i = icmp eq i32 %conv.i18, 0
+  %or.cond54 = and i1 %cmp56.not.i.i, %cmp60.i.i
+  br i1 %or.cond54, label %land.lhs.true61.i.i, label %if.end68.i.i
+
+land.lhs.true61.i.i:
+  %add62.i.i = add nsw nuw i32 %#6, 7
+  %shr.i = lshr i32 %add62.i.i, 3
+  %idxprom.i = zext nneg i32 %shr.i to i64
+  %arrayidx.i = gep inbounds nuw ptr %s, 80 x i64 0, 8 x i64 %idxprom.i
+  %#15 = load i64, ptr %arrayidx.i, align 8
+  %and.i = shl nsw nuw i32 %add62.i.i, 3
+  %mul.i = and i32 %and.i, 56
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %#16 = shl nuw i64 128, %sh_prom.i
+  %#17 = and i64 %#15, %#16
+  %cmp66.not.not.i.i.not.not = icmp eq i64 %#17, 0
+  br i1 %cmp66.not.not.i.i.not.not, label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit, label %if.end68.i.i
+
+if.end68.i.i:
+  br label %_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit
+
+_ZL27lean_check_sig_encoding_derjjjjRK6W16Sig.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ 0, %if.end68.i.i ], [ 0, %if.end.i ], [ 24, %if.end30.i.i ], [ 24, %land.lhs.true61.i.i ], [ 24, %if.end48.i.i ], [ 24, %if.end40.i.i ], [ 24, %if.end26.i.i ], [ 24, %if.end19.i.i ], [ 24, %if.end12.i.i ], [ 24, %if.end8.i.i ], [ 24, %if.end4.i.i ], [ 24, %land.lhs.true.i ]
+  end_lifetime ptr %s
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 25
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_der_gate=alive2-green
+STATUS=alive2-green

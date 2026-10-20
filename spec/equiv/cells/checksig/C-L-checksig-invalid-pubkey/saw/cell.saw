@@ -1,0 +1,32 @@
+import "invalidpubkey.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let spec_checksig = do {
+  pv <- llvm_fresh_var "pk_valid"  (llvm_int 32);
+  co <- llvm_fresh_var "crypto_ok" (llvm_int 32);
+  sl <- llvm_fresh_var "sig_len"   (llvm_int 32);
+  nf <- llvm_fresh_var "nullFail"  (llvm_int 32);
+  llvm_execute_func [llvm_term pv, llvm_term co, llvm_term sl, llvm_term nf];
+  llvm_return (llvm_term {{ checksig pv co sl nf False }});
+};
+
+let spec_continue = do {
+  pv <- llvm_fresh_var "pk_valid"  (llvm_int 32);
+  co <- llvm_fresh_var "crypto_ok" (llvm_int 32);
+  sl <- llvm_fresh_var "sig_len"   (llvm_int 32);
+  nf <- llvm_fresh_var "nullFail"  (llvm_int 32);
+  llvm_execute_func [llvm_term pv, llvm_term co, llvm_term sl, llvm_term nf];
+  llvm_return (llvm_term {{ checksig pv co sl nf True }});
+};
+
+r1 <- llvm_verify mC "cell_invalid_pubkey" [] false spec_checksig abc;
+print "PROOF cell_invalid_pubkey C";
+r2 <- llvm_verify mL "cell_invalid_pubkey" [] false spec_checksig abc;
+print "PROOF cell_invalid_pubkey L";
+r3 <- llvm_verify mC "cell_invalid_pubkey_continue" [] false spec_continue abc;
+print "PROOF cell_invalid_pubkey_continue C";
+r4 <- llvm_verify mL "cell_invalid_pubkey_continue" [] false spec_continue abc;
+print "PROOF cell_invalid_pubkey_continue L";
+print "CELL_INVALID_PUBKEY_SAW_GREEN";

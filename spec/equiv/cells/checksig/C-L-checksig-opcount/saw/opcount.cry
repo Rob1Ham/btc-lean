@@ -1,0 +1,36 @@
+module opcount where
+
+// Independent Cryptol reference for cell C-L-checksig-opcount (SCR-113).
+//
+// Restates interpreter.cpp:460-464 / Defs.lean:824-830:
+//   counts  = (sv == BASE || sv == WITNESS_V0) && wire > 0x60
+//   count'  = count + 1 (if counts)
+//   error 7 as soon as count' > 201
+// The execution flag is irrelevant: Core increments before testing it.
+
+step : ([32], [32]) -> [32] -> [32] -> ([32], [32])
+step state sv wire =
+  if e != 0 then state
+  else if counts then
+    (if n + 1 > 0x000000c9 then (n + 1, 7) else (n + 1, 0))
+  else (n, 0)
+  where
+    (n, e) = state
+    counts = ((sv == 0) || (sv == 1)) && (wire > 0x00000060)
+
+opcount : [32] -> [32] -> [32]
+       -> [32] -> [32] -> [32] -> [32] -> [32]
+       -> [32] -> [32] -> [32] -> [64]
+opcount n0 sv fExec w0 w1 w2 w3 w4 w5 w6 w7 =
+  (((0 : [32]) # n8) << 8) || ((0 : [32]) # e8)
+  where
+    s1 = step (n0, 0) sv w0
+    s2 = step s1 sv w1
+    s3 = step s2 sv w2
+    s4 = step s3 sv w3
+    s5 = step s4 sv w4
+    s6 = step s5 sv w5
+    s7 = step s6 sv w6
+    s8 = step s7 sv w7
+    n8 = s8.0
+    e8 = s8.1

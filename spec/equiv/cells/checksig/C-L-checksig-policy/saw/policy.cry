@@ -1,0 +1,61 @@
+module policy where
+
+// Independent Cryptol reference for cell C-L-checksig-policy.
+// All-error ordinals are contract/error_kind.h values.
+
+// IsDefinedHashtypeSignature (interpreter.cpp:200-209): last & ~0x80 in 1..3,
+// empty signature is not defined.
+definedHT : [32] -> [32] -> Bit
+definedHT last n =
+  if n == 0 then False
+  else if (last && 0x0000007f) < 1 then False
+  else if (last && 0x0000007f) > 3 then False
+  else True
+
+hashtypeGate : [32] -> [32] -> [32] -> [64]
+hashtypeGate strict last n =
+  if strict != 0 then (if definedHT last n then 0 else 23) else 0
+
+// IsCompressedOrUncompressedPubKey (interpreter.cpp:74-92).
+compOrUncomp : [32] -> [32] -> Bit
+compOrUncomp len pk0 =
+  if len < 33 then False
+  else if pk0 == 4 then len == 65
+  else if pk0 == 2 then len == 33
+  else if pk0 == 3 then len == 33
+  else False
+
+// IsCompressedPubKey (interpreter.cpp:94-106).
+comp : [32] -> [32] -> Bit
+comp len pk0 =
+  if len == 33 then (if pk0 == 2 then True else if pk0 == 3 then True else False)
+  else False
+
+// CheckPubKeyEncoding (interpreter.cpp:226-235).
+pubkeyEncoding : [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+pubkeyEncoding strict wpt sv len pk0 =
+  if strict != 0 then
+    (if compOrUncomp len pk0 then pubkeyWitness wpt sv len pk0 else 29)
+  else pubkeyWitness wpt sv len pk0
+
+pubkeyWitness : [32] -> [32] -> [32] -> [32] -> [64]
+pubkeyWitness wpt sv len pk0 =
+  if wpt != 0 then
+    (if sv == 1 then (if comp len pk0 then 0 else 44) else 0)
+  else 0
+
+pubkeyPreds : [32] -> [32] -> [32]
+pubkeyPreds len pk0 =
+  (if compOrUncomp len pk0 then (1 : [32]) else 0) ||
+  (if comp len pk0 then (2 : [32]) else 0)
+
+// LOW_S (interpreter.cpp:183-198 + pubkey.cpp:393-399): high-S iff
+// s > floor(n/2).  Domain: canonical scalar s < n.
+halfN : [256]
+halfN = 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0
+
+lowSGate : [32] -> [64] -> [64] -> [64] -> [64] -> [64]
+lowSGate lowS s0 s1 s2 s3 =
+  if lowS == 0 then 0
+  else if (join (reverse [s0,s1,s2,s3]) : [256]) <= halfN then 0
+  else 27

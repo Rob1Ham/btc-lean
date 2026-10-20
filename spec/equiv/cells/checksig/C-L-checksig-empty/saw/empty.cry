@@ -1,0 +1,65 @@
+module empty where
+
+// Independent Cryptol reference for cell checksig/C-L-checksig-empty
+// (SCR-108 / SCR-109).
+//
+// Not extracted from either leg.  Restates the pinned rule:
+//   interpreter.cpp:213-216  empty signature bypasses the encoding gates
+//   interpreter.cpp:74-92    IsCompressedOrUncompressedPubKey (size/tag)
+//   interpreter.cpp:94-99    IsCompressedPubKey
+//   interpreter.cpp:226-235  CheckPubKeyEncoding (STRICTENC, WITNESS_PUBKEYTYPE)
+//   interpreter.cpp:1704-1710 pubkey validity, then `if (vchSig.empty()) return false`
+//   interpreter.cpp:331-355  EvalChecksigPreTapscript (NULLFAIL cannot fire)
+//   interpreter.cpp:1069-1092 OP_CHECKSIG / OP_CHECKSIGVERIFY
+//   interpreter.cpp:1876-1880 EVAL_FALSE tail
+//
+// Observable: ABI v2 packed word (result 2 | error 6 | depth 3 | top len/val).
+
+compressedOrUncompressed : [32] -> [32] -> Bit
+compressedOrUncompressed n pk0 =
+  if n < 33 then False
+  else if pk0 == 0x00000004 then n == 65
+  else if (pk0 == 0x00000002) || (pk0 == 0x00000003) then n == 33
+  else False
+
+compressed : [32] -> [32] -> Bit
+compressed n pk0 = (n == 33) && ((pk0 == 0x00000002) || (pk0 == 0x00000003))
+
+bnot : Bit -> Bit
+bnot b = if b then False else True
+
+// CheckPubKeyEncoding: 0 = pass, 29 = PUBKEYTYPE, 44 = WITNESS_PUBKEYTYPE.
+// The STRICTENC arm is an `if`, the WITNESS_PUBKEYTYPE arm an `else if`:
+// a strictEnc-valid uncompressed key still reaches the compressed-only test.
+pubkeyError : [32] -> [32] -> [32] -> [32] -> [32] -> [32]
+pubkeyError strictEnc wpt sv n pk0 =
+  if (strictEnc != 0) && bnot (compressedOrUncompressed n pk0) then 29
+  else if (wpt != 0) && (sv == 1) && bnot (compressed n pk0) then 44
+  else 0
+
+// st_fail(e) pack: result 0, error e at bits 2..7, empty stack.
+failPack : [32] -> [64]
+failPack e = ((0 : [32]) # e) << 2
+
+// OP_CHECKSIG with an empty signature: encoding passes, policy may abort,
+// the checker returns false for every pubkey-validity value, CHECKSIG pushes
+// vchFalse, and VerifyScript's tail rejects the resulting false:
+// result 0, EVAL_FALSE 2 at bits 2..7, depth 1 at bit 8, empty top.
+checksigEmpty : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+checksigEmpty pk_valid strictEnc wpt sv n pk0 =
+  if pe != 0 then failPack pe else 264
+  where pe = pubkeyError strictEnc wpt sv n pk0
+
+// Same, followed by OP_NOT: execution continues and the final stack is true
+// (result 1, depth 1, top = {1}).
+checksigEmptyContinue : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+checksigEmptyContinue pk_valid strictEnc wpt sv n pk0 =
+  if pe != 0 then failPack pe else 10497
+  where pe = pubkeyError strictEnc wpt sv n pk0
+
+// OP_CHECKSIGVERIFY: the empty signature can never verify, so the arm always
+// raises SCRIPT_ERR_CHECKSIGVERIFY = 14.
+checksigVerifyEmpty : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+checksigVerifyEmpty pk_valid strictEnc wpt sv n pk0 =
+  if pe != 0 then failPack pe else failPack 14
+  where pe = pubkeyError strictEnc wpt sv n pk0

@@ -1,0 +1,54 @@
+import "empty.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let six_args a b c d e f =
+  [llvm_term a, llvm_term b, llvm_term c, llvm_term d, llvm_term e, llvm_term f];
+
+let spec_checksig = do {
+  pv <- llvm_fresh_var "pk_valid"             (llvm_int 32);
+  se <- llvm_fresh_var "strictEnc"            (llvm_int 32);
+  wp <- llvm_fresh_var "witnessPubkeyType"    (llvm_int 32);
+  sv <- llvm_fresh_var "sv"                   (llvm_int 32);
+  n  <- llvm_fresh_var "pk_len"               (llvm_int 32);
+  b0 <- llvm_fresh_var "pk0"                  (llvm_int 32);
+  llvm_execute_func (six_args pv se wp sv n b0);
+  llvm_return (llvm_term {{ checksigEmpty pv se wp sv n b0 }});
+};
+
+let spec_continue = do {
+  pv <- llvm_fresh_var "pk_valid"             (llvm_int 32);
+  se <- llvm_fresh_var "strictEnc"            (llvm_int 32);
+  wp <- llvm_fresh_var "witnessPubkeyType"    (llvm_int 32);
+  sv <- llvm_fresh_var "sv"                   (llvm_int 32);
+  n  <- llvm_fresh_var "pk_len"               (llvm_int 32);
+  b0 <- llvm_fresh_var "pk0"                  (llvm_int 32);
+  llvm_execute_func (six_args pv se wp sv n b0);
+  llvm_return (llvm_term {{ checksigEmptyContinue pv se wp sv n b0 }});
+};
+
+let spec_verify = do {
+  pv <- llvm_fresh_var "pk_valid"             (llvm_int 32);
+  se <- llvm_fresh_var "strictEnc"            (llvm_int 32);
+  wp <- llvm_fresh_var "witnessPubkeyType"    (llvm_int 32);
+  sv <- llvm_fresh_var "sv"                   (llvm_int 32);
+  n  <- llvm_fresh_var "pk_len"               (llvm_int 32);
+  b0 <- llvm_fresh_var "pk0"                  (llvm_int 32);
+  llvm_execute_func (six_args pv se wp sv n b0);
+  llvm_return (llvm_term {{ checksigVerifyEmpty pv se wp sv n b0 }});
+};
+
+r1 <- llvm_verify mC "cell_checksig_empty" [] false spec_checksig abc;
+print "PROOF cell_checksig_empty C";
+r2 <- llvm_verify mL "cell_checksig_empty" [] false spec_checksig abc;
+print "PROOF cell_checksig_empty L";
+r3 <- llvm_verify mC "cell_checksig_empty_continue" [] false spec_continue abc;
+print "PROOF cell_checksig_empty_continue C";
+r4 <- llvm_verify mL "cell_checksig_empty_continue" [] false spec_continue abc;
+print "PROOF cell_checksig_empty_continue L";
+r5 <- llvm_verify mC "cell_checksigverify_empty" [] false spec_verify abc;
+print "PROOF cell_checksigverify_empty C";
+r6 <- llvm_verify mL "cell_checksigverify_empty" [] false spec_verify abc;
+print "PROOF cell_checksigverify_empty L";
+print "CELL_EMPTY_SAW_GREEN";

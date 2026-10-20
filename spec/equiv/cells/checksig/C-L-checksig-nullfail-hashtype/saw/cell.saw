@@ -1,0 +1,41 @@
+import "nullfail.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let spec_checksig = do {
+  f  <- llvm_fresh_var "fSuccess" (llvm_int 32);
+  nf <- llvm_fresh_var "nullFail" (llvm_int 32);
+  sl <- llvm_fresh_var "sig_len"  (llvm_int 32);
+  w  <- llvm_fresh_var "wire"     (llvm_int 32);
+  llvm_execute_func [llvm_term f, llvm_term nf, llvm_term sl, llvm_term w];
+  llvm_return (llvm_term {{ checksig f nf sl w }});
+};
+
+let spec_hashtype = do {
+  sl <- llvm_fresh_var "sig_len" (llvm_int 32);
+  a0 <- llvm_fresh_var "a0" (llvm_int 64);
+  a1 <- llvm_fresh_var "a1" (llvm_int 64);
+  a2 <- llvm_fresh_var "a2" (llvm_int 64);
+  a3 <- llvm_fresh_var "a3" (llvm_int 64);
+  a4 <- llvm_fresh_var "a4" (llvm_int 64);
+  a5 <- llvm_fresh_var "a5" (llvm_int 64);
+  a6 <- llvm_fresh_var "a6" (llvm_int 64);
+  a7 <- llvm_fresh_var "a7" (llvm_int 64);
+  a8 <- llvm_fresh_var "a8" (llvm_int 64);
+  a9 <- llvm_fresh_var "a9" (llvm_int 64);
+  llvm_execute_func [llvm_term sl, llvm_term a0, llvm_term a1, llvm_term a2,
+                     llvm_term a3, llvm_term a4, llvm_term a5, llvm_term a6,
+                     llvm_term a7, llvm_term a8, llvm_term a9];
+  llvm_return (llvm_term {{ hashtype sl (join (reverse [a0,a1,a2,a3,a4,a5,a6,a7,a8,a9])) }});
+};
+
+r1 <- llvm_verify mC "cell_checksig_nullfail" [] false spec_checksig abc;
+print "PROOF cell_checksig_nullfail C";
+r2 <- llvm_verify mL "cell_checksig_nullfail" [] false spec_checksig abc;
+print "PROOF cell_checksig_nullfail L";
+r3 <- llvm_verify mC "cell_hashtype" [] false spec_hashtype abc;
+print "PROOF cell_hashtype C";
+r4 <- llvm_verify mL "cell_hashtype" [] false spec_hashtype abc;
+print "PROOF cell_hashtype L";
+print "CELL_NULLFAIL_SAW_GREEN";

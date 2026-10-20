@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 CELL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-exec "$CELL_DIR/../../_tools/e3/run_saw.sh" "$CELL_DIR"
+TOOLS="$CELL_DIR/../../../findings/wave16/10-checksig-policy/tools"
+exec "$TOOLS/run_saw.sh" "$CELL_DIR" "checksig/C-L-checksig-empty" empty

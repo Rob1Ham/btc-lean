@@ -1,0 +1,58 @@
+import "der.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+// Syntax of the shared 80-byte signature argument.
+let sig_args n a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
+  [llvm_term n, llvm_term a0, llvm_term a1, llvm_term a2, llvm_term a3,
+   llvm_term a4, llvm_term a5, llvm_term a6, llvm_term a7, llvm_term a8,
+   llvm_term a9];
+
+let spec_der = do {
+  n  <- llvm_fresh_var "n"  (llvm_int 32);
+  a0 <- llvm_fresh_var "a0" (llvm_int 64);
+  a1 <- llvm_fresh_var "a1" (llvm_int 64);
+  a2 <- llvm_fresh_var "a2" (llvm_int 64);
+  a3 <- llvm_fresh_var "a3" (llvm_int 64);
+  a4 <- llvm_fresh_var "a4" (llvm_int 64);
+  a5 <- llvm_fresh_var "a5" (llvm_int 64);
+  a6 <- llvm_fresh_var "a6" (llvm_int 64);
+  a7 <- llvm_fresh_var "a7" (llvm_int 64);
+  a8 <- llvm_fresh_var "a8" (llvm_int 64);
+  a9 <- llvm_fresh_var "a9" (llvm_int 64);
+  llvm_execute_func (sig_args n a0 a1 a2 a3 a4 a5 a6 a7 a8 a9);
+  llvm_return (llvm_term {{ (if derOK n (join (reverse [a0,a1,a2,a3,a4,a5,a6,a7,a8,a9])) then 1 else 0) : [64] }});
+};
+
+let spec_gate = do {
+  d  <- llvm_fresh_var "dersig"    (llvm_int 32);
+  l  <- llvm_fresh_var "lowS"      (llvm_int 32);
+  s  <- llvm_fresh_var "strictEnc" (llvm_int 32);
+  n  <- llvm_fresh_var "n"  (llvm_int 32);
+  a0 <- llvm_fresh_var "a0" (llvm_int 64);
+  a1 <- llvm_fresh_var "a1" (llvm_int 64);
+  a2 <- llvm_fresh_var "a2" (llvm_int 64);
+  a3 <- llvm_fresh_var "a3" (llvm_int 64);
+  a4 <- llvm_fresh_var "a4" (llvm_int 64);
+  a5 <- llvm_fresh_var "a5" (llvm_int 64);
+  a6 <- llvm_fresh_var "a6" (llvm_int 64);
+  a7 <- llvm_fresh_var "a7" (llvm_int 64);
+  a8 <- llvm_fresh_var "a8" (llvm_int 64);
+  a9 <- llvm_fresh_var "a9" (llvm_int 64);
+  llvm_execute_func [llvm_term d, llvm_term l, llvm_term s,
+                     llvm_term n, llvm_term a0, llvm_term a1, llvm_term a2,
+                     llvm_term a3, llvm_term a4, llvm_term a5, llvm_term a6,
+                     llvm_term a7, llvm_term a8, llvm_term a9];
+  llvm_return (llvm_term {{ derGate d l s n (join (reverse [a0,a1,a2,a3,a4,a5,a6,a7,a8,a9])) }});
+};
+
+r1 <- llvm_verify mC "cell_der" [] false spec_der abc;
+print "PROOF cell_der C";
+r2 <- llvm_verify mL "cell_der" [] false spec_der abc;
+print "PROOF cell_der L";
+r3 <- llvm_verify mC "cell_der_gate" [] false spec_gate abc;
+print "PROOF cell_der_gate C";
+r4 <- llvm_verify mL "cell_der_gate" [] false spec_gate abc;
+print "PROOF cell_der_gate L";
+print "CELL_DER_SAW_GREEN";

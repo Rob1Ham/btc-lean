@@ -1,0 +1,28 @@
+import "opcount.cry";
+
+mC <- llvm_load_module "c_leaf_saw.bc";
+mL <- llvm_load_module "l_leaf_saw.bc";
+
+let spec_opcount = do {
+  n0 <- llvm_fresh_var "n0"    (llvm_int 32);
+  sv <- llvm_fresh_var "sv"    (llvm_int 32);
+  fe <- llvm_fresh_var "fExec" (llvm_int 32);
+  w0 <- llvm_fresh_var "w0" (llvm_int 32);
+  w1 <- llvm_fresh_var "w1" (llvm_int 32);
+  w2 <- llvm_fresh_var "w2" (llvm_int 32);
+  w3 <- llvm_fresh_var "w3" (llvm_int 32);
+  w4 <- llvm_fresh_var "w4" (llvm_int 32);
+  w5 <- llvm_fresh_var "w5" (llvm_int 32);
+  w6 <- llvm_fresh_var "w6" (llvm_int 32);
+  w7 <- llvm_fresh_var "w7" (llvm_int 32);
+  llvm_execute_func [llvm_term n0, llvm_term sv, llvm_term fe,
+                     llvm_term w0, llvm_term w1, llvm_term w2, llvm_term w3,
+                     llvm_term w4, llvm_term w5, llvm_term w6, llvm_term w7];
+  llvm_return (llvm_term {{ opcount n0 sv fe w0 w1 w2 w3 w4 w5 w6 w7 }});
+};
+
+r1 <- llvm_verify mC "cell_opcount" [] false spec_opcount abc;
+print "PROOF cell_opcount C";
+r2 <- llvm_verify mL "cell_opcount" [] false spec_opcount abc;
+print "PROOF cell_opcount L";
+print "CELL_OPCOUNT_SAW_GREEN";

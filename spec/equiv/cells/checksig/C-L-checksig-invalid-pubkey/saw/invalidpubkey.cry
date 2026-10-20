@@ -1,0 +1,25 @@
+module invalidpubkey where
+
+// Independent Cryptol reference for cell C-L-checksig-invalid-pubkey
+// (SCR-112).
+//
+// Restates the pinned rule:
+//   interpreter.cpp:1704-1706  invalid CPubKey -> CheckECDSASignature false
+//   interpreter.cpp:351-352    NULLFAIL when the signature is non-empty
+//   interpreter.cpp:1069-1092  CHECKSIG pushes false and execution continues
+//   interpreter.cpp:1876-1880  EVAL_FALSE tail
+
+failPack : [32] -> [64]
+failPack e = ((0 : [32]) # e) << 2
+
+// fSuccess = if pk_valid then crypto_ok else 0.
+checksig : [32] -> [32] -> [32] -> [32] -> Bit -> [64]
+checksig pkValid cryptoOk sl nf tailNot =
+  if (f == 0) && (nf != 0) && (sl != 0) then failPack 32
+  else if tailNot then
+    (if f != 0 then 2312 else 10497)         // OP_NOT: true -> false (empty top kept), false -> true
+  else if f != 0 then 10497                  // push true
+  else 264                                   // push false, EVAL_FALSE
+  where
+    f = if pkValid == 0 then (0 : [32])
+        else if cryptoOk == 0 then (0 : [32]) else 1
