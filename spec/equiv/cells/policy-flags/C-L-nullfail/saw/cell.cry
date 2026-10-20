@@ -1,0 +1,8 @@
+module PolicyCell where
+
+// Independent predicate for SCR-179 (NULLFAIL policy).
+// ordinal 0 pass, 32 SCRIPT_ERR_SIG_NULLFAIL.
+nullfail : [64] -> [64] -> [64] -> [64]
+nullfail flags fSuccess sigLen =
+  if ((fSuccess == 0) && ((((flags >> 14) % 2) == 1) && (sigLen != 0))) then 32
+  else 0

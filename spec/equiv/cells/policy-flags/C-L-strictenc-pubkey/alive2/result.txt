@@ -1,0 +1,154 @@
+# cell: policy-flags/C-L-strictenc-pubkey
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_strictenc_pubkey
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_strictenc_pubkey (L ⊑ C) =====
+# command: alive-tv ir/c_cell_strictenc_pubkey.ll ir/l_cell_strictenc_pubkey.ll
+
+----------------------------------------
+define i64 @cell_strictenc_pubkey(i64 noundef %flags, i64 noundef %pkLen, i64 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %pkLen, 33
+  br i1 %cmp.i, label %_Z18c_strictenc_pubkeymmm.exit, label %if.else.i
+
+if.else.i:
+  %and.i.i = and i64 noundef %pk0, 255
+  %cmp1.i = icmp eq i64 %and.i.i, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.else4.i
+
+if.then2.i:
+  %cmp3.i = icmp eq i64 noundef %pkLen, 65
+  br label %_Z18c_strictenc_pubkeymmm.exit
+
+if.else4.i:
+  %#0 = and i64 noundef %pk0, 254
+  %or.cond.i = icmp eq i64 %#0, 2
+  %cmp8.i = icmp eq i64 noundef %pkLen, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i
+  br label %_Z18c_strictenc_pubkeymmm.exit
+
+_Z18c_strictenc_pubkeymmm.exit:
+  %enc_ok.0.shrunk.i = phi i1 [ %cmp3.i, %if.then2.i ], [ 0, %entry ], [ %spec.select.i, %if.else4.i ]
+  %and.i = and i64 noundef %flags, 2
+  %cmp13.not.i = icmp eq i64 %and.i, 0
+  %brmerge.i = or i1 %cmp13.not.i, %enc_ok.0.shrunk.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 29
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 30
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_strictenc_pubkey(i64 noundef %flags, i64 noundef %pkLen, i64 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %pkLen, 33
+  br i1 %cmp.i, label %_Z18l_strictenc_pubkeymmm.exit, label %if.else.i
+
+if.else.i:
+  %and.i.i = and i64 noundef %pk0, 255
+  %cmp1.i = icmp eq i64 %and.i.i, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.else4.i
+
+if.then2.i:
+  %cmp3.i = icmp eq i64 noundef %pkLen, 65
+  br label %_Z18l_strictenc_pubkeymmm.exit
+
+if.else4.i:
+  %#0 = and i64 noundef %pk0, 254
+  %or.cond.i = icmp eq i64 %#0, 2
+  %cmp8.i = icmp eq i64 noundef %pkLen, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i
+  br label %_Z18l_strictenc_pubkeymmm.exit
+
+_Z18l_strictenc_pubkeymmm.exit:
+  %enc_ok.0.shrunk.i = phi i1 [ %cmp3.i, %if.then2.i ], [ 0, %entry ], [ %spec.select.i, %if.else4.i ]
+  %and.i = and i64 noundef %flags, 2
+  %cmp13.not.i = icmp eq i64 %and.i, 0
+  %brmerge.i = or i1 %cmp13.not.i, %enc_ok.0.shrunk.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 29
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 30
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_strictenc_pubkey (C ⊑ L) =====
+# command: alive-tv ir/l_cell_strictenc_pubkey.ll ir/c_cell_strictenc_pubkey.ll
+
+----------------------------------------
+define i64 @cell_strictenc_pubkey(i64 noundef %flags, i64 noundef %pkLen, i64 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %pkLen, 33
+  br i1 %cmp.i, label %_Z18l_strictenc_pubkeymmm.exit, label %if.else.i
+
+if.else.i:
+  %and.i.i = and i64 noundef %pk0, 255
+  %cmp1.i = icmp eq i64 %and.i.i, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.else4.i
+
+if.then2.i:
+  %cmp3.i = icmp eq i64 noundef %pkLen, 65
+  br label %_Z18l_strictenc_pubkeymmm.exit
+
+if.else4.i:
+  %#0 = and i64 noundef %pk0, 254
+  %or.cond.i = icmp eq i64 %#0, 2
+  %cmp8.i = icmp eq i64 noundef %pkLen, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i
+  br label %_Z18l_strictenc_pubkeymmm.exit
+
+_Z18l_strictenc_pubkeymmm.exit:
+  %enc_ok.0.shrunk.i = phi i1 [ %cmp3.i, %if.then2.i ], [ 0, %entry ], [ %spec.select.i, %if.else4.i ]
+  %and.i = and i64 noundef %flags, 2
+  %cmp13.not.i = icmp eq i64 %and.i, 0
+  %brmerge.i = or i1 %cmp13.not.i, %enc_ok.0.shrunk.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 29
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 30
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_strictenc_pubkey(i64 noundef %flags, i64 noundef %pkLen, i64 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %pkLen, 33
+  br i1 %cmp.i, label %_Z18c_strictenc_pubkeymmm.exit, label %if.else.i
+
+if.else.i:
+  %and.i.i = and i64 noundef %pk0, 255
+  %cmp1.i = icmp eq i64 %and.i.i, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.else4.i
+
+if.then2.i:
+  %cmp3.i = icmp eq i64 noundef %pkLen, 65
+  br label %_Z18c_strictenc_pubkeymmm.exit
+
+if.else4.i:
+  %#0 = and i64 noundef %pk0, 254
+  %or.cond.i = icmp eq i64 %#0, 2
+  %cmp8.i = icmp eq i64 noundef %pkLen, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i
+  br label %_Z18c_strictenc_pubkeymmm.exit
+
+_Z18c_strictenc_pubkeymmm.exit:
+  %enc_ok.0.shrunk.i = phi i1 [ %cmp3.i, %if.then2.i ], [ 0, %entry ], [ %spec.select.i, %if.else4.i ]
+  %and.i = and i64 noundef %flags, 2
+  %cmp13.not.i = icmp eq i64 %and.i, 0
+  %brmerge.i = or i1 %cmp13.not.i, %enc_ok.0.shrunk.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 29
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 30
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (2 direction checks)

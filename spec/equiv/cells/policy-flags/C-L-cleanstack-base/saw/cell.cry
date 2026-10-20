@@ -1,0 +1,11 @@
+module PolicyCell where
+
+// Independent predicate for SCR-180 (CLEANSTACK: base policy vs v0 implicit).
+// sigversion: 0 = BASE, 1 = WITNESS_V0; anything else is out of domain (255).
+// ordinal 0 pass, 30 SCRIPT_ERR_CLEANSTACK.
+cleanstack : [64] -> [64] -> [64] -> [64]
+cleanstack flags sv finalLen =
+  if sv > 1 then 255
+  else if sv == 0 then
+    (if ((((flags >> 8) % 2) == 1) && (finalLen != 1)) then 30 else 0)
+  else (if (finalLen != 1) then 30 else 0)

@@ -1,0 +1,18 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+let spec_cell_witness_pubkeytype = do {
+  flags <- llvm_fresh_var "cell_witness_pubkeytype_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_witness_pubkeytype_sv" (llvm_int 64);
+  pkLen <- llvm_fresh_var "cell_witness_pubkeytype_pkLen" (llvm_int 64);
+  pk0 <- llvm_fresh_var "cell_witness_pubkeytype_pk0" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term pkLen, llvm_term pk0];
+  llvm_return (llvm_term {{ witness_pubkeytype flags sv pkLen pk0 }});
+};
+
+llvm_verify mC "cell_witness_pubkeytype" [] false spec_cell_witness_pubkeytype abc;
+llvm_verify mL "cell_witness_pubkeytype" [] false spec_cell_witness_pubkeytype abc;
+
+print "CELL_policy_flags_witness_pubkeytype_SAW_GREEN";

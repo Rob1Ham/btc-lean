@@ -1,0 +1,188 @@
+# cell: policy-flags/C-L-const-scriptcode
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_const_scriptcode_codesep cell_const_scriptcode_finddelete
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_const_scriptcode_codesep (L ⊑ C) =====
+# command: alive-tv ir/c_cell_const_scriptcode_codesep.ll ir/l_cell_const_scriptcode_codesep.ll
+
+----------------------------------------
+define i64 @cell_const_scriptcode_codesep(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %opcode) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i64 noundef %opcode, 171
+  %cmp1.i = icmp ne i64 noundef %sigversion, 0
+  %or.cond.not5.i = or i1 %cmp1.i, %cmp.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp3.not.i = icmp eq i64 %and.i, 0
+  %or.cond4.i = or i1 %cmp3.not.i, %or.cond.not5.i
+  %retval.0.i = select i1 %or.cond4.i, i64 0, i64 53
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 54
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_const_scriptcode_codesep(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %opcode) nofree noundef willreturn memory(none) {
+entry:
+  %cmp1.i = icmp ne i64 noundef %opcode, 171
+  %cmp2.i = icmp ne i64 noundef %sigversion, 0
+  %or.cond.not5.i = or i1 %cmp2.i, %cmp1.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp.not.i = icmp eq i64 %and.i, 0
+  %or.cond4.i = or i1 %cmp.not.i, %or.cond.not5.i
+  %retval.0.i = select i1 %or.cond4.i, i64 0, i64 53
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 54
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_const_scriptcode_codesep (C ⊑ L) =====
+# command: alive-tv ir/l_cell_const_scriptcode_codesep.ll ir/c_cell_const_scriptcode_codesep.ll
+
+----------------------------------------
+define i64 @cell_const_scriptcode_codesep(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %opcode) nofree noundef willreturn memory(none) {
+entry:
+  %cmp1.i = icmp ne i64 noundef %opcode, 171
+  %cmp2.i = icmp ne i64 noundef %sigversion, 0
+  %or.cond.not5.i = or i1 %cmp2.i, %cmp1.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp.not.i = icmp eq i64 %and.i, 0
+  %or.cond4.i = or i1 %cmp.not.i, %or.cond.not5.i
+  %retval.0.i = select i1 %or.cond4.i, i64 0, i64 53
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 54
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_const_scriptcode_codesep(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %opcode) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i64 noundef %opcode, 171
+  %cmp1.i = icmp ne i64 noundef %sigversion, 0
+  %or.cond.not5.i = or i1 %cmp1.i, %cmp.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp3.not.i = icmp eq i64 %and.i, 0
+  %or.cond4.i = or i1 %cmp3.not.i, %or.cond.not5.i
+  %retval.0.i = select i1 %or.cond4.i, i64 0, i64 53
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 54
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_const_scriptcode_finddelete (L ⊑ C) =====
+# command: alive-tv ir/c_cell_const_scriptcode_finddelete.ll ir/l_cell_const_scriptcode_finddelete.ll
+
+----------------------------------------
+define i64 @cell_const_scriptcode_finddelete(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %foundPositive) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  br i1 %cmp.i, label %_Z29c_const_scriptcode_finddeletemmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ne i64 noundef %sigversion, 0
+  %cmp2.i = icmp eq i64 noundef %foundPositive, 0
+  %or.cond.not9.i = or i1 %cmp1.i, %cmp2.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp4.not.i = icmp eq i64 %and.i, 0
+  %or.cond8.i = or i1 %cmp4.not.i, %or.cond.not9.i
+  %spec.select.i = select i1 %or.cond8.i, i64 0, i64 54
+  br label %_Z29c_const_scriptcode_finddeletemmm.exit
+
+_Z29c_const_scriptcode_finddeletemmm.exit:
+  %retval.0.i = phi i64 [ 255, %entry ], [ %spec.select.i, %if.end.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_const_scriptcode_finddelete(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %foundPositive) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  br i1 %cmp.i, label %_Z29l_const_scriptcode_finddeletemmm.exit, label %if.end.i
+
+if.end.i:
+  %and.i = and i64 noundef %flags, 65536
+  %cmp1.not.i = icmp eq i64 %and.i, 0
+  %cmp4.i = icmp ne i64 noundef %sigversion, 0
+  %cmp2.not.i = icmp eq i64 noundef %foundPositive, 0
+  %or.cond.i = or i1 %cmp4.i, %cmp2.not.i
+  %brmerge.i = or i1 %cmp1.not.i, %or.cond.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 54
+  br label %_Z29l_const_scriptcode_finddeletemmm.exit
+
+_Z29l_const_scriptcode_finddeletemmm.exit:
+  %retval.1.i = phi i64 [ %retval.0.i, %if.end.i ], [ 255, %entry ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_const_scriptcode_finddelete (C ⊑ L) =====
+# command: alive-tv ir/l_cell_const_scriptcode_finddelete.ll ir/c_cell_const_scriptcode_finddelete.ll
+
+----------------------------------------
+define i64 @cell_const_scriptcode_finddelete(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %foundPositive) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  br i1 %cmp.i, label %_Z29l_const_scriptcode_finddeletemmm.exit, label %if.end.i
+
+if.end.i:
+  %and.i = and i64 noundef %flags, 65536
+  %cmp1.not.i = icmp eq i64 %and.i, 0
+  %cmp4.i = icmp ne i64 noundef %sigversion, 0
+  %cmp2.not.i = icmp eq i64 noundef %foundPositive, 0
+  %or.cond.i = or i1 %cmp4.i, %cmp2.not.i
+  %brmerge.i = or i1 %cmp1.not.i, %or.cond.i
+  %retval.0.i = select i1 %brmerge.i, i64 0, i64 54
+  br label %_Z29l_const_scriptcode_finddeletemmm.exit
+
+_Z29l_const_scriptcode_finddeletemmm.exit:
+  %retval.1.i = phi i64 [ %retval.0.i, %if.end.i ], [ 255, %entry ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_const_scriptcode_finddelete(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %foundPositive) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %foundPositive, 1
+  br i1 %cmp.i, label %_Z29c_const_scriptcode_finddeletemmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ne i64 noundef %sigversion, 0
+  %cmp2.i = icmp eq i64 noundef %foundPositive, 0
+  %or.cond.not9.i = or i1 %cmp1.i, %cmp2.i
+  %and.i = and i64 noundef %flags, 65536
+  %cmp4.not.i = icmp eq i64 %and.i, 0
+  %or.cond8.i = or i1 %cmp4.not.i, %or.cond.not9.i
+  %spec.select.i = select i1 %or.cond8.i, i64 0, i64 54
+  br label %_Z29c_const_scriptcode_finddeletemmm.exit
+
+_Z29c_const_scriptcode_finddeletemmm.exit:
+  %retval.0.i = phi i64 [ 255, %entry ], [ %spec.select.i, %if.end.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (4 direction checks)

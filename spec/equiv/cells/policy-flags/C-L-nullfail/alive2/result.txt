@@ -1,0 +1,114 @@
+# cell: policy-flags/C-L-nullfail
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_nullfail
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_nullfail (L ⊑ C) =====
+# command: alive-tv ir/c_cell_nullfail.ll ir/l_cell_nullfail.ll
+
+----------------------------------------
+define i64 @cell_nullfail(i64 noundef %flags, i64 noundef %fSuccess, i64 noundef %sigLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %fSuccess, 0
+  br i1 %cmp.i, label %land.lhs.true.i, label %if.end.i
+
+land.lhs.true.i:
+  %and.i = and i64 noundef %flags, 16384
+  %cmp1.i = icmp ne i64 %and.i, 0
+  %cmp3.i = icmp ne i64 noundef %sigLen, 0
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %_Z10c_nullfailmmm.exit, label %if.end.i
+
+if.end.i:
+  br label %_Z10c_nullfailmmm.exit
+
+_Z10c_nullfailmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 32, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 33
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_nullfail(i64 noundef %flags, i64 noundef %fSuccess, i64 noundef %sigLen) nofree willreturn memory(none) {
+entry:
+  %cmp1.i = icmp eq i64 noundef %fSuccess, 0
+  br i1 %cmp1.i, label %land.lhs.true.i, label %if.end.i
+
+land.lhs.true.i:
+  %and.i = and i64 noundef %flags, 16384
+  %cmp.i = icmp ne i64 %and.i, 0
+  %cmp3.i = icmp ne i64 noundef %sigLen, 0
+  %or.cond.i = and i1 %cmp.i, %cmp3.i
+  br i1 %or.cond.i, label %_Z10l_nullfailmmm.exit, label %if.end.i
+
+if.end.i:
+  br label %_Z10l_nullfailmmm.exit
+
+_Z10l_nullfailmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 32, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 33
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_nullfail (C ⊑ L) =====
+# command: alive-tv ir/l_cell_nullfail.ll ir/c_cell_nullfail.ll
+
+----------------------------------------
+define i64 @cell_nullfail(i64 noundef %flags, i64 noundef %fSuccess, i64 noundef %sigLen) nofree willreturn memory(none) {
+entry:
+  %cmp1.i = icmp eq i64 noundef %fSuccess, 0
+  br i1 %cmp1.i, label %land.lhs.true.i, label %if.end.i
+
+land.lhs.true.i:
+  %and.i = and i64 noundef %flags, 16384
+  %cmp.i = icmp ne i64 %and.i, 0
+  %cmp3.i = icmp ne i64 noundef %sigLen, 0
+  %or.cond.i = and i1 %cmp.i, %cmp3.i
+  br i1 %or.cond.i, label %_Z10l_nullfailmmm.exit, label %if.end.i
+
+if.end.i:
+  br label %_Z10l_nullfailmmm.exit
+
+_Z10l_nullfailmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 32, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 33
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_nullfail(i64 noundef %flags, i64 noundef %fSuccess, i64 noundef %sigLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %fSuccess, 0
+  br i1 %cmp.i, label %land.lhs.true.i, label %if.end.i
+
+land.lhs.true.i:
+  %and.i = and i64 noundef %flags, 16384
+  %cmp1.i = icmp ne i64 %and.i, 0
+  %cmp3.i = icmp ne i64 noundef %sigLen, 0
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %_Z10c_nullfailmmm.exit, label %if.end.i
+
+if.end.i:
+  br label %_Z10c_nullfailmmm.exit
+
+_Z10c_nullfailmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 32, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 33
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (2 direction checks)

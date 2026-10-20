@@ -1,0 +1,13 @@
+module PolicyCell where
+
+// Independent predicate for SCR-182 (WITNESS_PUBKEYTYPE compressed-key policy).
+// sigversion: 0 BASE, 1 WITNESS_V0, 2 TAPSCRIPT; anything else out of domain.
+// ordinal 0 pass, 44 SCRIPT_ERR_WITNESS_PUBKEYTYPE.
+witness_pubkeytype : [64] -> [64] -> [64] -> [64] -> [64]
+witness_pubkeytype flags sv pkLen pk0 =
+  if sv > 2 then 255
+  else if ((((flags >> 15) % 2) == 1) && ((sv == 1) && ~compressed)) then 44
+  else 0
+  where
+    b0         = pk0 % 256
+    compressed = (pkLen == 33) && ((b0 == 2) || (b0 == 3))

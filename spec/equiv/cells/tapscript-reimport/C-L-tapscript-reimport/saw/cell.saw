@@ -1,0 +1,29 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+let spec_cell_tapscript_minimalif = do {
+  flags <- llvm_fresh_var "cell_tapscript_minimalif_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_tapscript_minimalif_sv" (llvm_int 64);
+  fExec <- llvm_fresh_var "cell_tapscript_minimalif_fExec" (llvm_int 64);
+  vchLen <- llvm_fresh_var "cell_tapscript_minimalif_vchLen" (llvm_int 64);
+  vch0 <- llvm_fresh_var "cell_tapscript_minimalif_vch0" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term fExec, llvm_term vchLen, llvm_term vch0];
+  llvm_return (llvm_term {{ tapscript_minimalif flags sv fExec vchLen vch0 }});
+};
+
+let spec_cell_tapscript_cleanstack = do {
+  flags <- llvm_fresh_var "cell_tapscript_cleanstack_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_tapscript_cleanstack_sv" (llvm_int 64);
+  finalLen <- llvm_fresh_var "cell_tapscript_cleanstack_finalLen" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term finalLen];
+  llvm_return (llvm_term {{ tapscript_cleanstack flags sv finalLen }});
+};
+
+llvm_verify mC "cell_tapscript_minimalif" [] false spec_cell_tapscript_minimalif abc;
+llvm_verify mL "cell_tapscript_minimalif" [] false spec_cell_tapscript_minimalif abc;
+llvm_verify mC "cell_tapscript_cleanstack" [] false spec_cell_tapscript_cleanstack abc;
+llvm_verify mL "cell_tapscript_cleanstack" [] false spec_cell_tapscript_cleanstack abc;
+
+print "CELL_tapscript_reimport_SAW_GREEN";

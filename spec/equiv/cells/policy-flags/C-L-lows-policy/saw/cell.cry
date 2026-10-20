@@ -1,0 +1,21 @@
+module PolicyCell where
+
+// Independent predicate for SCR-175 (LOW_S policy gate).  Written from Core's
+// CheckSignatureEncoding branch structure and the Lean checkLowS bound; it is
+// not derived from either C++ file.
+// ordinals: 0 ok, 24 SIG_DER, 27 SIG_HIGH_S
+halforder : [256]
+halforder = 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0
+
+lows : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+lows flags rByte s0 s1 s2 s3 =
+  if ((((flags >> 1) % 8) != 0) && ~valid) then 24
+  else if ((((flags >> 3) % 2) == 1) && ~lowS) then 27
+  else 0
+  where
+    r       = rByte % 256
+    sTop    = (s0 >> 56) % 256
+    sSecond = (s0 >> 48) % 256
+    valid   = (r < 128) && (sTop < 128) && ((sTop != 0) || (sSecond >= 128))
+    sval    = s0 # s1 # s2 # s3
+    lowS    = valid && (sval <= halforder)
