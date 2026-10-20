@@ -20,10 +20,12 @@ from __future__ import annotations
 
 import argparse
 import configparser
+import hashlib
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+REPO = ROOT.parent.parent
 PINS = ROOT / "PINS.lock"
 CELLS = ROOT / "cells"
 RULES = ROOT.parent / "db" / "rules.yaml"
@@ -249,6 +251,59 @@ def check_coverage() -> None:
         ok(f"all {len(scr_ids)} SCR rows adjudicated")
 
 
+def check_certificates() -> None:
+    """Replay every cell certificate against the current tree.
+
+    A certificate is a list of ``sha256  repo-relative-path`` lines.  Build
+    artifacts are not listed: they are ignored and path-dependent.  For the
+    Alive2 and SAW legs the raw result.txt must also be covered.
+    """
+    print("\n== 4. certificates ==")
+    certs = sorted(CELLS.glob("*/*/alive2/certificate.sha256"))
+    certs += sorted(CELLS.glob("*/*/saw/certificate.sha256"))
+    certs += sorted(CELLS.glob("*/*/behavior/certificate.sha256"))
+    if not certs:
+        warn("no cell certificates found")
+        return
+    bad = 0
+    for cert in certs:
+        rel_cert = cert.relative_to(REPO)
+        digests: set[str] = set()
+        for line in cert.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split(None, 1)
+            if len(parts) != 2 or len(parts[0]) != 64:
+                fail(f"{rel_cert}: malformed line {line[:80]!r}")
+                bad += 1
+                continue
+            expected, rel = parts
+            digests.add(expected.lower())
+            p = REPO / rel
+            if not p.is_file():
+                fail(f"{rel_cert}: missing {rel}")
+                bad += 1
+                continue
+            actual = hashlib.sha256(p.read_bytes()).hexdigest()
+            if actual != expected.lower():
+                fail(f"{rel_cert}: digest mismatch for {rel}")
+                bad += 1
+        result = cert.parent / "result.txt"
+        if result.is_file():
+            actual = hashlib.sha256(result.read_bytes()).hexdigest()
+            if actual not in digests:
+                fail(f"{rel_cert}: result.txt digest not recorded")
+                bad += 1
+        elif cert.parent.name in ("alive2", "saw"):
+            fail(f"{rel_cert}: result.txt missing")
+            bad += 1
+    if bad:
+        fail(f"{bad} certificate issue(s)")
+    else:
+        ok(f"all {len(certs)} certificates replay cleanly")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--allow-todo", action="store_true", help="TODO pins are warnings")
@@ -258,6 +313,7 @@ def main() -> int:
     check_pins(args.allow_todo)
     n = check_cell_records()
     check_coverage()
+    check_certificates()
 
     print("\n== summary ==")
     print(f"  cell records: {n}")

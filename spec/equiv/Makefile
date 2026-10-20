@@ -18,6 +18,7 @@ e0:
 
 equiv:
 	@$(PYTHON) tools/run_equiv.py
+	@$(PYTHON) tools/normalize_certificates.py
 	@$(PYTHON) results/scripts/build_matrix.py
 
 gate-ir-pin:

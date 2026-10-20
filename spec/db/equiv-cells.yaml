@@ -1507,111 +1507,210 @@ rows:
   summary: negative ⇒ NEGATIVE_LOCKTIME
   core_ref: interpreter.cpp:556@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-122 (negative ⇒ NEGATIVE_LOCKTIME): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
 - id: SCR-123
   family: locktime
   summary: both sides < or ≥ 500000000 (script.h:48)
   core_ref: interpreter.cpp:CheckLockTime:1764-1768@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-123 (both sides < or ≥ 500000000 (script.h:48)): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
 - id: SCR-124
   family: locktime
   summary: operand ≤ tx nLockTime
   core_ref: interpreter.cpp:1772-1773@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-124 (operand ≤ tx nLockTime): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
 - id: SCR-125
   family: locktime
   summary: vin[nIn].nSequence ≠ 0xffffffff
   core_ref: interpreter.cpp:1785-1786@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-125 (vin[nIn].nSequence ≠ 0xffffffff): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
 - id: SCR-126
   family: locktime
   summary: negative ⇒ NEGATIVE_LOCKTIME
   core_ref: interpreter.cpp:584@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-126 (negative ⇒ NEGATIVE_LOCKTIME): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
 - id: SCR-127
   family: locktime
   summary: operand bit 31 ⇒ NOP
   core_ref: interpreter.cpp:595-596@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-127 (operand bit 31 ⇒ NOP): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
 - id: SCR-128
   family: locktime
   summary: else fail
   core_ref: interpreter.cpp:CheckSequence:1800-1801@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-128 (else fail): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
 - id: SCR-129
   family: locktime
   summary: else fail
   core_ref: interpreter.cpp:1807-1808@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-129 (else fail): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
 - id: SCR-130
   family: locktime
   summary: mask 0x0040ffff
   core_ref: interpreter.cpp:1812-1833@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-130 (mask 0x0040ffff): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
 - id: SCR-131
   family: locktime
   summary: CSV script-level compares raw masked values; granularity in SequenceLocks
   core_ref: primitives/transaction.h:115; tx_verify.cpp:94-95@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-131 (CSV script-level compares raw masked values; granularity in SequenceLocks): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-csv-granularity
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-granularity
+    certificate: ffee3fb5249b7b690e24a25a7339f40e97b08e64d7cfda989e1793b17b0e15ce
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-granularity
+    certificate: 131557e501146d21289e0af09323e7b266b14b9cf16598fc9ae350f344b632f8
+    note: Proof succeeded! cell_csv_masked
+  status: both-green
+  gap_note: null
 - id: SCR-132
   family: locktime
   summary: CheckLockTime/Sequence see only input nIn
   core_ref: interpreter.cpp:1755,1792-1796@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-132 (CheckLockTime/Sequence see only input nIn): no locktime cell was built; CLTV/CSV need the transaction context and the E2/E4 harness does not model it. No green is claimed.'
+  cells:
+  - locktime/C-L-locktime-input-index
+  alive2:
+    result: green
+    cell: locktime/C-L-locktime-input-index
+    certificate: 4db650372de09b5f9d10867d891d73e25639d71554f1dd4acb84b66c4c5b8cf7
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-locktime-input-index
+    certificate: acd5b226c3e57d5e2c803a85aa2f488f47b85126af442e38d859025230a1129e
+    note: Proof succeeded! cell_cltv_input_index
+  status: both-green
+  gap_note: null
 - id: SCR-133
   family: witness-v0
   summary: SHA256(witnessScript) == program
@@ -2123,88 +2222,161 @@ rows:
   summary: SCRIPT_VERIFY_LOW_S is mempool policy, never in GetBlockScriptFlags
   core_ref: src/script/interpreter.cpp:219-221@cce32b168
   consensus: false
-  cells: []
+  cells:
+  - policy-flags/C-L-lows-policy
   alive2: null
   saw: null
   status: gap
-  gap_note: 'SCR-175 (SCRIPT_VERIFY_LOW_S is mempool policy, never in GetBlockScriptFlags): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  gap_note: 'auto(cells): partial row coverage; policy-flags/C-L-lows-policy: partial'
 - id: SCR-176
   family: policy-flags
   summary: SCRIPT_VERIFY_STRICTENC is policy (hybrid/hybrid pubkey rejection)
   core_ref: src/script/interpreter.cpp:74-94; src/script/interpreter.cpp:229-231@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-176 (SCRIPT_VERIFY_STRICTENC is policy (hybrid/hybrid pubkey rejection)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-strictenc-pubkey
+  alive2:
+    result: green
+    cell: policy-flags/C-L-strictenc-pubkey
+    certificate: f7c3d9e83ebfd894096d0a26439984016f70107b5d3449d672beb287d881e7cb
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-strictenc-pubkey
+    certificate: 2a8a9db130d12735e9082ee7dc2c99bce76241181c0fc00388f6ff78bd7b0b64
+    note: Proof succeeded! cell_strictenc_pubkey
+  status: both-green
+  gap_note: null
 - id: SCR-177
   family: policy-flags
   summary: SCRIPT_VERIFY_MINIMALDATA is policy (push minimality)
   core_ref: src/script/interpreter.cpp:442; src/script/interpreter.cpp:488-491@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-177 (SCRIPT_VERIFY_MINIMALDATA is policy (push minimality)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-minimaldata-push
+  alive2:
+    result: green
+    cell: policy-flags/C-L-minimaldata-push
+    certificate: 83d964186932d14b251b2581e99dace672c091c03ada4ac9e0155905e4010cc4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-minimaldata-push
+    certificate: 771ee6887a96f5416e3faccd0b11c66dedbf621d3171f19d720023da779d51ce
+    note: Proof succeeded! cell_minimaldata_push
+  status: both-green
+  gap_note: null
 - id: SCR-178
   family: policy-flags
   summary: SCRIPT_VERIFY_MINIMALIF applies to v0 witness spends only; tapscript re-imports it (SCR-183)
   core_ref: src/script/interpreter.cpp:631-637@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-178 (SCRIPT_VERIFY_MINIMALIF applies to v0 witness spends only; tapscript re-imports it (SCR-183)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-minimalif-v0
+  alive2:
+    result: green
+    cell: policy-flags/C-L-minimalif-v0
+    certificate: ab6a4bd4cb192a513684f0da1e51103a534fbe9a8eaf022891f62d8b231c75e0
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-minimalif-v0
+    certificate: cde622ea2c5572db4a8419699c7cef4cb203c2354f3255383238c97c7f245966
+    note: Proof succeeded! cell_minimalif_v0
+  status: both-green
+  gap_note: null
 - id: SCR-179
   family: policy-flags
   summary: SCRIPT_VERIFY_NULLFAIL is policy (empty sig must fail check)
   core_ref: src/script/interpreter.cpp:351-352@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-179 (SCRIPT_VERIFY_NULLFAIL is policy (empty sig must fail check)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-nullfail
+  alive2:
+    result: green
+    cell: policy-flags/C-L-nullfail
+    certificate: a7589c6075e77928b0f100167f7478ef109e3c72464aaac2f50e53530665f0cd
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-nullfail
+    certificate: 782322c628a04a1f0eaf29a653d5426295481779389dd93879417df5345a8756
+    note: Proof succeeded! cell_nullfail
+  status: both-green
+  gap_note: null
 - id: SCR-180
   family: policy-flags
   summary: SCRIPT_VERIFY_CLEANSTACK is a policy flag for base (non-witness) spends; witness-v0 and tapscript clean-stack are enforced implicitly as consensus regardless of the policy bit (the general tapscript face is not yet proved — only the concrete Tapscript.cleanstack_implicit_tapscript)
   core_ref: src/script/interpreter.cpp:2110-2118@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-180 (SCRIPT_VERIFY_CLEANSTACK is a policy flag for base (non-witness) spends; witness-v0 and tapscript clean-stack are enforced implicitly as consensus regardless of): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-cleanstack-base
+  alive2:
+    result: green
+    cell: policy-flags/C-L-cleanstack-base
+    certificate: 96f12bd798e87d34724cc2fe32890349e5f13f695cd03e0b9d61cf0318ff9bf3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-cleanstack-base
+    certificate: 131f89c184c8fe806dda302d2e8bbe00c76ca2305d23de51762f3dec5bc1d3b9
+    note: Proof succeeded! cell_cleanstack
+  status: both-green
+  gap_note: null
 - id: SCR-181
   family: policy-flags
   summary: SCRIPT_VERIFY_CONST_SCRIPTCODE is policy (no OP_CODESEPARATOR evolution)
   core_ref: src/script/interpreter.cpp:484-486; src/script/interpreter.cpp:339-343@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-181 (SCRIPT_VERIFY_CONST_SCRIPTCODE is policy (no OP_CODESEPARATOR evolution)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-const-scriptcode
+  alive2:
+    result: green
+    cell: policy-flags/C-L-const-scriptcode
+    certificate: 231da309d535b268137512d6c60b0a2a944b0d610860bdcd62541e45c41e2173
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-const-scriptcode
+    certificate: b7678981b99907151bc573f0f0552d8eb517d5df417ba01aabe8c4e1460c32c1
+    note: Proof succeeded! cell_const_scriptcode_codesep
+  status: both-green
+  gap_note: null
 - id: SCR-182
   family: policy-flags
   summary: SCRIPT_VERIFY_WITNESS_PUBKEYTYPE is policy (compressed keys)
   core_ref: src/script/interpreter.cpp:233-235@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-182 (SCRIPT_VERIFY_WITNESS_PUBKEYTYPE is policy (compressed keys)): flags are fixed at 0 in the bounded harness; this policy-flag row is not exercised. No green is claimed.'
+  cells:
+  - policy-flags/C-L-witness-pubkeytype
+  alive2:
+    result: green
+    cell: policy-flags/C-L-witness-pubkeytype
+    certificate: dec1dc79240ebd2c8788742115c339a298091eeef64046485edf53ea92062553
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-witness-pubkeytype
+    certificate: 7859ab812f2fe860f8e30785d347531efee0a8327cca54441d858f1fda822314
+    note: Proof succeeded! cell_witness_pubkeytype
+  status: both-green
+  gap_note: null
 - id: SCR-183
   family: tapscript-reimport
   summary: for SigVersion::TAPSCRIPT minimal-IF and clean-stack are consensus requirements regardless of the policy flags
   core_ref: src/script/interpreter.cpp:623-629; src/script/interpreter.cpp:1876-1878@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: unjudged-seam
-  gap_note: 'SCR-183 (for SigVersion::TAPSCRIPT minimal-IF and clean-stack are consensus requirements regardless of the policy flags): interpreter.cpp:623-629 re-imports tapscript MINIMALIF and interpreter.cpp:1876-1878 enforces implicit cleanstack. The MINIMALIF half is a bounded stepBody leaf and could be split out later; the cleanstack half depends on the full ExecuteWitnessScript post-state, so the row as stated is a seam.'
+  cells:
+  - tapscript-reimport/C-L-tapscript-reimport
+  alive2:
+    result: green
+    cell: tapscript-reimport/C-L-tapscript-reimport
+    certificate: 86e4b96acb6a3adf2d2c9a7f4efb629e00f18bc67c9481404c1d99323038516d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript-reimport/C-L-tapscript-reimport
+    certificate: d5486b051f991787925baf05926eb42050f576614807838558a23e537e4f2688
+    note: Proof succeeded! cell_tapscript_minimalif
+  status: both-green
+  gap_note: null
