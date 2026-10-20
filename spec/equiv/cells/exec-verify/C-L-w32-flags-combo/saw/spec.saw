@@ -1,0 +1,16 @@
+// SCR-014: symbolic SAW proof of both legs against the flagsComboOk spec.
+import "spec.cry";
+
+mC <- llvm_load_module "../build/c_cell_flags_combo.bc";
+mL <- llvm_load_module "../build/l_cell_flags_combo.bc";
+
+let spec = do {
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  cs    <- llvm_fresh_var "cleanstack" (llvm_int 32);
+  llvm_execute_func [llvm_term flags, llvm_term cs];
+  llvm_return (llvm_term {{ flags_combo flags cs }});
+};
+
+llvm_verify mC "cell_flags_combo" [] false spec abc;
+llvm_verify mL "cell_flags_combo" [] false spec abc;
+print "CELL_flags_combo_SAW_GREEN";

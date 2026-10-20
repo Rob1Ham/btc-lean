@@ -1,0 +1,42 @@
+module spec where
+
+// SCR-017: VerifyScript failure propagation
+// (interpreter.cpp:2029-2036, 2052-2054, 2080-2082, 2097-2099).
+//
+// Packed observable: (result:1) << 8 | error:8.  The five engine calls are
+// abstracted to their (ok|fail, error) outcome; the model fixes the order of
+// the early returns and the error each one carries.
+//
+// Argument order matches cell_fail_prop / cell_prop_law:
+//   flags,
+//   e1_fail e2_fail e3_fail ew1_fail ew2_fail,
+//   err1 err2 err3 errw1 errw2,
+//   spk_truth, redeem_truth,
+//   bare_witness, p2sh_path, p2sh_redeem_witness,
+//   cleanstack_ok, witness_unexpected
+
+// the cell's error field is 8 bits wide (contract error ordinal).
+errp : Bit -> [32] -> [64]
+errp pass err = (if pass then 0x0000000000000100 else 0) ||
+                ((0x00000000 : [32]) # (err && (0x000000FF : [32])))
+
+fail_prop : [64] ->
+            [32] -> [32] -> [32] -> [32] -> [32] ->
+            [32] -> [32] -> [32] -> [32] -> [32] ->
+            [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+fail_prop flags e1 e2 e3 ew1 ew2 r1 r2 r3 rw1 rw2
+          spk_truth redeem_truth bare p2shpath redeemit cs_ok wu =
+  if e1 != (0 : [32]) then errp False r1
+  else if e2 != (0 : [32]) then errp False r2
+  else if spk_truth == (0 : [32]) then errp False (2 : [32])
+  else if wit && (bare != (0 : [32])) && (ew1 != (0 : [32])) then errp False rw1
+  else if p2sh && (p2shpath != (0 : [32])) && (e3 != (0 : [32])) then errp False r3
+  else if p2sh && (p2shpath != (0 : [32])) && (redeem_truth == (0 : [32])) then errp False (2 : [32])
+  else if p2sh && (p2shpath != (0 : [32])) && wit && (redeemit != (0 : [32])) && (ew2 != (0 : [32])) then errp False rw2
+  else if cs && (cs_ok == (0 : [32])) then errp False (30 : [32])
+  else if wit && (wu != (0 : [32])) then errp False (43 : [32])
+  else errp True (0 : [32])
+  where
+    p2sh = (flags && (0x0000000000000001 : [64])) != 0
+    wit  = (flags && (0x0000000000000800 : [64])) != 0
+    cs   = (flags && (0x0000000000000100 : [64])) != 0

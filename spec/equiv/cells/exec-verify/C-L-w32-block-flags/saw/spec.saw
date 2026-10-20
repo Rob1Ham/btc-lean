@@ -1,0 +1,21 @@
+// SCR-015: symbolic SAW proof of both legs against the getBlockScriptFlagsP
+// spec, for every 256-bit block hash and every block height.
+import "spec.cry";
+
+mC <- llvm_load_module "../build/c_cell_block_flags.bc";
+mL <- llvm_load_module "../build/l_cell_block_flags.bc";
+
+let spec = do {
+  h0     <- llvm_fresh_var "h0" (llvm_int 64);
+  h1     <- llvm_fresh_var "h1" (llvm_int 64);
+  h2     <- llvm_fresh_var "h2" (llvm_int 64);
+  h3     <- llvm_fresh_var "h3" (llvm_int 64);
+  height <- llvm_fresh_var "height" (llvm_int 32);
+  llvm_execute_func [llvm_term h0, llvm_term h1, llvm_term h2, llvm_term h3,
+                     llvm_term height];
+  llvm_return (llvm_term {{ block_flags h0 h1 h2 h3 height }});
+};
+
+llvm_verify mC "cell_block_flags" [] false spec z3;
+llvm_verify mL "cell_block_flags" [] false spec z3;
+print "CELL_block_flags_SAW_GREEN";

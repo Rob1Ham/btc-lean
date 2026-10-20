@@ -1,0 +1,79 @@
+// SCR-017: symbolic SAW proof of the VerifyScript failure-propagation
+// skeleton.  `fail_prop` is checked against the first-failure model; the
+// `prop_law` face is proved to return 1 for every input, which is exactly
+// "a reachable EvalScript/VerifyWitnessProgram failure implies invalid".
+import "spec.cry";
+
+mCp <- llvm_load_module "../build/c_cell_fail_prop.bc";
+mLp <- llvm_load_module "../build/l_cell_fail_prop.bc";
+mCl <- llvm_load_module "../build/c_cell_prop_law.bc";
+mLl <- llvm_load_module "../build/l_cell_prop_law.bc";
+
+let prop_spec = do {
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  e1 <- llvm_fresh_var "e1_fail" (llvm_int 32);
+  e2 <- llvm_fresh_var "e2_fail" (llvm_int 32);
+  e3 <- llvm_fresh_var "e3_fail" (llvm_int 32);
+  ew1 <- llvm_fresh_var "ew1_fail" (llvm_int 32);
+  ew2 <- llvm_fresh_var "ew2_fail" (llvm_int 32);
+  r1 <- llvm_fresh_var "err1" (llvm_int 32);
+  r2 <- llvm_fresh_var "err2" (llvm_int 32);
+  r3 <- llvm_fresh_var "err3" (llvm_int 32);
+  rw1 <- llvm_fresh_var "errw1" (llvm_int 32);
+  rw2 <- llvm_fresh_var "errw2" (llvm_int 32);
+  spk_truth <- llvm_fresh_var "spk_truth" (llvm_int 32);
+  redeem_truth <- llvm_fresh_var "redeem_truth" (llvm_int 32);
+  bare <- llvm_fresh_var "bare_witness" (llvm_int 32);
+  p2shpath <- llvm_fresh_var "p2sh_path" (llvm_int 32);
+  redeemit <- llvm_fresh_var "p2sh_redeem_witness" (llvm_int 32);
+  cs_ok <- llvm_fresh_var "cleanstack_ok" (llvm_int 32);
+  wu <- llvm_fresh_var "witness_unexpected" (llvm_int 32);
+  llvm_execute_func [llvm_term flags,
+                     llvm_term e1, llvm_term e2, llvm_term e3,
+                     llvm_term ew1, llvm_term ew2,
+                     llvm_term r1, llvm_term r2, llvm_term r3,
+                     llvm_term rw1, llvm_term rw2,
+                     llvm_term spk_truth, llvm_term redeem_truth,
+                     llvm_term bare, llvm_term p2shpath, llvm_term redeemit,
+                     llvm_term cs_ok, llvm_term wu];
+  llvm_return (llvm_term {{ fail_prop flags e1 e2 e3 ew1 ew2
+                                       r1 r2 r3 rw1 rw2
+                                       spk_truth redeem_truth
+                                       bare p2shpath redeemit cs_ok wu }});
+};
+
+let law_spec = do {
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  e1 <- llvm_fresh_var "e1_fail" (llvm_int 32);
+  e2 <- llvm_fresh_var "e2_fail" (llvm_int 32);
+  e3 <- llvm_fresh_var "e3_fail" (llvm_int 32);
+  ew1 <- llvm_fresh_var "ew1_fail" (llvm_int 32);
+  ew2 <- llvm_fresh_var "ew2_fail" (llvm_int 32);
+  r1 <- llvm_fresh_var "err1" (llvm_int 32);
+  r2 <- llvm_fresh_var "err2" (llvm_int 32);
+  r3 <- llvm_fresh_var "err3" (llvm_int 32);
+  rw1 <- llvm_fresh_var "errw1" (llvm_int 32);
+  rw2 <- llvm_fresh_var "errw2" (llvm_int 32);
+  spk_truth <- llvm_fresh_var "spk_truth" (llvm_int 32);
+  redeem_truth <- llvm_fresh_var "redeem_truth" (llvm_int 32);
+  bare <- llvm_fresh_var "bare_witness" (llvm_int 32);
+  p2shpath <- llvm_fresh_var "p2sh_path" (llvm_int 32);
+  redeemit <- llvm_fresh_var "p2sh_redeem_witness" (llvm_int 32);
+  cs_ok <- llvm_fresh_var "cleanstack_ok" (llvm_int 32);
+  wu <- llvm_fresh_var "witness_unexpected" (llvm_int 32);
+  llvm_execute_func [llvm_term flags,
+                     llvm_term e1, llvm_term e2, llvm_term e3,
+                     llvm_term ew1, llvm_term ew2,
+                     llvm_term r1, llvm_term r2, llvm_term r3,
+                     llvm_term rw1, llvm_term rw2,
+                     llvm_term spk_truth, llvm_term redeem_truth,
+                     llvm_term bare, llvm_term p2shpath, llvm_term redeemit,
+                     llvm_term cs_ok, llvm_term wu];
+  llvm_return (llvm_term {{ (1 : [32]) }});
+};
+
+llvm_verify mCp "cell_fail_prop" [] false prop_spec z3;
+llvm_verify mLp "cell_fail_prop" [] false prop_spec z3;
+llvm_verify mCl "cell_prop_law" [] false law_spec z3;
+llvm_verify mLl "cell_prop_law" [] false law_spec z3;
+print "CELL_fail_propagation_SAW_GREEN";
