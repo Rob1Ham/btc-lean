@@ -1,0 +1,3202 @@
+# cell: C-L-w64-tap-codesep-byteseq
+# lane: alive2 (symbolic, bidirectional, bounded six-byte script)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# smt-to: 180000 ms
+# domain: six symbolic script bytes + symbolic fExec mask; all GetOp forms
+# c loops: 0; l loops: 0
+# command: alive-tv --fail-src-ub --smt-to=180000 --bidirectional build/c_cell_codesep_byteseq.ll build/l_cell_codesep_byteseq.ll
+
+----------------------------------------
+define i64 @cell_codesep_byteseq(i8 noundef zeroext %s0, i8 noundef zeroext %s1, i8 noundef zeroext %s2, i8 noundef zeroext %s3, i8 noundef zeroext %s4, i8 noundef zeroext %s5, i32 noundef %mask) nofree willreturn memory(none) {
+entry:
+  %cmp1.i415 = icmp ult i8 noundef zeroext %s0, 79
+  br i1 %cmp1.i415, label %if.then2.i418, label %_ZL5getopPKhjRjS1_.exit451
+
+if.then2.i418:
+  %retval.0.i464 = zext nneg i8 noundef zeroext %s0 to i32
+  %cmp3.i419 = icmp ult i8 noundef zeroext %s0, 76
+  br i1 %cmp3.i419, label %if.end46.i427, label %if.else.i420
+
+if.else.i420:
+  %retval.0.i455 = zext i8 noundef zeroext %s1 to i32
+  switch i8 noundef zeroext %s0, label %if.else24.i439 [
+    i8 76, label %if.end46.i427
+    i8 77, label %if.then14.i421
+  ]
+
+if.else24.i439:
+  %retval.0.i453 = zext i8 noundef zeroext %s2 to i32
+  %shl33.i443 = shl nsw nuw i32 %retval.0.i453, 8
+  %retval.0.i452 = zext i8 noundef zeroext %s3 to i32
+  %shl37.i446 = shl nsw nuw i32 %retval.0.i452, 16
+  %#0 = or disjoint i32 %shl33.i443, %shl37.i446
+  %retval.0.i = zext i8 noundef zeroext %s4 to i32
+  %shl41.i449 = shl nuw i32 %retval.0.i, 24
+  %#1 = or disjoint i32 %#0, %shl41.i449
+  %or42.i450 = or disjoint i32 %#1, %retval.0.i455
+  br label %if.end46.i427
+
+if.then14.i421:
+  %retval.0.i460 = zext i8 noundef zeroext %s2 to i32
+  %shl.i425 = shl nsw nuw i32 %retval.0.i460, 8
+  %or.i426 = or disjoint i32 %shl.i425, %retval.0.i455
+  br label %if.end46.i427
+
+if.end46.i427:
+  %size.0.i428 = phi i32 [ %or.i426, %if.then14.i421 ], [ %or42.i450, %if.else24.i439 ], [ %retval.0.i464, %if.then2.i418 ], [ %retval.0.i455, %if.else.i420 ]
+  %p.0.i429 = phi i32 [ 3, %if.then14.i421 ], [ 5, %if.else24.i439 ], [ 1, %if.then2.i418 ], [ 2, %if.else.i420 ]
+  %conv47.i430 = zext nneg i32 %p.0.i429 to i64
+  %conv48.i431 = zext i32 %size.0.i428 to i64
+  %add49.i432 = add nsw nuw i64 %conv47.i430, %conv48.i431
+  %cmp50.i433 = icmp samesign ult i64 %add49.i432, 7
+  %add53.i435 = add i32 %p.0.i429, %size.0.i428
+  %spec.select1421 = select i1 %cmp50.i433, i32 %add53.i435, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit451
+
+_ZL5getopPKhjRjS1_.exit451:
+  %nx.0 = phi i32 [ %spec.select1421, %if.end46.i427 ], [ 1, %entry ]
+  %retval.1.i417 = phi i1 [ %cmp50.i433, %if.end46.i427 ], [ 1, %entry ]
+  br i1 %retval.1.i417, label %if.else, label %if.end10
+
+if.else:
+  %and = and i32 noundef %mask, 1
+  %cmp6 = icmp eq i32 %and, 0
+  %cmp8 = icmp ne i8 noundef zeroext %s0, 171
+  %or.cond147.not = or i1 %cmp8, %cmp6
+  %spec.select = select i1 %or.cond147.not, i32 0, i32 %nx.0
+  %spec.select203 = sext i1 %or.cond147.not to i32
+  br label %if.end10
+
+if.end10:
+  %opcodeIndex.0 = phi i32 [ 1, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit451 ]
+  %codeSep.1 = phi i32 [ %spec.select, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit451 ]
+  %codeSepPos.1 = phi i32 [ %spec.select203, %if.else ], [ 4294967295, %_ZL5getopPKhjRjS1_.exit451 ]
+  %bad.0 = phi i32 [ 0, %if.else ], [ 1, %_ZL5getopPKhjRjS1_.exit451 ]
+  %pc.0 = phi i32 [ %nx.0, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit451 ]
+  %cmp15 = icmp ult i32 %pc.0, 6
+  %or.cond148 = select i1 %retval.1.i417, i1 %cmp15, i1 0
+  br i1 %or.cond148, label %if.then16, label %do.body35
+
+if.then16:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit596 [
+    i32 0, label %if.then.i595
+    i32 1, label %if.then2.i593
+    i32 2, label %if.then7.i591
+    i32 3, label %if.then12.i589
+    i32 4, label %if.then17.i587
+    i32 5, label %if.then22.i585
+  ]
+
+if.then.i595:
+  br label %_ZL3batPKhj.exit596
+
+if.then2.i593:
+  br label %_ZL3batPKhj.exit596
+
+if.then7.i591:
+  br label %_ZL3batPKhj.exit596
+
+if.then12.i589:
+  br label %_ZL3batPKhj.exit596
+
+if.then17.i587:
+  br label %_ZL3batPKhj.exit596
+
+if.then22.i585:
+  br label %_ZL3batPKhj.exit596
+
+_ZL3batPKhj.exit596:
+  %retval.0.shrunk.i581 = phi i8 [ noundef zeroext %s0, %if.then.i595 ], [ noundef zeroext %s1, %if.then2.i593 ], [ noundef zeroext %s2, %if.then7.i591 ], [ noundef zeroext %s3, %if.then12.i589 ], [ noundef zeroext %s4, %if.then17.i587 ], [ noundef zeroext %s5, %if.then22.i585 ], [ 0, %if.then16 ]
+  %cmp1.i365 = icmp ult i8 %retval.0.shrunk.i581, 79
+  br i1 %cmp1.i365, label %if.then2.i369, label %if.end55.i366
+
+if.then2.i369:
+  %retval.0.i582 = zext nneg i8 %retval.0.shrunk.i581 to i32
+  %add.i370 = add nsw nuw i32 %pc.0, 1
+  %cmp3.i371 = icmp ult i8 %retval.0.shrunk.i581, 76
+  br i1 %cmp3.i371, label %if.end46.i382, label %if.else.i372
+
+if.else.i372:
+  switch i8 %retval.0.shrunk.i581, label %if.else24.i396 [
+    i8 76, label %if.then6.i391
+    i8 77, label %if.then14.i373
+  ]
+
+if.else24.i396:
+  %cmp27.i397 = icmp samesign ugt i32 %pc.0, 1
+  br i1 %cmp27.i397, label %_ZL5getopPKhjRjS1_.exit413, label %if.end29.i398
+
+if.end29.i398:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit524 [
+    i32 4294967295, label %if.then.i523
+    i32 0, label %if.then2.i521
+    i32 1, label %if.then7.i519
+    i32 2, label %if.then12.i517
+    i32 3, label %if.then17.i515
+    i32 4, label %if.then22.i513
+  ]
+
+if.then.i523:
+  br label %_ZL3batPKhj.exit524
+
+if.then2.i521:
+  br label %_ZL3batPKhj.exit524
+
+if.then7.i519:
+  br label %_ZL3batPKhj.exit524
+
+if.then12.i517:
+  br label %_ZL3batPKhj.exit524
+
+if.then17.i515:
+  br label %_ZL3batPKhj.exit524
+
+if.then22.i513:
+  br label %_ZL3batPKhj.exit524
+
+_ZL3batPKhj.exit524:
+  %retval.0.shrunk.i509 = phi i8 [ noundef zeroext %s0, %if.then.i523 ], [ noundef zeroext %s1, %if.then2.i521 ], [ noundef zeroext %s2, %if.then7.i519 ], [ noundef zeroext %s3, %if.then12.i517 ], [ noundef zeroext %s4, %if.then17.i515 ], [ noundef zeroext %s5, %if.then22.i513 ], [ 0, %if.end29.i398 ]
+  %retval.0.i510 = zext i8 %retval.0.shrunk.i509 to i32
+  %add31.i400 = or disjoint i32 %pc.0, 2
+  switch i32 %add31.i400, label %_ZL3batPKhj.exit506 [
+    i32 3, label %if.then12.i499
+    i32 2, label %if.then7.i501
+  ]
+
+if.then12.i499:
+  br label %_ZL3batPKhj.exit506
+
+if.then7.i501:
+  br label %_ZL3batPKhj.exit506
+
+_ZL3batPKhj.exit506:
+  %retval.0.shrunk.i491 = phi i8 [ noundef zeroext %s2, %if.then7.i501 ], [ noundef zeroext %s3, %if.then12.i499 ], [ 0, %_ZL3batPKhj.exit524 ]
+  %retval.0.i492 = zext i8 %retval.0.shrunk.i491 to i32
+  %shl33.i402 = shl nsw nuw i32 %retval.0.i492, 8
+  %or34.i403 = or disjoint i32 %shl33.i402, %retval.0.i510
+  switch i32 %pc.0, label %_ZL3batPKhj.exit488 [
+    i32 4294967293, label %if.then.i487
+    i32 4294967294, label %if.then2.i485
+    i32 4294967295, label %if.then7.i483
+    i32 0, label %if.then12.i481
+    i32 1, label %if.then17.i479
+    i32 2, label %if.then22.i477
+  ]
+
+if.then.i487:
+  br label %_ZL3batPKhj.exit488
+
+if.then2.i485:
+  br label %_ZL3batPKhj.exit488
+
+if.then7.i483:
+  br label %_ZL3batPKhj.exit488
+
+if.then12.i481:
+  br label %_ZL3batPKhj.exit488
+
+if.then17.i479:
+  br label %_ZL3batPKhj.exit488
+
+if.then22.i477:
+  br label %_ZL3batPKhj.exit488
+
+_ZL3batPKhj.exit488:
+  %retval.0.shrunk.i473 = phi i8 [ noundef zeroext %s0, %if.then.i487 ], [ noundef zeroext %s1, %if.then2.i485 ], [ noundef zeroext %s2, %if.then7.i483 ], [ noundef zeroext %s3, %if.then12.i481 ], [ noundef zeroext %s4, %if.then17.i479 ], [ noundef zeroext %s5, %if.then22.i477 ], [ 0, %_ZL3batPKhj.exit506 ]
+  %retval.0.i474 = zext i8 %retval.0.shrunk.i473 to i32
+  %shl37.i406 = shl nsw nuw i32 %retval.0.i474, 16
+  %or38.i407 = or disjoint i32 %shl37.i406, %or34.i403
+  %add39.i408 = or disjoint i32 %pc.0, 4
+  switch i32 %add39.i408, label %_ZL3batPKhj.exit [
+    i32 4, label %if.then17.i
+    i32 5, label %if.then22.i
+  ]
+
+if.then17.i:
+  br label %_ZL3batPKhj.exit
+
+if.then22.i:
+  br label %_ZL3batPKhj.exit
+
+_ZL3batPKhj.exit:
+  %retval.0.shrunk.i = phi i8 [ noundef zeroext %s4, %if.then17.i ], [ noundef zeroext %s5, %if.then22.i ], [ 0, %_ZL3batPKhj.exit488 ]
+  %retval.0.i465 = zext i8 %retval.0.shrunk.i to i32
+  %shl41.i410 = shl nuw i32 %retval.0.i465, 24
+  %or42.i411 = or disjoint i32 %shl41.i410, %or38.i407
+  %add43.i412 = add nsw nuw i32 %pc.0, 5
+  br label %if.end46.i382
+
+if.then6.i391:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit542 [
+    i32 5, label %_ZL5getopPKhjRjS1_.exit413
+    i32 4294967295, label %if.then.i541
+    i32 0, label %if.then2.i539
+    i32 1, label %if.then7.i537
+    i32 2, label %if.then12.i535
+    i32 3, label %if.then17.i533
+    i32 4, label %if.then22.i531
+  ]
+
+if.then.i541:
+  br label %_ZL3batPKhj.exit542
+
+if.then2.i539:
+  br label %_ZL3batPKhj.exit542
+
+if.then7.i537:
+  br label %_ZL3batPKhj.exit542
+
+if.then12.i535:
+  br label %_ZL3batPKhj.exit542
+
+if.then17.i533:
+  br label %_ZL3batPKhj.exit542
+
+if.then22.i531:
+  br label %_ZL3batPKhj.exit542
+
+_ZL3batPKhj.exit542:
+  %retval.0.shrunk.i527 = phi i8 [ noundef zeroext %s0, %if.then.i541 ], [ noundef zeroext %s1, %if.then2.i539 ], [ noundef zeroext %s2, %if.then7.i537 ], [ noundef zeroext %s3, %if.then12.i535 ], [ noundef zeroext %s4, %if.then17.i533 ], [ noundef zeroext %s5, %if.then22.i531 ], [ 0, %if.then6.i391 ]
+  %retval.0.i528 = zext i8 %retval.0.shrunk.i527 to i32
+  %add11.i395 = add nsw nuw i32 %pc.0, 2
+  br label %if.end46.i382
+
+if.then14.i373:
+  %cmp17.i374 = icmp samesign ugt i32 %pc.0, 3
+  br i1 %cmp17.i374, label %_ZL5getopPKhjRjS1_.exit413, label %if.end19.i375
+
+if.end19.i375:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit578 [
+    i32 4294967295, label %if.then.i577
+    i32 0, label %if.then2.i575
+    i32 1, label %if.then7.i573
+    i32 2, label %if.then12.i571
+    i32 3, label %if.then17.i569
+    i32 4, label %if.then22.i567
+  ]
+
+if.then.i577:
+  br label %_ZL3batPKhj.exit578
+
+if.then2.i575:
+  br label %_ZL3batPKhj.exit578
+
+if.then7.i573:
+  br label %_ZL3batPKhj.exit578
+
+if.then12.i571:
+  br label %_ZL3batPKhj.exit578
+
+if.then17.i569:
+  br label %_ZL3batPKhj.exit578
+
+if.then22.i567:
+  br label %_ZL3batPKhj.exit578
+
+_ZL3batPKhj.exit578:
+  %retval.0.shrunk.i563 = phi i8 [ noundef zeroext %s0, %if.then.i577 ], [ noundef zeroext %s1, %if.then2.i575 ], [ noundef zeroext %s2, %if.then7.i573 ], [ noundef zeroext %s3, %if.then12.i571 ], [ noundef zeroext %s4, %if.then17.i569 ], [ noundef zeroext %s5, %if.then22.i567 ], [ 0, %if.end19.i375 ]
+  %retval.0.i564 = zext i8 %retval.0.shrunk.i563 to i32
+  switch i32 %pc.0, label %_ZL3batPKhj.exit560 [
+    i32 4294967294, label %if.then.i559
+    i32 4294967295, label %if.then2.i557
+    i32 0, label %if.then7.i555
+    i32 1, label %if.then12.i553
+    i32 2, label %if.then17.i551
+    i32 3, label %if.then22.i549
+  ]
+
+if.then.i559:
+  br label %_ZL3batPKhj.exit560
+
+if.then2.i557:
+  br label %_ZL3batPKhj.exit560
+
+if.then7.i555:
+  br label %_ZL3batPKhj.exit560
+
+if.then12.i553:
+  br label %_ZL3batPKhj.exit560
+
+if.then17.i551:
+  br label %_ZL3batPKhj.exit560
+
+if.then22.i549:
+  br label %_ZL3batPKhj.exit560
+
+_ZL3batPKhj.exit560:
+  %retval.0.shrunk.i545 = phi i8 [ noundef zeroext %s0, %if.then.i559 ], [ noundef zeroext %s1, %if.then2.i557 ], [ noundef zeroext %s2, %if.then7.i555 ], [ noundef zeroext %s3, %if.then12.i553 ], [ noundef zeroext %s4, %if.then17.i551 ], [ noundef zeroext %s5, %if.then22.i549 ], [ 0, %_ZL3batPKhj.exit578 ]
+  %retval.0.i546 = zext i8 %retval.0.shrunk.i545 to i32
+  %shl.i379 = shl nsw nuw i32 %retval.0.i546, 8
+  %or.i380 = or disjoint i32 %shl.i379, %retval.0.i564
+  %add23.i381 = add nsw nuw i32 %pc.0, 3
+  br label %if.end46.i382
+
+if.end46.i382:
+  %size.0.i383 = phi i32 [ %retval.0.i528, %_ZL3batPKhj.exit542 ], [ %or.i380, %_ZL3batPKhj.exit560 ], [ %or42.i411, %_ZL3batPKhj.exit ], [ %retval.0.i582, %if.then2.i369 ]
+  %p.0.i384 = phi i32 [ %add11.i395, %_ZL3batPKhj.exit542 ], [ %add23.i381, %_ZL3batPKhj.exit560 ], [ %add43.i412, %_ZL3batPKhj.exit ], [ %add.i370, %if.then2.i369 ]
+  %conv47.i385 = zext nneg i32 %p.0.i384 to i64
+  %conv48.i386 = zext i32 %size.0.i383 to i64
+  %add49.i387 = add nsw nuw i64 %conv47.i385, %conv48.i386
+  %cmp50.i388 = icmp samesign ult i64 %add49.i387, 7
+  %add53.i390 = add i32 %p.0.i384, %size.0.i383
+  %spec.select1423 = select i1 %cmp50.i388, i32 %add53.i390, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit413
+
+if.end55.i366:
+  %add56.i367 = add nsw nuw i32 %pc.0, 1
+  br label %_ZL5getopPKhjRjS1_.exit413
+
+_ZL5getopPKhjRjS1_.exit413:
+  %nx18.0 = phi i32 [ 0, %if.else24.i396 ], [ 0, %if.then14.i373 ], [ 0, %if.then6.i391 ], [ %add56.i367, %if.end55.i366 ], [ %spec.select1423, %if.end46.i382 ]
+  %retval.1.i368 = phi i1 [ 0, %if.else24.i396 ], [ 0, %if.then14.i373 ], [ 0, %if.then6.i391 ], [ 1, %if.end55.i366 ], [ %cmp50.i388, %if.end46.i382 ]
+  br i1 %retval.1.i368, label %if.else22, label %do.body35
+
+if.else22:
+  %#2 = shl nsw nuw i32 1, %opcodeIndex.0
+  %#3 = and i32 %#2, noundef %mask
+  %cmp25 = icmp ne i32 %#3, 0
+  %cmp27 = icmp eq i8 %retval.0.shrunk.i581, 171
+  %or.cond149 = and i1 %cmp25, %cmp27
+  %spec.select204 = select i1 %or.cond149, i32 %nx18.0, i32 %codeSep.1
+  %spec.select205 = select i1 %or.cond149, i32 %opcodeIndex.0, i32 %codeSepPos.1
+  %add30 = add nsw nuw i32 %opcodeIndex.0, 1
+  br label %do.body35
+
+do.body35:
+  %opcodeIndex.3 = phi i32 [ %opcodeIndex.0, %if.end10 ], [ %add30, %if.else22 ], [ %opcodeIndex.0, %_ZL5getopPKhjRjS1_.exit413 ]
+  %codeSep.5 = phi i32 [ %codeSep.1, %if.end10 ], [ %spec.select204, %if.else22 ], [ %codeSep.1, %_ZL5getopPKhjRjS1_.exit413 ]
+  %codeSepPos.5 = phi i32 [ %codeSepPos.1, %if.end10 ], [ %spec.select205, %if.else22 ], [ %codeSepPos.1, %_ZL5getopPKhjRjS1_.exit413 ]
+  %bad.3 = phi i32 [ %bad.0, %if.end10 ], [ 0, %if.else22 ], [ 1, %_ZL5getopPKhjRjS1_.exit413 ]
+  %pc.3 = phi i32 [ %pc.0, %if.end10 ], [ %nx18.0, %if.else22 ], [ %pc.0, %_ZL5getopPKhjRjS1_.exit413 ]
+  %tobool36 = icmp eq i32 %bad.3, 0
+  %cmp38 = icmp ult i32 %pc.3, 6
+  %or.cond150 = select i1 %tobool36, i1 %cmp38, i1 0
+  br i1 %or.cond150, label %if.then39, label %do.body58
+
+if.then39:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit740 [
+    i32 0, label %if.then.i739
+    i32 1, label %if.then2.i737
+    i32 2, label %if.then7.i735
+    i32 3, label %if.then12.i733
+    i32 4, label %if.then17.i731
+    i32 5, label %if.then22.i729
+  ]
+
+if.then.i739:
+  br label %_ZL3batPKhj.exit740
+
+if.then2.i737:
+  br label %_ZL3batPKhj.exit740
+
+if.then7.i735:
+  br label %_ZL3batPKhj.exit740
+
+if.then12.i733:
+  br label %_ZL3batPKhj.exit740
+
+if.then17.i731:
+  br label %_ZL3batPKhj.exit740
+
+if.then22.i729:
+  br label %_ZL3batPKhj.exit740
+
+_ZL3batPKhj.exit740:
+  %retval.0.shrunk.i725 = phi i8 [ noundef zeroext %s0, %if.then.i739 ], [ noundef zeroext %s1, %if.then2.i737 ], [ noundef zeroext %s2, %if.then7.i735 ], [ noundef zeroext %s3, %if.then12.i733 ], [ noundef zeroext %s4, %if.then17.i731 ], [ noundef zeroext %s5, %if.then22.i729 ], [ 0, %if.then39 ]
+  %cmp1.i315 = icmp ult i8 %retval.0.shrunk.i725, 79
+  br i1 %cmp1.i315, label %if.then2.i319, label %if.end55.i316
+
+if.then2.i319:
+  %retval.0.i726 = zext nneg i8 %retval.0.shrunk.i725 to i32
+  %add.i320 = add nsw nuw i32 %pc.3, 1
+  %cmp3.i321 = icmp ult i8 %retval.0.shrunk.i725, 76
+  br i1 %cmp3.i321, label %if.end46.i332, label %if.else.i322
+
+if.else.i322:
+  switch i8 %retval.0.shrunk.i725, label %if.else24.i346 [
+    i8 76, label %if.then6.i341
+    i8 77, label %if.then14.i323
+  ]
+
+if.else24.i346:
+  %cmp27.i347 = icmp samesign ugt i32 %pc.3, 1
+  br i1 %cmp27.i347, label %_ZL5getopPKhjRjS1_.exit363, label %if.end29.i348
+
+if.end29.i348:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit668 [
+    i32 4294967295, label %if.then.i667
+    i32 0, label %if.then2.i665
+    i32 1, label %if.then7.i663
+    i32 2, label %if.then12.i661
+    i32 3, label %if.then17.i659
+    i32 4, label %if.then22.i657
+  ]
+
+if.then.i667:
+  br label %_ZL3batPKhj.exit668
+
+if.then2.i665:
+  br label %_ZL3batPKhj.exit668
+
+if.then7.i663:
+  br label %_ZL3batPKhj.exit668
+
+if.then12.i661:
+  br label %_ZL3batPKhj.exit668
+
+if.then17.i659:
+  br label %_ZL3batPKhj.exit668
+
+if.then22.i657:
+  br label %_ZL3batPKhj.exit668
+
+_ZL3batPKhj.exit668:
+  %retval.0.shrunk.i653 = phi i8 [ noundef zeroext %s0, %if.then.i667 ], [ noundef zeroext %s1, %if.then2.i665 ], [ noundef zeroext %s2, %if.then7.i663 ], [ noundef zeroext %s3, %if.then12.i661 ], [ noundef zeroext %s4, %if.then17.i659 ], [ noundef zeroext %s5, %if.then22.i657 ], [ 0, %if.end29.i348 ]
+  %retval.0.i654 = zext i8 %retval.0.shrunk.i653 to i32
+  %add31.i350 = or disjoint i32 %pc.3, 2
+  switch i32 %add31.i350, label %_ZL3batPKhj.exit650 [
+    i32 3, label %if.then12.i643
+    i32 2, label %if.then7.i645
+  ]
+
+if.then12.i643:
+  br label %_ZL3batPKhj.exit650
+
+if.then7.i645:
+  br label %_ZL3batPKhj.exit650
+
+_ZL3batPKhj.exit650:
+  %retval.0.shrunk.i635 = phi i8 [ noundef zeroext %s2, %if.then7.i645 ], [ noundef zeroext %s3, %if.then12.i643 ], [ 0, %_ZL3batPKhj.exit668 ]
+  %retval.0.i636 = zext i8 %retval.0.shrunk.i635 to i32
+  %shl33.i352 = shl nsw nuw i32 %retval.0.i636, 8
+  %or34.i353 = or disjoint i32 %shl33.i352, %retval.0.i654
+  switch i32 %pc.3, label %_ZL3batPKhj.exit632 [
+    i32 4294967293, label %if.then.i631
+    i32 4294967294, label %if.then2.i629
+    i32 4294967295, label %if.then7.i627
+    i32 0, label %if.then12.i625
+    i32 1, label %if.then17.i623
+    i32 2, label %if.then22.i621
+  ]
+
+if.then.i631:
+  br label %_ZL3batPKhj.exit632
+
+if.then2.i629:
+  br label %_ZL3batPKhj.exit632
+
+if.then7.i627:
+  br label %_ZL3batPKhj.exit632
+
+if.then12.i625:
+  br label %_ZL3batPKhj.exit632
+
+if.then17.i623:
+  br label %_ZL3batPKhj.exit632
+
+if.then22.i621:
+  br label %_ZL3batPKhj.exit632
+
+_ZL3batPKhj.exit632:
+  %retval.0.shrunk.i617 = phi i8 [ noundef zeroext %s0, %if.then.i631 ], [ noundef zeroext %s1, %if.then2.i629 ], [ noundef zeroext %s2, %if.then7.i627 ], [ noundef zeroext %s3, %if.then12.i625 ], [ noundef zeroext %s4, %if.then17.i623 ], [ noundef zeroext %s5, %if.then22.i621 ], [ 0, %_ZL3batPKhj.exit650 ]
+  %retval.0.i618 = zext i8 %retval.0.shrunk.i617 to i32
+  %shl37.i356 = shl nsw nuw i32 %retval.0.i618, 16
+  %or38.i357 = or disjoint i32 %shl37.i356, %or34.i353
+  %add39.i358 = or disjoint i32 %pc.3, 4
+  switch i32 %add39.i358, label %_ZL3batPKhj.exit614 [
+    i32 4, label %if.then17.i605
+    i32 5, label %if.then22.i603
+  ]
+
+if.then17.i605:
+  br label %_ZL3batPKhj.exit614
+
+if.then22.i603:
+  br label %_ZL3batPKhj.exit614
+
+_ZL3batPKhj.exit614:
+  %retval.0.shrunk.i599 = phi i8 [ noundef zeroext %s4, %if.then17.i605 ], [ noundef zeroext %s5, %if.then22.i603 ], [ 0, %_ZL3batPKhj.exit632 ]
+  %retval.0.i600 = zext i8 %retval.0.shrunk.i599 to i32
+  %shl41.i360 = shl nuw i32 %retval.0.i600, 24
+  %or42.i361 = or disjoint i32 %shl41.i360, %or38.i357
+  %add43.i362 = add nsw nuw i32 %pc.3, 5
+  br label %if.end46.i332
+
+if.then6.i341:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit686 [
+    i32 5, label %_ZL5getopPKhjRjS1_.exit363
+    i32 4294967295, label %if.then.i685
+    i32 0, label %if.then2.i683
+    i32 1, label %if.then7.i681
+    i32 2, label %if.then12.i679
+    i32 3, label %if.then17.i677
+    i32 4, label %if.then22.i675
+  ]
+
+if.then.i685:
+  br label %_ZL3batPKhj.exit686
+
+if.then2.i683:
+  br label %_ZL3batPKhj.exit686
+
+if.then7.i681:
+  br label %_ZL3batPKhj.exit686
+
+if.then12.i679:
+  br label %_ZL3batPKhj.exit686
+
+if.then17.i677:
+  br label %_ZL3batPKhj.exit686
+
+if.then22.i675:
+  br label %_ZL3batPKhj.exit686
+
+_ZL3batPKhj.exit686:
+  %retval.0.shrunk.i671 = phi i8 [ noundef zeroext %s0, %if.then.i685 ], [ noundef zeroext %s1, %if.then2.i683 ], [ noundef zeroext %s2, %if.then7.i681 ], [ noundef zeroext %s3, %if.then12.i679 ], [ noundef zeroext %s4, %if.then17.i677 ], [ noundef zeroext %s5, %if.then22.i675 ], [ 0, %if.then6.i341 ]
+  %retval.0.i672 = zext i8 %retval.0.shrunk.i671 to i32
+  %add11.i345 = add nsw nuw i32 %pc.3, 2
+  br label %if.end46.i332
+
+if.then14.i323:
+  %cmp17.i324 = icmp samesign ugt i32 %pc.3, 3
+  br i1 %cmp17.i324, label %_ZL5getopPKhjRjS1_.exit363, label %if.end19.i325
+
+if.end19.i325:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit722 [
+    i32 4294967295, label %if.then.i721
+    i32 0, label %if.then2.i719
+    i32 1, label %if.then7.i717
+    i32 2, label %if.then12.i715
+    i32 3, label %if.then17.i713
+    i32 4, label %if.then22.i711
+  ]
+
+if.then.i721:
+  br label %_ZL3batPKhj.exit722
+
+if.then2.i719:
+  br label %_ZL3batPKhj.exit722
+
+if.then7.i717:
+  br label %_ZL3batPKhj.exit722
+
+if.then12.i715:
+  br label %_ZL3batPKhj.exit722
+
+if.then17.i713:
+  br label %_ZL3batPKhj.exit722
+
+if.then22.i711:
+  br label %_ZL3batPKhj.exit722
+
+_ZL3batPKhj.exit722:
+  %retval.0.shrunk.i707 = phi i8 [ noundef zeroext %s0, %if.then.i721 ], [ noundef zeroext %s1, %if.then2.i719 ], [ noundef zeroext %s2, %if.then7.i717 ], [ noundef zeroext %s3, %if.then12.i715 ], [ noundef zeroext %s4, %if.then17.i713 ], [ noundef zeroext %s5, %if.then22.i711 ], [ 0, %if.end19.i325 ]
+  %retval.0.i708 = zext i8 %retval.0.shrunk.i707 to i32
+  switch i32 %pc.3, label %_ZL3batPKhj.exit704 [
+    i32 4294967294, label %if.then.i703
+    i32 4294967295, label %if.then2.i701
+    i32 0, label %if.then7.i699
+    i32 1, label %if.then12.i697
+    i32 2, label %if.then17.i695
+    i32 3, label %if.then22.i693
+  ]
+
+if.then.i703:
+  br label %_ZL3batPKhj.exit704
+
+if.then2.i701:
+  br label %_ZL3batPKhj.exit704
+
+if.then7.i699:
+  br label %_ZL3batPKhj.exit704
+
+if.then12.i697:
+  br label %_ZL3batPKhj.exit704
+
+if.then17.i695:
+  br label %_ZL3batPKhj.exit704
+
+if.then22.i693:
+  br label %_ZL3batPKhj.exit704
+
+_ZL3batPKhj.exit704:
+  %retval.0.shrunk.i689 = phi i8 [ noundef zeroext %s0, %if.then.i703 ], [ noundef zeroext %s1, %if.then2.i701 ], [ noundef zeroext %s2, %if.then7.i699 ], [ noundef zeroext %s3, %if.then12.i697 ], [ noundef zeroext %s4, %if.then17.i695 ], [ noundef zeroext %s5, %if.then22.i693 ], [ 0, %_ZL3batPKhj.exit722 ]
+  %retval.0.i690 = zext i8 %retval.0.shrunk.i689 to i32
+  %shl.i329 = shl nsw nuw i32 %retval.0.i690, 8
+  %or.i330 = or disjoint i32 %shl.i329, %retval.0.i708
+  %add23.i331 = add nsw nuw i32 %pc.3, 3
+  br label %if.end46.i332
+
+if.end46.i332:
+  %size.0.i333 = phi i32 [ %retval.0.i672, %_ZL3batPKhj.exit686 ], [ %or.i330, %_ZL3batPKhj.exit704 ], [ %or42.i361, %_ZL3batPKhj.exit614 ], [ %retval.0.i726, %if.then2.i319 ]
+  %p.0.i334 = phi i32 [ %add11.i345, %_ZL3batPKhj.exit686 ], [ %add23.i331, %_ZL3batPKhj.exit704 ], [ %add43.i362, %_ZL3batPKhj.exit614 ], [ %add.i320, %if.then2.i319 ]
+  %conv47.i335 = zext nneg i32 %p.0.i334 to i64
+  %conv48.i336 = zext i32 %size.0.i333 to i64
+  %add49.i337 = add nsw nuw i64 %conv47.i335, %conv48.i336
+  %cmp50.i338 = icmp samesign ult i64 %add49.i337, 7
+  %add53.i340 = add i32 %p.0.i334, %size.0.i333
+  %spec.select1425 = select i1 %cmp50.i338, i32 %add53.i340, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit363
+
+if.end55.i316:
+  %add56.i317 = add nsw nuw i32 %pc.3, 1
+  br label %_ZL5getopPKhjRjS1_.exit363
+
+_ZL5getopPKhjRjS1_.exit363:
+  %nx41.0 = phi i32 [ 0, %if.else24.i346 ], [ 0, %if.then14.i323 ], [ 0, %if.then6.i341 ], [ %add56.i317, %if.end55.i316 ], [ %spec.select1425, %if.end46.i332 ]
+  %retval.1.i318 = phi i1 [ 0, %if.else24.i346 ], [ 0, %if.then14.i323 ], [ 0, %if.then6.i341 ], [ 1, %if.end55.i316 ], [ %cmp50.i338, %if.end46.i332 ]
+  br i1 %retval.1.i318, label %if.else45, label %do.body58
+
+if.else45:
+  %#4 = shl nsw nuw i32 1, %opcodeIndex.3
+  %#5 = and i32 %#4, noundef %mask
+  %cmp48 = icmp ne i32 %#5, 0
+  %cmp50 = icmp eq i8 %retval.0.shrunk.i725, 171
+  %or.cond151 = and i1 %cmp48, %cmp50
+  %spec.select206 = select i1 %or.cond151, i32 %nx41.0, i32 %codeSep.5
+  %spec.select207 = select i1 %or.cond151, i32 %opcodeIndex.3, i32 %codeSepPos.5
+  %add53 = add nsw nuw i32 %opcodeIndex.3, 1
+  br label %do.body58
+
+do.body58:
+  %opcodeIndex.5 = phi i32 [ %opcodeIndex.3, %do.body35 ], [ %add53, %if.else45 ], [ %opcodeIndex.3, %_ZL5getopPKhjRjS1_.exit363 ]
+  %codeSep.8 = phi i32 [ %codeSep.5, %do.body35 ], [ %spec.select206, %if.else45 ], [ %codeSep.5, %_ZL5getopPKhjRjS1_.exit363 ]
+  %codeSepPos.8 = phi i32 [ %codeSepPos.5, %do.body35 ], [ %spec.select207, %if.else45 ], [ %codeSepPos.5, %_ZL5getopPKhjRjS1_.exit363 ]
+  %bad.5 = phi i32 [ %bad.3, %do.body35 ], [ 0, %if.else45 ], [ 1, %_ZL5getopPKhjRjS1_.exit363 ]
+  %pc.5 = phi i32 [ %pc.3, %do.body35 ], [ %nx41.0, %if.else45 ], [ %pc.3, %_ZL5getopPKhjRjS1_.exit363 ]
+  %tobool59 = icmp eq i32 %bad.5, 0
+  %cmp61 = icmp ult i32 %pc.5, 6
+  %or.cond152 = select i1 %tobool59, i1 %cmp61, i1 0
+  br i1 %or.cond152, label %if.then62, label %do.body81
+
+if.then62:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit884 [
+    i32 0, label %if.then.i883
+    i32 1, label %if.then2.i881
+    i32 2, label %if.then7.i879
+    i32 3, label %if.then12.i877
+    i32 4, label %if.then17.i875
+    i32 5, label %if.then22.i873
+  ]
+
+if.then.i883:
+  br label %_ZL3batPKhj.exit884
+
+if.then2.i881:
+  br label %_ZL3batPKhj.exit884
+
+if.then7.i879:
+  br label %_ZL3batPKhj.exit884
+
+if.then12.i877:
+  br label %_ZL3batPKhj.exit884
+
+if.then17.i875:
+  br label %_ZL3batPKhj.exit884
+
+if.then22.i873:
+  br label %_ZL3batPKhj.exit884
+
+_ZL3batPKhj.exit884:
+  %retval.0.shrunk.i869 = phi i8 [ noundef zeroext %s0, %if.then.i883 ], [ noundef zeroext %s1, %if.then2.i881 ], [ noundef zeroext %s2, %if.then7.i879 ], [ noundef zeroext %s3, %if.then12.i877 ], [ noundef zeroext %s4, %if.then17.i875 ], [ noundef zeroext %s5, %if.then22.i873 ], [ 0, %if.then62 ]
+  %cmp1.i265 = icmp ult i8 %retval.0.shrunk.i869, 79
+  br i1 %cmp1.i265, label %if.then2.i269, label %if.end55.i266
+
+if.then2.i269:
+  %retval.0.i870 = zext nneg i8 %retval.0.shrunk.i869 to i32
+  %add.i270 = add nsw nuw i32 %pc.5, 1
+  %cmp3.i271 = icmp ult i8 %retval.0.shrunk.i869, 76
+  br i1 %cmp3.i271, label %if.end46.i282, label %if.else.i272
+
+if.else.i272:
+  switch i8 %retval.0.shrunk.i869, label %if.else24.i296 [
+    i8 76, label %if.then6.i291
+    i8 77, label %if.then14.i273
+  ]
+
+if.else24.i296:
+  %cmp27.i297 = icmp samesign ugt i32 %pc.5, 1
+  br i1 %cmp27.i297, label %_ZL5getopPKhjRjS1_.exit313, label %if.end29.i298
+
+if.end29.i298:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit812 [
+    i32 4294967295, label %if.then.i811
+    i32 0, label %if.then2.i809
+    i32 1, label %if.then7.i807
+    i32 2, label %if.then12.i805
+    i32 3, label %if.then17.i803
+    i32 4, label %if.then22.i801
+  ]
+
+if.then.i811:
+  br label %_ZL3batPKhj.exit812
+
+if.then2.i809:
+  br label %_ZL3batPKhj.exit812
+
+if.then7.i807:
+  br label %_ZL3batPKhj.exit812
+
+if.then12.i805:
+  br label %_ZL3batPKhj.exit812
+
+if.then17.i803:
+  br label %_ZL3batPKhj.exit812
+
+if.then22.i801:
+  br label %_ZL3batPKhj.exit812
+
+_ZL3batPKhj.exit812:
+  %retval.0.shrunk.i797 = phi i8 [ noundef zeroext %s0, %if.then.i811 ], [ noundef zeroext %s1, %if.then2.i809 ], [ noundef zeroext %s2, %if.then7.i807 ], [ noundef zeroext %s3, %if.then12.i805 ], [ noundef zeroext %s4, %if.then17.i803 ], [ noundef zeroext %s5, %if.then22.i801 ], [ 0, %if.end29.i298 ]
+  %retval.0.i798 = zext i8 %retval.0.shrunk.i797 to i32
+  %add31.i300 = or disjoint i32 %pc.5, 2
+  switch i32 %add31.i300, label %_ZL3batPKhj.exit794 [
+    i32 3, label %if.then12.i787
+    i32 2, label %if.then7.i789
+  ]
+
+if.then12.i787:
+  br label %_ZL3batPKhj.exit794
+
+if.then7.i789:
+  br label %_ZL3batPKhj.exit794
+
+_ZL3batPKhj.exit794:
+  %retval.0.shrunk.i779 = phi i8 [ noundef zeroext %s2, %if.then7.i789 ], [ noundef zeroext %s3, %if.then12.i787 ], [ 0, %_ZL3batPKhj.exit812 ]
+  %retval.0.i780 = zext i8 %retval.0.shrunk.i779 to i32
+  %shl33.i302 = shl nsw nuw i32 %retval.0.i780, 8
+  %or34.i303 = or disjoint i32 %shl33.i302, %retval.0.i798
+  switch i32 %pc.5, label %_ZL3batPKhj.exit776 [
+    i32 4294967293, label %if.then.i775
+    i32 4294967294, label %if.then2.i773
+    i32 4294967295, label %if.then7.i771
+    i32 0, label %if.then12.i769
+    i32 1, label %if.then17.i767
+    i32 2, label %if.then22.i765
+  ]
+
+if.then.i775:
+  br label %_ZL3batPKhj.exit776
+
+if.then2.i773:
+  br label %_ZL3batPKhj.exit776
+
+if.then7.i771:
+  br label %_ZL3batPKhj.exit776
+
+if.then12.i769:
+  br label %_ZL3batPKhj.exit776
+
+if.then17.i767:
+  br label %_ZL3batPKhj.exit776
+
+if.then22.i765:
+  br label %_ZL3batPKhj.exit776
+
+_ZL3batPKhj.exit776:
+  %retval.0.shrunk.i761 = phi i8 [ noundef zeroext %s0, %if.then.i775 ], [ noundef zeroext %s1, %if.then2.i773 ], [ noundef zeroext %s2, %if.then7.i771 ], [ noundef zeroext %s3, %if.then12.i769 ], [ noundef zeroext %s4, %if.then17.i767 ], [ noundef zeroext %s5, %if.then22.i765 ], [ 0, %_ZL3batPKhj.exit794 ]
+  %retval.0.i762 = zext i8 %retval.0.shrunk.i761 to i32
+  %shl37.i306 = shl nsw nuw i32 %retval.0.i762, 16
+  %or38.i307 = or disjoint i32 %shl37.i306, %or34.i303
+  %add39.i308 = or disjoint i32 %pc.5, 4
+  switch i32 %add39.i308, label %_ZL3batPKhj.exit758 [
+    i32 4, label %if.then17.i749
+    i32 5, label %if.then22.i747
+  ]
+
+if.then17.i749:
+  br label %_ZL3batPKhj.exit758
+
+if.then22.i747:
+  br label %_ZL3batPKhj.exit758
+
+_ZL3batPKhj.exit758:
+  %retval.0.shrunk.i743 = phi i8 [ noundef zeroext %s4, %if.then17.i749 ], [ noundef zeroext %s5, %if.then22.i747 ], [ 0, %_ZL3batPKhj.exit776 ]
+  %retval.0.i744 = zext i8 %retval.0.shrunk.i743 to i32
+  %shl41.i310 = shl nuw i32 %retval.0.i744, 24
+  %or42.i311 = or disjoint i32 %shl41.i310, %or38.i307
+  %add43.i312 = add nsw nuw i32 %pc.5, 5
+  br label %if.end46.i282
+
+if.then6.i291:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit830 [
+    i32 5, label %_ZL5getopPKhjRjS1_.exit313
+    i32 4294967295, label %if.then.i829
+    i32 0, label %if.then2.i827
+    i32 1, label %if.then7.i825
+    i32 2, label %if.then12.i823
+    i32 3, label %if.then17.i821
+    i32 4, label %if.then22.i819
+  ]
+
+if.then.i829:
+  br label %_ZL3batPKhj.exit830
+
+if.then2.i827:
+  br label %_ZL3batPKhj.exit830
+
+if.then7.i825:
+  br label %_ZL3batPKhj.exit830
+
+if.then12.i823:
+  br label %_ZL3batPKhj.exit830
+
+if.then17.i821:
+  br label %_ZL3batPKhj.exit830
+
+if.then22.i819:
+  br label %_ZL3batPKhj.exit830
+
+_ZL3batPKhj.exit830:
+  %retval.0.shrunk.i815 = phi i8 [ noundef zeroext %s0, %if.then.i829 ], [ noundef zeroext %s1, %if.then2.i827 ], [ noundef zeroext %s2, %if.then7.i825 ], [ noundef zeroext %s3, %if.then12.i823 ], [ noundef zeroext %s4, %if.then17.i821 ], [ noundef zeroext %s5, %if.then22.i819 ], [ 0, %if.then6.i291 ]
+  %retval.0.i816 = zext i8 %retval.0.shrunk.i815 to i32
+  %add11.i295 = add nsw nuw i32 %pc.5, 2
+  br label %if.end46.i282
+
+if.then14.i273:
+  %cmp17.i274 = icmp samesign ugt i32 %pc.5, 3
+  br i1 %cmp17.i274, label %_ZL5getopPKhjRjS1_.exit313, label %if.end19.i275
+
+if.end19.i275:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit866 [
+    i32 4294967295, label %if.then.i865
+    i32 0, label %if.then2.i863
+    i32 1, label %if.then7.i861
+    i32 2, label %if.then12.i859
+    i32 3, label %if.then17.i857
+    i32 4, label %if.then22.i855
+  ]
+
+if.then.i865:
+  br label %_ZL3batPKhj.exit866
+
+if.then2.i863:
+  br label %_ZL3batPKhj.exit866
+
+if.then7.i861:
+  br label %_ZL3batPKhj.exit866
+
+if.then12.i859:
+  br label %_ZL3batPKhj.exit866
+
+if.then17.i857:
+  br label %_ZL3batPKhj.exit866
+
+if.then22.i855:
+  br label %_ZL3batPKhj.exit866
+
+_ZL3batPKhj.exit866:
+  %retval.0.shrunk.i851 = phi i8 [ noundef zeroext %s0, %if.then.i865 ], [ noundef zeroext %s1, %if.then2.i863 ], [ noundef zeroext %s2, %if.then7.i861 ], [ noundef zeroext %s3, %if.then12.i859 ], [ noundef zeroext %s4, %if.then17.i857 ], [ noundef zeroext %s5, %if.then22.i855 ], [ 0, %if.end19.i275 ]
+  %retval.0.i852 = zext i8 %retval.0.shrunk.i851 to i32
+  switch i32 %pc.5, label %_ZL3batPKhj.exit848 [
+    i32 4294967294, label %if.then.i847
+    i32 4294967295, label %if.then2.i845
+    i32 0, label %if.then7.i843
+    i32 1, label %if.then12.i841
+    i32 2, label %if.then17.i839
+    i32 3, label %if.then22.i837
+  ]
+
+if.then.i847:
+  br label %_ZL3batPKhj.exit848
+
+if.then2.i845:
+  br label %_ZL3batPKhj.exit848
+
+if.then7.i843:
+  br label %_ZL3batPKhj.exit848
+
+if.then12.i841:
+  br label %_ZL3batPKhj.exit848
+
+if.then17.i839:
+  br label %_ZL3batPKhj.exit848
+
+if.then22.i837:
+  br label %_ZL3batPKhj.exit848
+
+_ZL3batPKhj.exit848:
+  %retval.0.shrunk.i833 = phi i8 [ noundef zeroext %s0, %if.then.i847 ], [ noundef zeroext %s1, %if.then2.i845 ], [ noundef zeroext %s2, %if.then7.i843 ], [ noundef zeroext %s3, %if.then12.i841 ], [ noundef zeroext %s4, %if.then17.i839 ], [ noundef zeroext %s5, %if.then22.i837 ], [ 0, %_ZL3batPKhj.exit866 ]
+  %retval.0.i834 = zext i8 %retval.0.shrunk.i833 to i32
+  %shl.i279 = shl nsw nuw i32 %retval.0.i834, 8
+  %or.i280 = or disjoint i32 %shl.i279, %retval.0.i852
+  %add23.i281 = add nsw nuw i32 %pc.5, 3
+  br label %if.end46.i282
+
+if.end46.i282:
+  %size.0.i283 = phi i32 [ %retval.0.i816, %_ZL3batPKhj.exit830 ], [ %or.i280, %_ZL3batPKhj.exit848 ], [ %or42.i311, %_ZL3batPKhj.exit758 ], [ %retval.0.i870, %if.then2.i269 ]
+  %p.0.i284 = phi i32 [ %add11.i295, %_ZL3batPKhj.exit830 ], [ %add23.i281, %_ZL3batPKhj.exit848 ], [ %add43.i312, %_ZL3batPKhj.exit758 ], [ %add.i270, %if.then2.i269 ]
+  %conv47.i285 = zext nneg i32 %p.0.i284 to i64
+  %conv48.i286 = zext i32 %size.0.i283 to i64
+  %add49.i287 = add nsw nuw i64 %conv47.i285, %conv48.i286
+  %cmp50.i288 = icmp samesign ult i64 %add49.i287, 7
+  %add53.i290 = add i32 %p.0.i284, %size.0.i283
+  %spec.select1427 = select i1 %cmp50.i288, i32 %add53.i290, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit313
+
+if.end55.i266:
+  %add56.i267 = add nsw nuw i32 %pc.5, 1
+  br label %_ZL5getopPKhjRjS1_.exit313
+
+_ZL5getopPKhjRjS1_.exit313:
+  %nx64.0 = phi i32 [ 0, %if.else24.i296 ], [ 0, %if.then14.i273 ], [ 0, %if.then6.i291 ], [ %add56.i267, %if.end55.i266 ], [ %spec.select1427, %if.end46.i282 ]
+  %retval.1.i268 = phi i1 [ 0, %if.else24.i296 ], [ 0, %if.then14.i273 ], [ 0, %if.then6.i291 ], [ 1, %if.end55.i266 ], [ %cmp50.i288, %if.end46.i282 ]
+  br i1 %retval.1.i268, label %if.else68, label %do.body81
+
+if.else68:
+  %#6 = shl nsw nuw i32 1, %opcodeIndex.5
+  %#7 = and i32 %#6, noundef %mask
+  %cmp71 = icmp ne i32 %#7, 0
+  %cmp73 = icmp eq i8 %retval.0.shrunk.i869, 171
+  %or.cond153 = and i1 %cmp71, %cmp73
+  %spec.select208 = select i1 %or.cond153, i32 %nx64.0, i32 %codeSep.8
+  %spec.select209 = select i1 %or.cond153, i32 %opcodeIndex.5, i32 %codeSepPos.8
+  %add76 = add nsw nuw i32 %opcodeIndex.5, 1
+  br label %do.body81
+
+do.body81:
+  %opcodeIndex.7 = phi i32 [ %opcodeIndex.5, %do.body58 ], [ %add76, %if.else68 ], [ %opcodeIndex.5, %_ZL5getopPKhjRjS1_.exit313 ]
+  %codeSep.11 = phi i32 [ %codeSep.8, %do.body58 ], [ %spec.select208, %if.else68 ], [ %codeSep.8, %_ZL5getopPKhjRjS1_.exit313 ]
+  %codeSepPos.11 = phi i32 [ %codeSepPos.8, %do.body58 ], [ %spec.select209, %if.else68 ], [ %codeSepPos.8, %_ZL5getopPKhjRjS1_.exit313 ]
+  %bad.7 = phi i32 [ %bad.5, %do.body58 ], [ 0, %if.else68 ], [ 1, %_ZL5getopPKhjRjS1_.exit313 ]
+  %pc.7 = phi i32 [ %pc.5, %do.body58 ], [ %nx64.0, %if.else68 ], [ %pc.5, %_ZL5getopPKhjRjS1_.exit313 ]
+  %tobool82 = icmp eq i32 %bad.7, 0
+  %cmp84 = icmp ult i32 %pc.7, 6
+  %or.cond154 = select i1 %tobool82, i1 %cmp84, i1 0
+  br i1 %or.cond154, label %if.then85, label %do.body104
+
+if.then85:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit1028 [
+    i32 0, label %if.then.i1027
+    i32 1, label %if.then2.i1025
+    i32 2, label %if.then7.i1023
+    i32 3, label %if.then12.i1021
+    i32 4, label %if.then17.i1019
+    i32 5, label %if.then22.i1017
+  ]
+
+if.then.i1027:
+  br label %_ZL3batPKhj.exit1028
+
+if.then2.i1025:
+  br label %_ZL3batPKhj.exit1028
+
+if.then7.i1023:
+  br label %_ZL3batPKhj.exit1028
+
+if.then12.i1021:
+  br label %_ZL3batPKhj.exit1028
+
+if.then17.i1019:
+  br label %_ZL3batPKhj.exit1028
+
+if.then22.i1017:
+  br label %_ZL3batPKhj.exit1028
+
+_ZL3batPKhj.exit1028:
+  %retval.0.shrunk.i1013 = phi i8 [ noundef zeroext %s0, %if.then.i1027 ], [ noundef zeroext %s1, %if.then2.i1025 ], [ noundef zeroext %s2, %if.then7.i1023 ], [ noundef zeroext %s3, %if.then12.i1021 ], [ noundef zeroext %s4, %if.then17.i1019 ], [ noundef zeroext %s5, %if.then22.i1017 ], [ 0, %if.then85 ]
+  %cmp1.i215 = icmp ult i8 %retval.0.shrunk.i1013, 79
+  br i1 %cmp1.i215, label %if.then2.i219, label %if.end55.i216
+
+if.then2.i219:
+  %retval.0.i1014 = zext nneg i8 %retval.0.shrunk.i1013 to i32
+  %add.i220 = add nsw nuw i32 %pc.7, 1
+  %cmp3.i221 = icmp ult i8 %retval.0.shrunk.i1013, 76
+  br i1 %cmp3.i221, label %if.end46.i232, label %if.else.i222
+
+if.else.i222:
+  switch i8 %retval.0.shrunk.i1013, label %if.else24.i246 [
+    i8 76, label %if.then6.i241
+    i8 77, label %if.then14.i223
+  ]
+
+if.else24.i246:
+  %cmp27.i247 = icmp samesign ugt i32 %pc.7, 1
+  br i1 %cmp27.i247, label %_ZL5getopPKhjRjS1_.exit263, label %if.end29.i248
+
+if.end29.i248:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit956 [
+    i32 4294967295, label %if.then.i955
+    i32 0, label %if.then2.i953
+    i32 1, label %if.then7.i951
+    i32 2, label %if.then12.i949
+    i32 3, label %if.then17.i947
+    i32 4, label %if.then22.i945
+  ]
+
+if.then.i955:
+  br label %_ZL3batPKhj.exit956
+
+if.then2.i953:
+  br label %_ZL3batPKhj.exit956
+
+if.then7.i951:
+  br label %_ZL3batPKhj.exit956
+
+if.then12.i949:
+  br label %_ZL3batPKhj.exit956
+
+if.then17.i947:
+  br label %_ZL3batPKhj.exit956
+
+if.then22.i945:
+  br label %_ZL3batPKhj.exit956
+
+_ZL3batPKhj.exit956:
+  %retval.0.shrunk.i941 = phi i8 [ noundef zeroext %s0, %if.then.i955 ], [ noundef zeroext %s1, %if.then2.i953 ], [ noundef zeroext %s2, %if.then7.i951 ], [ noundef zeroext %s3, %if.then12.i949 ], [ noundef zeroext %s4, %if.then17.i947 ], [ noundef zeroext %s5, %if.then22.i945 ], [ 0, %if.end29.i248 ]
+  %retval.0.i942 = zext i8 %retval.0.shrunk.i941 to i32
+  %add31.i250 = or disjoint i32 %pc.7, 2
+  switch i32 %add31.i250, label %_ZL3batPKhj.exit938 [
+    i32 3, label %if.then12.i931
+    i32 2, label %if.then7.i933
+  ]
+
+if.then12.i931:
+  br label %_ZL3batPKhj.exit938
+
+if.then7.i933:
+  br label %_ZL3batPKhj.exit938
+
+_ZL3batPKhj.exit938:
+  %retval.0.shrunk.i923 = phi i8 [ noundef zeroext %s2, %if.then7.i933 ], [ noundef zeroext %s3, %if.then12.i931 ], [ 0, %_ZL3batPKhj.exit956 ]
+  %retval.0.i924 = zext i8 %retval.0.shrunk.i923 to i32
+  %shl33.i252 = shl nsw nuw i32 %retval.0.i924, 8
+  %or34.i253 = or disjoint i32 %shl33.i252, %retval.0.i942
+  switch i32 %pc.7, label %_ZL3batPKhj.exit920 [
+    i32 4294967293, label %if.then.i919
+    i32 4294967294, label %if.then2.i917
+    i32 4294967295, label %if.then7.i915
+    i32 0, label %if.then12.i913
+    i32 1, label %if.then17.i911
+    i32 2, label %if.then22.i909
+  ]
+
+if.then.i919:
+  br label %_ZL3batPKhj.exit920
+
+if.then2.i917:
+  br label %_ZL3batPKhj.exit920
+
+if.then7.i915:
+  br label %_ZL3batPKhj.exit920
+
+if.then12.i913:
+  br label %_ZL3batPKhj.exit920
+
+if.then17.i911:
+  br label %_ZL3batPKhj.exit920
+
+if.then22.i909:
+  br label %_ZL3batPKhj.exit920
+
+_ZL3batPKhj.exit920:
+  %retval.0.shrunk.i905 = phi i8 [ noundef zeroext %s0, %if.then.i919 ], [ noundef zeroext %s1, %if.then2.i917 ], [ noundef zeroext %s2, %if.then7.i915 ], [ noundef zeroext %s3, %if.then12.i913 ], [ noundef zeroext %s4, %if.then17.i911 ], [ noundef zeroext %s5, %if.then22.i909 ], [ 0, %_ZL3batPKhj.exit938 ]
+  %retval.0.i906 = zext i8 %retval.0.shrunk.i905 to i32
+  %shl37.i256 = shl nsw nuw i32 %retval.0.i906, 16
+  %or38.i257 = or disjoint i32 %shl37.i256, %or34.i253
+  %add39.i258 = or disjoint i32 %pc.7, 4
+  switch i32 %add39.i258, label %_ZL3batPKhj.exit902 [
+    i32 4, label %if.then17.i893
+    i32 5, label %if.then22.i891
+  ]
+
+if.then17.i893:
+  br label %_ZL3batPKhj.exit902
+
+if.then22.i891:
+  br label %_ZL3batPKhj.exit902
+
+_ZL3batPKhj.exit902:
+  %retval.0.shrunk.i887 = phi i8 [ noundef zeroext %s4, %if.then17.i893 ], [ noundef zeroext %s5, %if.then22.i891 ], [ 0, %_ZL3batPKhj.exit920 ]
+  %retval.0.i888 = zext i8 %retval.0.shrunk.i887 to i32
+  %shl41.i260 = shl nuw i32 %retval.0.i888, 24
+  %or42.i261 = or disjoint i32 %shl41.i260, %or38.i257
+  %add43.i262 = add nsw nuw i32 %pc.7, 5
+  br label %if.end46.i232
+
+if.then6.i241:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit974 [
+    i32 5, label %_ZL5getopPKhjRjS1_.exit263
+    i32 4294967295, label %if.then.i973
+    i32 0, label %if.then2.i971
+    i32 1, label %if.then7.i969
+    i32 2, label %if.then12.i967
+    i32 3, label %if.then17.i965
+    i32 4, label %if.then22.i963
+  ]
+
+if.then.i973:
+  br label %_ZL3batPKhj.exit974
+
+if.then2.i971:
+  br label %_ZL3batPKhj.exit974
+
+if.then7.i969:
+  br label %_ZL3batPKhj.exit974
+
+if.then12.i967:
+  br label %_ZL3batPKhj.exit974
+
+if.then17.i965:
+  br label %_ZL3batPKhj.exit974
+
+if.then22.i963:
+  br label %_ZL3batPKhj.exit974
+
+_ZL3batPKhj.exit974:
+  %retval.0.shrunk.i959 = phi i8 [ noundef zeroext %s0, %if.then.i973 ], [ noundef zeroext %s1, %if.then2.i971 ], [ noundef zeroext %s2, %if.then7.i969 ], [ noundef zeroext %s3, %if.then12.i967 ], [ noundef zeroext %s4, %if.then17.i965 ], [ noundef zeroext %s5, %if.then22.i963 ], [ 0, %if.then6.i241 ]
+  %retval.0.i960 = zext i8 %retval.0.shrunk.i959 to i32
+  %add11.i245 = add nsw nuw i32 %pc.7, 2
+  br label %if.end46.i232
+
+if.then14.i223:
+  %cmp17.i224 = icmp samesign ugt i32 %pc.7, 3
+  br i1 %cmp17.i224, label %_ZL5getopPKhjRjS1_.exit263, label %if.end19.i225
+
+if.end19.i225:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit1010 [
+    i32 4294967295, label %if.then.i1009
+    i32 0, label %if.then2.i1007
+    i32 1, label %if.then7.i1005
+    i32 2, label %if.then12.i1003
+    i32 3, label %if.then17.i1001
+    i32 4, label %if.then22.i999
+  ]
+
+if.then.i1009:
+  br label %_ZL3batPKhj.exit1010
+
+if.then2.i1007:
+  br label %_ZL3batPKhj.exit1010
+
+if.then7.i1005:
+  br label %_ZL3batPKhj.exit1010
+
+if.then12.i1003:
+  br label %_ZL3batPKhj.exit1010
+
+if.then17.i1001:
+  br label %_ZL3batPKhj.exit1010
+
+if.then22.i999:
+  br label %_ZL3batPKhj.exit1010
+
+_ZL3batPKhj.exit1010:
+  %retval.0.shrunk.i995 = phi i8 [ noundef zeroext %s0, %if.then.i1009 ], [ noundef zeroext %s1, %if.then2.i1007 ], [ noundef zeroext %s2, %if.then7.i1005 ], [ noundef zeroext %s3, %if.then12.i1003 ], [ noundef zeroext %s4, %if.then17.i1001 ], [ noundef zeroext %s5, %if.then22.i999 ], [ 0, %if.end19.i225 ]
+  %retval.0.i996 = zext i8 %retval.0.shrunk.i995 to i32
+  switch i32 %pc.7, label %_ZL3batPKhj.exit992 [
+    i32 4294967294, label %if.then.i991
+    i32 4294967295, label %if.then2.i989
+    i32 0, label %if.then7.i987
+    i32 1, label %if.then12.i985
+    i32 2, label %if.then17.i983
+    i32 3, label %if.then22.i981
+  ]
+
+if.then.i991:
+  br label %_ZL3batPKhj.exit992
+
+if.then2.i989:
+  br label %_ZL3batPKhj.exit992
+
+if.then7.i987:
+  br label %_ZL3batPKhj.exit992
+
+if.then12.i985:
+  br label %_ZL3batPKhj.exit992
+
+if.then17.i983:
+  br label %_ZL3batPKhj.exit992
+
+if.then22.i981:
+  br label %_ZL3batPKhj.exit992
+
+_ZL3batPKhj.exit992:
+  %retval.0.shrunk.i977 = phi i8 [ noundef zeroext %s0, %if.then.i991 ], [ noundef zeroext %s1, %if.then2.i989 ], [ noundef zeroext %s2, %if.then7.i987 ], [ noundef zeroext %s3, %if.then12.i985 ], [ noundef zeroext %s4, %if.then17.i983 ], [ noundef zeroext %s5, %if.then22.i981 ], [ 0, %_ZL3batPKhj.exit1010 ]
+  %retval.0.i978 = zext i8 %retval.0.shrunk.i977 to i32
+  %shl.i229 = shl nsw nuw i32 %retval.0.i978, 8
+  %or.i230 = or disjoint i32 %shl.i229, %retval.0.i996
+  %add23.i231 = add nsw nuw i32 %pc.7, 3
+  br label %if.end46.i232
+
+if.end46.i232:
+  %size.0.i233 = phi i32 [ %retval.0.i960, %_ZL3batPKhj.exit974 ], [ %or.i230, %_ZL3batPKhj.exit992 ], [ %or42.i261, %_ZL3batPKhj.exit902 ], [ %retval.0.i1014, %if.then2.i219 ]
+  %p.0.i234 = phi i32 [ %add11.i245, %_ZL3batPKhj.exit974 ], [ %add23.i231, %_ZL3batPKhj.exit992 ], [ %add43.i262, %_ZL3batPKhj.exit902 ], [ %add.i220, %if.then2.i219 ]
+  %conv47.i235 = zext nneg i32 %p.0.i234 to i64
+  %conv48.i236 = zext i32 %size.0.i233 to i64
+  %add49.i237 = add nsw nuw i64 %conv47.i235, %conv48.i236
+  %cmp50.i238 = icmp samesign ult i64 %add49.i237, 7
+  %add53.i240 = add i32 %p.0.i234, %size.0.i233
+  %spec.select1429 = select i1 %cmp50.i238, i32 %add53.i240, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit263
+
+if.end55.i216:
+  %add56.i217 = add nsw nuw i32 %pc.7, 1
+  br label %_ZL5getopPKhjRjS1_.exit263
+
+_ZL5getopPKhjRjS1_.exit263:
+  %nx87.0 = phi i32 [ 0, %if.else24.i246 ], [ 0, %if.then14.i223 ], [ 0, %if.then6.i241 ], [ %add56.i217, %if.end55.i216 ], [ %spec.select1429, %if.end46.i232 ]
+  %retval.1.i218 = phi i1 [ 0, %if.else24.i246 ], [ 0, %if.then14.i223 ], [ 0, %if.then6.i241 ], [ 1, %if.end55.i216 ], [ %cmp50.i238, %if.end46.i232 ]
+  br i1 %retval.1.i218, label %if.else91, label %do.body104
+
+if.else91:
+  %#8 = shl nsw nuw i32 1, %opcodeIndex.7
+  %#9 = and i32 %#8, noundef %mask
+  %cmp94 = icmp ne i32 %#9, 0
+  %cmp96 = icmp eq i8 %retval.0.shrunk.i1013, 171
+  %or.cond155 = and i1 %cmp94, %cmp96
+  %spec.select210 = select i1 %or.cond155, i32 %nx87.0, i32 %codeSep.11
+  %spec.select211 = select i1 %or.cond155, i32 %opcodeIndex.7, i32 %codeSepPos.11
+  %add99 = add nsw nuw i32 %opcodeIndex.7, 1
+  br label %do.body104
+
+do.body104:
+  %opcodeIndex.9 = phi i32 [ %opcodeIndex.7, %do.body81 ], [ %add99, %if.else91 ], [ %opcodeIndex.7, %_ZL5getopPKhjRjS1_.exit263 ]
+  %codeSep.14 = phi i32 [ %codeSep.11, %do.body81 ], [ %spec.select210, %if.else91 ], [ %codeSep.11, %_ZL5getopPKhjRjS1_.exit263 ]
+  %codeSepPos.14 = phi i32 [ %codeSepPos.11, %do.body81 ], [ %spec.select211, %if.else91 ], [ %codeSepPos.11, %_ZL5getopPKhjRjS1_.exit263 ]
+  %bad.9 = phi i32 [ %bad.7, %do.body81 ], [ 0, %if.else91 ], [ 1, %_ZL5getopPKhjRjS1_.exit263 ]
+  %pc.9 = phi i32 [ %pc.7, %do.body81 ], [ %nx87.0, %if.else91 ], [ %pc.7, %_ZL5getopPKhjRjS1_.exit263 ]
+  %tobool105 = icmp eq i32 %bad.9, 0
+  %cmp107 = icmp ult i32 %pc.9, 6
+  %or.cond156 = select i1 %tobool105, i1 %cmp107, i1 0
+  br i1 %or.cond156, label %if.then108, label %do.end126
+
+if.then108:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1172 [
+    i32 0, label %if.then.i1171
+    i32 1, label %if.then2.i1169
+    i32 2, label %if.then7.i1167
+    i32 3, label %if.then12.i1165
+    i32 4, label %if.then17.i1163
+    i32 5, label %if.then22.i1161
+  ]
+
+if.then.i1171:
+  br label %_ZL3batPKhj.exit1172
+
+if.then2.i1169:
+  br label %_ZL3batPKhj.exit1172
+
+if.then7.i1167:
+  br label %_ZL3batPKhj.exit1172
+
+if.then12.i1165:
+  br label %_ZL3batPKhj.exit1172
+
+if.then17.i1163:
+  br label %_ZL3batPKhj.exit1172
+
+if.then22.i1161:
+  br label %_ZL3batPKhj.exit1172
+
+_ZL3batPKhj.exit1172:
+  %retval.0.shrunk.i1157 = phi i8 [ noundef zeroext %s0, %if.then.i1171 ], [ noundef zeroext %s1, %if.then2.i1169 ], [ noundef zeroext %s2, %if.then7.i1167 ], [ noundef zeroext %s3, %if.then12.i1165 ], [ noundef zeroext %s4, %if.then17.i1163 ], [ noundef zeroext %s5, %if.then22.i1161 ], [ 0, %if.then108 ]
+  %cmp1.i = icmp ult i8 %retval.0.shrunk.i1157, 79
+  br i1 %cmp1.i, label %if.then2.i, label %if.end55.i
+
+if.then2.i:
+  %retval.0.i1158 = zext nneg i8 %retval.0.shrunk.i1157 to i32
+  %add.i = add nsw nuw i32 %pc.9, 1
+  %cmp3.i = icmp ult i8 %retval.0.shrunk.i1157, 76
+  br i1 %cmp3.i, label %if.end46.i, label %if.else.i
+
+if.else.i:
+  switch i8 %retval.0.shrunk.i1157, label %if.else24.i [
+    i8 76, label %if.then6.i
+    i8 77, label %if.then14.i
+  ]
+
+if.else24.i:
+  %cmp27.i = icmp samesign ugt i32 %pc.9, 1
+  br i1 %cmp27.i, label %_ZL5getopPKhjRjS1_.exit, label %if.end29.i
+
+if.end29.i:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1100 [
+    i32 4294967295, label %if.then.i1099
+    i32 0, label %if.then2.i1097
+    i32 1, label %if.then7.i1095
+    i32 2, label %if.then12.i1093
+    i32 3, label %if.then17.i1091
+    i32 4, label %if.then22.i1089
+  ]
+
+if.then.i1099:
+  br label %_ZL3batPKhj.exit1100
+
+if.then2.i1097:
+  br label %_ZL3batPKhj.exit1100
+
+if.then7.i1095:
+  br label %_ZL3batPKhj.exit1100
+
+if.then12.i1093:
+  br label %_ZL3batPKhj.exit1100
+
+if.then17.i1091:
+  br label %_ZL3batPKhj.exit1100
+
+if.then22.i1089:
+  br label %_ZL3batPKhj.exit1100
+
+_ZL3batPKhj.exit1100:
+  %retval.0.shrunk.i1085 = phi i8 [ noundef zeroext %s0, %if.then.i1099 ], [ noundef zeroext %s1, %if.then2.i1097 ], [ noundef zeroext %s2, %if.then7.i1095 ], [ noundef zeroext %s3, %if.then12.i1093 ], [ noundef zeroext %s4, %if.then17.i1091 ], [ noundef zeroext %s5, %if.then22.i1089 ], [ 0, %if.end29.i ]
+  %retval.0.i1086 = zext i8 %retval.0.shrunk.i1085 to i32
+  %add31.i = or disjoint i32 %pc.9, 2
+  switch i32 %add31.i, label %_ZL3batPKhj.exit1082 [
+    i32 3, label %if.then12.i1075
+    i32 2, label %if.then7.i1077
+  ]
+
+if.then12.i1075:
+  br label %_ZL3batPKhj.exit1082
+
+if.then7.i1077:
+  br label %_ZL3batPKhj.exit1082
+
+_ZL3batPKhj.exit1082:
+  %retval.0.shrunk.i1067 = phi i8 [ noundef zeroext %s2, %if.then7.i1077 ], [ noundef zeroext %s3, %if.then12.i1075 ], [ 0, %_ZL3batPKhj.exit1100 ]
+  %retval.0.i1068 = zext i8 %retval.0.shrunk.i1067 to i32
+  %shl33.i = shl nsw nuw i32 %retval.0.i1068, 8
+  %or34.i = or disjoint i32 %shl33.i, %retval.0.i1086
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1064 [
+    i32 4294967293, label %if.then.i1063
+    i32 4294967294, label %if.then2.i1061
+    i32 4294967295, label %if.then7.i1059
+    i32 0, label %if.then12.i1057
+    i32 1, label %if.then17.i1055
+    i32 2, label %if.then22.i1053
+  ]
+
+if.then.i1063:
+  br label %_ZL3batPKhj.exit1064
+
+if.then2.i1061:
+  br label %_ZL3batPKhj.exit1064
+
+if.then7.i1059:
+  br label %_ZL3batPKhj.exit1064
+
+if.then12.i1057:
+  br label %_ZL3batPKhj.exit1064
+
+if.then17.i1055:
+  br label %_ZL3batPKhj.exit1064
+
+if.then22.i1053:
+  br label %_ZL3batPKhj.exit1064
+
+_ZL3batPKhj.exit1064:
+  %retval.0.shrunk.i1049 = phi i8 [ noundef zeroext %s0, %if.then.i1063 ], [ noundef zeroext %s1, %if.then2.i1061 ], [ noundef zeroext %s2, %if.then7.i1059 ], [ noundef zeroext %s3, %if.then12.i1057 ], [ noundef zeroext %s4, %if.then17.i1055 ], [ noundef zeroext %s5, %if.then22.i1053 ], [ 0, %_ZL3batPKhj.exit1082 ]
+  %retval.0.i1050 = zext i8 %retval.0.shrunk.i1049 to i32
+  %shl37.i = shl nsw nuw i32 %retval.0.i1050, 16
+  %or38.i = or disjoint i32 %shl37.i, %or34.i
+  %add39.i = or disjoint i32 %pc.9, 4
+  switch i32 %add39.i, label %_ZL3batPKhj.exit1046 [
+    i32 4, label %if.then17.i1037
+    i32 5, label %if.then22.i1035
+  ]
+
+if.then17.i1037:
+  br label %_ZL3batPKhj.exit1046
+
+if.then22.i1035:
+  br label %_ZL3batPKhj.exit1046
+
+_ZL3batPKhj.exit1046:
+  %retval.0.shrunk.i1031 = phi i8 [ noundef zeroext %s4, %if.then17.i1037 ], [ noundef zeroext %s5, %if.then22.i1035 ], [ 0, %_ZL3batPKhj.exit1064 ]
+  %retval.0.i1032 = zext i8 %retval.0.shrunk.i1031 to i32
+  %shl41.i = shl nuw i32 %retval.0.i1032, 24
+  %or42.i = or disjoint i32 %shl41.i, %or38.i
+  %add43.i = add nsw nuw i32 %pc.9, 5
+  br label %if.end46.i
+
+if.then6.i:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1118 [
+    i32 5, label %_ZL5getopPKhjRjS1_.exit
+    i32 4294967295, label %if.then.i1117
+    i32 0, label %if.then2.i1115
+    i32 1, label %if.then7.i1113
+    i32 2, label %if.then12.i1111
+    i32 3, label %if.then17.i1109
+    i32 4, label %if.then22.i1107
+  ]
+
+if.then.i1117:
+  br label %_ZL3batPKhj.exit1118
+
+if.then2.i1115:
+  br label %_ZL3batPKhj.exit1118
+
+if.then7.i1113:
+  br label %_ZL3batPKhj.exit1118
+
+if.then12.i1111:
+  br label %_ZL3batPKhj.exit1118
+
+if.then17.i1109:
+  br label %_ZL3batPKhj.exit1118
+
+if.then22.i1107:
+  br label %_ZL3batPKhj.exit1118
+
+_ZL3batPKhj.exit1118:
+  %retval.0.shrunk.i1103 = phi i8 [ noundef zeroext %s0, %if.then.i1117 ], [ noundef zeroext %s1, %if.then2.i1115 ], [ noundef zeroext %s2, %if.then7.i1113 ], [ noundef zeroext %s3, %if.then12.i1111 ], [ noundef zeroext %s4, %if.then17.i1109 ], [ noundef zeroext %s5, %if.then22.i1107 ], [ 0, %if.then6.i ]
+  %retval.0.i1104 = zext i8 %retval.0.shrunk.i1103 to i32
+  %add11.i = add nsw nuw i32 %pc.9, 2
+  br label %if.end46.i
+
+if.then14.i:
+  %cmp17.i = icmp samesign ugt i32 %pc.9, 3
+  br i1 %cmp17.i, label %_ZL5getopPKhjRjS1_.exit, label %if.end19.i
+
+if.end19.i:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1154 [
+    i32 4294967295, label %if.then.i1153
+    i32 0, label %if.then2.i1151
+    i32 1, label %if.then7.i1149
+    i32 2, label %if.then12.i1147
+    i32 3, label %if.then17.i1145
+    i32 4, label %if.then22.i1143
+  ]
+
+if.then.i1153:
+  br label %_ZL3batPKhj.exit1154
+
+if.then2.i1151:
+  br label %_ZL3batPKhj.exit1154
+
+if.then7.i1149:
+  br label %_ZL3batPKhj.exit1154
+
+if.then12.i1147:
+  br label %_ZL3batPKhj.exit1154
+
+if.then17.i1145:
+  br label %_ZL3batPKhj.exit1154
+
+if.then22.i1143:
+  br label %_ZL3batPKhj.exit1154
+
+_ZL3batPKhj.exit1154:
+  %retval.0.shrunk.i1139 = phi i8 [ noundef zeroext %s0, %if.then.i1153 ], [ noundef zeroext %s1, %if.then2.i1151 ], [ noundef zeroext %s2, %if.then7.i1149 ], [ noundef zeroext %s3, %if.then12.i1147 ], [ noundef zeroext %s4, %if.then17.i1145 ], [ noundef zeroext %s5, %if.then22.i1143 ], [ 0, %if.end19.i ]
+  %retval.0.i1140 = zext i8 %retval.0.shrunk.i1139 to i32
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1136 [
+    i32 4294967294, label %if.then.i1135
+    i32 4294967295, label %if.then2.i1133
+    i32 0, label %if.then7.i1131
+    i32 1, label %if.then12.i1129
+    i32 2, label %if.then17.i1127
+    i32 3, label %if.then22.i1125
+  ]
+
+if.then.i1135:
+  br label %_ZL3batPKhj.exit1136
+
+if.then2.i1133:
+  br label %_ZL3batPKhj.exit1136
+
+if.then7.i1131:
+  br label %_ZL3batPKhj.exit1136
+
+if.then12.i1129:
+  br label %_ZL3batPKhj.exit1136
+
+if.then17.i1127:
+  br label %_ZL3batPKhj.exit1136
+
+if.then22.i1125:
+  br label %_ZL3batPKhj.exit1136
+
+_ZL3batPKhj.exit1136:
+  %retval.0.shrunk.i1121 = phi i8 [ noundef zeroext %s0, %if.then.i1135 ], [ noundef zeroext %s1, %if.then2.i1133 ], [ noundef zeroext %s2, %if.then7.i1131 ], [ noundef zeroext %s3, %if.then12.i1129 ], [ noundef zeroext %s4, %if.then17.i1127 ], [ noundef zeroext %s5, %if.then22.i1125 ], [ 0, %_ZL3batPKhj.exit1154 ]
+  %retval.0.i1122 = zext i8 %retval.0.shrunk.i1121 to i32
+  %shl.i = shl nsw nuw i32 %retval.0.i1122, 8
+  %or.i = or disjoint i32 %shl.i, %retval.0.i1140
+  %add23.i = add nsw nuw i32 %pc.9, 3
+  br label %if.end46.i
+
+if.end46.i:
+  %size.0.i = phi i32 [ %retval.0.i1104, %_ZL3batPKhj.exit1118 ], [ %or.i, %_ZL3batPKhj.exit1136 ], [ %or42.i, %_ZL3batPKhj.exit1046 ], [ %retval.0.i1158, %if.then2.i ]
+  %p.0.i = phi i32 [ %add11.i, %_ZL3batPKhj.exit1118 ], [ %add23.i, %_ZL3batPKhj.exit1136 ], [ %add43.i, %_ZL3batPKhj.exit1046 ], [ %add.i, %if.then2.i ]
+  %conv47.i = zext nneg i32 %p.0.i to i64
+  %conv48.i = zext i32 %size.0.i to i64
+  %add49.i = add nsw nuw i64 %conv47.i, %conv48.i
+  %cmp50.i = icmp samesign ult i64 %add49.i, 7
+  %add53.i = add i32 %p.0.i, %size.0.i
+  %spec.select1431 = select i1 %cmp50.i, i32 %add53.i, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit
+
+if.end55.i:
+  %add56.i = add nsw nuw i32 %pc.9, 1
+  br label %_ZL5getopPKhjRjS1_.exit
+
+_ZL5getopPKhjRjS1_.exit:
+  %nx110.0 = phi i32 [ 0, %if.else24.i ], [ 0, %if.then14.i ], [ 0, %if.then6.i ], [ %add56.i, %if.end55.i ], [ %spec.select1431, %if.end46.i ]
+  %retval.1.i = phi i1 [ 0, %if.else24.i ], [ 0, %if.then14.i ], [ 0, %if.then6.i ], [ 1, %if.end55.i ], [ %cmp50.i, %if.end46.i ]
+  br i1 %retval.1.i, label %if.else114, label %do.end126
+
+if.else114:
+  %#10 = shl nsw nuw i32 1, %opcodeIndex.9
+  %#11 = and i32 %#10, noundef %mask
+  %cmp117 = icmp ne i32 %#11, 0
+  %cmp119 = icmp eq i8 %retval.0.shrunk.i1157, 171
+  %or.cond157 = and i1 %cmp117, %cmp119
+  %spec.select212 = select i1 %or.cond157, i32 %nx110.0, i32 %codeSep.14
+  %spec.select213 = select i1 %or.cond157, i32 %opcodeIndex.9, i32 %codeSepPos.14
+  %add122 = add nsw nuw i32 %opcodeIndex.9, 1
+  br label %do.end126
+
+do.end126:
+  %opcodeIndex.11 = phi i32 [ %opcodeIndex.9, %do.body104 ], [ %add122, %if.else114 ], [ %opcodeIndex.9, %_ZL5getopPKhjRjS1_.exit ]
+  %codeSep.17 = phi i32 [ %codeSep.14, %do.body104 ], [ %spec.select212, %if.else114 ], [ %codeSep.14, %_ZL5getopPKhjRjS1_.exit ]
+  %codeSepPos.17 = phi i32 [ %codeSepPos.14, %do.body104 ], [ %spec.select213, %if.else114 ], [ %codeSepPos.14, %_ZL5getopPKhjRjS1_.exit ]
+  %bad.11 = phi i32 [ %bad.9, %do.body104 ], [ 0, %if.else114 ], [ 1, %_ZL5getopPKhjRjS1_.exit ]
+  %pc.11 = phi i32 [ %pc.9, %do.body104 ], [ %nx110.0, %if.else114 ], [ %pc.9, %_ZL5getopPKhjRjS1_.exit ]
+  %cmp127 = icmp eq i32 %codeSepPos.17, 4294967295
+  %cmp128 = icmp eq i32 %codeSep.17, 0
+  %cmp129 = icmp ugt i32 %codeSep.17, %codeSepPos.17
+  %cond = select i1 %cmp127, i1 %cmp128, i1 %cmp129
+  %conv130 = zext i32 %codeSepPos.17 to i64
+  %and131 = and i32 %codeSep.17, 15
+  %conv132 = zext nneg i32 %and131 to i64
+  %shl = shl nsw nuw i64 %conv132, 32
+  %or = or disjoint i64 %shl, %conv130
+  %and133 = and i32 %opcodeIndex.11, 15
+  %conv134 = zext nneg i32 %and133 to i64
+  %shl135 = shl nsw nuw i64 %conv134, 36
+  %or136 = or disjoint i64 %or, %shl135
+  %shl138 = select i1 %cond, i64 1099511627776, i64 0
+  %or139 = or disjoint i64 %or136, %shl138
+  %conv140 = zext nneg i32 %bad.11 to i64
+  %shl141 = shl nsw nuw i64 %conv140, 41
+  %or142 = or disjoint i64 %or139, %shl141
+  %and143 = and i32 %pc.11, 15
+  %conv144 = zext nneg i32 %and143 to i64
+  %shl145 = shl nsw nuw i64 %conv144, 42
+  %or146 = or i64 %or142, %shl145
+  %#range_0_%or146 = !range i64 %or146, i64 0, i64 70368744177664
+  ret i64 %#range_0_%or146
+}
+=>
+define i64 @cell_codesep_byteseq(i8 noundef zeroext %s0, i8 noundef zeroext %s1, i8 noundef zeroext %s2, i8 noundef zeroext %s3, i8 noundef zeroext %s4, i8 noundef zeroext %s5, i32 noundef %mask) nofree willreturn memory(none) {
+entry:
+  %cmp1.i463 = icmp ult i8 noundef zeroext %s0, 76
+  br i1 %cmp1.i463, label %if.then2.i498, label %if.end10.i464
+
+if.end10.i464:
+  switch i8 noundef zeroext %s0, label %_ZL5getopPKhjRjS1_.exit503 [
+    i8 76, label %if.then12.i490
+    i8 77, label %if.then30.i480
+    i8 78, label %if.then52.i465
+  ]
+
+if.then12.i490:
+  %retval.0.i = zext i8 noundef zeroext %s1 to i32
+  %narrow136.i493 = add nsw nuw i32 %retval.0.i, 2
+  %cmp23.i494 = icmp ult i8 noundef zeroext %s1, 5
+  %spec.select1477 = select i1 %cmp23.i494, i32 %narrow136.i493, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit503
+
+if.then30.i480:
+  %retval.0.i508 = zext i8 noundef zeroext %s1 to i32
+  %retval.0.i505 = zext i8 noundef zeroext %s2 to i32
+  %shl.i484 = shl nsw nuw i32 %retval.0.i505, 8
+  %or.i485 = or disjoint i32 %shl.i484, %retval.0.i508
+  %narrow134.i486 = add nsw nuw i32 %or.i485, 3
+  %cmp44.i487 = icmp samesign ult i32 %or.i485, 4
+  %spec.select1479 = select i1 %cmp44.i487, i32 %narrow134.i486, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit503
+
+if.then52.i465:
+  %retval.0.i516 = zext i8 noundef zeroext %s1 to i32
+  %retval.0.i513 = zext i8 noundef zeroext %s2 to i32
+  %#0 = shl nsw nuw i32 %retval.0.i513, 8
+  %or65130.i469 = or disjoint i32 %#0, %retval.0.i516
+  %retval.0.i511 = zext i8 noundef zeroext %s3 to i32
+  %#1 = shl nsw nuw i32 %retval.0.i511, 16
+  %or70131.i471 = or disjoint i32 %or65130.i469, %#1
+  %retval.0.i509 = zext i8 noundef zeroext %s4 to i32
+  %#2 = shl nuw i32 %retval.0.i509, 24
+  %or75132.i473 = or disjoint i32 %or70131.i471, %#2
+  %cmp79.i476 = icmp ult i32 %or75132.i473, 2
+  %add83.i479 = add i32 %or75132.i473, 5
+  %spec.select1481 = select i1 %cmp79.i476, i32 %add83.i479, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit503
+
+if.then2.i498:
+  %narrow = add nuw i8 noundef zeroext %s0, 1
+  %cmp5.i500 = icmp ult i8 noundef zeroext %s0, 6
+  %narrow1523 = select i1 %cmp5.i500, i8 %narrow, i8 0
+  %spec.select1475 = zext i8 %narrow1523 to i32
+  br label %_ZL5getopPKhjRjS1_.exit503
+
+_ZL5getopPKhjRjS1_.exit503:
+  %nx.0 = phi i32 [ %spec.select1475, %if.then2.i498 ], [ %spec.select1477, %if.then12.i490 ], [ %spec.select1479, %if.then30.i480 ], [ %spec.select1481, %if.then52.i465 ], [ 1, %if.end10.i464 ]
+  %retval.3.i477 = phi i1 [ %cmp5.i500, %if.then2.i498 ], [ %cmp23.i494, %if.then12.i490 ], [ %cmp44.i487, %if.then30.i480 ], [ %cmp79.i476, %if.then52.i465 ], [ 1, %if.end10.i464 ]
+  br i1 %retval.3.i477, label %if.else, label %if.end10
+
+if.else:
+  %and = and i32 noundef %mask, 1
+  %cmp6 = icmp eq i32 %and, 0
+  %cmp8 = icmp ne i8 noundef zeroext %s0, 171
+  %or.cond147.not = or i1 %cmp8, %cmp6
+  %spec.select = select i1 %or.cond147.not, i32 0, i32 %nx.0
+  %spec.select203 = sext i1 %or.cond147.not to i32
+  br label %if.end10
+
+if.end10:
+  %opcodeIndex.0 = phi i32 [ 1, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit503 ]
+  %codeSep.1 = phi i32 [ %spec.select, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit503 ]
+  %codeSepPos.1 = phi i32 [ %spec.select203, %if.else ], [ 4294967295, %_ZL5getopPKhjRjS1_.exit503 ]
+  %bad.0 = phi i32 [ 0, %if.else ], [ 1, %_ZL5getopPKhjRjS1_.exit503 ]
+  %pc.0 = phi i32 [ %nx.0, %if.else ], [ 0, %_ZL5getopPKhjRjS1_.exit503 ]
+  %cmp15 = icmp ult i32 %pc.0, 6
+  %or.cond148 = select i1 %retval.3.i477, i1 %cmp15, i1 0
+  br i1 %or.cond148, label %if.then16, label %do.body35
+
+if.then16:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit650 [
+    i32 0, label %if.then.i649
+    i32 1, label %if.then2.i647
+    i32 2, label %if.then7.i645
+    i32 3, label %if.then12.i643
+    i32 4, label %if.then17.i641
+    i32 5, label %if.then22.i639
+  ]
+
+if.then.i649:
+  br label %_ZL3batPKhj.exit650
+
+if.then2.i647:
+  br label %_ZL3batPKhj.exit650
+
+if.then7.i645:
+  br label %_ZL3batPKhj.exit650
+
+if.then12.i643:
+  br label %_ZL3batPKhj.exit650
+
+if.then17.i641:
+  br label %_ZL3batPKhj.exit650
+
+if.then22.i639:
+  br label %_ZL3batPKhj.exit650
+
+_ZL3batPKhj.exit650:
+  %retval.0.shrunk.i635 = phi i8 [ noundef zeroext %s0, %if.then.i649 ], [ noundef zeroext %s1, %if.then2.i647 ], [ noundef zeroext %s2, %if.then7.i645 ], [ noundef zeroext %s3, %if.then12.i643 ], [ noundef zeroext %s4, %if.then17.i641 ], [ noundef zeroext %s5, %if.then22.i639 ], [ 0, %if.then16 ]
+  %cmp1.i401 = icmp ult i8 %retval.0.shrunk.i635, 76
+  br i1 %cmp1.i401, label %if.then2.i454, label %if.end10.i402
+
+if.then2.i454:
+  %retval.0.i636 = zext nneg i8 %retval.0.shrunk.i635 to i32
+  %narrow137.i455 = add nsw nuw i32 %pc.0, 1
+  %narrow138.i456 = add nsw nuw i32 %narrow137.i455, %retval.0.i636
+  %cmp5.i457 = icmp samesign ult i32 %narrow138.i456, 7
+  %spec.select1483 = select i1 %cmp5.i457, i32 %narrow138.i456, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit461
+
+if.end10.i402:
+  switch i8 %retval.0.shrunk.i635, label %if.end87.i452 [
+    i8 76, label %if.then12.i441
+    i8 77, label %if.then30.i426
+    i8 78, label %if.then52.i403
+  ]
+
+if.end87.i452:
+  %add88.i453 = add nsw nuw i32 %pc.0, 1
+  br label %_ZL5getopPKhjRjS1_.exit461
+
+if.then12.i441:
+  %cmp14.i442 = icmp samesign ugt i32 %pc.0, 4
+  br i1 %cmp14.i442, label %_ZL5getopPKhjRjS1_.exit461, label %if.end16.i443
+
+if.end16.i443:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit [
+    i32 4294967295, label %if.then.i
+    i32 0, label %if.then2.i523
+    i32 1, label %if.then7.i
+    i32 2, label %if.then12.i520
+    i32 3, label %if.then17.i
+    i32 4, label %if.then22.i
+  ]
+
+if.then.i:
+  br label %_ZL3batPKhj.exit
+
+if.then2.i523:
+  br label %_ZL3batPKhj.exit
+
+if.then7.i:
+  br label %_ZL3batPKhj.exit
+
+if.then12.i520:
+  br label %_ZL3batPKhj.exit
+
+if.then17.i:
+  br label %_ZL3batPKhj.exit
+
+if.then22.i:
+  br label %_ZL3batPKhj.exit
+
+_ZL3batPKhj.exit:
+  %retval.0.shrunk.i = phi i8 [ noundef zeroext %s0, %if.then.i ], [ noundef zeroext %s1, %if.then2.i523 ], [ noundef zeroext %s2, %if.then7.i ], [ noundef zeroext %s3, %if.then12.i520 ], [ noundef zeroext %s4, %if.then17.i ], [ noundef zeroext %s5, %if.then22.i ], [ 0, %if.end16.i443 ]
+  %retval.0.i518 = zext i8 %retval.0.shrunk.i to i32
+  %narrow135.i446 = add nsw nuw i32 %pc.0, 2
+  %narrow136.i447 = add nsw nuw i32 %narrow135.i446, %retval.0.i518
+  %cmp23.i448 = icmp samesign ult i32 %narrow136.i447, 7
+  %spec.select1485 = select i1 %cmp23.i448, i32 %narrow136.i447, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit461
+
+if.then30.i426:
+  %cmp32.i427 = icmp samesign ugt i32 %pc.0, 3
+  br i1 %cmp32.i427, label %_ZL5getopPKhjRjS1_.exit461, label %if.end34.i428
+
+if.end34.i428:
+  switch i32 %pc.0, label %_ZL3batPKhj.exit560 [
+    i32 4294967295, label %if.then.i559
+    i32 0, label %if.then2.i557
+    i32 1, label %if.then7.i555
+    i32 2, label %if.then12.i553
+    i32 3, label %if.then17.i551
+    i32 4, label %if.then22.i549
+  ]
+
+if.then.i559:
+  br label %_ZL3batPKhj.exit560
+
+if.then2.i557:
+  br label %_ZL3batPKhj.exit560
+
+if.then7.i555:
+  br label %_ZL3batPKhj.exit560
+
+if.then12.i553:
+  br label %_ZL3batPKhj.exit560
+
+if.then17.i551:
+  br label %_ZL3batPKhj.exit560
+
+if.then22.i549:
+  br label %_ZL3batPKhj.exit560
+
+_ZL3batPKhj.exit560:
+  %retval.0.shrunk.i545 = phi i8 [ noundef zeroext %s0, %if.then.i559 ], [ noundef zeroext %s1, %if.then2.i557 ], [ noundef zeroext %s2, %if.then7.i555 ], [ noundef zeroext %s3, %if.then12.i553 ], [ noundef zeroext %s4, %if.then17.i551 ], [ noundef zeroext %s5, %if.then22.i549 ], [ 0, %if.end34.i428 ]
+  %retval.0.i546 = zext i8 %retval.0.shrunk.i545 to i32
+  switch i32 %pc.0, label %_ZL3batPKhj.exit542 [
+    i32 4294967294, label %if.then.i541
+    i32 4294967295, label %if.then2.i539
+    i32 0, label %if.then7.i537
+    i32 1, label %if.then12.i535
+    i32 2, label %if.then17.i533
+    i32 3, label %if.then22.i531
+  ]
+
+if.then.i541:
+  br label %_ZL3batPKhj.exit542
+
+if.then2.i539:
+  br label %_ZL3batPKhj.exit542
+
+if.then7.i537:
+  br label %_ZL3batPKhj.exit542
+
+if.then12.i535:
+  br label %_ZL3batPKhj.exit542
+
+if.then17.i533:
+  br label %_ZL3batPKhj.exit542
+
+if.then22.i531:
+  br label %_ZL3batPKhj.exit542
+
+_ZL3batPKhj.exit542:
+  %retval.0.shrunk.i527 = phi i8 [ noundef zeroext %s0, %if.then.i541 ], [ noundef zeroext %s1, %if.then2.i539 ], [ noundef zeroext %s2, %if.then7.i537 ], [ noundef zeroext %s3, %if.then12.i535 ], [ noundef zeroext %s4, %if.then17.i533 ], [ noundef zeroext %s5, %if.then22.i531 ], [ 0, %_ZL3batPKhj.exit560 ]
+  %retval.0.i528 = zext i8 %retval.0.shrunk.i527 to i32
+  %shl.i433 = shl nsw nuw i32 %retval.0.i528, 8
+  %or.i434 = add nsw nuw i32 %pc.0, 3
+  %narrow133.i435 = add nsw nuw i32 %or.i434, %retval.0.i546
+  %narrow134.i436 = add nsw nuw i32 %narrow133.i435, %shl.i433
+  %cmp44.i437 = icmp samesign ult i32 %narrow134.i436, 7
+  %spec.select1487 = select i1 %cmp44.i437, i32 %narrow134.i436, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit461
+
+if.then52.i403:
+  %cmp54.i404 = icmp samesign ugt i32 %pc.0, 1
+  br i1 %cmp54.i404, label %_ZL5getopPKhjRjS1_.exit461, label %if.end56.i405
+
+if.end56.i405:
+  %add53.i406 = or disjoint i32 %pc.0, 4
+  switch i32 %pc.0, label %_ZL3batPKhj.exit632 [
+    i32 4294967295, label %if.then.i631
+    i32 0, label %if.then2.i629
+    i32 1, label %if.then7.i627
+    i32 2, label %if.then12.i625
+    i32 3, label %if.then17.i623
+    i32 4, label %if.then22.i621
+  ]
+
+if.then.i631:
+  br label %_ZL3batPKhj.exit632
+
+if.then2.i629:
+  br label %_ZL3batPKhj.exit632
+
+if.then7.i627:
+  br label %_ZL3batPKhj.exit632
+
+if.then12.i625:
+  br label %_ZL3batPKhj.exit632
+
+if.then17.i623:
+  br label %_ZL3batPKhj.exit632
+
+if.then22.i621:
+  br label %_ZL3batPKhj.exit632
+
+_ZL3batPKhj.exit632:
+  %retval.0.shrunk.i617 = phi i8 [ noundef zeroext %s0, %if.then.i631 ], [ noundef zeroext %s1, %if.then2.i629 ], [ noundef zeroext %s2, %if.then7.i627 ], [ noundef zeroext %s3, %if.then12.i625 ], [ noundef zeroext %s4, %if.then17.i623 ], [ noundef zeroext %s5, %if.then22.i621 ], [ 0, %if.end56.i405 ]
+  %retval.0.i618 = zext i8 %retval.0.shrunk.i617 to i32
+  %add61.i409 = or disjoint i32 %pc.0, 2
+  switch i32 %add61.i409, label %_ZL3batPKhj.exit614 [
+    i32 3, label %if.then12.i607
+    i32 2, label %if.then7.i609
+  ]
+
+if.then12.i607:
+  br label %_ZL3batPKhj.exit614
+
+if.then7.i609:
+  br label %_ZL3batPKhj.exit614
+
+_ZL3batPKhj.exit614:
+  %retval.0.shrunk.i599 = phi i8 [ noundef zeroext %s2, %if.then7.i609 ], [ noundef zeroext %s3, %if.then12.i607 ], [ 0, %_ZL3batPKhj.exit632 ]
+  %retval.0.i600 = zext i8 %retval.0.shrunk.i599 to i32
+  %#3 = shl nsw nuw i32 %retval.0.i600, 8
+  %or65130.i411 = or disjoint i32 %#3, %retval.0.i618
+  switch i32 %pc.0, label %_ZL3batPKhj.exit596 [
+    i32 4294967293, label %if.then.i595
+    i32 4294967294, label %if.then2.i593
+    i32 4294967295, label %if.then7.i591
+    i32 0, label %if.then12.i589
+    i32 1, label %if.then17.i587
+    i32 2, label %if.then22.i585
+  ]
+
+if.then.i595:
+  br label %_ZL3batPKhj.exit596
+
+if.then2.i593:
+  br label %_ZL3batPKhj.exit596
+
+if.then7.i591:
+  br label %_ZL3batPKhj.exit596
+
+if.then12.i589:
+  br label %_ZL3batPKhj.exit596
+
+if.then17.i587:
+  br label %_ZL3batPKhj.exit596
+
+if.then22.i585:
+  br label %_ZL3batPKhj.exit596
+
+_ZL3batPKhj.exit596:
+  %retval.0.shrunk.i581 = phi i8 [ noundef zeroext %s0, %if.then.i595 ], [ noundef zeroext %s1, %if.then2.i593 ], [ noundef zeroext %s2, %if.then7.i591 ], [ noundef zeroext %s3, %if.then12.i589 ], [ noundef zeroext %s4, %if.then17.i587 ], [ noundef zeroext %s5, %if.then22.i585 ], [ 0, %_ZL3batPKhj.exit614 ]
+  %retval.0.i582 = zext i8 %retval.0.shrunk.i581 to i32
+  %#4 = shl nsw nuw i32 %retval.0.i582, 16
+  %or70131.i414 = or disjoint i32 %#4, %or65130.i411
+  switch i32 %add53.i406, label %_ZL3batPKhj.exit578 [
+    i32 5, label %if.then22.i567
+    i32 4, label %if.then17.i569
+  ]
+
+if.then22.i567:
+  br label %_ZL3batPKhj.exit578
+
+if.then17.i569:
+  br label %_ZL3batPKhj.exit578
+
+_ZL3batPKhj.exit578:
+  %retval.0.shrunk.i563 = phi i8 [ noundef zeroext %s4, %if.then17.i569 ], [ noundef zeroext %s5, %if.then22.i567 ], [ 0, %_ZL3batPKhj.exit596 ]
+  %retval.0.i564 = zext i8 %retval.0.shrunk.i563 to i32
+  %#5 = shl nuw i32 %retval.0.i564, 24
+  %or75132.i416 = or disjoint i32 %#5, %or70131.i414
+  %or75.i417 = zext i32 %or75132.i416 to i64
+  %narrow.i418 = add nsw nuw i32 %pc.0, 5
+  %add77.i419 = zext nneg i32 %narrow.i418 to i64
+  %add78.i420 = add nsw nuw i64 %or75.i417, %add77.i419
+  %cmp79.i421 = icmp samesign ult i64 %add78.i420, 7
+  %add83.i425 = add i32 %or75132.i416, %narrow.i418
+  %spec.select1489 = select i1 %cmp79.i421, i32 %add83.i425, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit461
+
+_ZL5getopPKhjRjS1_.exit461:
+  %nx18.0 = phi i32 [ %add88.i453, %if.end87.i452 ], [ 0, %if.then52.i403 ], [ 0, %if.then30.i426 ], [ 0, %if.then12.i441 ], [ %spec.select1483, %if.then2.i454 ], [ %spec.select1485, %_ZL3batPKhj.exit ], [ %spec.select1487, %_ZL3batPKhj.exit542 ], [ %spec.select1489, %_ZL3batPKhj.exit578 ]
+  %retval.3.i422 = phi i1 [ 1, %if.end87.i452 ], [ 0, %if.then52.i403 ], [ 0, %if.then30.i426 ], [ 0, %if.then12.i441 ], [ %cmp5.i457, %if.then2.i454 ], [ %cmp23.i448, %_ZL3batPKhj.exit ], [ %cmp44.i437, %_ZL3batPKhj.exit542 ], [ %cmp79.i421, %_ZL3batPKhj.exit578 ]
+  br i1 %retval.3.i422, label %if.else22, label %do.body35
+
+if.else22:
+  %#6 = shl nsw nuw i32 1, %opcodeIndex.0
+  %#7 = and i32 %#6, noundef %mask
+  %cmp25 = icmp ne i32 %#7, 0
+  %cmp27 = icmp eq i8 %retval.0.shrunk.i635, 171
+  %or.cond149 = and i1 %cmp25, %cmp27
+  %spec.select204 = select i1 %or.cond149, i32 %nx18.0, i32 %codeSep.1
+  %spec.select205 = select i1 %or.cond149, i32 %opcodeIndex.0, i32 %codeSepPos.1
+  %add30 = add nsw nuw i32 %opcodeIndex.0, 1
+  br label %do.body35
+
+do.body35:
+  %opcodeIndex.3 = phi i32 [ %opcodeIndex.0, %if.end10 ], [ %add30, %if.else22 ], [ %opcodeIndex.0, %_ZL5getopPKhjRjS1_.exit461 ]
+  %codeSep.5 = phi i32 [ %codeSep.1, %if.end10 ], [ %spec.select204, %if.else22 ], [ %codeSep.1, %_ZL5getopPKhjRjS1_.exit461 ]
+  %codeSepPos.5 = phi i32 [ %codeSepPos.1, %if.end10 ], [ %spec.select205, %if.else22 ], [ %codeSepPos.1, %_ZL5getopPKhjRjS1_.exit461 ]
+  %bad.3 = phi i32 [ %bad.0, %if.end10 ], [ 0, %if.else22 ], [ 1, %_ZL5getopPKhjRjS1_.exit461 ]
+  %pc.3 = phi i32 [ %pc.0, %if.end10 ], [ %nx18.0, %if.else22 ], [ %pc.0, %_ZL5getopPKhjRjS1_.exit461 ]
+  %tobool36 = icmp eq i32 %bad.3, 0
+  %cmp38 = icmp ult i32 %pc.3, 6
+  %or.cond150 = select i1 %tobool36, i1 %cmp38, i1 0
+  br i1 %or.cond150, label %if.then39, label %do.body58
+
+if.then39:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit794 [
+    i32 0, label %if.then.i793
+    i32 1, label %if.then2.i791
+    i32 2, label %if.then7.i789
+    i32 3, label %if.then12.i787
+    i32 4, label %if.then17.i785
+    i32 5, label %if.then22.i783
+  ]
+
+if.then.i793:
+  br label %_ZL3batPKhj.exit794
+
+if.then2.i791:
+  br label %_ZL3batPKhj.exit794
+
+if.then7.i789:
+  br label %_ZL3batPKhj.exit794
+
+if.then12.i787:
+  br label %_ZL3batPKhj.exit794
+
+if.then17.i785:
+  br label %_ZL3batPKhj.exit794
+
+if.then22.i783:
+  br label %_ZL3batPKhj.exit794
+
+_ZL3batPKhj.exit794:
+  %retval.0.shrunk.i779 = phi i8 [ noundef zeroext %s0, %if.then.i793 ], [ noundef zeroext %s1, %if.then2.i791 ], [ noundef zeroext %s2, %if.then7.i789 ], [ noundef zeroext %s3, %if.then12.i787 ], [ noundef zeroext %s4, %if.then17.i785 ], [ noundef zeroext %s5, %if.then22.i783 ], [ 0, %if.then39 ]
+  %cmp1.i339 = icmp ult i8 %retval.0.shrunk.i779, 76
+  br i1 %cmp1.i339, label %if.then2.i392, label %if.end10.i340
+
+if.then2.i392:
+  %retval.0.i780 = zext nneg i8 %retval.0.shrunk.i779 to i32
+  %narrow137.i393 = add nsw nuw i32 %pc.3, 1
+  %narrow138.i394 = add nsw nuw i32 %narrow137.i393, %retval.0.i780
+  %cmp5.i395 = icmp samesign ult i32 %narrow138.i394, 7
+  %spec.select1491 = select i1 %cmp5.i395, i32 %narrow138.i394, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit399
+
+if.end10.i340:
+  switch i8 %retval.0.shrunk.i779, label %if.end87.i390 [
+    i8 76, label %if.then12.i379
+    i8 77, label %if.then30.i364
+    i8 78, label %if.then52.i341
+  ]
+
+if.end87.i390:
+  %add88.i391 = add nsw nuw i32 %pc.3, 1
+  br label %_ZL5getopPKhjRjS1_.exit399
+
+if.then12.i379:
+  %cmp14.i380 = icmp samesign ugt i32 %pc.3, 4
+  br i1 %cmp14.i380, label %_ZL5getopPKhjRjS1_.exit399, label %if.end16.i381
+
+if.end16.i381:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit668 [
+    i32 4294967295, label %if.then.i667
+    i32 0, label %if.then2.i665
+    i32 1, label %if.then7.i663
+    i32 2, label %if.then12.i661
+    i32 3, label %if.then17.i659
+    i32 4, label %if.then22.i657
+  ]
+
+if.then.i667:
+  br label %_ZL3batPKhj.exit668
+
+if.then2.i665:
+  br label %_ZL3batPKhj.exit668
+
+if.then7.i663:
+  br label %_ZL3batPKhj.exit668
+
+if.then12.i661:
+  br label %_ZL3batPKhj.exit668
+
+if.then17.i659:
+  br label %_ZL3batPKhj.exit668
+
+if.then22.i657:
+  br label %_ZL3batPKhj.exit668
+
+_ZL3batPKhj.exit668:
+  %retval.0.shrunk.i653 = phi i8 [ noundef zeroext %s0, %if.then.i667 ], [ noundef zeroext %s1, %if.then2.i665 ], [ noundef zeroext %s2, %if.then7.i663 ], [ noundef zeroext %s3, %if.then12.i661 ], [ noundef zeroext %s4, %if.then17.i659 ], [ noundef zeroext %s5, %if.then22.i657 ], [ 0, %if.end16.i381 ]
+  %retval.0.i654 = zext i8 %retval.0.shrunk.i653 to i32
+  %narrow135.i384 = add nsw nuw i32 %pc.3, 2
+  %narrow136.i385 = add nsw nuw i32 %narrow135.i384, %retval.0.i654
+  %cmp23.i386 = icmp samesign ult i32 %narrow136.i385, 7
+  %spec.select1493 = select i1 %cmp23.i386, i32 %narrow136.i385, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit399
+
+if.then30.i364:
+  %cmp32.i365 = icmp samesign ugt i32 %pc.3, 3
+  br i1 %cmp32.i365, label %_ZL5getopPKhjRjS1_.exit399, label %if.end34.i366
+
+if.end34.i366:
+  switch i32 %pc.3, label %_ZL3batPKhj.exit704 [
+    i32 4294967295, label %if.then.i703
+    i32 0, label %if.then2.i701
+    i32 1, label %if.then7.i699
+    i32 2, label %if.then12.i697
+    i32 3, label %if.then17.i695
+    i32 4, label %if.then22.i693
+  ]
+
+if.then.i703:
+  br label %_ZL3batPKhj.exit704
+
+if.then2.i701:
+  br label %_ZL3batPKhj.exit704
+
+if.then7.i699:
+  br label %_ZL3batPKhj.exit704
+
+if.then12.i697:
+  br label %_ZL3batPKhj.exit704
+
+if.then17.i695:
+  br label %_ZL3batPKhj.exit704
+
+if.then22.i693:
+  br label %_ZL3batPKhj.exit704
+
+_ZL3batPKhj.exit704:
+  %retval.0.shrunk.i689 = phi i8 [ noundef zeroext %s0, %if.then.i703 ], [ noundef zeroext %s1, %if.then2.i701 ], [ noundef zeroext %s2, %if.then7.i699 ], [ noundef zeroext %s3, %if.then12.i697 ], [ noundef zeroext %s4, %if.then17.i695 ], [ noundef zeroext %s5, %if.then22.i693 ], [ 0, %if.end34.i366 ]
+  %retval.0.i690 = zext i8 %retval.0.shrunk.i689 to i32
+  switch i32 %pc.3, label %_ZL3batPKhj.exit686 [
+    i32 4294967294, label %if.then.i685
+    i32 4294967295, label %if.then2.i683
+    i32 0, label %if.then7.i681
+    i32 1, label %if.then12.i679
+    i32 2, label %if.then17.i677
+    i32 3, label %if.then22.i675
+  ]
+
+if.then.i685:
+  br label %_ZL3batPKhj.exit686
+
+if.then2.i683:
+  br label %_ZL3batPKhj.exit686
+
+if.then7.i681:
+  br label %_ZL3batPKhj.exit686
+
+if.then12.i679:
+  br label %_ZL3batPKhj.exit686
+
+if.then17.i677:
+  br label %_ZL3batPKhj.exit686
+
+if.then22.i675:
+  br label %_ZL3batPKhj.exit686
+
+_ZL3batPKhj.exit686:
+  %retval.0.shrunk.i671 = phi i8 [ noundef zeroext %s0, %if.then.i685 ], [ noundef zeroext %s1, %if.then2.i683 ], [ noundef zeroext %s2, %if.then7.i681 ], [ noundef zeroext %s3, %if.then12.i679 ], [ noundef zeroext %s4, %if.then17.i677 ], [ noundef zeroext %s5, %if.then22.i675 ], [ 0, %_ZL3batPKhj.exit704 ]
+  %retval.0.i672 = zext i8 %retval.0.shrunk.i671 to i32
+  %shl.i371 = shl nsw nuw i32 %retval.0.i672, 8
+  %or.i372 = add nsw nuw i32 %pc.3, 3
+  %narrow133.i373 = add nsw nuw i32 %or.i372, %retval.0.i690
+  %narrow134.i374 = add nsw nuw i32 %narrow133.i373, %shl.i371
+  %cmp44.i375 = icmp samesign ult i32 %narrow134.i374, 7
+  %spec.select1495 = select i1 %cmp44.i375, i32 %narrow134.i374, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit399
+
+if.then52.i341:
+  %cmp54.i342 = icmp samesign ugt i32 %pc.3, 1
+  br i1 %cmp54.i342, label %_ZL5getopPKhjRjS1_.exit399, label %if.end56.i343
+
+if.end56.i343:
+  %add53.i344 = or disjoint i32 %pc.3, 4
+  switch i32 %pc.3, label %_ZL3batPKhj.exit776 [
+    i32 4294967295, label %if.then.i775
+    i32 0, label %if.then2.i773
+    i32 1, label %if.then7.i771
+    i32 2, label %if.then12.i769
+    i32 3, label %if.then17.i767
+    i32 4, label %if.then22.i765
+  ]
+
+if.then.i775:
+  br label %_ZL3batPKhj.exit776
+
+if.then2.i773:
+  br label %_ZL3batPKhj.exit776
+
+if.then7.i771:
+  br label %_ZL3batPKhj.exit776
+
+if.then12.i769:
+  br label %_ZL3batPKhj.exit776
+
+if.then17.i767:
+  br label %_ZL3batPKhj.exit776
+
+if.then22.i765:
+  br label %_ZL3batPKhj.exit776
+
+_ZL3batPKhj.exit776:
+  %retval.0.shrunk.i761 = phi i8 [ noundef zeroext %s0, %if.then.i775 ], [ noundef zeroext %s1, %if.then2.i773 ], [ noundef zeroext %s2, %if.then7.i771 ], [ noundef zeroext %s3, %if.then12.i769 ], [ noundef zeroext %s4, %if.then17.i767 ], [ noundef zeroext %s5, %if.then22.i765 ], [ 0, %if.end56.i343 ]
+  %retval.0.i762 = zext i8 %retval.0.shrunk.i761 to i32
+  %add61.i347 = or disjoint i32 %pc.3, 2
+  switch i32 %add61.i347, label %_ZL3batPKhj.exit758 [
+    i32 3, label %if.then12.i751
+    i32 2, label %if.then7.i753
+  ]
+
+if.then12.i751:
+  br label %_ZL3batPKhj.exit758
+
+if.then7.i753:
+  br label %_ZL3batPKhj.exit758
+
+_ZL3batPKhj.exit758:
+  %retval.0.shrunk.i743 = phi i8 [ noundef zeroext %s2, %if.then7.i753 ], [ noundef zeroext %s3, %if.then12.i751 ], [ 0, %_ZL3batPKhj.exit776 ]
+  %retval.0.i744 = zext i8 %retval.0.shrunk.i743 to i32
+  %#8 = shl nsw nuw i32 %retval.0.i744, 8
+  %or65130.i349 = or disjoint i32 %#8, %retval.0.i762
+  switch i32 %pc.3, label %_ZL3batPKhj.exit740 [
+    i32 4294967293, label %if.then.i739
+    i32 4294967294, label %if.then2.i737
+    i32 4294967295, label %if.then7.i735
+    i32 0, label %if.then12.i733
+    i32 1, label %if.then17.i731
+    i32 2, label %if.then22.i729
+  ]
+
+if.then.i739:
+  br label %_ZL3batPKhj.exit740
+
+if.then2.i737:
+  br label %_ZL3batPKhj.exit740
+
+if.then7.i735:
+  br label %_ZL3batPKhj.exit740
+
+if.then12.i733:
+  br label %_ZL3batPKhj.exit740
+
+if.then17.i731:
+  br label %_ZL3batPKhj.exit740
+
+if.then22.i729:
+  br label %_ZL3batPKhj.exit740
+
+_ZL3batPKhj.exit740:
+  %retval.0.shrunk.i725 = phi i8 [ noundef zeroext %s0, %if.then.i739 ], [ noundef zeroext %s1, %if.then2.i737 ], [ noundef zeroext %s2, %if.then7.i735 ], [ noundef zeroext %s3, %if.then12.i733 ], [ noundef zeroext %s4, %if.then17.i731 ], [ noundef zeroext %s5, %if.then22.i729 ], [ 0, %_ZL3batPKhj.exit758 ]
+  %retval.0.i726 = zext i8 %retval.0.shrunk.i725 to i32
+  %#9 = shl nsw nuw i32 %retval.0.i726, 16
+  %or70131.i352 = or disjoint i32 %#9, %or65130.i349
+  switch i32 %add53.i344, label %_ZL3batPKhj.exit722 [
+    i32 5, label %if.then22.i711
+    i32 4, label %if.then17.i713
+  ]
+
+if.then22.i711:
+  br label %_ZL3batPKhj.exit722
+
+if.then17.i713:
+  br label %_ZL3batPKhj.exit722
+
+_ZL3batPKhj.exit722:
+  %retval.0.shrunk.i707 = phi i8 [ noundef zeroext %s4, %if.then17.i713 ], [ noundef zeroext %s5, %if.then22.i711 ], [ 0, %_ZL3batPKhj.exit740 ]
+  %retval.0.i708 = zext i8 %retval.0.shrunk.i707 to i32
+  %#10 = shl nuw i32 %retval.0.i708, 24
+  %or75132.i354 = or disjoint i32 %#10, %or70131.i352
+  %or75.i355 = zext i32 %or75132.i354 to i64
+  %narrow.i356 = add nsw nuw i32 %pc.3, 5
+  %add77.i357 = zext nneg i32 %narrow.i356 to i64
+  %add78.i358 = add nsw nuw i64 %or75.i355, %add77.i357
+  %cmp79.i359 = icmp samesign ult i64 %add78.i358, 7
+  %add83.i363 = add i32 %or75132.i354, %narrow.i356
+  %spec.select1497 = select i1 %cmp79.i359, i32 %add83.i363, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit399
+
+_ZL5getopPKhjRjS1_.exit399:
+  %nx41.0 = phi i32 [ %add88.i391, %if.end87.i390 ], [ 0, %if.then52.i341 ], [ 0, %if.then30.i364 ], [ 0, %if.then12.i379 ], [ %spec.select1491, %if.then2.i392 ], [ %spec.select1493, %_ZL3batPKhj.exit668 ], [ %spec.select1495, %_ZL3batPKhj.exit686 ], [ %spec.select1497, %_ZL3batPKhj.exit722 ]
+  %retval.3.i360 = phi i1 [ 1, %if.end87.i390 ], [ 0, %if.then52.i341 ], [ 0, %if.then30.i364 ], [ 0, %if.then12.i379 ], [ %cmp5.i395, %if.then2.i392 ], [ %cmp23.i386, %_ZL3batPKhj.exit668 ], [ %cmp44.i375, %_ZL3batPKhj.exit686 ], [ %cmp79.i359, %_ZL3batPKhj.exit722 ]
+  br i1 %retval.3.i360, label %if.else45, label %do.body58
+
+if.else45:
+  %#11 = shl nsw nuw i32 1, %opcodeIndex.3
+  %#12 = and i32 %#11, noundef %mask
+  %cmp48 = icmp ne i32 %#12, 0
+  %cmp50 = icmp eq i8 %retval.0.shrunk.i779, 171
+  %or.cond151 = and i1 %cmp48, %cmp50
+  %spec.select206 = select i1 %or.cond151, i32 %nx41.0, i32 %codeSep.5
+  %spec.select207 = select i1 %or.cond151, i32 %opcodeIndex.3, i32 %codeSepPos.5
+  %add53 = add nsw nuw i32 %opcodeIndex.3, 1
+  br label %do.body58
+
+do.body58:
+  %opcodeIndex.5 = phi i32 [ %opcodeIndex.3, %do.body35 ], [ %add53, %if.else45 ], [ %opcodeIndex.3, %_ZL5getopPKhjRjS1_.exit399 ]
+  %codeSep.8 = phi i32 [ %codeSep.5, %do.body35 ], [ %spec.select206, %if.else45 ], [ %codeSep.5, %_ZL5getopPKhjRjS1_.exit399 ]
+  %codeSepPos.8 = phi i32 [ %codeSepPos.5, %do.body35 ], [ %spec.select207, %if.else45 ], [ %codeSepPos.5, %_ZL5getopPKhjRjS1_.exit399 ]
+  %bad.5 = phi i32 [ %bad.3, %do.body35 ], [ 0, %if.else45 ], [ 1, %_ZL5getopPKhjRjS1_.exit399 ]
+  %pc.5 = phi i32 [ %pc.3, %do.body35 ], [ %nx41.0, %if.else45 ], [ %pc.3, %_ZL5getopPKhjRjS1_.exit399 ]
+  %tobool59 = icmp eq i32 %bad.5, 0
+  %cmp61 = icmp ult i32 %pc.5, 6
+  %or.cond152 = select i1 %tobool59, i1 %cmp61, i1 0
+  br i1 %or.cond152, label %if.then62, label %do.body81
+
+if.then62:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit938 [
+    i32 0, label %if.then.i937
+    i32 1, label %if.then2.i935
+    i32 2, label %if.then7.i933
+    i32 3, label %if.then12.i931
+    i32 4, label %if.then17.i929
+    i32 5, label %if.then22.i927
+  ]
+
+if.then.i937:
+  br label %_ZL3batPKhj.exit938
+
+if.then2.i935:
+  br label %_ZL3batPKhj.exit938
+
+if.then7.i933:
+  br label %_ZL3batPKhj.exit938
+
+if.then12.i931:
+  br label %_ZL3batPKhj.exit938
+
+if.then17.i929:
+  br label %_ZL3batPKhj.exit938
+
+if.then22.i927:
+  br label %_ZL3batPKhj.exit938
+
+_ZL3batPKhj.exit938:
+  %retval.0.shrunk.i923 = phi i8 [ noundef zeroext %s0, %if.then.i937 ], [ noundef zeroext %s1, %if.then2.i935 ], [ noundef zeroext %s2, %if.then7.i933 ], [ noundef zeroext %s3, %if.then12.i931 ], [ noundef zeroext %s4, %if.then17.i929 ], [ noundef zeroext %s5, %if.then22.i927 ], [ 0, %if.then62 ]
+  %cmp1.i277 = icmp ult i8 %retval.0.shrunk.i923, 76
+  br i1 %cmp1.i277, label %if.then2.i330, label %if.end10.i278
+
+if.then2.i330:
+  %retval.0.i924 = zext nneg i8 %retval.0.shrunk.i923 to i32
+  %narrow137.i331 = add nsw nuw i32 %pc.5, 1
+  %narrow138.i332 = add nsw nuw i32 %narrow137.i331, %retval.0.i924
+  %cmp5.i333 = icmp samesign ult i32 %narrow138.i332, 7
+  %spec.select1499 = select i1 %cmp5.i333, i32 %narrow138.i332, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit337
+
+if.end10.i278:
+  switch i8 %retval.0.shrunk.i923, label %if.end87.i328 [
+    i8 76, label %if.then12.i317
+    i8 77, label %if.then30.i302
+    i8 78, label %if.then52.i279
+  ]
+
+if.end87.i328:
+  %add88.i329 = add nsw nuw i32 %pc.5, 1
+  br label %_ZL5getopPKhjRjS1_.exit337
+
+if.then12.i317:
+  %cmp14.i318 = icmp samesign ugt i32 %pc.5, 4
+  br i1 %cmp14.i318, label %_ZL5getopPKhjRjS1_.exit337, label %if.end16.i319
+
+if.end16.i319:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit812 [
+    i32 4294967295, label %if.then.i811
+    i32 0, label %if.then2.i809
+    i32 1, label %if.then7.i807
+    i32 2, label %if.then12.i805
+    i32 3, label %if.then17.i803
+    i32 4, label %if.then22.i801
+  ]
+
+if.then.i811:
+  br label %_ZL3batPKhj.exit812
+
+if.then2.i809:
+  br label %_ZL3batPKhj.exit812
+
+if.then7.i807:
+  br label %_ZL3batPKhj.exit812
+
+if.then12.i805:
+  br label %_ZL3batPKhj.exit812
+
+if.then17.i803:
+  br label %_ZL3batPKhj.exit812
+
+if.then22.i801:
+  br label %_ZL3batPKhj.exit812
+
+_ZL3batPKhj.exit812:
+  %retval.0.shrunk.i797 = phi i8 [ noundef zeroext %s0, %if.then.i811 ], [ noundef zeroext %s1, %if.then2.i809 ], [ noundef zeroext %s2, %if.then7.i807 ], [ noundef zeroext %s3, %if.then12.i805 ], [ noundef zeroext %s4, %if.then17.i803 ], [ noundef zeroext %s5, %if.then22.i801 ], [ 0, %if.end16.i319 ]
+  %retval.0.i798 = zext i8 %retval.0.shrunk.i797 to i32
+  %narrow135.i322 = add nsw nuw i32 %pc.5, 2
+  %narrow136.i323 = add nsw nuw i32 %narrow135.i322, %retval.0.i798
+  %cmp23.i324 = icmp samesign ult i32 %narrow136.i323, 7
+  %spec.select1501 = select i1 %cmp23.i324, i32 %narrow136.i323, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit337
+
+if.then30.i302:
+  %cmp32.i303 = icmp samesign ugt i32 %pc.5, 3
+  br i1 %cmp32.i303, label %_ZL5getopPKhjRjS1_.exit337, label %if.end34.i304
+
+if.end34.i304:
+  switch i32 %pc.5, label %_ZL3batPKhj.exit848 [
+    i32 4294967295, label %if.then.i847
+    i32 0, label %if.then2.i845
+    i32 1, label %if.then7.i843
+    i32 2, label %if.then12.i841
+    i32 3, label %if.then17.i839
+    i32 4, label %if.then22.i837
+  ]
+
+if.then.i847:
+  br label %_ZL3batPKhj.exit848
+
+if.then2.i845:
+  br label %_ZL3batPKhj.exit848
+
+if.then7.i843:
+  br label %_ZL3batPKhj.exit848
+
+if.then12.i841:
+  br label %_ZL3batPKhj.exit848
+
+if.then17.i839:
+  br label %_ZL3batPKhj.exit848
+
+if.then22.i837:
+  br label %_ZL3batPKhj.exit848
+
+_ZL3batPKhj.exit848:
+  %retval.0.shrunk.i833 = phi i8 [ noundef zeroext %s0, %if.then.i847 ], [ noundef zeroext %s1, %if.then2.i845 ], [ noundef zeroext %s2, %if.then7.i843 ], [ noundef zeroext %s3, %if.then12.i841 ], [ noundef zeroext %s4, %if.then17.i839 ], [ noundef zeroext %s5, %if.then22.i837 ], [ 0, %if.end34.i304 ]
+  %retval.0.i834 = zext i8 %retval.0.shrunk.i833 to i32
+  switch i32 %pc.5, label %_ZL3batPKhj.exit830 [
+    i32 4294967294, label %if.then.i829
+    i32 4294967295, label %if.then2.i827
+    i32 0, label %if.then7.i825
+    i32 1, label %if.then12.i823
+    i32 2, label %if.then17.i821
+    i32 3, label %if.then22.i819
+  ]
+
+if.then.i829:
+  br label %_ZL3batPKhj.exit830
+
+if.then2.i827:
+  br label %_ZL3batPKhj.exit830
+
+if.then7.i825:
+  br label %_ZL3batPKhj.exit830
+
+if.then12.i823:
+  br label %_ZL3batPKhj.exit830
+
+if.then17.i821:
+  br label %_ZL3batPKhj.exit830
+
+if.then22.i819:
+  br label %_ZL3batPKhj.exit830
+
+_ZL3batPKhj.exit830:
+  %retval.0.shrunk.i815 = phi i8 [ noundef zeroext %s0, %if.then.i829 ], [ noundef zeroext %s1, %if.then2.i827 ], [ noundef zeroext %s2, %if.then7.i825 ], [ noundef zeroext %s3, %if.then12.i823 ], [ noundef zeroext %s4, %if.then17.i821 ], [ noundef zeroext %s5, %if.then22.i819 ], [ 0, %_ZL3batPKhj.exit848 ]
+  %retval.0.i816 = zext i8 %retval.0.shrunk.i815 to i32
+  %shl.i309 = shl nsw nuw i32 %retval.0.i816, 8
+  %or.i310 = add nsw nuw i32 %pc.5, 3
+  %narrow133.i311 = add nsw nuw i32 %or.i310, %retval.0.i834
+  %narrow134.i312 = add nsw nuw i32 %narrow133.i311, %shl.i309
+  %cmp44.i313 = icmp samesign ult i32 %narrow134.i312, 7
+  %spec.select1503 = select i1 %cmp44.i313, i32 %narrow134.i312, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit337
+
+if.then52.i279:
+  %cmp54.i280 = icmp samesign ugt i32 %pc.5, 1
+  br i1 %cmp54.i280, label %_ZL5getopPKhjRjS1_.exit337, label %if.end56.i281
+
+if.end56.i281:
+  %add53.i282 = or disjoint i32 %pc.5, 4
+  switch i32 %pc.5, label %_ZL3batPKhj.exit920 [
+    i32 4294967295, label %if.then.i919
+    i32 0, label %if.then2.i917
+    i32 1, label %if.then7.i915
+    i32 2, label %if.then12.i913
+    i32 3, label %if.then17.i911
+    i32 4, label %if.then22.i909
+  ]
+
+if.then.i919:
+  br label %_ZL3batPKhj.exit920
+
+if.then2.i917:
+  br label %_ZL3batPKhj.exit920
+
+if.then7.i915:
+  br label %_ZL3batPKhj.exit920
+
+if.then12.i913:
+  br label %_ZL3batPKhj.exit920
+
+if.then17.i911:
+  br label %_ZL3batPKhj.exit920
+
+if.then22.i909:
+  br label %_ZL3batPKhj.exit920
+
+_ZL3batPKhj.exit920:
+  %retval.0.shrunk.i905 = phi i8 [ noundef zeroext %s0, %if.then.i919 ], [ noundef zeroext %s1, %if.then2.i917 ], [ noundef zeroext %s2, %if.then7.i915 ], [ noundef zeroext %s3, %if.then12.i913 ], [ noundef zeroext %s4, %if.then17.i911 ], [ noundef zeroext %s5, %if.then22.i909 ], [ 0, %if.end56.i281 ]
+  %retval.0.i906 = zext i8 %retval.0.shrunk.i905 to i32
+  %add61.i285 = or disjoint i32 %pc.5, 2
+  switch i32 %add61.i285, label %_ZL3batPKhj.exit902 [
+    i32 3, label %if.then12.i895
+    i32 2, label %if.then7.i897
+  ]
+
+if.then12.i895:
+  br label %_ZL3batPKhj.exit902
+
+if.then7.i897:
+  br label %_ZL3batPKhj.exit902
+
+_ZL3batPKhj.exit902:
+  %retval.0.shrunk.i887 = phi i8 [ noundef zeroext %s2, %if.then7.i897 ], [ noundef zeroext %s3, %if.then12.i895 ], [ 0, %_ZL3batPKhj.exit920 ]
+  %retval.0.i888 = zext i8 %retval.0.shrunk.i887 to i32
+  %#13 = shl nsw nuw i32 %retval.0.i888, 8
+  %or65130.i287 = or disjoint i32 %#13, %retval.0.i906
+  switch i32 %pc.5, label %_ZL3batPKhj.exit884 [
+    i32 4294967293, label %if.then.i883
+    i32 4294967294, label %if.then2.i881
+    i32 4294967295, label %if.then7.i879
+    i32 0, label %if.then12.i877
+    i32 1, label %if.then17.i875
+    i32 2, label %if.then22.i873
+  ]
+
+if.then.i883:
+  br label %_ZL3batPKhj.exit884
+
+if.then2.i881:
+  br label %_ZL3batPKhj.exit884
+
+if.then7.i879:
+  br label %_ZL3batPKhj.exit884
+
+if.then12.i877:
+  br label %_ZL3batPKhj.exit884
+
+if.then17.i875:
+  br label %_ZL3batPKhj.exit884
+
+if.then22.i873:
+  br label %_ZL3batPKhj.exit884
+
+_ZL3batPKhj.exit884:
+  %retval.0.shrunk.i869 = phi i8 [ noundef zeroext %s0, %if.then.i883 ], [ noundef zeroext %s1, %if.then2.i881 ], [ noundef zeroext %s2, %if.then7.i879 ], [ noundef zeroext %s3, %if.then12.i877 ], [ noundef zeroext %s4, %if.then17.i875 ], [ noundef zeroext %s5, %if.then22.i873 ], [ 0, %_ZL3batPKhj.exit902 ]
+  %retval.0.i870 = zext i8 %retval.0.shrunk.i869 to i32
+  %#14 = shl nsw nuw i32 %retval.0.i870, 16
+  %or70131.i290 = or disjoint i32 %#14, %or65130.i287
+  switch i32 %add53.i282, label %_ZL3batPKhj.exit866 [
+    i32 5, label %if.then22.i855
+    i32 4, label %if.then17.i857
+  ]
+
+if.then22.i855:
+  br label %_ZL3batPKhj.exit866
+
+if.then17.i857:
+  br label %_ZL3batPKhj.exit866
+
+_ZL3batPKhj.exit866:
+  %retval.0.shrunk.i851 = phi i8 [ noundef zeroext %s4, %if.then17.i857 ], [ noundef zeroext %s5, %if.then22.i855 ], [ 0, %_ZL3batPKhj.exit884 ]
+  %retval.0.i852 = zext i8 %retval.0.shrunk.i851 to i32
+  %#15 = shl nuw i32 %retval.0.i852, 24
+  %or75132.i292 = or disjoint i32 %#15, %or70131.i290
+  %or75.i293 = zext i32 %or75132.i292 to i64
+  %narrow.i294 = add nsw nuw i32 %pc.5, 5
+  %add77.i295 = zext nneg i32 %narrow.i294 to i64
+  %add78.i296 = add nsw nuw i64 %or75.i293, %add77.i295
+  %cmp79.i297 = icmp samesign ult i64 %add78.i296, 7
+  %add83.i301 = add i32 %or75132.i292, %narrow.i294
+  %spec.select1505 = select i1 %cmp79.i297, i32 %add83.i301, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit337
+
+_ZL5getopPKhjRjS1_.exit337:
+  %nx64.0 = phi i32 [ %add88.i329, %if.end87.i328 ], [ 0, %if.then52.i279 ], [ 0, %if.then30.i302 ], [ 0, %if.then12.i317 ], [ %spec.select1499, %if.then2.i330 ], [ %spec.select1501, %_ZL3batPKhj.exit812 ], [ %spec.select1503, %_ZL3batPKhj.exit830 ], [ %spec.select1505, %_ZL3batPKhj.exit866 ]
+  %retval.3.i298 = phi i1 [ 1, %if.end87.i328 ], [ 0, %if.then52.i279 ], [ 0, %if.then30.i302 ], [ 0, %if.then12.i317 ], [ %cmp5.i333, %if.then2.i330 ], [ %cmp23.i324, %_ZL3batPKhj.exit812 ], [ %cmp44.i313, %_ZL3batPKhj.exit830 ], [ %cmp79.i297, %_ZL3batPKhj.exit866 ]
+  br i1 %retval.3.i298, label %if.else68, label %do.body81
+
+if.else68:
+  %#16 = shl nsw nuw i32 1, %opcodeIndex.5
+  %#17 = and i32 %#16, noundef %mask
+  %cmp71 = icmp ne i32 %#17, 0
+  %cmp73 = icmp eq i8 %retval.0.shrunk.i923, 171
+  %or.cond153 = and i1 %cmp71, %cmp73
+  %spec.select208 = select i1 %or.cond153, i32 %nx64.0, i32 %codeSep.8
+  %spec.select209 = select i1 %or.cond153, i32 %opcodeIndex.5, i32 %codeSepPos.8
+  %add76 = add nsw nuw i32 %opcodeIndex.5, 1
+  br label %do.body81
+
+do.body81:
+  %opcodeIndex.7 = phi i32 [ %opcodeIndex.5, %do.body58 ], [ %add76, %if.else68 ], [ %opcodeIndex.5, %_ZL5getopPKhjRjS1_.exit337 ]
+  %codeSep.11 = phi i32 [ %codeSep.8, %do.body58 ], [ %spec.select208, %if.else68 ], [ %codeSep.8, %_ZL5getopPKhjRjS1_.exit337 ]
+  %codeSepPos.11 = phi i32 [ %codeSepPos.8, %do.body58 ], [ %spec.select209, %if.else68 ], [ %codeSepPos.8, %_ZL5getopPKhjRjS1_.exit337 ]
+  %bad.7 = phi i32 [ %bad.5, %do.body58 ], [ 0, %if.else68 ], [ 1, %_ZL5getopPKhjRjS1_.exit337 ]
+  %pc.7 = phi i32 [ %pc.5, %do.body58 ], [ %nx64.0, %if.else68 ], [ %pc.5, %_ZL5getopPKhjRjS1_.exit337 ]
+  %tobool82 = icmp eq i32 %bad.7, 0
+  %cmp84 = icmp ult i32 %pc.7, 6
+  %or.cond154 = select i1 %tobool82, i1 %cmp84, i1 0
+  br i1 %or.cond154, label %if.then85, label %do.body104
+
+if.then85:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit1082 [
+    i32 0, label %if.then.i1081
+    i32 1, label %if.then2.i1079
+    i32 2, label %if.then7.i1077
+    i32 3, label %if.then12.i1075
+    i32 4, label %if.then17.i1073
+    i32 5, label %if.then22.i1071
+  ]
+
+if.then.i1081:
+  br label %_ZL3batPKhj.exit1082
+
+if.then2.i1079:
+  br label %_ZL3batPKhj.exit1082
+
+if.then7.i1077:
+  br label %_ZL3batPKhj.exit1082
+
+if.then12.i1075:
+  br label %_ZL3batPKhj.exit1082
+
+if.then17.i1073:
+  br label %_ZL3batPKhj.exit1082
+
+if.then22.i1071:
+  br label %_ZL3batPKhj.exit1082
+
+_ZL3batPKhj.exit1082:
+  %retval.0.shrunk.i1067 = phi i8 [ noundef zeroext %s0, %if.then.i1081 ], [ noundef zeroext %s1, %if.then2.i1079 ], [ noundef zeroext %s2, %if.then7.i1077 ], [ noundef zeroext %s3, %if.then12.i1075 ], [ noundef zeroext %s4, %if.then17.i1073 ], [ noundef zeroext %s5, %if.then22.i1071 ], [ 0, %if.then85 ]
+  %cmp1.i215 = icmp ult i8 %retval.0.shrunk.i1067, 76
+  br i1 %cmp1.i215, label %if.then2.i268, label %if.end10.i216
+
+if.then2.i268:
+  %retval.0.i1068 = zext nneg i8 %retval.0.shrunk.i1067 to i32
+  %narrow137.i269 = add nsw nuw i32 %pc.7, 1
+  %narrow138.i270 = add nsw nuw i32 %narrow137.i269, %retval.0.i1068
+  %cmp5.i271 = icmp samesign ult i32 %narrow138.i270, 7
+  %spec.select1507 = select i1 %cmp5.i271, i32 %narrow138.i270, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit275
+
+if.end10.i216:
+  switch i8 %retval.0.shrunk.i1067, label %if.end87.i266 [
+    i8 76, label %if.then12.i255
+    i8 77, label %if.then30.i240
+    i8 78, label %if.then52.i217
+  ]
+
+if.end87.i266:
+  %add88.i267 = add nsw nuw i32 %pc.7, 1
+  br label %_ZL5getopPKhjRjS1_.exit275
+
+if.then12.i255:
+  %cmp14.i256 = icmp samesign ugt i32 %pc.7, 4
+  br i1 %cmp14.i256, label %_ZL5getopPKhjRjS1_.exit275, label %if.end16.i257
+
+if.end16.i257:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit956 [
+    i32 4294967295, label %if.then.i955
+    i32 0, label %if.then2.i953
+    i32 1, label %if.then7.i951
+    i32 2, label %if.then12.i949
+    i32 3, label %if.then17.i947
+    i32 4, label %if.then22.i945
+  ]
+
+if.then.i955:
+  br label %_ZL3batPKhj.exit956
+
+if.then2.i953:
+  br label %_ZL3batPKhj.exit956
+
+if.then7.i951:
+  br label %_ZL3batPKhj.exit956
+
+if.then12.i949:
+  br label %_ZL3batPKhj.exit956
+
+if.then17.i947:
+  br label %_ZL3batPKhj.exit956
+
+if.then22.i945:
+  br label %_ZL3batPKhj.exit956
+
+_ZL3batPKhj.exit956:
+  %retval.0.shrunk.i941 = phi i8 [ noundef zeroext %s0, %if.then.i955 ], [ noundef zeroext %s1, %if.then2.i953 ], [ noundef zeroext %s2, %if.then7.i951 ], [ noundef zeroext %s3, %if.then12.i949 ], [ noundef zeroext %s4, %if.then17.i947 ], [ noundef zeroext %s5, %if.then22.i945 ], [ 0, %if.end16.i257 ]
+  %retval.0.i942 = zext i8 %retval.0.shrunk.i941 to i32
+  %narrow135.i260 = add nsw nuw i32 %pc.7, 2
+  %narrow136.i261 = add nsw nuw i32 %narrow135.i260, %retval.0.i942
+  %cmp23.i262 = icmp samesign ult i32 %narrow136.i261, 7
+  %spec.select1509 = select i1 %cmp23.i262, i32 %narrow136.i261, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit275
+
+if.then30.i240:
+  %cmp32.i241 = icmp samesign ugt i32 %pc.7, 3
+  br i1 %cmp32.i241, label %_ZL5getopPKhjRjS1_.exit275, label %if.end34.i242
+
+if.end34.i242:
+  switch i32 %pc.7, label %_ZL3batPKhj.exit992 [
+    i32 4294967295, label %if.then.i991
+    i32 0, label %if.then2.i989
+    i32 1, label %if.then7.i987
+    i32 2, label %if.then12.i985
+    i32 3, label %if.then17.i983
+    i32 4, label %if.then22.i981
+  ]
+
+if.then.i991:
+  br label %_ZL3batPKhj.exit992
+
+if.then2.i989:
+  br label %_ZL3batPKhj.exit992
+
+if.then7.i987:
+  br label %_ZL3batPKhj.exit992
+
+if.then12.i985:
+  br label %_ZL3batPKhj.exit992
+
+if.then17.i983:
+  br label %_ZL3batPKhj.exit992
+
+if.then22.i981:
+  br label %_ZL3batPKhj.exit992
+
+_ZL3batPKhj.exit992:
+  %retval.0.shrunk.i977 = phi i8 [ noundef zeroext %s0, %if.then.i991 ], [ noundef zeroext %s1, %if.then2.i989 ], [ noundef zeroext %s2, %if.then7.i987 ], [ noundef zeroext %s3, %if.then12.i985 ], [ noundef zeroext %s4, %if.then17.i983 ], [ noundef zeroext %s5, %if.then22.i981 ], [ 0, %if.end34.i242 ]
+  %retval.0.i978 = zext i8 %retval.0.shrunk.i977 to i32
+  switch i32 %pc.7, label %_ZL3batPKhj.exit974 [
+    i32 4294967294, label %if.then.i973
+    i32 4294967295, label %if.then2.i971
+    i32 0, label %if.then7.i969
+    i32 1, label %if.then12.i967
+    i32 2, label %if.then17.i965
+    i32 3, label %if.then22.i963
+  ]
+
+if.then.i973:
+  br label %_ZL3batPKhj.exit974
+
+if.then2.i971:
+  br label %_ZL3batPKhj.exit974
+
+if.then7.i969:
+  br label %_ZL3batPKhj.exit974
+
+if.then12.i967:
+  br label %_ZL3batPKhj.exit974
+
+if.then17.i965:
+  br label %_ZL3batPKhj.exit974
+
+if.then22.i963:
+  br label %_ZL3batPKhj.exit974
+
+_ZL3batPKhj.exit974:
+  %retval.0.shrunk.i959 = phi i8 [ noundef zeroext %s0, %if.then.i973 ], [ noundef zeroext %s1, %if.then2.i971 ], [ noundef zeroext %s2, %if.then7.i969 ], [ noundef zeroext %s3, %if.then12.i967 ], [ noundef zeroext %s4, %if.then17.i965 ], [ noundef zeroext %s5, %if.then22.i963 ], [ 0, %_ZL3batPKhj.exit992 ]
+  %retval.0.i960 = zext i8 %retval.0.shrunk.i959 to i32
+  %shl.i247 = shl nsw nuw i32 %retval.0.i960, 8
+  %or.i248 = add nsw nuw i32 %pc.7, 3
+  %narrow133.i249 = add nsw nuw i32 %or.i248, %retval.0.i978
+  %narrow134.i250 = add nsw nuw i32 %narrow133.i249, %shl.i247
+  %cmp44.i251 = icmp samesign ult i32 %narrow134.i250, 7
+  %spec.select1511 = select i1 %cmp44.i251, i32 %narrow134.i250, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit275
+
+if.then52.i217:
+  %cmp54.i218 = icmp samesign ugt i32 %pc.7, 1
+  br i1 %cmp54.i218, label %_ZL5getopPKhjRjS1_.exit275, label %if.end56.i219
+
+if.end56.i219:
+  %add53.i220 = or disjoint i32 %pc.7, 4
+  switch i32 %pc.7, label %_ZL3batPKhj.exit1064 [
+    i32 4294967295, label %if.then.i1063
+    i32 0, label %if.then2.i1061
+    i32 1, label %if.then7.i1059
+    i32 2, label %if.then12.i1057
+    i32 3, label %if.then17.i1055
+    i32 4, label %if.then22.i1053
+  ]
+
+if.then.i1063:
+  br label %_ZL3batPKhj.exit1064
+
+if.then2.i1061:
+  br label %_ZL3batPKhj.exit1064
+
+if.then7.i1059:
+  br label %_ZL3batPKhj.exit1064
+
+if.then12.i1057:
+  br label %_ZL3batPKhj.exit1064
+
+if.then17.i1055:
+  br label %_ZL3batPKhj.exit1064
+
+if.then22.i1053:
+  br label %_ZL3batPKhj.exit1064
+
+_ZL3batPKhj.exit1064:
+  %retval.0.shrunk.i1049 = phi i8 [ noundef zeroext %s0, %if.then.i1063 ], [ noundef zeroext %s1, %if.then2.i1061 ], [ noundef zeroext %s2, %if.then7.i1059 ], [ noundef zeroext %s3, %if.then12.i1057 ], [ noundef zeroext %s4, %if.then17.i1055 ], [ noundef zeroext %s5, %if.then22.i1053 ], [ 0, %if.end56.i219 ]
+  %retval.0.i1050 = zext i8 %retval.0.shrunk.i1049 to i32
+  %add61.i223 = or disjoint i32 %pc.7, 2
+  switch i32 %add61.i223, label %_ZL3batPKhj.exit1046 [
+    i32 3, label %if.then12.i1039
+    i32 2, label %if.then7.i1041
+  ]
+
+if.then12.i1039:
+  br label %_ZL3batPKhj.exit1046
+
+if.then7.i1041:
+  br label %_ZL3batPKhj.exit1046
+
+_ZL3batPKhj.exit1046:
+  %retval.0.shrunk.i1031 = phi i8 [ noundef zeroext %s2, %if.then7.i1041 ], [ noundef zeroext %s3, %if.then12.i1039 ], [ 0, %_ZL3batPKhj.exit1064 ]
+  %retval.0.i1032 = zext i8 %retval.0.shrunk.i1031 to i32
+  %#18 = shl nsw nuw i32 %retval.0.i1032, 8
+  %or65130.i225 = or disjoint i32 %#18, %retval.0.i1050
+  switch i32 %pc.7, label %_ZL3batPKhj.exit1028 [
+    i32 4294967293, label %if.then.i1027
+    i32 4294967294, label %if.then2.i1025
+    i32 4294967295, label %if.then7.i1023
+    i32 0, label %if.then12.i1021
+    i32 1, label %if.then17.i1019
+    i32 2, label %if.then22.i1017
+  ]
+
+if.then.i1027:
+  br label %_ZL3batPKhj.exit1028
+
+if.then2.i1025:
+  br label %_ZL3batPKhj.exit1028
+
+if.then7.i1023:
+  br label %_ZL3batPKhj.exit1028
+
+if.then12.i1021:
+  br label %_ZL3batPKhj.exit1028
+
+if.then17.i1019:
+  br label %_ZL3batPKhj.exit1028
+
+if.then22.i1017:
+  br label %_ZL3batPKhj.exit1028
+
+_ZL3batPKhj.exit1028:
+  %retval.0.shrunk.i1013 = phi i8 [ noundef zeroext %s0, %if.then.i1027 ], [ noundef zeroext %s1, %if.then2.i1025 ], [ noundef zeroext %s2, %if.then7.i1023 ], [ noundef zeroext %s3, %if.then12.i1021 ], [ noundef zeroext %s4, %if.then17.i1019 ], [ noundef zeroext %s5, %if.then22.i1017 ], [ 0, %_ZL3batPKhj.exit1046 ]
+  %retval.0.i1014 = zext i8 %retval.0.shrunk.i1013 to i32
+  %#19 = shl nsw nuw i32 %retval.0.i1014, 16
+  %or70131.i228 = or disjoint i32 %#19, %or65130.i225
+  switch i32 %add53.i220, label %_ZL3batPKhj.exit1010 [
+    i32 5, label %if.then22.i999
+    i32 4, label %if.then17.i1001
+  ]
+
+if.then22.i999:
+  br label %_ZL3batPKhj.exit1010
+
+if.then17.i1001:
+  br label %_ZL3batPKhj.exit1010
+
+_ZL3batPKhj.exit1010:
+  %retval.0.shrunk.i995 = phi i8 [ noundef zeroext %s4, %if.then17.i1001 ], [ noundef zeroext %s5, %if.then22.i999 ], [ 0, %_ZL3batPKhj.exit1028 ]
+  %retval.0.i996 = zext i8 %retval.0.shrunk.i995 to i32
+  %#20 = shl nuw i32 %retval.0.i996, 24
+  %or75132.i230 = or disjoint i32 %#20, %or70131.i228
+  %or75.i231 = zext i32 %or75132.i230 to i64
+  %narrow.i232 = add nsw nuw i32 %pc.7, 5
+  %add77.i233 = zext nneg i32 %narrow.i232 to i64
+  %add78.i234 = add nsw nuw i64 %or75.i231, %add77.i233
+  %cmp79.i235 = icmp samesign ult i64 %add78.i234, 7
+  %add83.i239 = add i32 %or75132.i230, %narrow.i232
+  %spec.select1513 = select i1 %cmp79.i235, i32 %add83.i239, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit275
+
+_ZL5getopPKhjRjS1_.exit275:
+  %nx87.0 = phi i32 [ %add88.i267, %if.end87.i266 ], [ 0, %if.then52.i217 ], [ 0, %if.then30.i240 ], [ 0, %if.then12.i255 ], [ %spec.select1507, %if.then2.i268 ], [ %spec.select1509, %_ZL3batPKhj.exit956 ], [ %spec.select1511, %_ZL3batPKhj.exit974 ], [ %spec.select1513, %_ZL3batPKhj.exit1010 ]
+  %retval.3.i236 = phi i1 [ 1, %if.end87.i266 ], [ 0, %if.then52.i217 ], [ 0, %if.then30.i240 ], [ 0, %if.then12.i255 ], [ %cmp5.i271, %if.then2.i268 ], [ %cmp23.i262, %_ZL3batPKhj.exit956 ], [ %cmp44.i251, %_ZL3batPKhj.exit974 ], [ %cmp79.i235, %_ZL3batPKhj.exit1010 ]
+  br i1 %retval.3.i236, label %if.else91, label %do.body104
+
+if.else91:
+  %#21 = shl nsw nuw i32 1, %opcodeIndex.7
+  %#22 = and i32 %#21, noundef %mask
+  %cmp94 = icmp ne i32 %#22, 0
+  %cmp96 = icmp eq i8 %retval.0.shrunk.i1067, 171
+  %or.cond155 = and i1 %cmp94, %cmp96
+  %spec.select210 = select i1 %or.cond155, i32 %nx87.0, i32 %codeSep.11
+  %spec.select211 = select i1 %or.cond155, i32 %opcodeIndex.7, i32 %codeSepPos.11
+  %add99 = add nsw nuw i32 %opcodeIndex.7, 1
+  br label %do.body104
+
+do.body104:
+  %opcodeIndex.9 = phi i32 [ %opcodeIndex.7, %do.body81 ], [ %add99, %if.else91 ], [ %opcodeIndex.7, %_ZL5getopPKhjRjS1_.exit275 ]
+  %codeSep.14 = phi i32 [ %codeSep.11, %do.body81 ], [ %spec.select210, %if.else91 ], [ %codeSep.11, %_ZL5getopPKhjRjS1_.exit275 ]
+  %codeSepPos.14 = phi i32 [ %codeSepPos.11, %do.body81 ], [ %spec.select211, %if.else91 ], [ %codeSepPos.11, %_ZL5getopPKhjRjS1_.exit275 ]
+  %bad.9 = phi i32 [ %bad.7, %do.body81 ], [ 0, %if.else91 ], [ 1, %_ZL5getopPKhjRjS1_.exit275 ]
+  %pc.9 = phi i32 [ %pc.7, %do.body81 ], [ %nx87.0, %if.else91 ], [ %pc.7, %_ZL5getopPKhjRjS1_.exit275 ]
+  %tobool105 = icmp eq i32 %bad.9, 0
+  %cmp107 = icmp ult i32 %pc.9, 6
+  %or.cond156 = select i1 %tobool105, i1 %cmp107, i1 0
+  br i1 %or.cond156, label %if.then108, label %do.end126
+
+if.then108:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1226 [
+    i32 0, label %if.then.i1225
+    i32 1, label %if.then2.i1223
+    i32 2, label %if.then7.i1221
+    i32 3, label %if.then12.i1219
+    i32 4, label %if.then17.i1217
+    i32 5, label %if.then22.i1215
+  ]
+
+if.then.i1225:
+  br label %_ZL3batPKhj.exit1226
+
+if.then2.i1223:
+  br label %_ZL3batPKhj.exit1226
+
+if.then7.i1221:
+  br label %_ZL3batPKhj.exit1226
+
+if.then12.i1219:
+  br label %_ZL3batPKhj.exit1226
+
+if.then17.i1217:
+  br label %_ZL3batPKhj.exit1226
+
+if.then22.i1215:
+  br label %_ZL3batPKhj.exit1226
+
+_ZL3batPKhj.exit1226:
+  %retval.0.shrunk.i1211 = phi i8 [ noundef zeroext %s0, %if.then.i1225 ], [ noundef zeroext %s1, %if.then2.i1223 ], [ noundef zeroext %s2, %if.then7.i1221 ], [ noundef zeroext %s3, %if.then12.i1219 ], [ noundef zeroext %s4, %if.then17.i1217 ], [ noundef zeroext %s5, %if.then22.i1215 ], [ 0, %if.then108 ]
+  %cmp1.i = icmp ult i8 %retval.0.shrunk.i1211, 76
+  br i1 %cmp1.i, label %if.then2.i, label %if.end10.i
+
+if.then2.i:
+  %retval.0.i1212 = zext nneg i8 %retval.0.shrunk.i1211 to i32
+  %narrow137.i = add nsw nuw i32 %pc.9, 1
+  %narrow138.i = add nsw nuw i32 %narrow137.i, %retval.0.i1212
+  %cmp5.i = icmp samesign ult i32 %narrow138.i, 7
+  %spec.select1515 = select i1 %cmp5.i, i32 %narrow138.i, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit
+
+if.end10.i:
+  switch i8 %retval.0.shrunk.i1211, label %if.end87.i [
+    i8 76, label %if.then12.i
+    i8 77, label %if.then30.i
+    i8 78, label %if.then52.i
+  ]
+
+if.end87.i:
+  %add88.i = add nsw nuw i32 %pc.9, 1
+  br label %_ZL5getopPKhjRjS1_.exit
+
+if.then12.i:
+  %cmp14.i = icmp samesign ugt i32 %pc.9, 4
+  br i1 %cmp14.i, label %_ZL5getopPKhjRjS1_.exit, label %if.end16.i
+
+if.end16.i:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1100 [
+    i32 4294967295, label %if.then.i1099
+    i32 0, label %if.then2.i1097
+    i32 1, label %if.then7.i1095
+    i32 2, label %if.then12.i1093
+    i32 3, label %if.then17.i1091
+    i32 4, label %if.then22.i1089
+  ]
+
+if.then.i1099:
+  br label %_ZL3batPKhj.exit1100
+
+if.then2.i1097:
+  br label %_ZL3batPKhj.exit1100
+
+if.then7.i1095:
+  br label %_ZL3batPKhj.exit1100
+
+if.then12.i1093:
+  br label %_ZL3batPKhj.exit1100
+
+if.then17.i1091:
+  br label %_ZL3batPKhj.exit1100
+
+if.then22.i1089:
+  br label %_ZL3batPKhj.exit1100
+
+_ZL3batPKhj.exit1100:
+  %retval.0.shrunk.i1085 = phi i8 [ noundef zeroext %s0, %if.then.i1099 ], [ noundef zeroext %s1, %if.then2.i1097 ], [ noundef zeroext %s2, %if.then7.i1095 ], [ noundef zeroext %s3, %if.then12.i1093 ], [ noundef zeroext %s4, %if.then17.i1091 ], [ noundef zeroext %s5, %if.then22.i1089 ], [ 0, %if.end16.i ]
+  %retval.0.i1086 = zext i8 %retval.0.shrunk.i1085 to i32
+  %narrow135.i = add nsw nuw i32 %pc.9, 2
+  %narrow136.i = add nsw nuw i32 %narrow135.i, %retval.0.i1086
+  %cmp23.i = icmp samesign ult i32 %narrow136.i, 7
+  %spec.select1517 = select i1 %cmp23.i, i32 %narrow136.i, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit
+
+if.then30.i:
+  %cmp32.i = icmp samesign ugt i32 %pc.9, 3
+  br i1 %cmp32.i, label %_ZL5getopPKhjRjS1_.exit, label %if.end34.i
+
+if.end34.i:
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1136 [
+    i32 4294967295, label %if.then.i1135
+    i32 0, label %if.then2.i1133
+    i32 1, label %if.then7.i1131
+    i32 2, label %if.then12.i1129
+    i32 3, label %if.then17.i1127
+    i32 4, label %if.then22.i1125
+  ]
+
+if.then.i1135:
+  br label %_ZL3batPKhj.exit1136
+
+if.then2.i1133:
+  br label %_ZL3batPKhj.exit1136
+
+if.then7.i1131:
+  br label %_ZL3batPKhj.exit1136
+
+if.then12.i1129:
+  br label %_ZL3batPKhj.exit1136
+
+if.then17.i1127:
+  br label %_ZL3batPKhj.exit1136
+
+if.then22.i1125:
+  br label %_ZL3batPKhj.exit1136
+
+_ZL3batPKhj.exit1136:
+  %retval.0.shrunk.i1121 = phi i8 [ noundef zeroext %s0, %if.then.i1135 ], [ noundef zeroext %s1, %if.then2.i1133 ], [ noundef zeroext %s2, %if.then7.i1131 ], [ noundef zeroext %s3, %if.then12.i1129 ], [ noundef zeroext %s4, %if.then17.i1127 ], [ noundef zeroext %s5, %if.then22.i1125 ], [ 0, %if.end34.i ]
+  %retval.0.i1122 = zext i8 %retval.0.shrunk.i1121 to i32
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1118 [
+    i32 4294967294, label %if.then.i1117
+    i32 4294967295, label %if.then2.i1115
+    i32 0, label %if.then7.i1113
+    i32 1, label %if.then12.i1111
+    i32 2, label %if.then17.i1109
+    i32 3, label %if.then22.i1107
+  ]
+
+if.then.i1117:
+  br label %_ZL3batPKhj.exit1118
+
+if.then2.i1115:
+  br label %_ZL3batPKhj.exit1118
+
+if.then7.i1113:
+  br label %_ZL3batPKhj.exit1118
+
+if.then12.i1111:
+  br label %_ZL3batPKhj.exit1118
+
+if.then17.i1109:
+  br label %_ZL3batPKhj.exit1118
+
+if.then22.i1107:
+  br label %_ZL3batPKhj.exit1118
+
+_ZL3batPKhj.exit1118:
+  %retval.0.shrunk.i1103 = phi i8 [ noundef zeroext %s0, %if.then.i1117 ], [ noundef zeroext %s1, %if.then2.i1115 ], [ noundef zeroext %s2, %if.then7.i1113 ], [ noundef zeroext %s3, %if.then12.i1111 ], [ noundef zeroext %s4, %if.then17.i1109 ], [ noundef zeroext %s5, %if.then22.i1107 ], [ 0, %_ZL3batPKhj.exit1136 ]
+  %retval.0.i1104 = zext i8 %retval.0.shrunk.i1103 to i32
+  %shl.i = shl nsw nuw i32 %retval.0.i1104, 8
+  %or.i = add nsw nuw i32 %pc.9, 3
+  %narrow133.i = add nsw nuw i32 %or.i, %retval.0.i1122
+  %narrow134.i = add nsw nuw i32 %narrow133.i, %shl.i
+  %cmp44.i = icmp samesign ult i32 %narrow134.i, 7
+  %spec.select1519 = select i1 %cmp44.i, i32 %narrow134.i, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit
+
+if.then52.i:
+  %cmp54.i = icmp samesign ugt i32 %pc.9, 1
+  br i1 %cmp54.i, label %_ZL5getopPKhjRjS1_.exit, label %if.end56.i
+
+if.end56.i:
+  %add53.i = or disjoint i32 %pc.9, 4
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1208 [
+    i32 4294967295, label %if.then.i1207
+    i32 0, label %if.then2.i1205
+    i32 1, label %if.then7.i1203
+    i32 2, label %if.then12.i1201
+    i32 3, label %if.then17.i1199
+    i32 4, label %if.then22.i1197
+  ]
+
+if.then.i1207:
+  br label %_ZL3batPKhj.exit1208
+
+if.then2.i1205:
+  br label %_ZL3batPKhj.exit1208
+
+if.then7.i1203:
+  br label %_ZL3batPKhj.exit1208
+
+if.then12.i1201:
+  br label %_ZL3batPKhj.exit1208
+
+if.then17.i1199:
+  br label %_ZL3batPKhj.exit1208
+
+if.then22.i1197:
+  br label %_ZL3batPKhj.exit1208
+
+_ZL3batPKhj.exit1208:
+  %retval.0.shrunk.i1193 = phi i8 [ noundef zeroext %s0, %if.then.i1207 ], [ noundef zeroext %s1, %if.then2.i1205 ], [ noundef zeroext %s2, %if.then7.i1203 ], [ noundef zeroext %s3, %if.then12.i1201 ], [ noundef zeroext %s4, %if.then17.i1199 ], [ noundef zeroext %s5, %if.then22.i1197 ], [ 0, %if.end56.i ]
+  %retval.0.i1194 = zext i8 %retval.0.shrunk.i1193 to i32
+  %add61.i = or disjoint i32 %pc.9, 2
+  switch i32 %add61.i, label %_ZL3batPKhj.exit1190 [
+    i32 3, label %if.then12.i1183
+    i32 2, label %if.then7.i1185
+  ]
+
+if.then12.i1183:
+  br label %_ZL3batPKhj.exit1190
+
+if.then7.i1185:
+  br label %_ZL3batPKhj.exit1190
+
+_ZL3batPKhj.exit1190:
+  %retval.0.shrunk.i1175 = phi i8 [ noundef zeroext %s2, %if.then7.i1185 ], [ noundef zeroext %s3, %if.then12.i1183 ], [ 0, %_ZL3batPKhj.exit1208 ]
+  %retval.0.i1176 = zext i8 %retval.0.shrunk.i1175 to i32
+  %#23 = shl nsw nuw i32 %retval.0.i1176, 8
+  %or65130.i = or disjoint i32 %#23, %retval.0.i1194
+  switch i32 %pc.9, label %_ZL3batPKhj.exit1172 [
+    i32 4294967293, label %if.then.i1171
+    i32 4294967294, label %if.then2.i1169
+    i32 4294967295, label %if.then7.i1167
+    i32 0, label %if.then12.i1165
+    i32 1, label %if.then17.i1163
+    i32 2, label %if.then22.i1161
+  ]
+
+if.then.i1171:
+  br label %_ZL3batPKhj.exit1172
+
+if.then2.i1169:
+  br label %_ZL3batPKhj.exit1172
+
+if.then7.i1167:
+  br label %_ZL3batPKhj.exit1172
+
+if.then12.i1165:
+  br label %_ZL3batPKhj.exit1172
+
+if.then17.i1163:
+  br label %_ZL3batPKhj.exit1172
+
+if.then22.i1161:
+  br label %_ZL3batPKhj.exit1172
+
+_ZL3batPKhj.exit1172:
+  %retval.0.shrunk.i1157 = phi i8 [ noundef zeroext %s0, %if.then.i1171 ], [ noundef zeroext %s1, %if.then2.i1169 ], [ noundef zeroext %s2, %if.then7.i1167 ], [ noundef zeroext %s3, %if.then12.i1165 ], [ noundef zeroext %s4, %if.then17.i1163 ], [ noundef zeroext %s5, %if.then22.i1161 ], [ 0, %_ZL3batPKhj.exit1190 ]
+  %retval.0.i1158 = zext i8 %retval.0.shrunk.i1157 to i32
+  %#24 = shl nsw nuw i32 %retval.0.i1158, 16
+  %or70131.i = or disjoint i32 %#24, %or65130.i
+  switch i32 %add53.i, label %_ZL3batPKhj.exit1154 [
+    i32 5, label %if.then22.i1143
+    i32 4, label %if.then17.i1145
+  ]
+
+if.then22.i1143:
+  br label %_ZL3batPKhj.exit1154
+
+if.then17.i1145:
+  br label %_ZL3batPKhj.exit1154
+
+_ZL3batPKhj.exit1154:
+  %retval.0.shrunk.i1139 = phi i8 [ noundef zeroext %s4, %if.then17.i1145 ], [ noundef zeroext %s5, %if.then22.i1143 ], [ 0, %_ZL3batPKhj.exit1172 ]
+  %retval.0.i1140 = zext i8 %retval.0.shrunk.i1139 to i32
+  %#25 = shl nuw i32 %retval.0.i1140, 24
+  %or75132.i = or disjoint i32 %#25, %or70131.i
+  %or75.i = zext i32 %or75132.i to i64
+  %narrow.i = add nsw nuw i32 %pc.9, 5
+  %add77.i = zext nneg i32 %narrow.i to i64
+  %add78.i = add nsw nuw i64 %or75.i, %add77.i
+  %cmp79.i = icmp samesign ult i64 %add78.i, 7
+  %add83.i = add i32 %or75132.i, %narrow.i
+  %spec.select1521 = select i1 %cmp79.i, i32 %add83.i, i32 0
+  br label %_ZL5getopPKhjRjS1_.exit
+
+_ZL5getopPKhjRjS1_.exit:
+  %nx110.0 = phi i32 [ %add88.i, %if.end87.i ], [ 0, %if.then52.i ], [ 0, %if.then30.i ], [ 0, %if.then12.i ], [ %spec.select1515, %if.then2.i ], [ %spec.select1517, %_ZL3batPKhj.exit1100 ], [ %spec.select1519, %_ZL3batPKhj.exit1118 ], [ %spec.select1521, %_ZL3batPKhj.exit1154 ]
+  %retval.3.i = phi i1 [ 1, %if.end87.i ], [ 0, %if.then52.i ], [ 0, %if.then30.i ], [ 0, %if.then12.i ], [ %cmp5.i, %if.then2.i ], [ %cmp23.i, %_ZL3batPKhj.exit1100 ], [ %cmp44.i, %_ZL3batPKhj.exit1118 ], [ %cmp79.i, %_ZL3batPKhj.exit1154 ]
+  br i1 %retval.3.i, label %if.else114, label %do.end126
+
+if.else114:
+  %#26 = shl nsw nuw i32 1, %opcodeIndex.9
+  %#27 = and i32 %#26, noundef %mask
+  %cmp117 = icmp ne i32 %#27, 0
+  %cmp119 = icmp eq i8 %retval.0.shrunk.i1211, 171
+  %or.cond157 = and i1 %cmp117, %cmp119
+  %spec.select212 = select i1 %or.cond157, i32 %nx110.0, i32 %codeSep.14
+  %spec.select213 = select i1 %or.cond157, i32 %opcodeIndex.9, i32 %codeSepPos.14
+  %add122 = add nsw nuw i32 %opcodeIndex.9, 1
+  br label %do.end126
+
+do.end126:
+  %opcodeIndex.11 = phi i32 [ %opcodeIndex.9, %do.body104 ], [ %add122, %if.else114 ], [ %opcodeIndex.9, %_ZL5getopPKhjRjS1_.exit ]
+  %codeSep.17 = phi i32 [ %codeSep.14, %do.body104 ], [ %spec.select212, %if.else114 ], [ %codeSep.14, %_ZL5getopPKhjRjS1_.exit ]
+  %codeSepPos.17 = phi i32 [ %codeSepPos.14, %do.body104 ], [ %spec.select213, %if.else114 ], [ %codeSepPos.14, %_ZL5getopPKhjRjS1_.exit ]
+  %bad.11 = phi i32 [ %bad.9, %do.body104 ], [ 0, %if.else114 ], [ 1, %_ZL5getopPKhjRjS1_.exit ]
+  %pc.11 = phi i32 [ %pc.9, %do.body104 ], [ %nx110.0, %if.else114 ], [ %pc.9, %_ZL5getopPKhjRjS1_.exit ]
+  %cmp127 = icmp eq i32 %codeSepPos.17, 4294967295
+  %cmp128 = icmp eq i32 %codeSep.17, 0
+  %cmp129 = icmp ugt i32 %codeSep.17, %codeSepPos.17
+  %cond = select i1 %cmp127, i1 %cmp128, i1 %cmp129
+  %conv130 = zext i32 %codeSepPos.17 to i64
+  %and131 = and i32 %codeSep.17, 15
+  %conv132 = zext nneg i32 %and131 to i64
+  %shl = shl nsw nuw i64 %conv132, 32
+  %or = or disjoint i64 %shl, %conv130
+  %and133 = and i32 %opcodeIndex.11, 15
+  %conv134 = zext nneg i32 %and133 to i64
+  %shl135 = shl nsw nuw i64 %conv134, 36
+  %or136 = or disjoint i64 %or, %shl135
+  %shl138 = select i1 %cond, i64 1099511627776, i64 0
+  %or139 = or disjoint i64 %or136, %shl138
+  %conv140 = zext nneg i32 %bad.11 to i64
+  %shl141 = shl nsw nuw i64 %conv140, 41
+  %or142 = or disjoint i64 %or139, %shl141
+  %and143 = and i32 %pc.11, 15
+  %conv144 = zext nneg i32 %and143 to i64
+  %shl145 = shl nsw nuw i64 %conv144, 42
+  %or146 = or i64 %or142, %shl145
+  %#range_0_%or146 = !range i64 %or146, i64 0, i64 70368744177664
+  ret i64 %#range_0_%or146
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

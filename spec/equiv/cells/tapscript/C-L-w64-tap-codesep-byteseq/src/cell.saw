@@ -1,0 +1,22 @@
+import "cell.cry";
+
+// SCR-167: symbolic six-byte script (every byte free), symbolic per
+// parsed-opcode fExec mask.  The same spec is used for both legs.
+mC <- llvm_load_module "c_cell_codesep_byteseq.bc";
+mL <- llvm_load_module "l_cell_codesep_byteseq.bc";
+let spec = do {
+  s0 <- llvm_fresh_var "s0" (llvm_int 8);
+  s1 <- llvm_fresh_var "s1" (llvm_int 8);
+  s2 <- llvm_fresh_var "s2" (llvm_int 8);
+  s3 <- llvm_fresh_var "s3" (llvm_int 8);
+  s4 <- llvm_fresh_var "s4" (llvm_int 8);
+  s5 <- llvm_fresh_var "s5" (llvm_int 8);
+  mask <- llvm_fresh_var "mask" (llvm_int 32);
+  llvm_execute_func [llvm_term s0, llvm_term s1, llvm_term s2, llvm_term s3,
+                     llvm_term s4, llvm_term s5, llvm_term mask];
+  llvm_return (llvm_term {{ packed (final [s0, s1, s2, s3, s4, s5] mask) }});
+};
+llvm_verify mC "cell_codesep_byteseq" [] false spec z3;
+llvm_verify mL "cell_codesep_byteseq" [] false spec z3;
+
+print "CELL_W64_CODESEP_BYTESEQ_SAW_GREEN";

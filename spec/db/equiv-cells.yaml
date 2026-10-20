@@ -3214,10 +3214,23 @@ rows:
   consensus: true
   cells:
   - tapscript/C-L-w32-tap-codesep-pos
+  - tapscript/C-L-w64-tap-codesep-byteseq
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch''s other branches are not modelled.  The Core loop itself is not executed by either tool.'
+  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch''s other branches are not modelled.  The Core loop itself is not executed by either tool.; tapscript/C-L-w64-tap-codesep-byteseq: partial — the init, the per-parsed-opcode increment, the
+
+    executed/unexecuted split, the push-length independence, the tapscript
+
+    opcode-index assignment, and the strict byte-offset/index separation are
+
+    proved for every six-byte script and symbolic fExec mask.  Not modelled:
+
+    the vfExec derivation, scripts longer than six bytes / more than six
+
+    parsed opcodes, the pre-checks named above, and the downstream
+
+    scriptCode/final-stack consumers.  Neither tool executes the Core loop.'
 - id: SCR-168
   family: tapscript
   summary: budget may reach exactly 0
