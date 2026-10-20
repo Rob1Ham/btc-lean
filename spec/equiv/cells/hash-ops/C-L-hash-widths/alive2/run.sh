@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Alive2: C leaf vs L leaf for every hash width/empty function.
-# The four hash primitives are uninterpreted externals declared identically in
-# both modules.  The compared functions return only the defined meta fields
-# (result, error, depth, pushed length): an external write is unmodelled
-# memory in Alive2, so reading the digest would poison the observable and make
-# the check vacuous.  The digest bytes are SAW-only witnesses.
+# The five hash primitives (including SHA1) are uninterpreted externals
+# declared identically in both modules.  The compared functions return only
+# the defined meta fields (result, error, depth, pushed length): an external
+# write is unmodelled memory in Alive2, so reading the digest would poison the
+# observable and make the check vacuous.  The digest bytes are SAW-only
+# witnesses.  SHA1 is a cell-local reviewed L arm: the shared twin's wire 0xa7
+# is OP_UNSUPPORTED_SHA1, so this cell does not claim a shared-twin change.
 set -euo pipefail
 CELL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CELLS="$(cd "$CELL_DIR/../.." && pwd)"
@@ -17,6 +19,7 @@ mkdir -p "$OUT"
 
 FNS=(
   cell_ripemd160_empty_meta cell_ripemd160_a_meta
+  cell_sha1_empty_meta cell_sha1_a_meta
   cell_sha256_empty_meta cell_sha256_a_meta
   cell_hash160_empty_meta cell_hash160_a_meta
   cell_hash256_empty_meta cell_hash256_a_meta
@@ -29,7 +32,7 @@ OK=1
   echo "# clang: $(/usr/bin/clang++-20 --version | head -1)"
   echo "# twin_ops provenance: build/twin_ops.h sha256 $(sha256sum "$BUILD/twin_ops.h" | cut -d' ' -f1)"
   echo "# build: build/build.txt"
-  echo "# externals: ripemd160/sha256/hash160/hash256, uninterpreted and shared"
+  echo "# externals: ripemd160/sha1/sha256/hash160/hash256, uninterpreted and shared"
   for fn in "${FNS[@]}"; do
     echo "# command: alive-tv build/c_${fn}.ll build/l_${fn}.ll"
     fnout="$(/usr/local/bin/alive-tv "$BUILD/c_${fn}.ll" "$BUILD/l_${fn}.ll" 2>&1 || true)"

@@ -1,10 +1,12 @@
 # hash-ops/C-L-hash-widths
 
 SCR-093 (`RIPEMD160/SHA1/SHA256` output sizes, `20/20/32`) and SCR-095
-(hash of the empty element). The cell is **both-tool green** on the four hash
-opcodes the twin implements, with the hash transforms as opaque externals
-shared by both legs. Coverage is `partial`: the SHA1 arm and the hash
-implementations themselves are not in the cell (see below).
+(hash of the empty element). The cell is **both-tool green** on all five hash
+opcodes, with the hash transforms as opaque externals shared by both legs.
+Coverage is **full at this cell's scope**: the SHA1 width and empty-element
+arm is a reviewed cell-local L handler, labelled as such below. The shared
+twin is not changed and still maps wire 0xa7 to result 3; the hash algorithms
+remain opaque (same-hash premise) and are not claimed as implementations.
 
 ## Source
 
@@ -19,8 +21,17 @@ Pinned Core `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`:
   stack.push_back(vchHash);`.
 - `twin/ops_ir.py` `OP_RIPEMD160` (0xa6), `OP_SHA256` (0xa8),
   `OP_HASH160` (0xa9), `OP_HASH256` (0xaa).
-- `twin/ops_ir.py` `OP_UNSUPPORTED_SHA1` (0xa7) — the twin's declared
+- `twin/ops_ir.py` `OP_UNSUPPORTED_SHA1` (0xa7) — the shared twin's declared
   unsupported wire, see `twin/generator.md:231,393,407`.
+- `twin/runtime.inc:409-564` — hash floor has `sha256`, `ripemd160`,
+  `hash160`, `hash256`; no `sha1` primitive.
+- `spec/core/Bitcoin/Interpreter/Defs.lean:637-643` — `hashForOp 0xa7 =
+  hashSha1`.
+- `spec/core/Bitcoin/Interpreter/Hashes.lean:133-157` — `sha1F`/`sha1K`/
+  `sha1Compress`/`hashSha1`.
+- `spec/proofs/BitcoinProofs/AF/PDW78/PDW78.lean:74-106` —
+  `scr093_hashForOp_widths` and `scr095_emptyElement_hashed` (Lean model
+  targets cited by the row, not re-proved by this cell).
 
 ## Design: two observables
 
@@ -53,12 +64,14 @@ bytes with concrete overrides. Neither tool is asked to do the other's job.
 
 ## Concrete witnesses
 
-All values below were recomputed with Python `hashlib` (`sha256`; `ripemd160`
-via `hashlib.new('ripemd160', ...)`) and match `src/cell.cry`:
+All values below were recomputed with Python `hashlib` (`sha1`, `sha256`;
+`ripemd160` via `hashlib.new('ripemd160', ...)`) and match `src/cell.cry`:
 
 ```text
 RIPEMD160("")  = 9c1185a5c5e9fc54612808977ee8f548b2258d31
 RIPEMD160("a") = 0bdc9d2d256b3ee9daae347be6f4dc835a467ffe
+SHA1("")       = da39a3ee5e6b4b0d3255bfef95601890afd80709
+SHA1("a")      = 86f7e437faa5a7fce15d1ddcb9eaeaea377667b8
 SHA256("")     = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 SHA256("a")    = ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
 HASH160("")    = b472a266d0bd89c13706a4132ccfb16f7c3b9fcb
@@ -73,15 +86,41 @@ witnesses, not derived results.
 
 ## L leg: reviewed transliteration
 
-The L handler bodies are copied verbatim from `twin/ops_ir.py`
-(`st_top`/`st_push`/the four op bodies). `mk_leaf.py` emits the same bodies,
-but its bounded copy is hard-wired to two bytes, while these handlers push
-20 or 32. With `--max-elem 32` mk_leaf accepts the length and copies only the
-first two bytes, so its leaf cannot represent the op. `src/l_leaf.cpp`
-re-binds only the stack representation: 32-byte slots and the unrolled
-`h_copy` in `src/hash_common.h`. This is the same kind of substitution
-mk_leaf performs, at a width it does not support. `build/twin_ops.h` is still
-generated and hashed for provenance; it is not the compiled L module.
+The four implemented handlers (RIPEMD160, SHA256, HASH160, HASH256) are
+copied verbatim from `twin/ops_ir.py` (`st_top`/`st_push`/the op bodies).
+`mk_leaf.py` emits the same bodies, but its bounded copy is hard-wired to two
+bytes, while these handlers push 20 or 32. With `--max-elem 32` mk_leaf
+accepts the length and copies only the first two bytes, so its leaf cannot
+represent the op. `src/l_leaf.cpp` re-binds only the stack representation:
+32-byte slots and the unrolled `h_copy` in `src/hash_common.h`. This is the
+same kind of substitution mk_leaf performs, at a width it does not support.
+`build/twin_ops.h` is still generated and hashed for provenance; it is not the
+compiled L module and it does not contain SHA1.
+
+### SHA1 arm: cell-local, reviewed, not shared-twin
+
+The pinned shared twin has no SHA1 implementation: `twin/ops_ir.py` maps wire
+`0xa7` to `OP_UNSUPPORTED_SHA1` (result 3) and `twin/runtime.inc` has no
+`sha1` primitive. Editing those files would be a shared twin change and is
+outside this cell. Instead `src/l_leaf.cpp` adds a cell-local
+`op_sha1` with exactly the same shape as the four transliterated handlers:
+
+```c
+if (st.n < 1) return TWIN_INVALID_STACK_OPERATION;
+uint32_t l = 0; const uint8_t* p = st_top(st, 1, l);
+uint8_t out[20]; sha1(p, l, out);
+st.n -= 1; return st_push(st, out, 20);
+```
+
+The review anchors are Lean `Defs.lean:637-643` (`hashForOp 0xa7 =
+hashSha1`) plus `Hashes.lean:133-157`, and Core `interpreter.cpp:1042`
+(width 20 for SHA1) and `:1043-1047` (`CSHA1` dispatch). The transform is the
+opaque `sha1` external shared with the C leg: both `build/c_leaf.ll` and
+`build/l_leaf.ll` contain only `declare void @sha1(...)` and no definition.
+This cell therefore proves the width/empty plumbing, not SHA1 internals. The
+shared twin's declared subset and the row's ledger entry are unchanged by this
+cell; promoting the shared twin itself requires a separate reviewed change to
+`ops_ir.py`/`runtime.inc` and regeneration.
 
 ## Commands
 
@@ -108,8 +147,8 @@ clang++   20.1.2 (Ubuntu 20.1.2-0ubuntu1~24.04.3)
 
 ## Raw results
 
-`alive2/result.txt` contains eight comparisons (the `*_meta` exports). Each
-ends with:
+`alive2/result.txt` contains ten comparisons (the `*_meta` exports), including
+the SHA1 empty and `0x61` pairs. Each ends with:
 
 ```text
 Transformation seems to be correct!
@@ -123,7 +162,7 @@ Summary:
 
 and the file ends with `STATUS=alive2-green`.
 
-`saw/result.txt` contains sixteen proofs (eight C, eight L). It ends with
+`saw/result.txt` contains twenty proofs (ten C, ten L). It ends with
 `CELL_HASH_WIDTHS_SAW_GREEN` and `STATUS=saw-green`; the last proof tail is:
 
 ```text
@@ -131,6 +170,10 @@ Applied override! hash256
 Checking proof obligations cell_hash256_a...
 Proof succeeded! cell_hash256_a
 ```
+
+The four SHA1 proofs appear as `cell_sha1_empty` and `cell_sha1_a`, once for
+each leg, each with `Applied override! sha1` and
+`Proof succeeded! cell_sha1_*`.
 
 ## Mutation sensitivity
 
@@ -148,16 +191,48 @@ Scratch probe, not committed (the source tree is
 The stale `build/twin_ops.h` is generated from the unmutated twin table and
 is unchanged by the probe.
 
+SHA1 width probe (scratch tree `/tmp/opencode/sha1mut-wave64-62`, not
+committed): change the cell-local `op_sha1` to `uint8_t out[32]` /
+`st_push(st, out, 32)` and compare the meta export:
+
+```text
+Transformation doesn't verify!
+Source value: #x000000000000a101 (41217)
+Target value: #x0000000000010101 (65793)
+0 correct transformations
+1 incorrect transformations
+```
+
+`0xa101` is `result 1 | error 0 | depth 1 | length 20`; `0x10101` is the same
+with length 32. Running the cell's SAW script against the same width-32 L
+mutant stops at `cell_sha1_empty` with `Symbolic execution failed` /
+`Error during memory load` (the 32-byte push reads bytes the 20-byte primitive
+did not define), so both tools reject the width change by different
+mechanisms. The SHA1 width arm is therefore observed, not assumed.
+
+SHA1 empty-path probe: add `if (l == 0) return TWIN_INVALID_STACK_OPERATION;`
+to the cell-local `op_sha1`. Alive2 on the empty meta pair reports
+`0 correct, 1 incorrect` (the transformation does not verify), and SAW on
+`cell_sha1_empty` ends with `Subgoal failed` / `Proof failed`. The green SAW
+`cell_sha1_empty` proof on the unmutated source supplies the complementary
+concrete witness.
+
 ## Coverage limits (not overclaimed)
 
-- **SCR-093 is `partial`.** The row is RIPEMD160/SHA1/SHA256 output sizes.
-  SHA1 is absent from the L subset: wire `0xa7` returns
-  `TWIN_INVALID_UNSUPPORTED` / result 3, so there is no L implementation to
-  compare for the third width. RIPEMD160 (20), SHA256 (32), and the HASH160
-  (20) / HASH256 (32) arms are exercised.
-- **SCR-095 is `partial`.** The empty element is exercised for RIPEMD160,
-  SHA256, HASH160 and HASH256, but not SHA1 (same twin boundary), and the
-  digest is a SAW witness, not a proved hash.
+- **SCR-093 is `full` at this cell's scope.** The row is RIPEMD160/SHA1/SHA256
+  output sizes. All three widths are exercised: RIPEMD160 20, SHA1 20, SHA256
+  32; the HASH160 20 and HASH256 32 neighbours are also present. The SHA1
+  handler is cell-local (the shared twin still returns result 3 on `0xa7`), so
+  this is not a claim that the pinned twin supports SHA1.
+- **SCR-095 is `full` at this cell's scope.** The empty element is exercised
+  for all five wires, including SHA1. The digest is a SAW witness, not a
+  proved hash.
+- **SHA1 internals are not proved.** The `sha1` symbol is an opaque external
+  on both legs; no FIPS 180-4 implementation is linked or verified.
+- **Shared-twin integration is not done.** `twin/ops_ir.py` and
+  `twin/runtime.inc` still exclude SHA1, and `spec/db/equiv-cells.yaml` is not
+  edited by this cell. Promoting the shared twin/ledger is a separate
+  reviewed change.
 - Only preimages of length 0 and 1 are exercised.
 - Alive2 checks the meta fields universally; the digest bytes are checked by
   SAW only for the recorded witnesses.

@@ -11,12 +11,22 @@
 //   uint8_t out[20|32]; <primitive>(p, l, out);
 //   st.stack.n -= 1; return st_push(st.stack, out, 20|32);
 //
+// SHA1 (wire 0xa7) is the fifth arm and is CELL-LOCAL.  The pinned shared
+// twin maps 0xa7 to OP_UNSUPPORTED_SHA1 (result 3), because twin/runtime.inc
+// has no sha1 primitive.  This cell carries a reviewed cell-local body with
+// the same plumbing as the four implemented operators, anchored to Lean
+// Defs.lean:1028-1030 + hashForOp 0xa7 => hashSha1 (Hashes.lean:133+) and to
+// Core interpreter.cpp:1043-1047 CSHA1.  The transform remains an opaque
+// `sha1` external, shared by both legs; no SHA1 internals are implemented or
+// claimed here.  This arm does not change the shared twin's declared subset.
+//
 // The only re-binding is the cell stack representation: element width 32 and
 // the unrolled h_copy instead of mk_leaf's two-byte bounded_memcpy.  The
-// handler semantics are unchanged.  The four primitives are the same opaque
+// handler semantics are unchanged.  The five primitives are the same opaque
 // externals the C leg calls.
 
 extern "C" void ripemd160(const uint8_t* in, uint32_t len, uint8_t* out);
+extern "C" void sha1(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void sha256(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void hash160(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void hash256(const uint8_t* in, uint32_t len, uint8_t* out);
@@ -52,6 +62,21 @@ BINLINE int op_ripemd160(HStack& st) {
   const uint8_t* p = st_top(st, 1, l);
   uint8_t out[20];
   ripemd160(p, l, out);
+  st.n -= 1;
+  return st_push(st, out, 20);
+}
+
+// Reviewed cell-local SHA1 handler.  Lean Defs.lean:1028-1030 folds wires
+// 0xa6..0xaa into hashForOp; hashForOp 0xa7 = hashSha1 (Defs.lean:637-643,
+// Hashes.lean:133+).  Core selects width 20 for SHA1 at interpreter.cpp:1042
+// and dispatches CSHA1 at :1043-1047.  Body shape is identical to the four
+// transliterated handlers; only the primitive symbol differs.
+BINLINE int op_sha1(HStack& st) {
+  if (st.n < 1) return TWIN_INVALID_STACK_OPERATION;
+  uint32_t l = 0;
+  const uint8_t* p = st_top(st, 1, l);
+  uint8_t out[20];
+  sha1(p, l, out);
   st.n -= 1;
   return st_push(st, out, 20);
 }
@@ -104,6 +129,12 @@ BINLINE uint64_t run_ripemd160(const uint8_t* pre, uint32_t len) {
   const int e = op_ripemd160(st);
   return h_pack(e == TWIN_OK ? 1u : 0u, e == TWIN_OK ? 0u : core_err(e), st);
 }
+BINLINE uint64_t run_sha1(const uint8_t* pre, uint32_t len) {
+  HStack st{};
+  if (st_push(st, pre, len) != TWIN_OK) return h_pack(0, 1, st);
+  const int e = op_sha1(st);
+  return h_pack(e == TWIN_OK ? 1u : 0u, e == TWIN_OK ? 0u : core_err(e), st);
+}
 BINLINE uint64_t run_sha256(const uint8_t* pre, uint32_t len) {
   HStack st{};
   if (st_push(st, pre, len) != TWIN_OK) return h_pack(0, 1, st);
@@ -127,6 +158,10 @@ extern "C" uint64_t cell_ripemd160_empty() {
   const uint8_t pre[1] = {0};
   return run_ripemd160(pre, 0);
 }
+extern "C" uint64_t cell_sha1_empty() {
+  const uint8_t pre[1] = {0};
+  return run_sha1(pre, 0);
+}
 extern "C" uint64_t cell_sha256_empty() {
   const uint8_t pre[1] = {0};
   return run_sha256(pre, 0);
@@ -142,6 +177,10 @@ extern "C" uint64_t cell_hash256_empty() {
 extern "C" uint64_t cell_ripemd160_a() {
   const uint8_t pre[1] = {0x61};
   return run_ripemd160(pre, 1);
+}
+extern "C" uint64_t cell_sha1_a() {
+  const uint8_t pre[1] = {0x61};
+  return run_sha1(pre, 1);
 }
 extern "C" uint64_t cell_sha256_a() {
   const uint8_t pre[1] = {0x61};
@@ -168,6 +207,7 @@ extern "C" uint64_t cell_hash256_a() {
                        e == TWIN_OK ? 0u : core_err(e), st);                  \
   }
 RUN_META(ripemd160, op_ripemd160)
+RUN_META(sha1, op_sha1)
 RUN_META(sha256, op_sha256)
 RUN_META(hash160, op_hash160)
 RUN_META(hash256, op_hash256)
@@ -176,6 +216,10 @@ RUN_META(hash256, op_hash256)
 extern "C" uint64_t cell_ripemd160_empty_meta() {
   const uint8_t pre[1] = {0};
   return run_ripemd160_meta(pre, 0);
+}
+extern "C" uint64_t cell_sha1_empty_meta() {
+  const uint8_t pre[1] = {0};
+  return run_sha1_meta(pre, 0);
 }
 extern "C" uint64_t cell_sha256_empty_meta() {
   const uint8_t pre[1] = {0};
@@ -192,6 +236,10 @@ extern "C" uint64_t cell_hash256_empty_meta() {
 extern "C" uint64_t cell_ripemd160_a_meta() {
   const uint8_t pre[1] = {0x61};
   return run_ripemd160_meta(pre, 1);
+}
+extern "C" uint64_t cell_sha1_a_meta() {
+  const uint8_t pre[1] = {0x61};
+  return run_sha1_meta(pre, 1);
 }
 extern "C" uint64_t cell_sha256_a_meta() {
   const uint8_t pre[1] = {0x61};

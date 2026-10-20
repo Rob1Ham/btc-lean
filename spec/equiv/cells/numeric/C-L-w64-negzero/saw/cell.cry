@@ -1,0 +1,66 @@
+module CellNegZero where
+
+// Independent specification of SCR-083 at the pin cce32b168.
+//
+//   decode = CScriptNum(vch, false, 4).getint()
+//            script.h:246-271 (width guard only) and script.h:376-391
+//            (set_vch: little-endian sign-magnitude, 0x80 on the top byte
+//            is the sign; negative zero decodes to 0).
+//   cast   = CastToBool(vch), interpreter.cpp:46-61.  False for the empty
+//            vector and for a lone 0x80 in the most-significant position;
+//            true if any lower byte is nonzero.
+//
+// The model is written from the two source functions and the Lean
+// equations (Bitcoin.Numeric.setVchBE, castToBoolList), not from either
+// C++ leg.  Wire bytes b0..b3 are little-endian: b0 is the least
+// significant digit, b3 the most significant.
+//
+// Observable: err(8) | value32(32) at bit 8 | cast(1) at bit 40.
+// err = 4 (SCRIPT_ERR_SCRIPTNUM) iff len > 4 (the default four-byte
+// CScriptNum operand cap).  len == 0 is the empty vector.
+
+top : [32] -> [8] -> [8] -> [8] -> [8] -> [8]
+top len b0 b1 b2 b3 =
+  if len == 1 then b0 else if len == 2 then b1
+  else if len == 3 then b2 else b3
+
+place : [32] -> [32]
+place len =
+  if len == 1 then 1 else if len == 2 then 256
+  else if len == 3 then 65536 else 16777216
+
+// magOfBE of the reversed prefix (t in the Lean equation): the lower
+// len-1 bytes, least significant first.
+lower : [32] -> [8] -> [8] -> [8] -> [32]
+lower len b0 b1 b2 =
+  (if len >= 2 then (zext b0 : [32]) else 0) ||
+  (if len >= 3 then ((zext b1 : [32]) << 8) else 0) ||
+  (if len >= 4 then ((zext b2 : [32]) << 16) else 0)
+
+mag : [32] -> [8] -> [8] -> [8] -> [8] -> [32]
+mag len b0 b1 b2 b3 =
+  ((zext (top len b0 b1 b2 b3 && 0x7f)) * (place len)) +
+  (lower len b0 b1 b2)
+
+value : [32] -> [8] -> [8] -> [8] -> [8] -> [32]
+value len b0 b1 b2 b3 =
+  if len == 0 then 0
+  else if (top len b0 b1 b2 b3) >= 128
+       then 0 - (mag len b0 b1 b2 b3)
+       else mag len b0 b1 b2 b3
+
+cast : [32] -> [8] -> [8] -> [8] -> [8] -> Bit
+cast len b0 b1 b2 b3 =
+  if len == 0 then False
+  else lowerAny || (((top len b0 b1 b2 b3) != 0) &&
+                    ((top len b0 b1 b2 b3) != 0x80))
+  where
+    lowerAny = ((len >= 2) && (b0 != 0)) ||
+               ((len >= 3) && (b1 != 0)) ||
+               ((len >= 4) && (b2 != 0))
+
+packed : [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+packed len b0 b1 b2 b3 =
+  if len > 4 then 4
+  else ((zext (value len b0 b1 b2 b3)) << 8) ||
+       ((zext (if cast len b0 b1 b2 b3 then (1 : [1]) else (0 : [1]))) << 40)

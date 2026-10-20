@@ -1,0 +1,54 @@
+module CellCltvCsvNop where
+
+// Independent Cryptol specification of the CLTV/CSV pre-activation NOP
+// branches of Bitcoin Core cce32b168
+// (src/script/interpreter.cpp:534-540 and :573-579), over the cell's bounded
+// state: stack depth 0..3, one-byte top element, nOpCount 0..200.
+//
+// Observable: result(2) | error(6)<<2 | depth(3)<<8 | top_len(2)<<11
+//             | top(8)<<13 | nOpCount(8)<<21
+// result = 1 continued (Core `break`), 0 ScriptError, 3 declared cell
+// boundary.  top_len = 1 iff depth > 0.
+
+packObs : [2] -> [32] -> [32] -> [8] -> [32] -> [64]
+packObs res err depth top oc =
+  (zext res) ||
+  (zext (err && (63 : [32])) << 2) ||
+  (zext (depth && (7 : [32])) << 8) ||
+  (if depth == 0 then (0 : [64]) else ((1 : [64]) << 11)) ||
+  (if depth == 0 then (0 : [64]) else (zext top << 13)) ||
+  (zext (oc && (255 : [32])) << 21)
+
+// OP_CHECKLOCKTIMEVERIFY, activation flag clear: a plain NOP.  Only the
+// op-count budget moves (Defs.lean stepBody / PDW73.lean:31-47).
+cltvNopOff : [32] -> [8] -> [32] -> [64]
+cltvNopOff d0 b0 oc0 = packObs 1 0 d b0 (oc + 1)
+  where
+    d  = d0 && (3 : [32])
+    oc = if oc0 > 200 then 200 else oc0
+
+// OP_CHECKSEQUENCEVERIFY, activation flag clear: a plain NOP.
+csvNopOff : [32] -> [8] -> [32] -> [64]
+csvNopOff d0 b0 oc0 = packObs 1 0 d b0 (oc + 1)
+  where
+    d  = d0 && (3 : [32])
+    oc = if oc0 > 200 then 200 else oc0
+
+// Flag-on contrast.  Empty stack: the stack guard runs and the opcode returns
+// INVALID_STACK_OPERATION (18).  Non-empty stack: the operand decode and the
+// locktime/sequence comparison are outside this cell (declared boundary).
+cltvNopOn : [32] -> [8] -> [32] -> [64]
+cltvNopOn d0 b0 oc0 =
+  if d == 0 then packObs 0 18 d b0 (oc + 1)
+            else packObs 3 0 d b0 (oc + 1)
+  where
+    d  = d0 && (3 : [32])
+    oc = if oc0 > 200 then 200 else oc0
+
+csvNopOn : [32] -> [8] -> [32] -> [64]
+csvNopOn d0 b0 oc0 =
+  if d == 0 then packObs 0 18 d b0 (oc + 1)
+            else packObs 3 0 d b0 (oc + 1)
+  where
+    d  = d0 && (3 : [32])
+    oc = if oc0 > 200 then 200 else oc0

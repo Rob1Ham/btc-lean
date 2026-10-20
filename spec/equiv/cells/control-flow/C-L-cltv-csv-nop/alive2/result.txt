@@ -1,0 +1,232 @@
+# cell: control-flow/C-L-cltv-csv-nop
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# contract: contract/error_kind.h sha256 7a5f778f4aed8947a7768da3d3856c99eec2715f5502cb8f59af576c72dca170
+# command: alive-tv build/c_cell_cltv_flagoff.ll build/l_cell_cltv_flagoff.ll
+
+----------------------------------------
+define i64 @cell_cltv_flagoff(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %#1 = or i32 %#0, 1
+  %add14.i = zext nneg i32 %#1 to i64
+  %cmp15.not.i = icmp eq i32 %and.i, 0
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %shl18.i, %add14.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp15.not.i, i64 1, i64 %add19.i
+  %inc.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %inc.i, 2097152
+  %#2 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#2 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097153, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+=>
+define i64 @cell_cltv_flagoff(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp.i = icmp eq i32 %and.i, 0
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %#1 = or i32 %#0, 1
+  %add14.i = zext nneg i32 %#1 to i64
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %shl18.i, %add14.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp.i, i64 1, i64 %add19.i
+  %add.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %add.i, 2097152
+  %#2 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#2 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097153, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_csv_flagoff.ll build/l_cell_csv_flagoff.ll
+
+----------------------------------------
+define i64 @cell_csv_flagoff(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %#1 = or i32 %#0, 1
+  %add14.i = zext nneg i32 %#1 to i64
+  %cmp15.not.i = icmp eq i32 %and.i, 0
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %shl18.i, %add14.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp15.not.i, i64 1, i64 %add19.i
+  %inc.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %inc.i, 2097152
+  %#2 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#2 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097153, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+=>
+define i64 @cell_csv_flagoff(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp.i6 = icmp eq i32 %and.i, 0
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %#1 = or i32 %#0, 1
+  %add14.i = zext nneg i32 %#1 to i64
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %shl18.i, %add14.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp.i6, i64 1, i64 %add19.i
+  %add.i7 = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %add.i7, 2097152
+  %#2 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#2 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097153, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_cltv_flagon.ll build/l_cell_cltv_flagon.ll
+
+----------------------------------------
+define i64 @cell_cltv_flagon(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp5.i.not = icmp eq i32 %and.i, 0
+  %add.i = select i1 %cmp5.i.not, i64 72, i64 3
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %shl13.i = zext nneg i32 %#0 to i64
+  %add14.i = or i64 %add.i, %shl13.i
+  %cmp15.not.i = icmp eq i32 %and.i, 0
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %add14.i, %shl18.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp15.not.i, i64 72, i64 %add19.i
+  %inc.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %inc.i, 2097152
+  %#1 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#1 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097224, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+=>
+define i64 @cell_cltv_flagon(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp.i.not = icmp eq i32 %and.i, 0
+  %add.i7 = select i1 %cmp.i.not, i64 72, i64 3
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %shl13.i = zext nneg i32 %#0 to i64
+  %add14.i = or i64 %add.i7, %shl13.i
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %add14.i, %shl18.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp.i.not, i64 72, i64 %add19.i
+  %add.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %add.i, 2097152
+  %#1 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#1 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097224, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_csv_flagon.ll build/l_cell_csv_flagon.ll
+
+----------------------------------------
+define i64 @cell_csv_flagon(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp5.i.not = icmp eq i32 %and.i, 0
+  %add.i = select i1 %cmp5.i.not, i64 72, i64 3
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %shl13.i = zext nneg i32 %#0 to i64
+  %add14.i = or i64 %add.i, %shl13.i
+  %cmp15.not.i = icmp eq i32 %and.i, 0
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %add14.i, %shl18.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp15.not.i, i64 72, i64 %add19.i
+  %inc.i = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %inc.i, 2097152
+  %#1 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#1 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097224, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+=>
+define i64 @cell_csv_flagon(i32 noundef %depth_in, i8 noundef zeroext %b0, i32 noundef %oc_in) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %depth_in, 3
+  %cond.i = umin i32 noundef %oc_in, 200
+  assume_welldefined i32 %cond.i
+  %cmp.i6.not = icmp eq i32 %and.i, 0
+  %add.i = select i1 %cmp.i6.not, i64 72, i64 3
+  %#0 = shl nsw nuw i32 %and.i, 8
+  %shl13.i = zext nneg i32 %#0 to i64
+  %add14.i = or i64 %add.i, %shl13.i
+  %conv17.i = zext i8 noundef zeroext %b0 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 13
+  %add16.i = or i64 %add14.i, %shl18.i
+  %add19.i = or i64 %add16.i, 2048
+  %r.0.i = select i1 %cmp.i6.not, i64 72, i64 %add19.i
+  %add.i7 = shl nsw nuw i32 %cond.i, 21
+  %and20.i = add nsw nuw i32 %add.i7, 2097152
+  %#1 = and i32 %and20.i, 534773760
+  %shl22.i = zext nneg i32 %#1 to i64
+  %add23.i = add nsw nuw i64 %r.0.i, %shl22.i
+  %#range_0_%add23.i = !range i64 %add23.i, i64 2097224, i64 423620608
+  ret i64 %#range_0_%add23.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

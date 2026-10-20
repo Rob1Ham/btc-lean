@@ -11,11 +11,12 @@
 //       popstack(stack);                                       // :1053
 //       stack.push_back(vchHash);                              // :1054
 //
-// The four cryptographic transforms are opaque externals shared with the L
-// leg.  The cell therefore proves the opcode plumbing -- the element is
-// consumed, the output width is 20 or 32 as selected by :1042, and the digest
-// is pushed -- for every possible transform output.  It does not prove the
-// hash functions themselves; that is the same-hash premise.
+// The five cryptographic transforms (including SHA1, whose dispatch is
+// :1043-1047) are opaque externals shared with the L leg.  The cell therefore
+// proves the opcode plumbing -- the element is consumed, the output width is
+// 20 or 32 as selected by :1042, and the digest is pushed -- for every
+// possible transform output.  It does not prove the hash functions
+// themselves; that is the same-hash premise.
 //
 // `finish` is cell harness that encodes exactly `popstack; push_back(vchHash)`
 // on the bounded HStack.  The closed preimage is passed as (pointer, length),
@@ -23,6 +24,7 @@
 // buffer so no null-pointer semantics are assumed at the seam.
 
 extern "C" void ripemd160(const uint8_t* in, uint32_t len, uint8_t* out);
+extern "C" void sha1(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void sha256(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void hash160(const uint8_t* in, uint32_t len, uint8_t* out);
 extern "C" void hash256(const uint8_t* in, uint32_t len, uint8_t* out);
@@ -41,6 +43,14 @@ extern "C" uint64_t cell_ripemd160_empty() {
   const uint8_t pre[1] = {0};
   uint8_t out[20];
   ripemd160(pre, 0, out);
+  return finish(out, 20);
+}
+// SHA1 arm: Core's OP_SHA1 uses CSHA1 and the same 20-byte width from :1042.
+// The transform is an opaque external here, exactly like the other four.
+extern "C" uint64_t cell_sha1_empty() {
+  const uint8_t pre[1] = {0};
+  uint8_t out[20];
+  sha1(pre, 0, out);
   return finish(out, 20);
 }
 extern "C" uint64_t cell_sha256_empty() {
@@ -67,6 +77,12 @@ extern "C" uint64_t cell_ripemd160_a() {
   const uint8_t pre[1] = {0x61};
   uint8_t out[20];
   ripemd160(pre, 1, out);
+  return finish(out, 20);
+}
+extern "C" uint64_t cell_sha1_a() {
+  const uint8_t pre[1] = {0x61};
+  uint8_t out[20];
+  sha1(pre, 1, out);
   return finish(out, 20);
 }
 extern "C" uint64_t cell_sha256_a() {
@@ -107,6 +123,12 @@ extern "C" uint64_t cell_ripemd160_empty_meta() {
   ripemd160(pre, 0, out);
   return finish_meta(out, 20);
 }
+extern "C" uint64_t cell_sha1_empty_meta() {
+  const uint8_t pre[1] = {0};
+  uint8_t out[20];
+  sha1(pre, 0, out);
+  return finish_meta(out, 20);
+}
 extern "C" uint64_t cell_sha256_empty_meta() {
   const uint8_t pre[1] = {0};
   uint8_t out[32];
@@ -129,6 +151,12 @@ extern "C" uint64_t cell_ripemd160_a_meta() {
   const uint8_t pre[1] = {0x61};
   uint8_t out[20];
   ripemd160(pre, 1, out);
+  return finish_meta(out, 20);
+}
+extern "C" uint64_t cell_sha1_a_meta() {
+  const uint8_t pre[1] = {0x61};
+  uint8_t out[20];
+  sha1(pre, 1, out);
   return finish_meta(out, 20);
 }
 extern "C" uint64_t cell_sha256_a_meta() {

@@ -1,0 +1,387 @@
+# cell: numeric/C-L-scriptnum-signext-exception
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# domain: |value| <= 255; payload <= 2 bytes; fRequireMinimal = true
+# command: alive-tv --bidirectional build/c_cell_signext_roundtrip.ll build/l_cell_signext_roundtrip.ll
+
+----------------------------------------
+define i64 @cell_signext_roundtrip(i32 noundef %mag, i32 noundef %neg) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 2, align 2, dead
+  %and1 = and i32 noundef %neg, 1
+  %cmp.not = icmp eq i32 %and1, 0
+  %conv.mask = and i32 noundef %mag, 255
+  %conv2 = zext nneg i32 %conv.mask to i64
+  %sub = sub nsw i64 0, %conv2
+  %cond = select i1 %cmp.not, i64 %conv2, i64 %sub
+  start_lifetime ptr %b
+  store i16 0, ptr %b, align 2
+  %cmp.i = icmp eq i64 %cond, 0
+  br i1 %cmp.i, label %_ZL15core_encode_numlPh.exit, label %if.end.i
+
+if.end.i:
+  %conv.i = trunc i32 noundef %mag to i8
+  store i8 %conv.i, ptr %b, align 2
+  %and4.i = and i32 noundef %mag, 128
+  %tobool.not.i = icmp eq i32 %and4.i, 0
+  br i1 %tobool.not.i, label %if.else.i, label %if.then5.i
+
+if.else.i:
+  %cmp1.i = icmp slt i64 %cond, 0
+  br i1 %cmp1.i, label %if.then12.i, label %_ZL15core_encode_numlPh.exit
+
+if.then12.i:
+  %conv17.i = or disjoint i8 %conv.i, 128
+  store i8 %conv17.i, ptr %b, align 2
+  br label %_ZL15core_encode_numlPh.exit
+
+if.then5.i:
+  %#0 = lshr i64 %cond, 56
+  %#1 = trunc nuw i64 %#0 to i8
+  %cond7.i = and i8 %#1, 128
+  %arrayidx10.i = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 %cond7.i, ptr %arrayidx10.i, align 1
+  br label %_ZL15core_encode_numlPh.exit
+
+_ZL15core_encode_numlPh.exit:
+  %cmp5.i = phi i1 [ 0, %entry ], [ 0, %if.then5.i ], [ 1, %if.then12.i ], [ 1, %if.else.i ]
+  %retval.0.i = phi i32 [ 0, %entry ], [ 2, %if.then5.i ], [ 1, %if.then12.i ], [ 1, %if.else.i ]
+  br i1 %cmp.i, label %if.end15.i, label %if.then2.i
+
+if.then2.i:
+  %#2 = zext nneg i32 %retval.0.i to i64
+  %#3 = gep ptr %b, 1 x i64 %#2
+  %arrayidx.i = gep ptr %#3, 1 x i64 -1
+  %#4 = load i8, ptr %arrayidx.i, align 1
+  %#5 = and i8 %#4, 127
+  %cmp3.i = icmp eq i8 %#5, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end15.i
+
+if.then4.i:
+  %#6 = load i8, ptr %b, align 2
+  %cmp11.i = icmp sgt i8 %#6, 255
+  %or.cond = select i1 %cmp5.i, i1 1, i1 %cmp11.i
+  br i1 %or.cond, label %_ZL15core_decode_numPKhjPl.exit, label %if.end15.i
+
+if.end15.i:
+  switch i32 %retval.0.i, label %if.end7.i [
+    i32 0, label %_ZL15core_decode_numPKhjPl.exit
+    i32 1, label %if.then2.i74
+  ]
+
+if.end7.i:
+  %#7 = load i8, ptr %b, align 2
+  %arrayidx11.i = gep inbounds nuw ptr %b, 1 x i64 1
+  %#8 = load i8, ptr %arrayidx11.i, align 1
+  %conv12.i = zext i8 %#8 to i64
+  %and13.i = shl nsw nuw i64 %conv12.i, 8
+  %#9 = and i64 %and13.i, 32512
+  %#10 = zext i8 %#7 to i64
+  %or.i = or disjoint i64 %#9, %#10
+  %sub20.i = sub nsw i64 0, %or.i
+  %tobool18.not31.i = icmp slt i8 %#8, 0
+  %cond23.i = select i1 %tobool18.not31.i, i64 %sub20.i, i64 %or.i
+  br label %_ZL15core_decode_numPKhjPl.exit
+
+if.then2.i74:
+  %#11 = load i8, ptr %b, align 2
+  %#12 = and i8 %#11, 127
+  %conv3.i = zext nneg i8 %#12 to i64
+  %sub.i = sub nsw i64 0, %conv3.i
+  %tobool.not32.i = icmp slt i8 %#11, 0
+  %cond.i75 = select i1 %tobool.not32.i, i64 %sub.i, i64 %conv3.i
+  br label %_ZL15core_decode_numPKhjPl.exit
+
+_ZL15core_decode_numPKhjPl.exit:
+  %out.0 = phi i64 [ 0, %if.then4.i ], [ %cond.i75, %if.then2.i74 ], [ %cond23.i, %if.end7.i ], [ 0, %if.end15.i ]
+  %cmp6 = phi i1 [ 0, %if.then4.i ], [ 1, %if.then2.i74 ], [ 1, %if.end7.i ], [ 1, %if.end15.i ]
+  %retval.0.i68 = phi i32 [ 8, %if.then4.i ], [ 0, %if.then2.i74 ], [ 0, %if.end7.i ], [ %retval.0.i, %if.end15.i ]
+  br i1 %cmp.i, label %_ZL25core_minimal_no_exceptionPKhj.exit, label %if.end.i70
+
+if.end.i70:
+  %#13 = zext nneg i32 %retval.0.i to i64
+  %#14 = gep ptr %b, 1 x i64 %#13
+  %arrayidx.i71 = gep ptr %#14, 1 x i64 -1
+  %#15 = load i8, ptr %arrayidx.i71, align 1
+  %#16 = and i8 %#15, 127
+  %cmp1.i72.not = icmp eq i8 %#16, 0
+  %#17 = select i1 %cmp1.i72.not, i64 0, i64 2199023255552
+  br label %_ZL25core_minimal_no_exceptionPKhj.exit
+
+_ZL25core_minimal_no_exceptionPKhj.exit:
+  %retval.0.i73 = phi i64 [ %#17, %if.end.i70 ], [ 2199023255552, %_ZL15core_decode_numPKhjPl.exit ]
+  %cond22 = zext i1 %cmp6 to i64
+  %#18 = shl nsw nuw i32 %retval.0.i, 5
+  %#19 = or disjoint i32 %retval.0.i68, %#18
+  %#20 = zext nneg i32 %#19 to i64
+  %#21 = load i8, ptr %b, align 2
+  %conv30 = zext i8 %#21 to i64
+  %shl31 = shl nsw nuw i64 %conv30, 8
+  %#22 = or disjoint i64 %shl31, %#20
+  %arrayidx33 = gep inbounds nuw ptr %b, 1 x i64 1
+  %#23 = load i8, ptr %arrayidx33, align 1
+  %conv34 = zext i8 %#23 to i64
+  %shl35 = shl nsw nuw i64 %conv34, 16
+  %#24 = or disjoint i64 %#22, %shl35
+  %#25 = shl nsw i64 %out.0, 24
+  %#26 = and i64 %#25, 1099494850560
+  %shl38 = select i1 %cmp6, i64 %#26, i64 0
+  %shl42 = select i1 %cmp6, i64 1099511627776, i64 0
+  %and12 = lshr i32 noundef %mag, 7
+  %and12.lobit = and i32 %and12, 1
+  %cond49 = zext nneg i32 %and12.lobit to i64
+  %shl50 = shl nsw nuw i64 %cond49, 42
+  %#27 = or disjoint i64 %shl50, %cond22
+  %or39 = or disjoint i64 %#27, %shl42
+  %or43 = or disjoint i64 %or39, %shl38
+  %or47 = or disjoint i64 %or43, %retval.0.i73
+  %or51 = or i64 %or47, %#24
+  end_lifetime ptr %b
+  %#range_0_%or51 = !range i64 %or51, i64 0, i64 8796093022208
+  ret i64 %#range_0_%or51
+}
+=>
+define i64 @cell_signext_roundtrip(i32 noundef %mag, i32 noundef %neg) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 2, align 2, dead
+  %and1 = and i32 noundef %neg, 1
+  %cmp.not = icmp eq i32 %and1, 0
+  %conv.mask = and i32 noundef %mag, 255
+  %conv2 = zext nneg i32 %conv.mask to i64
+  %sub = sub nsw i64 0, %conv2
+  %cond = select i1 %cmp.not, i64 %conv2, i64 %sub
+  start_lifetime ptr %b
+  store i16 0, ptr %b, align 2
+  %cmp.i = icmp eq i64 %cond, 0
+  br i1 %cmp.i, label %_ZL15lean_encode_numlPh.exit, label %if.end.i
+
+if.end.i:
+  %conv.i = trunc i32 noundef %mag to i8
+  store i8 %conv.i, ptr %b, align 2
+  %and6.i = and i32 noundef %mag, 128
+  %cmp7.not.i = icmp eq i32 %and6.i, 0
+  br i1 %cmp7.not.i, label %if.else.i, label %if.then8.i
+
+if.else.i:
+  %cmp1.i = icmp slt i64 %cond, 0
+  br i1 %cmp1.i, label %if.then15.i, label %_ZL15lean_encode_numlPh.exit
+
+if.then15.i:
+  %conv20.i = or disjoint i8 %conv.i, 128
+  store i8 %conv20.i, ptr %b, align 2
+  br label %_ZL15lean_encode_numlPh.exit
+
+if.then8.i:
+  %#0 = lshr i64 %cond, 56
+  %#1 = trunc nuw i64 %#0 to i8
+  %cond10.i = and i8 %#1, 128
+  %arrayidx13.i = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 %cond10.i, ptr %arrayidx13.i, align 1
+  br label %_ZL15lean_encode_numlPh.exit
+
+_ZL15lean_encode_numlPh.exit:
+  %cmp5.i = phi i1 [ 0, %entry ], [ 0, %if.then8.i ], [ 1, %if.then15.i ], [ 1, %if.else.i ]
+  %retval.0.i = phi i32 [ 0, %entry ], [ 2, %if.then8.i ], [ 1, %if.then15.i ], [ 1, %if.else.i ]
+  br i1 %cmp.i, label %_ZL15lean_decode_numPKhjPl.exit, label %if.then2.i
+
+if.then2.i:
+  %#2 = zext nneg i32 %retval.0.i to i64
+  %#3 = gep ptr %b, 1 x i64 %#2
+  %arrayidx.i = gep ptr %#3, 1 x i64 -1
+  %#4 = load i8, ptr %arrayidx.i, align 1
+  %#5 = and i8 %#4, 127
+  %cmp3.i = icmp eq i8 %#5, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end18.i
+
+if.then4.i:
+  %#6 = load i8, ptr %b, align 2
+  %cmp11.i = icmp sgt i8 %#6, 255
+  %or.cond = select i1 %cmp5.i, i1 1, i1 %cmp11.i
+  br i1 %or.cond, label %_ZL15lean_decode_numPKhjPl.exit, label %if.end18.i
+
+if.end18.i:
+  %#7 = load i8, ptr %b, align 2
+  %conv20.i68 = zext i8 %#7 to i64
+  %and23.i = and i64 %conv20.i68, 127
+  %spec.select.i = select i1 %cmp5.i, i64 %and23.i, i64 %conv20.i68
+  br i1 %cmp5.i, label %if.end35.i, label %if.end33.i
+
+if.end33.i:
+  %arrayidx28.i = gep inbounds nuw ptr %b, 1 x i64 1
+  %#8 = load i8, ptr %arrayidx28.i, align 1
+  %#9 = and i8 %#8, 127
+  %and32.i = zext nneg i8 %#9 to i64
+  %shl.i = shl nsw nuw i64 %and32.i, 8
+  %or34.i = or disjoint i64 %shl.i, %spec.select.i
+  br label %if.end35.i
+
+if.end35.i:
+  %v.0.i = phi i64 [ %or34.i, %if.end33.i ], [ %spec.select.i, %if.end18.i ]
+  %sub42.i = sub nsw i64 0, %v.0.i
+  %cmp41.not62.i = icmp slt i8 %#4, 0
+  %cond.i69 = select i1 %cmp41.not62.i, i64 %sub42.i, i64 %v.0.i
+  %#10 = shl nsw i64 %cond.i69, 24
+  %#11 = and i64 %#10, 1099494850560
+  br label %_ZL15lean_decode_numPKhjPl.exit
+
+_ZL15lean_decode_numPKhjPl.exit:
+  %out.0 = phi i64 [ 0, %if.then4.i ], [ %#11, %if.end35.i ], [ 0, %_ZL15lean_encode_numlPh.exit ]
+  %cmp6 = phi i1 [ 0, %if.then4.i ], [ 1, %if.end35.i ], [ 1, %_ZL15lean_encode_numlPh.exit ]
+  %retval.0.i70 = phi i32 [ 8, %if.then4.i ], [ 0, %if.end35.i ], [ 0, %_ZL15lean_encode_numlPh.exit ]
+  br i1 %cmp.i, label %_ZL25lean_minimal_no_exceptionPKhj.exit, label %if.end.i72
+
+if.end.i72:
+  %#12 = zext nneg i32 %retval.0.i to i64
+  %#13 = gep ptr %b, 1 x i64 %#12
+  %arrayidx.i73 = gep ptr %#13, 1 x i64 -1
+  %#14 = load i8, ptr %arrayidx.i73, align 1
+  %#15 = and i8 %#14, 127
+  %cmp1.i74.not = icmp eq i8 %#15, 0
+  %#16 = select i1 %cmp1.i74.not, i64 0, i64 2199023255552
+  br label %_ZL25lean_minimal_no_exceptionPKhj.exit
+
+_ZL25lean_minimal_no_exceptionPKhj.exit:
+  %retval.0.i75 = phi i64 [ %#16, %if.end.i72 ], [ 2199023255552, %_ZL15lean_decode_numPKhjPl.exit ]
+  %cond22 = zext i1 %cmp6 to i64
+  %#17 = shl nsw nuw i32 %retval.0.i, 5
+  %#18 = or disjoint i32 %retval.0.i70, %#17
+  %#19 = zext nneg i32 %#18 to i64
+  %#20 = load i8, ptr %b, align 2
+  %conv30 = zext i8 %#20 to i64
+  %shl31 = shl nsw nuw i64 %conv30, 8
+  %#21 = or disjoint i64 %shl31, %#19
+  %arrayidx33 = gep inbounds nuw ptr %b, 1 x i64 1
+  %#22 = load i8, ptr %arrayidx33, align 1
+  %conv34 = zext i8 %#22 to i64
+  %shl35 = shl nsw nuw i64 %conv34, 16
+  %#23 = or disjoint i64 %#21, %shl35
+  %shl38 = select i1 %cmp6, i64 %out.0, i64 0
+  %shl42 = select i1 %cmp6, i64 1099511627776, i64 0
+  %and12 = lshr i32 noundef %mag, 7
+  %and12.lobit = and i32 %and12, 1
+  %cond49 = zext nneg i32 %and12.lobit to i64
+  %shl50 = shl nsw nuw i64 %cond49, 42
+  %#24 = or disjoint i64 %shl38, %shl50
+  %or39 = or disjoint i64 %#24, %cond22
+  %or43 = or disjoint i64 %or39, %shl42
+  %or47 = or i64 %or43, %retval.0.i75
+  %or51 = or i64 %or47, %#23
+  end_lifetime ptr %b
+  %#range_0_%or51 = !range i64 %or51, i64 0, i64 8796093022208
+  ret i64 %#range_0_%or51
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional build/c_cell_signext_pred.ll build/l_cell_signext_pred.ll
+
+----------------------------------------
+define i64 @cell_signext_pred(i32 noundef %two, i32 noundef %b0, i32 noundef %b1) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 2, align 1, dead
+  %and = and i32 noundef %two, 1
+  %add = add nsw nuw i32 %and, 1
+  start_lifetime ptr %b
+  %conv = trunc i32 noundef %b0 to i8
+  store i8 %conv, ptr %b, align 1
+  %conv3 = trunc i32 noundef %b1 to i8
+  %arrayidx4 = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 %conv3, ptr %arrayidx4, align 1
+  %#0 = zext nneg i32 %add to i64
+  %#1 = gep ptr %b, 1 x i64 %#0
+  %arrayidx.i = gep ptr %#1, 1 x i64 -1
+  %#2 = load i8, ptr %arrayidx.i, align 1
+  %#3 = and i8 %#2, 127
+  %cmp3.i = icmp eq i8 %#3, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end15.i
+
+if.then4.i:
+  %cmp5.i = icmp eq i32 %and, 0
+  %cmp11.i = icmp sgt i8 %conv, 255
+  %or.cond = or i1 %cmp5.i, %cmp11.i
+  br i1 %or.cond, label %_ZL15core_decode_numPKhjPl.exit, label %if.end15.i
+
+if.end15.i:
+  br label %_ZL15core_decode_numPKhjPl.exit
+
+_ZL15core_decode_numPKhjPl.exit:
+  %cmp = phi i64 [ 0, %if.then4.i ], [ 1, %if.end15.i ]
+  %cmp1.i.not = icmp eq i8 %#3, 0
+  %shl = select i1 %cmp1.i.not, i64 0, i64 2
+  %#4 = shl nsw nuw i32 %add, 2
+  %conv.mask = shl i32 noundef %b0, 4
+  %#5 = and i32 %conv.mask, 4080
+  %conv3.mask = shl i32 noundef %b1, 12
+  %#6 = and i32 %conv3.mask, 1044480
+  %or1033 = or disjoint i32 %#5, %#4
+  %or1434 = or disjoint i32 %or1033, %#6
+  %or14 = zext nneg i32 %or1434 to i64
+  %or18 = or disjoint i64 %shl, %or14
+  %or22 = or disjoint i64 %or18, %cmp
+  end_lifetime ptr %b
+  %#range_0_%or22 = !range i64 %or22, i64 4, i64 1048576
+  ret i64 %#range_0_%or22
+}
+=>
+define i64 @cell_signext_pred(i32 noundef %two, i32 noundef %b0, i32 noundef %b1) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 2, align 1, dead
+  %and = and i32 noundef %two, 1
+  %add = add nsw nuw i32 %and, 1
+  start_lifetime ptr %b
+  %conv = trunc i32 noundef %b0 to i8
+  store i8 %conv, ptr %b, align 1
+  %conv3 = trunc i32 noundef %b1 to i8
+  %arrayidx4 = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 %conv3, ptr %arrayidx4, align 1
+  %#0 = zext nneg i32 %add to i64
+  %#1 = gep ptr %b, 1 x i64 %#0
+  %arrayidx.i = gep ptr %#1, 1 x i64 -1
+  %#2 = load i8, ptr %arrayidx.i, align 1
+  %#3 = and i8 %#2, 127
+  %cmp3.i = icmp eq i8 %#3, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.end15.i
+
+if.then4.i:
+  %cmp5.i = icmp eq i32 %and, 0
+  %cmp11.i = icmp sgt i8 %conv, 255
+  %or.cond = or i1 %cmp5.i, %cmp11.i
+  br i1 %or.cond, label %_ZL15lean_decode_numPKhjPl.exit, label %if.end15.i
+
+if.end15.i:
+  br label %_ZL15lean_decode_numPKhjPl.exit
+
+_ZL15lean_decode_numPKhjPl.exit:
+  %cmp = phi i64 [ 1, %if.end15.i ], [ 0, %if.then4.i ]
+  %cmp1.i.not = icmp eq i8 %#3, 0
+  %shl = select i1 %cmp1.i.not, i64 0, i64 2
+  %#4 = shl nsw nuw i32 %add, 2
+  %conv.mask = shl i32 noundef %b0, 4
+  %#5 = and i32 %conv.mask, 4080
+  %conv3.mask = shl i32 noundef %b1, 12
+  %#6 = and i32 %conv3.mask, 1044480
+  %or1032 = or disjoint i32 %#5, %#4
+  %or1433 = or disjoint i32 %or1032, %#6
+  %or14 = zext nneg i32 %or1433 to i64
+  %or18 = or disjoint i64 %shl, %or14
+  %or22 = or disjoint i64 %or18, %cmp
+  end_lifetime ptr %b
+  %#range_0_%or22 = !range i64 %or22, i64 4, i64 1048576
+  ret i64 %#range_0_%or22
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

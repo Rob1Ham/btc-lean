@@ -1,0 +1,131 @@
+module CellSignExt where
+
+// Independent statement of the SCR-084 CScriptNum sign-extension exception
+// and of its place in the minimality predicate (Core script.h:246-271,
+// 342-373, 376-391; Lean Numeric/Interface.lean decodeScriptNum /
+// encodeScriptNum; twin/runtime.inc:141-188).
+//
+// Bounded domain: rank-8 magnitude (0..255) with one sign bit for the
+// encode/decode direction, and payload lengths 1..2 for the predicate
+// direction.  fRequireMinimal is true and nMaxNumSize = 4 throughout, which
+// is the setting of the row.
+//
+// Encoder: value != 0 is emitted as its magnitude byte (m, or m || 0x80 when
+// negative).  If that byte has 0x80 set, one extra byte is appended: 0x00
+// for a positive value, 0x80 for a negative one.  Thus +255 -> 0xff 0x00
+// and -255 -> 0xff 0x80.
+//
+// Minimality guard (Core, with the exception):
+//   top = last byte; prev = second-to-last byte
+//   accept iff (top & 0x7f) != 0
+//           or (len > 1 and (prev & 0x80) != 0)
+// The counterfactual guard below drops the second disjunct, which is exactly
+// the "more than one byte and the previous high bit" exception.
+
+top2 : [32] -> [32] -> [32] -> [32]
+top2 n b0 b1 = if n == 1 then b0 else b1
+
+prev2 : [32] -> [32] -> [32] -> [32]
+prev2 n b0 b1 = b0
+
+minimalOk : [32] -> [32] -> [32] -> Bit
+minimalOk n b0 b1 =
+  if n == 0 then True
+  else if (top2 n b0 b1 && 0x0000007f) != 0 then True
+  else if n <= 1 then False
+  else (prev2 n b0 b1 && 0x00000080) != 0
+
+minimalNoException : [32] -> [32] -> [32] -> Bit
+minimalNoException n b0 b1 =
+  if n == 0 then True else (top2 n b0 b1 && 0x0000007f) != 0
+
+// script.h:342-373 serialize, |value| <= 255.
+encN : [32] -> Bit -> [32]
+encN mag neg = if mag == 0 then 0
+               else if (mag && 0x00000080) != 0 then 0x00000002
+               else 1
+
+encB0 : [32] -> Bit -> [32]
+encB0 mag neg =
+  if mag == 0 then 0
+  else if (mag && 0x00000080) != 0 then mag
+  else if neg then mag || 0x00000080 else mag
+
+encB1 : [32] -> Bit -> [32]
+encB1 mag neg =
+  if mag == 0 then 0
+  else if (mag && 0x00000080) != 0
+    then (if neg then 0x00000080 else 0x00000000)
+    else 0x00000000
+
+// script.h:376-391 set_vch, lengths 0..2, as a 16-bit two's-complement
+// image (in-domain values are in [-255, 255]).
+val16 : [32] -> [32] -> [32] -> [32]
+val16 n b0 b1 =
+  if n == 0 then 0
+  else if n == 1 then
+    (if (b0 && 0x00000080) != 0
+       then 0x00010000 - (b0 && 0x0000007f)
+       else (b0 && 0x0000007f))
+  else
+    (if (b1 && 0x00000080) != 0
+       then 0x00010000 - ((b0 && 0x000000ff) ||
+                                ((b1 && 0x0000007f) << 8))
+       else ((b0 && 0x000000ff) || ((b1 && 0x0000007f) << 8)))
+
+b64 : Bit -> [64]
+b64 x = if x then 1 else 0
+
+// roundtrip packing:
+//   ok(1) | err(4 at 1) | n(3 at 5) | b0(8 at 8) | b1(8 at 16) |
+//   value16(16 at 24) | real(1 at 40) | strict(1 at 41) | sx(1 at 42)
+pack : Bit -> [32] -> [32] -> [32] -> [32] -> [32] -> Bit -> Bit -> Bit
+       -> [64]
+pack ok err n b0 b1 v real strict sx =
+  b64 ok
+  || ((zext err) << 1)
+  || ((zext n) << 5)
+  || ((zext b0) << 8)
+  || ((zext b1) << 16)
+  || ((zext (v && 0x0000ffff)) << 24)
+  || (b64 real << 40)
+  || (b64 strict << 41)
+  || (b64 sx << 42)
+
+// For every rank-8 magnitude and sign: the canonical encoding is accepted by
+// the real minimality guard (so +255 -> 0xff00 and -255 -> 0xff80 are both
+// minimal), decodes to the original value, and is rejected by the guard with
+// the exception removed exactly when the encoder appended the sign byte.
+roundtrip : [32] -> [32] -> [64]
+roundtrip magArg negArg =
+  pack ok err n b0 b1 v real strict sx
+  where
+    mag    = magArg && 0x000000ff
+    neg    = (negArg && 0x00000001) != 0
+    n      = encN mag neg
+    b0     = encB0 mag neg
+    b1     = encB1 mag neg
+    real   = minimalOk n b0 b1
+    err    = if real then 0 else 4
+    ok     = real
+    v      = val16 n b0 b1
+    strict = minimalNoException n b0 b1
+    sx     = (mag && 0x00000080) != 0
+
+// Predicate direction: every one- and two-byte payload, real vs the guard
+// with the exception removed.  `real` is what the decode routine reports.
+//   real(1 at 0) | strict(1 at 1) | n(2 at 2) | b0(8 at 4) | b1(8 at 12)
+predObs : [32] -> [32] -> [32] -> [64]
+predObs twoArg b0Arg b1Arg =
+  b64 real
+  || (b64 strict << 1)
+  || ((zext n) << 2)
+  || ((zext b0) << 4)
+  || ((zext b1) << 12)
+  where
+    two    = twoArg && 0x00000001
+    n      = 1 + two
+    b0     = b0Arg && 0x000000ff
+    b1     = b1Arg && 0x000000ff
+    real   = minimalOk n b0 b1
+    strict = minimalNoException n b0 b1

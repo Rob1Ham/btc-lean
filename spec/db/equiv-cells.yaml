@@ -1430,11 +1430,20 @@ rows:
   summary: without flags they are plain NOPs
   core_ref: interpreter.cpp:EvalScript:534-537,573-576@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-072: withdrawn from green after independent audit. The control-flow cell covers NOP/NOP1/NOP4..OP_NOP10/OP_RETURN only; it does not execute CLTV (0xb1) or CSV (0xb2) with the activation flag off, so the pre-activation NOP behavior named by the row is not modelled. Needs a bounded flag-off CLTV/CSV cell; no green is claimed.'
+  cells:
+  - control-flow/C-L-cltv-csv-nop
+  alive2:
+    result: green
+    cell: control-flow/C-L-cltv-csv-nop
+    certificate: 5f367649f447bad956f26a032afc297e982ef430744809a974be08d2013df7ba
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-cltv-csv-nop
+    certificate: 4f534595e56dc302fcbc890d40c4f1b79ee5a0fc590fc684f19dd1c5c4b88315
+    note: Proof succeeded! cell_cltv_flagoff
+  status: both-green
+  gap_note: null
 - id: SCR-073
   family: stack-ops
   summary: executed TOALTSTACK/FROMALTSTACK with one opcode of budget left move the top item; FROMALTSTACK on an empty altstack ⇒ INVALID_ALTSTACK_OPERATION and TOALTSTACK on an empty main stack ⇒ INVALID_STACK_OPERATION; unexecuted branches skip and budget exhaustion yields OP_COUNT first
@@ -1548,11 +1557,20 @@ rows:
   summary: '>limit ⇒ scriptnum_error ⇒ SCRIPT_ERR_SCRIPTNUM'
   core_ref: script.h:246-271@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-079 (>limit ⇒ scriptnum_error ⇒ SCRIPT_ERR_SCRIPTNUM): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-scriptnum-width
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-width
+    certificate: 617720d66148b516997fa2386baa2767cf768e7df67e0884549ca555cd79c286
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-width
+    certificate: a4c4bf76d9fa9aa1dda1291d480911925b23f9dd33f802fc0303807c8567f5a0
+    note: Proof succeeded! cell_scriptnum
+  status: both-green
+  gap_note: null
 - id: SCR-080
   family: numeric
   summary: all numeric opcodes
@@ -1578,31 +1596,58 @@ rows:
   summary: 0x80 sign bit on top byte; negative zero exists
   core_ref: script.h:set_vch:376-391, serialize:342-373@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-082 (0x80 sign bit on top byte; negative zero exists): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-scriptnum-sign
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-sign
+    certificate: 06e24d110f6c2ad399ace37edb21a12bc371a631fc0be4a3bb0d80716a38c1fe
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-sign
+    certificate: 24bc54edb51db7014fbd9d82f9ffa7fbf167dc9004e43e1b888a44920e03835d
+    note: Proof succeeded! cell_decode
+  status: both-green
+  gap_note: null
 - id: SCR-083
   family: numeric
   summary: 0x80 → 0; CastToBool(0x80)=false
   core_ref: script.h:387-390@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-083 (0x80 → 0; CastToBool(0x80)=false): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-w64-negzero
+  alive2:
+    result: green
+    cell: numeric/C-L-w64-negzero
+    certificate: d35573e98fc2c157470ac8f2210822dc689ad95e5c303d2da8356491ecffdae5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-w64-negzero
+    certificate: 9191501b3c1cd9723732ed97cae31900184850eb6f476a9c91ed5133b55935d8
+    note: Proof succeeded! cell_negzero
+  status: both-green
+  gap_note: null
 - id: SCR-084
   family: numeric
   summary: 'CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception is required because the extra byte carries the sign (script.h:262-268).'
   core_ref: script.h:262-268@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-084 (CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception ): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed.'
+  cells:
+  - numeric/C-L-scriptnum-signext-exception
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-signext-exception
+    certificate: 0a55b436a0aa839b9c1e44c2204d99e080e4952370d637585464c2fa22320f9d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-signext-exception
+    certificate: 0b762b379d9bef47b28e7750aa18814b0dc472f818da72f6cfb2d3a97229679f
+    note: Proof succeeded! cell_signext_roundtrip
+  status: both-green
+  gap_note: null
 - id: SCR-085
   family: numeric
   summary: only re-interpretation enforces limit
@@ -1747,10 +1792,18 @@ rows:
   cells:
   - e2-hash/hash160-vector
   - hash-ops/C-L-hash-widths
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e2-hash/hash160-vector: partial — one concrete HASH160 witness establishes the 20-byte output width (SCR-093''s HASH160 arm) and the RIPEMD160(SHA256(x)) composition seam (SCR-094) for that preimage. The SHA256/HASH256/RIPEMD160 output widths, the empty-element row SCR-095, and the hash functions themselves are not proved: the transform is an opaque external on both legs and the SAW override supplies the concrete digest.; hash-ops/C-L-hash-widths: partial'
+  alive2:
+    result: green
+    cell: e2-hash/hash160-vector
+    certificate: cb2412943d348a53068d8b86a0b789d255fe2c3f71e9e399bd3a4d40da834727
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e2-hash/hash160-vector
+    certificate: f62eef8d1a0296ebbee455ebf854baffcc46bcf7d787263f7bbe5ea559b9f3af
+    note: Proof succeeded! cell_hash160
+  status: both-green
+  gap_note: null
 - id: SCR-094
   family: hash-ops
   summary: RIPEMD160∘SHA256; SHA256d
@@ -1778,10 +1831,18 @@ rows:
   consensus: true
   cells:
   - hash-ops/C-L-hash-widths
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; hash-ops/C-L-hash-widths: partial'
+  alive2:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: b200dea82d58d12861577f38172f92b5a28b40ebb30699f8ce609139b144dec1
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: a16729a1743ef230a89823cf5f574d19205686cf67ad67568bc741dc463500e4
+    note: Proof succeeded! cell_ripemd160_empty
+  status: both-green
+  gap_note: null
 - id: SCR-096
   family: checksig
   summary: pbegincodehash .. end
@@ -2117,6 +2178,7 @@ rows:
   cells:
   - checkmultisig/C-L-cms-layout-sym
   - e3-cms/C-L-cms-1of1
+  - e3-cms/C-L-w32-cms-counts
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-layout-sym
@@ -2136,10 +2198,11 @@ rows:
   consensus: true
   cells:
   - checkmultisig/C-L-cms-fad-probe
+  - e3-cms/C-L-w32-cms-finddelete
   alive2: null
   saw: null
   status: gap
-  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial'
+  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial; e3-cms/C-L-w32-cms-finddelete: partial'
 - id: SCR-116
   family: checkmultisig
   summary: sigs to keys in order; early fail when sigs>keys remain
@@ -2147,10 +2210,19 @@ rows:
   consensus: true
   cells:
   - checkmultisig/C-L-cms-order-unroll
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-order-unroll: partial'
+  - e3-cms/C-L-w32-cms-loop
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-order-unroll
+    certificate: 271d9ac1deb18e58f6189e11297d3616e225355cb8fb22285644e20aa6fe7feb
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-order-unroll
+    certificate: 1e16f7155d47106b45dd8289c2dc4dfe863dc5eb83966176f884fd196b2a24c6
+    note: Proof succeeded! cell_cms_order
+  status: both-green
+  gap_note: null
 - id: SCR-117
   family: checkmultisig
   summary: CheckSignatureEncoding+CheckPubKeyEncoding inside loop
@@ -2158,10 +2230,19 @@ rows:
   consensus: true
   cells:
   - checkmultisig/C-L-cms-enc-loop
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-enc-loop: partial'
+  - e3-cms/C-L-w32-cms-loop
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-enc-loop
+    certificate: 0db951f33fa39b572cde395f47eed3bbeff19de3af945b36060e159beb48cca6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-enc-loop
+    certificate: fb4b0913cfb39fd1041bbbdb4644338746a1c1f511b9128aa8b06ce37f229034
+    note: Proof succeeded! cell_cms_enc
+  status: both-green
+  gap_note: null
 - id: SCR-118
   family: checkmultisig
   summary: extra stack item consumed unchecked

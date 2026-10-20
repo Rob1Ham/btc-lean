@@ -20,6 +20,20 @@ let ov_r160_a : LLVMSetup () = do {
   llvm_execute_func [in_p, llvm_term {{ 1 : [32] }}, out_p];
   llvm_points_to out_p (llvm_term {{ d_r160_a }});
 };
+let ov_sha1_e : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x00] : [1][8] }});
+  out_p <- llvm_alloc (llvm_array 20 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 0 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_sha1_e }});
+};
+let ov_sha1_a : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x61] : [1][8] }});
+  out_p <- llvm_alloc (llvm_array 20 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 1 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_sha1_a }});
+};
 let ov_s256_e : LLVMSetup () = do {
   in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
   llvm_points_to in_p (llvm_term {{ [0x00] : [1][8] }});
@@ -71,6 +85,8 @@ let ret (v : Term) : LLVMSetup () = do {
 // ---- C leg -------------------------------------------------------------
 rC <- llvm_unsafe_assume_spec mC "ripemd160" ov_r160_e;
 llvm_verify mC "cell_ripemd160_empty" [rC] false (ret {{ exp_r160_e }}) abc;
+s1C <- llvm_unsafe_assume_spec mC "sha1" ov_sha1_e;
+llvm_verify mC "cell_sha1_empty" [s1C] false (ret {{ exp_sha1_e }}) abc;
 sC <- llvm_unsafe_assume_spec mC "sha256" ov_s256_e;
 llvm_verify mC "cell_sha256_empty" [sC] false (ret {{ exp_s256_e }}) abc;
 hC <- llvm_unsafe_assume_spec mC "hash160" ov_h160_e;
@@ -80,6 +96,8 @@ llvm_verify mC "cell_hash256_empty" [dC] false (ret {{ exp_h256_e }}) abc;
 
 rCa <- llvm_unsafe_assume_spec mC "ripemd160" ov_r160_a;
 llvm_verify mC "cell_ripemd160_a" [rCa] false (ret {{ exp_r160_a }}) abc;
+s1Ca <- llvm_unsafe_assume_spec mC "sha1" ov_sha1_a;
+llvm_verify mC "cell_sha1_a" [s1Ca] false (ret {{ exp_sha1_a }}) abc;
 sCa <- llvm_unsafe_assume_spec mC "sha256" ov_s256_a;
 llvm_verify mC "cell_sha256_a" [sCa] false (ret {{ exp_s256_a }}) abc;
 hCa <- llvm_unsafe_assume_spec mC "hash160" ov_h160_a;
@@ -90,6 +108,8 @@ llvm_verify mC "cell_hash256_a" [dCa] false (ret {{ exp_h256_a }}) abc;
 // ---- L leg -------------------------------------------------------------
 rL <- llvm_unsafe_assume_spec mL "ripemd160" ov_r160_e;
 llvm_verify mL "cell_ripemd160_empty" [rL] false (ret {{ exp_r160_e }}) abc;
+s1L <- llvm_unsafe_assume_spec mL "sha1" ov_sha1_e;
+llvm_verify mL "cell_sha1_empty" [s1L] false (ret {{ exp_sha1_e }}) abc;
 sL <- llvm_unsafe_assume_spec mL "sha256" ov_s256_e;
 llvm_verify mL "cell_sha256_empty" [sL] false (ret {{ exp_s256_e }}) abc;
 hL <- llvm_unsafe_assume_spec mL "hash160" ov_h160_e;
@@ -99,6 +119,8 @@ llvm_verify mL "cell_hash256_empty" [dL] false (ret {{ exp_h256_e }}) abc;
 
 rLa <- llvm_unsafe_assume_spec mL "ripemd160" ov_r160_a;
 llvm_verify mL "cell_ripemd160_a" [rLa] false (ret {{ exp_r160_a }}) abc;
+s1La <- llvm_unsafe_assume_spec mL "sha1" ov_sha1_a;
+llvm_verify mL "cell_sha1_a" [s1La] false (ret {{ exp_sha1_a }}) abc;
 sLa <- llvm_unsafe_assume_spec mL "sha256" ov_s256_a;
 llvm_verify mL "cell_sha256_a" [sLa] false (ret {{ exp_s256_a }}) abc;
 hLa <- llvm_unsafe_assume_spec mL "hash160" ov_h160_a;

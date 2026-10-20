@@ -1,0 +1,55 @@
+// SAW leg for numeric/C-L-scriptnum-width (SCR-079).
+//
+// Both legs are verified against the same independent Cryptol model for every
+// 8-byte content word (2^64) and every element length 0..8 (the 4-bit harness
+// length folded by clamp8/num_len8).  The width guard of
+// CScriptNum(vch, minimal=false, nMaxNumSize=4) is script.h:247-249: it fires
+// on `len > 4` alone, before any byte is read, and the interpreter's catch
+// maps scriptnum_error to SCRIPT_ERR_SCRIPTNUM (ordinal 4,
+// interpreter.cpp:432-437).  In the model that is `errObs 4`.
+//
+//   cell_scriptnum -- the constructor in isolation.  On success the value is
+//                     pushed with Core's canonical serialization and the
+//                     VerifyScript tail observes it (truthy -> res 1 / err 0,
+//                     zero -> EVAL_FALSE res 0 / err 2).
+//   cell_1add      -- OP_1ADD (wire 0x8b): the same constructor on
+//                     stacktop(-1), then bn+1; pUnary is the wave-16 model for
+//                     the unary family and already encodes the width gate.
+import "cell.cry";
+
+// SCR-079 constructor postcondition: the observable is the error ordinal 4
+// on width overflow, otherwise the pushed canonical encoding of the decoded
+// value followed by the VerifyScript tail.
+let spec_scriptnum = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  l <- llvm_fresh_var "l" (llvm_int 32);
+  llvm_execute_func [ llvm_term w, llvm_term l ];
+  llvm_return (llvm_term {{
+    if ~(decodeOk w (clamp8 l))
+      then errObs 0x0000000000000004
+      else if truthy (decode w (clamp8 l))
+        then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001
+                 (decode w (clamp8 l))
+        else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001
+                 (decode w (clamp8 l))
+  }});
+};
+
+let spec_1add = do {
+  w <- llvm_fresh_var "w" (llvm_int 64);
+  l <- llvm_fresh_var "l" (llvm_int 32);
+  llvm_execute_func [ llvm_term w, llvm_term l ];
+  llvm_return (llvm_term {{ pUnary 0x000000000000008b w (clamp8 l) }});
+};
+
+mC <- llvm_load_module "c_cell_scriptnum.bc";
+mL <- llvm_load_module "l_cell_scriptnum.bc";
+llvm_verify mC "cell_scriptnum" [] false spec_scriptnum z3;
+llvm_verify mL "cell_scriptnum" [] false spec_scriptnum z3;
+
+mC1 <- llvm_load_module "c_cell_1add.bc";
+mL1 <- llvm_load_module "l_cell_1add.bc";
+llvm_verify mC1 "cell_1add" [] false spec_1add z3;
+llvm_verify mL1 "cell_1add" [] false spec_1add z3;
+
+print "CELL_SCR079_SCRIPTNUM_SAW_GREEN";

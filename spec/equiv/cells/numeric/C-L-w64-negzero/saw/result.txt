@@ -1,0 +1,20 @@
+# cell: numeric/C-L-w64-negzero
+# tool: saw 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# roots: cell_negzero (each verified in the C module and in the L module)
+# spec: saw/cell.cry (independent predicate, written from the row's rule)
+# modules: build/<leg>_leaf.bc, byte-identical to tracked ir/<leg>_leaf.ll
+# ir-match c_leaf.bc == ir/c_leaf.ll
+# ir-match l_leaf.bc == ir/l_leaf.ll
+
+Loading file "cell.saw"
+Verifying cell_negzero...
+Simulating cell_negzero...
+Checking proof obligations cell_negzero...
+Proof succeeded! cell_negzero
+Verifying cell_negzero...
+Simulating cell_negzero...
+Checking proof obligations cell_negzero...
+Proof succeeded! cell_negzero
+CELL_W64_NEGZERO_SAW_GREEN
+STATUS=saw-green (2 proofs for 1 root(s) x 2 legs)

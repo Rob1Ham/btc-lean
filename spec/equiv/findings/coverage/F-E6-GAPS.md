@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **143**
+- green: **151**
 - unjudged seam: **2**
-- filed gap: **38**
+- filed gap: **30**
 - still planned: **0**
 - other: **0**
 
@@ -75,17 +75,23 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-069 | control-flow | `control-flow/C-L-nop-return` |
 | SCR-070 | control-flow | `control-flow/C-L-unspendable` |
 | SCR-071 | control-flow | `control-flow/C-L-nop-return` |
+| SCR-072 | control-flow | `control-flow/C-L-cltv-csv-nop` |
 | SCR-073 | stack-ops | `e1-altstack/roundtrip`, `stack-ops/C-L-w32-altstack-step`, `stack/C-L-altstack` |
 | SCR-075 | stack-ops | `e1-stack/pick-depth`, `stack-ops/C-L-pick` |
 | SCR-076 | stack-ops | `e1-stack/depth-count`, `stack-ops/C-L-depth-size` |
 | SCR-077 | stack-ops | `stack-ops/C-L-ifdup` |
+| SCR-079 | numeric | `numeric/C-L-scriptnum-width` |
+| SCR-082 | numeric | `numeric/C-L-scriptnum-sign` |
+| SCR-083 | numeric | `numeric/C-L-w64-negzero` |
 | SCR-087 | numeric | `numeric/C-L-unary-4byte` |
 | SCR-088 | numeric | `numeric/C-L-binary-4byte` |
 | SCR-089 | numeric | `e2-numeric/within-boundary`, `numeric/C-L-within-4byte` |
 | SCR-090 | numeric | `numeric/C-L-binary-4byte` |
 | SCR-091 | numeric | `numeric/C-L-equal-rawbytes` |
 | SCR-092 | numeric | `e2-numeric/C-L-w32-disabled-2div`, `numeric/C-L-2div-disabled` |
+| SCR-093 | hash-ops | `e2-hash/hash160-vector`, `hash-ops/C-L-hash-widths` |
 | SCR-094 | hash-ops | `e2-hash/hash160-vector`, `hash-ops/C-L-hash-compose` |
+| SCR-095 | hash-ops | `hash-ops/C-L-hash-widths` |
 | SCR-096 | checksig | `checksig/C-L-w32-checksig-codesep` |
 | SCR-097 | checksig | `checksig/C-L-w32-checksig-codesep` |
 | SCR-098 | checksig | `checksig/C-L-w32-checksig-findanddelete` |
@@ -102,7 +108,9 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-110 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
 | SCR-111 | checksig | `checksig/C-L-checksig-nullfail-hashtype` |
 | SCR-113 | checksig | `checksig/C-L-checksig-opcount` |
-| SCR-114 | checkmultisig | `checkmultisig/C-L-cms-layout-sym`, `e3-cms/C-L-cms-1of1` |
+| SCR-114 | checkmultisig | `checkmultisig/C-L-cms-layout-sym`, `e3-cms/C-L-cms-1of1`, `e3-cms/C-L-w32-cms-counts` |
+| SCR-116 | checkmultisig | `checkmultisig/C-L-cms-order-unroll`, `e3-cms/C-L-w32-cms-loop` |
+| SCR-117 | checkmultisig | `checkmultisig/C-L-cms-enc-loop`, `e3-cms/C-L-w32-cms-loop` |
 | SCR-118 | checkmultisig | `checkmultisig/C-L-cms-tail-sym`, `e3-cms/C-L-cms-1of1` |
 | SCR-119 | checkmultisig | `checkmultisig/C-L-cms-tail-sym`, `e3-cms/C-L-cms-1of1` |
 | SCR-120 | checkmultisig | `checkmultisig/C-L-cms-tail-sym`, `e3-cms/C-L-cms-1of1` |
@@ -240,24 +248,16 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-043 | limits | SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-044 | limits | SCR-044 (lower bound for serialized tx weight): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-051 | push-encoding | auto(cells): partial row coverage; push-encoding/C-L-w32-num-decode-minimal: partial — the cell proves the shared CScriptNum(fRequireMinimal) decode for both capping sizes named by the row (4 for the CHECKMULTISIG key/sig counts and the CHECKSIGADD number, 5 for CLTV/CSV), with the policy flag both off and on, over all operand bytes.  It does NOT exercise the four handler call sites themselves, their ordering against other checks (NEGATIVE_LOCKTIME, locktime/sequence comparison, sig/key count bounds, Schnorr verification), or the CHECKSIGADD tapscript path.  See notes.md for the exact blockers. |
-| SCR-072 | control-flow | SCR-072: withdrawn from green after independent audit. The control-flow cell covers NOP/NOP1/NOP4..OP_NOP10/OP_RETURN only; it does not execute CLTV (0xb1) or CSV (0xb2) with the activation flag off, so the pre-activation NOP behavior named by the row is not modelled. Needs a bounded flag-off CLTV/CSV cell; no green is claimed. |
 | SCR-074 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/rot-direction: partial success branch only: ROT executes at depth 3 with no underflow; the depth-failure branch of SCR-074 is not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack-ops/C-L-arity: partial — every opcode in the 2DROP..TUCK arity set is exercised only at an empty stack (n=0) against its per-case Core guard and twin handler. This does not prove all insufficient-depth boundaries for ops that require more than one item; off-by-one threshold mutants survive. The success branches are covered by other E1 cells and are not part of this row.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
 | SCR-078 | stack-ops | auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge. |
-| SCR-079 | numeric | SCR-079 (>limit ⇒ scriptnum_error ⇒ SCRIPT_ERR_SCRIPTNUM): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-080 | numeric | SCR-080 (all numeric opcodes): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-081 | numeric | SCR-081 (nMaxNumSize=5 special case): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-082 | numeric | SCR-082 (0x80 sign bit on top byte; negative zero exists): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-083 | numeric | SCR-083 (0x80 → 0; CastToBool(0x80)=false): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-084 | numeric | SCR-084 (CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception ): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-085 | numeric | SCR-085 (only re-interpretation enforces limit): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
 | SCR-086 | numeric | SCR-086 (clamp to int32 for depth/count uses): E2 numeric attempt did not produce a cell for this row; the CScriptNum/opcode path is not proved. No green is claimed. |
-| SCR-093 | hash-ops | auto(cells): partial row coverage; e2-hash/hash160-vector: partial — one concrete HASH160 witness establishes the 20-byte output width (SCR-093's HASH160 arm) and the RIPEMD160(SHA256(x)) composition seam (SCR-094) for that preimage. The SHA256/HASH256/RIPEMD160 output widths, the empty-element row SCR-095, and the hash functions themselves are not proved: the transform is an opaque external on both legs and the SAW override supplies the concrete digest.; hash-ops/C-L-hash-widths: partial |
-| SCR-095 | hash-ops | auto(cells): partial row coverage; hash-ops/C-L-hash-widths: partial |
 | SCR-104 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-lows: partial |
 | SCR-112 | checksig | auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: partial; e3-checksig/C-L-checksig-dispatch: partial |
-| SCR-115 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial |
-| SCR-116 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-order-unroll: partial |
-| SCR-117 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-enc-loop: partial |
+| SCR-115 | checkmultisig | auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: partial; e3-cms/C-L-w32-cms-finddelete: partial |
 | SCR-133 | witness-v0 | auto(cells): partial row coverage; e4-witness/C-L-w32-witness-hash-compare: partial for SCR-133.  The comparison half is full: for all 2^256
 (digest, program) pairs the cell proves that a mismatch in any of the 32
 bytes yields WITNESS_PROGRAM_MISMATCH and that a full 32-byte match

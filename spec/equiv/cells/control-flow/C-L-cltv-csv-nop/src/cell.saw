@@ -1,0 +1,50 @@
+import "cell.cry";
+mC0 <- llvm_load_module "c_cell_cltv_flagoff.bc";
+mL0 <- llvm_load_module "l_cell_cltv_flagoff.bc";
+mC1 <- llvm_load_module "c_cell_csv_flagoff.bc";
+mL1 <- llvm_load_module "l_cell_csv_flagoff.bc";
+mC2 <- llvm_load_module "c_cell_cltv_flagon.bc";
+mL2 <- llvm_load_module "l_cell_cltv_flagon.bc";
+mC3 <- llvm_load_module "c_cell_csv_flagon.bc";
+mL3 <- llvm_load_module "l_cell_csv_flagon.bc";
+
+// Symbolic over bounded stack depth (0..3), the top byte (all 2^8 values) and
+// the incoming op-count (0..200).  The harness clamps both integers, so the
+// Cryptol predicate applies the same clamp.
+let s_cltv_off = do {
+  d  <- llvm_fresh_var "d"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  llvm_execute_func [llvm_term d, llvm_term b0, llvm_term oc];
+  llvm_return (llvm_term {{ cltvNopOff d b0 oc }});
+};
+let s_csv_off = do {
+  d  <- llvm_fresh_var "d"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  llvm_execute_func [llvm_term d, llvm_term b0, llvm_term oc];
+  llvm_return (llvm_term {{ csvNopOff d b0 oc }});
+};
+let s_cltv_on = do {
+  d  <- llvm_fresh_var "d"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  llvm_execute_func [llvm_term d, llvm_term b0, llvm_term oc];
+  llvm_return (llvm_term {{ cltvNopOn d b0 oc }});
+};
+let s_csv_on = do {
+  d  <- llvm_fresh_var "d"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  llvm_execute_func [llvm_term d, llvm_term b0, llvm_term oc];
+  llvm_return (llvm_term {{ csvNopOn d b0 oc }});
+};
+llvm_verify mC0 "cell_cltv_flagoff" [] false s_cltv_off abc;
+llvm_verify mL0 "cell_cltv_flagoff" [] false s_cltv_off abc;
+llvm_verify mC1 "cell_csv_flagoff" [] false s_csv_off abc;
+llvm_verify mL1 "cell_csv_flagoff" [] false s_csv_off abc;
+llvm_verify mC2 "cell_cltv_flagon" [] false s_cltv_on abc;
+llvm_verify mL2 "cell_cltv_flagon" [] false s_cltv_on abc;
+llvm_verify mC3 "cell_csv_flagon" [] false s_csv_on abc;
+llvm_verify mL3 "cell_csv_flagon" [] false s_csv_on abc;
+print "CELL_control_CLTV_CSV_NOP_SAW_GREEN";

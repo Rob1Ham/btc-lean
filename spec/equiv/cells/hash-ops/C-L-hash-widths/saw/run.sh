@@ -3,7 +3,8 @@
 # Each verification supplies one override for the one external the function
 # calls; the override fixes the closed preimage and the concrete digest, so
 # the packed observable (width, depth, digest prefix) is checked against a
-# value computed outside both legs.
+# value computed outside both legs.  SHA1 is a cell-local reviewed L arm; its
+# digest is an opaque-external witness, not an implemented SHA1.
 set -euo pipefail
 CELL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CELLS="$(cd "$CELL_DIR/../.." && pwd)"
@@ -22,13 +23,13 @@ RES="$OUT/result.txt"
   echo "# saw: $(PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw --version 2>&1 | head -1)"
   echo "# spec: build/cell.cry"
   echo "# script: build/cell.saw"
-  echo "# expected: at least 16 'Proof succeeded!' and no 'Proof failed'"
+  echo "# expected: at least 20 'Proof succeeded!' and no 'Proof failed'"
   echo
   ( cd "$BUILD" && PATH=/opt/equiv-tools/saw-1.6/bin:$PATH saw cell.saw )
 } > "$RES" 2>&1 || true
 
 OK=0
-if [ "$(grep -c '^Proof succeeded!' "$RES" || true)" -ge 16 ] \
+if [ "$(grep -c '^Proof succeeded!' "$RES" || true)" -ge 20 ] \
    && ! grep -q '^Proof failed' "$RES"; then
   echo "STATUS=saw-green" >> "$RES"
   OK=1
@@ -48,6 +49,7 @@ FILES=(
 )
 FNS=(
   cell_ripemd160_empty cell_ripemd160_a
+  cell_sha1_empty cell_sha1_a
   cell_sha256_empty cell_sha256_a
   cell_hash160_empty cell_hash160_a
   cell_hash256_empty cell_hash256_a

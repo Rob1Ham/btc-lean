@@ -14,10 +14,12 @@ mkdir -p "$BUILD"
 OPS="OP_RIPEMD160,OP_SHA256,OP_HASH160,OP_HASH256"
 FNS=(
   cell_ripemd160_empty cell_ripemd160_a
+  cell_sha1_empty cell_sha1_a
   cell_sha256_empty cell_sha256_a
   cell_hash160_empty cell_hash160_a
   cell_hash256_empty cell_hash256_a
   cell_ripemd160_empty_meta cell_ripemd160_a_meta
+  cell_sha1_empty_meta cell_sha1_a_meta
   cell_sha256_empty_meta cell_sha256_a_meta
   cell_hash160_empty_meta cell_hash160_a_meta
   cell_hash256_empty_meta cell_hash256_a_meta
@@ -48,9 +50,10 @@ done
   printf 'cell=C-L-hash-widths\n'
   printf 'fn=%s\n' "${FNS[*]}"
   printf 'mk_leaf ops=%s max_depth=4 max_elem=32 (provenance only)\n' "$OPS"
+  printf 'sha1_arm=cell-local reviewed body; shared twin wire 0xa7 is OP_UNSUPPORTED_SHA1 (not in mk_leaf table)\n'
   printf 'clang=%s\n' "$(/usr/bin/clang++-20 --version | head -1)"
   printf 'llvm=%s\n' "$(/usr/lib/llvm-20/bin/llvm-extract --version | head -1)"
   printf 'twin_ops_sha256=%s\n' "$(sha256sum "$BUILD/twin_ops.h" | cut -d' ' -f1)"
-  printf 'hash_externals=opaque shared symbols ripemd160/sha256/hash160/hash256\n'
+  printf 'hash_externals=opaque shared symbols ripemd160/sha1/sha256/hash160/hash256\n'
   printf 'root=%s\n' "$ROOT"
 } > "$BUILD/build.txt"

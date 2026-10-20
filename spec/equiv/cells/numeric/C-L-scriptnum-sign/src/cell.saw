@@ -1,0 +1,85 @@
+// SAW leg for numeric/C-L-scriptnum-sign (SCR-082).
+//
+// Both legs are verified against the same independent Cryptol model
+// (src/sign.cry, copied to build/cell.cry by saw/run.sh) over the whole cell
+// domain:
+//
+//   cell_decode         every byte string of length 0..7 (2^64 content words)
+//   cell_encode         every (magnitude, sign), |value| <= 2^32-1
+//   cell_encode_decode  the same domain, observable = decode(encode(v))
+//   cell_roundtrip      every 4-byte operand (length 0..4), observable =
+//                       encode(decode(bytes))
+//
+// `llvm_verify` is run on the C module and on the L module for each entry
+// point, so each leg independently satisfies the model; combined with the
+// Alive2 C<->L run this is L <= C and C <= L.
+
+import "cell.cry";
+
+let specDecode = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 64);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ decode w (zext (lb && 0x00000007)) }});
+};
+
+let specEncode = do {
+  mag <- llvm_fresh_var "mag" (llvm_int 64);
+  neg <- llvm_fresh_var "neg" (llvm_int 32);
+  llvm_execute_func [llvm_term mag, llvm_term neg];
+  llvm_return (llvm_term {{ encPackV
+    (if (neg && 0x00000001) != 0
+     then -(mag && 0x00000000ffffffff)
+     else (mag && 0x00000000ffffffff)) }});
+};
+
+let specEncodeDecode = do {
+  mag <- llvm_fresh_var "mag" (llvm_int 64);
+  neg <- llvm_fresh_var "neg" (llvm_int 32);
+  llvm_execute_func [llvm_term mag, llvm_term neg];
+  llvm_return (llvm_term {{
+    (if (neg && 0x00000001) != 0
+     then -(mag && 0x00000000ffffffff)
+     else (mag && 0x00000000ffffffff)) }});
+};
+
+let specRoundtrip = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 64);
+  lb <- llvm_fresh_var "lb" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term lb];
+  llvm_return (llvm_term {{ encPackV (decode w (zext (lb && 0x00000003))) }});
+};
+
+mC <- llvm_load_module "c_cell_decode.bc";
+mL <- llvm_load_module "l_cell_decode.bc";
+llvm_verify mC "cell_decode" [] false specDecode z3;
+llvm_verify mL "cell_decode" [] false specDecode z3;
+
+mC <- llvm_load_module "c_cell_encode.bc";
+mL <- llvm_load_module "l_cell_encode.bc";
+llvm_verify mC "cell_encode" [] false specEncode z3;
+llvm_verify mL "cell_encode" [] false specEncode z3;
+
+mC <- llvm_load_module "c_cell_encode_decode.bc";
+mL <- llvm_load_module "l_cell_encode_decode.bc";
+llvm_verify mC "cell_encode_decode" [] false specEncodeDecode z3;
+llvm_verify mL "cell_encode_decode" [] false specEncodeDecode z3;
+
+mC <- llvm_load_module "c_cell_roundtrip.bc";
+mL <- llvm_load_module "l_cell_roundtrip.bc";
+llvm_verify mC "cell_roundtrip" [] false specRoundtrip z3;
+llvm_verify mL "cell_roundtrip" [] false specRoundtrip z3;
+
+print "CELL_SCR082_SAW_GREEN";
+
+// Concrete instances, evaluated in the same model the universal proofs use.
+// negative zero: 0x80 at length 1 and 00 80 at length 2 both decode to 0;
+// 0 serializes to length 0; -128 serializes to 80 80 (len 2, 0x80802 packed).
+// (The universal obligations above already imply these; the prints make the
+// row's two stated facts visible in the raw log.)
+print {{ negZeroEq }};
+print {{ (decode 0x0000000000000080 0x0000000000000001,
+          decode 0x0000000000008000 0x0000000000000002,
+          encPackV 0x0000000000000000,
+          encPackV 0xffffffffffffff80) }};
+
