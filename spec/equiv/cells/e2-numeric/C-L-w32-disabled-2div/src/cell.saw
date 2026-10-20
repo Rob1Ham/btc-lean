@@ -1,0 +1,34 @@
+import "cell.cry";
+mC_base <- llvm_load_module "c_cell_base.bc";
+mL_base <- llvm_load_module "l_cell_base.bc";
+mC_wit <- llvm_load_module "c_cell_witness_v0.bc";
+mL_wit <- llvm_load_module "l_cell_witness_v0.bc";
+mC_tap <- llvm_load_module "c_cell_tapscript.bc";
+mL_tap <- llvm_load_module "l_cell_tapscript.bc";
+
+// SCR-092: 0x8e = OP_2DIV.  Legacy and witness-v0 reject it as a disabled
+// opcode (17) even in an unexecuted branch; tapscript's OP_SUCCESS142
+// pre-scan succeeds (or returns 36 under DISCOURAGE_OP_SUCCESS).  Both legs
+// are verified against the independent Cryptol predicates in cell.cry.
+// Solver: z3.
+let fexec_setup = do {
+  f <- llvm_fresh_var "fexec" (llvm_int 8);
+  llvm_execute_func [llvm_term f];
+  llvm_return (llvm_term {{ legacySpec f }});
+};
+
+let tapscript_setup = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  d <- llvm_fresh_var "discourage" (llvm_int 8);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term d];
+  llvm_return (llvm_term {{ tapscriptSpec b0 b1 d }});
+};
+
+llvm_verify mC_base "cell_base" [] false fexec_setup z3;
+llvm_verify mL_base "cell_base" [] false fexec_setup z3;
+llvm_verify mC_wit "cell_witness_v0" [] false fexec_setup z3;
+llvm_verify mL_wit "cell_witness_v0" [] false fexec_setup z3;
+llvm_verify mC_tap "cell_tapscript" [] false tapscript_setup z3;
+llvm_verify mL_tap "cell_tapscript" [] false tapscript_setup z3;
+print "CELL_W32_DISABLED_2DIV_SAW_GREEN";

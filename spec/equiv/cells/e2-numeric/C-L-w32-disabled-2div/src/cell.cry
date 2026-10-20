@@ -1,0 +1,76 @@
+module CellDisabled2Div where
+
+// Independent specification for SCR-092: wire 0x8e is OP_2DIV.
+//
+// Sources of the rule (not reused code): Bitcoin Core
+//   src/script/script.h:155-156           OP_2MUL = 0x8d, OP_2DIV = 0x8e
+//   src/script/interpreter.cpp:443-467    EvalScript disabled-opcode check,
+//                                         before the fExec branch
+//   src/script/interpreter.cpp:1846-1862  tapscript OP_SUCCESS pre-scan
+//   src/script/script.cpp:365-371         IsOpSuccess
+//   src/script/interpreter.cpp:70         DISCOURAGE_OP_SUCCESS
+// and the Lean counterpart
+//   Bitcoin/Interpreter/Defs.lean:455-492, 1211-1216.
+//
+// The two legacy/witness-v0 arms are constant: 0x8e is in the disabled
+// list, so the result is DISABLED_OPCODE (17) with an empty stack, whether
+// or not the opcode sits in an executed branch.  There is no OP_NOTEQUAL.
+//
+// The tapscript arm is the pre-scan over a two-byte script [b0, b1].  The
+// scan is defined through Lean's getOp (Parser/Defs.lean:206-229), so a
+// preceding push can consume b1 as data; 0x8e is OP_SUCCESS142 only when it
+// is decoded as an opcode.  The closed form below is that scan for length 2:
+//   * b0 = 0x00 decodes to an empty push and advances to index 1;
+//   * b0 = 0x01 consumes b1 as one data byte and ends the script;
+//   * b0 = 0x4c needs a length byte; with one byte left only length 0 works;
+//   * b0 = 0x02..0x4b (truncated direct push), 0x4d/0x4e (truncated
+//     PUSHDATA2/4) fail to decode, and opSuccessScanFrom maps that to false;
+//   * b0 >= 0x4f is one byte, so index 1 is decoded next.
+// opSuccessScanFrom tests only `.op` payloads: 0x50 (OP_RESERVED) is an op;
+// 0x4f and 0x51..0x60 are pushNum and are skipped.
+
+isOpSuccessWire : [8] -> Bit
+isOpSuccessWire w =
+  (w == 80) || (w == 98) || ((w >= 126) && (w <= 129)) ||
+  ((w >= 131) && (w <= 134)) || ((w >= 137) && (w <= 138)) ||
+  ((w >= 141) && (w <= 142)) || ((w >= 149) && (w <= 153)) ||
+  ((w >= 187) && (w <= 254))
+
+isOpPayload : [8] -> Bit
+isOpPayload c = (c == 0x50) || (c >= 0x61)
+
+scanSuccess : [8] -> Bit
+scanSuccess c = isOpPayload c && isOpSuccessWire c
+
+getOk0 : [8] -> [8] -> Bit
+getOk0 b0 b1 =
+  (b0 == 0) || (b0 == 1) || ((b0 == 0x4c) && (b1 == 0)) || (b0 >= 0x4f)
+
+nextIsOne : [8] -> Bit
+nextIsOne b0 = (b0 == 0) || (b0 >= 0x4f)
+
+scan2 : [8] -> [8] -> Bit
+scan2 b0 b1 =
+  if getOk0 b0 b1 then
+    if scanSuccess b0 then True
+    else if nextIsOne b0 then scanSuccess b1
+    else False
+  else False
+
+packed : [2] -> [6] -> [3] -> [9] -> [40] -> [64]
+packed res err depth l v =
+     (zext res)
+  || (zext err << 2)
+  || (zext depth << 8)
+  || (zext l << 11)
+  || (zext v << 20)
+
+legacySpec : [8] -> [64]
+legacySpec _ = packed 0 17 0 0 0
+
+tapscriptSpec : [8] -> [8] -> [8] -> [64]
+tapscriptSpec b0 b1 discourage =
+  if scan2 b0 b1
+    then if discourage != 0 then packed 0 36 0 0 0
+                             else packed 1 0 0 0 0
+    else packed 3 1 0 0 0

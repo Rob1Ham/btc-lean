@@ -35,13 +35,14 @@ direction:
   - L ⊑ C
   - C ⊑ L
 scr_rows: SCR-098
-scr_row_coverage: full — the cell exercises: no match; a match at offset 0;
-  one multi-byte match; two consecutive matches of a 2-byte needle and of a
-  3-byte needle; a partial/non-match followed by a GetOp step and continued
-  scanning; the same needle bytes appearing inside a push payload (not
-  matched); all-0x00 needle repeated to exhaust the script; and a malformed
-  push tail.  Needle lengths 1, 2 and 3 cover sig lengths 0, 1 and 2.  Bounded
-  to 4/4/6-byte scripts; every branch/edge named by SCR-098 is present.
+scr_row_coverage: >-
+  full — the cell exercises: no match; a match at offset 0; one multi-byte
+  match; two consecutive matches of a 2-byte needle and of a 3-byte needle; a
+  partial/non-match followed by a GetOp step and continued scanning; the same
+  needle bytes appearing inside a push payload (not matched); all-0x00 needle
+  repeated to exhaust the script; and a malformed push tail.  Needle lengths
+  1, 2 and 3 cover sig lengths 0, 1 and 2.  Bounded to 4/4/6-byte scripts;
+  every branch/edge named by SCR-098 is present.
 coverage: full
 patches: none
 source_citations:

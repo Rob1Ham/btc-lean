@@ -171,7 +171,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -190,7 +190,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-eval-empty
-    certificate: ca5839526ee1011a9d5853e4a2c3e63cdde174627f4422cee31c302e9d0196fa
+    certificate: 11596f606e1636b58f67bcef64236595f53dd6759fd708df323d36ac73f52b7b
     note: Proof succeeded! cell_eval_frame
   status: both-green
   gap_note: null
@@ -210,7 +210,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -242,7 +242,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-pushonly
-    certificate: 886bb6f81bb61fe0c0ca7a5526c780176852b9dc3eaafb3332da756490acaf75
+    certificate: dfe90799dcf64ccd655166c94c787f59f122a276ea9fa01bac533eeeebaf1b0f
     note: Proof succeeded! cell_ispushonly
   status: both-green
   gap_note: null
@@ -262,7 +262,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-p2sh-handoff
-    certificate: 7eaa555c25fc9af4dd91c2f17409fbfd690452aa7e6104043a6b4ddf3620d3f9
+    certificate: 1ebf87c7d14b205f31da03fcb783d2a1538a51db5b1b163ec2b443a4322370a6
     note: Proof succeeded! cell_p2sh_shape
   status: both-green
   gap_note: null
@@ -282,7 +282,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -302,7 +302,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-flags-domain
-    certificate: 9d47c9a8ddfef40ac6f6ee4ba8eb75bcb634305629e1d4393fd13ebc262c734f
+    certificate: d0b95157e5fabca63c00d42af20e92e84b9ffe3150beeaf862767f225398c0c8
     note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
@@ -332,7 +332,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -362,7 +362,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: a1f93fc7b6030dc6f03fa642c55648d138c6f898784cf1eb3f562866e59ae8bd
+    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -382,7 +382,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-flags-domain
-    certificate: 9d47c9a8ddfef40ac6f6ee4ba8eb75bcb634305629e1d4393fd13ebc262c734f
+    certificate: d0b95157e5fabca63c00d42af20e92e84b9ffe3150beeaf862767f225398c0c8
     note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
@@ -440,7 +440,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-failure-propagation
-    certificate: 090bec9047efd847601a35fcb228b1ded79ec9fd1b5fd0bc1023f1189ef13640
+    certificate: 23c9671437e45bb4412ea62dd54ccfdcea9787dafdac71983d80e1d368b952d1
     note: Proof succeeded! cell_failprop
   status: both-green
   gap_note: null
@@ -1049,11 +1049,20 @@ rows:
   core_ref: script.cpp:266-286@cce32b168
   consensus: true
   cells:
+  - push-encoding/C-L-pushonly
   - push-encoding/C-L-w32-pushonly-opcode
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; push-encoding/C-L-w32-pushonly-opcode: partial — the cell is symbolic over every wire byte 0x00..0xff in a script position, so it exercises the named edge exactly: every opcode <= OP_16 (0x60) counts as a push, including OP_RESERVED 0x50, and OP_17 0x61 does not.  It also covers the one-op truncation cases (direct push 0x01..0x4b and PUSHDATA1/2/4 with missing length/data).  It does NOT exercise a successful multi-op script, a successful PUSHDATA push whose data is present, or the script-level `all` conjunction beyond one opcode.  The cell is deliberately bounded to a 0/1-byte script; a full symbolic-length loop cell over the complete GetOp/decode_op surface was not built in this task.  Alive2 itself was not observed to reject loops (a scalar symbolic-trip-count probe verifies), so this is a scope decision, not a proved tool impossibility; see notes.md.'
+  alive2:
+    result: green
+    cell: push-encoding/C-L-pushonly
+    certificate: aac1936c7a5e282ebf20e93617a25b128e48b5facab303e1e493feb762794147
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-pushonly
+    certificate: 417c3f73ea19a18de2c551cdbd29812cb208b5ecd3fd6163793a536cb7a2a517
+    note: Proof succeeded! cell_pushonly1
+  status: both-green
+  gap_note: null
 - id: SCR-053
   family: push-encoding
   summary: 4..42 bytes; OP_0/OP_N + exact-length push; program 2..40
@@ -1469,10 +1478,19 @@ rows:
   consensus: true
   cells:
   - e1-stack/pick-depth
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e1-stack/pick-depth: partial success branch only: PICK selects index 2 at depth 4 (the bottom item); index-bounds/underflow and ROLL are not exercised, so SCR-075 is not discharged as a whole.'
+  - stack-ops/C-L-pick
+  alive2:
+    result: green
+    cell: e1-stack/pick-depth
+    certificate: 88a5bed740fc2791209fce56b4bf3e60c964ba058e1ead01a7f6d9c6169b2341
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e1-stack/pick-depth
+    certificate: 32eb14aba31de7b3d7170832e39a6d3e739ed5c3330585b304e68293e3928592
+    note: Proof succeeded! cell_pick_depth
+  status: both-green
+  gap_note: null
 - id: SCR-076
   family: stack-ops
   summary: size as minimal CScriptNum encoding
@@ -1480,20 +1498,38 @@ rows:
   consensus: true
   cells:
   - e1-stack/depth-count
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; e1-stack/depth-count: partial success branch only: DEPTH at depth 2 pushes the minimal CScriptNum encoding 2; DEPTH at 0/1 and the larger-encoding branches of SCR-076 are not exercised.'
+  - stack-ops/C-L-depth-size
+  alive2:
+    result: green
+    cell: e1-stack/depth-count
+    certificate: 648cc281224fe3b66e19a426a443a31a560fe9bcb3c482fef3276d64990ae21b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e1-stack/depth-count
+    certificate: 957834ca3aca8dbbffb76cb92dca39e71ac319160d0ad09e9bd5de35eccf58b4
+    note: Proof succeeded! cell_depth_count
+  status: both-green
+  gap_note: null
 - id: SCR-077
   family: stack-ops
   summary: dup iff CastToBool
   core_ref: interpreter.cpp:776-785@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-077 (dup iff CastToBool): E1 cells cover only the listed branches; the missing underflow/OOB/budget branch for this row is named in the cell notes. No green is claimed.'
+  cells:
+  - stack-ops/C-L-ifdup
+  alive2:
+    result: green
+    cell: stack-ops/C-L-ifdup
+    certificate: a8db4ea4142522dc413eee535f0f66b0c62cb718fa9228383866465f1f579c02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-ifdup
+    certificate: defcec782dc75d749c3a0fed374150760262a413fb577addb3169aa7d1cbcc4a
+    note: Proof succeeded! cell_ifdup_empty
+  status: both-green
+  gap_note: null
 - id: SCR-078
   family: stack-ops
   summary: popstack throws ⇒ UNKNOWN_ERROR; all ops pre-check
@@ -1689,11 +1725,20 @@ rows:
   core_ref: interpreter.cpp:899,907-911 (comment)@cce32b168
   consensus: true
   cells:
+  - e2-numeric/C-L-w32-disabled-2div
   - numeric/C-L-2div-disabled
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'auto(cells): partial row coverage; numeric/C-L-2div-disabled: partial — the EvalScript gate is proved C-vs-L for every wire word (this is the edge that decides 0x8e in BASE and WITNESS_V0), and the tapscript OP_SUCCESS142 pre-pass is proved on the C leg against the Cryptol model for every wire word.  What is not proved C-vs-L is the tapscript edge itself: the twin has no tapscript engine (witness v0/v1 and tapscript return TWIN_INVALID_UNSUPPORTED, result 3 — twin/generator.md:409, E4), so there is no L counterpart of ExecuteWitnessScript''s pre-pass to compare against. Remaining gap: add the OP_SUCCESSx pre-pass to the twin, then compare it to cell_tap_scan with Alive2.  Nothing in the row is claimed as proved on the L side for tapscript.'
+  alive2:
+    result: green
+    cell: e2-numeric/C-L-w32-disabled-2div
+    certificate: 650b401f181edc855bf7e25c2cad150e893631b13d2e432526c86220d09baa56
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e2-numeric/C-L-w32-disabled-2div
+    certificate: d22de1cdf726c624b6919c2072febf18ce0b4d2d7acae988485f0c78859b2d15
+    note: Proof succeeded! cell_base
+  status: both-green
+  gap_note: null
 - id: SCR-093
   family: hash-ops
   summary: 20/20/32
@@ -1742,61 +1787,115 @@ rows:
   summary: pbegincodehash .. end
   core_ref: interpreter.cpp:1058-1067,336@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-096 (pbegincodehash .. end): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
 - id: SCR-097
   family: checksig
   summary: only executed CODESEPARATOR updates
   core_ref: interpreter.cpp:1058-1067 (in fExec switch)@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-097 (only executed CODESEPARATOR updates): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
 - id: SCR-098
   family: checksig
   summary: byte-level removal of each matched serialized sig push from scriptCode, continuing after the match
   core_ref: interpreter.cpp:239-265,339-343@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-098 (byte-level removal of each matched serialized sig push from scriptCode, continuing after the match): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-findanddelete
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-findanddelete
+    certificate: 0d72b32ed5ece3149aac2bdecb1715626157e85762db194ba4e3524e9683bf7f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-findanddelete
+    certificate: 78bea08b28c0e333714a62c29e4b8624605f0841c7b316acf68f829d8f791760
+    note: Proof succeeded! cell_fad_pl1
+  status: both-green
+  gap_note: null
 - id: SCR-099
   family: checksig
   summary: found>0 ⇒ SIG_FINDANDDELETE (pol.)
   core_ref: interpreter.cpp:341-342@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-099 (found>0 ⇒ SIG_FINDANDDELETE (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-constscriptcode
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-constscriptcode
+    certificate: a531c60920bc8d431a3470f84794e7e54322e858882ea881c1fc41aea6fc0a57
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-constscriptcode
+    certificate: b2a972d5f655c51a400bf7e524e0cc3de108f8d7f201d5924b4a669019b4d14d
+    note: Proof succeeded! cell_fadpol_pl1
+  status: both-green
+  gap_note: null
 - id: SCR-100
   family: checksig
   summary: BASE, even unexecuted (pol.)
   core_ref: interpreter.cpp:484-486@cce32b168
   consensus: false
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-100 (BASE, even unexecuted (pol.)): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
 - id: SCR-101
   family: checksig
   summary: 1-byte opcodes removed from serialization
   core_ref: interpreter.cpp:SerializeScriptCode:1282-1302@cce32b168
   consensus: true
-  cells: []
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: 'SCR-101 (1-byte opcodes removed from serialization): E3 checksig attempt is conditional on the same abstract crypto checker; R has no typed ScriptError and a single-input/flags=0 domain (F-HARNESS-002/R-GAP-01), and this row has no C/L cell. No green is claimed.'
+  cells:
+  - checksig/C-L-w32-checksig-serialize-scriptcode
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-serialize-scriptcode
+    certificate: fe231112432e106b13a14dd5a1ec5272094051db01cf1c5635521513254de5b3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-serialize-scriptcode
+    certificate: fe6de06087a00f3c81a26ad654cd34c552e4fe7426f201a988ba0f0882c223d3
+    note: Proof succeeded! cell_ser
+  status: both-green
+  gap_note: null
 - id: SCR-102
   family: checksig
   summary: 9..73 bytes; strict DER structure; consensus since BIP66
@@ -2021,7 +2120,7 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-layout-sym
-    certificate: 79ed83651a6d7d1d00a624a7edd48c109d120d6fc26f9b91fa9cf49e25a68913
+    certificate: ded9d051ec84a2e0b865fd5c7f564fb0aa0bbd74080fae65616711ecec25fb88
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2074,12 +2173,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2094,12 +2193,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2114,12 +2213,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4cbd6924363c20a3124c4ccd1ab25560f1742229ae008d0a69954d1ca8ed747a
+    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: ff013012e0e32fc1feb99cf8c1d060fcd215267c9bc63cfa1d47691e2112cb99
+    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2133,12 +2232,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tapscript-ban
-    certificate: 46f80825c59f5f93341c4b7bc20c386f9b78631a00f936ca111c0ee74a13a0d2
+    certificate: dac668e998fb55ad1e1c361cdd2139e7e8fc4498e29c210716675c96f15da90b
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tapscript-ban
-    certificate: 58e49c83b80d1a989a3e485135c77d62b0e73d85ac57cc62029d4b38e7d1e4a0
+    certificate: a85c918a442bc51aab175de37af7fedad1ba1546a94e744b6a26e9b694d020bc
     note: Proof succeeded! cell_cms_tapscript_ban
   status: both-green
   gap_note: null

@@ -1,0 +1,354 @@
+# cell: push-encoding/C-L-pushonly
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops.h sha256 7272252659ffd1a02d769b73a28691dba78ef2c03271edececdc392e4cf21207
+# twin_extras.h sha256 fc69636cde4864bd186e03194cac77eb9e18492880d5b6cd90000db3d7aaf2ee
+# twin/runtime.inc sha256 465388db548f053bd06dbc93f1620600f7233cbcfb58f410ff505c6c5828725c
+# twin/ops_ir.py sha256 6f0d5531c7f7df919f698e190f31568caa7cbffce866579618f667bb58eeb4c5
+# command: alive-tv build/c_cell_pushonly1.ll build/l_cell_pushonly1.ll
+
+----------------------------------------
+define i64 @cell_pushonly1(i8 noundef zeroext %w) nofree willreturn memory(none) {
+entry:
+  %cmp1.i9 = icmp ult i8 noundef zeroext %w, 79
+  %cmp60.i29.not = icmp eq i8 noundef zeroext %w, 0
+  %#0 = add i8 noundef zeroext %w, 177
+  %call.not.i = icmp ult i8 %#0, 178
+  %cmp2.i66 = icmp ult i8 noundef zeroext %w, 97
+  %cmp2.i = select i1 %cmp1.i9, i1 %cmp60.i29.not, i1 %cmp2.i66
+  %or.cond.i.not = and i1 %call.not.i, %cmp2.i
+  %retval.0.i = zext i1 %or.cond.i.not to i64
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_pushonly1(i8 noundef zeroext %w) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 8, align 8, dead
+  start_lifetime ptr %b
+  store i64 0, ptr %b, align 8
+  store i8 noundef zeroext %w, ptr %b, align 8
+  %cmp1.i13 = icmp eq i8 noundef zeroext %w, 0
+  br i1 %cmp1.i13, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48, label %if.end3.i14
+
+if.end3.i14:
+  %cmp4.i15 = icmp ult i8 noundef zeroext %w, 76
+  br i1 %cmp4.i15, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48, label %if.end17.i16
+
+if.end17.i16:
+  switch i8 noundef zeroext %w, label %lor.lhs.false52.i36 [
+    i8 76, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48
+    i8 77, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48
+    i8 78, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48
+    i8 79, label %if.then55.i18
+  ]
+
+lor.lhs.false52.i36:
+  %#0 = add i8 noundef zeroext %w, 175
+  %or.cond65.i37 = icmp ult i8 %#0, 16
+  br i1 %or.cond65.i37, label %if.then55.i18, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48
+
+if.then55.i18:
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48
+
+_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48:
+  %d.i.sroa.26.0 = phi i32 [ 1, %if.then55.i18 ], [ 1, %entry ], [ 0, %if.end3.i14 ], [ 0, %if.end17.i16 ], [ 0, %if.end17.i16 ], [ 0, %if.end17.i16 ], [ 1, %lor.lhs.false52.i36 ]
+  %retval.3.i20.not = phi i1 [ 0, %if.then55.i18 ], [ 0, %entry ], [ 1, %if.end3.i14 ], [ 1, %if.end17.i16 ], [ 1, %if.end17.i16 ], [ 1, %if.end17.i16 ], [ 0, %lor.lhs.false52.i36 ]
+  %cmp2.i = icmp ugt i8 noundef zeroext %w, 96
+  %or.cond = or i1 %cmp2.i, %retval.3.i20.not
+  br i1 %or.cond, label %_ZL11l_push_onlyPKhj.exit, label %if.end4.i
+
+if.end4.i:
+  br i1 %retval.3.i20.not, label %if.end.i1, label %if.end15.i
+
+if.end.i1:
+  %idxprom.i = zext nneg i32 %d.i.sroa.26.0 to i64
+  %arrayidx.i = gep inbounds nuw ptr %b, 1 x i64 %idxprom.i
+  %#1 = load i8, ptr %arrayidx.i, align 1
+  %conv.i = zext i8 %#1 to i32
+  %cmp1.i = icmp eq i8 %#1, 0
+  br i1 %cmp1.i, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i8 %#1, 76
+  br i1 %cmp4.i, label %if.then5.i, label %if.end17.i
+
+if.then5.i:
+  %sub.i = sub nsw i32 0, %d.i.sroa.26.0
+  %cmp7.i = icmp ult i32 %sub.i, %conv.i
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit
+
+if.end17.i:
+  %.off = add i8 %#1, 180
+  %switch = icmp ult i8 %.off, 3
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit
+
+_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit:
+  %retval.3.i = phi i1 [ 0, %if.end.i1 ], [ %cmp7.i, %if.then5.i ], [ %switch, %if.end17.i ]
+  %cmp11.i = icmp ugt i8 %#1, 96
+  %or.cond.i = or i1 %cmp11.i, %retval.3.i
+  br i1 %or.cond.i, label %_ZL11l_push_onlyPKhj.exit, label %if.end15.i
+
+if.end15.i:
+  br label %_ZL11l_push_onlyPKhj.exit
+
+_ZL11l_push_onlyPKhj.exit:
+  %retval.0.i = phi i64 [ 1, %if.end15.i ], [ 0, %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit48 ], [ 0, %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit ]
+  end_lifetime ptr %b
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_pushonly2.ll build/l_cell_pushonly2.ll
+
+----------------------------------------
+define i64 @cell_pushonly2(i8 noundef zeroext %w0, i8 noundef zeroext %w1) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 8, align 8, dead
+  start_lifetime ptr %b
+  store i64 0, ptr %b, align 8
+  store i8 noundef zeroext %w0, ptr %b, align 8
+  %arrayidx1 = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 noundef zeroext %w1, ptr %arrayidx1, align 1
+  %conv.i8 = zext i8 noundef zeroext %w0 to i32
+  %cmp1.i10 = icmp ult i8 noundef zeroext %w0, 79
+  br i1 %cmp1.i10, label %if.then2.i12, label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60
+
+if.then2.i12:
+  %cmp3.i13 = icmp ult i8 noundef zeroext %w0, 76
+  br i1 %cmp3.i13, label %if.end58.i27, label %if.else.i14
+
+if.else.i14:
+  %cond = icmp eq i8 noundef zeroext %w0, 76
+  br i1 %cond, label %if.end9.i35, label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60
+
+if.end9.i35:
+  %conv12.i38 = zext i8 noundef zeroext %w1 to i32
+  br label %if.end58.i27
+
+if.end58.i27:
+  %pc.i.2 = phi i32 [ 1, %if.then2.i12 ], [ 2, %if.end9.i35 ]
+  %n.0.i28 = phi i32 [ %conv.i8, %if.then2.i12 ], [ %conv12.i38, %if.end9.i35 ]
+  %sub59.i29 = sub nsw nuw i32 2, %pc.i.2
+  %cmp60.i30 = icmp samesign ult i32 %sub59.i29, %n.0.i28
+  br i1 %cmp60.i30, label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60, label %if.end62.i31
+
+if.end62.i31:
+  %add63.i32 = add nsw nuw i32 %n.0.i28, %pc.i.2
+  br label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60
+
+_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60:
+  %pc.i.3 = phi i32 [ %pc.i.2, %if.end58.i27 ], [ 1, %if.else.i14 ], [ %add63.i32, %if.end62.i31 ], [ 1, %entry ]
+  %opcode.i.1 = phi i32 [ 255, %if.end58.i27 ], [ 255, %if.else.i14 ], [ %conv.i8, %if.end62.i31 ], [ %conv.i8, %entry ]
+  %call.not.i = phi i1 [ 1, %if.end58.i27 ], [ 1, %if.else.i14 ], [ 0, %if.end62.i31 ], [ 0, %entry ]
+  %cmp2.i = icmp samesign ugt i32 %opcode.i.1, 96
+  %or.cond.i = select i1 %call.not.i, i1 1, i1 %cmp2.i
+  br i1 %or.cond.i, label %_ZN4coreL12is_push_onlyEPKhj.exit, label %if.end4.i
+
+if.end4.i:
+  %cmp5.i = icmp ult i32 %pc.i.3, 2
+  br i1 %cmp5.i, label %if.end.i, label %if.end14.i
+
+if.end.i:
+  %idxprom.i = zext nneg i32 %pc.i.3 to i64
+  %arrayidx.i = gep inbounds nuw ptr %b, 1 x i64 %idxprom.i
+  %#0 = load i8, ptr %arrayidx.i, align 1
+  %add.i = add nsw nuw i32 %pc.i.3, 1
+  %cmp1.i = icmp ult i8 %#0, 79
+  br i1 %cmp1.i, label %if.then2.i, label %if.end64.i
+
+if.then2.i:
+  %cmp3.i = icmp ult i8 %#0, 76
+  br i1 %cmp3.i, label %if.end58.i, label %if.else.i
+
+if.else.i:
+  %cond66 = icmp ne i8 %#0, 76
+  %cmp7.i = icmp eq i32 %add.i, 2
+  %or.cond = select i1 %cond66, i1 1, i1 %cmp7.i
+  br i1 %or.cond, label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit, label %if.end9.i
+
+if.end9.i:
+  %idxprom10.i = zext nneg i32 %add.i to i64
+  %arrayidx11.i = gep inbounds nuw ptr %b, 1 x i64 %idxprom10.i
+  %#1 = load i8, ptr %arrayidx11.i, align 1
+  %add13.i = or disjoint i32 %pc.i.3, 2
+  br label %if.end58.i
+
+if.end58.i:
+  %pc.i.0 = phi i32 [ %add.i, %if.then2.i ], [ %add13.i, %if.end9.i ]
+  %n.0.i.shrunk = phi i8 [ %#0, %if.then2.i ], [ %#1, %if.end9.i ]
+  %n.0.i = zext i8 %n.0.i.shrunk to i32
+  %sub59.i = sub nsw i32 2, %pc.i.0
+  %cmp60.i = icmp ult i32 %sub59.i, %n.0.i
+  br i1 %cmp60.i, label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit, label %if.end64.i
+
+if.end64.i:
+  %#2 = icmp ugt i8 %#0, 96
+  br label %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit
+
+_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit:
+  %opcode.i.0 = phi i1 [ 1, %if.end58.i ], [ %#2, %if.end64.i ], [ 1, %if.else.i ]
+  %call7.not.i = phi i1 [ 1, %if.end58.i ], [ 0, %if.end64.i ], [ 1, %if.else.i ]
+  %or.cond21.i = or i1 %opcode.i.0, %call7.not.i
+  br i1 %or.cond21.i, label %_ZN4coreL12is_push_onlyEPKhj.exit, label %if.end14.i
+
+if.end14.i:
+  br label %_ZN4coreL12is_push_onlyEPKhj.exit
+
+_ZN4coreL12is_push_onlyEPKhj.exit:
+  %retval.0.i = phi i64 [ 1, %if.end14.i ], [ 0, %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit60 ], [ 0, %_ZN4coreL13get_script_opEPKhjRjS2_S2_.exit ]
+  end_lifetime ptr %b
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_pushonly2(i8 noundef zeroext %w0, i8 noundef zeroext %w1) nofree willreturn memory(none) {
+entry:
+  %b = alloca i64 8, align 8, dead
+  start_lifetime ptr %b
+  store i64 0, ptr %b, align 8
+  store i8 noundef zeroext %w0, ptr %b, align 8
+  %arrayidx1 = gep inbounds nuw ptr %b, 1 x i64 1
+  store i8 noundef zeroext %w1, ptr %arrayidx1, align 1
+  %cmp1.i14 = icmp eq i8 noundef zeroext %w0, 0
+  br i1 %cmp1.i14, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49, label %if.end3.i15
+
+if.end3.i15:
+  %cmp4.i16 = icmp ult i8 noundef zeroext %w0, 76
+  br i1 %cmp4.i16, label %if.then5.i41, label %if.end17.i17
+
+if.then5.i41:
+  %cmp7.i42.not = icmp eq i8 noundef zeroext %w0, 1
+  %spec.select = select i1 %cmp7.i42.not, i32 2, i32 0
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49
+
+if.end17.i17:
+  switch i8 noundef zeroext %w0, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49 [
+    i8 76, label %cond.end.i24
+    i8 77, label %cond.false.i22
+    i8 78, label %cond.false.i22
+  ]
+
+cond.false.i22:
+  br label %cond.end.i24
+
+cond.end.i24:
+  %cond25.i25 = phi i1 [ 0, %cond.false.i22 ], [ 1, %if.end17.i17 ]
+  %arrayidx.i56 = gep inbounds nuw ptr %b, 1 x i64 1
+  %#0 = load i8, ptr %arrayidx.i56, align 1
+  %#1 = icmp eq i8 %#0, 0
+  %#2 = select i1 %cond25.i25, i1 %#1, i1 0
+  %spec.select96 = select i1 %#2, i32 2, i32 0
+  %spec.select97 = select i1 %cond25.i25, i1 %#1, i1 0
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49
+
+_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49:
+  %d.i.sroa.29.1 = phi i32 [ 1, %entry ], [ %spec.select, %if.then5.i41 ], [ 1, %if.end17.i17 ], [ %spec.select96, %cond.end.i24 ]
+  %retval.3.i21 = phi i1 [ 1, %entry ], [ %cmp7.i42.not, %if.then5.i41 ], [ 1, %if.end17.i17 ], [ %spec.select97, %cond.end.i24 ]
+  %cmp2.i = icmp ult i8 noundef zeroext %w0, 97
+  %or.cond.not = and i1 %cmp2.i, %retval.3.i21
+  br i1 %or.cond.not, label %if.end4.i, label %_ZL11l_push_onlyPKhj.exit
+
+if.end4.i:
+  %cmp5.i = icmp samesign ult i32 %d.i.sroa.29.1, 2
+  br i1 %cmp5.i, label %if.end.i2, label %if.end15.i
+
+if.end.i2:
+  %idxprom.i = zext nneg i32 %d.i.sroa.29.1 to i64
+  %arrayidx.i = gep inbounds nuw ptr %b, 1 x i64 %idxprom.i
+  %#3 = load i8, ptr %arrayidx.i, align 1
+  %conv.i = zext i8 %#3 to i32
+  %cmp1.i = icmp eq i8 %#3, 0
+  br i1 %cmp1.i, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i8 %#3, 76
+  br i1 %cmp4.i, label %if.then5.i, label %if.end17.i
+
+if.then5.i:
+  %sub.i = sub nsw nuw i32 1, %d.i.sroa.29.1
+  %cmp7.i = icmp samesign uge i32 %sub.i, %conv.i
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit
+
+if.end17.i:
+  switch i8 %#3, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit [
+    i8 76, label %cond.end.i
+    i8 77, label %cond.false.i
+    i8 78, label %cond.false.i
+  ]
+
+cond.false.i:
+  %cmp19.i = icmp eq i8 %#3, 77
+  %cond.i = select i1 %cmp19.i, i32 2, i32 4
+  br label %cond.end.i
+
+cond.end.i:
+  %cond25.i = phi i32 [ %cond.i, %cond.false.i ], [ 1, %if.end17.i ]
+  %sub.i58 = sub nsw nuw i32 1, %d.i.sroa.29.1
+  %cmp1.i59.not = icmp samesign ugt i32 %cond25.i, %sub.i58
+  br i1 %cmp1.i59.not, label %_ZN8twinleafL7read_leEPKhjjjRj.exit76, label %for.body.i67.preheader
+
+for.body.i67.preheader:
+  %wide.trip.count = zext nneg i32 %cond25.i to i64
+  %#4 = zext nneg i32 %d.i.sroa.29.1 to i64
+  %invariant.gep = gep inbounds ptr %b, 1 x i64 %#4
+  %invariant.gep98 = gep inbounds ptr %invariant.gep, 1 x i64 1
+  br label %for.body.i67
+
+for.body.i67:
+  %indvars.iv = phi i64 [ 0, %for.body.i67.preheader ], [ %indvars.iv.next, %for.body.i67 ]
+  %v.0.i6289 = phi i32 [ 0, %for.body.i67.preheader ], [ %or.i74, %for.body.i67 ]
+  %gep99 = gep inbounds ptr %invariant.gep98, 1 x i64 %indvars.iv
+  %#5 = load i8, ptr %gep99, align 1
+  %conv.i71 = zext i8 %#5 to i32
+  %indvars.iv.tr = trunc i64 %indvars.iv to i32
+  %#6 = shl i32 %indvars.iv.tr, 3
+  %shl.i73 = shl nuw i32 %conv.i71, %#6
+  %or.i74 = or i32 %shl.i73, %v.0.i6289
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %exitcond.not = icmp eq i64 %indvars.iv.next, %wide.trip.count
+  br i1 %exitcond.not, label %_ZN8twinleafL7read_leEPKhjjjRj.exit76.loopexit, label %for.body.i67
+
+_ZN8twinleafL7read_leEPKhjjjRj.exit76.loopexit:
+  %#7 = icmp eq i32 %or.i74, 0
+  br label %_ZN8twinleafL7read_leEPKhjjjRj.exit76
+
+_ZN8twinleafL7read_leEPKhjjjRj.exit76:
+  %k.i.0 = phi i1 [ 1, %cond.end.i ], [ %#7, %_ZN8twinleafL7read_leEPKhjjjRj.exit76.loopexit ]
+  br i1 %cmp1.i59.not, label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit, label %if.end28.i
+
+if.end28.i:
+  %sub30.i = sub nsw nuw i32 2, %d.i.sroa.29.1
+  %cmp31.not.i = icmp samesign ult i32 %cond25.i, %sub30.i
+  %or.cond.i5 = select i1 %cmp31.not.i, i1 %k.i.0, i1 0
+  br label %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit
+
+_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit:
+  %retval.3.i = phi i1 [ 1, %if.end.i2 ], [ %cmp7.i, %if.then5.i ], [ 0, %_ZN8twinleafL7read_leEPKhjjjRj.exit76 ], [ %or.cond.i5, %if.end28.i ], [ 1, %if.end17.i ]
+  %cmp11.i = icmp ult i8 %#3, 97
+  %or.cond.i.not = and i1 %cmp11.i, %retval.3.i
+  br i1 %or.cond.i.not, label %if.end15.i, label %_ZL11l_push_onlyPKhj.exit
+
+if.end15.i:
+  br label %_ZL11l_push_onlyPKhj.exit
+
+_ZL11l_push_onlyPKhj.exit:
+  %retval.0.i = phi i64 [ 1, %if.end15.i ], [ 0, %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit49 ], [ 0, %_ZN8twinleafL9decode_opEPKhjjRNS_7DecodedE.exit ]
+  end_lifetime ptr %b
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

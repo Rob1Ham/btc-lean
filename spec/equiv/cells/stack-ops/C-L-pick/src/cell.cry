@@ -1,0 +1,107 @@
+module CellPick where
+
+// Independent specification of OP_PICK / OP_ROLL (SCR-075).
+//
+// Rules (interpreter.cpp:833-849):
+//   * budget: in BASE and WITNESS_V0 an opcode > OP_16 charges one unit, and
+//     running past 201 is OP_COUNT -- checked before the opcode body.
+//   * stack.size() < 2 -> INVALID_STACK_OPERATION (18).
+//   * n = CScriptNum(top): a one-byte vector, 0x80 is negative zero, and
+//     0x81..0xff encode -1..-127.
+//   * after the index is popped, n outside [0, remaining size) -> 18.
+//   * PICK copies stacktop(-n-1) and pushes it back; ROLL erases that element
+//     and pushes it on top.  PICK keeps the element count, ROLL lowers it by
+//     one (it drops the index and moves one element).
+//   * fExec = 0 skips the op (the skipped entry also proves budget first).
+//
+// Observable (pack_obs): res:2 | depth:4<<8 | per slot at 12+9i a len bit
+// (1 for every present element) and an 8-bit value at 13+9i.  Every element is
+// exactly one byte, so a value is the whole element.
+// Failure is pack_fail: OP_COUNT 0x1c, INVALID_STACK_OPERATION 0x48.
+
+dom : [64]
+dom = 0x0000000000000007
+
+pko : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+pko n v0 v1 v2 v3 =
+  0x0000000000000001
+  || ((zext n : [64]) << 8)
+  || (if n > 0 then (0x0000000000001000 || ((zext v0 : [64]) << 13)) else 0)
+  || (if n > 1 then (0x0000000000200000 || ((zext v1 : [64]) << 22)) else 0)
+  || (if n > 2 then (0x0000000040000000 || ((zext v2 : [64]) << 31)) else 0)
+  || (if n > 3 then (0x0000008000000000 || ((zext v3 : [64]) << 40)) else 0)
+
+k8 : [8] -> [8]
+k8 b = if b == 0x80 then 0x00 else b
+
+pr : [8] -> [8] -> Bit -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+pr d idx roll e0 e1 e2 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else if d == 0 then 0x0000000000000048
+  else if ~(k8 idx < 0x80 /\ k8 idx < d) then 0x0000000000000048
+  else if d == 1 then
+    if roll then pko 1 e0 0 0 0
+    else pko 2 e0 e0 0 0
+  else
+    if roll then
+      if k8 idx == 0 then pko 3 e0 e1 e2 0
+      else if k8 idx == 1 then pko 3 e0 e2 e1 0
+      else pko 3 e1 e2 e0 0
+    else
+      pko 4 e0 e1 e2
+        (if k8 idx == 0 then e2 else if k8 idx == 1 then e1 else e0)
+
+// Depth 1: stack [e0, idx]; the index must decode to 0.
+pr1 : [8] -> Bit -> [8] -> [8] -> [8] -> [64]
+pr1 idx roll e0 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else if ~(k8 idx < 1) then 0x0000000000000048
+  else if roll then pko 1 e0 0 0 0
+  else pko 2 e0 e0 0 0
+
+// Depth 2: stack [e0, e1, idx]; valid indices 0 and 1.
+pr2 : [8] -> Bit -> [8] -> [8] -> [8] -> [8] -> [64]
+pr2 idx roll e0 e1 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else if ~(k8 idx < 2) then 0x0000000000000048
+  else if roll then
+    if k8 idx == 0 then pko 2 e0 e1 0 0
+    else pko 2 e1 e0 0 0
+  else
+    pko 3 e0 e1 (if k8 idx == 0 then e1 else e0) 0
+
+// Unexecuted (fExec = 0): budget still applies, stacks unchanged.
+skipf : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+skipf e0 e1 e2 idx opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else pko 4 e0 e1 e2 idx
+
+// --- leaf entries -------------------------------------------------------
+p3 : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+p3 e0 e1 e2 idx opc sv = pr 3 idx 0 e0 e1 e2 opc sv
+p2 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+p2 e0 e1 idx opc sv = pr2 idx 0 e0 e1 opc sv
+p1 : [8] -> [8] -> [8] -> [8] -> [64]
+p1 e0 idx opc sv = pr1 idx 0 e0 opc sv
+r20 : [8] -> [8] -> [8] -> [8] -> [64]
+r20 e0 e1 opc sv = pr2 0x00 1 e0 e1 opc sv
+r21 : [8] -> [8] -> [8] -> [8] -> [64]
+r21 e0 e1 opc sv = pr2 0x01 1 e0 e1 opc sv
+r30 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+r30 e0 e1 e2 opc sv = pr 3 0x00 1 e0 e1 e2 opc sv
+r31 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+r31 e0 e1 e2 opc sv = pr 3 0x01 1 e0 e1 e2 opc sv
+r32 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+r32 e0 e1 e2 opc sv = pr 3 0x02 1 e0 e1 e2 opc sv
+r10 : [8] -> [8] -> [8] -> [64]
+r10 e0 opc sv = pr 1 0x00 1 e0 0 0 opc sv
+p0 : [8] -> [8] -> [8] -> [64]
+p0 idx opc sv = pr 0 idx 0 0 0 0 opc sv
+r0 : [8] -> [8] -> [8] -> [64]
+r0 idx opc sv = pr 0 idx 1 0 0 0 opc sv
+skp : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+skp e0 e1 e2 idx opc sv = skipf e0 e1 e2 idx opc sv

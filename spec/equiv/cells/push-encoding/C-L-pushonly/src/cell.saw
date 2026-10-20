@@ -1,0 +1,25 @@
+import "cell.cry";
+
+m1C <- llvm_load_module "c_cell_pushonly1.bc";
+m1L <- llvm_load_module "l_cell_pushonly1.bc";
+m2C <- llvm_load_module "c_cell_pushonly2.bc";
+m2L <- llvm_load_module "l_cell_pushonly2.bc";
+
+let spec1 = do {
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  llvm_execute_func [llvm_term w];
+  llvm_return (llvm_term {{ packb (po1 w) }});
+};
+
+let spec2 = do {
+  w0 <- llvm_fresh_var "w0" (llvm_int 8);
+  w1 <- llvm_fresh_var "w1" (llvm_int 8);
+  llvm_execute_func [llvm_term w0, llvm_term w1];
+  llvm_return (llvm_term {{ packb (po2 w0 w1) }});
+};
+
+llvm_verify m1C "cell_pushonly1" [] false spec1 abc;
+llvm_verify m1L "cell_pushonly1" [] false spec1 abc;
+llvm_verify m2C "cell_pushonly2" [] false spec2 abc;
+llvm_verify m2L "cell_pushonly2" [] false spec2 abc;
+print "CELL_pushonly_SAW_GREEN";

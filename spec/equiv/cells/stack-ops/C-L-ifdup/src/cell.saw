@@ -1,0 +1,55 @@
+import "cell.cry";
+
+mifdup_empty <- llvm_load_module "c_cell_ifdup_empty.bc";
+lifdup_empty <- llvm_load_module "l_cell_ifdup_empty.bc";
+
+mifdup_len0 <- llvm_load_module "c_cell_ifdup_len0.bc";
+lifdup_len0 <- llvm_load_module "l_cell_ifdup_len0.bc";
+
+mifdup_d1 <- llvm_load_module "c_cell_ifdup_d1.bc";
+lifdup_d1 <- llvm_load_module "l_cell_ifdup_d1.bc";
+
+mifdup_d2 <- llvm_load_module "c_cell_ifdup_d2.bc";
+lifdup_d2 <- llvm_load_module "l_cell_ifdup_d2.bc";
+
+let specifdup_empty = do {
+  opc <- llvm_fresh_var "opc" (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 8);
+  llvm_execute_func [llvm_term opc, llvm_term sv];
+  llvm_return (llvm_term {{ e0 opc sv }});
+};
+
+let specifdup_len0 = do {
+  opc <- llvm_fresh_var "opc" (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 8);
+  llvm_execute_func [llvm_term opc, llvm_term sv];
+  llvm_return (llvm_term {{ l0 opc sv }});
+};
+
+let specifdup_d1 = do {
+  v0 <- llvm_fresh_var "v0" (llvm_int 8);
+  opc <- llvm_fresh_var "opc" (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 8);
+  llvm_execute_func [llvm_term v0, llvm_term opc, llvm_term sv];
+  llvm_return (llvm_term {{ d1 v0 opc sv }});
+};
+
+let specifdup_d2 = do {
+  e0 <- llvm_fresh_var "e0" (llvm_int 8);
+  e1 <- llvm_fresh_var "e1" (llvm_int 8);
+  v0 <- llvm_fresh_var "v0" (llvm_int 8);
+  opc <- llvm_fresh_var "opc" (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 8);
+  llvm_execute_func [llvm_term e0, llvm_term e1, llvm_term v0, llvm_term opc, llvm_term sv];
+  llvm_return (llvm_term {{ d2 e0 e1 v0 opc sv }});
+};
+
+llvm_verify mifdup_empty "cell_ifdup_empty" [] false specifdup_empty abc;
+llvm_verify lifdup_empty "cell_ifdup_empty" [] false specifdup_empty abc;
+llvm_verify mifdup_len0 "cell_ifdup_len0" [] false specifdup_len0 abc;
+llvm_verify lifdup_len0 "cell_ifdup_len0" [] false specifdup_len0 abc;
+llvm_verify mifdup_d1 "cell_ifdup_d1" [] false specifdup_d1 abc;
+llvm_verify lifdup_d1 "cell_ifdup_d1" [] false specifdup_d1 abc;
+llvm_verify mifdup_d2 "cell_ifdup_d2" [] false specifdup_d2 abc;
+llvm_verify lifdup_d2 "cell_ifdup_d2" [] false specifdup_d2 abc;
+print "CELL_ifdup_SAW_GREEN";
