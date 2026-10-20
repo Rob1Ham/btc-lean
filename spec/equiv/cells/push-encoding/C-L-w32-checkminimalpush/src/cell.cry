@@ -1,0 +1,18 @@
+module CellMinPush where
+
+// Independent statement of the minimal-push rule (script.cpp:373-396,
+// Defs.lean:529-537).  `n` is the payload length; `b0` is the first payload
+// byte, read only when n == 1; `op` is the wire opcode at the call site,
+// restricted to 0x00..0x4e (OP_PUSHDATA4).
+minimal : [64] -> [8] -> [8] -> Bit
+minimal n b0 op =
+  if n == 0 then op == 0
+  else if (n == 1) && (b0 >= 1) && (b0 <= 16) then False
+  else if (n == 1) && (b0 == 0x81) then False
+  else if n <= 75 then n == ((0 : [56]) # op)
+  else if n <= 255 then op == 0x4c
+  else if n <= 65535 then op == 0x4d
+  else True
+
+packed : [64] -> [8] -> [8] -> [64]
+packed n b0 op = if minimal n b0 op then 1 else 0

@@ -1,0 +1,21 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_cscriptnum.bc";
+mL <- llvm_load_module "l_cell_cscriptnum.bc";
+
+// Both legs against the same independent decode/minimality predicate for
+// every 0..4-byte payload and both values of fRequireMinimal.
+let spec = do {
+  n  <- llvm_fresh_var "n"  (llvm_int 32);
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  md <- llvm_fresh_var "md" (llvm_int 32);
+  llvm_precond {{ n <= 4 }};
+  llvm_execute_func [llvm_term n, llvm_term b0, llvm_term b1,
+                     llvm_term b2, llvm_term b3, llvm_term md];
+  llvm_return (llvm_term {{ packed md n b0 b1 b2 b3 }});
+};
+llvm_verify mC "cell_cscriptnum" [] false spec abc;
+llvm_verify mL "cell_cscriptnum" [] false spec abc;
+print "CELL_PUSH_CSCRIPTNUM_SAW_GREEN";
