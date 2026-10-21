@@ -1,6 +1,6 @@
 # STATE — three-leg LLVM IR equivalence
 
-**Snapshot:** `2026-10-20 (wave64 integration; evidence tier)`
+**Snapshot:** `2026-10-21 (wave64 integration; evidence tier)`
 **Owner:** orchestrator; independent evaluator snapshot archived at
 `docs/archive/STATE-2026-10-19T223700Z.md`
 **Tree:** `spec/equiv/` on PR branch `equiv/llvm-three-leg`
@@ -42,7 +42,7 @@ conditional and must remain so.
 | E4 SegWit v0/taproot dispatch, seam inventory | **attempted; partial cells + inventory** | witness/tapscript cells green; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed) |
 | E5 whole-function VerifyScript or residual | **scoped residual; bounded probes advanced** | `findings/e5/E5-RESIDUAL.md`; `findings/wave64/44-e5-heap-refinement/`; `findings/wave64/45-e5-exceptions-pcore01/`; no whole-function proof |
 | E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` PASS; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| E6+ wave16/32/64 row-family cells | **partial, additive** | 155 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/` |
+| E6+ wave16/32/64 row-family cells | **partial, additive** | 156 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/` |
 
 ## 3. Ledger and cells
 
@@ -120,7 +120,7 @@ The 2 seams are SCR-146/147; the 25 gaps are SCR-001, 005, 008, 010,
    rbitcoin artifacts and verifies their hashes. The pinned rustc 1.95 /
    LLVM-22 R IR is not Alive2-ingestible; the LLVM-20 lane is advisory and
    off-pin.
-9. **Certificates.** 342 cell certificates replay in `gate-ir-pin`. The
+9. **Certificates.** 344 cell certificates replay in `gate-ir-pin`. The
    clean-checkout checker replays all cell certificates and manifests with
    zero errors; 501 hygiene warnings remain (`cross-leg`, absolute machine
    paths inside bound sources, nested divergence manifests) and are listed

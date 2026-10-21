@@ -1,6 +1,6 @@
 # STATUS — three-leg LLVM IR equivalence
 
-**Last updated:** 2026-10-20 (wave64 integration; evidence tier)
+**Last updated:** 2026-10-21 (wave64 integration; evidence tier)
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
 The ledger has **183/183 SCR rows adjudicated**: **156 both-tool green**,
@@ -20,7 +20,7 @@ whole-engine equivalence proof; the limits are below.
 | **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cells + inventory** | witness/tapscript cells green; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed; two rows unobserved) |
 | **E5** | Whole-function `VerifyScript` (SAW invariants) or scoped residual | **scoped residual; bounded probes advanced** | `findings/e5/E5-RESIDUAL.md`, `findings/wave64/44-e5-heap-refinement/`, `findings/wave64/45-e5-exceptions-pcore01/`; no whole-function proof |
 | **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| **E6+** | Wave 16/32/64 row-family cells integrated | **partial, additive** | 155 total green; see family table below |
+| **E6+** | Wave 16/32/64 row-family cells integrated | **partial, additive** | 156 total green; see family table below |
 
 ## Ledger snapshot
 
