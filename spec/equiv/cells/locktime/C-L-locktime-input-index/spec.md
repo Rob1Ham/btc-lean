@@ -53,8 +53,8 @@ direction:
   - C ⊑ L
 scr_rows: SCR-132
 scr_row_coverage: >-
-  full — SCR-132 is the claim that CheckLockTime and CheckSequence see only
-  input nIn.  Both checkers are in the cell, the index is symbolic over both
+  partial — SCR-132's arbitrary-length vin claim is not mechanized; this
+  cell proves the bounded two-input instance.  Both checkers are in the cell, the index is symbolic over both
   values of a two-input vin, and the unselected slot is fully symbolic, so the
   proof quantifies over every way the other input can differ.  Every branch of
   both checker bodies is exercised (type agreement both ways, numeric compare

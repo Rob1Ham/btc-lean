@@ -182,18 +182,26 @@ rows:
   consensus: true
   cells:
   - exec-verify/C-L-eval-empty
-  alive2:
-    result: green
-    cell: exec-verify/C-L-eval-empty
-    certificate: 3748732b8d8bf4e63c2db4a4eb307fe01c1f35227d6a53091ce39614093bc12c
-    note: Transformation seems to be correct!
-  saw:
-    result: green
-    cell: exec-verify/C-L-eval-empty
-    certificate: 372f4831aeb37aa260bca7b1a4d45ee07681b49bf0c2f75b8df6744d6993742a
-    note: Proof succeeded! cell_eval_frame
-  status: both-green
-  gap_note: null
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-eval-empty: partial — the cell covers only the zero-op/empty-script frame; the row''s
+
+    "short script" case with one or more ops is not covered.
+
+    - empty op list                         -> success, stack unchanged;
+
+    - non-empty conditional vector at exit  -> UNBALANCED_CONDITIONAL.
+
+    The row summary says "empty/short"; this cell''s reading is "a script that
+
+    parses to no opcodes", which is exactly the empty script, because any
+
+    non-empty script produces at least one opcode.  Execution of any opcode
+
+    (pushes included) is the E5 dispatch residual and is NOT covered here; the
+
+    cell therefore says nothing about "short scripts with one or more ops".'
 - id: SCR-004
   family: exec-verify
   summary: with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNESS_UNEXPECTED because an empty scriptPubKey is not a witness program (the cited theorem also assumes SIGPUSHONLY and CLEANSTACK off; the one-element CLEANSTACK-on arm is unproved)
@@ -235,18 +243,10 @@ rows:
   cells:
   - exec-verify/C-L-pushonly
   - exec-verify/C-L-w32-p2sh-pushonly
-  alive2:
-    result: green
-    cell: exec-verify/C-L-pushonly
-    certificate: 511ab355393b5ec0b355a12f0a9059b1ef5c49efe486f202c2b4b1b1297ab67e
-    note: Transformation seems to be correct!
-  saw:
-    result: green
-    cell: exec-verify/C-L-pushonly
-    certificate: 4d9e36cc70e0aa336a44b8077c378b2e3078ad4843181091e4cc62af1e15e101
-    note: Proof succeeded! cell_ispushonly
-  status: both-green
-  gap_note: null
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-pushonly: - SCR-006 **partial** — \"scriptSig must be push-only for P2SH evaluation\"\n  (interpreter.cpp:2065-2066).  Proved: the exact `IsPushOnly` predicate\n  and the `SIG_PUSHONLY` (26) result for every script of 0..8 bytes, plus\n  the arm gating (only when P2SH is set and the scriptPubKey is P2SH).\n  Missing: scripts longer than 8 bytes, i.e. the general unbounded\n  `GetScriptOp` walk (E5 residual).  Also not claimed: that the check is\n  the *only* precondition of the arm (the handoff is `C-L-p2sh-handoff`).\n- SCR-010 **partial** — \"scriptSig push-only before eval (pol.)\"\n  (interpreter.cpp:2022-2024).  Proved: the policy-flag short-circuit and\n  the `SIG_PUSHONLY` result for every 0..8-byte script.  Missing: the\n  *sequencing* claim \"before eval\" — that the pre-check runs before the\n  scriptSig `EvalScript` call.  That is whole-function composition\n  (SCR-001 / E5 residual), not a leaf property; and the same 8-byte bound\n  applies.; exec-verify/C-L-w32-p2sh-pushonly: partial — the decoded-scriptSig branch set is covered, but malformed-tail\nerror-kind equality is excluded as F-DIV-001:\n- push-only scriptSig under P2SH passes the "
 - id: SCR-007
   family: exec-verify
   summary: stackCopy (taken after scriptSig) is restored for subscript eval
@@ -1149,18 +1149,10 @@ rows:
   consensus: true
   cells:
   - control-flow/C-L-casttobool
-  alive2:
-    result: green
-    cell: control-flow/C-L-casttobool
-    certificate: 789876477bdb6dfe39b5f5c44bee78cf471ba66eef8dd6b0fa6f223364d43919
-    note: Transformation seems to be correct! (syntactically equal)
-  saw:
-    result: green
-    cell: control-flow/C-L-casttobool
-    certificate: 24e3085116c11252df1f434cc965c6932012a9836aa0268a36378511abdb0e66
-    note: Proof succeeded! cell_cast_empty
-  status: both-green
-  gap_note: null
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; control-flow/C-L-casttobool: partial — lengths 0..2 only; lengths 3..520 are a stated domain gap.  The three named outcomes are: any nonzero byte is true, a lone 0x80 (negative zero) is false, and the empty vector is false. All three are exercised, and the special case `i == size-1 && 0x80` is exercised at the last position (len 1) and at a non-last position (len 2, first byte 0x80). Domain bound: element length is 0-2 bytes; lengths 3-520 are not machine-enumerated by this cell and are a stated domain gap, not a fourth branch.'
 - id: SCR-058
   family: control-flow
   summary: IF/NOTIF arg ∈ {∅, 01} else TAPSCRIPT_MINIMALIF
@@ -2560,18 +2552,10 @@ rows:
   consensus: true
   cells:
   - locktime/C-L-locktime-input-index
-  alive2:
-    result: green
-    cell: locktime/C-L-locktime-input-index
-    certificate: 4db650372de09b5f9d10867d891d73e25639d71554f1dd4acb84b66c4c5b8cf7
-    note: Transformation seems to be correct!
-  saw:
-    result: green
-    cell: locktime/C-L-locktime-input-index
-    certificate: acd5b226c3e57d5e2c803a85aa2f488f47b85126af442e38d859025230a1129e
-    note: Proof succeeded! cell_cltv_input_index
-  status: both-green
-  gap_note: null
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; locktime/C-L-locktime-input-index: partial — SCR-132''s arbitrary-length vin claim is not mechanized; this cell proves the bounded two-input instance.  Both checkers are in the cell, the index is symbolic over both values of a two-input vin, and the unselected slot is fully symbolic, so the proof quantifies over every way the other input can differ.  Every branch of both checker bodies is exercised (type agreement both ways, numeric compare both ways, SEQUENCE_FINAL set/clear for CLTV; version < 2, disable flag, type agreement, masked above/below for CSV) — those branches are shared with SCR-122..130 and are proved here again as part of the per-input statement. The only bounded dimension is the vin length (2 inputs instead of an arbitrary list); the row''s single input-access edge `txTo->vin[nIn]` is exercised at both possible indices, and longer vins add slots that the checker never names.  The general-n induction is not mechanized and is not claimed; the two-input instance is what the LLVM cell proves.'
 - id: SCR-133
   family: witness-v0
   summary: SHA256(witnessScript) == program

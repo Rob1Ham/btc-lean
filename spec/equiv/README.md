@@ -34,7 +34,8 @@ A **conditional** statement:
 > For all inputs in the harness domain, if the pinned front-ends, the LLVM IR
 > semantics implemented by Alive2 and SAW/Crucible, the SMT solvers, the
 > shims, the twin generator, and the same-crypto premise are sound, then the
-> three engines agree on verdict and error kind.
+> Core slice and the Lean-derived twin agree on verdict and error kind.  All
+> recorded cells are C/L; no R cell exists and the R lane is advisory/blocked.
 
 It is **not** a Lean-kernel theorem (no Lean-native LLVM IR semantics exists
 today), **not** a machine-code/backend result, and **not** a claim about

@@ -38,8 +38,8 @@ direction:
   - C ⊑ L
 scr_rows: SCR-003
 scr_row_coverage: |
-  full for the cited region (interpreter.cpp:449 loop entry, 1248-1250
-  trailing conditional check / success) and the row's own statement:
+  partial — the cell covers only the zero-op/empty-script frame; the row's
+  "short script" case with one or more ops is not covered.
   - empty op list                         -> success, stack unchanged;
   - non-empty conditional vector at exit  -> UNBALANCED_CONDITIONAL.
   The row summary says "empty/short"; this cell's reading is "a script that

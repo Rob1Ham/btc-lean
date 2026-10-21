@@ -34,7 +34,8 @@ direction:
   - C ⊑ L
 scr_rows: SCR-006
 scr_row_coverage: |
-  full for the row's branch set over decoded scriptSig:
+  partial — the decoded-scriptSig branch set is covered, but malformed-tail
+  error-kind equality is excluded as F-DIV-001:
   - push-only scriptSig under P2SH passes the gate (C :2065 / Lean
     `isPushOnlyWire ops = true`),
   - non-push-only scriptSig under P2SH returns SIG_PUSHONLY (C :2066 /

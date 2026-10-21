@@ -348,8 +348,9 @@ def build_markdown(
         "> For all inputs in the harness domain, **if** the pinned front-ends, "
         "the LLVM IR semantics implemented by Alive2 and SAW/Crucible, the SMT "
         "solvers, the shims, the twin generator/transliteration, and the "
-        "same-crypto premise are sound, **then** the three engines agree on "
-        "verdict and error kind."
+        "same-crypto premise are sound, **then** the Core slice and the "
+        "Lean-derived twin agree on verdict and error kind.  All recorded "
+        "cells are C/L; no R cell exists and the R lane is advisory/blocked."
     )
     lines.append("")
     lines.append(

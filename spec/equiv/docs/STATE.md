@@ -20,9 +20,9 @@ gates, with the current certificate/ledger status below.
 
 It is **not** an all-rows-green result and **not** a whole-engine proof:
 
-- 156 of 183 SCR rows are both-tool green;
+- 152 of 183 SCR rows are both-tool green;
 - 2 are explicitly `unjudged-seam`;
-- 25 are filed `gap`s with named blockers;
+- 29 are filed `gap`s with named blockers;
 - 0 are `planned`;
 - no `EvalScript`/`VerifyScript` whole-function proof exists (E5 residual);
 - no admissible R proof-lane artifact exists (the R behavioral E0 leg does);
@@ -42,7 +42,7 @@ conditional and must remain so.
 | E4 SegWit v0/taproot dispatch, seam inventory | **attempted; partial cells + inventory** | witness/tapscript cells green; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed) |
 | E5 whole-function VerifyScript or residual | **scoped residual; bounded probes advanced** | `findings/e5/E5-RESIDUAL.md`; `findings/wave64/44-e5-heap-refinement/`; `findings/wave64/45-e5-exceptions-pcore01/`; no whole-function proof |
 | E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` PASS; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| E6+ wave16/32/64 row-family cells | **partial, additive** | 156 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/` |
+| E6+ wave16/32/64 row-family cells | **partial, additive** | 152 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/`, `findings/wave65/` |
 
 ## 3. Ledger and cells
 
@@ -62,32 +62,32 @@ Ledger counts:
 
 | Status | Rows |
 |---|---:|
-| `both-green` | 156 |
+| `both-green` | 152 |
 | `alive2-green` / `saw-green` | 0 / 0 |
 | `unjudged-seam` | 2 |
-| `gap` | 25 |
+| `gap` | 29 |
 | `planned` | 0 |
 | **Total** | **183** |
 
 Green rows by family (authoritative list: `results/matrix.md`):
 
-- **control-flow (17):** SCR-056–072.
+- **control-flow (16):** SCR-056, 058–072.
 - **limits (22):** SCR-018–020, 022–035, 037–039, 041, 042.
 - **tapscript (21):** SCR-143–145, 148–152, 155–166, 168.
-- **locktime (11):** SCR-122–132.
+- **locktime (10):** SCR-122–131.
 - **checksig (16):** SCR-096–103, 105–111, 113.
 - **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
 - **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
-- **exec-verify (13):** SCR-002–004, 006, 007, 009, 011–017.
+- **exec-verify (11):** SCR-002, 004, 007, 009, 011–017.
 - **checkmultisig (7):** SCR-114, 116–121.
 - **push-encoding (10):** SCR-045–050, 052–055.
 - **stack-ops (5):** SCR-073–077; **numeric (13):** SCR-079–085, 087–092.
 - **disabled-opcodes (4):** SCR-170, 171, 173, 174.
 - **hash-ops (3):** SCR-093–095.
 
-The 2 seams are SCR-146/147; the 25 gaps are SCR-001, 005, 008, 010,
-021, 036, 040, 043, 044, 051, 078, 086, 104, 112, 115, 133, 136, 140, 142,
-153, 154, 167, 169, 172, 175. Each has a row-specific blocker in
+The 2 seams are SCR-146/147; the 29 gaps are SCR-001, 003, 005, 006, 008,
+010, 021, 036, 040, 043, 044, 051, 057, 078, 086, 104, 112, 115, 132, 133,
+136, 140, 142, 153, 154, 167, 169, 172, 175. Each has a row-specific blocker in
 `findings/coverage/F-E6-GAPS.md`; the wave64 reports add exact witnesses.
 
 ## 4. What is established
@@ -127,7 +127,7 @@ The 2 seams are SCR-146/147; the 25 gaps are SCR-001, 005, 008, 010,
    paths inside bound sources, nested divergence manifests) and are listed
    by the checker rather than hidden.
 10. **Matrix.** `results/matrix.md` is generated deterministically and names
-    the source, tool, contract, IR, and E5 premises, plus the 155/2/26
+    the source, tool, contract, IR, and E5 premises, plus the 152/2/29
     coverage counts and cell links.
 
 ## 5. What is not established

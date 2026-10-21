@@ -18,14 +18,14 @@
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
 | Ledger status `planned` | **0** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / **156** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **152** |
 | `unjudged-seam` | **2** |
-| Filed `gap` | **25** |
+| Filed `gap` | **29** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
 Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
-adjudicated; the 156 green rows are listed in `results/matrix.md` and the
+adjudicated; the 152 green rows are listed in `results/matrix.md` and the
 non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
 ## 2. Family mapping and green coverage
@@ -35,22 +35,22 @@ intended directory name under `spec/equiv/cells/`.
 
 | Family id | Source | Rows | Consensus | Non-consensus | Green |
 |---|---|---:|---:|---:|---:|
-| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 13 |
+| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 11 |
 | `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 | 22 |
 | `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 | 10 |
-| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 17 |
+| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 16 |
 | `stack-ops` | `06-script-interpreter.md` §B.5 Stack ops | 6 | 6 | 0 | 5 |
 | `numeric` | `06-script-interpreter.md` §B.6 Numeric ops & ScriptNum | 14 | 14 | 0 | 13 |
 | `hash-ops` | `06-script-interpreter.md` §B.7 Hash ops | 3 | 3 | 0 | 3 |
 | `checksig` | `06-script-interpreter.md` §B.8 Checksig (pre-tapscript) | 18 | 11 | 7 | 16 |
 | `checkmultisig` | `06-script-interpreter.md` §B.9 CHECKMULTISIG | 8 | 8 | 0 | 7 |
-| `locktime` | `06-script-interpreter.md` §B.10 Locktime | 11 | 11 | 0 | 11 |
+| `locktime` | `06-script-interpreter.md` §B.10 Locktime | 11 | 11 | 0 | 10 |
 | `witness-v0` | `06-script-interpreter.md` §B.11 SegWit v0 | 9 | 9 | 0 | 6 |
 | `tapscript` | `06-script-interpreter.md` §B.12 Taproot/Tapscript | 28 | 26 | 2 | 21 |
 | `disabled-opcodes` | `06-script-interpreter.md` §B.13 Disabled opcodes | 5 | 4 | 1 | 4 |
 | `tapscript-reimport` | `w2-06-flags-activation.md` §B.1 Tapscript re-import | 1 | 1 | 0 | 1 |
 | `policy-flags` | `w2-06-flags-activation.md` §B.12 Policy-only flags | 8 | 0 | 8 | 7 |
-| **Total** | | **183** | **156** | **27** | **156** |
+| **Total** | | **183** | **156** | **27** | **152** |
 
 Every family is present; the sum of family row counts equals 183. Green counts
 are row counts, not cell counts; a row may cite more than one cell.

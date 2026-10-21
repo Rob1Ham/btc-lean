@@ -31,7 +31,8 @@ The normative claim is a **conditional** statement, not a theorem:
 
 > If the pinned front-ends, Alive2/SAW semantics, solvers, shims,
 > twin/translations, contract, and same-crypto premise are sound, then the
-> three engines agree on verdict and error kind for the harness domain.
+> Core slice and the Lean-derived twin agree on verdict and error kind for the
+> harness domain.  No R cell exists; the R lane is advisory/blocked.
 
 Evidence tiers actually present:
 

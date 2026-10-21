@@ -23,7 +23,8 @@ direction:
   - C ⊑ L
 scr_rows: SCR-057
 scr_row_coverage: >-
-  full branch coverage — the row names exactly three outcomes: any nonzero
+  partial — lengths 0..2 only; lengths 3..520 are a stated domain gap.  The
+  three named outcomes are: any nonzero
   byte is true, a lone 0x80 (negative zero) is false, and the empty vector is
   false. All three are exercised, and the special case `i == size-1 && 0x80`
   is exercised at the last position (len 1) and at a non-last position (len 2,
