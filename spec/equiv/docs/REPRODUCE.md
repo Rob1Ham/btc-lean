@@ -1,6 +1,6 @@
 # REPRODUCE — evaluator command book
 
-**Snapshot:** `2026-10-19T23:10:00Z` (post-E6 integration)
+**Snapshot:** `2026-10-21` (post-wave65 audit correction)
 **Tree:** `/home/ubuntu/btc-lean-public/spec/equiv/`
 **Rule:** every command block below was run at this snapshot; the quoted output
 is from the actual run, not reconstructed.
@@ -101,7 +101,7 @@ OK    all required pins are filled
 == 3. SCR coverage ==
   SCR rows in rules.yaml: 183
   rows in equiv-cells.yaml: 183
-  status counts: both-green=4, gap=159, unjudged-seam=20
+  status counts: both-green=152, gap=29, unjudged-seam=2
 OK    all 183 SCR rows adjudicated
 
 == summary ==
@@ -142,7 +142,7 @@ Observed:
 
 ```
 statuses: planned=0, alive2-green=0, saw-green=0, both-green=4,
-          unjudged-seam=20, gap=159
+          unjudged-seam=2, gap=29
 green rows: 4; blocked rows: 0
 check: .../spec/db/equiv-cells.yaml is up to date
 rc=0
@@ -156,8 +156,8 @@ rc=0
 ```
 
 **Reading:** the suite is green at the tool level and the ledger is fully
-adjudicated, but only 4 SCR rows are both-tool green. The remaining 20 are
-unjudged seams and 159 are filed gaps; partial cells do not promote rows.
+adjudicated, but only 152 SCR rows are both-tool green. The remaining 2 are
+unjudged seams and 29 are filed gaps; partial cells do not promote rows.
 
 ---
 
@@ -211,7 +211,8 @@ M-E1-008, M-E2-010, M-E4-004.
 
 - `make equiv` green means **every recorded cell has a raw tool success
   marker**, not that its SCR row is fully covered. Read `scr_row_coverage`.
-- The 4 green rows are SCR-069, SCR-071, SCR-072, SCR-074.
+- The authoritative green-row list is `results/matrix.md`; the ledger is
+  152/2/29 after the wave65/32 audit correction.
 - No whole-function `VerifyScript`/`EvalScript` proof exists. E5 is a scoped
   residual (`findings/e5/E5-RESIDUAL.md`); its one green empty-script SAW run
   is concolic/non-pin and is not a ledger row.

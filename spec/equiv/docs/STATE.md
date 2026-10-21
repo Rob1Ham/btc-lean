@@ -123,7 +123,7 @@ The 2 seams are SCR-146/147; the 29 gaps are SCR-001, 003, 005, 006, 008,
    off-pin.
 9. **Certificates.** 344 cell certificates replay in `gate-ir-pin`. The
    clean-checkout checker replays all cell certificates and manifests with
-   zero errors; 501 hygiene warnings remain (`cross-leg`, absolute machine
+   zero errors; 531 hygiene warnings remain (`cross-leg`, absolute machine
    paths inside bound sources, nested divergence manifests) and are listed
    by the checker rather than hidden.
 10. **Matrix.** `results/matrix.md` is generated deterministically and names

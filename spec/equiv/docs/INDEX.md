@@ -1,6 +1,6 @@
 # INDEX — `spec/equiv` reading map
 
-**Snapshot:** `2026-10-19T23:10:00Z` (post-E6 integration)
+**Snapshot:** `2026-10-21` (post-wave65 audit correction)
 **Purpose:** get a reviewer from "what is this?" to "what exactly is proved,
 what is only claimed, and what is missing" without reading every role report.
 
@@ -18,7 +18,7 @@ what is only claimed, and what is missing" without reading every role report.
 > **Current status in one line:** E0 passes; E1 has bounded cells and killed
 > mutations; E2/E3/E4 have tool-green but **partial** cells; E5 is a scoped
 > residual with no whole-function proof; E6 has **183/183 SCR rows
-> adjudicated** (4 both-tool green, 20 unjudged seams, 159 filed gaps, 0
+> adjudicated** (152 both-tool green, 2 unjudged seams, 29 filed gaps, 0
 > planned). `make pins`, `make e0`, `make gate-ir-pin`, and `make equiv` all
 > exit 0. The result is **conditional evidence-tier**, not an all-green or
 > Lean-kernel claim.
@@ -43,7 +43,7 @@ Evidence tiers actually present:
 | **T2 — bounded cells** | 17 cell directories, all with Alive2 and SAW success markers | bounded leaves/predicates; only 4 rows full |
 | **T3 — behavioral differential** | C vs expected 1258/1258; C vs Lean model 1251/1258; C vs twin 922/0/336 (v2-historical) | behavior, not IR; R absent |
 | **T4 — E0 triple** | C/L/R agree on 4/4 tapes; clean 1.95 R shim | harness/ABI smoke, not proof |
-| **T5 — ledger** | 4 both-green, 20 unjudged-seam, 159 gap, 0 planned | every row has a disposition |
+| **T5 — ledger** | 152 both-green, 2 unjudged-seam, 29 gap, 0 planned | every row has a disposition |
 | **T6 — whole-engine proof** | **none** | E5 residual, not a proof |
 
 ---
@@ -90,7 +90,7 @@ The recipe now includes `error_enum.md` and recomputes to
 | Path | State |
 |---|---|
 | [`../results/STATUS.md`](../results/STATUS.md) | current E0–E6 checkpoint |
-| [`../results/matrix.md`](../results/matrix.md) | generated; 4 green / 20 seam / 159 gap; named trust base |
+| [`../results/matrix.md`](../results/matrix.md) | generated; 152 green / 2 seam / 29 gap; named trust base |
 | [`../results/e0/README.md`](../results/e0/README.md) | three-leg PASS, R `73e3d2d9…`, L `b9ed129b…`; C provenance caveat |
 | [`../results/LEDGER-REPORT.md`](../results/LEDGER-REPORT.md) | bootstrap history; current counts in its addendum |
 | [`../findings/coverage/F-E6-GAPS.md`](../findings/coverage/F-E6-GAPS.md) | every non-green SCR row and disposition |

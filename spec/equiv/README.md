@@ -204,8 +204,8 @@ pin, not the unregistered FFI patch. E0 is a harness gate, not an IR proof; the
 proof lanes are the bounded `[core.ir]` lane and the 15-TU `[ir]` closure in
 `PINS.lock`/`ir/manifest.json`.
 
-The E6 ledger is **not all-green**: 4 rows are both-tool green, 20 are
-unjudged seams, and 159 are filed gaps with named blockers (0 planned).
+The E6 ledger is **not all-green**: 152 rows are both-tool green, 2 are
+unjudged seams, and 29 are filed gaps with named blockers (0 planned).
 `make gate-ir-pin` and `make equiv` pass, and `results/matrix.md` publishes
 the counts and trust base. Read `findings/coverage/F-E6-GAPS.md` for every
 non-green disposition. No unconditional Lean == Core claim is made.

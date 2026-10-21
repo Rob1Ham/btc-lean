@@ -61,7 +61,7 @@ L), `F-HARNESS-002` (R ABI domain), `F-PATCH-002` (R FFI proposal). Local:
 
 | Location | Scope | Status |
 |---|---|---|
-| `findings/coverage/F-E6-GAPS.md` | every non-green SCR row, generated from the ledger | 20 seam + 159 gap, 0 planned |
+| `findings/coverage/F-E6-GAPS.md` | every non-green SCR row, generated from the ledger | 2 seam + 29 gap, 0 planned |
 | `findings/e2/report.md` | WITHIN/HASH160 partial cells | tools green, rows gap |
 | `findings/e3/report.md` | CHECKSIG/1-of-1 CMS, symbolic checker, error enums | tools green, rows partial; M-E3-008 killed |
 | `findings/e4/report.md`, `findings/e4/seams.md` | v0 dispatch partial cell and 38-row seam/gap inventory | dispatch predicates only |

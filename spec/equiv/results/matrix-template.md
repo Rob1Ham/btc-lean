@@ -1,5 +1,5 @@
 > **TEMPLATE ONLY — not current coverage.** The live generated matrix is
-> `results/matrix.md` (4 both-green, 20 unjudged-seam, 159 gap, 0 planned at
+> `results/matrix.md` (152 both-green, 2 unjudged-seam, 29 gap, 0 planned at
 > the E6 checkpoint). The `0/0`/`planned` values below are placeholders from
 > the E0 skeleton.
 
