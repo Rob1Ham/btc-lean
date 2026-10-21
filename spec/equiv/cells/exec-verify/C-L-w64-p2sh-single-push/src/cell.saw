@@ -1,0 +1,83 @@
+import "cell.cry";
+
+mCC <- llvm_load_module "c_cell_canon_prefix.bc";
+mLC <- llvm_load_module "l_cell_canon_prefix.bc";
+mCS <- llvm_load_module "c_cell_sig_push.bc";
+mLS <- llvm_load_module "l_cell_sig_push.bc";
+mCG <- llvm_load_module "c_cell_p2sh_guard.bc";
+mLG <- llvm_load_module "l_cell_p2sh_guard.bc";
+
+// ---------------------------------------------------------------------------
+// All three leaves are proved against the same independent Cryptol statement
+// (src/cell.cry), for both legs.  Domain preconditions are the cell's stated
+// bounds, not implementation limits: AppendDataSize is total on 32-bit sizes,
+// scriptSig storage is 49 bytes, redeemScript 42 bytes.
+// ---------------------------------------------------------------------------
+
+// 1. AppendDataSize: kind, prefix length, and the five prefix bytes.
+let canonSpec = do {
+  dlen <- llvm_fresh_var "dlen" (llvm_int 64);
+  llvm_precond {{ dlen < 4294967296 }};
+  llvm_execute_func [llvm_term dlen];
+  llvm_return (llvm_term {{ packedCanon dlen }});
+};
+
+// 2. scriptSig single-push production (GetScriptOp + MINIMALDATA gate).
+let sigPushSpec = do {
+  slen <- llvm_fresh_var "slen" (llvm_int 64);
+  s0 <- llvm_fresh_var "s0" (llvm_int 64);
+  s1 <- llvm_fresh_var "s1" (llvm_int 64);
+  s2 <- llvm_fresh_var "s2" (llvm_int 64);
+  s3 <- llvm_fresh_var "s3" (llvm_int 64);
+  s4 <- llvm_fresh_var "s4" (llvm_int 64);
+  s5 <- llvm_fresh_var "s5" (llvm_int 64);
+  s6 <- llvm_fresh_var "s6" (llvm_int 64);
+  md <- llvm_fresh_var "md" (llvm_int 64);
+  llvm_precond {{ slen <= 49 }};
+  llvm_precond {{ md <= 1 }};
+  llvm_execute_func [llvm_term slen, llvm_term s0, llvm_term s1,
+                     llvm_term s2, llvm_term s3, llvm_term s4,
+                     llvm_term s5, llvm_term s6, llvm_term md];
+  llvm_return (llvm_term {{ packedSigPush slen [s0,s1,s2,s3,s4,s5,s6] md }});
+};
+
+// 3. The 2092 guard: witness template + whole-scriptSig byte equality +
+//    producing scriptSig evaluation, in Core's error-precedence order.
+let guardSpec = do {
+  plen <- llvm_fresh_var "plen" (llvm_int 64);
+  p0 <- llvm_fresh_var "p0" (llvm_int 64);
+  p1 <- llvm_fresh_var "p1" (llvm_int 64);
+  p2 <- llvm_fresh_var "p2" (llvm_int 64);
+  p3 <- llvm_fresh_var "p3" (llvm_int 64);
+  p4 <- llvm_fresh_var "p4" (llvm_int 64);
+  p5 <- llvm_fresh_var "p5" (llvm_int 64);
+  slen <- llvm_fresh_var "slen" (llvm_int 64);
+  s0 <- llvm_fresh_var "s0" (llvm_int 64);
+  s1 <- llvm_fresh_var "s1" (llvm_int 64);
+  s2 <- llvm_fresh_var "s2" (llvm_int 64);
+  s3 <- llvm_fresh_var "s3" (llvm_int 64);
+  s4 <- llvm_fresh_var "s4" (llvm_int 64);
+  s5 <- llvm_fresh_var "s5" (llvm_int 64);
+  s6 <- llvm_fresh_var "s6" (llvm_int 64);
+  md <- llvm_fresh_var "md" (llvm_int 64);
+  llvm_precond {{ plen <= 42 }};
+  llvm_precond {{ slen <= 49 }};
+  llvm_precond {{ md <= 1 }};
+  llvm_execute_func [llvm_term plen, llvm_term p0, llvm_term p1,
+                     llvm_term p2, llvm_term p3, llvm_term p4,
+                     llvm_term p5, llvm_term slen, llvm_term s0,
+                     llvm_term s1, llvm_term s2, llvm_term s3,
+                     llvm_term s4, llvm_term s5, llvm_term s6,
+                     llvm_term md];
+  llvm_return (llvm_term {{ packedGuard plen [p0,p1,p2,p3,p4,p5]
+                                          slen [s0,s1,s2,s3,s4,s5,s6] md }});
+};
+
+llvm_verify mCC "cell_canon_prefix" [] false canonSpec   abc;
+llvm_verify mLC "cell_canon_prefix" [] false canonSpec   abc;
+llvm_verify mCS "cell_sig_push"     [] false sigPushSpec abc;
+llvm_verify mLS "cell_sig_push"     [] false sigPushSpec abc;
+llvm_verify mCG "cell_p2sh_guard"   [] false guardSpec   abc;
+llvm_verify mLG "cell_p2sh_guard"   [] false guardSpec   abc;
+
+print "CELL_P2SH_SINGLE_PUSH_SAW_GREEN";

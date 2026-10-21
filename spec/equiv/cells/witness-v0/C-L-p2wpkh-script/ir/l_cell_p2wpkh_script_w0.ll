@@ -1,5 +1,5 @@
-; ModuleID = '/tmp/opencode/equiv-pr/spec/equiv/cells/witness-v0/C-L-p2wpkh-script/build/l_cell_p2wpkh_script_w0.bc'
-source_filename = "/tmp/opencode/equiv-pr/spec/equiv/cells/witness-v0/C-L-p2wpkh-script/src/l_cell.cpp"
+; ModuleID = '/tmp/opencode/wave64-integrate/spec/equiv/cells/witness-v0/C-L-p2wpkh-script/build/l_cell_p2wpkh_script_w0.bc'
+source_filename = "/tmp/opencode/wave64-integrate/spec/equiv/cells/witness-v0/C-L-p2wpkh-script/src/l_cell.cpp"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-linux-gnu"
 

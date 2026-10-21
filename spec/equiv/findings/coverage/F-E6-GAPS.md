@@ -4,9 +4,9 @@ Generated from `spec/db/equiv-cells.yaml` by
 `results/scripts/build_gap_report.py`. This is an index of the filed
 dispositions, not a new claim. Green rows are listed for completeness.
 
-- green: **155**
+- green: **156**
 - unjudged seam: **2**
-- filed gap: **26**
+- filed gap: **25**
 - still planned: **0**
 - other: **0**
 
@@ -21,6 +21,7 @@ dispositions, not a new claim. Green rows are listed for completeness.
 | SCR-007 | exec-verify | `exec-verify/C-L-p2sh-handoff`, `exec-verify/C-L-w32-p2sh-stackcopy` |
 | SCR-009 | exec-verify | `exec-verify/C-L-flags-domain`, `exec-verify/C-L-w32-flag-combo` |
 | SCR-011 | exec-verify | `exec-verify/C-L-verifyscript-tail` |
+| SCR-012 | exec-verify | `exec-verify/C-L-verifyscript-tail`, `exec-verify/C-L-w64-p2sh-single-push` |
 | SCR-013 | exec-verify | `exec-verify/C-L-verifyscript-tail` |
 | SCR-014 | exec-verify | `exec-verify/C-L-flags-domain`, `exec-verify/C-L-w32-flags-combo` |
 | SCR-015 | exec-verify | `exec-verify/C-L-w32-block-flags` |
@@ -229,23 +230,6 @@ dispositions, not a new claim. Green rows are listed for completeness.
   scriptSig `EvalScript` call.  That is whole-function composition
   (SCR-001 / E5 residual), not a leaf property; and the same 8-byte bound
   applies. |
-| SCR-012 | exec-verify | auto(cells): partial row coverage; exec-verify/C-L-verifyscript-tail: per row, with the bounds above:
-- SCR-002 full — "after scriptPubKey eval, stack non-empty and top
-  CastToBool-true" (interpreter.cpp:2037-2040): proved for every post-eval
-  stack in the bounded domain (depth 0..3, top 0/1 bytes) and every mask.
-- SCR-004 partial — the two arms cited by the row:
-    WITNESS off, empty scriptPubKey, scriptSig leaves one truthy element
-      -> pass (modelled: spk_wit = spk_p2sh = 0, st_n = 1, top truthy);
-    WITNESS on, witness non-null, empty scriptPubKey (not a witness
-      program) -> WITNESS_UNEXPECTED (modelled: spk_wit = 0, wit_n > 0);
-  NOT covered: the scriptSig evaluation that *produces* the single truthy
-  element (a push executed by EvalScript — E5 dispatch residual), and the
-  row's explicitly unproved CLEANSTACK-on one-element arm.
-- SCR-008 partial — "exactly 1 element after all evaluation" (flag; pol.;
-  interpreter.cpp:2110-2118): the flag/policy check is proved for every
-  final depth in Core's order, but the witness-implicit face is blocked by
-  the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness
-  spend Core resizes the stack to one elemen |
 | SCR-021 | limits | auto(cells): partial row coverage; limits/C-L-witness-push-size: partial — the cell proves the witness item-size predicate `any (item.size() > 520) ⇒ PUSH_SIZE` (represented exactly by max_item > 520) for base/v0 and for tapscript without OP_SUCCESSx, its ordering after the SCR-031 initial-stack guard, and the BIP342 exemption ordering (a tapscript with OP_SUCCESSx returns success before the item loop).  The OP_SUCCESSx scan itself is an abstract boolean: deciding `opSuccessScan exec` over symbolic script bytes needs the per-opcode decode loop and early success, which is SCR-153 and is not modelled here. So the row's "containing OP_SUCCESSx" branch is only modelled at its outcome, not by scanning bytes.  EvalScript is also a stub, but the row ends before it. |
 | SCR-036 | limits | SCR-036 (push-only scriptSig; last element as program): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed. |
 | SCR-040 | limits | auto(cells): partial row coverage; limits/C-L-tapscript-weight: - SCR-040 (budget = serialized witness stack size including the

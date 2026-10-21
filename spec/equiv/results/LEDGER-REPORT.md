@@ -18,14 +18,14 @@
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
 | Ledger status `planned` | **0** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / **155** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **156** |
 | `unjudged-seam` | **2** |
-| Filed `gap` | **26** |
+| Filed `gap` | **25** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
 Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
-adjudicated; the 155 green rows are listed in `results/matrix.md` and the
+adjudicated; the 156 green rows are listed in `results/matrix.md` and the
 non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
 ## 2. Family mapping and green coverage
@@ -35,7 +35,7 @@ intended directory name under `spec/equiv/cells/`.
 
 | Family id | Source | Rows | Consensus | Non-consensus | Green |
 |---|---|---:|---:|---:|---:|
-| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 12 |
+| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 13 |
 | `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 | 22 |
 | `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 | 10 |
 | `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 17 |
@@ -50,7 +50,7 @@ intended directory name under `spec/equiv/cells/`.
 | `disabled-opcodes` | `06-script-interpreter.md` §B.13 Disabled opcodes | 5 | 4 | 1 | 4 |
 | `tapscript-reimport` | `w2-06-flags-activation.md` §B.1 Tapscript re-import | 1 | 1 | 0 | 1 |
 | `policy-flags` | `w2-06-flags-activation.md` §B.12 Policy-only flags | 8 | 0 | 8 | 7 |
-| **Total** | | **183** | **156** | **27** | **155** |
+| **Total** | | **183** | **156** | **27** | **156** |
 
 Every family is present; the sum of family row counts equals 183. Green counts
 are row counts, not cell counts; a row may cite more than one cell.
@@ -132,7 +132,7 @@ Determinism check: `python3 .../build_equiv_cells.py --check` reports
   cell records. It fails loudly (no write) if a green row has no cell or if
   the ledger disagrees with the cell-derived state.
 - **Certificate gate:** `tools/gate_ir_pin.py` replays all nested
-  certificates; the current tree has 342 certificates and 0 failures. The
+  certificates; the current tree has 344 certificates and 0 failures. The
   clean-checkout checker
   `findings/wave64/51-cert-repro-hardening/tools/cert_repro_check.py`
   additionally replays manifests and moves non-tracked historical hashes to
@@ -142,7 +142,7 @@ Determinism check: `python3 .../build_equiv_cells.py --check` reports
 
 - **`unjudged-seam` (2):** SCR-146 (TapLeaf tagged-hash preimage) and
   SCR-147 (Taproot tweak/commitment).
-- **Filed gaps (26):** SCR-001, 005, 008, 010, 012, 021, 036, 040, 043, 044,
+- **Filed gaps (25):** SCR-001, 005, 008, 010, 021, 036, 040, 043, 044,
   051, 078, 086, 104, 112, 115, 133, 136, 140, 142, 153, 154, 167, 169, 172,
   175.
 - Each row has a row-specific blocker in `findings/coverage/F-E6-GAPS.md`;

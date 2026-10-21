@@ -31,7 +31,9 @@ sha256sum -c spec/equiv/cells/checksig/C-L-w32-checksig-constscriptcode/saw/cert
 | alive-tv | Ubuntu LLVM 20.1.2 (Alive2 v20.0) |
 | SAW | 1.6 (`68eed5f release-1.6`) |
 
-Alive2 is run with `--fail-src-ub --smt-to=180000 --bidirectional`.
+Alive2 is run with `--fail-src-ub --smt-to=600000 --bidirectional`.
+The original 180 s budget timed out two of three cases under concurrent
+wave64 load; 600 s reproduces all three green and is the committed default.
 The extracted IR is loop-checked with `opt -passes='print<loops>'`; a
 non-zero loop count is a hard failure (Alive2's loop model is unsound for this
 cell pattern).  The scalar byte-select / unrolled GetOp form is used

@@ -13,7 +13,7 @@ OUT="$CELL_DIR/alive2"
 ROOT="$(cd "$CELL_DIR/../../../../.." && pwd)"
 LLVM=/usr/lib/llvm-20/bin
 ALIVE=/usr/local/bin/alive-tv
-SMT_TO="${SMT_TO:-180000}"
+SMT_TO="${SMT_TO:-600000}"
 
 "$SRC/build.sh" alive2
 mkdir -p "$OUT"

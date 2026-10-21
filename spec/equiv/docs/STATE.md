@@ -20,9 +20,9 @@ gates, with the current certificate/ledger status below.
 
 It is **not** an all-rows-green result and **not** a whole-engine proof:
 
-- 155 of 183 SCR rows are both-tool green;
+- 156 of 183 SCR rows are both-tool green;
 - 2 are explicitly `unjudged-seam`;
-- 26 are filed `gap`s with named blockers;
+- 25 are filed `gap`s with named blockers;
 - 0 are `planned`;
 - no `EvalScript`/`VerifyScript` whole-function proof exists (E5 residual);
 - no admissible R proof-lane artifact exists (the R behavioral E0 leg does);
@@ -51,7 +51,7 @@ Commands at this snapshot:
 ```text
 make pins          -> RESULT: OK (pins complete and tool probes passed)
 make e0            -> RESULT: PASS (E0_TRIPLE_OK; 4/4 tapes)
-make gate-ir-pin   -> RESULT: PASS (342 certificates, 0 failures, 0 warnings)
+make gate-ir-pin   -> RESULT: PASS (344 certificates, 0 failures, 0 warnings)
 coverage_report.py --strict -> PASS; all 183 SCR rows adjudicated
 cert_repro_check.py --rev HEAD --fuzz 0 -> PASS (all cell certs + manifests)
 make gate-repro    -> PASS
@@ -61,10 +61,10 @@ Ledger counts:
 
 | Status | Rows |
 |---|---:|
-| `both-green` | 155 |
+| `both-green` | 156 |
 | `alive2-green` / `saw-green` | 0 / 0 |
 | `unjudged-seam` | 2 |
-| `gap` | 26 |
+| `gap` | 25 |
 | `planned` | 0 |
 | **Total** | **183** |
 
@@ -77,14 +77,14 @@ Green rows by family (authoritative list: `results/matrix.md`):
 - **checksig (16):** SCR-096–103, 105–111, 113.
 - **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
 - **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
-- **exec-verify (12):** SCR-002–004, 006, 007, 009, 011, 013–017.
+- **exec-verify (13):** SCR-002–004, 006, 007, 009, 011–017.
 - **checkmultisig (7):** SCR-114, 116–121.
 - **push-encoding (10):** SCR-045–050, 052–055.
 - **stack-ops (5):** SCR-073–077; **numeric (13):** SCR-079–085, 087–092.
 - **disabled-opcodes (4):** SCR-170, 171, 173, 174.
 - **hash-ops (3):** SCR-093–095.
 
-The 2 seams are SCR-146/147; the 26 gaps are SCR-001, 005, 008, 010, 012,
+The 2 seams are SCR-146/147; the 25 gaps are SCR-001, 005, 008, 010,
 021, 036, 040, 043, 044, 051, 078, 086, 104, 112, 115, 133, 136, 140, 142,
 153, 154, 167, 169, 172, 175. Each has a row-specific blocker in
 `findings/coverage/F-E6-GAPS.md`; the wave64 reports add exact witnesses.

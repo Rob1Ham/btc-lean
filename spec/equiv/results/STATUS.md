@@ -3,9 +3,9 @@
 **Last updated:** 2026-10-20 (wave64 integration; evidence tier)
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
-The ledger has **183/183 SCR rows adjudicated**: **155 both-tool green**,
-**2 unjudged seams**, **26 filed gaps**, and **0 planned**. `coverage_report.py
---strict` passes. `make gate-ir-pin` replays **342 certificates** with 0
+The ledger has **183/183 SCR rows adjudicated**: **156 both-tool green**,
+**2 unjudged seams**, **25 filed gaps**, and **0 planned**. `coverage_report.py
+--strict` passes. `make gate-ir-pin` replays **344 certificates** with 0
 failures and 0 warnings. This is **not** an all-rows-green claim and not a
 whole-engine equivalence proof; the limits are below.
 
@@ -29,14 +29,14 @@ whole-engine equivalence proof; the limits are below.
 | SCR rows in `spec/db/rules.yaml` | 183 |
 | Ledger entries in `spec/db/equiv-cells.yaml` | 183 |
 | Families | 15 |
-| Proof-cell directories (recorded) | 163 |
+| Proof-cell directories (recorded) | 164 |
 | `planned` | 0 |
-| Both-tool green rows | 155 |
+| Both-tool green rows | 156 |
 | Alive2-only / SAW-only green rows | 0 / 0 |
 | `unjudged-seam` | 2 |
-| Filed `gap` | 26 |
+| Filed `gap` | 25 |
 | Malformed cell records | 0 |
-| `make gate-ir-pin` | PASS (342 certificates, 0 failures, 0 warnings) |
+| `make gate-ir-pin` | PASS (344 certificates, 0 failures, 0 warnings) |
 | `coverage_report.py --strict` | PASS — all 183 rows adjudicated |
 
 Green rows by family (authoritative list is `results/matrix.md`):
@@ -48,7 +48,7 @@ Green rows by family (authoritative list is `results/matrix.md`):
 - **checksig (16):** SCR-096–103, 105–111, 113.
 - **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
 - **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
-- **exec-verify (12):** SCR-002–004, 006, 007, 009, 011, 013–017.
+- **exec-verify (13):** SCR-002–004, 006, 007, 009, 011–017.
 - **checkmultisig (7):** SCR-114, 116–121.
 - **push-encoding (10):** SCR-045–050, 052–055.
 - **stack-ops (5):** SCR-073–077; **numeric (13):** SCR-079–085, 087–092.
@@ -62,13 +62,19 @@ Non-green rows:
   the wave64 partial evidence (`findings/wave64/33-scr-146/`,
   `findings/wave64/34-scr-147/`) narrows the non-crypto content but does not
   promote the rows.
-- **Filed gaps (26):** SCR-001, 005, 008, 010, 012, 021, 036, 040, 043, 044,
+- **Filed gaps (25):** SCR-001, 005, 008, 010, 021, 036, 040, 043, 044,
   051, 078, 086, 104, 112, 115, 133, 136, 140, 142, 153, 154, 167, 169, 172,
   175. Per-row blockers are in `findings/coverage/F-E6-GAPS.md` and in the
   wave64 reports referenced there.
 
 ## Wave64 audit outcomes that changed or constrain the ledger
 
+- **SCR-012 is now green.** The wave64 `exec-verify/C-L-w64-p2sh-single-push`
+  cell proves the single-push production and the `WITNESS_MALLEATED_P2SH`
+  guard for every reachable scriptSig (0..49 bytes) and redeemScript (4..42
+  bytes), including all four push encodings and the BAD_OPCODE/MINIMALDATA
+  precedence. This closes the producing-scriptSig residual that the earlier
+  tail cell had declared.
 - **SCR-008 was demoted from green to gap.** `F-DIV-W32-01` reproduces for a
   valid P2SH-wrapped v0 witness spend: Core resizes the final stack to one
   element, while the pinned Lean `verifyScriptFull` reuses the redeem-script

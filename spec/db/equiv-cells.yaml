@@ -171,7 +171,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -190,7 +190,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-eval-empty
-    certificate: 11596f606e1636b58f67bcef64236595f53dd6759fd708df323d36ac73f52b7b
+    certificate: 372f4831aeb37aa260bca7b1a4d45ee07681b49bf0c2f75b8df6744d6993742a
     note: Proof succeeded! cell_eval_frame
   status: both-green
   gap_note: null
@@ -210,7 +210,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -243,7 +243,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-pushonly
-    certificate: dfe90799dcf64ccd655166c94c787f59f122a276ea9fa01bac533eeeebaf1b0f
+    certificate: 4d9e36cc70e0aa336a44b8077c378b2e3078ad4843181091e4cc62af1e15e101
     note: Proof succeeded! cell_ispushonly
   status: both-green
   gap_note: null
@@ -263,7 +263,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-p2sh-handoff
-    certificate: 1ebf87c7d14b205f31da03fcb783d2a1538a51db5b1b163ec2b443a4322370a6
+    certificate: 7c6fff1ca22b396121e14c072f445aa554f4de84de63a536884742a0bd9c9453
     note: Proof succeeded! cell_p2sh_shape
   status: both-green
   gap_note: null
@@ -295,7 +295,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-flags-domain
-    certificate: d0b95157e5fabca63c00d42af20e92e84b9ffe3150beeaf862767f225398c0c8
+    certificate: 438c03114c6a48ab94a44b30d57853f89b668e9820d4d57658341ca6259b981b
     note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
@@ -325,7 +325,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -336,10 +336,19 @@ rows:
   consensus: true
   cells:
   - exec-verify/C-L-verifyscript-tail
-  alive2: null
-  saw: null
-  status: gap
-  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-verifyscript-tail: per row, with the bounds above:\n- SCR-002 full — \"after scriptPubKey eval, stack non-empty and top\n  CastToBool-true\" (interpreter.cpp:2037-2040): proved for every post-eval\n  stack in the bounded domain (depth 0..3, top 0/1 bytes) and every mask.\n- SCR-004 partial — the two arms cited by the row:\n    WITNESS off, empty scriptPubKey, scriptSig leaves one truthy element\n      -> pass (modelled: spk_wit = spk_p2sh = 0, st_n = 1, top truthy);\n    WITNESS on, witness non-null, empty scriptPubKey (not a witness\n      program) -> WITNESS_UNEXPECTED (modelled: spk_wit = 0, wit_n > 0);\n  NOT covered: the scriptSig evaluation that *produces* the single truthy\n  element (a push executed by EvalScript — E5 dispatch residual), and the\n  row's explicitly unproved CLEANSTACK-on one-element arm.\n- SCR-008 partial — \"exactly 1 element after all evaluation\" (flag; pol.;\n  interpreter.cpp:2110-2118): the flag/policy check is proved for every\n  final depth in Core's order, but the witness-implicit face is blocked by\n  the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness\n  spend Core resizes the stack to one elemen"
+  - exec-verify/C-L-w64-p2sh-single-push
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
 - id: SCR-013
   family: exec-verify
   summary: Non-null witness without witness program fails
@@ -355,7 +364,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-verifyscript-tail
-    certificate: 7d21fd05acbbc277a72f560d83fdd892eed13dfa9501ba1902396bb502ec2627
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
     note: Proof succeeded! cell_single_push_eq
   status: both-green
   gap_note: null
@@ -375,7 +384,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-flags-domain
-    certificate: d0b95157e5fabca63c00d42af20e92e84b9ffe3150beeaf862767f225398c0c8
+    certificate: 438c03114c6a48ab94a44b30d57853f89b668e9820d4d57658341ca6259b981b
     note: Proof succeeded! cell_flags_guard
   status: both-green
   gap_note: null
@@ -433,7 +442,7 @@ rows:
   saw:
     result: green
     cell: exec-verify/C-L-failure-propagation
-    certificate: 23c9671437e45bb4412ea62dd54ccfdcea9787dafdac71983d80e1d368b952d1
+    certificate: eaca8161b0cd5984ff33b7d11b57d05ef09fe6eaccb311683c95a94deda37a0e
     note: Proof succeeded! cell_failprop
   status: both-green
   gap_note: null
@@ -447,7 +456,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-script-size
-    certificate: c09164940645bd9005591481c25cc50c787431b491bae0eb767c23e2cab235d3
+    certificate: 4d2c0bb489efbd9eac5761859ad5cedd3d1990b738ad33e156cb9f613554828f
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -466,7 +475,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-script-size
-    certificate: c09164940645bd9005591481c25cc50c787431b491bae0eb767c23e2cab235d3
+    certificate: 4d2c0bb489efbd9eac5761859ad5cedd3d1990b738ad33e156cb9f613554828f
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -485,7 +494,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-push-size
-    certificate: 3ac90ef766f304aedd5674adeaf8c17cd01592a55b6f9638d5f45c87756887ea
+    certificate: 32308b94296518d972ecba638e89f3788408a1f5b7e7d1d73d17b9869a7bf502
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -515,7 +524,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-opcount
-    certificate: acf5f289a9ab6a75ce19aca7b238ddd7fb9a8d7e553cf325684ac36a1b9fe90e
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -534,7 +543,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-opcount
-    certificate: acf5f289a9ab6a75ce19aca7b238ddd7fb9a8d7e553cf325684ac36a1b9fe90e
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -553,7 +562,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-opcount
-    certificate: acf5f289a9ab6a75ce19aca7b238ddd7fb9a8d7e553cf325684ac36a1b9fe90e
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -572,7 +581,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-opcount
-    certificate: acf5f289a9ab6a75ce19aca7b238ddd7fb9a8d7e553cf325684ac36a1b9fe90e
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -648,7 +657,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-stack-limit
-    certificate: 4965d307e0e1a8861df093eef2cb3b8836aa77bcb5e91266529748fa5162d824
+    certificate: fc4f78cb2e0c0ce6cf99aa811abbabed6b8d133ceb724c806ead8054cae71a59
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -667,7 +676,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-stack-limit
-    certificate: 4965d307e0e1a8861df093eef2cb3b8836aa77bcb5e91266529748fa5162d824
+    certificate: fc4f78cb2e0c0ce6cf99aa811abbabed6b8d133ceb724c806ead8054cae71a59
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -686,7 +695,7 @@ rows:
   alive2:
     result: green
     cell: limits/C-L-tapscript-precheck
-    certificate: e16455ef439ec0c9dc433ac16fc6457637ec0ab4aeeb51f3ae553c60893c8e2f
+    certificate: bcc3d317ca30e1dd58ab4ede447c709c6130e9a122f61005e69551bd2ab092a8
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -1002,7 +1011,7 @@ rows:
   saw:
     result: green
     cell: push-encoding/C-L-w32-fexec-push
-    certificate: 2168764328105f4ccb241f985fafb0eae0c033d2d918aad454aa8575b272db4d
+    certificate: 0fcb8aa2da146f676d1e9c600dc7c49d5ff56f23ed426071f337bae47c96210a
     note: Proof succeeded! cell_fexec_false
   status: both-green
   gap_note: null
@@ -1021,7 +1030,7 @@ rows:
   saw:
     result: green
     cell: push-encoding/C-L-w32-cscriptnum-minimal
-    certificate: 25b3f61f182aa1935a04d19c48006560e0e4a2812582da28e70c07c59195b0fc
+    certificate: f1d2a35861a29a954e6c337d56ebf13871cdcb71d0ff75cfa6c218360e01245b
     note: Proof succeeded! cell_cscriptnum
   status: both-green
   gap_note: null
@@ -1537,7 +1546,7 @@ rows:
   saw:
     result: green
     cell: stack-ops/C-L-ifdup
-    certificate: defcec782dc75d749c3a0fed374150760262a413fb577addb3169aa7d1cbcc4a
+    certificate: f4ad57688f8dbe1ce35e46bc7273dcfebbcbae6687a2348e62b6ee566ac80bb5
     note: Proof succeeded! cell_ifdup_empty
   status: both-green
   gap_note: null
@@ -1583,12 +1592,12 @@ rows:
   alive2:
     result: green
     cell: numeric/C-L-numeric-default-4byte
-    certificate: d4403a5220418423df656b54b848832c11c43b48368c6609018c3a130c289022
+    certificate: ad37157cc30130143ee819156089aba823d56a10cd425068b6d1218698a76c99
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: numeric/C-L-numeric-default-4byte
-    certificate: 660b4b94f0fbf06053b65b09fecafda612063a4a55f354426f75163f02d7c007
+    certificate: 8edd6da0b189b4ee090a0683f3d974d7061202a996f518de354cbc2d1bf7eb49
     note: Proof succeeded! cell_pick_roll
   status: both-green
   gap_note: null
@@ -1607,7 +1616,7 @@ rows:
   saw:
     result: green
     cell: numeric/C-L-nmaxnum5
-    certificate: 8402588530625931c3468335dedf012c066b1aedfa85c91950364d37802233c4
+    certificate: 8fd332a216abc6f73356fbcf04f859981132f6c106b04805ab238b105bc649ad
     note: Proof succeeded! cell_cltv
   status: both-green
   gap_note: null
@@ -1664,7 +1673,7 @@ rows:
   saw:
     result: green
     cell: numeric/C-L-scriptnum-signext-exception
-    certificate: 0b762b379d9bef47b28e7750aa18814b0dc472f818da72f6cfb2d3a97229679f
+    certificate: 409e88cbcc67131580e496caa506d0f5adbb77205ac98fa1b61c7b12e1e2e7d6
     note: Proof succeeded! cell_signext_roundtrip
   status: both-green
   gap_note: null
@@ -1883,12 +1892,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
     note: Proof succeeded! cell_codesep
   status: both-green
   gap_note: null
@@ -1902,12 +1911,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
     note: Proof succeeded! cell_codesep
   status: both-green
   gap_note: null
@@ -1921,12 +1930,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-findanddelete
-    certificate: 0d72b32ed5ece3149aac2bdecb1715626157e85762db194ba4e3524e9683bf7f
+    certificate: 6d46e9e1d3be07d3ec6b1451beb657917b88203bfa3944ad5d8a322485d6aa3b
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-findanddelete
-    certificate: 78bea08b28c0e333714a62c29e4b8624605f0841c7b316acf68f829d8f791760
+    certificate: ae57b2f6660f67dd8163bee996835919ab105b9042a5d25c8974d2967a492339
     note: Proof succeeded! cell_fad_pl1
   status: both-green
   gap_note: null
@@ -1940,12 +1949,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-constscriptcode
-    certificate: a531c60920bc8d431a3470f84794e7e54322e858882ea881c1fc41aea6fc0a57
+    certificate: c057316ef5f17e43031efa45439ac33efb6e29dc538e08c44055c052005d1230
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-constscriptcode
-    certificate: b2a972d5f655c51a400bf7e524e0cc3de108f8d7f201d5924b4a669019b4d14d
+    certificate: 92a6a8e85b2edc33b85a534a1965278732526dca375486e2a0fbe6a23c113353
     note: Proof succeeded! cell_fadpol_pl1
   status: both-green
   gap_note: null
@@ -1959,12 +1968,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: 8893fae421bac4f87d7c0860319766f82af5820ba76ccb8eef066243664eea54
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-codesep
-    certificate: e3a11dee5badbde6dafe3e70b9c7208309a1d1eecd164182dca15476982a8f4f
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
     note: Proof succeeded! cell_codesep
   status: both-green
   gap_note: null
@@ -1978,12 +1987,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-w32-checksig-serialize-scriptcode
-    certificate: fe231112432e106b13a14dd5a1ec5272094051db01cf1c5635521513254de5b3
+    certificate: 748068fbbb09b6dc9dec2b688dd2069cb5abaf8ce7cb2bbde3c7ca9cd573aa75
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-w32-checksig-serialize-scriptcode
-    certificate: fe6de06087a00f3c81a26ad654cd34c552e4fe7426f201a988ba0f0882c223d3
+    certificate: 80f05bf22c1bdd48e72551980e58b20297b0073829b1a1df9584ed8542e7110f
     note: Proof succeeded! cell_ser
   status: both-green
   gap_note: null
@@ -1997,7 +2006,7 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-der
-    certificate: ad67b06733ddc51261c48ee2791f457a82e3c029e2a1e47b7a832205887833c8
+    certificate: 9164bc13de0903b3076a9004e076122a2cf8996232d289ac4f2e6de9638e5889
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2016,7 +2025,7 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-bip66
-    certificate: 617443d701ca545ebe25219b3593bd78adeebdd8031c5b2cd3e3d5a996951142
+    certificate: 9c1b1b9e2fdbf083e5bb21a7b3ee7b8c69f7a60837ac06383b4eb2976754bf80
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2047,12 +2056,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: 4e8aa4f9b61ff5fdfa4274d7ed4bca2046d29991a8a0942c1fc4f7ec46654b2b
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: c7c4ece38be144ca1fbd82905088b28e3a592439021588fba871a9daced473e2
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
     note: Proof succeeded! cell_hashtype_gate
   status: both-green
   gap_note: null
@@ -2066,12 +2075,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: 4e8aa4f9b61ff5fdfa4274d7ed4bca2046d29991a8a0942c1fc4f7ec46654b2b
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: c7c4ece38be144ca1fbd82905088b28e3a592439021588fba871a9daced473e2
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
     note: Proof succeeded! cell_hashtype_gate
   status: both-green
   gap_note: null
@@ -2085,12 +2094,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: 4e8aa4f9b61ff5fdfa4274d7ed4bca2046d29991a8a0942c1fc4f7ec46654b2b
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-checksig-policy
-    certificate: c7c4ece38be144ca1fbd82905088b28e3a592439021588fba871a9daced473e2
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
     note: Proof succeeded! cell_hashtype_gate
   status: both-green
   gap_note: null
@@ -2104,7 +2113,7 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-der
-    certificate: ad67b06733ddc51261c48ee2791f457a82e3c029e2a1e47b7a832205887833c8
+    certificate: 9164bc13de0903b3076a9004e076122a2cf8996232d289ac4f2e6de9638e5889
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2123,12 +2132,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-empty
-    certificate: 3239c0c6b75bd01dc2fc9874e95b6dadb6c589792d138fd6ccf2e1c9451719f7
+    certificate: 0f632427f587546c51047691b945aa549784b3f787a0bdebbeaaf845ef503b1e
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-checksig-empty
-    certificate: 00900911b65961287c5ee24fed53fb7b01b4a7bbcb5dfc095b6d5653b716e58a
+    certificate: d17a2bf4a10d025d0e56ab51c1557e7ecfb3ed01edf072b9779baa512c42b454
     note: Proof succeeded! cell_checksig_empty
   status: both-green
   gap_note: null
@@ -2143,12 +2152,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-nullfail-loop
-    certificate: c80381bc42fbe392b4285438f6e19998e06c34e48617bcef93b67f6a7cb75d19
+    certificate: 1a2fcdece41f52bbc62da1838f539bda716bd451b39aa0fc9bc90e28ea60ee4d
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-nullfail-loop
-    certificate: b70d33a06bd19b6140fdb82c5b4a18e6f377298d6766abea2b9582970d6fea52
+    certificate: cc6b6dfb1511ecf4822799b48c3800fac446d79b04c65bf70119948295efafcd
     note: Proof succeeded! cell_cms_nullfail
   status: both-green
   gap_note: null
@@ -2162,7 +2171,7 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-nullfail-hashtype
-    certificate: 89cf790877de2dff7c5de8619de24a4ce8b796045ca1dcfaf4e3eacbfa9e40a1
+    certificate: b0466dc188510bbdfa6a53ac4ffa6e5e831feaf512ac04dceb783904e7a53b4e
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2193,12 +2202,12 @@ rows:
   alive2:
     result: green
     cell: checksig/C-L-checksig-opcount
-    certificate: a14f8fa73c533d477fbd732279b3dd245089f079d95f2727622e23cc82cfa66e
+    certificate: 0de8b1eb1f5f106717d4b900c32969a036acb87eec5165b4c1f1c72892fc9d8f
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checksig/C-L-checksig-opcount
-    certificate: 397f5c22f0184dd60166cc5734a8e728a70bffa442187eebb53dd613e0b3c0ae
+    certificate: 070b35d41a0fd96455049bf6f67b9a7cf0dcee9e559207c34287530539052a75
     note: Proof succeeded! cell_opcount
   status: both-green
   gap_note: null
@@ -2214,7 +2223,7 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-layout-sym
-    certificate: ded9d051ec84a2e0b865fd5c7f564fb0aa0bbd74080fae65616711ecec25fb88
+    certificate: 223c64b3f518f7b934be5f3310a342907925a6212fe22fc951918955245fa5c4
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2246,12 +2255,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-order-unroll
-    certificate: 271d9ac1deb18e58f6189e11297d3616e225355cb8fb22285644e20aa6fe7feb
+    certificate: 43615fc0d8e6b48f05c414d4a9ef9353338fed908facfc1dd7483c78d2e4ba06
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-order-unroll
-    certificate: 1e16f7155d47106b45dd8289c2dc4dfe863dc5eb83966176f884fd196b2a24c6
+    certificate: 614e060c724d11bd551a3afeb54fe32d81f41dc26d26b45ffdb5807913a64233
     note: Proof succeeded! cell_cms_order
   status: both-green
   gap_note: null
@@ -2266,12 +2275,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-enc-loop
-    certificate: 0db951f33fa39b572cde395f47eed3bbeff19de3af945b36060e159beb48cca6
+    certificate: 51e8ded570d445fe1e536ef12da85650b9178d49893aa2563ec983f80ec6ed3f
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-enc-loop
-    certificate: fb4b0913cfb39fd1041bbbdb4644338746a1c1f511b9128aa8b06ce37f229034
+    certificate: 67740ac8c5ed59edd7d1bf2d201abdec5ee6f5f0faf2064d186d4a2be5159655
     note: Proof succeeded! cell_cms_enc
   status: both-green
   gap_note: null
@@ -2286,12 +2295,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2306,12 +2315,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2326,12 +2335,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: b4a7963660cc02be6c26cf8c67e94bbadf1b6653e9e54cae9e19c4dfb80f3ed1
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tail-sym
-    certificate: 4b7f88309854379c9ca60aa0d6fb45ee37cb8b6a2968b4738cc9ea8cd3bd662a
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
     note: Proof succeeded! cell_cms_tail
   status: both-green
   gap_note: null
@@ -2345,12 +2354,12 @@ rows:
   alive2:
     result: green
     cell: checkmultisig/C-L-cms-tapscript-ban
-    certificate: dac668e998fb55ad1e1c361cdd2139e7e8fc4498e29c210716675c96f15da90b
+    certificate: 4bba75e83bb8a4b9d6034bfff33ae0995253a903c3fd5b7b0046ee6813e0c108
     note: Transformation seems to be correct!
   saw:
     result: green
     cell: checkmultisig/C-L-cms-tapscript-ban
-    certificate: a85c918a442bc51aab175de37af7fedad1ba1546a94e744b6a26e9b694d020bc
+    certificate: 2d177f55f7f7e3a006ef83b8133a33fc316c9dbc5732226992e368fa1e4ca6ef
     note: Proof succeeded! cell_cms_tapscript_ban
   status: both-green
   gap_note: null
@@ -2768,7 +2777,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-annex
-    certificate: 6f9425751516f56dd9ce9588effab97d8fdd01a343de8da7464051c52e955c6d
+    certificate: 6a865a77b4da3f6db20a3e3a36d7f402c04c141b7d5318142f9c54d152f00267
     note: Transformation seems to be correct! (syntactically equal)
   saw:
     result: green
@@ -2787,7 +2796,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-keypath
-    certificate: 86d0cba37aa441dd2c823d72dea10e65ad78a9a549ffc716bb3ca73ccb182ce8
+    certificate: 5f2a9f46eacd7b354b16ec1c7400305452e66fa9440632bec01fc0a4ca2cfca5
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2806,7 +2815,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
-    certificate: 33a3cf559161518b234fa53d67354a95c4f2e01d5454e05780a9b94ed1975bf0
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2845,7 +2854,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
-    certificate: 33a3cf559161518b234fa53d67354a95c4f2e01d5454e05780a9b94ed1975bf0
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2865,7 +2874,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
-    certificate: 33a3cf559161518b234fa53d67354a95c4f2e01d5454e05780a9b94ed1975bf0
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2885,7 +2894,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
-    certificate: 33a3cf559161518b234fa53d67354a95c4f2e01d5454e05780a9b94ed1975bf0
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2905,7 +2914,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-taproot-scriptpath-dispatch
-    certificate: 33a3cf559161518b234fa53d67354a95c4f2e01d5454e05780a9b94ed1975bf0
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2925,7 +2934,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-tapscript-isopsuccess
-    certificate: e175effde54a2455ffd3be6e18bacbe2d3a4ed65d1550ec8a8eef3514b739583
+    certificate: ba3ce148c6f7b2e2ce831a52b528b19d44642074902cd755dba0357f23cb29c1
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -2985,7 +2994,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-checksigadd
-    certificate: ba9bc48e8c781b35068bfb96cbf7d5ca85a75972c51ada624c77f94c6a4bc226
+    certificate: 80c72ce6001938e6a734c8654d3f67282b696ee5417c58d5fe7d277b2c641f80
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3004,7 +3013,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-checksigadd
-    certificate: ba9bc48e8c781b35068bfb96cbf7d5ca85a75972c51ada624c77f94c6a4bc226
+    certificate: 80c72ce6001938e6a734c8654d3f67282b696ee5417c58d5fe7d277b2c641f80
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3023,7 +3032,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-pubkey-triage
-    certificate: fe045a2bd1084d0cf97d09a6d1139275ce6d4b1d5e78854225d401eefdd41f10
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3042,7 +3051,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-pubkey-triage
-    certificate: fe045a2bd1084d0cf97d09a6d1139275ce6d4b1d5e78854225d401eefdd41f10
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3061,7 +3070,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-pubkey-triage
-    certificate: fe045a2bd1084d0cf97d09a6d1139275ce6d4b1d5e78854225d401eefdd41f10
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3080,7 +3089,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-schnorr-shape
-    certificate: e6be835747d0faee2c94d810678d5d3b0dd68d6fb8c36d1c502be65555afe572
+    certificate: ddc02bf5f2de9be4bd4fc8dd5a7aa835cd1df07eb339ba10244e55ab6eafec3c
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3099,7 +3108,7 @@ rows:
   alive2:
     result: green
     cell: tapscript/C-L-w32-schnorr-shape
-    certificate: e6be835747d0faee2c94d810678d5d3b0dd68d6fb8c36d1c502be65555afe572
+    certificate: ddc02bf5f2de9be4bd4fc8dd5a7aa835cd1df07eb339ba10244e55ab6eafec3c
     note: Transformation seems to be correct!
   saw:
     result: green
@@ -3487,7 +3496,7 @@ rows:
   saw:
     result: green
     cell: tapscript-reimport/C-L-tapscript-reimport
-    certificate: 2f9ac767709d270c304021f8942b2f4d4c5ff83467b30c59ab72697f54659b9b
+    certificate: 0389ffd8e16129e0eca54ab9fbd4b9e67c8b105bd7606f405976fa3592c3c497
     note: Proof succeeded! cell_tapscript_minimalif
   status: both-green
   gap_note: null
