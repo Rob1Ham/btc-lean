@@ -20,7 +20,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 EQ = ROOT / "spec" / "equiv"
 CELLS = EQ / "cells"
-SKIP_PARTS = {"build", "__pycache__", ".git"}
+SKIP_PARTS = {"__pycache__", ".git"}
+
+
+def is_build_part(part: str) -> bool:
+    return part == "build" or part.startswith("build-")
+
+
+def skipped(path: Path) -> bool:
+    return any(part in SKIP_PARTS or is_build_part(part) for part in path.parts)
 TEXT_SUFFIXES = {
     ".md", ".sh", ".cpp", ".c", ".h", ".hpp", ".cry", ".saw", ".ll",
     ".bc", ".json", ".yaml", ".yml", ".txt", ".out", ".hex", ".py",
@@ -37,7 +45,7 @@ def digest(path: Path) -> str:
 
 
 def wanted(path: Path) -> bool:
-    if any(part in SKIP_PARTS for part in path.parts):
+    if skipped(path):
         return False
     if path.name == "certificate.sha256":
         return False
@@ -68,7 +76,7 @@ def old_paths(cert: Path) -> set[Path]:
         if rel.startswith("/") or not rel:
             continue
         p = ROOT / rel
-        if not p.is_file() or any(part in SKIP_PARTS for part in Path(rel).parts):
+        if not p.is_file() or skipped(Path(rel)):
             continue
         if p.stat().st_size > 5 * 1024 * 1024:
             continue
@@ -83,7 +91,7 @@ def main() -> int:
     changed = 0
     missing = 0
     for cert in sorted(CELLS.rglob("certificate.sha256")):
-        if "build" in cert.parts or "__pycache__" in cert.parts:
+        if skipped(cert):
             continue
         cell = cert.parent.parent
         if cell.name == "divergence":
