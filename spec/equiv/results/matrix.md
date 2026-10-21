@@ -8,6 +8,8 @@ Regenerate with `python3 spec/equiv/results/scripts/build_matrix.py`; check with
 
 > For all inputs in the harness domain, **if** the pinned front-ends, the LLVM IR semantics implemented by Alive2 and SAW/Crucible, the SMT solvers, the shims, the twin generator/transliteration, and the same-crypto premise are sound, **then** the Core slice and the Lean-derived twin agree on verdict and error kind.  All recorded cells are C/L; no R cell exists and the R lane is advisory/blocked.
 
+> Direction caveat: `hash-ops/C-L-hash-widths` and `hash-ops/C-L-hash-compose` record only `L ⊑ C`.  SCR-095 therefore rests on one-directional hash evidence; it is not a bidirectional C/L equivalence claim.  All other cited cells record both directions.
+
 This is a **conditional evidence statement**, not a Lean-kernel theorem, not a machine-backend/linker/OS result, and not a claim about libsecp256k1 internals. A row is covered only by a validated cell record with a recorded tool success, or by a filed gap/seam with a named blocker. `planned` is not coverage.
 
 ## Trust base (named)

@@ -354,6 +354,13 @@ def build_markdown(
     )
     lines.append("")
     lines.append(
+        "> Direction caveat: `hash-ops/C-L-hash-widths` and "
+        "`hash-ops/C-L-hash-compose` record only `L ⊑ C`.  SCR-095 therefore "
+        "rests on one-directional hash evidence; it is not a bidirectional "
+        "C/L equivalence claim.  All other cited cells record both directions."
+    )
+    lines.append("")
+    lines.append(
         "This is a **conditional evidence statement**, not a Lean-kernel "
         "theorem, not a machine-backend/linker/OS result, and not a claim "
         "about libsecp256k1 internals. A row is covered only by a validated "
