@@ -37,6 +37,7 @@ whole-engine equivalence proof; the limits are below.
 | Filed `gap` | 25 |
 | Malformed cell records | 0 |
 | `make gate-ir-pin` | PASS (344 certificates, 0 failures, 0 warnings) |
+| `make equiv` | PASS (164 cells, 164 with >=1 green tool, 0 red, 0 TODO) |
 | `coverage_report.py --strict` | PASS — all 183 rows adjudicated |
 
 Green rows by family (authoritative list is `results/matrix.md`):

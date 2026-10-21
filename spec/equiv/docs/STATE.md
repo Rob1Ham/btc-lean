@@ -52,6 +52,7 @@ Commands at this snapshot:
 make pins          -> RESULT: OK (pins complete and tool probes passed)
 make e0            -> RESULT: PASS (E0_TRIPLE_OK; 4/4 tapes)
 make gate-ir-pin   -> RESULT: PASS (344 certificates, 0 failures, 0 warnings)
+make equiv         -> PASS (164 cells, 0 red, 0 TODO)
 coverage_report.py --strict -> PASS; all 183 SCR rows adjudicated
 cert_repro_check.py --rev HEAD --fuzz 0 -> PASS (all cell certs + manifests)
 make gate-repro    -> PASS
