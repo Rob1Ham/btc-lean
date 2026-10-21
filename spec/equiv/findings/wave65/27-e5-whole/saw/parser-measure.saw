@@ -1,0 +1,105 @@
+// wave65/27-e5-whole -- IR-level parser measure lemmas for the EvalScript
+// dispatch-loop ranking (and for the other GetOp loops at
+// interpreter.cpp:257, :1288, :1294, :1851, which use the 2-arg GetOp).
+//
+// Module: build/parser-measure.bc = real script.cpp at Core pin
+//   cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66 (sha256 657530a8...) linked with
+//   harness/measure.cpp (calls the real GetScriptOp with pvchRet = nullptr and
+//   returns `pc' - pc` computed by the real const_iterator::operator-).
+//
+// Claim shape, for each opcode class of GetScriptOp (script.cpp:313-363):
+//   ok        => consumed = 1 + prefix(len) + n, opcode = op, buffer untouched
+//   not ok    => consumed = 0
+// The five classes below are exhaustive over the first byte 0..255:
+//   0..75 (direct push), 76 (PUSHDATA1), 77 (PUSHDATA2), 78 (PUSHDATA4),
+//   79..255 (non-push).  Payload length n is symbolic up to
+//   MAX_SCRIPT_ELEMENT_SIZE = 520.  What is *not* proved: the pvchRet != null
+//   call used by EvalScript (interpreter.cpp:455); see README section 4.
+m <- llvm_load_module "/tmp/opencode/wave65/27-e5-whole/spec/equiv/findings/wave65/27-e5-whole/build/parser-measure.bc";
+let f = "w65_gso_consumed";
+
+// --- 1. direct push: opcode byte k in 0..75, n = k -------------------------
+let direct = do {
+  tail1 <- llvm_fresh_var "tail1" (llvm_array 520 (llvm_int 8));
+  k    <- llvm_fresh_var "k" (llvm_int 8);
+  a    <- llvm_alloc_aligned 8 (llvm_array 521 (llvm_int 8));
+  op   <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+  llvm_points_to a  (llvm_term {{ [k] # tail1 }});
+  llvm_points_to op (llvm_term {{ zero : [4][8] }});
+  llvm_precond {{ k <= 75 }};
+  llvm_execute_func [a, llvm_term {{ 521 : [32] }}, op];
+  llvm_points_to a  (llvm_term {{ [k] # tail1 }});
+  llvm_points_to op (llvm_term {{ [k, 0, 0, 0] : [4][8] }});
+  llvm_return (llvm_term {{ 1 + (zext k : [64]) }});
+};
+
+// --- 2. OP_PUSHDATA1: n symbolic in 0..255, 1-byte length -----------------
+let pushdata1 = do {
+  tail2 <- llvm_fresh_var "tail2" (llvm_array 520 (llvm_int 8));
+  n    <- llvm_fresh_var "n1" (llvm_int 8);
+  a    <- llvm_alloc_aligned 8 (llvm_array 522 (llvm_int 8));
+  op   <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+  llvm_points_to a  (llvm_term {{ [76] # [n] # tail2 }});
+  llvm_points_to op (llvm_term {{ zero : [4][8] }});
+  llvm_execute_func [a, llvm_term {{ 522 : [32] }}, op];
+  llvm_points_to a  (llvm_term {{ [76] # [n] # tail2 }});
+  llvm_points_to op (llvm_term {{ [76, 0, 0, 0] : [4][8] }});
+  llvm_return (llvm_term {{ 2 + (zext n : [64]) }});
+};
+
+// --- 3. OP_PUSHDATA2: LE16 length n in 0..520 -----------------------------
+let pushdata2 = do {
+  tail3 <- llvm_fresh_var "tail3" (llvm_array 520 (llvm_int 8));
+  lo   <- llvm_fresh_var "lo" (llvm_int 8);
+  hi   <- llvm_fresh_var "hi" (llvm_int 8);
+  a    <- llvm_alloc_aligned 8 (llvm_array 523 (llvm_int 8));
+  op   <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+  llvm_points_to a  (llvm_term {{ [77] # [lo] # [hi] # tail3 }});
+  llvm_points_to op (llvm_term {{ zero : [4][8] }});
+  llvm_precond {{ (zext lo : [16]) + 256 * (zext hi : [16]) <= 520 }};
+  llvm_execute_func [a, llvm_term {{ 523 : [32] }}, op];
+  llvm_points_to a  (llvm_term {{ [77] # [lo] # [hi] # tail3 }});
+  llvm_points_to op (llvm_term {{ [77, 0, 0, 0] : [4][8] }});
+  llvm_return (llvm_term {{ 3 + (zext lo : [64]) + 256 * (zext hi : [64]) }});
+};
+
+// --- 4. OP_PUSHDATA4: LE32 length n in 0..520 -----------------------------
+let pushdata4 = do {
+  tail4 <- llvm_fresh_var "tail4" (llvm_array 520 (llvm_int 8));
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  b4 <- llvm_fresh_var "b4" (llvm_int 8);
+  a  <- llvm_alloc_aligned 8 (llvm_array 525 (llvm_int 8));
+  op <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+  let n4 = {{ (zext b1 : [32]) + 256 * ((zext b2 : [32]) + 256 * ((zext b3 : [32]) + 256 * (zext b4 : [32]))) }};
+  llvm_points_to a  (llvm_term {{ [78] # [b1] # [b2] # [b3] # [b4] # tail4 }});
+  llvm_points_to op (llvm_term {{ zero : [4][8] }});
+  llvm_precond {{ n4 <= 520 }};
+  llvm_execute_func [a, llvm_term {{ 525 : [32] }}, op];
+  llvm_points_to a  (llvm_term {{ [78] # [b1] # [b2] # [b3] # [b4] # tail4 }});
+  llvm_points_to op (llvm_term {{ [78, 0, 0, 0] : [4][8] }});
+  llvm_return (llvm_term {{ 5 + (zext n4 : [64]) }});
+};
+
+// --- 5. non-push opcode: op in 79..255, no operand ------------------------
+let nonpush = do {
+  tail5 <- llvm_fresh_var "tail5" (llvm_array 521 (llvm_int 8));
+  opc  <- llvm_fresh_var "opc" (llvm_int 8);
+  a    <- llvm_alloc_aligned 8 (llvm_array 522 (llvm_int 8));
+  op   <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+  llvm_points_to a  (llvm_term {{ [opc] # tail5 }});
+  llvm_points_to op (llvm_term {{ zero : [4][8] }});
+  llvm_precond {{ 79 <= opc }};
+  llvm_execute_func [a, llvm_term {{ 522 : [32] }}, op];
+  llvm_points_to a  (llvm_term {{ [opc] # tail5 }});
+  llvm_points_to op (llvm_term {{ [opc, 0, 0, 0] : [4][8] }});
+  llvm_return (llvm_term {{ 1 : [64] }});
+};
+
+t1 <- llvm_verify m f [] false direct    z3;
+t2 <- llvm_verify m f [] false pushdata1 z3;
+t3 <- llvm_verify m f [] false pushdata2 z3;
+t4 <- llvm_verify m f [] false pushdata4 z3;
+t5 <- llvm_verify m f [] false nonpush   z3;
+print "PARSER_MEASURE_5_OF_5_DONE";

@@ -1,0 +1,34 @@
+module CellVwZero where
+
+// Independent specification of the BIP342 tapscript CHECKSIG validation
+// weight rule (SCR-168), written from BIP342/the row text:
+//   - non-empty signature: budget -= 50, and the script FAILS only if the
+//     result is strictly negative (so exactly 0 is accepted);
+//   - empty signature: no decrement, success := false;
+//   - empty pubkey fails; 32-byte pubkey defers to Schnorr; any other
+//     non-empty key version is accepted at flags = 0.
+// Observable (cell harness): bit0 = continues, bits1..7 = error,
+// bit8 = success, bits16..47 = budget as int32 two's complement.
+
+pk : [1] -> [8] -> [1] -> [64] -> [64]
+pk cont err success vw =
+  ((zext cont) : [64]) || (((zext err) : [64]) << 1)
+    || (((zext success) : [64]) << 8) || (((zext (drop vw : [32])) : [64]) << 16)
+
+fail : [8] -> [64] -> [64]
+fail e v = pk 0 e 0 v
+
+okp : [1] -> [1] -> [64] -> [64]
+okp c s v = pk c 0 s v
+
+evalCs : [32] -> [32] -> [64] -> [32] -> [64]
+evalCs sigLen pkLen vw ok =
+  if (vw <$ 0) || (4000050 <$ vw) then 0x00000000deadbeef
+  else if sigLen != 0 then
+    if (vw - 50) <$ 0 then fail 49 (vw - 50)
+    else if pkLen == 0 then fail 52 (vw - 50)
+    else if pkLen == 32 then
+      if ok != 0 then okp 1 1 (vw - 50) else fail 47 (vw - 50)
+    else okp 1 1 (vw - 50)
+  else if pkLen == 0 then fail 52 vw
+  else okp 1 0 vw

@@ -1,0 +1,93 @@
+# cell: control-flow/C-L-casttobool-full
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# domain: symbolic n, n <= 520 (MAX_SCRIPT_ELEMENT_SIZE)
+# build: build/build.txt
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_cast_arb.ll build/l_cell_cast_arb.ll
+
+----------------------------------------
+define i32 @cell_cast_arb(ptr noundef %vch, i32 noundef %n) nofree memory(argmem: read, inaccessiblemem: write) {
+entry:
+  %cmp = icmp ult i32 noundef %n, 521
+  assume i1 %cmp
+  %cmp.i.not3.not = icmp eq i32 noundef %n, 0
+  br i1 %cmp.i.not3.not, label %_ZL17core_cast_to_boolPKhj.exit, label %for.body.i.preheader
+
+for.body.i.preheader:
+  %wide.trip.count = zext nneg i32 noundef %n to i64
+  br label %for.body.i
+
+for.body.i:
+  %indvars.iv = phi i64 [ 0, %for.body.i.preheader ], [ %indvars.iv.next, %for.inc.i ]
+  %arrayidx.i = gep inbounds nuw ptr noundef %vch, 1 x i64 %indvars.iv
+  %#0 = load i8, ptr %arrayidx.i, align 1
+  %cmp1.not.i = icmp eq i8 %#0, 0
+  br i1 %cmp1.not.i, label %for.inc.i, label %if.then.i
+
+for.inc.i:
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %exitcond.not = icmp eq i64 %indvars.iv.next, %wide.trip.count
+  br i1 %exitcond.not, label %_ZL17core_cast_to_boolPKhj.exit, label %for.body.i
+
+if.then.i:
+  %#1 = trunc nsw nuw i64 %indvars.iv to i32
+  %sub.i = add nsw i32 noundef %n, 4294967295
+  %cmp2.i = icmp ne i32 %sub.i, %#1
+  %cmp6.i = icmp ne i8 %#0, 128
+  %or.cond.i.not = or i1 %cmp2.i, %cmp6.i
+  %#2 = zext i1 %or.cond.i.not to i32
+  br label %_ZL17core_cast_to_boolPKhj.exit
+
+_ZL17core_cast_to_boolPKhj.exit:
+  %spec.select.i = phi i32 [ %#2, %if.then.i ], [ 0, %entry ], [ 0, %for.inc.i ]
+  %#range_0_%spec.select.i = !range i32 %spec.select.i, i32 0, i32 2
+  ret i32 %#range_0_%spec.select.i
+}
+=>
+define i32 @cell_cast_arb(ptr noundef %vch, i32 noundef %n) nofree memory(argmem: read, inaccessiblemem: write) {
+entry:
+  %cmp = icmp ult i32 noundef %n, 521
+  assume i1 %cmp
+  %cmp.not17.not.i = icmp eq i32 noundef %n, 0
+  br i1 %cmp.not17.not.i, label %_ZN4twinL12cast_to_boolEPKhj.exit, label %for.body.preheader.i
+
+for.body.preheader.i:
+  %wide.trip.count.i = zext nneg i32 noundef %n to i64
+  br label %for.body.i
+
+for.body.i:
+  %indvars.iv.i = phi i64 [ 0, %for.body.preheader.i ], [ %indvars.iv.next.i, %for.inc.i ]
+  %arrayidx.i = gep inbounds nuw ptr noundef %vch, 1 x i64 %indvars.iv.i
+  %#0 = load i8, ptr %arrayidx.i, align 1
+  %cmp1.not.i = icmp eq i8 %#0, 0
+  br i1 %cmp1.not.i, label %for.inc.i, label %if.then.i
+
+for.inc.i:
+  %indvars.iv.next.i = add nsw nuw i64 %indvars.iv.i, 1
+  %exitcond.not.i = icmp eq i64 %indvars.iv.next.i, %wide.trip.count.i
+  br i1 %exitcond.not.i, label %_ZN4twinL12cast_to_boolEPKhj.exit, label %for.body.i
+
+if.then.i:
+  %#1 = trunc nsw nuw i64 %indvars.iv.i to i32
+  %add.i = add nsw nuw i32 %#1, 1
+  %cmp2.i = icmp ne i32 %add.i, noundef %n
+  %cmp6.i = icmp ne i8 %#0, 128
+  %or.cond.not.i = or i1 %cmp6.i, %cmp2.i
+  %#2 = zext i1 %or.cond.not.i to i32
+  br label %_ZN4twinL12cast_to_boolEPKhj.exit
+
+_ZN4twinL12cast_to_boolEPKhj.exit:
+  %spec.select.i = phi i32 [ %#2, %if.then.i ], [ 0, %entry ], [ 0, %for.inc.i ]
+  %#range_0_%spec.select.i = !range i32 %spec.select.i, i32 0, i32 2
+  ret i32 %#range_0_%spec.select.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

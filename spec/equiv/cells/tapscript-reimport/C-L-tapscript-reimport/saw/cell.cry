@@ -1,0 +1,23 @@
+module PolicyCell where
+
+// Independent predicate for SCR-183 (tapscript re-import: consensus minimal-IF
+// and implicit clean-stack, both independent of the policy flags).
+// sigversion: 0 BASE, 1 WITNESS_V0, 2 TAPSCRIPT; anything else out of domain.
+// ordinals: 0 pass, 30 CLEANSTACK, 31 MINIMALIF (v0 policy, for contrast),
+//           51 TAPSCRIPT_MINIMALIF, 255 out of domain.
+tapscript_minimalif : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+tapscript_minimalif flags sv fExec vchLen vch0 =
+  if sv > 2 then 255
+  else if fExec == 0 then 0
+  else if ((sv == 2) && notMinimal) then 51
+  else if ((sv == 1) && ((((flags >> 13) % 2) == 1) && notMinimal)) then 31
+  else 0
+  where
+    b0         = vch0 % 256
+    notMinimal = (vchLen > 1) || ((vchLen == 1) && (b0 != 1))
+
+tapscript_cleanstack : [64] -> [64] -> [64] -> [64]
+tapscript_cleanstack flags sv finalLen =
+  if (sv < 1) || (sv > 2) then 255
+  else if finalLen != 1 then 30
+  else 0

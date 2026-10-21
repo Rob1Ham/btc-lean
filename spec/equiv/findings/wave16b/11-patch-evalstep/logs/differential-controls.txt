@@ -1,0 +1,44 @@
+# differential negative controls (full run: /tmp/opencode/wave16b-scratch/11-patch-evalstep-repro)
+# REF vs NEW: 12523 rows, 0 divergences (see differential-SUMMARY.txt).
+
+## control 1: one in-loop error code changed (SCRIPT_ERR_PUSH_SIZE -> BAD_OPCODE)
+diverging rows: 3
+
+545,546c545,546
+< 544 ok=0 err=6 csep=4294967295 stack= exc=none
+< 545 ok=0 err=6 csep=4294967295 stack= exc=none
+---
+> 544 ok=0 err=16 csep=4294967295 stack= exc=none
+> 545 ok=0 err=16 csep=4294967295 stack= exc=none
+1974c1974
+< 1973 ok=0 err=6 csep=4294967295 stack= exc=none
+---
+> 1973 ok=0 err=16 csep=4294967295 stack= exc=none
+
+## control 2: ++opcode_pos moved before the step (loop-carried ordering)
+diverging rows: 169; diff ranges: 142; first differences:
+
+343,344c343,344
+< 342 ok=1 err=0 csep=0 stack= exc=none
+< 343 ok=1 err=0 csep=0 stack= exc=none
+---
+> 342 ok=1 err=0 csep=1 stack= exc=none
+> 343 ok=1 err=0 csep=1 stack= exc=none
+1947,1948c1947,1948
+< 1946 ok=1 err=0 csep=2 stack=01, exc=none
+< 1947 ok=1 err=0 csep=2 stack=01, exc=none
+---
+> 1946 ok=1 err=0 csep=3 stack=01, exc=none
+> 1947 ok=1 err=0 csep=3 stack=01, exc=none
+1950,1952c1950,1952
+< 1949 ok=1 err=0 csep=2 stack=01, exc=none
+< 1950 ok=1 err=0 csep=2 stack=01, exc=none
+< 1951 ok=1 err=0 csep=2 stack=01, exc=none
+---
+> 1949 ok=1 err=0 csep=3 stack=01, exc=none
+> 1950 ok=1 err=0 csep=3 stack=01, exc=none
+> 1951 ok=1 err=0 csep=3 stack=01, exc=none
+1954,1955c1954,1955
+< 1953 ok=1 err=0 csep=2 stack=01, exc=none
+< 1954 ok=1 err=0 csep=2 stack= exc=none
+---

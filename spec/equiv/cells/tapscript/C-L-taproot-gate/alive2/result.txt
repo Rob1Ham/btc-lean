@@ -1,0 +1,67 @@
+# cell: tapscript/C-L-taproot-gate
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_cell_taproot_gate.ll build/l_cell_taproot_gate.ll
+
+===== cell_taproot_gate =====
+# c IR sha256: f2c4ff9a3f8999c2a992ae56ebd4bbafb9911b47cb617b23e6214efb404a4f55
+# l IR sha256: 15dfc31105b07736c92d8037ee0eccaf1e08d6ee4cc2e0705aa5a8101a79edd4
+
+----------------------------------------
+define i64 @cell_taproot_gate(i64 noundef %version, i64 noundef %program_len, i64 noundef %is_p2sh, i64 noundef %taproot_flag, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %program_len, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond13.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond13.i, label %if.then.i, label %_ZL14c_taproot_gatemmmmm.exit
+
+if.then.i:
+  %cmp4.i = icmp eq i64 noundef %taproot_flag, 0
+  br i1 %cmp4.i, label %_ZL14c_taproot_gatemmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp6.i = icmp eq i64 noundef %witness_n, 0
+  %. = select i1 %cmp6.i, i64 156, i64 2
+  br label %_ZL14c_taproot_gatemmmmm.exit
+
+_ZL14c_taproot_gatemmmmm.exit:
+  %retval.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.end.i ], [ 3, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 157
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_taproot_gate(i64 noundef %version, i64 noundef %program_len, i64 noundef %is_p2sh, i64 noundef %taproot_flag, i64 noundef %witness_n) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %program_len, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %is_p2sh, 0
+  %or.cond13.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond13.i, label %if.then.i, label %_ZL14l_taproot_gatemmmmm.exit
+
+if.then.i:
+  %cmp4.i = icmp eq i64 noundef %taproot_flag, 0
+  br i1 %cmp4.i, label %_ZL14l_taproot_gatemmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp6.i = icmp eq i64 noundef %witness_n, 0
+  %. = select i1 %cmp6.i, i64 156, i64 2
+  br label %_ZL14l_taproot_gatemmmmm.exit
+
+_ZL14l_taproot_gatemmmmm.exit:
+  %retval.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.end.i ], [ 3, %entry ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 157
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

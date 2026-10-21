@@ -1,0 +1,53 @@
+module CellLocktimeInputIndex where
+
+// Independent specification for SCR-132, written from the Core text
+// (interpreter.cpp:1754-1836) and the Lean environment rule
+// (Interpreter/Rules.lean:87-129).  It shares no code with either leg.
+//
+// The row's claim is input locality: the verdict is a function of the
+// `nIn`-th vin slot only.  Each predicate takes both slots and the index and
+// reads exactly one of them; the other is unconstrained.
+
+threshold : [64]
+threshold = 0x000000001dcd6500   // LOCKTIME_THRESHOLD = 500_000_000
+
+type_flag : [64]
+type_flag = 0x0000000000400000   // SEQUENCE_LOCKTIME_TYPE_FLAG = 1 << 22
+
+is_neg : [64] -> Bit
+is_neg n = (n && 0x8000000000000000) != 0
+
+agree : [64] -> [64] -> Bit
+agree a b = ((a < threshold) && (b < threshold)) || ((a >= threshold) && (b >= threshold))
+
+// BIP68 splits at TYPE_FLAG, not at LOCKTIME_THRESHOLD.
+agree_seq : [64] -> [64] -> Bit
+agree_seq a b = ((a < type_flag) && (b < type_flag)) || ((a >= type_flag) && (b >= type_flag))
+
+// CheckLockTime: type agreement, numeric compare against txTo->nLockTime,
+// then the SEQUENCE_FINAL test on vin[nIn].  The harness sentinel -1 marks
+// the operand < 0 case, which the opcode rejects before the checker.
+cltv_core : [32] -> [64] -> [32] -> [32]
+cltv_core txlt n s =
+  if is_neg n then 0xffffffff
+  else if ~ (agree (zext txlt) n) then 0
+  else if n > zext txlt then 0
+  else if s == 0xffffffff then 0
+  else 1
+
+cltv : [32] -> [64] -> [32] -> [32] -> Bit -> [32]
+cltv txlt n s0 s1 nin = cltv_core txlt n (if nin then s1 else s0)
+
+// CheckSequence: version gate, disable flag, BIP68 mask, type agreement and
+// the masked numeric compare, all on vin[nIn].nSequence.
+csv_core : [32] -> [64] -> [32] -> [32]
+csv_core ver n s =
+  if is_neg n then 0xffffffff
+  else if ver < 2 then 0
+  else if (s && 0x80000000) != 0 then 0
+  else if ~ (agree_seq (zext (s && 0x0040ffff)) (n && 0x000000000040ffff)) then 0
+  else if (n && 0x000000000040ffff) > zext (s && 0x0040ffff) then 0
+  else 1
+
+csv : [32] -> [64] -> [32] -> [32] -> Bit -> [32]
+csv ver n s0 s1 nin = csv_core ver n (if nin then s1 else s0)

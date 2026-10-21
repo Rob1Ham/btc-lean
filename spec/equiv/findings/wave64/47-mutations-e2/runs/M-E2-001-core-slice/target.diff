@@ -1,0 +1,12 @@
+--- a/spec/equiv/cells/control-flow/C-L-casttobool/src/c_leaf.cpp
++++ b/spec/equiv/cells/control-flow/C-L-casttobool/src/c_leaf.cpp
+@@ -25,8 +25,7 @@
+ BINLINE bool core_cast_to_bool(const uint8_t* vch, unsigned int n) {
+   for (unsigned int i = 0; i < n; i++) {
+     if (vch[i] != 0) {
+-      if (i == n - 1 && vch[i] == 0x80)
+-        return false;
++      // M-E2-001 mutant: negative zero is treated as true
+       return true;
+     }
+   }

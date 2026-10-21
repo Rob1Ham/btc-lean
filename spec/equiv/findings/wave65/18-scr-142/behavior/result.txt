@@ -1,0 +1,19 @@
+# probe: findings/wave65/18-scr-142/behavior
+# compiler: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: behavior/build/driver
+
+# SCR-142 pin (cce32b168) vs historical BIP9 model (TPR-078)
+# packed = result(2) | error(6)<<2 | taproot_on<<8
+# v1-32 non-P2SH unless stated; wn = witness item count
+
+non-exc h=709631 wn=0 (last pre-activation)          pin=0x19c model=0x001  DIFF
+non-exc h=709631 wn=2                                pin=0x102 model=0x001  DIFF
+non-exc h=709632 wn=0 (activation)                   pin=0x19c model=0x19c  SAME
+non-exc h=709632 wn=2                                pin=0x102 model=0x102  SAME
+taproot exc (..1e395ad) h=692261 wn=0                pin=0x001 model=0x001  SAME
+taproot exc (..1e395ad) h=709632 wn=0                pin=0x001 model=0x001  SAME
+bip16 exc (..4f9c22) h=170060 wn=0                   pin=0x001 model=0x001  SAME
+non-exc h=709631 v1 plen=31                          pin=0x103 model=0x003  DIFF
+non-exc h=709631 v1 plen=32 p2sh=1                   pin=0x103 model=0x003  DIFF
+non-exc h=709631 v0 plen=32                          pin=0x103 model=0x003  DIFF
+non-exc h=0 wn=0 (genesis-height shape)              pin=0x19c model=0x001  DIFF

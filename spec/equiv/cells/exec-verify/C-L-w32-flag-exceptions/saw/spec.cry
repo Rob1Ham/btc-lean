@@ -1,0 +1,55 @@
+module spec where
+
+// SCR-016: the two named mainnet script_flag_exceptions
+// (kernel/chainparams.cpp:115-118, Bitcoin.Activation.Flags.lean:50-76) and
+// the flags GetBlockScriptFlags returns for those two blocks.
+//
+// encodings: exc_select 0 = none, 1 = BIP16 entry (NONE), 2 = taproot entry
+// (P2SH|WITNESS).  Flag words use the pinned bit values
+// (P2SH=0x1, DERSIG=0x4, NULLDUMMY=0x10, CLTV=0x200, CSV=0x400, WITNESS=0x800,
+// TAPROOT=0x20000).
+bip16_h : [4][64]
+bip16_h = [0x00000000000002dc, 0x756eebf4f49723ed,
+           0x8d30cc28a5f108eb, 0x94b1ba88ac4f9c22]
+
+taproot_h : [4][64]
+taproot_h = [0x0000000000000000, 0x000f14c35b2d841e,
+             0x986ab5441de8c585, 0xd5ffe55ea1e395ad]
+
+exc_select : [64] -> [64] -> [64] -> [64] -> [64]
+exc_select h0 h1 h2 h3 =
+  if is_bip16 then 1 else if is_taproot then 2 else 0
+  where
+    is_bip16 = (h0 == (0x00000000000002dc : [64])) &&
+               (h1 == (0x756eebf4f49723ed : [64])) &&
+               (h2 == (0x8d30cc28a5f108eb : [64])) &&
+               (h3 == (0x94b1ba88ac4f9c22 : [64]))
+    is_taproot = (h0 == (0x0000000000000000 : [64])) &&
+                 (h1 == (0x000f14c35b2d841e : [64])) &&
+                 (h2 == (0x986ab5441de8c585 : [64])) &&
+                 (h3 == (0xd5ffe55ea1e395ad : [64]))
+
+// Buried ORs for a height (validation.cpp:2267-2285).
+buried_ors : [32] -> [64]
+buried_ors height =
+  (if height >= (363725 : [32]) then 0x0000000000000004 else 0) ||
+  (if height >= (388381 : [32]) then 0x0000000000000200 else 0) ||
+  (if height >= (419328 : [32]) then 0x0000000000000400 else 0) ||
+  (if height >= (481824 : [32]) then 0x0000000000000010 else 0)
+
+// BIP16 exception hash: base SCRIPT_VERIFY_NONE, then the buried ORs.
+flags_bip16_at : [32] -> [64]
+flags_bip16_at height = buried_ors height
+
+// Taproot exception hash: base P2SH|WITNESS, then the buried ORs.
+// TAPROOT is never set for this hash.
+flags_taproot_at : [32] -> [64]
+flags_taproot_at height = 0x0000000000000801 || buried_ors height
+
+// Named blocks: 170060 (pre all buried heights, so NONE) and 692261
+// (post all four, so P2SH|WITNESS|DERSIG|CLTV|CSV|NULLDUMMY = 0xe15).
+flags_bip16_named : [64]
+flags_bip16_named = 0x0000000000000000
+
+flags_taproot_named : [64]
+flags_taproot_named = 0x0000000000000e15

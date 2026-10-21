@@ -1,0 +1,34 @@
+# cell: policy-flags/C-L-flag-source
+# expectations written from validation.cpp:2249-2284 and policy.h:104-133
+# at pin cce32b168; C and L legs are linked side by side
+none / 0 (pre-BIP66)                       C=0x20801 L=0x20801 want=0x20801 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+none / 363724 (BIP66-1)                    C=0x20801 L=0x20801 want=0x20801 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+none / 363725 (BIP66)                      C=0x20805 L=0x20805 want=0x20805 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+none / 388381 (BIP65)                      C=0x20a05 L=0x20a05 want=0x20a05 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+none / 419328 (CSV)                        C=0x20e05 L=0x20e05 want=0x20e05 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+none / 481824 (segwit/NULLDUMMY)           C=0x20e15 L=0x20e15 want=0x20e15 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+BIP16 exception / 170060                   C=0x00000 L=0x00000 want=0x00000 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+taproot exception / 692261                 C=0x00e15 L=0x00e15 want=0x00e15 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+taproot exception / 0                      C=0x00801 L=0x00801 want=0x00801 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+unknown class 3 / 481824                   C=0x20e15 L=0x20e15 want=0x20e15 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+height high bits masked off                C=0x20e15 L=0x20e15 want=0x20e15 PASS
+  policy mask                              C=0x00000 L=0x00000 want=0x00000 PASS
+block flags: high-S at 481824              C=0x00000 L=0x00000 want=0x00000 PASS
+block flags: high-S at BIP16 170060        C=0x00000 L=0x00000 want=0x00000 PASS
+block flags: invalid DER at 481824 (DERSIG) C=0x00018 L=0x00018 want=0x00018 PASS
+block flags: OP_CODESEPARATOR at 481824    C=0x00000 L=0x00000 want=0x00000 PASS
+block flags: FindAndDelete at 481824       C=0x00000 L=0x00000 want=0x00000 PASS
+block flags: out-of-domain found=2         C=0x000ff L=0x000ff want=0x000ff PASS
+standard policy mask                       C=0x10008 L=0x10008 want=0x10008 PASS
+mandatory policy mask                      C=0x00000 L=0x00000 want=0x00000 PASS
+concrete vectors: ALL PASS

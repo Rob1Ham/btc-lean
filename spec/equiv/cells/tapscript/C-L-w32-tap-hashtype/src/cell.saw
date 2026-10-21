@@ -1,0 +1,38 @@
+import "cell.cry";
+
+// SCR-163: both legs are verified against the same independent Cryptol
+// predicate for every 8-bit hashtype (2^8 values).
+mC0 <- llvm_load_module "c_cell_ht_valid.bc";
+mL0 <- llvm_load_module "l_cell_ht_valid.bc";
+let spec0 = do {
+  ht <- llvm_fresh_var "ht" (llvm_int 8);
+  llvm_execute_func [llvm_term ht];
+  llvm_return (llvm_term {{ htValid ht }});
+};
+llvm_verify mC0 "cell_ht_valid" [] false spec0 z3;
+llvm_verify mL0 "cell_ht_valid" [] false spec0 z3;
+
+// SCR-165: every 32-bit signature size and every 8-bit trailing byte.
+mC1 <- llvm_load_module "c_cell_sig_to_ht.bc";
+mL1 <- llvm_load_module "l_cell_sig_to_ht.bc";
+let spec1 = do {
+  size <- llvm_fresh_var "size" (llvm_int 32);
+  last <- llvm_fresh_var "last" (llvm_int 8);
+  llvm_execute_func [llvm_term size, llvm_term last];
+  llvm_return (llvm_term {{ sigToHt size last }});
+};
+llvm_verify mC1 "cell_sig_to_ht" [] false spec1 z3;
+llvm_verify mL1 "cell_sig_to_ht" [] false spec1 z3;
+
+// SCR-165 (DEFAULT=>ALL): every 8-bit hashtype.
+mC2 <- llvm_load_module "c_cell_output_type.bc";
+mL2 <- llvm_load_module "l_cell_output_type.bc";
+let spec2 = do {
+  ht <- llvm_fresh_var "ht2" (llvm_int 8);
+  llvm_execute_func [llvm_term ht];
+  llvm_return (llvm_term {{ outType64 ht }});
+};
+llvm_verify mC2 "cell_output_type" [] false spec2 z3;
+llvm_verify mL2 "cell_output_type" [] false spec2 z3;
+
+print "CELL_W32_HASHTYPE_SAW_GREEN";

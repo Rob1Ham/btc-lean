@@ -1,0 +1,48 @@
+module CellBadOpcode where
+
+// Independent Cryptol specification of the BAD_OPCODE rows.
+//
+// Core: src/script/interpreter.cpp:459-463 (opcode budget), :493 (dispatch
+// gate), :1227-1228 (default: BAD_OPCODE).
+//
+// `op` selects the wire opcode: 0 = OP_RESERVED (0x50), 1 = OP_VER (0x62),
+// 2 = OP_VERIF (0x65), 3 = OP_VERNOTIF (0x66).
+//
+//   * the budget is charged before dispatch: BASE/WITNESS_V0 and wire > 0x60
+//     increments opCount; 202 or more is OP_COUNT (7);
+//   * opcodes in [OP_IF..OP_ENDIF] (0x63..0x68) are dispatched even when
+//     fExec is false, so OP_VERIF/OP_VERNOTIF are BAD_OPCODE (16) in an
+//     unexecuted branch;
+//   * OP_RESERVED/OP_VER are skipped when fExec is false, and BAD_OPCODE when
+//     executed;
+//   * OP_VER is > OP_16, so an unexecuted OP_VER still charges the budget.
+//
+// Observable: result(2) | error(6) | opCount(9)@8.
+
+to64 : [32] -> [64]
+to64 x = zext x
+
+packObs : [32] -> [32] -> [64]
+packObs err oc =
+  ((if err == 0 then 1 else 0) : [64]) ||
+  (to64 (err && (63 : [32])) << 2) ||
+  (to64 (oc && (511 : [32])) << 8)
+
+// The selector is two bits; higher bits are ignored by both leaves.
+wire : [32] -> [32]
+wire op = if sel == 1 then (98 : [32])
+          else if sel == 2 then (101 : [32])
+          else if sel == 3 then (102 : [32])
+          else (80 : [32])
+  where sel = op && (3 : [32])
+
+step : [32] -> [32] -> [32] -> [32] -> [64]
+step op fexec sv opcount =
+  packObs err nc
+  where
+    w = wire op
+    counts = (sv == 0 \/ sv == 1) /\ ((96 : [32]) < w)
+    nc = opcount + (if counts then 1 else 0)
+    err = if counts /\ ((201 : [32]) < nc) then 7
+          else if (fexec != 0) \/ (((99 : [32]) <= w) && (w <= (104 : [32]))) then 16
+          else 0

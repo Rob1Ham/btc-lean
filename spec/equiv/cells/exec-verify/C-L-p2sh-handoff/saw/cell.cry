@@ -1,0 +1,79 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-p2sh-handoff.
+//
+// Read off spec.md, which is read off script.cpp:224-232 and
+// interpreter.cpp:2032-2033, 2062-2078 at pin cce32b168.  Error ordinals:
+// EV_UNKNOWN_ERROR 1 (contract/error_kind.h).
+//
+// Observable: verdict(2) | error(6)<<2 | depth(2)<<8 | item0<<10 |
+//   item1<<18 | item2<<26 | redeem<<34 | restored<<42 ; verdict 0 = fail,
+//   1 = handoff completed, 3 = out-of-model marker.  Stack items are in
+//   Core's bottom-to-top order.
+
+one : [64]
+one = 0x0000000000000001
+zero : [64]
+zero = 0x0000000000000000
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m2 : [64] -> [64]
+m2 x = x && 0x0000000000000003
+m6 : [64] -> [64]
+m6 x = x && 0x000000000000003f
+m8 : [64] -> [64]
+m8 x = x && 0x00000000000000ff
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2)
+
+pack_h : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pack_h r e n b0 b1 b2 redeem restored =
+  pack r e || ((n && 0x0000000000000003) << 8) ||
+  ((b0 && 0x00000000000000ff) << 10) ||
+  ((b1 && 0x00000000000000ff) << 18) ||
+  ((b2 && 0x00000000000000ff) << 26) ||
+  ((redeem && 0x00000000000000ff) << 34) ||
+  ((restored && 0x0000000000000001) << 42)
+
+// CScript::IsPayToScriptHash (script.cpp:224-232):
+//   size = 23 ∧ b[0] = OP_HASH160 ∧ b[1] = 20 ∧ b[22] = OP_EQUAL.
+p2sh_shape : [64] -> [64] -> [64] -> [64] -> [64]
+p2sh_shape len b0 b1 bl =
+  if m6 len == 0x0000000000000017 /\
+     m8 b0 == 0x00000000000000a9 /\
+     m8 b1 == 0x0000000000000014 /\
+     m8 bl == 0x0000000000000087
+    then one else zero
+
+// stack.back() after `swap(stack, stackCopy)`, i.e. the top of the captured
+// post-scriptSig stack (Core order: t0 bottom ... t{sn-1} top).
+top_of : [64] -> [64] -> [64] -> [64] -> [64]
+top_of sn t0 t1 t2 =
+  if m2 sn == 0x0000000000000001 then m8 t0
+  else if m2 sn == 0x0000000000000002 then m8 t1
+  else m8 t2
+
+// The prefix left after `popstack`, bottom-to-top (rest_n = sn - 1).
+prefix0 : [64] -> [64] -> [64] -> [64] -> [64]
+prefix0 sn t0 _ _ =
+  if m2 sn == 0x0000000000000002 then m8 t0
+  else if m2 sn == 0x0000000000000003 then m8 t0
+  else zero
+
+prefix1 : [64] -> [64] -> [64] -> [64] -> [64]
+prefix1 sn _ t1 _ =
+  if m2 sn == 0x0000000000000003 then m8 t1 else zero
+
+handoff : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+handoff p2sh shape sn t0 t1 t2 =
+  if (m1 p2sh && m1 shape) == zero then
+    pack_h 0x0000000000000003 zero zero zero zero zero zero zero
+  else if m2 sn == zero then
+    // Core: assert(!stack.empty()) at 2074; Lean: .fail .unknownError.
+    pack_h 0x0000000000000003 zero zero zero zero zero zero zero
+  else
+    pack_h one zero (m2 sn - one)
+      (prefix0 sn t0 t1 t2) (prefix1 sn t0 t1 t2) zero
+      (top_of sn t0 t1 t2) one

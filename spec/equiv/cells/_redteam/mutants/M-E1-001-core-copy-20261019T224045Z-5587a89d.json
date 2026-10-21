@@ -1,0 +1,36 @@
+{
+  "applied_at_utc": "2026-10-19T22:40:45+00:00",
+  "catalogue_version": "0.1-planned",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": null,
+  "description": "OP_SWAP becomes a no-op (top two not exchanged)",
+  "diff": "--- a/spec/equiv/cells/_tools/gate/c_leaf.cpp\n+++ b/spec/equiv/cells/_tools/gate/c_leaf.cpp\n@@ -38,10 +38,7 @@\n }\n BINLINE uint32_t core_swap(BStack& s) {\n   if (s.n < 2) return 18;                       // 863-869\n-  const uint32_t a = s.n - 2, b = s.n - 1;\n-  const uint32_t la=s.len[a], va=s.val[a];\n-  s.len[a]=s.len[b]; s.val[a]=s.val[b];\n-  s.len[b]=la; s.val[b]=va;\n+  return 0; // M-E1-001 core-slice mutant: OP_SWAP no-op\n   return 0;\n }\n BINLINE uint32_t core_dup(BStack& s) {\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/e1-stack/swap-order"
+  ],
+  "family": "e1-stack",
+  "find": "  const uint32_t a = s.n - 2, b = s.n - 1;\n  const uint32_t la=s.len[a], va=s.val[a];\n  s.len[a]=s.len[b]; s.val[a]=s.val[b];\n  s.len[b]=la; s.val[b]=va;",
+  "git_head": "4d62a97e551082a69b13f495365bff0a903b0c99",
+  "log_hashes": [],
+  "mutant_id": "M-E1-001",
+  "observed": null,
+  "operator": null,
+  "outcome": "pending",
+  "pins_sha256": "055e7c5867c8e08d572fadb3c31d980fe42e19356d86db79fe31392eb093e535",
+  "replace": "  return 0; // M-E1-001 core-slice mutant: OP_SWAP no-op",
+  "reverted_at_utc": null,
+  "schema": "redteam-mutant-v1",
+  "status": "applied",
+  "target": {
+    "path": "/home/ubuntu/btc-lean-public/spec/equiv/cells/_tools/gate/c_leaf.cpp",
+    "path_relative_to_repo": "spec/equiv/cells/_tools/gate/c_leaf.cpp",
+    "sha256_after": "d2f2ae313b815e0dd242f5b3890c46e320366d9a86960bf4a6525cdd157a6a53",
+    "sha256_before": "5587a89dbee08aee7a5669fe94172046220df69cac0062bff5840445da8986fe"
+  },
+  "target_kind": "core-copy",
+  "witness": null
+}

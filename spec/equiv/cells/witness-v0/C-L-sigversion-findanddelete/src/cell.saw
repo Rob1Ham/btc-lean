@@ -1,0 +1,32 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_checksig_verdict.bc";
+mL <- llvm_load_module "l_cell_checksig_verdict.bc";
+sC <- llvm_load_module "c_cell_checksig_scriptcode.bc";
+sL <- llvm_load_module "l_cell_checksig_scriptcode.bc";
+
+let spec_verdict = do {
+  sv    <- llvm_fresh_var "sigversion" (llvm_int 64);
+  found <- llvm_fresh_var "found" (llvm_int 64);
+  cflag <- llvm_fresh_var "const_scriptcode_flag" (llvm_int 64);
+  llvm_execute_func [llvm_term sv, llvm_term found, llvm_term cflag];
+  llvm_return (llvm_term {{ verdict sv found cflag }});
+};
+
+let spec_scriptcode = do {
+  sv    <- llvm_fresh_var "sigversion" (llvm_int 64);
+  found <- llvm_fresh_var "found" (llvm_int 64);
+  cflag <- llvm_fresh_var "const_scriptcode_flag" (llvm_int 64);
+  sid   <- llvm_fresh_var "script_id" (llvm_int 64);
+  fd    <- llvm_fresh_var "fd_script_id" (llvm_int 64);
+  llvm_execute_func [llvm_term sv, llvm_term found, llvm_term cflag,
+                     llvm_term sid, llvm_term fd];
+  llvm_return (llvm_term {{ scriptcode sv found cflag sid fd }});
+};
+
+llvm_verify mC "cell_checksig_verdict" [] false spec_verdict abc;
+llvm_verify mL "cell_checksig_verdict" [] false spec_verdict abc;
+llvm_verify sC "cell_checksig_scriptcode" [] false spec_scriptcode abc;
+llvm_verify sL "cell_checksig_scriptcode" [] false spec_scriptcode abc;
+
+print "CELL_SIGVERSION_FINDANDDELETE_SAW_GREEN";

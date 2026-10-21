@@ -1,0 +1,188 @@
+# cell: C-L-w32-tap-codesep-pos
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional build/c_cell_codesep_walk.ll build/l_cell_codesep_walk.ll
+
+----------------------------------------
+define i64 @cell_codesep_walk(i32 noundef %pend, i32 noundef %k0, i32 noundef %w0, i32 noundef %l0, i32 noundef %e0, i32 noundef %k1, i32 noundef %w1, i32 noundef %l1, i32 noundef %e1, i32 noundef %k2, i32 noundef %w2, i32 noundef %l2, i32 noundef %e2, i32 noundef %k3, i32 noundef %w3, i32 noundef %l3, i32 noundef %e3) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %pend, 0
+  br i1 %cmp.not, label %if.end9, label %if.then
+
+if.then:
+  %cmp1 = icmp eq i32 noundef %e0, 0
+  %cmp2 = icmp ne i32 noundef %k0, 1
+  %or.cond.not97 = or i1 %cmp2, %cmp1
+  %cmp4 = icmp ne i32 noundef %w0, 171
+  %or.cond65.not = or i1 %cmp4, %or.cond.not97
+  %spec.select = sext i1 %or.cond65.not to i32
+  %cmp6 = icmp eq i32 noundef %k0, 0
+  %add = add i32 noundef %l0, 1
+  %cond = select i1 %cmp6, i32 %add, i32 1
+  br label %if.end9
+
+if.end9:
+  %codeSepPos.1 = phi i32 [ %spec.select, %if.then ], [ 4294967295, %entry ]
+  %pc.0 = phi i32 [ %cond, %if.then ], [ 0, %entry ]
+  %opcode_pos.0 = phi i32 [ 1, %if.then ], [ 0, %entry ]
+  %cmp10 = icmp ult i32 %pc.0, noundef %pend
+  br i1 %cmp10, label %if.then11, label %if.end27
+
+if.then11:
+  %cmp12 = icmp ne i32 noundef %e1, 0
+  %cmp14 = icmp eq i32 noundef %k1, 1
+  %or.cond66 = and i1 %cmp14, %cmp12
+  %cmp16 = icmp eq i32 noundef %w1, 171
+  %or.cond67 = and i1 %cmp16, %or.cond66
+  %spec.select94 = select i1 %or.cond67, i32 %opcode_pos.0, i32 %codeSepPos.1
+  %cmp19 = icmp eq i32 noundef %k1, 0
+  %add21 = add i32 noundef %l1, 1
+  %cond24 = select i1 %cmp19, i32 %add21, i32 1
+  %add25 = add i32 %pc.0, %cond24
+  %add26 = add nsw nuw i32 %opcode_pos.0, 1
+  br label %if.end27
+
+if.end27:
+  %codeSepPos.3 = phi i32 [ %spec.select94, %if.then11 ], [ %codeSepPos.1, %if.end9 ]
+  %pc.1 = phi i32 [ %add25, %if.then11 ], [ %pc.0, %if.end9 ]
+  %opcode_pos.1 = phi i32 [ %add26, %if.then11 ], [ %opcode_pos.0, %if.end9 ]
+  %cmp28 = icmp ult i32 %pc.1, noundef %pend
+  br i1 %cmp28, label %if.then29, label %if.end45
+
+if.then29:
+  %cmp30 = icmp ne i32 noundef %e2, 0
+  %cmp32 = icmp eq i32 noundef %k2, 1
+  %or.cond68 = and i1 %cmp32, %cmp30
+  %cmp34 = icmp eq i32 noundef %w2, 171
+  %or.cond69 = and i1 %cmp34, %or.cond68
+  %spec.select95 = select i1 %or.cond69, i32 %opcode_pos.1, i32 %codeSepPos.3
+  %cmp37 = icmp eq i32 noundef %k2, 0
+  %add39 = add i32 noundef %l2, 1
+  %cond42 = select i1 %cmp37, i32 %add39, i32 1
+  %add43 = add i32 %pc.1, %cond42
+  %add44 = add nsw nuw i32 %opcode_pos.1, 1
+  br label %if.end45
+
+if.end45:
+  %codeSepPos.5 = phi i32 [ %spec.select95, %if.then29 ], [ %codeSepPos.3, %if.end27 ]
+  %pc.2 = phi i32 [ %add43, %if.then29 ], [ %pc.1, %if.end27 ]
+  %opcode_pos.2 = phi i32 [ %add44, %if.then29 ], [ %opcode_pos.1, %if.end27 ]
+  %cmp46 = icmp ult i32 %pc.2, noundef %pend
+  br i1 %cmp46, label %if.then47, label %if.end63
+
+if.then47:
+  %cmp48 = icmp ne i32 noundef %e3, 0
+  %cmp50 = icmp eq i32 noundef %k3, 1
+  %or.cond70 = and i1 %cmp50, %cmp48
+  %cmp52 = icmp eq i32 noundef %w3, 171
+  %or.cond71 = and i1 %cmp52, %or.cond70
+  %spec.select96 = select i1 %or.cond71, i32 %opcode_pos.2, i32 %codeSepPos.5
+  %add62 = add nsw i32 %opcode_pos.2, 1
+  br label %if.end63
+
+if.end63:
+  %codeSepPos.7 = phi i32 [ %spec.select96, %if.then47 ], [ %codeSepPos.5, %if.end45 ]
+  %opcode_pos.3 = phi i32 [ %add62, %if.then47 ], [ %opcode_pos.2, %if.end45 ]
+  %conv = zext i32 %codeSepPos.7 to i64
+  %conv64 = zext i32 %opcode_pos.3 to i64
+  %shl = shl nuw i64 %conv64, 32
+  %or = or disjoint i64 %shl, %conv
+  ret i64 %or
+}
+=>
+define i64 @cell_codesep_walk(i32 noundef %pend, i32 noundef %k0, i32 noundef %w0, i32 noundef %l0, i32 noundef %e0, i32 noundef %k1, i32 noundef %w1, i32 noundef %l1, i32 noundef %e1, i32 noundef %k2, i32 noundef %w2, i32 noundef %l2, i32 noundef %e2, i32 noundef %k3, i32 noundef %w3, i32 noundef %l3, i32 noundef %e3) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %pend, 0
+  br i1 %cmp.not, label %if.end11, label %if.then
+
+if.then:
+  %cmp1 = icmp eq i32 noundef %e0, 0
+  %cmp2 = icmp ne i32 noundef %k0, 1
+  %or.cond.not160 = or i1 %cmp2, %cmp1
+  %cmp4 = icmp ne i32 noundef %w0, 171
+  %or.cond96.not = or i1 %cmp4, %or.cond.not160
+  %spec.select = sext i1 %or.cond96.not to i32
+  %cmp6 = icmp eq i32 noundef %k0, 0
+  %add7 = add i32 noundef %l0, 1
+  %cond = select i1 %cmp6, i32 %add7, i32 1
+  br label %if.end11
+
+if.end11:
+  %st.sroa.13.0 = phi i32 [ 0, %entry ], [ 1, %if.then ]
+  %st.sroa.7.1 = phi i32 [ 4294967295, %entry ], [ %spec.select, %if.then ]
+  %pc.0 = phi i32 [ 0, %entry ], [ %cond, %if.then ]
+  %cmp12 = icmp ult i32 %pc.0, noundef %pend
+  br i1 %cmp12, label %if.then13, label %if.end38
+
+if.then13:
+  %cmp14 = icmp ne i32 noundef %e1, 0
+  %cmp16 = icmp eq i32 noundef %k1, 1
+  %or.cond97 = and i1 %cmp16, %cmp14
+  %cmp18 = icmp eq i32 noundef %w1, 171
+  %or.cond98 = and i1 %cmp18, %or.cond97
+  %spec.select157 = select i1 %or.cond98, i32 %st.sroa.13.0, i32 %st.sroa.7.1
+  %cmp29 = icmp eq i32 noundef %k1, 0
+  %add31 = add i32 noundef %l1, 1
+  %cond34 = select i1 %cmp29, i32 %add31, i32 1
+  %add35 = add i32 %pc.0, %cond34
+  %add37 = add nsw nuw i32 %st.sroa.13.0, 1
+  br label %if.end38
+
+if.end38:
+  %st.sroa.13.1 = phi i32 [ %add37, %if.then13 ], [ %st.sroa.13.0, %if.end11 ]
+  %st.sroa.7.3 = phi i32 [ %spec.select157, %if.then13 ], [ %st.sroa.7.1, %if.end11 ]
+  %pc.1 = phi i32 [ %add35, %if.then13 ], [ %pc.0, %if.end11 ]
+  %cmp39 = icmp ult i32 %pc.1, noundef %pend
+  br i1 %cmp39, label %if.then40, label %if.end65
+
+if.then40:
+  %cmp41 = icmp ne i32 noundef %e2, 0
+  %cmp43 = icmp eq i32 noundef %k2, 1
+  %or.cond99 = and i1 %cmp43, %cmp41
+  %cmp45 = icmp eq i32 noundef %w2, 171
+  %or.cond100 = and i1 %cmp45, %or.cond99
+  %spec.select158 = select i1 %or.cond100, i32 %st.sroa.13.1, i32 %st.sroa.7.3
+  %cmp56 = icmp eq i32 noundef %k2, 0
+  %add58 = add i32 noundef %l2, 1
+  %cond61 = select i1 %cmp56, i32 %add58, i32 1
+  %add62 = add i32 %pc.1, %cond61
+  %add64 = add nsw nuw i32 %st.sroa.13.1, 1
+  br label %if.end65
+
+if.end65:
+  %st.sroa.13.2 = phi i32 [ %add64, %if.then40 ], [ %st.sroa.13.1, %if.end38 ]
+  %st.sroa.7.5 = phi i32 [ %spec.select158, %if.then40 ], [ %st.sroa.7.3, %if.end38 ]
+  %pc.2 = phi i32 [ %add62, %if.then40 ], [ %pc.1, %if.end38 ]
+  %cmp66 = icmp ult i32 %pc.2, noundef %pend
+  br i1 %cmp66, label %if.then67, label %if.end92
+
+if.then67:
+  %cmp68 = icmp ne i32 noundef %e3, 0
+  %cmp70 = icmp eq i32 noundef %k3, 1
+  %or.cond101 = and i1 %cmp70, %cmp68
+  %cmp72 = icmp eq i32 noundef %w3, 171
+  %or.cond102 = and i1 %cmp72, %or.cond101
+  %spec.select159 = select i1 %or.cond102, i32 %st.sroa.13.2, i32 %st.sroa.7.5
+  %add91 = add nsw i32 %st.sroa.13.2, 1
+  br label %if.end92
+
+if.end92:
+  %st.sroa.13.3 = phi i32 [ %add91, %if.then67 ], [ %st.sroa.13.2, %if.end65 ]
+  %st.sroa.7.7 = phi i32 [ %spec.select159, %if.then67 ], [ %st.sroa.7.5, %if.end65 ]
+  %conv = zext i32 %st.sroa.7.7 to i64
+  %conv95 = zext i32 %st.sroa.13.3 to i64
+  %shl = shl nuw i64 %conv95, 32
+  %or = or disjoint i64 %shl, %conv
+  ret i64 %or
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

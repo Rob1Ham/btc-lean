@@ -1,0 +1,31 @@
+// SCR-001 CVE-2010-5141 witness on the PINNED Core IR.
+// scriptSig = {0x01}: a direct push declaring 1 data byte with 0 bytes left
+//   in the scriptSig buffer -> GetScriptOp returns false -> EvalScript sets
+//   SCRIPT_ERR_BAD_OPCODE (16). VerifyScript returns false.
+// scriptPubKey = {0x51} (OP_1), never reached.
+// If the two scripts were concatenated, the push would consume 0x51 and the
+// spend could succeed -- that is exactly the sequential-vs-concat distinction.
+m <- llvm_load_module "/tmp/opencode/wave16b/02-e5-getscriptop/spec/equiv/cells/e5-whole/PROTO-w16b-getscriptop/build/out/interp-script-roots3.bc";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     // scriptSig = {0x01}, size 1 (size i32 LE at offset 36).
+     llvm_points_to ss  (llvm_term {{ [0x01,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0] : [40][8] }});
+     // scriptPubKey = {0x51}, size 1.
+     llvm_points_to spk (llvm_term {{ [0x51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x01,0,0,0] : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     // SCRIPT_ERR_BAD_OPCODE == 16 (contract/error_enum.md).
+     llvm_points_to err (llvm_term {{ [16,0,0,0,0,0,0,0] : [8][8] }});
+     llvm_return (llvm_term {{ 0 : [1] }});
+   }) z3;
+
+print "SCR001_TRUNC_SS_BAD_OPCODE_OK";

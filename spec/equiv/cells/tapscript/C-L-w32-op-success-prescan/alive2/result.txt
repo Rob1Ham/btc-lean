@@ -1,0 +1,831 @@
+# cell: tapscript/C-L-w32-op-success-prescan
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_scan_finds_success.opt.ll build/l_cell_scan_finds_success.opt.ll
+
+----------------------------------------
+define i64 @cell_scan_finds_success(i32 noundef %len, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %len, 4
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i8 noundef zeroext %b0 to i32
+  %conv1 = zext i8 noundef zeroext %b1 to i32
+  %shl = shl nsw nuw i32 %conv1, 8
+  %or = or disjoint i32 %shl, %conv
+  %conv2 = zext i8 noundef zeroext %b2 to i32
+  %shl3 = shl nsw nuw i32 %conv2, 16
+  %conv5 = zext i8 noundef zeroext %b3 to i32
+  %shl6 = shl nuw i32 %conv5, 24
+  %#0 = or disjoint i32 %shl6, %shl3
+  %or7 = or disjoint i32 %#0, %or
+  %cmp.i = icmp eq i32 noundef %len, 0
+  br i1 %cmp.i, label %return, label %if.end.i
+
+if.end.i:
+  %cmp.i126 = icmp ult i8 noundef zeroext %b0, 76
+  br i1 %cmp.i126, label %if.then.i155, label %if.end5.i127
+
+if.then.i155:
+  %sub.i156 = add nsw i32 noundef %len, 4294967295
+  %cmp1.i157.not = icmp samesign ult i32 %sub.i156, %conv
+  %add4.i159 = add nsw nuw i32 %conv, 1
+  br i1 %cmp1.i157.not, label %return, label %if.end3.i
+
+if.end5.i127:
+  switch i8 noundef zeroext %b0, label %if.end3.i [
+    i8 76, label %if.then7.i144
+    i8 77, label %if.then24.i129
+    i8 78, label %return
+  ]
+
+if.end3.i:
+  %nx.i.06 = phi i32 [ %add4.i159, %if.then.i155 ], [ 1, %if.end5.i127 ]
+  switch i8 noundef zeroext %b0, label %lor.rhs.i [
+    i8 98, label %return
+    i8 80, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+lor.rhs.i:
+  %#1 = add i8 noundef zeroext %b0, 69
+  %#2 = icmp ult i8 %#1, 68
+  br i1 %#2, label %return, label %cleanup.cont.i
+
+if.then7.i144:
+  %cmp9.i145 = icmp eq i32 noundef %len, 1
+  br i1 %cmp9.i145, label %return, label %if.end11.i146
+
+if.end11.i146:
+  %sub16.i150 = add nsw i32 noundef %len, 4294967294
+  %cmp17.i151.not = icmp samesign ult i32 %sub16.i150, %conv1
+  %add21.i153 = add nsw nuw i32 %conv1, 2
+  br i1 %cmp17.i151.not, label %return, label %cleanup.cont.i
+
+if.then24.i129:
+  %cmp26.i130 = icmp samesign ult i32 noundef %len, 3
+  br i1 %cmp26.i130, label %return, label %_ZL9w32_getopjjjPj.exit160
+
+_ZL9w32_getopjjjPj.exit160:
+  %shl.i138 = shl nsw nuw i32 %conv2, 8
+  %or.i139 = or disjoint i32 %shl.i138, %conv1
+  %sub37.i140 = add nsw i32 noundef %len, 4294967293
+  %cmp38.i141.not = icmp samesign ult i32 %sub37.i140, %or.i139
+  %add42.i143 = add nsw nuw i32 %or.i139, 3
+  br i1 %cmp38.i141.not, label %return, label %cleanup.cont.i
+
+cleanup.cont.i:
+  %i.0.i = phi i32 [ %add21.i153, %if.end11.i146 ], [ %add42.i143, %_ZL9w32_getopjjjPj.exit160 ], [ %nx.i.06, %lor.rhs.i ]
+  %cmp8.not.i = icmp samesign ult i32 %i.0.i, noundef %len
+  br i1 %cmp8.not.i, label %if.end10.i, label %return
+
+if.end10.i:
+  %mul.i16 = shl nsw nuw i32 %i.0.i, 3
+  %shr.i17 = lshr i32 %or7, %mul.i16
+  %conv.i18 = trunc i32 %shr.i17 to i8
+  %conv.i77 = and i32 %shr.i17, 255
+  %cmp.i78 = icmp ult i8 %conv.i18, 76
+  br i1 %cmp.i78, label %if.then.i116, label %if.end5.i79
+
+if.then.i116:
+  %add.i117 = add nsw nuw i32 %i.0.i, 1
+  %sub.i118 = sub nsw i32 noundef %len, %add.i117
+  %cmp1.i119.not = icmp ult i32 %sub.i118, %conv.i77
+  %add4.i121 = add nsw nuw i32 %conv.i77, %add.i117
+  br i1 %cmp1.i119.not, label %return, label %if.end17.i
+
+if.end5.i79:
+  switch i8 %conv.i18, label %_ZL9w32_getopjjjPj.exit122.thread16 [
+    i8 76, label %if.then7.i101
+    i8 77, label %if.then24.i81
+    i8 78, label %return
+  ]
+
+_ZL9w32_getopjjjPj.exit122.thread16:
+  %add79.i115 = add nsw nuw i32 %i.0.i, 1
+  br label %if.end17.i
+
+if.end17.i:
+  %nx14.i.019 = phi i32 [ %add79.i115, %_ZL9w32_getopjjjPj.exit122.thread16 ], [ %add4.i121, %if.then.i116 ]
+  switch i8 %conv.i18, label %lor.rhs.i161 [
+    i8 98, label %return
+    i8 80, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+if.then7.i101:
+  %add8.i102 = add nsw nuw i32 %i.0.i, 2
+  %cmp9.i103 = icmp samesign ult i32 noundef %len, %add8.i102
+  br i1 %cmp9.i103, label %return, label %if.end11.i104
+
+if.end11.i104:
+  %mul.i128.i106 = add nsw nuw i32 %mul.i16, 8
+  %shr.i129.i107 = lshr i32 %or7, %mul.i128.i106
+  %conv14.i109 = and i32 %shr.i129.i107, 255
+  %sub16.i110 = sub nsw nuw i32 noundef %len, %add8.i102
+  %cmp17.i111.not = icmp samesign ult i32 %sub16.i110, %conv14.i109
+  %add21.i113 = add nsw nuw i32 %conv14.i109, %add8.i102
+  br i1 %cmp17.i111.not, label %return, label %lor.rhs.i161
+
+if.then24.i81:
+  %add25.i82 = add nsw nuw i32 %i.0.i, 3
+  %cmp26.i83 = icmp samesign ult i32 noundef %len, %add25.i82
+  br i1 %cmp26.i83, label %return, label %_ZL9w32_getopjjjPj.exit122
+
+_ZL9w32_getopjjjPj.exit122:
+  %mul.i125.i86 = add nsw nuw i32 %mul.i16, 8
+  %shr.i126.i87 = lshr i32 %or7, %mul.i125.i86
+  %conv32.i89 = and i32 %shr.i126.i87, 255
+  %mul.i.i91 = add nsw nuw i32 %mul.i16, 16
+  %shr.i.i92 = lshr i32 %or7, %mul.i.i91
+  %conv35.i94 = shl nsw nuw i32 %shr.i.i92, 8
+  %shl.i95 = and i32 %conv35.i94, 65280
+  %or.i96 = or disjoint i32 %shl.i95, %conv32.i89
+  %sub37.i97 = sub nsw nuw i32 noundef %len, %add25.i82
+  %cmp38.i98.not = icmp samesign ult i32 %sub37.i97, %or.i96
+  %add42.i100 = add nsw nuw i32 %or.i96, %add25.i82
+  br i1 %cmp38.i98.not, label %return, label %lor.rhs.i161
+
+lor.rhs.i161:
+  %nx14.i.01921 = phi i32 [ %nx14.i.019, %if.end17.i ], [ %add21.i113, %if.end11.i104 ], [ %add42.i100, %_ZL9w32_getopjjjPj.exit122 ]
+  %cmp21.i162 = icmp samesign ugt i32 %conv.i77, 186
+  %cmp22.i163 = icmp ne i32 %conv.i77, 255
+  %#3 = and i1 %cmp21.i162, %cmp22.i163
+  br i1 %#3, label %return, label %cleanup.cont24.i
+
+cleanup.cont24.i:
+  %cmp25.not.i = icmp samesign ult i32 %nx14.i.01921, noundef %len
+  br i1 %cmp25.not.i, label %if.end27.i, label %return
+
+if.end27.i:
+  %mul.i13 = shl nsw nuw i32 %nx14.i.01921, 3
+  %shr.i14 = lshr i32 %or7, %mul.i13
+  %conv.i15 = trunc i32 %shr.i14 to i8
+  %conv.i28 = and i32 %shr.i14, 255
+  %cmp.i29 = icmp ult i8 %conv.i15, 76
+  br i1 %cmp.i29, label %if.then.i67, label %if.end5.i30
+
+if.then.i67:
+  %add.i68 = add nsw nuw i32 %nx14.i.01921, 1
+  %sub.i69 = sub nsw i32 noundef %len, %add.i68
+  %cmp1.i70.not = icmp ult i32 %sub.i69, %conv.i28
+  %add4.i72 = add nsw nuw i32 %conv.i28, %add.i68
+  br i1 %cmp1.i70.not, label %return, label %if.end34.i
+
+if.end5.i30:
+  switch i8 %conv.i15, label %_ZL9w32_getopjjjPj.exit73.thread27 [
+    i8 76, label %if.then7.i52
+    i8 77, label %return
+    i8 78, label %return
+  ]
+
+_ZL9w32_getopjjjPj.exit73.thread27:
+  %add79.i66 = add nsw nuw i32 %nx14.i.01921, 1
+  br label %if.end34.i
+
+if.end34.i:
+  %nx31.i.030 = phi i32 [ %add79.i66, %_ZL9w32_getopjjjPj.exit73.thread27 ], [ %add4.i72, %if.then.i67 ]
+  switch i8 %conv.i15, label %lor.rhs.i165 [
+    i8 98, label %return
+    i8 80, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+if.then7.i52:
+  %add8.i53 = add nsw nuw i32 %nx14.i.01921, 2
+  %cmp9.i54 = icmp samesign ult i32 noundef %len, %add8.i53
+  br i1 %cmp9.i54, label %return, label %if.end11.i55
+
+if.end11.i55:
+  %mul.i128.i57 = add nsw nuw i32 %mul.i13, 8
+  %shr.i129.i58 = lshr i32 %or7, %mul.i128.i57
+  %sub16.i61 = sub nsw nuw i32 noundef %len, %add8.i53
+  %cmp17.i62.not = icmp samesign ult i32 %sub16.i61, %shr.i129.i58
+  %add21.i64 = add nsw nuw i32 %shr.i129.i58, %add8.i53
+  br i1 %cmp17.i62.not, label %return, label %lor.rhs.i165
+
+lor.rhs.i165:
+  %nx31.i.03032 = phi i32 [ %nx31.i.030, %if.end34.i ], [ %add21.i64, %if.end11.i55 ]
+  %cmp21.i166 = icmp samesign ugt i32 %conv.i28, 186
+  %cmp22.i167 = icmp ne i32 %conv.i28, 255
+  %#4 = and i1 %cmp21.i166, %cmp22.i167
+  br i1 %#4, label %return, label %cleanup.cont41.i
+
+cleanup.cont41.i:
+  %cmp42.not.i = icmp samesign ult i32 %nx31.i.03032, noundef %len
+  br i1 %cmp42.not.i, label %if.end44.i, label %return
+
+if.end44.i:
+  %mul.i = shl nsw nuw i32 %nx31.i.03032, 3
+  %shr.i = lshr i32 %or7, %mul.i
+  %conv.i12 = trunc i32 %shr.i to i8
+  %cmp.i22 = icmp ult i8 %conv.i12, 76
+  br i1 %cmp.i22, label %if.then.i, label %if.end5.i
+
+if.then.i:
+  %add.i.neg = xor i32 %nx31.i.03032, 4294967295
+  %sub.i = add nsw i32 noundef %len, %add.i.neg
+  %cmp1.i.not = icmp samesign ult i32 %sub.i, %shr.i
+  br i1 %cmp1.i.not, label %return, label %lor.rhs.i169
+
+if.end5.i:
+  switch i8 %conv.i12, label %lor.rhs.i169 [
+    i8 76, label %return
+    i8 77, label %return
+    i8 78, label %return
+    i8 98, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 80, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 153, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 152, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 151, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 150, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 149, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 142, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 141, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 138, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 137, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 134, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 133, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 132, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 131, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 129, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 128, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 127, label %_ZL20c_scan_finds_successjj.exit.fold.split
+    i8 126, label %_ZL20c_scan_finds_successjj.exit.fold.split
+  ]
+
+lor.rhs.i169:
+  %cmp21.i170 = icmp samesign ugt i32 %shr.i, 186
+  %cmp22.i171 = icmp ne i32 %shr.i, 255
+  %#5 = and i1 %cmp21.i170, %cmp22.i171
+  %#6 = zext i1 %#5 to i64
+  br label %return
+
+_ZL20c_scan_finds_successjj.exit.fold.split:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 6, %entry ], [ 0, %if.end ], [ 0, %cleanup.cont.i ], [ 0, %cleanup.cont24.i ], [ 0, %cleanup.cont41.i ], [ 0, %if.end5.i ], [ %#6, %lor.rhs.i169 ], [ 1, %_ZL20c_scan_finds_successjj.exit.fold.split ], [ 0, %if.then.i ], [ 0, %if.end11.i146 ], [ 0, %if.then.i155 ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %if.end3.i ], [ 1, %lor.rhs.i ], [ 0, %_ZL9w32_getopjjjPj.exit160 ], [ 0, %if.end5.i127 ], [ 0, %if.then24.i129 ], [ 0, %if.then7.i144 ], [ 0, %if.end11.i104 ], [ 0, %if.then.i116 ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %if.end17.i ], [ 1, %lor.rhs.i161 ], [ 0, %_ZL9w32_getopjjjPj.exit122 ], [ 0, %if.end5.i79 ], [ 0, %if.then24.i81 ], [ 0, %if.then7.i101 ], [ 0, %if.end11.i55 ], [ 0, %if.then.i67 ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %if.end34.i ], [ 1, %lor.rhs.i165 ], [ 0, %if.end5.i30 ], [ 0, %if.then7.i52 ], [ 0, %if.end5.i30 ], [ 0, %if.end5.i ], [ 0, %if.end5.i ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 7
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_scan_finds_success(i32 noundef %len, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %len, 4
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i8 noundef zeroext %b0 to i32
+  %conv1 = zext i8 noundef zeroext %b1 to i32
+  %shl = shl nsw nuw i32 %conv1, 8
+  %or = or disjoint i32 %shl, %conv
+  %conv2 = zext i8 noundef zeroext %b2 to i32
+  %shl3 = shl nsw nuw i32 %conv2, 16
+  %conv5 = zext i8 noundef zeroext %b3 to i32
+  %shl6 = shl nuw i32 %conv5, 24
+  %#0 = or disjoint i32 %shl6, %shl3
+  %or7 = or disjoint i32 %#0, %or
+  %cmp.i = icmp eq i32 noundef %len, 0
+  br i1 %cmp.i, label %return, label %if.end.i
+
+if.end.i:
+  %cmp.i169 = icmp eq i8 noundef zeroext %b0, 0
+  br i1 %cmp.i169, label %cleanup.cont.i, label %if.end.i170
+
+if.end.i170:
+  %cmp1.i171 = icmp ult i8 noundef zeroext %b0, 76
+  br i1 %cmp1.i171, label %if.then2.i207, label %if.end13.i172
+
+if.then2.i207:
+  %narrow = add nsw nuw i8 noundef zeroext %b0, 1
+  %#1 = zext nneg i8 %narrow to i32
+  %cmp8.i211.not = icmp samesign ult i32 noundef %len, %#1
+  br i1 %cmp8.i211.not, label %return, label %cleanup.cont.i
+
+if.end13.i172:
+  switch i8 noundef zeroext %b0, label %if.end3.i [
+    i8 76, label %if.then15.i191
+    i8 77, label %if.then37.i176
+    i8 78, label %_ZL7l_getopjjjPbPj.exit215.thread13
+    i8 79, label %cleanup.cont.i
+    i8 80, label %return
+  ]
+
+if.end3.i:
+  %cmp110.i204 = icmp ugt i8 noundef zeroext %b0, 96
+  br i1 %cmp110.i204, label %land.lhs.true.i, label %cleanup.cont.i
+
+land.lhs.true.i:
+  switch i8 noundef zeroext %b0, label %lor.rhs.i [
+    i8 98, label %return
+    i8 126, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+  ]
+
+lor.rhs.i:
+  %#2 = add i8 noundef zeroext %b0, 69
+  %#3 = icmp ult i8 %#2, 68
+  br i1 %#3, label %return, label %cleanup.cont.i
+
+if.then15.i191:
+  %cmp19.i192 = icmp eq i32 noundef %len, 1
+  br i1 %cmp19.i192, label %_ZL7l_getopjjjPbPj.exit215.thread13, label %_ZL7l_getopjjjPbPj.exit215
+
+_ZL7l_getopjjjPbPj.exit215:
+  %conv18.i194 = zext nneg i32 noundef %len to i64
+  %conv27.i197 = zext i8 noundef zeroext %b1 to i64
+  %add28.i198 = add nsw nuw i64 %conv27.i197, 2
+  %cmp30.i199.not.not = icmp samesign ugt i64 %add28.i198, %conv18.i194
+  %add34.i202 = add nsw nuw i32 %conv1, 2
+  br i1 %cmp30.i199.not.not, label %return, label %cleanup.cont.i
+
+if.then37.i176:
+  %cmp41.i177 = icmp samesign ult i32 noundef %len, 3
+  br i1 %cmp41.i177, label %_ZL7l_getopjjjPbPj.exit215.thread13, label %if.end43.i178
+
+if.end43.i178:
+  %shl.i185 = shl nsw nuw i32 %conv2, 8
+  %or.i186 = add nsw nuw i32 %conv1, 3
+  %narrow180.i187 = add nsw nuw i32 %or.i186, %shl.i185
+  %cmp56.i188.not = icmp samesign ugt i32 %narrow180.i187, noundef %len
+  br i1 %cmp56.i188.not, label %return, label %cleanup.cont.i
+
+_ZL7l_getopjjjPbPj.exit215.thread13:
+  br label %return
+
+cleanup.cont.i:
+  %i.0.i = phi i32 [ 1, %if.end3.i ], [ %narrow180.i187, %if.end43.i178 ], [ %#1, %if.then2.i207 ], [ %add34.i202, %_ZL7l_getopjjjPbPj.exit215 ], [ 1, %if.end.i ], [ 1, %if.end13.i172 ], [ 1, %lor.rhs.i ]
+  %cmp9.not.i = icmp samesign ult i32 %i.0.i, noundef %len
+  br i1 %cmp9.not.i, label %if.end11.i, label %return
+
+if.end11.i:
+  %mul.i16 = shl nsw nuw i32 %i.0.i, 3
+  %shr.i17 = lshr i32 %or7, %mul.i16
+  %conv.i18 = trunc i32 %shr.i17 to i8
+  %conv14.i = and i32 %shr.i17, 255
+  %cmp.i100 = icmp eq i8 %conv.i18, 0
+  br i1 %cmp.i100, label %if.then.i163, label %if.end.i101
+
+if.then.i163:
+  %add.i164 = add nsw nuw i32 %i.0.i, 1
+  br label %cleanup.cont29.i
+
+if.end.i101:
+  %cmp1.i102 = icmp ult i8 %conv.i18, 76
+  br i1 %cmp1.i102, label %if.then2.i153, label %if.end13.i103
+
+if.then2.i153:
+  %narrow182.i154 = add nsw nuw i32 %i.0.i, 1
+  %add4.i155 = zext nneg i32 %narrow182.i154 to i64
+  %conv.i18.mask = and i32 %shr.i17, 127
+  %conv5.i156 = zext nneg i32 %conv.i18.mask to i64
+  %add6.i157 = add nsw nuw i64 %conv5.i156, %add4.i155
+  %conv7.i158 = zext nneg i32 noundef %len to i64
+  %cmp8.i159.not = icmp samesign ugt i64 %add6.i157, %conv7.i158
+  %add12.i162 = add nsw nuw i32 %conv14.i, %narrow182.i154
+  br i1 %cmp8.i159.not, label %return, label %cleanup.cont29.i
+
+if.end13.i103:
+  switch i8 %conv.i18, label %if.end19.i [
+    i8 76, label %if.then15.i130
+    i8 77, label %if.then37.i109
+    i8 78, label %_ZL7l_getopjjjPbPj.exit165.thread34
+    i8 79, label %if.then103.i107
+    i8 80, label %return
+  ]
+
+if.end19.i:
+  %cmp110.i148 = icmp ugt i8 %conv.i18, 96
+  %add112.i152 = add nsw nuw i32 %i.0.i, 1
+  br i1 %cmp110.i148, label %land.lhs.true21.i, label %cleanup.cont29.i
+
+land.lhs.true21.i:
+  switch i8 %conv.i18, label %lor.rhs.i216 [
+    i8 98, label %return
+    i8 126, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+  ]
+
+lor.rhs.i216:
+  %cmp21.i217 = icmp samesign ugt i32 %conv14.i, 186
+  %cmp22.i218 = icmp ne i32 %conv14.i, 255
+  %#4 = and i1 %cmp21.i217, %cmp22.i218
+  br i1 %#4, label %return, label %cleanup.cont29.i
+
+if.then15.i130:
+  %narrow181.i131 = add nsw nuw i32 %i.0.i, 2
+  %cmp19.i132 = icmp samesign ugt i32 %narrow181.i131, noundef %len
+  br i1 %cmp19.i132, label %_ZL7l_getopjjjPbPj.exit165.thread34, label %_ZL7l_getopjjjPbPj.exit165
+
+_ZL7l_getopjjjPbPj.exit165:
+  %conv18.i134 = zext nneg i32 noundef %len to i64
+  %add17.i135 = zext nneg i32 %narrow181.i131 to i64
+  %mul.i186.i137 = add nsw nuw i32 %mul.i16, 8
+  %shr.i187.i138 = lshr i32 %or7, %mul.i186.i137
+  %conv.i188.i139.mask = and i32 %shr.i187.i138, 255
+  %conv27.i140 = zext nneg i32 %conv.i188.i139.mask to i64
+  %add28.i141 = add nsw nuw i64 %conv27.i140, %add17.i135
+  %cmp30.i142.not.not = icmp samesign ugt i64 %add28.i141, %conv18.i134
+  %add34.i146 = add nsw nuw i32 %conv.i188.i139.mask, %narrow181.i131
+  br i1 %cmp30.i142.not.not, label %return, label %cleanup.cont29.i
+
+if.then37.i109:
+  %narrow.i110 = add nsw nuw i32 %i.0.i, 3
+  %cmp41.i111 = icmp samesign ugt i32 %narrow.i110, noundef %len
+  br i1 %cmp41.i111, label %_ZL7l_getopjjjPbPj.exit165.thread34, label %if.end43.i112
+
+if.end43.i112:
+  %mul.i183.i114 = add nsw nuw i32 %mul.i16, 8
+  %shr.i184.i115 = lshr i32 %or7, %mul.i183.i114
+  %conv47.i117 = and i32 %shr.i184.i115, 255
+  %mul.i.i119 = add nsw nuw i32 %mul.i16, 16
+  %shr.i.i120 = lshr i32 %or7, %mul.i.i119
+  %conv50.i122 = shl nsw nuw i32 %shr.i.i120, 8
+  %shl.i123 = and i32 %conv50.i122, 65280
+  %or.i124 = or disjoint i32 %shl.i123, %conv47.i117
+  %narrow180.i125 = add nsw nuw i32 %or.i124, %narrow.i110
+  %cmp56.i126.not = icmp samesign ugt i32 %narrow180.i125, noundef %len
+  br i1 %cmp56.i126.not, label %return, label %cleanup.cont29.i
+
+_ZL7l_getopjjjPbPj.exit165.thread34:
+  br label %return
+
+if.then103.i107:
+  %add104.i108 = add nsw nuw i32 %i.0.i, 1
+  br label %cleanup.cont29.i
+
+cleanup.cont29.i:
+  %i.1.i = phi i32 [ %add112.i152, %if.end19.i ], [ %narrow180.i125, %if.end43.i112 ], [ %add12.i162, %if.then2.i153 ], [ %add34.i146, %_ZL7l_getopjjjPbPj.exit165 ], [ %add.i164, %if.then.i163 ], [ %add104.i108, %if.then103.i107 ], [ %add112.i152, %lor.rhs.i216 ]
+  %cmp30.not.i = icmp samesign ult i32 %i.1.i, noundef %len
+  br i1 %cmp30.not.i, label %if.end32.i, label %return
+
+if.end32.i:
+  %mul.i13 = shl nsw nuw i32 %i.1.i, 3
+  %shr.i14 = lshr i32 %or7, %mul.i13
+  %conv.i15 = trunc i32 %shr.i14 to i8
+  %conv35.i = and i32 %shr.i14, 255
+  %cmp.i30 = icmp eq i8 %conv.i15, 0
+  br i1 %cmp.i30, label %if.then.i93, label %if.end.i31
+
+if.then.i93:
+  %add.i94 = add nsw nuw i32 %i.1.i, 1
+  br label %cleanup.cont50.i
+
+if.end.i31:
+  %cmp1.i32 = icmp ult i8 %conv.i15, 76
+  br i1 %cmp1.i32, label %if.then2.i83, label %if.end13.i33
+
+if.then2.i83:
+  %narrow182.i84 = add nsw nuw i32 %i.1.i, 1
+  %add4.i85 = zext nneg i32 %narrow182.i84 to i64
+  %conv.i15.mask = and i32 %shr.i14, 127
+  %conv5.i86 = zext nneg i32 %conv.i15.mask to i64
+  %add6.i87 = add nsw nuw i64 %conv5.i86, %add4.i85
+  %conv7.i88 = zext nneg i32 noundef %len to i64
+  %cmp8.i89.not = icmp samesign ugt i64 %add6.i87, %conv7.i88
+  %add12.i92 = add nsw nuw i32 %conv35.i, %narrow182.i84
+  br i1 %cmp8.i89.not, label %return, label %cleanup.cont50.i
+
+if.end13.i33:
+  switch i8 %conv.i15, label %if.end40.i [
+    i8 76, label %if.then15.i60
+    i8 77, label %if.then37.i39
+    i8 78, label %_ZL7l_getopjjjPbPj.exit95.thread59
+    i8 79, label %if.then103.i37
+    i8 80, label %return
+  ]
+
+if.end40.i:
+  %cmp110.i78 = icmp ugt i8 %conv.i15, 96
+  %add112.i82 = add nsw nuw i32 %i.1.i, 1
+  br i1 %cmp110.i78, label %land.lhs.true42.i, label %cleanup.cont50.i
+
+land.lhs.true42.i:
+  switch i8 %conv.i15, label %lor.rhs.i220 [
+    i8 98, label %return
+    i8 126, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+  ]
+
+lor.rhs.i220:
+  %cmp21.i221 = icmp samesign ugt i32 %conv35.i, 186
+  %cmp22.i222 = icmp ne i32 %conv35.i, 255
+  %#5 = and i1 %cmp21.i221, %cmp22.i222
+  br i1 %#5, label %return, label %cleanup.cont50.i
+
+if.then15.i60:
+  %narrow181.i61 = add nsw nuw i32 %i.1.i, 2
+  %cmp19.i62 = icmp samesign ugt i32 %narrow181.i61, noundef %len
+  br i1 %cmp19.i62, label %_ZL7l_getopjjjPbPj.exit95.thread59, label %_ZL7l_getopjjjPbPj.exit95
+
+_ZL7l_getopjjjPbPj.exit95:
+  %conv18.i64 = zext nneg i32 noundef %len to i64
+  %add17.i65 = zext nneg i32 %narrow181.i61 to i64
+  %mul.i186.i67 = add nsw nuw i32 %mul.i13, 8
+  %shr.i187.i68 = lshr i32 %or7, %mul.i186.i67
+  %conv.i188.i69.mask = and i32 %shr.i187.i68, 255
+  %conv27.i70 = zext nneg i32 %conv.i188.i69.mask to i64
+  %add28.i71 = add nsw nuw i64 %conv27.i70, %add17.i65
+  %cmp30.i72.not.not = icmp samesign ugt i64 %add28.i71, %conv18.i64
+  %add34.i76 = add nsw nuw i32 %conv.i188.i69.mask, %narrow181.i61
+  br i1 %cmp30.i72.not.not, label %return, label %cleanup.cont50.i
+
+if.then37.i39:
+  %narrow.i40 = add nsw nuw i32 %i.1.i, 3
+  %cmp41.i41 = icmp samesign ugt i32 %narrow.i40, noundef %len
+  br i1 %cmp41.i41, label %_ZL7l_getopjjjPbPj.exit95.thread59, label %if.end43.i42
+
+if.end43.i42:
+  %mul.i183.i44 = add nsw nuw i32 %mul.i13, 8
+  %shr.i184.i45 = lshr i32 %or7, %mul.i183.i44
+  %conv47.i47 = and i32 %shr.i184.i45, 255
+  %mul.i.i49 = add nsw nuw i32 %mul.i13, 16
+  %shr.i.i50 = lshr i32 %or7, %mul.i.i49
+  %conv50.i52 = shl nsw nuw i32 %shr.i.i50, 8
+  %shl.i53 = and i32 %conv50.i52, 65280
+  %or.i54 = or disjoint i32 %shl.i53, %conv47.i47
+  %narrow180.i55 = add nsw nuw i32 %or.i54, %narrow.i40
+  %cmp56.i56.not = icmp samesign ugt i32 %narrow180.i55, noundef %len
+  br i1 %cmp56.i56.not, label %return, label %cleanup.cont50.i
+
+_ZL7l_getopjjjPbPj.exit95.thread59:
+  br label %return
+
+if.then103.i37:
+  %add104.i38 = add nsw nuw i32 %i.1.i, 1
+  br label %cleanup.cont50.i
+
+cleanup.cont50.i:
+  %i.2.i = phi i32 [ %add112.i82, %if.end40.i ], [ %narrow180.i55, %if.end43.i42 ], [ %add12.i92, %if.then2.i83 ], [ %add34.i76, %_ZL7l_getopjjjPbPj.exit95 ], [ %add.i94, %if.then.i93 ], [ %add104.i38, %if.then103.i37 ], [ %add112.i82, %lor.rhs.i220 ]
+  %cmp51.not.i = icmp samesign ult i32 %i.2.i, noundef %len
+  br i1 %cmp51.not.i, label %if.end53.i, label %return
+
+if.end53.i:
+  %mul.i = shl nsw nuw i32 %i.2.i, 3
+  %shr.i = lshr i32 %or7, %mul.i
+  %conv.i12 = trunc i32 %shr.i to i8
+  %conv56.i = and i32 %shr.i, 255
+  %cmp.i22 = icmp eq i8 %conv.i12, 0
+  br i1 %cmp.i22, label %if.end66.i, label %if.end.i23
+
+if.end.i23:
+  %cmp1.i = icmp ult i8 %conv.i12, 76
+  br i1 %cmp1.i, label %if.then2.i, label %if.end13.i
+
+if.then2.i:
+  %narrow182.i = add nsw nuw i32 %i.2.i, 1
+  %add4.i = zext nneg i32 %narrow182.i to i64
+  %conv.i12.mask = and i32 %shr.i, 127
+  %conv5.i = zext nneg i32 %conv.i12.mask to i64
+  %add6.i = add nsw nuw i64 %conv5.i, %add4.i
+  %conv7.i = zext nneg i32 noundef %len to i64
+  %cmp8.i.not = icmp samesign ugt i64 %add6.i, %conv7.i
+  br i1 %cmp8.i.not, label %return, label %if.end66.i
+
+if.end13.i:
+  switch i8 %conv.i12, label %if.end61.i [
+    i8 76, label %if.then15.i
+    i8 77, label %if.then37.i
+    i8 78, label %_ZL7l_getopjjjPbPj.exit.thread82
+    i8 79, label %if.end66.i
+    i8 80, label %return
+  ]
+
+if.end61.i:
+  %cmp110.i = icmp ugt i8 %conv.i12, 96
+  br i1 %cmp110.i, label %land.lhs.true63.i, label %if.end66.i
+
+land.lhs.true63.i:
+  switch i8 %conv.i12, label %lor.rhs.i224 [
+    i8 98, label %return
+    i8 126, label %return
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+  ]
+
+lor.rhs.i224:
+  %cmp21.i225 = icmp samesign ugt i32 %conv56.i, 186
+  %cmp22.i226 = icmp ne i32 %conv56.i, 255
+  %#6 = and i1 %cmp21.i225, %cmp22.i226
+  br i1 %#6, label %return, label %if.end66.i
+
+if.then15.i:
+  %narrow181.i = add nsw nuw i32 %i.2.i, 2
+  %cmp19.i = icmp samesign ugt i32 %narrow181.i, noundef %len
+  br i1 %cmp19.i, label %_ZL7l_getopjjjPbPj.exit.thread82, label %if.end21.i
+
+if.end21.i:
+  %conv18.i = zext nneg i32 noundef %len to i64
+  %add17.i = zext nneg i32 %narrow181.i to i64
+  %mul.i186.i = add nsw nuw i32 %mul.i, 8
+  %shr.i187.i = lshr i32 %or7, %mul.i186.i
+  %#7 = and i32 %shr.i187.i, 255
+  %conv27.i = zext nneg i32 %#7 to i64
+  %add28.i = add nsw nuw i64 %conv27.i, %add17.i
+  %cmp30.i.not = icmp samesign ugt i64 %add28.i, %conv18.i
+  br i1 %cmp30.i.not, label %return, label %if.end66.i
+
+if.then37.i:
+  %narrow.i = add nsw nuw i32 %i.2.i, 3
+  %cmp41.i = icmp samesign ugt i32 %narrow.i, noundef %len
+  br i1 %cmp41.i, label %_ZL7l_getopjjjPbPj.exit.thread82, label %_ZL7l_getopjjjPbPj.exit
+
+_ZL7l_getopjjjPbPj.exit:
+  %mul.i183.i = add nsw nuw i32 %mul.i, 8
+  %shr.i184.i = lshr i32 %or7, %mul.i183.i
+  %conv47.i = and i32 %shr.i184.i, 255
+  %mul.i.i = add nsw nuw i32 %mul.i, 16
+  %shr.i.i = lshr i32 %or7, %mul.i.i
+  %conv50.i = shl nsw nuw i32 %shr.i.i, 8
+  %shl.i = and i32 %conv50.i, 65280
+  %or.i = add nsw nuw i32 %conv47.i, %narrow.i
+  %narrow180.i = add nsw nuw i32 %or.i, %shl.i
+  %cmp56.i.not = icmp samesign ugt i32 %narrow180.i, noundef %len
+  br i1 %cmp56.i.not, label %return, label %if.end66.i
+
+_ZL7l_getopjjjPbPj.exit.thread82:
+  br label %return
+
+if.end66.i:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 6, %entry ], [ 0, %if.end ], [ 0, %cleanup.cont.i ], [ 0, %cleanup.cont29.i ], [ 0, %cleanup.cont50.i ], [ 0, %if.end66.i ], [ 0, %_ZL7l_getopjjjPbPj.exit ], [ 1, %lor.rhs.i224 ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 1, %land.lhs.true63.i ], [ 0, %_ZL7l_getopjjjPbPj.exit.thread82 ], [ 0, %if.then2.i ], [ 0, %if.end21.i ], [ 0, %if.end43.i178 ], [ 0, %if.then2.i207 ], [ 0, %_ZL7l_getopjjjPbPj.exit215.thread13 ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %land.lhs.true.i ], [ 1, %lor.rhs.i ], [ 0, %_ZL7l_getopjjjPbPj.exit215 ], [ 1, %if.end13.i172 ], [ 0, %if.end43.i112 ], [ 0, %if.then2.i153 ], [ 0, %_ZL7l_getopjjjPbPj.exit165.thread34 ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %land.lhs.true21.i ], [ 1, %lor.rhs.i216 ], [ 0, %_ZL7l_getopjjjPbPj.exit165 ], [ 1, %if.end13.i103 ], [ 0, %if.end43.i42 ], [ 0, %if.then2.i83 ], [ 0, %_ZL7l_getopjjjPbPj.exit95.thread59 ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %land.lhs.true42.i ], [ 1, %lor.rhs.i220 ], [ 0, %_ZL7l_getopjjjPbPj.exit95 ], [ 1, %if.end13.i33 ], [ 1, %if.end13.i ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 7
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_prescan_tail.opt.ll build/l_cell_prescan_tail.opt.ll
+
+----------------------------------------
+define i64 @cell_prescan_tail(i32 noundef %found, i32 noundef %discourage, i32 noundef %too_many, i32 noundef %oversize, i64 noundef %later_rc) nofree noundef willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %found, 0
+  br i1 %tobool.not.i, label %if.end4.i, label %if.then.i
+
+if.then.i:
+  %tobool1.not.i = icmp eq i32 noundef %discourage, 0
+  %. = select i1 %tobool1.not.i, i64 1, i64 144
+  br label %_ZL14c_prescan_tailjjjjm.exit
+
+if.end4.i:
+  %tobool5.not.i = icmp eq i32 noundef %too_many, 0
+  br i1 %tobool5.not.i, label %if.end8.i, label %_ZL14c_prescan_tailjjjjm.exit
+
+if.end8.i:
+  %tobool9.not.i = icmp eq i32 noundef %oversize, 0
+  %spec.select = select i1 %tobool9.not.i, i64 noundef %later_rc, i64 24
+  br label %_ZL14c_prescan_tailjjjjm.exit
+
+_ZL14c_prescan_tailjjjjm.exit:
+  %retval.0.i = phi i64 [ %., %if.then.i ], [ 32, %if.end4.i ], [ %spec.select, %if.end8.i ]
+  ret i64 %retval.0.i
+}
+=>
+define i64 @cell_prescan_tail(i32 noundef %found, i32 noundef %discourage, i32 noundef %too_many, i32 noundef %oversize, i64 noundef %later_rc) nofree noundef willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %found, 0
+  br i1 %tobool.not.i, label %if.end4.i, label %if.then.i
+
+if.then.i:
+  %tobool1.not.i = icmp eq i32 noundef %discourage, 0
+  %. = select i1 %tobool1.not.i, i64 1, i64 144
+  br label %_ZL14l_prescan_tailjjjjm.exit
+
+if.end4.i:
+  %tobool5.not.i = icmp eq i32 noundef %too_many, 0
+  br i1 %tobool5.not.i, label %if.end8.i, label %_ZL14l_prescan_tailjjjjm.exit
+
+if.end8.i:
+  %tobool9.not.i = icmp eq i32 noundef %oversize, 0
+  %spec.select = select i1 %tobool9.not.i, i64 noundef %later_rc, i64 24
+  br label %_ZL14l_prescan_tailjjjjm.exit
+
+_ZL14l_prescan_tailjjjjm.exit:
+  %retval.0.i = phi i64 [ %., %if.then.i ], [ 32, %if.end4.i ], [ %spec.select, %if.end8.i ]
+  ret i64 %retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

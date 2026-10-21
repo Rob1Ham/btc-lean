@@ -1,0 +1,336 @@
+# cell: C-L-cms-order-unroll
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# checker: external declaration @btc_equiv_check_sig (same symbol both legs)
+# checker return annotated noundef (C bool return; same-crypto premise)
+# c_leaf sha256: b692d6babb31997e6a8c324c46c06c36f9a473f83b042ff6927ba5b5f2c17243
+# l_leaf sha256: 72c7072b1c2e6778e8a0a12fec4fdf4f775d8da1fcccfacdf32ce6453a85fe9e
+
+===== cell_cms_order =====
+# command: /opt/equiv-tools/alive-tv-v20.0 --bidirectional build/c_cell_cms_order.ll build/l_cell_cms_order.ll
+# c IR sha256: de91c9cdc3389270e80f0b9a826ae201985787a847b935a981958138891d75dc
+# l IR sha256: 7ca7930f91787a764ffb5770ec88176a374b39592904054bb4fffdb9df1d609c
+
+----------------------------------------
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_cms_order(i32 noundef %nkeys, i32 noundef %nsigs) {
+entry:
+  %cmp = icmp ugt i32 noundef %nkeys, 4
+  %cmp1 = icmp ugt i32 noundef %nsigs, noundef %nkeys
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %conv = zext nneg i32 noundef %nkeys to i64
+  %add = add nsw nuw i64 %conv, 3
+  %cmp4.not = icmp eq i32 noundef %nsigs, 0
+  br i1 %cmp4.not, label %if.end23, label %if.then5
+
+if.then5:
+  %conv2 = zext nneg i32 noundef %nsigs to i64
+  %#0 = trunc nuw i64 %add to i32
+  %reass.sub = sub nsw i32 %#0, noundef %nkeys
+  %add9 = add nsw i32 %reass.sub, 61
+  %or = or i32 %add9, 65536
+  %call = tail call i8 @btc_equiv_check_sig(noundef i32 %or, noundef i32 65600, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp11.not = icmp ne i8 %call, 0
+  %add15 = add nsw nuw i64 %conv, 4
+  %mask.0 = zext i1 %cmp11.not to i32
+  %sub16 = sext i1 %cmp11.not to i64
+  %nSigsLeft.0 = add nsw i64 %sub16, %conv2
+  %isig.0 = select i1 %cmp11.not, i64 %add15, i64 %add
+  %sub19 = add nsw i64 %conv, -1
+  %cmp20.not = icmp sge i64 %nSigsLeft.0, %conv
+  %early.0 = zext i1 %cmp20.not to i32
+  %not.cmp20.not = xor i1 %cmp20.not, 1
+  %fs.0 = zext i1 %not.cmp20.not to i8
+  br label %if.end23
+
+if.end23:
+  %early.1 = phi i32 [ %early.0, %if.then5 ], [ 0, %if.end ]
+  %mask.1 = phi i32 [ %mask.0, %if.then5 ], [ 0, %if.end ]
+  %examined.0 = phi i32 [ 1, %if.then5 ], [ 0, %if.end ]
+  %fs.1 = phi i8 [ %fs.0, %if.then5 ], [ 1, %if.end ]
+  %nKeysLeft.0 = phi i64 [ %sub19, %if.then5 ], [ %conv, %if.end ]
+  %nSigsLeft.1 = phi i64 [ %nSigsLeft.0, %if.then5 ], [ 0, %if.end ]
+  %isig.1 = phi i64 [ %isig.0, %if.then5 ], [ %add, %if.end ]
+  %loadedv24 = trunc nuw i8 %fs.1 to i1
+  %cmp26 = icmp sgt i64 %nSigsLeft.1, 0
+  %or.cond110 = and i1 %cmp26, %loadedv24
+  br i1 %or.cond110, label %if.then27, label %if.end51
+
+if.then27:
+  %#1 = trunc i64 %isig.1 to i32
+  %reass.sub158 = sub nsw i32 %#1, noundef %nkeys
+  %add34 = add i32 %reass.sub158, 61
+  %or35 = or i32 %add34, 65536
+  %call36 = tail call i8 @btc_equiv_check_sig(noundef i32 %or35, noundef i32 65601, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp38.not = icmp ne i8 %call36, 0
+  %add40 = add nsw nuw i32 %examined.0, 1
+  %or45 = or disjoint i32 %mask.1, 2
+  %mask.2 = select i1 %cmp38.not, i32 %or45, i32 %mask.1
+  %sub44 = sext i1 %cmp38.not to i64
+  %nSigsLeft.2 = add nsw i64 %nSigsLeft.1, %sub44
+  %add43 = zext i1 %cmp38.not to i64
+  %isig.2 = add nsw nuw i64 %isig.1, %add43
+  %sub47 = add nsw i64 %nKeysLeft.0, -1
+  %cmp48.not = icmp slt i64 %nSigsLeft.2, %nKeysLeft.0
+  %early.2 = select i1 %cmp48.not, i32 %early.1, i32 1
+  %fs.2 = select i1 %cmp48.not, i8 %fs.1, i8 0
+  br label %if.end51
+
+if.end51:
+  %early.3 = phi i32 [ %early.2, %if.then27 ], [ %early.1, %if.end23 ]
+  %mask.3 = phi i32 [ %mask.2, %if.then27 ], [ %mask.1, %if.end23 ]
+  %examined.1 = phi i32 [ %add40, %if.then27 ], [ %examined.0, %if.end23 ]
+  %fs.3 = phi i8 [ %fs.2, %if.then27 ], [ %fs.1, %if.end23 ]
+  %nKeysLeft.1 = phi i64 [ %sub47, %if.then27 ], [ %nKeysLeft.0, %if.end23 ]
+  %nSigsLeft.3 = phi i64 [ %nSigsLeft.2, %if.then27 ], [ %nSigsLeft.1, %if.end23 ]
+  %isig.3 = phi i64 [ %isig.2, %if.then27 ], [ %isig.1, %if.end23 ]
+  %loadedv52 = trunc nuw i8 %fs.3 to i1
+  %cmp54 = icmp sgt i64 %nSigsLeft.3, 0
+  %or.cond111 = and i1 %cmp54, %loadedv52
+  br i1 %or.cond111, label %if.then55, label %if.end79
+
+if.then55:
+  %#2 = trunc i64 %isig.3 to i32
+  %reass.sub159 = sub i32 %#2, noundef %nkeys
+  %add62 = add i32 %reass.sub159, 61
+  %or63 = or i32 %add62, 65536
+  %call64 = tail call i8 @btc_equiv_check_sig(noundef i32 %or63, noundef i32 65602, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp66.not = icmp ne i8 %call64, 0
+  %add68 = add nsw nuw i32 %examined.1, 1
+  %or73 = or i32 %mask.3, 4
+  %mask.4 = select i1 %cmp66.not, i32 %or73, i32 %mask.3
+  %sub72 = sext i1 %cmp66.not to i64
+  %nSigsLeft.4 = add nsw i64 %nSigsLeft.3, %sub72
+  %add71 = zext i1 %cmp66.not to i64
+  %isig.4 = add nsw nuw i64 %isig.3, %add71
+  %sub75 = add nsw i64 %nKeysLeft.1, -1
+  %cmp76.not = icmp slt i64 %nSigsLeft.4, %nKeysLeft.1
+  %early.4 = select i1 %cmp76.not, i32 %early.3, i32 1
+  %fs.4 = select i1 %cmp76.not, i8 %fs.3, i8 0
+  br label %if.end79
+
+if.end79:
+  %early.5 = phi i32 [ %early.4, %if.then55 ], [ %early.3, %if.end51 ]
+  %mask.5 = phi i32 [ %mask.4, %if.then55 ], [ %mask.3, %if.end51 ]
+  %examined.2 = phi i32 [ %add68, %if.then55 ], [ %examined.1, %if.end51 ]
+  %fs.5 = phi i8 [ %fs.4, %if.then55 ], [ %fs.3, %if.end51 ]
+  %nKeysLeft.2 = phi i64 [ %sub75, %if.then55 ], [ %nKeysLeft.1, %if.end51 ]
+  %nSigsLeft.5 = phi i64 [ %nSigsLeft.4, %if.then55 ], [ %nSigsLeft.3, %if.end51 ]
+  %isig.5 = phi i64 [ %isig.4, %if.then55 ], [ %isig.3, %if.end51 ]
+  %loadedv80 = trunc nuw i8 %fs.5 to i1
+  %cmp82 = icmp sgt i64 %nSigsLeft.5, 0
+  %or.cond112 = and i1 %cmp82, %loadedv80
+  br i1 %or.cond112, label %if.then83, label %if.end107
+
+if.then83:
+  %#3 = trunc i64 %isig.5 to i32
+  %reass.sub160 = sub i32 %#3, noundef %nkeys
+  %add90 = add i32 %reass.sub160, 61
+  %or91 = or i32 %add90, 65536
+  %call92 = tail call i8 @btc_equiv_check_sig(noundef i32 %or91, noundef i32 65603, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp94.not = icmp ne i8 %call92, 0
+  %add96 = add nsw nuw i32 %examined.2, 1
+  %or101 = or i32 %mask.5, 8
+  %mask.6 = select i1 %cmp94.not, i32 %or101, i32 %mask.5
+  %sub100 = sext i1 %cmp94.not to i64
+  %nSigsLeft.6 = add nsw i64 %nSigsLeft.5, %sub100
+  %cmp104.not = icmp slt i64 %nSigsLeft.6, %nKeysLeft.2
+  %early.6 = select i1 %cmp104.not, i32 %early.5, i32 1
+  %fs.6 = select i1 %cmp104.not, i8 %fs.5, i8 0
+  br label %if.end107
+
+if.end107:
+  %early.7 = phi i32 [ %early.6, %if.then83 ], [ %early.5, %if.end79 ]
+  %mask.7 = phi i32 [ %mask.6, %if.then83 ], [ %mask.5, %if.end79 ]
+  %examined.3 = phi i32 [ %add96, %if.then83 ], [ %examined.2, %if.end79 ]
+  %fs.7 = phi i8 [ %fs.6, %if.then83 ], [ %fs.5, %if.end79 ]
+  %#4 = and i8 %fs.7, 1
+  %cond = zext nneg i8 %#4 to i32
+  %and1.i = shl i32 %mask.7, 3
+  %#5 = and i32 %and1.i, 120
+  %or316.i = or disjoint i32 %examined.3, %#5
+  %#6 = shl nsw nuw i32 %early.7, 7
+  %or717.i = add nsw nuw i32 %or316.i, %#6
+  %#7 = shl nsw nuw i32 %cond, 8
+  %or1118.i = add nsw nuw i32 %#7, %or717.i
+  %or11.i = zext nneg i32 %or1118.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or11.i, %if.end107 ], [ 65535, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4294967296
+  ret i64 %#range_0_%retval.0
+}
+=>
+declare i8 @btc_equiv_check_sig(noundef i32, noundef i32, noundef i32, noundef i32) noundef zeroext
+
+define i64 @cell_cms_order(i32 noundef %nkeys, i32 noundef %nsigs) {
+entry:
+  %cmp = icmp ugt i32 noundef %nkeys, 4
+  %cmp1 = icmp ugt i32 noundef %nsigs, noundef %nkeys
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %conv = zext nneg i32 noundef %nsigs to i64
+  %conv2 = zext nneg i32 noundef %nkeys to i64
+  %add = add nsw nuw i32 noundef %nsigs, noundef %nkeys
+  %add3 = add nsw nuw i32 %add, 1
+  %cmp5.not = icmp eq i32 noundef %nsigs, 0
+  br i1 %cmp5.not, label %if.end24, label %if.then8
+
+if.then8:
+  %call = tail call i8 @btc_equiv_check_sig(noundef i32 65600, noundef i32 65600, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp12.not = icmp ne i8 %call, 0
+  %mask.0 = zext i1 %cmp12.not to i32
+  %sub = sext i1 %cmp12.not to i64
+  %nSigs.0 = add nsw i64 %sub, %conv
+  %isig.0 = zext i1 %cmp12.not to i64
+  %sub19 = add nsw i64 %conv2, -1
+  %cmp21.not = icmp slt i64 %nSigs.0, %conv2
+  %fs.0 = zext i1 %cmp21.not to i8
+  %not.cmp21.not = xor i1 %cmp21.not, 1
+  %early.0 = zext i1 %not.cmp21.not to i32
+  br label %if.end24
+
+if.end24:
+  %fuelLeft.0.in = phi i32 [ %add, %if.then8 ], [ %add3, %if.end ]
+  %fs.1 = phi i8 [ %fs.0, %if.then8 ], [ 1, %if.end ]
+  %examined.0 = phi i32 [ 1, %if.then8 ], [ 0, %if.end ]
+  %mask.1 = phi i32 [ %mask.0, %if.then8 ], [ 0, %if.end ]
+  %early.1 = phi i32 [ %early.0, %if.then8 ], [ 0, %if.end ]
+  %nKeys.0 = phi i64 [ %sub19, %if.then8 ], [ %conv2, %if.end ]
+  %nSigs.1 = phi i64 [ %nSigs.0, %if.then8 ], [ %conv, %if.end ]
+  %isig.1 = phi i64 [ %isig.0, %if.then8 ], [ 0, %if.end ]
+  %fuelLeft.0 = zext i32 %fuelLeft.0.in to i64
+  %loadedv25 = trunc nuw i8 %fs.1 to i1
+  %cmp27 = icmp sgt i64 %nSigs.1, 0
+  %or.cond109 = select i1 %loadedv25, i1 %cmp27, i1 0
+  br i1 %or.cond109, label %if.then30, label %if.end51
+
+if.then30:
+  %conv32 = trunc nsw nuw i64 %isig.1 to i32
+  %or34 = or disjoint i32 %conv32, 65600
+  %call35 = tail call i8 @btc_equiv_check_sig(noundef i32 %or34, noundef i32 65601, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp37.not = icmp ne i8 %call35, 0
+  %add39 = add nsw nuw i32 %examined.0, 1
+  %or44 = or disjoint i32 %mask.1, 2
+  %mask.2 = select i1 %cmp37.not, i32 %or44, i32 %mask.1
+  %sub43 = sext i1 %cmp37.not to i64
+  %nSigs.2 = add nsw i64 %nSigs.1, %sub43
+  %add42 = zext i1 %cmp37.not to i64
+  %isig.2 = add nsw nuw i64 %isig.1, %add42
+  %sub46 = add nsw i64 %nKeys.0, -1
+  %sub47 = add nsw i64 %fuelLeft.0, -1
+  %cmp48.not = icmp slt i64 %nSigs.2, %nKeys.0
+  %fs.2 = select i1 %cmp48.not, i8 %fs.1, i8 0
+  %early.2 = select i1 %cmp48.not, i32 %early.1, i32 1
+  br label %if.end51
+
+if.end51:
+  %fuelLeft.1 = phi i64 [ %sub47, %if.then30 ], [ %fuelLeft.0, %if.end24 ]
+  %fs.3 = phi i8 [ %fs.2, %if.then30 ], [ %fs.1, %if.end24 ]
+  %examined.1 = phi i32 [ %add39, %if.then30 ], [ %examined.0, %if.end24 ]
+  %mask.3 = phi i32 [ %mask.2, %if.then30 ], [ %mask.1, %if.end24 ]
+  %early.3 = phi i32 [ %early.2, %if.then30 ], [ %early.1, %if.end24 ]
+  %nKeys.1 = phi i64 [ %sub46, %if.then30 ], [ %nKeys.0, %if.end24 ]
+  %nSigs.3 = phi i64 [ %nSigs.2, %if.then30 ], [ %nSigs.1, %if.end24 ]
+  %isig.3 = phi i64 [ %isig.2, %if.then30 ], [ %isig.1, %if.end24 ]
+  %loadedv52 = trunc nuw i8 %fs.3 to i1
+  %cmp54 = icmp sgt i64 %nSigs.3, 0
+  %or.cond111 = select i1 %loadedv52, i1 %cmp54, i1 0
+  %cmp56 = icmp sgt i64 %fuelLeft.1, 0
+  %or.cond112 = select i1 %or.cond111, i1 %cmp56, i1 0
+  br i1 %or.cond112, label %if.then57, label %if.end78
+
+if.then57:
+  %conv59 = trunc nsw nuw i64 %isig.3 to i32
+  %add60 = add nsw nuw i32 %conv59, 64
+  %or61 = or i32 %add60, 65536
+  %call62 = tail call i8 @btc_equiv_check_sig(noundef i32 %or61, noundef i32 65602, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp64.not = icmp ne i8 %call62, 0
+  %add66 = add nsw nuw i32 %examined.1, 1
+  %or71 = or i32 %mask.3, 4
+  %mask.4 = select i1 %cmp64.not, i32 %or71, i32 %mask.3
+  %sub70 = sext i1 %cmp64.not to i64
+  %nSigs.4 = add nsw i64 %nSigs.3, %sub70
+  %add69 = zext i1 %cmp64.not to i64
+  %isig.4 = add nsw nuw i64 %isig.3, %add69
+  %sub73 = add nsw i64 %nKeys.1, -1
+  %sub74 = add nsw i64 %fuelLeft.1, -1
+  %cmp75.not = icmp slt i64 %nSigs.4, %nKeys.1
+  %fs.4 = select i1 %cmp75.not, i8 %fs.3, i8 0
+  %early.4 = select i1 %cmp75.not, i32 %early.3, i32 1
+  br label %if.end78
+
+if.end78:
+  %fuelLeft.2 = phi i64 [ %sub74, %if.then57 ], [ %fuelLeft.1, %if.end51 ]
+  %fs.5 = phi i8 [ %fs.4, %if.then57 ], [ %fs.3, %if.end51 ]
+  %examined.2 = phi i32 [ %add66, %if.then57 ], [ %examined.1, %if.end51 ]
+  %mask.5 = phi i32 [ %mask.4, %if.then57 ], [ %mask.3, %if.end51 ]
+  %early.5 = phi i32 [ %early.4, %if.then57 ], [ %early.3, %if.end51 ]
+  %nKeys.2 = phi i64 [ %sub73, %if.then57 ], [ %nKeys.1, %if.end51 ]
+  %nSigs.5 = phi i64 [ %nSigs.4, %if.then57 ], [ %nSigs.3, %if.end51 ]
+  %isig.5 = phi i64 [ %isig.4, %if.then57 ], [ %isig.3, %if.end51 ]
+  %loadedv79 = trunc nuw i8 %fs.5 to i1
+  %cmp81 = icmp sgt i64 %nSigs.5, 0
+  %or.cond113 = select i1 %loadedv79, i1 %cmp81, i1 0
+  %cmp83 = icmp sgt i64 %fuelLeft.2, 0
+  %or.cond114 = select i1 %or.cond113, i1 %cmp83, i1 0
+  br i1 %or.cond114, label %if.then84, label %if.end105
+
+if.then84:
+  %conv86 = trunc nsw i64 %isig.5 to i32
+  %add87 = add i32 %conv86, 64
+  %or88 = or i32 %add87, 65536
+  %call89 = tail call i8 @btc_equiv_check_sig(noundef i32 %or88, noundef i32 65603, noundef i32 16706, noundef i32 0) noundef zeroext
+  %cmp91.not = icmp ne i8 %call89, 0
+  %add93 = add nsw i32 %examined.2, 1
+  %or98 = or i32 %mask.5, 8
+  %mask.6 = select i1 %cmp91.not, i32 %or98, i32 %mask.5
+  %sub97 = sext i1 %cmp91.not to i64
+  %nSigs.6 = add nsw i64 %nSigs.5, %sub97
+  %cmp102.not = icmp slt i64 %nSigs.6, %nKeys.2
+  %fs.6 = select i1 %cmp102.not, i8 %fs.5, i8 0
+  %early.6 = select i1 %cmp102.not, i32 %early.5, i32 1
+  br label %if.end105
+
+if.end105:
+  %fs.7 = phi i8 [ %fs.6, %if.then84 ], [ %fs.5, %if.end78 ]
+  %examined.3 = phi i32 [ %add93, %if.then84 ], [ %examined.2, %if.end78 ]
+  %mask.7 = phi i32 [ %mask.6, %if.then84 ], [ %mask.5, %if.end78 ]
+  %early.7 = phi i32 [ %early.6, %if.then84 ], [ %early.5, %if.end78 ]
+  %#0 = and i8 %fs.7, 1
+  %cond = zext nneg i8 %#0 to i32
+  %and.i = and i32 %examined.3, 7
+  %and1.i = shl i32 %mask.7, 3
+  %#1 = and i32 %and1.i, 120
+  %or316.i = or disjoint i32 %and.i, %#1
+  %#2 = shl nsw nuw i32 %early.7, 7
+  %or717.i = or disjoint i32 %or316.i, %#2
+  %#3 = shl nsw nuw i32 %cond, 8
+  %or1118.i = add nsw nuw i32 %or717.i, %#3
+  %or11.i = zext nneg i32 %or1118.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or11.i, %if.end105 ], [ 65535, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 65536
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_cms_order=alive2-green
+STATUS=alive2-green

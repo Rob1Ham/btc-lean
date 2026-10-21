@@ -1,0 +1,29 @@
+// E5-WHOLE-FUNCTION attempt 2: one real opcode (OP_1) in scriptPubKey.
+//
+// scriptSig: empty CScript (40 bytes: 36-byte inline storage + 4-byte size = 0)
+// scriptPubKey: 1-byte script `51` (OP_1), stored inline; size field = 1.
+// Expected: EvalScript pushes 1, VerifyScript returns true, error = SCRIPT_ERR_OK.
+//
+// This exercises the EvalScript dispatch loop once and therefore calls the
+// undefined external GetScriptOp. No override is supplied here: the point of
+// this run is to capture exactly where SAW stops.
+m <- llvm_load_module "/tmp/opencode/equiv-work/ir/e5-interp-script-roots3.bc";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ [0x51,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00] : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     llvm_return (llvm_term {{ 1 : [1] }});
+   }) z3;
+
+print "E5_VERIFYSCRIPT_OP1_LINKED3_DONE";

@@ -1,0 +1,124 @@
+# cell: tapscript/C-L-w32-schnorr-shape
+# rows: SCR-161 (sig size 64/65 else SCHNORR_SIG_SIZE), SCR-162 (65-byte sig with explicit hashtype 0x00 is SIGHASH_HASHTYPE)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# tail: external declaration @btc_equiv_schnorr_tail (same symbol both legs)
+# tail return annotated noundef (C uint32_t return; same-crypto premise)
+# c_shape sha256: 0c1173021e0b5482d1c8157093824473194e541e725c513fd0b71b794fba2cef
+# l_shape sha256: f5a151ac089cab113f4ba94846f2ce3c0e099c79385834c891e5d9ebc07c9c45
+
+===== cell_schnorr_shape =====
+# command: alive-tv --bidirectional build/c_cell_schnorr_shape.ll build/l_cell_schnorr_shape.ll
+# c IR sha256: 57cde6ae158a44a173e0302ce2a8eeffdce3b13e389f92d3bc0db4c5956a1c08
+# l IR sha256: 033383ba04c38733a91c021401d835d215372233e664c65266784ee0a1e46982
+
+----------------------------------------
+declare i32 @btc_equiv_schnorr_tail(noundef i64, noundef i32, noundef i32, noundef i32) noundef
+
+define i64 @cell_schnorr_shape(i64 noundef %sig, i32 noundef %sig_last, i32 noundef %pk_len) {
+entry:
+  %#0 = or i32 noundef %pk_len, noundef %sig_last
+  %or.cond6.not = icmp ult i32 %#0, 256
+  %cmp.not.i = icmp eq i32 noundef %pk_len, 32
+  %or.cond = and i1 %cmp.not.i, %or.cond6.not
+  br i1 %or.cond, label %if.end.i, label %return
+
+if.end.i:
+  %#1 = trunc i64 noundef %sig to i32
+  %conv.i.i = and i32 %#1, 255
+  %#2 = add nsw i32 %conv.i.i, 4294967230
+  %or.cond.i = icmp ult i32 %#2, 4294967294
+  br i1 %or.cond.i, label %return, label %if.end6.i
+
+if.end6.i:
+  %cmp7.i = icmp eq i32 %conv.i.i, 65
+  br i1 %cmp7.i, label %if.then8.i, label %if.end19.i
+
+if.then8.i:
+  %cmp9.i = icmp eq i32 noundef %sig_last, 0
+  br i1 %cmp9.i, label %return, label %if.end12.i
+
+if.end12.i:
+  %or14.i = and i64 noundef %sig, 281474976710400
+  %or18.i = or disjoint i64 %or14.i, 64
+  br label %if.end19.i
+
+if.end19.i:
+  %hashtype.0.i = phi i32 [ noundef %sig_last, %if.end12.i ], [ 0, %if.end6.i ]
+  %body.0.i = phi i64 [ %or18.i, %if.end12.i ], [ noundef %sig, %if.end6.i ]
+  %call20.i = tail call i32 @btc_equiv_schnorr_tail(noundef i64 %body.0.i, noundef i32 %hashtype.0.i, noundef i32 %conv.i.i, noundef i32 2) noundef
+  %cmp21.not.i = icmp eq i32 %call20.i, 0
+  br i1 %cmp21.not.i, label %return, label %if.then22.i
+
+if.then22.i:
+  %and1.i = shl i32 %call20.i, 1
+  %#3 = and i32 %and1.i, 126
+  %or10.i21 = zext nneg i32 %#3 to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ -1, %entry ], [ %or10.i21, %if.then22.i ], [ 90, %if.end.i ], [ 92, %if.then8.i ], [ 1, %if.end19.i ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 -1, i64 127
+  ret i64 %#range_0_%retval.0
+}
+=>
+declare i32 @btc_equiv_schnorr_tail(noundef i64, noundef i32, noundef i32, noundef i32) noundef
+
+define i64 @cell_schnorr_shape(i64 noundef %sig, i32 noundef %sig_last, i32 noundef %pk_len) {
+entry:
+  %#0 = or i32 noundef %pk_len, noundef %sig_last
+  %or.cond6.not = icmp ult i32 %#0, 256
+  %cmp.not.i = icmp eq i32 noundef %pk_len, 32
+  %or.cond = and i1 %cmp.not.i, %or.cond6.not
+  br i1 %or.cond, label %if.end.i, label %return
+
+if.end.i:
+  %#1 = trunc i64 noundef %sig to i32
+  %conv.i.i = and i32 %#1, 255
+  %#2 = add nsw i32 %conv.i.i, 4294967230
+  %or.cond.i = icmp ult i32 %#2, 4294967294
+  br i1 %or.cond.i, label %return, label %if.end6.i
+
+if.end6.i:
+  %cmp7.i = icmp eq i32 %conv.i.i, 64
+  br i1 %cmp7.i, label %if.end19.i, label %if.else.i
+
+if.else.i:
+  %cmp9.i = icmp eq i32 noundef %sig_last, 0
+  br i1 %cmp9.i, label %return, label %if.end12.i
+
+if.end12.i:
+  %or14.i = and i64 noundef %sig, 281474976710400
+  %or18.i = or disjoint i64 %or14.i, 64
+  br label %if.end19.i
+
+if.end19.i:
+  %ht.0.i = phi i32 [ noundef %sig_last, %if.end12.i ], [ 0, %if.end6.i ]
+  %body.0.i = phi i64 [ %or18.i, %if.end12.i ], [ noundef %sig, %if.end6.i ]
+  %call20.i = tail call i32 @btc_equiv_schnorr_tail(noundef i64 %body.0.i, noundef i32 %ht.0.i, noundef i32 %conv.i.i, noundef i32 2) noundef
+  %cmp21.not.i = icmp eq i32 %call20.i, 0
+  br i1 %cmp21.not.i, label %return, label %if.then22.i
+
+if.then22.i:
+  %and1.i = shl i32 %call20.i, 1
+  %#3 = and i32 %and1.i, 126
+  %or10.i21 = zext nneg i32 %#3 to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ -1, %entry ], [ %or10.i21, %if.then22.i ], [ 90, %if.end.i ], [ 92, %if.else.i ], [ 1, %if.end19.i ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 -1, i64 127
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_schnorr_shape=alive2-green
+STATUS=alive2-green

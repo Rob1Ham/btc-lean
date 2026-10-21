@@ -1,0 +1,59 @@
+module CellScr040LoopFold where
+
+// Independent specification of the SCR-040 seed, written from the pinned Core
+// source (serialize.h:291-297, 666-676, 900-902, 1121-1130, 1155-1160;
+// interpreter.cpp:1991-1992; script.h:62-65) and the btc-lean model
+// (Program.lean:599-642 witnessSerSize/validationWeightInit).
+//
+//   seed(stack) = CompactSize(|stack|)
+//               + sum over items (CompactSize(len_i) + len_i)
+//               + 50
+//
+// `vector_size` is the byte count a SizeComputer accumulates through the
+// vector serializer: the count prefix, then each item's length prefix and its
+// payload bytes (the SizeComputer adds exactly the bytes `write` emits).
+// `basic_step` is one element's effect, `acc` threaded left to right.
+//
+// The IR loop is checked for a symbolic count <= 8 (the declared cell bound,
+// a complete 0..8 case split, symbolic 32-bit lengths).  The arbitrary-count
+// identity over the pinned source is the cell-local Lean proof
+// src/lean/LoopToFold.lean, not this bounded predicate.
+
+t253 : [64]
+t253 = 0x00000000000000fd
+
+t16 : [64]
+t16 = 0x000000000000ffff
+
+t32 : [64]
+t32 = 0x00000000ffffffff
+
+// GetSizeOfCompactSize over the full 64-bit domain.  The 9-byte branch is
+// reachable only for n > 0xffffffff; it is implemented and proved, not
+// silently dropped.
+cs_size : [64] -> [64]
+cs_size n = if n < t253 then 1
+            else if n <= t16 then 3
+            else if n <= t32 then 5
+            else 9
+
+// One element of the vector serializer, SizeComputer accumulator threaded:
+//   WriteCompactSize(os, len); if (!v.empty()) os.write(MakeByteSpan(v));
+//   = seek(csSize(len)); write(len)  (write adds len; empty adds 0 = len)
+basic_step : [32] -> [64] -> [64]
+basic_step len acc = acc + cs_size (zext len) + zext len
+
+indices : [8][32]
+indices = [0, 1, 2, 3, 4, 5, 6, 7]
+
+// The vector serializer's SizeComputer delta:
+//   WriteCompactSize(s, v.size()); for (elem : v) formatter.Ser(s, elem);
+vector_size : [32] -> [8][32] -> [64]
+vector_size n ls =
+  cs_size (zext n) +
+  sum [ if i < n then cs_size (zext (ls @ i)) + zext (ls @ i) else 0
+      | i <- indices ]
+
+// interpreter.cpp:1991-1992: seed = whole serialized stack + 50 WU.
+seed : [32] -> [8][32] -> [64]
+seed n ls = vector_size n ls + 50

@@ -1,0 +1,16 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_opcount.bc";
+mL <- llvm_load_module "l_cell_opcount.bc";
+
+// Symbolic over sigversion, all 256 wire opcodes, and a symbolic starting
+// counter; the 201/202 boundary is decided by the proof.
+let s = do {
+  sv      <- llvm_fresh_var "sv"      (llvm_int 32);
+  w       <- llvm_fresh_var "w"       (llvm_int 8);
+  opcount <- llvm_fresh_var "opcount" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term w, llvm_term opcount];
+  llvm_return (llvm_term {{ step sv w opcount }});
+};
+llvm_verify mC "cell_opcount" [] false s abc;
+llvm_verify mL "cell_opcount" [] false s abc;
+print "CELL_control_OPCOUNT_SAW_GREEN";

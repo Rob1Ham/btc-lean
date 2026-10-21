@@ -1,0 +1,222 @@
+[1/57] Building CXX object CMakeFiles/smt.dir/smt/ctx.cpp.o
+[2/57] Building CXX object CMakeFiles/ir.dir/ir/functions.cpp.o
+[3/57] Building CXX object CMakeFiles/ir.dir/ir/globals.cpp.o
+[4/57] Building CXX object CMakeFiles/ir.dir/ir/state_value.cpp.o
+[5/57] Building CXX object CMakeFiles/ir.dir/ir/fast_math.cpp.o
+[6/57] Building CXX object CMakeFiles/smt.dir/smt/smt.cpp.o
+[7/57] Building CXX object CMakeFiles/ir.dir/ir/precondition.cpp.o
+[8/57] Building CXX object CMakeFiles/ir.dir/ir/x86_intrinsics.cpp.o
+[9/57] Building CXX object CMakeFiles/ir.dir/ir/constant.cpp.o
+[10/57] Building CXX object CMakeFiles/ir.dir/ir/value.cpp.o
+[11/57] Building CXX object CMakeFiles/smt.dir/smt/solver.cpp.o
+[12/57] Building CXX object CMakeFiles/smt.dir/smt/exprs.cpp.o
+[13/57] Generating version_gen.h.tmp
+[14/57] Generating version_gen.h
+[15/57] Building CXX object CMakeFiles/ir.dir/ir/attrs.cpp.o
+[16/57] Building CXX object CMakeFiles/util.dir/util/compiler.cpp.o
+[17/57] Building CXX object CMakeFiles/util.dir/util/crc.cpp.o
+[18/57] Building CXX object CMakeFiles/smt.dir/smt/expr.cpp.o
+[19/57] Building CXX object CMakeFiles/alive-jobserver.dir/tools/alive-jobserver.cpp.o
+[20/57] Linking CXX static library libsmt.a
+[21/57] Building CXX object CMakeFiles/util.dir/util/config.cpp.o
+[22/57] Building CXX object CMakeFiles/util.dir/util/errors.cpp.o
+[23/57] Building CXX object CMakeFiles/ir.dir/ir/pointer.cpp.o
+[24/57] Building CXX object CMakeFiles/ir.dir/ir/type.cpp.o
+[25/57] Building CXX object CMakeFiles/util.dir/util/random.cpp.o
+[26/57] Building CXX object CMakeFiles/util.dir/util/version.cpp.o
+[27/57] Building CXX object CMakeFiles/util.dir/util/sort.cpp.o
+[28/57] Building CXX object CMakeFiles/util.dir/util/unionfind.cpp.o
+[29/57] Building CXX object CMakeFiles/util.dir/util/file.cpp.o
+[30/57] Linking CXX executable alive-jobserver
+[31/57] Building CXX object CMakeFiles/util.dir/util/stopwatch.cpp.o
+[32/57] Building CXX object CMakeFiles/ir.dir/ir/memory.cpp.o
+[33/57] Building CXX object CMakeFiles/util.dir/util/symexec.cpp.o
+[34/57] Linking CXX static library libutil.a
+[35/57] Building CXX object CMakeFiles/llvm_util.dir/llvm_util/compare.cpp.o
+[36/57] Building CXX object CMakeFiles/llvm_util.dir/llvm_util/known_fns.cpp.o
+FAILED: CMakeFiles/llvm_util.dir/llvm_util/known_fns.cpp.o 
+/usr/bin/clang++-22 -DNO_REDIS_SUPPORT -I/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src -I/tmp/opencode/wave16b-scratch/06-r-alive22/build-llvm22 -I/usr/lib/llvm-22/include -Wall -Werror -fPIC -fstrict-enums  -O3 -O3  -std=c++20   -D_GNU_SOURCE -D_GLIBCXX_USE_CXX11_ABI=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -MD -MT CMakeFiles/llvm_util.dir/llvm_util/known_fns.cpp.o -MF CMakeFiles/llvm_util.dir/llvm_util/known_fns.cpp.o.d -o CMakeFiles/llvm_util.dir/llvm_util/known_fns.cpp.o -c /tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/known_fns.cpp
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/known_fns.cpp:509:29: error: no matching member function for call to 'getLibFunc'
+  509 |   llvm::LibFunc libfn = TLI.getLibFunc(f);
+      |                         ~~~~^~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:333:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  333 |   bool getLibFunc(StringRef funcName, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:337:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  337 |   bool getLibFunc(const Function &FDecl, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:343:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  343 |   bool getLibFunc(const CallBase &CB, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:350:8: note: candidate function not viable: requires 3 arguments, but 1 was provided
+  350 |   bool getLibFunc(unsigned int Opcode, Type *Ty, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/known_fns.cpp:509:17: error: cannot initialize a variable of type 'llvm::LibFunc' with an rvalue of type 'bool'
+  509 |   llvm::LibFunc libfn = TLI.getLibFunc(f);
+      |                 ^       ~~~~~~~~~~~~~~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/known_fns.cpp:536:29: error: no matching member function for call to 'getLibFunc'
+  536 |   llvm::LibFunc libfn = TLI.getLibFunc(*decl);
+      |                         ~~~~^~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:333:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  333 |   bool getLibFunc(StringRef funcName, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:337:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  337 |   bool getLibFunc(const Function &FDecl, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:343:8: note: candidate function not viable: requires 2 arguments, but 1 was provided
+  343 |   bool getLibFunc(const CallBase &CB, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/Analysis/TargetLibraryInfo.h:350:8: note: candidate function not viable: requires 3 arguments, but 1 was provided
+  350 |   bool getLibFunc(unsigned int Opcode, Type *Ty, LibFunc &F) const {
+      |        ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/known_fns.cpp:536:17: error: cannot initialize a variable of type 'llvm::LibFunc' with an rvalue of type 'bool'
+  536 |   llvm::LibFunc libfn = TLI.getLibFunc(*decl);
+      |                 ^       ~~~~~~~~~~~~~~~~~~~~~
+4 errors generated.
+[37/57] Building CXX object CMakeFiles/ir.dir/ir/function.cpp.o
+[38/57] Building CXX object CMakeFiles/tools.dir/tools/transform.cpp.o
+[39/57] Building CXX object CMakeFiles/llvm_util.dir/llvm_util/utils.cpp.o
+[40/57] Building CXX object CMakeFiles/llvm_util.dir/llvm_util/llvm2alive.cpp.o
+FAILED: CMakeFiles/llvm_util.dir/llvm_util/llvm2alive.cpp.o 
+/usr/bin/clang++-22 -DNO_REDIS_SUPPORT -I/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src -I/tmp/opencode/wave16b-scratch/06-r-alive22/build-llvm22 -I/usr/lib/llvm-22/include -Wall -Werror -fPIC -fstrict-enums  -O3 -O3  -std=c++20   -D_GNU_SOURCE -D_GLIBCXX_USE_CXX11_ABI=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -MD -MT CMakeFiles/llvm_util.dir/llvm_util/llvm2alive.cpp.o -MF CMakeFiles/llvm_util.dir/llvm_util/llvm2alive.cpp.o.d -o CMakeFiles/llvm_util.dir/llvm_util/llvm2alive.cpp.o -c /tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:715:33: error: no type named 'UncondBrInst' in namespace 'llvm'
+  715 |   RetTy visitUncondBrInst(llvm::UncondBrInst &i) {
+      |                           ~~~~~~^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:719:31: error: no type named 'CondBrInst' in namespace 'llvm'; did you mean 'CallBrInst'?
+  719 |   RetTy visitCondBrInst(llvm::CondBrInst &i) {
+      |                         ~~~~~~^~~~~~~~~~
+      |                               CallBrInst
+/usr/lib/llvm-22/include/llvm/IR/Instruction.def:137:40: note: 'CallBrInst' declared here
+  137 | HANDLE_TERM_INST  (11, CallBr        , CallBrInst) // A call-site terminator
+      |                                        ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:722:31: error: no member named 'getCondition' in 'llvm::CallBrInst'
+  722 |     auto cond = get_operand(i.getCondition());
+      |                             ~ ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:853:10: error: no member named 'pext' in namespace 'llvm::Intrinsic'; did you mean 'next'?
+  853 |     case llvm::Intrinsic::pext:
+      |          ^~~~~~~~~~~~~~~~~~~~~
+      |          next
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_iterator_base_funcs.h:232:5: note: 'next' declared here
+  232 |     next(_InputIterator __x, typename
+      |     ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:853:27: error: value of type '<overloaded function type>' is not implicitly convertible to 'Intrinsic::ID' (aka 'unsigned int')
+  853 |     case llvm::Intrinsic::pext:
+      |                           ^~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:854:27: error: no member named 'pdep' in namespace 'llvm::Intrinsic'
+  854 |     case llvm::Intrinsic::pdep:
+      |                           ^~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:855:27: error: no member named 'umulh' in namespace 'llvm::Intrinsic'
+  855 |     case llvm::Intrinsic::umulh:
+      |                           ^~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:856:27: error: no member named 'smulh' in namespace 'llvm::Intrinsic'
+  856 |     case llvm::Intrinsic::smulh: {
+      |                           ^~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:883:12: error: no member named 'pext' in namespace 'llvm::Intrinsic'; did you mean 'next'?
+  883 |       case llvm::Intrinsic::pext:     op = BinOp::PExt; break;
+      |            ^~~~~~~~~~~~~~~~~~~~~
+      |            next
+/usr/lib/gcc/x86_64-linux-gnu/13/../../../../include/c++/13/bits/stl_iterator_base_funcs.h:232:5: note: 'next' declared here
+  232 |     next(_InputIterator __x, typename
+      |     ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:883:29: error: value of type '<overloaded function type>' is not implicitly convertible to 'Intrinsic::ID' (aka 'unsigned int')
+  883 |       case llvm::Intrinsic::pext:     op = BinOp::PExt; break;
+      |                             ^~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:884:29: error: no member named 'pdep' in namespace 'llvm::Intrinsic'
+  884 |       case llvm::Intrinsic::pdep:     op = BinOp::PDep; break;
+      |                             ^~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:885:29: error: no member named 'umulh' in namespace 'llvm::Intrinsic'
+  885 |       case llvm::Intrinsic::umulh:    op = BinOp::UMulH; break;
+      |                             ^~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:886:29: error: no member named 'smulh' in namespace 'llvm::Intrinsic'
+  886 |       case llvm::Intrinsic::smulh:    op = BinOp::SMulH; break;
+      |                             ^~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1714:37: error: no member named 'getDeadOnReturnInfo' in 'llvm::Attribute'
+ 1714 |         const auto &info = llvmattr.getDeadOnReturnInfo();
+      |                            ~~~~~~~~ ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1737:12: error: no member named 'NoFreeObj' in 'llvm::Attribute'; did you mean 'IR::FnAttrs::NoFreeObj'?
+ 1737 |       case llvm::Attribute::NoFreeObj:
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |            IR::FnAttrs::NoFreeObj
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/ir/attrs.h:141:20: note: 'IR::FnAttrs::NoFreeObj' declared here
+  141 |                    NoFreeObj = 1<<17 };
+      |                    ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1737:29: error: comparison of different enumeration types in switch statement ('Attribute::AttrKind' and 'IR::FnAttrs::Attribute') [-Werror,-Wenum-compare-switch]
+ 1611 |       case llvm::Attribute::NoFreeObj:
+      |                             ^~~~~~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1737:29: error: case value not in enumerated type 'Attribute::AttrKind' [-Werror,-Wswitch]
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1839:29: error: no member named 'DenormalFPEnv' in 'llvm::Attribute'
+ 1839 |       case llvm::Attribute::DenormalFPEnv: {
+      |                             ^~~~~~~~~~~~~
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm2alive.cpp:1840:32: error: no member named 'getDenormalFPEnv' in 'llvm::Attribute'
+ 1840 |         auto fp_env = llvmattr.getDenormalFPEnv();
+      |                       ~~~~~~~~ ^
+19 errors generated.
+[41/57] Building CXX object CMakeFiles/llvm_util.dir/llvm_util/llvm_optimizer.cpp.o
+FAILED: CMakeFiles/llvm_util.dir/llvm_util/llvm_optimizer.cpp.o 
+/usr/bin/clang++-22 -DNO_REDIS_SUPPORT -I/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src -I/tmp/opencode/wave16b-scratch/06-r-alive22/build-llvm22 -I/usr/lib/llvm-22/include -Wall -Werror -fPIC -fstrict-enums  -O3 -O3  -std=c++20   -D_GNU_SOURCE -D_GLIBCXX_USE_CXX11_ABI=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -MD -MT CMakeFiles/llvm_util.dir/llvm_util/llvm_optimizer.cpp.o -MF CMakeFiles/llvm_util.dir/llvm_util/llvm_optimizer.cpp.o.d -o CMakeFiles/llvm_util.dir/llvm_util/llvm_optimizer.cpp.o -c /tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm_optimizer.cpp
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/llvm_util/llvm_optimizer.cpp:33:24: error: no member named 'getLibraryOptions' in 'llvm::LLVMContext'
+   33 |         M.getContext().getLibraryOptions(), ModuleTriple);
+      |         ~~~~~~~~~~~~~~ ^
+1 error generated.
+[42/57] Building CXX object CMakeFiles/ir.dir/ir/state.cpp.o
+[43/57] Building CXX object CMakeFiles/ir.dir/ir/instr.cpp.o
+[44/57] Building CXX object CMakeFiles/alive-exec.dir/tools/alive-exec.cpp.o
+[45/57] Building CXX object CMakeFiles/quick-fuzz.dir/tools/quick-fuzz.cpp.o
+FAILED: CMakeFiles/quick-fuzz.dir/tools/quick-fuzz.cpp.o 
+/usr/bin/clang++-22 -DNO_REDIS_SUPPORT -I/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src -I/tmp/opencode/wave16b-scratch/06-r-alive22/build-llvm22 -I/usr/lib/llvm-22/include -Wall -Werror -fPIC -fstrict-enums  -O3 -O3  -std=c++20   -D_GNU_SOURCE -D_GLIBCXX_USE_CXX11_ABI=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-exceptions -funwind-tables -fexceptions -MD -MT CMakeFiles/quick-fuzz.dir/tools/quick-fuzz.cpp.o -MF CMakeFiles/quick-fuzz.dir/tools/quick-fuzz.cpp.o.d -o CMakeFiles/quick-fuzz.dir/tools/quick-fuzz.cpp.o -c /tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/tools/quick-fuzz.cpp
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/tools/quick-fuzz.cpp:847:7: error: use of undeclared identifier 'UncondBrInst'
+  847 |       UncondBrInst::Create(Dest, BBs[i]);
+      |       ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/tools/quick-fuzz.cpp:864:7: error: use of undeclared identifier 'CondBrInst'; did you mean 'CallBrInst'?
+  864 |       CondBrInst::Create(Cond, Dest1, Dest2, BBs[i]);
+      |       ^~~~~~~~~~
+      |       CallBrInst
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3886:7: note: 'CallBrInst' declared here
+ 3886 | class CallBrInst : public CallBase {
+      |       ^
+/tmp/opencode/wave16b-scratch/06-r-alive22/alive2-src/tools/quick-fuzz.cpp:864:7: error: no matching function for call to 'Create'
+  864 |       CondBrInst::Create(Cond, Dest1, Dest2, BBs[i]);
+      |       ^~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3956:22: note: candidate function not viable: no known conversion from 'Value *' to 'FunctionCallee' for 1st argument
+ 3956 |   static CallBrInst *Create(FunctionCallee Func, BasicBlock *DefaultDest,
+      |                      ^      ~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3972:31: note: candidate function not viable: requires at most 3 arguments, but 4 were provided
+ 3972 |   LLVM_ABI static CallBrInst *Create(CallBrInst *CBI,
+      |                               ^      ~~~~~~~~~~~~~~~~
+ 3973 |                                      ArrayRef<OperandBundleDef> Bundles,
+      |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3974 |                                      InsertPosition InsertBefore = nullptr);
+      |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3948:22: note: candidate function not viable: requires at least 5 arguments, but 4 were provided
+ 3948 |   static CallBrInst *Create(FunctionCallee Func, BasicBlock *DefaultDest,
+      |                      ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3949 |                             ArrayRef<BasicBlock *> IndirectDests,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3950 |                             ArrayRef<Value *> Args, const Twine &NameStr,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3951 |                             InsertPosition InsertBefore = nullptr) {
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3921:22: note: candidate function not viable: requires at least 6 arguments, but 4 were provided
+ 3921 |   static CallBrInst *Create(FunctionType *Ty, Value *Func,
+      |                      ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3922 |                             BasicBlock *DefaultDest,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~
+ 3923 |                             ArrayRef<BasicBlock *> IndirectDests,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3924 |                             ArrayRef<Value *> Args, const Twine &NameStr,
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3925 |                             InsertPosition InsertBefore = nullptr) {
+      |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/lib/llvm-22/include/llvm/IR/Instructions.h:3934:3: note: candidate function not viable: requires at least 5 arguments, but 4 were provided
+ 3934 |   Create(FunctionType *Ty, Value *Func, BasicBlock *DefaultDest,
+      |   ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3935 |          ArrayRef<BasicBlock *> IndirectDests, ArrayRef<Value *> Args,
+      |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3936 |          ArrayRef<OperandBundleDef> Bundles = {}, const Twine &NameStr = "",
+      |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 3937 |          InsertPosition InsertBefore = nullptr) {
+      |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 errors generated.
+[46/57] Building CXX object CMakeFiles/alive-tv.dir/tools/alive-tv.cpp.o
+ninja: build stopped: subcommand failed.
+EXIT=1

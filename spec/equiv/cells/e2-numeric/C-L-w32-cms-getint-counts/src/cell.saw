@@ -1,0 +1,44 @@
+import "cell.cry";
+
+mC_clamp <- llvm_load_module "c_cell_clamp_int32.bc";
+mL_clamp <- llvm_load_module "l_cell_clamp_int32.bc";
+mC_cms <- llvm_load_module "c_cell_cms_counts4.bc";
+mL_cms <- llvm_load_module "l_cell_cms_counts4.bc";
+
+// SCR-086 clamp leaf: Core's getint() vs Lean's getIntClamped, for every
+// int64_t m_value.  The Cryptol oracle is an independent statement of
+// script.h:326-333, so both firing arms are checked.
+let clamp_setup = do {
+  x <- llvm_fresh_var "x" (llvm_int 64);
+  llvm_execute_func [llvm_term x];
+  llvm_return (llvm_term {{ clamp_i32 x }});
+};
+
+// SCR-086 CMS call-site leaf: two exactly-four-byte count operands, decoded
+// as CScriptNum (script.h:246-271, 376-391), passed through getint(), then
+// Core's front-matter decision.  The oracle takes the raw bytes, so every
+// four-byte operand is covered.
+let cms_setup = do {
+  kb0 <- llvm_fresh_var "kb0" (llvm_int 8);
+  kb1 <- llvm_fresh_var "kb1" (llvm_int 8);
+  kb2 <- llvm_fresh_var "kb2" (llvm_int 8);
+  kb3 <- llvm_fresh_var "kb3" (llvm_int 8);
+  sb0 <- llvm_fresh_var "sb0" (llvm_int 8);
+  sb1 <- llvm_fresh_var "sb1" (llvm_int 8);
+  sb2 <- llvm_fresh_var "sb2" (llvm_int 8);
+  sb3 <- llvm_fresh_var "sb3" (llvm_int 8);
+  depth <- llvm_fresh_var "depth" (llvm_int 32);
+  opc <- llvm_fresh_var "opc" (llvm_int 32);
+  llvm_execute_func [llvm_term kb0, llvm_term kb1, llvm_term kb2,
+                     llvm_term kb3, llvm_term sb0, llvm_term sb1,
+                     llvm_term sb2, llvm_term sb3, llvm_term depth,
+                     llvm_term opc];
+  llvm_return (llvm_term {{ cms_counts4 kb0 kb1 kb2 kb3 sb0 sb1 sb2 sb3
+                                         depth opc }});
+};
+
+llvm_verify mC_clamp "cell_clamp_int32" [] false clamp_setup z3;
+llvm_verify mL_clamp "cell_clamp_int32" [] false clamp_setup z3;
+llvm_verify mC_cms "cell_cms_counts4" [] false cms_setup z3;
+llvm_verify mL_cms "cell_cms_counts4" [] false cms_setup z3;
+print "CELL_W32_CMS_GETINT_COUNTS_SAW_GREEN";

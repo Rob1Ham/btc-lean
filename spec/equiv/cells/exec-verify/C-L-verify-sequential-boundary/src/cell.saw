@@ -1,0 +1,64 @@
+import "cell.cry";
+
+// SCR-001 boundary cell: each leg is verified against the closed form in
+// cell.cry.  No llvm_unsafe_assume_spec; every external the two legs call
+// (none) is defined inside the extracted module.
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// ---- 1. GetScriptOp boundary decision, complete over declared length ----
+let push_boundary_spec = do {
+  op    <- llvm_fresh_var "op"    (llvm_int 8);
+  b0    <- llvm_fresh_var "b0"    (llvm_int 8);
+  b1    <- llvm_fresh_var "b1"    (llvm_int 8);
+  b2    <- llvm_fresh_var "b2"    (llvm_int 8);
+  b3    <- llvm_fresh_var "b3"    (llvm_int 8);
+  after <- llvm_fresh_var "after" (llvm_int 64);
+  llvm_execute_func [llvm_term op, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term after];
+  llvm_return (llvm_term {{ push_boundary op b0 b1 b2 b3 after }});
+};
+
+llvm_verify mC "cell_push_boundary" [] false push_boundary_spec abc;
+llvm_verify mL "cell_push_boundary" [] false push_boundary_spec abc;
+
+// ---- 2. Sequential vs concatenated verdict pair ----
+let split_verdict_spec = do {
+  declared <- llvm_fresh_var "declared" (llvm_int 64);
+  after    <- llvm_fresh_var "after"    (llvm_int 64);
+  truthy   <- llvm_fresh_var "truthy"   (llvm_int 64);
+  llvm_execute_func [llvm_term declared, llvm_term after, llvm_term truthy];
+  llvm_return (llvm_term {{ split_verdict declared after truthy }});
+};
+
+llvm_verify mC "cell_split_verdict" [] false split_verdict_spec abc;
+llvm_verify mL "cell_split_verdict" [] false split_verdict_spec abc;
+
+// ---- 3. The distinction itself: verdicts differ iff the push straddles ----
+let split_diff_spec = do {
+  declared <- llvm_fresh_var "declared" (llvm_int 64);
+  after    <- llvm_fresh_var "after"    (llvm_int 64);
+  truthy   <- llvm_fresh_var "truthy"   (llvm_int 64);
+  llvm_execute_func [llvm_term declared, llvm_term after, llvm_term truthy];
+  llvm_return (llvm_term {{ split_diff declared after truthy }});
+};
+
+llvm_verify mC "cell_split_diff" [] false split_diff_spec abc;
+llvm_verify mL "cell_split_diff" [] false split_diff_spec abc;
+
+// ---- 4. VerifyScript order / stack handoff / final truth ----
+let verify_tail_spec = do {
+  trunc <- llvm_fresh_var "trunc" (llvm_int 64);
+  word  <- llvm_fresh_var "word"  (llvm_int 64);
+  len   <- llvm_fresh_var "len"   (llvm_int 64);
+  kind  <- llvm_fresh_var "kind"  (llvm_int 64);
+  llvm_execute_func [llvm_term trunc, llvm_term word, llvm_term len,
+                     llvm_term kind];
+  llvm_return (llvm_term {{ verify_tail trunc word len kind }});
+};
+
+llvm_verify mC "cell_verify_tail" [] false verify_tail_spec abc;
+llvm_verify mL "cell_verify_tail" [] false verify_tail_spec abc;
+
+print "CELL_VERIFY_SEQUENTIAL_BOUNDARY_SAW_GREEN";

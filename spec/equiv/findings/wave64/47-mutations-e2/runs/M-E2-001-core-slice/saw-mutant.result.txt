@@ -1,0 +1,39 @@
+# cell: control-flow/C-L-casttobool
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# script: build/cell.saw
+# expected: at least 6 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_cast_empty...
+Simulating cell_cast_empty...
+Checking proof obligations cell_cast_empty...
+Proof succeeded! cell_cast_empty
+Verifying cell_cast_empty...
+Simulating cell_cast_empty...
+Checking proof obligations cell_cast_empty...
+Proof succeeded! cell_cast_empty
+Verifying cell_cast_len1...
+Simulating cell_cast_len1...
+Checking proof obligations cell_cast_len1...
+Subgoal failed: cell_cast_len1 cell.saw:25:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+cast1 b0
+Actual term:
+bvUExt 31 1
+  (ite (Vec 1 Bool) (bvEq 8 (bvNat 8 0) b0) (bvNat 1 0)
+     (bvNat 1 1))
+
+Goal size 59. Provers used: abc_verilog
+----------Counterexample----------
+  b0: 128
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:25:46-25:49 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:25:1-25:49 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

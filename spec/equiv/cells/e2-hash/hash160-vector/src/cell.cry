@@ -1,0 +1,23 @@
+module CellHash where
+
+// Concrete HASH160 witness: preimage "a" (0x61).
+// SHA256(0x61) = ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb
+// RIPEMD160 of that = 994355199e516ff76c4fa4aab39337b9d84cf12b
+//
+// The digest is the concrete value the SAW override supplies for the opaque
+// hash160 external; it is not derived inside either leg.
+digest : [20][8]
+digest = [0x99, 0x43, 0x55, 0x19, 0x9e, 0x51, 0x6f, 0xf7, 0x6c, 0x4f,
+          0xa4, 0xaa, 0xb3, 0x93, 0x37, 0xb9, 0xd8, 0x4c, 0xf1, 0x2b]
+
+// Packed observable: result=1, depth=1, length=20 at bit 11, then the first
+// five digest bytes at bits 24..63.
+packed_digest : [20][8] -> [64]
+packed_digest d =
+      (0x0000000000000101 : [64])            // result=1, depth=1
+    + (0x000000000000a000 : [64])            // length 20 at bit 11 (20<<11)
+    + (zext (d @ 0) << 24)
+    + (zext (d @ 1) << 32)
+    + (zext (d @ 2) << 40)
+    + (zext (d @ 3) << 48)
+    + (zext (d @ 4) << 56)

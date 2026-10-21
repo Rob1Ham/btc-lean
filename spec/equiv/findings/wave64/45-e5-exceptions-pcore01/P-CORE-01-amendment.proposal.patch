@@ -1,0 +1,82 @@
+# PROPOSAL — do not apply as part of this task.
+#
+# Amendment to spec/equiv/patches/core/P-CORE-01-scriptnum-error-returns.patch
+# (sha256 107ef2ed…). It keeps the scriptnum lowering and removes the two
+# behaviour changes identified in
+#   findings/wave16b/04-e5-exceptions/README.md §3.2–3.3.
+#
+# Target: the P-CORE-01-patched tree (core-p1/src), which currently has the
+# #ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW wrappers around `try`/both catches and
+# the assert in popstack.
+#
+# Effect:
+#   * `catch(...)` is restored, so allocation failures and throwing externals
+#     still yield SCRIPT_ERR_UNKNOWN_ERROR exactly as Core does;
+#   * `catch(const scriptnum_error&)` is restored as a safety net (it is dead
+#     once every site uses GetScriptNum, but keeping it cannot change
+#     behaviour);
+#   * popstack returns to the original throw, so the patch no longer relies on
+#     the (audited, but not machine-proved) "never empty" fact to preserve
+#     behaviour. The throw remains unreachable per the audit.
+#
+# Verified: the amended interpreter compiles
+#   (interp-p1amend.bc 4583a46dd76bfe2ed2b63393c071a21a53986e7e38c873c9b11b8163d358af5b)
+# and the scriptnum probe still succeeds on the resulting module
+#   (m3a.bc 78b1b47f2d03fed464480acd7e006310857997d5963116858730f45ad88f1ad5,
+#    probes/log-b4-throw-pcore01-amend.txt: Proof succeeded).
+#
+# Apply from the P-CORE-01 tree root (paths a/src/... b/src/...), stripping
+# this comment header:
+#   sed -n '/^--- a\//,$p' P-CORE-01-amendment.proposal.patch | git apply
+
+--- a/src/script/interpreter.cpp
++++ b/src/script/interpreter.cpp
+@@ -80,15 +80,11 @@
+ #define altstacktop(i) (altstack.at(size_t(int64_t(altstack.size()) + int64_t{i})))
+ static inline void popstack(std::vector<valtype>& stack)
+ {
+-#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
+-    // Reaching this with an empty stack is a Core bug: every call site checks
+-    // the stack size first. Turn the exception into an assertion so the
+-    // function stays exception-free; never observed on any non-buggy path.
+-    assert(!stack.empty());
+-#else
++    // Kept as a throw: the catch(...) below maps it to SCRIPT_ERR_UNKNOWN_ERROR,
++    // exactly like Core. The audit (findings/wave16b/04-e5-exceptions) shows it
++    // is unreachable, but that is stated as an obligation, not assumed here.
+     if (stack.empty())
+         throw std::runtime_error("popstack(): stack empty");
+-#endif
+     stack.pop_back();
+ }
+ 
+@@ -465,9 +461,7 @@
+     execdata.m_codeseparator_pos = 0xFFFFFFFFUL;
+     execdata.m_codeseparator_pos_init = true;
+ 
+-#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     try
+-#endif
+     {
+         for (; pc < pend; ++opcode_pos) {
+             bool fExec = vfExec.all_true();
+@@ -1316,16 +1310,17 @@
+                 return set_error(serror, SCRIPT_ERR_STACK_SIZE);
+         }
+     }
+-#ifndef BTC_EQUIV_NO_SCRIPTNUM_THROW
+     catch (const scriptnum_error&)
+     {
++        // Unreachable once every call site uses GetScriptNum()/from_vch();
++        // kept so a missed site still yields Core's error code.
+         return set_error(serror, SCRIPT_ERR_SCRIPTNUM);
+     }
+     catch (...)
+     {
++        // Allocation failure and any throwing external: Core behaviour.
+         return set_error(serror, SCRIPT_ERR_UNKNOWN_ERROR);
+     }
+-#endif
+ 
+     if (!vfExec.empty())
+         return set_error(serror, SCRIPT_ERR_UNBALANCED_CONDITIONAL);

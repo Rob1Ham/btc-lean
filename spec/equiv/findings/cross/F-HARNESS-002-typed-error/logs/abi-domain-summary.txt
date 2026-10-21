@@ -1,0 +1,12 @@
+name	core_result	core_kind	r_result	r_kind	agree	note
+amount_negative	2	1	2	1	yes	contract: amount<0 is 2; both legs agree
+amount_over_max	2	1	1	0	NO	contract: amount>MAX_MONEY is 2; R has no upper-bound check
+flags_p2sh	1	0	2	1	NO	flags=0x1 allowed by tape.md; R rejects every nonzero flag
+flags_taproot	1	0	2	1	NO	flags=0x20000 allowed by tape.md; R rejects every nonzero flag
+spk_over_10k	0	5	2	1	NO	tape.md: any spk length; Core hits SCRIPT_SIZE(5); R caps at 10000
+two_inputs_idx0	1	0	2	1	NO	Core verifies input_index only; R rejects multi-input
+two_inputs_idx1	1	0	2	1	NO	same tape, input_index=1; R rejects input_index!=0
+zero_inputs	2	1	2	1	yes	vin empty is 2 in both legs (control)
+
+domain divergences: 6/8
+wrote /tmp/opencode/wave64/50-r-harness-typed-error/spec/equiv/findings/cross/F-HARNESS-002-typed-error/logs/abi-domain.tsv

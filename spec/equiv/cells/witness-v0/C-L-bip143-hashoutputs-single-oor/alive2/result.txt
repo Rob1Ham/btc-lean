@@ -1,0 +1,50 @@
+# cell: C-L-bip143-hashoutputs-single-oor
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_bip143_hashoutputs_mode 
+# command: alive-tv ir/c_cell_bip143_hashoutputs_mode.ll ir/l_cell_bip143_hashoutputs_mode.ll
+
+----------------------------------------
+define i64 @cell_bip143_hashoutputs_mode(i64 noundef %hash_type, i64 noundef %n_in, i64 noundef %vout_len) nofree willreturn memory(none) {
+entry:
+  %rem = and i64 noundef %hash_type, 31
+  %#0 = add nsw i64 %rem, -4
+  %or.cond = icmp ult i64 %#0, -2
+  %cmp2 = icmp eq i64 %rem, 3
+  %cmp4 = icmp ult i64 noundef %n_in, noundef %vout_len
+  %or.cond9 = and i1 %cmp2, %cmp4
+  %spec.select = select i1 %or.cond9, i64 3, i64 0
+  %retval.0 = select i1 %or.cond, i64 2, i64 %spec.select
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_bip143_hashoutputs_mode(i64 noundef %hash_type, i64 noundef %n_in, i64 noundef %vout_len) nofree willreturn memory(none) {
+entry:
+  %rem = and i64 noundef %hash_type, 31
+  switch i64 %rem, label %if.end6 [
+    i64 3, label %if.then
+    i64 2, label %cleanup
+  ]
+
+if.then:
+  %cmp1 = icmp ult i64 noundef %n_in, noundef %vout_len
+  %. = select i1 %cmp1, i64 3, i64 0
+  br label %cleanup
+
+if.end6:
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ 2, %if.end6 ], [ %., %if.then ], [ 0, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 4
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

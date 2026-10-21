@@ -1,0 +1,325 @@
+# cell: control-flow/C-L-if-notif
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_if_len0.ll build/l_cell_if_len0.ll
+
+----------------------------------------
+define i64 @cell_if_len0(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth) nofree willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL13core_if_notifILj0EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i, label %_ZL13core_if_notifILj0EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %tobool9.not.i.not = icmp eq i32 noundef %isNotif, 0
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#0 = select i1 %tobool9.not.i.not, i32 0, i32 262144
+  br label %_ZL13core_if_notifILj0EEjR3IStjjjjPKh.exit
+
+_ZL13core_if_notifILj0EEjR3IStjjjjPKh.exit:
+  %st.sroa.0.1 = phi i32 [ noundef %depth, %if.then.i ], [ noundef %depth, %entry ], [ %sub.i, %if.end.i ]
+  %st.sroa.813.0 = phi i32 [ 0, %if.then.i ], [ 1, %entry ], [ 1, %if.end.i ]
+  %st.sroa.11.0 = phi i32 [ 0, %if.then.i ], [ 0, %entry ], [ %#0, %if.end.i ]
+  %retval.0.i = phi i32 [ 72, %if.then.i ], [ 0, %entry ], [ 0, %if.end.i ]
+  %and1.i = shl i32 %st.sroa.0.1, 8
+  %#1 = and i32 %and1.i, 65280
+  %#2 = or i32 %#1, %retval.0.i
+  %and5.i = shl nsw nuw i32 %st.sroa.813.0, 16
+  %#3 = or i32 %#2, %and5.i
+  %#4 = or i32 %#3, %st.sroa.11.0
+  %add1222.i = or i32 %#4, %st.sroa.813.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+=>
+define i64 @cell_if_len0(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth) nofree willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL10l_if_notifILj0EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i, label %_ZL10l_if_notifILj0EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %tobool20.not.i.not = icmp eq i32 noundef %isNotif, 0
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#0 = select i1 %tobool20.not.i.not, i32 0, i32 262144
+  br label %_ZL10l_if_notifILj0EEjR3IStjjjjPKh.exit
+
+_ZL10l_if_notifILj0EEjR3IStjjjjPKh.exit:
+  %st.sroa.0.0 = phi i32 [ %sub.i, %if.end.i ], [ noundef %depth, %if.then.i ], [ noundef %depth, %entry ]
+  %st.sroa.810.0 = phi i32 [ 1, %if.end.i ], [ 0, %if.then.i ], [ 1, %entry ]
+  %st.sroa.13.0 = phi i32 [ %#0, %if.end.i ], [ 0, %if.then.i ], [ 0, %entry ]
+  %retval.0.i = phi i32 [ 0, %if.end.i ], [ 72, %if.then.i ], [ 0, %entry ]
+  %and1.i = shl i32 %st.sroa.0.0, 8
+  %#1 = and i32 %and1.i, 65280
+  %#2 = or i32 %#1, %retval.0.i
+  %and5.i = shl nsw nuw i32 %st.sroa.810.0, 16
+  %#3 = or i32 %#2, %and5.i
+  %#4 = or i32 %#3, %st.sroa.13.0
+  %add1222.i = or i32 %#4, %st.sroa.810.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_if_len1.ll build/l_cell_if_len1.ll
+
+----------------------------------------
+define i64 @cell_if_len1(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth, i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i5 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i5, label %_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp ne i32 noundef %sv, 2
+  %cmp4.not.i = icmp eq i8 noundef zeroext %b0, 1
+  %or.cond = or i1 %cmp2.i, %cmp4.not.i
+  br i1 %or.cond, label %if.end7.i, label %_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit
+
+if.end7.i:
+  %cmp8.i = icmp ne i32 noundef %sv, 1
+  %tobool9.i = icmp eq i32 noundef %minimalif, 0
+  %or.cond.i.not13 = or i1 %cmp8.i, %tobool9.i
+  %cmp13.not.i = icmp eq i8 noundef zeroext %b0, 1
+  %or.cond12 = or i1 %or.cond.i.not13, %cmp13.not.i
+  br i1 %or.cond12, label %for.cond.i.i.preheader, label %_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit
+
+for.cond.i.i.preheader:
+  %cmp1.not.i.i = icmp eq i8 noundef zeroext %b0, 0
+  br label %for.cond.i.i
+
+for.cond.i.i:
+  %i.0.i.i = phi i1 [ 0, %for.body.i.i ], [ 1, %for.cond.i.i.preheader ]
+  br i1 %i.0.i.i, label %for.body.i.i, label %_ZL13core_cast_lenILj1EEbPKh.exit
+
+for.body.i.i:
+  br i1 %cmp1.not.i.i, label %for.cond.i.i, label %if.then.i.i
+
+if.then.i.i:
+  %cmp6.i.i = icmp ne i8 noundef zeroext %b0, 128
+  br label %_ZL13core_cast_lenILj1EEbPKh.exit
+
+_ZL13core_cast_lenILj1EEbPKh.exit:
+  %retval.0.i.i = phi i1 [ %cmp6.i.i, %if.then.i.i ], [ undef, %for.cond.i.i ]
+  %spec.select.i.i = and i1 %i.0.i.i, %retval.0.i.i
+  %tobool17.not.i = icmp ne i32 noundef %isNotif, 0
+  %spec.select.i = xor i1 %tobool17.not.i, %spec.select.i.i
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#0 = select i1 %spec.select.i, i32 262144, i32 0
+  br label %_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit
+
+_ZL13core_if_notifILj1EEjR3IStjjjjPKh.exit:
+  %st.sroa.1010.0 = phi i32 [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end7.i ], [ 1, %_ZL13core_cast_lenILj1EEbPKh.exit ], [ 1, %entry ]
+  %st.sroa.14.0 = phi i32 [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end7.i ], [ %#0, %_ZL13core_cast_lenILj1EEbPKh.exit ], [ 0, %entry ]
+  %st.sroa.0.1 = phi i32 [ noundef %depth, %if.then.i ], [ noundef %depth, %if.end.i ], [ noundef %depth, %if.end7.i ], [ %sub.i, %_ZL13core_cast_lenILj1EEbPKh.exit ], [ noundef %depth, %entry ]
+  %retval.0.i = phi i32 [ 72, %if.then.i ], [ 204, %if.end.i ], [ 124, %if.end7.i ], [ 0, %_ZL13core_cast_lenILj1EEbPKh.exit ], [ 0, %entry ]
+  %and1.i = shl i32 %st.sroa.0.1, 8
+  %#1 = and i32 %and1.i, 65280
+  %#2 = or i32 %retval.0.i, %#1
+  %and5.i = shl nsw nuw i32 %st.sroa.1010.0, 16
+  %#3 = or i32 %#2, %and5.i
+  %#4 = or i32 %#3, %st.sroa.14.0
+  %add1222.i = or i32 %#4, %st.sroa.1010.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+=>
+define i64 @cell_if_len1(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth, i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i5 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i5, label %_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp ne i32 noundef %sv, 2
+  %cmp3.not.i = icmp eq i8 noundef zeroext %b0, 1
+  %or.cond = or i1 %cmp2.i, %cmp3.not.i
+  br i1 %or.cond, label %if.end6.i, label %_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit
+
+if.end6.i:
+  %cmp7.i = icmp ne i32 noundef %sv, 1
+  %tobool9.i = icmp eq i32 noundef %minimalif, 0
+  %or.cond.i.not21 = or i1 %cmp7.i, %tobool9.i
+  %cmp13.not.i = icmp eq i8 noundef zeroext %b0, 1
+  %or.cond20 = or i1 %or.cond.i.not21, %cmp13.not.i
+  br i1 %or.cond20, label %if.end16.i, label %_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit
+
+if.end16.i:
+  %#0 = and i8 noundef zeroext %b0, 127
+  %spec.select.i11 = icmp ne i8 %#0, 0
+  %tobool18.not.i = icmp ne i32 noundef %isNotif, 0
+  %spec.select.i = xor i1 %tobool18.not.i, %spec.select.i11
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#1 = select i1 %spec.select.i, i32 262144, i32 0
+  br label %_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit
+
+_ZL10l_if_notifILj1EEjR3IStjjjjPKh.exit:
+  %st.sroa.1015.0 = phi i32 [ 1, %if.end16.i ], [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end6.i ], [ 1, %entry ]
+  %st.sroa.16.0 = phi i32 [ %#1, %if.end16.i ], [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end6.i ], [ 0, %entry ]
+  %st.sroa.0.0 = phi i32 [ %sub.i, %if.end16.i ], [ noundef %depth, %if.then.i ], [ noundef %depth, %if.end.i ], [ noundef %depth, %if.end6.i ], [ noundef %depth, %entry ]
+  %retval.0.i = phi i32 [ 0, %if.end16.i ], [ 72, %if.then.i ], [ 204, %if.end.i ], [ 124, %if.end6.i ], [ 0, %entry ]
+  %and1.i = shl i32 %st.sroa.0.0, 8
+  %#2 = and i32 %and1.i, 65280
+  %#3 = or i32 %retval.0.i, %#2
+  %and5.i = shl nsw nuw i32 %st.sroa.1015.0, 16
+  %#4 = or i32 %#3, %and5.i
+  %#5 = or i32 %#4, %st.sroa.16.0
+  %add1222.i = or i32 %#5, %st.sroa.1015.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_if_len2.ll build/l_cell_if_len2.ll
+
+----------------------------------------
+define i64 @cell_if_len2(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth, i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %vch = alloca i64 2, align 1, dead
+  start_lifetime ptr %vch
+  store i8 noundef zeroext %b0, ptr %vch, align 1
+  %arrayinit.element = gep inbounds nuw ptr %vch, 1 x i64 1
+  store i8 noundef zeroext %b1, ptr %arrayinit.element, align 1
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i7, label %_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i32 noundef %sv, 2
+  br i1 %cmp2.i, label %_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.end4.i
+
+if.end4.i:
+  %cmp5.i = icmp eq i32 noundef %sv, 1
+  %tobool6.i = icmp ne i32 noundef %minimalif, 0
+  %or.cond.i = and i1 %cmp5.i, %tobool6.i
+  br i1 %or.cond.i, label %_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit, label %for.body.i.i
+
+for.body.i.i:
+  %indvars.iv = phi i64 [ %indvars.iv.next, %for.inc.i.i ], [ 0, %if.end4.i ]
+  %arrayidx.i.i = gep inbounds nuw ptr %vch, 1 x i64 %indvars.iv
+  %#0 = load i8, ptr %arrayidx.i.i, align 1
+  %cmp1.not.i.i.not.not.not = icmp ne i8 %#0, 0
+  br i1 %cmp1.not.i.i.not.not.not, label %if.then.i.i, label %for.inc.i.i
+
+if.then.i.i:
+  %cmp2.i.i = icmp ne i64 %indvars.iv, 1
+  %cmp6.i.i = icmp ne i8 %#0, 128
+  %or.cond.i.i.not = or i1 %cmp2.i.i, %cmp6.i.i
+  br label %_ZL13core_cast_lenILj2EEbPKh.exit
+
+for.inc.i.i:
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %cmp.i.i = icmp eq i64 %indvars.iv, 0
+  br i1 %cmp.i.i, label %for.body.i.i, label %_ZL13core_cast_lenILj2EEbPKh.exit
+
+_ZL13core_cast_lenILj2EEbPKh.exit:
+  %retval.0.i.i = phi i1 [ %or.cond.i.i.not, %if.then.i.i ], [ undef, %for.inc.i.i ]
+  %spec.select.i.i = and i1 %cmp1.not.i.i.not.not.not, %retval.0.i.i
+  %tobool9.not.i = icmp ne i32 noundef %isNotif, 0
+  %spec.select.i = xor i1 %tobool9.not.i, %spec.select.i.i
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#1 = select i1 %spec.select.i, i32 262144, i32 0
+  br label %_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit
+
+_ZL13core_if_notifILj2EEjR3IStjjjjPKh.exit:
+  %st.sroa.1012.0 = phi i32 [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end4.i ], [ 1, %_ZL13core_cast_lenILj2EEbPKh.exit ], [ 1, %entry ]
+  %st.sroa.14.0 = phi i32 [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end4.i ], [ %#1, %_ZL13core_cast_lenILj2EEbPKh.exit ], [ 0, %entry ]
+  %st.sroa.0.1 = phi i32 [ noundef %depth, %if.then.i ], [ noundef %depth, %if.end.i ], [ noundef %depth, %if.end4.i ], [ %sub.i, %_ZL13core_cast_lenILj2EEbPKh.exit ], [ noundef %depth, %entry ]
+  %retval.0.i = phi i32 [ 72, %if.then.i ], [ 204, %if.end.i ], [ 124, %if.end4.i ], [ 0, %_ZL13core_cast_lenILj2EEbPKh.exit ], [ 0, %entry ]
+  %and1.i = shl i32 %st.sroa.0.1, 8
+  %#2 = and i32 %and1.i, 65280
+  %#3 = or i32 %retval.0.i, %#2
+  %and5.i = shl nsw nuw i32 %st.sroa.1012.0, 16
+  %#4 = or i32 %#3, %and5.i
+  %#5 = or i32 %#4, %st.sroa.14.0
+  %add1222.i = or i32 %#5, %st.sroa.1012.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  end_lifetime ptr %vch
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+=>
+define i64 @cell_if_len2(i32 noundef %isNotif, i32 noundef %fexec, i32 noundef %sv, i32 noundef %minimalif, i32 noundef %depth, i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %tobool.not.i = icmp eq i32 noundef %fexec, 0
+  br i1 %tobool.not.i, label %_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.then.i
+
+if.then.i:
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i7, label %_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i32 noundef %sv, 2
+  br i1 %cmp2.i, label %_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.end5.i
+
+if.end5.i:
+  %cmp6.i = icmp eq i32 noundef %sv, 1
+  %tobool7.i = icmp ne i32 noundef %minimalif, 0
+  %or.cond.i = and i1 %cmp6.i, %tobool7.i
+  br i1 %or.cond.i, label %_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit, label %if.end10.i
+
+if.end10.i:
+  %#0 = and i8 noundef zeroext %b1, 127
+  %#1 = or i8 noundef zeroext %b0, %#0
+  %retval.0.i13 = icmp ne i8 %#1, 0
+  %tobool12.not.i = icmp ne i32 noundef %isNotif, 0
+  %spec.select.i = xor i1 %tobool12.not.i, %retval.0.i13
+  %sub.i = add i32 noundef %depth, 4294967295
+  %#2 = select i1 %spec.select.i, i32 262144, i32 0
+  br label %_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit
+
+_ZL10l_if_notifILj2EEjR3IStjjjjPKh.exit:
+  %st.sroa.1016.0 = phi i32 [ 1, %if.end10.i ], [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end5.i ], [ 1, %entry ]
+  %st.sroa.16.0 = phi i32 [ %#2, %if.end10.i ], [ 0, %if.then.i ], [ 0, %if.end.i ], [ 0, %if.end5.i ], [ 0, %entry ]
+  %st.sroa.0.0 = phi i32 [ %sub.i, %if.end10.i ], [ noundef %depth, %if.then.i ], [ noundef %depth, %if.end.i ], [ noundef %depth, %if.end5.i ], [ noundef %depth, %entry ]
+  %retval.0.i = phi i32 [ 0, %if.end10.i ], [ 72, %if.then.i ], [ 204, %if.end.i ], [ 124, %if.end5.i ], [ 0, %entry ]
+  %and1.i = shl i32 %st.sroa.0.0, 8
+  %#3 = and i32 %and1.i, 65280
+  %#4 = or i32 %retval.0.i, %#3
+  %and5.i = shl nsw nuw i32 %st.sroa.1016.0, 16
+  %#5 = or i32 %#4, %and5.i
+  %#6 = or i32 %#5, %st.sroa.16.0
+  %add1222.i = or i32 %#6, %st.sroa.1016.0
+  %add12.i = zext nneg i32 %add1222.i to i64
+  %#range_0_%add12.i = !range i64 %add12.i, i64 0, i64 393216
+  ret i64 %#range_0_%add12.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

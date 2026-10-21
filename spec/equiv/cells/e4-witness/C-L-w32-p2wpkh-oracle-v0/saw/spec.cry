@@ -1,0 +1,190 @@
+module Spec where
+
+// Independent postcondition for cell e4-witness/C-L-w32-p2wpkh-oracle-v0
+// (SCR-136, P2WPKH v0 20-byte arm).
+//
+// There are two exports, and one Cryptol contract for each:
+//
+//   verdict  = the total execution outcome of the five-op implied script
+//              (the same contract the sibling C-L-w32-p2wpkh-exec cell uses);
+//   seam     = the argument words the interpreter hands to the two declared
+//              crypto seams, selected by the symbolic pair (sel, k).
+//
+// Both contracts are written without either leg, and both are parametric in
+// the same two seams: h0,h1,h2 (HASH160(pk)) and (ck_err, ck_ok)
+// (EvalChecksig).  Nothing here computes a hash or an ECDSA decision.
+
+type Word = [64]
+
+sent : Word
+sent = 0xffffffffffffffff
+
+// byte i (little-endian) of a 64-bit word.
+byte : Word -> [8] -> [8]
+byte w i = drop`{56} (w >> (i * 8))
+
+program : Word -> Word -> Word -> [20][8]
+program p0 p1 p2 =
+  [ byte p0 i | i <- [0 .. 7] ] #
+  [ byte p1 i | i <- [0 .. 7] ] #
+  [ byte p2 i | i <- [0 .. 3] ]
+
+hash20 : Word -> Word -> Word -> [20][8]
+hash20 h0 h1 h2 =
+  [ byte h0 i | i <- [0 .. 7] ] #
+  [ byte h1 i | i <- [0 .. 7] ] #
+  [ byte h2 i | i <- [0 .. 3] ]
+
+same20 : Word -> Word -> Word -> Word -> Word -> Word -> Bit
+same20 p0 p1 p2 h0 h1 h2 =
+  program p0 p1 p2 == hash20 h0 h1 h2
+
+pack : Word -> Word -> Word
+pack r e = (r % 4) + ((e % 64) * 4)
+
+// ---------------------------------------------------------------------------
+// (A) Total execution outcome.  Ordering: arity, witness item cap, script.
+// ---------------------------------------------------------------------------
+verdict : Word -> Word -> Word -> Word -> Word -> Word ->
+          Word -> Word -> Word -> Word -> Word -> Word
+verdict p0 p1 p2 n_wit sig_len pk_len h0 h1 h2 ck_err ck_ok =
+  if n_wit != 2 then pack 0 40
+  else if sig_len > 520 \/ pk_len > 520 then pack 0 6
+  else if ~ (same20 p0 p1 p2 h0 h1 h2) then pack 0 12
+  else if (ck_err % 64) != 0 then pack 0 (ck_err % 64)
+  else if ck_ok != 0 then pack 1 0
+  else pack 0 2
+
+// ---------------------------------------------------------------------------
+// (B) Oracle-interface transcript.
+//
+// The implied script is  76 a9 14 <program> 88 ac.
+// OP_HASH160 (after OP_DUP) receives the stack top, which is exactly the pk
+// witness item, and writes a 20-byte digest (interpreter.cpp:1048-1056).  A
+// successful OP_EQUALVERIFY requires program == digest, so OP_CHECKSIG is
+// reached only on that branch; it receives (sig item, pk item) and a scriptCode
+// of the whole 25-byte implied script (no OP_CODESEPARATOR; WITNESS_V0 skips
+// FindAndDelete).  sel/k are symbolic inputs, so the contract covers every
+// selector and every word index.
+//
+// sel:  0 = HASH160 preimage word k   1 = checksig sig word k
+//       2 = checksig pubkey word k     3 = checksig scriptCode word k
+//       4 = HASH160 preimage length    5 = HASH160 output width
+//       6 = checksig sig length        7 = checksig pubkey length
+//       8 = checksig scriptCode length
+// Bytes past an item's true length read as 0 (word masking); an unreached seam
+// or an execution error before it yields the all-ones sentinel.
+// ---------------------------------------------------------------------------
+
+// Low n*8 bits (n <= 8).
+lowmask : Word -> Word
+lowmask n = if n >= 8 then (0 : Word) - 1 else (1 << (8 * n)) - 1
+
+// Mask the bytes of word k that belong to an item of length len.
+wordmask : Word -> Word -> Word
+wordmask len k =
+  if len <= (k * 8) then 0
+  else lowmask (if (len - k * 8) > 8 then 8 else (len - k * 8))
+
+wsel3 : Word -> Word -> Word -> Word -> Word
+wsel3 k a0 a1 a2 =
+  if k == 0 then a0 else if k == 1 then a1 else if k == 2 then a2 else 0
+
+wsel9 : Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+        Word -> Word -> Word
+wsel9 k a0 a1 a2 a3 a4 a5 a6 a7 a8 =
+  if k == 0 then a0
+  else if k == 1 then a1
+  else if k == 2 then a2
+  else if k == 3 then a3
+  else if k == 4 then a4
+  else if k == 5 then a5
+  else if k == 6 then a6
+  else if k == 7 then a7
+  else if k == 8 then a8
+  else 0
+
+wsel10 : Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+         Word -> Word -> Word -> Word
+wsel10 k a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 =
+  if k == 0 then a0
+  else if k == 1 then a1
+  else if k == 2 then a2
+  else if k == 3 then a3
+  else if k == 4 then a4
+  else if k == 5 then a5
+  else if k == 6 then a6
+  else if k == 7 then a7
+  else if k == 8 then a8
+  else if k == 9 then a9
+  else 0
+
+pkword : Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+         Word -> Word -> Word -> Word
+pkword k len k0 k1 k2 k3 k4 k5 k6 k7 k8 =
+  wsel9 k k0 k1 k2 k3 k4 k5 k6 k7 k8 && wordmask len k
+
+sigword : Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+          Word -> Word -> Word -> Word -> Word
+sigword k len s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 =
+  wsel10 k s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 && wordmask len k
+
+// The implied script's byte i: 76 a9 14 <program> 88 ac.
+pbyte : Word -> Word -> Word -> Word -> [8]
+pbyte p0 p1 p2 i =
+  if i < 8 then byte p0 (drop`{56} i)
+  else if i < 16 then byte p1 (drop`{56} (i - 8))
+  else byte p2 (drop`{56} (i - 16))
+
+sbyte : Word -> Word -> Word -> Word -> [8]
+sbyte p0 p1 p2 i =
+  if i == 0 then 0x76
+  else if i == 1 then 0xa9
+  else if i == 2 then 0x14
+  else if i < 23 then pbyte p0 p1 p2 (i - 3)
+  else if i == 23 then 0x88
+  else if i == 24 then 0xac
+  else 0
+
+// Word k of the 25-byte implied script (bytes past 24 are not part of it).
+scriptword : Word -> Word -> Word -> Word -> Word
+scriptword p0 p1 p2 k =
+  if k > 3 then 0
+  else (zext (sbyte p0 p1 p2 (8 * k)) : Word)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 1)) : Word) << 8)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 2)) : Word) << 16)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 3)) : Word) << 24)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 4)) : Word) << 32)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 5)) : Word) << 40)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 6)) : Word) << 48)
+     + ((zext (sbyte p0 p1 p2 (8 * k + 7)) : Word) << 56)
+
+seam : Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+       Word -> Word -> Word ->
+       Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+       Word -> Word ->
+       Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word -> Word ->
+       Word
+seam sel k p0 p1 p2 n_wit sig_len pk_len h0 h1 h2
+     s0 s1 s2 s3 s4 s5 s6 s7 s8 s9
+     k0 k1 k2 k3 k4 k5 k6 k7 k8 =
+  if n_wit != 2 then sent
+  else if sig_len > 520 \/ pk_len > 520 then sent
+  else if sel32 == 0 then pkword kk pk_len k0 k1 k2 k3 k4 k5 k6 k7 k8
+  else if sel32 == 4 then pk_len
+  else if sel32 == 5 then 20
+  else if ~ eq then sent
+  else if sel32 == 1 then
+    sigword kk sig_len s0 s1 s2 s3 s4 s5 s6 s7 s8 s9
+  else if sel32 == 2 then
+    pkword kk pk_len k0 k1 k2 k3 k4 k5 k6 k7 k8
+  else if sel32 == 3 then scriptword p0 p1 p2 kk
+  else if sel32 == 6 then sig_len
+  else if sel32 == 7 then pk_len
+  else if sel32 == 8 then 25
+  else sent
+  where
+    sel32 = sel % 4294967296
+    k32   = k % 4294967296
+    kk    = (zext k32 : Word)
+    eq    = same20 p0 p1 p2 h0 h1 h2

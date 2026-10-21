@@ -1,0 +1,51 @@
+import "cell.cry";
+mCmasked  <- llvm_load_module "c_cell_csv_masked.bc";
+mLmasked  <- llvm_load_module "l_cell_csv_masked.bc";
+mCprobe   <- llvm_load_module "c_cell_csv_mask_probe.bc";
+mLprobe   <- llvm_load_module "l_cell_csv_mask_probe.bc";
+mCgran    <- llvm_load_module "c_cell_seq_granularity.bc";
+mLgran    <- llvm_load_module "l_cell_seq_granularity.bc";
+mCtime    <- llvm_load_module "c_cell_seq_time_ok.bc";
+mLtime    <- llvm_load_module "l_cell_seq_time_ok.bc";
+
+// Four independent Cryptol predicates, each checked against both legs:
+// the raw masked comparison, the mask congruence probe, the granularity
+// scaling, and the SequenceLocks time-lane acceptance predicate.
+let masked_spec = do {
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  s <- llvm_fresh_var "s" (llvm_int 32);
+  llvm_execute_func [llvm_term n, llvm_term s];
+  llvm_return (llvm_term {{ masked_verdict n s }});
+};
+llvm_verify mCmasked "cell_csv_masked" [] false masked_spec abc;
+llvm_verify mLmasked "cell_csv_masked" [] false masked_spec abc;
+
+let probe_spec = do {
+  n    <- llvm_fresh_var "n"    (llvm_int 64);
+  s    <- llvm_fresh_var "s"    (llvm_int 32);
+  junk <- llvm_fresh_var "junk" (llvm_int 32);
+  llvm_execute_func [llvm_term n, llvm_term s, llvm_term junk];
+  llvm_return (llvm_term {{ mask_probe n s junk }});
+};
+llvm_verify mCprobe "cell_csv_mask_probe" [] false probe_spec abc;
+llvm_verify mLprobe "cell_csv_mask_probe" [] false probe_spec abc;
+
+let gran_spec = do {
+  s <- llvm_fresh_var "s" (llvm_int 32);
+  llvm_execute_func [llvm_term s];
+  llvm_return (llvm_term {{ granularity s }});
+};
+llvm_verify mCgran "cell_seq_granularity" [] false gran_spec abc;
+llvm_verify mLgran "cell_seq_granularity" [] false gran_spec abc;
+
+let time_spec = do {
+  parent <- llvm_fresh_var "parent" (llvm_int 32);
+  s      <- llvm_fresh_var "s"      (llvm_int 32);
+  block  <- llvm_fresh_var "block"  (llvm_int 32);
+  llvm_execute_func [llvm_term parent, llvm_term s, llvm_term block];
+  llvm_return (llvm_term {{ seq_time_ok parent s block }});
+};
+llvm_verify mCtime "cell_seq_time_ok" [] false time_spec abc;
+llvm_verify mLtime "cell_seq_time_ok" [] false time_spec abc;
+
+print "CELL_LOCKTIME_CSV_GRANULARITY_SAW_GREEN";

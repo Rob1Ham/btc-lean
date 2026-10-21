@@ -1,0 +1,28 @@
+module CellWitnessFlag where
+
+// SCR-004 face: an empty scriptPubKey with P2SH active and a scriptSig that
+// left exactly one truthy element.
+//
+//   WITNESS off                          -> success (1, 0)
+//   WITNESS on, empty witness            -> success (1, 0)
+//   WITNESS on, non-empty witness        -> (0, 43) WITNESS_UNEXPECTED,
+//                                           because an empty scriptPubKey is
+//                                           not a witness program
+//   CLEANSTACK on (WITNESS on, n == 1)   -> the one-element cleanstack arm
+//                                           passes; the WITNESS_UNEXPECTED
+//                                           decision is unchanged
+//
+// `ss_err` is the declared scriptSig EvalScript outcome; the empty
+// scriptPubKey evaluation is the identity (PDW90.evalScriptBytes_empty).
+// CLEANSTACK without WITNESS is out of domain: Core asserts, so both legs
+// return UNKNOWN_ERROR. Ordinal 43 = WITNESS_UNEXPECTED, 1 = UNKNOWN_ERROR.
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+witness_flag : [64] -> [64] -> [64] -> [64] -> [64]
+witness_flag ss_err witness witness_nonempty cleanstack =
+  if ss_err != 0 then pack 0 ss_err
+  else if (cleanstack != 0) && (witness == 0) then pack 0 1   // assert guard
+  else if (witness != 0) && (witness_nonempty != 0) then pack 0 43
+  else pack 1 0

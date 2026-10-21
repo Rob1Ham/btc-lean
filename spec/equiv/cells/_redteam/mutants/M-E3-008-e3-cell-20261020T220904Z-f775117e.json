@@ -1,0 +1,74 @@
+{
+  "applied_at_utc": "2026-10-20T22:09:04+00:00",
+  "catalogue_version": "0.2-wave64",
+  "catchers": [
+    "alive2",
+    "saw",
+    "error-enum"
+  ],
+  "classification": "KILLED",
+  "description": "CHECKMULTISIGVERIFY failure maps to EVAL_FALSE",
+  "diff": "--- a/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp\n+++ b/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp\n@@ -66,7 +66,7 @@\n   if (pe != TWIN_OK) return pe;\n   if (wire == 0xaf) {\n     if (fSuccess) { st.stack.n -= 1; return TWIN_OK; }\n-    return TWIN_CHECKMULTISIGVERIFY;\n+    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE\n   }\n   return TWIN_OK;\n }\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/e3-cms/C-L-cms-1of1"
+  ],
+  "family": "e3-cms",
+  "find": "    return TWIN_CHECKMULTISIGVERIFY;",
+  "git_head": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "log_hashes": [
+    "2b8a31f718a5c29c0275a30cb324616c515f086c7d54da299b7d483b4debe5ff  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/apply.log",
+    "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-after-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-after-alive2.log",
+    "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-after-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-after-saw.log",
+    "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-before-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-before-alive2.log",
+    "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-before-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/baseline-before-saw.log",
+    "049b26066032348f94b2a1134771cc14dcefd0cec84c05d52c735b3e19a79c0d  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/dry-run.log",
+    "c9505936ac7b0d3f579fa1c1db9a1662b5f50fd8c191dd99686a9cc3dbdfefb0  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/mutant-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/mutant-alive2.log",
+    "7a9000177835573a20728bf58a464cc5c9c36cb7a108285cd55e124855b1d748  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/mutant-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/mutant-saw.log",
+    "48ef5d0c4946b631de03e90bc8a4fad992e57b7adc2212f6b38a329bae7a3769  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/plan.md",
+    "8b5da17709022c1d0be639db7a1f75fc2d98920039e110b38ebc4d6d84f230e7  spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/revert.log"
+  ],
+  "mutant_id": "M-E3-008",
+  "observed": {
+    "baseline_after": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (16/16 proofs)"
+    },
+    "baseline_before": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (16/16 proofs)"
+    },
+    "cell": "cells/e3-cms/C-L-cms-1of1",
+    "exit_codes_mutant": {
+      "alive2": 1,
+      "saw": 1
+    },
+    "mutant": {
+      "alive2": "alive2-not-green",
+      "saw": "saw-not-green (11/16 proofs)"
+    }
+  },
+  "operator": "wave64/48-mutations-e3e4 (subagent)",
+  "outcome": "killed",
+  "pins_sha256": "84a2d3cf9eb9f36aff00d0441ee4b98b4f9320415d511cb775a029f36f0e4400",
+  "replace": "    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE",
+  "reverted_at_utc": "2026-10-20T22:10:21+00:00",
+  "run_meta": "spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/meta.json",
+  "run_report": "spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/report.md",
+  "schema": "redteam-mutant-v1",
+  "status": "reverted",
+  "target": {
+    "path": "/tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp",
+    "path_relative_to_repo": "spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp",
+    "sha256_after": "7aefca80f280dcaf92c15af22fd375365e3ba2fe8cb96bd25e7b4af6d7be1434",
+    "sha256_before": "f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41"
+  },
+  "target_kind": "e3-cell",
+  "witness": "alive2:\n=====\nSource value: #x0000000000000034 (52)\nTarget value: #x0000000000000018 (24)\nsaw:\n<<All settings of the symbolic variables constitute a counterexample>>"
+}

@@ -1,0 +1,12 @@
+# Alive2 --always-verify on the unpatched-macro EvalStep (pin + P-CORE-04 only, exceptions erased)
+# command:
+#   alive-tv interpreter-O0-evalstep-erased-s.ll \
+#     --func=_ZN12_GLOBAL__N_18EvalStepERNS_15ScriptEvalStateE \
+#     --always-verify --smt-to=60000
+# started: 2026-10-20 ~18:55 UTC; killed by the 900 s wrapper (SIGTERM).
+# result: NO VERDICT. The log is 282624 bytes (Alive IR dump, 126 blocks-fragment lines)
+# with no Summary block; the last line is a phi node dump.
+# Interpretation: the whole step (2714 instructions, 73 invokes, 448 blocks before
+# erasure) is too large for a single SMT query at 60 s per query.
+# This is not a failure of the transform; it is a size result that motivates the
+# family split (P-CORE-04 layer 2).

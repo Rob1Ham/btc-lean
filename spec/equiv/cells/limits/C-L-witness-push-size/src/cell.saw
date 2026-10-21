@@ -1,0 +1,20 @@
+import "cell.cry";
+// functions: cell_witness_push_size
+mC <- llvm_load_module "c_cell_witness_push_size.bc";
+mL <- llvm_load_module "l_cell_witness_push_size.bc";
+
+// Both legs are verified against the same independent Cryptol predicate for
+// every bounded depth, item size, sigversion and abstract OP_SUCCESSx bit.
+let spec = do {
+  depth      <- llvm_fresh_var "depth"      (llvm_int 32);
+  maxitem    <- llvm_fresh_var "maxitem"    (llvm_int 16);
+  sv         <- llvm_fresh_var "sv"         (llvm_int 8);
+  success    <- llvm_fresh_var "success"    (llvm_int 8);
+  discourage <- llvm_fresh_var "discourage" (llvm_int 8);
+  llvm_execute_func [llvm_term depth, llvm_term maxitem, llvm_term sv,
+                     llvm_term success, llvm_term discourage];
+  llvm_return (llvm_term {{ witness_push_spec depth maxitem sv success discourage }});
+};
+llvm_verify mC "cell_witness_push_size" [] false spec abc;
+llvm_verify mL "cell_witness_push_size" [] false spec abc;
+print "CELL_LIMITS_WITNESS_PUSH_SIZE_SAW_GREEN";

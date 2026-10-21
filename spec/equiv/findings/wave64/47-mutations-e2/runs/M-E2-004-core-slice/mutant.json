@@ -1,0 +1,77 @@
+{
+  "baseline": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "catalogue_cell": "cells/e2-numeric/within-boundary",
+  "caught": true,
+  "caught_by": {
+    "alive2": true,
+    "saw": true
+  },
+  "cell": "cells/e2-numeric/within-boundary",
+  "classification": "KILLED",
+  "commands": {
+    "alive2": "cd spec/equiv && bash cells/e2-numeric/within-boundary/alive2/run.sh",
+    "saw": "cd spec/equiv && bash cells/e2-numeric/within-boundary/saw/run.sh"
+  },
+  "description": "OP_WITHIN max boundary is inclusive (<=) instead of exclusive (<) in the line-cited Core excerpt.",
+  "diff": "--- a/spec/equiv/cells/e2-numeric/within-boundary/src/c_leaf.cpp\n+++ b/spec/equiv/cells/e2-numeric/within-boundary/src/c_leaf.cpp\n@@ -33,7 +33,7 @@\n   const int64_t a = core_set_vch_1byte(av);     // bn1 = stacktop(-3)\n   const int64_t b = core_set_vch_1byte(bv);     // bn2 = stacktop(-2)\n   const int64_t c = core_set_vch_1byte(cv);     // bn3 = stacktop(-1)\n-  const bool v = (b <= a && a < c);             // interpreter.cpp:1020\n+  const bool v = (b <= a && a <= c);  // M-E2-004 mutant: inclusive max             // interpreter.cpp:1020\n   BStack s{};\n   // vchTrue is {1}; vchFalse is the empty vector (interpreter.cpp:423-425).\n   const uint32_t e = v ? core_push_raw(s, 1u, 1u) : core_push_raw(s, 0u, 0u);\n",
+  "expected_detection": "Alive2 C-vs-L must report a value mismatch on a triple where x == max; SAW must fail the C proof against the independent within predicate (min <= x < max). Witness: x=5, min=1, max=5; baseline EVAL_FALSE, mutant vchTrue.",
+  "family": "e2-numeric",
+  "find": "const bool v = (b <= a && a < c);",
+  "finished_at_utc": "2026-10-20T22:16:39+00:00",
+  "head_commit": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "mutant": {
+    "alive2": {
+      "blocks": [
+        {
+          "command": "alive-tv build/c_cell_within.ll build/l_cell_within.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_within",
+          "mismatch": true
+        }
+      ],
+      "failure_excerpt": "  ret i64 %retval.4\n}\nTransformation doesn't verify!\n\nERROR: Value mismatch\n\nExample:\ni8 noundef zeroext %av = #x00 (0)\ni8 noundef zeroext %bv = #x00 (0)\ni8 noundef zeroext %cv = #x00 (0)\n\nSource:\nptr %s = pointer(local, block_id=0, offset=0) / Address=#x8000000000000000\ni1 %tobool.not.i29299 = #x0 (0)\ni8 %#0 = #x00 (0)\ni64 %conv.i28 = #x0000000000000000 (0)\ni64 %sub.i30 = #x0000000000000000 (0)\ni64 %cond.i31 = #x0000000000000000 (0)\ni1 %tobool.not.i34298 = #x0 (0)\ni8 %#1 = #x00 (0)",
+      "rc": 1,
+      "status": "alive2-not-green"
+    },
+    "saw": {
+      "failure_excerpt": "                   (bvAnd 32 (bvNat 32 2088960)\n                      (bvShl 32 _x`13 (bvToNat 32 (bvNat 32 13)))));\n      _x`18 = bvOr 64\n                (bvUExt 32 32 (bvOr 32 (bvOr 32 (bvNat 32 8) _x`15) _x`16))\n                _x`17;\n      _x`19 = bvNat 32 1;\n      _x`20 = bvOr 64\n                (bvUExt 32 32 (bvOr 32 (bvOr 32 _x`19 _x`15) _x`16))\n                _x`17;\n    }\n in ite _x`1 _x`14 _x`18\n      (ite _x`1 (bvEq 32 _x`19 _x`13)\n         (ite _x`1 (bvEq 32 _x`3 (bvAnd 32 (bvNat 32 127) _x`13)) _x`18\n            _x`20)\n         (ite _x`1 (bvEq 32 _x`3 (bvAnd 32 (bvNat 32 255) _x`13)) _x`18\n            _x`20))\n\nGoal size 279. Provers used: abc_verilog\n----------Counterexample----------\n  a: 65\n  b: 241\n  c: 65\n----------------------------------\nStack trace:\n   (builtin) in abc\n   cell.saw:14:44-14:47 in (callback)\n   (builtin) in llvm_verify\n   cell.saw:14:1-14:47 (at top level)\nProof failed.",
+      "proofs_failed": 1,
+      "proofs_succeeded": 0,
+      "rc": 1,
+      "status": "saw-not-green"
+    }
+  },
+  "mutant_id": "M-E2-004",
+  "operator": "wave64/47-mutations-e2",
+  "post_revert": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "replace": "const bool v = (b <= a && a <= c);  // M-E2-004 mutant: inclusive max",
+  "revert_verified": true,
+  "run_id": "M-E2-004-core-slice",
+  "schema": "redteam-mutant-run-v1",
+  "scratch_root": ".work",
+  "site": "core-slice",
+  "started_at_utc": "2026-10-20T22:16:22+00:00",
+  "target": "cells/e2-numeric/within-boundary/src/c_leaf.cpp",
+  "target_sha256_after": "c17b6c5d4c4a5a4dd720cc74727f1dfaaaccbade2fceae881ef87344c35bd8ce",
+  "target_sha256_before": "4e72978fa99ad69e058b0791966813a0643fc42424b396d3a87c12fdab26ebca",
+  "witness_input": "av=5, bv=1, cv=5"
+}

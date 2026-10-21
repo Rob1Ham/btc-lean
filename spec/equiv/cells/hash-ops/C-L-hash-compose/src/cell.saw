@@ -1,0 +1,149 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// Opaque primitive overrides.  The first SHA256 call sees the closed preimage
+// (length 0 or 1); the second-stage call sees the 32-byte intermediate that
+// the first call just produced.  SAW branches over the variants and applies
+// the one whose input shape and contents match.
+let ov_s256_pre_e : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x00] : [1][8] }});
+  out_p <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 0 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_s256_e }});
+};
+let ov_s256_pre_a : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x61] : [1][8] }});
+  out_p <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 1 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_s256_a }});
+};
+let ov_s256_mid_e : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ d_s256_e }});
+  out_p <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 32 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_h256_e }});
+};
+let ov_s256_mid_a : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ d_s256_a }});
+  out_p <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 32 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_h256_a }});
+};
+let ov_r160_mid_e : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ d_s256_e }});
+  out_p <- llvm_alloc (llvm_array 20 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 32 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_h160_e }});
+};
+let ov_r160_mid_a : LLVMSetup () = do {
+  in_p  <- llvm_alloc (llvm_array 32 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ d_s256_a }});
+  out_p <- llvm_alloc (llvm_array 20 (llvm_int 8));
+  llvm_execute_func [in_p, llvm_term {{ 32 : [32] }}, out_p];
+  llvm_points_to out_p (llvm_term {{ d_h160_a }});
+};
+
+let ret (v : Term) : LLVMSetup () = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term v);
+};
+
+// ---- C leg -------------------------------------------------------------
+speC <- llvm_unsafe_assume_spec mC "sha256" ov_s256_pre_e;
+rmeC <- llvm_unsafe_assume_spec mC "ripemd160" ov_r160_mid_e;
+llvm_verify mC "cell_hash160_empty" [speC, rmeC] false (ret {{ exp_h160_e }}) abc;
+
+spaC <- llvm_unsafe_assume_spec mC "sha256" ov_s256_pre_a;
+rmaC <- llvm_unsafe_assume_spec mC "ripemd160" ov_r160_mid_a;
+llvm_verify mC "cell_hash160_a" [spaC, rmaC] false (ret {{ exp_h160_a }}) abc;
+
+smeC <- llvm_unsafe_assume_spec mC "sha256" ov_s256_mid_e;
+llvm_verify mC "cell_hash256_empty" [speC, smeC] false (ret {{ exp_h256_e }}) abc;
+
+smaC <- llvm_unsafe_assume_spec mC "sha256" ov_s256_mid_a;
+llvm_verify mC "cell_hash256_a" [spaC, smaC] false (ret {{ exp_h256_a }}) abc;
+
+// ---- L leg -------------------------------------------------------------
+speL <- llvm_unsafe_assume_spec mL "sha256" ov_s256_pre_e;
+rmeL <- llvm_unsafe_assume_spec mL "ripemd160" ov_r160_mid_e;
+llvm_verify mL "cell_hash160_empty" [speL, rmeL] false (ret {{ exp_h160_e }}) abc;
+
+spaL <- llvm_unsafe_assume_spec mL "sha256" ov_s256_pre_a;
+rmaL <- llvm_unsafe_assume_spec mL "ripemd160" ov_r160_mid_a;
+llvm_verify mL "cell_hash160_a" [spaL, rmaL] false (ret {{ exp_h160_a }}) abc;
+
+smeL <- llvm_unsafe_assume_spec mL "sha256" ov_s256_mid_e;
+llvm_verify mL "cell_hash256_empty" [speL, smeL] false (ret {{ exp_h256_e }}) abc;
+
+smaL <- llvm_unsafe_assume_spec mL "sha256" ov_s256_mid_a;
+llvm_verify mL "cell_hash256_a" [spaL, smaL] false (ret {{ exp_h256_a }}) abc;
+
+
+// ---- symbolic chain functions (Alive2's defined observable) -------------
+let ov_sha_pre_e : LLVMSetup () = do {
+  in_p <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x00] : [1][8] }});
+  llvm_execute_func [in_p, llvm_term {{ 0 : [32] }}];
+  llvm_return (llvm_term {{ tok1_e }});
+};
+let ov_sha_pre_a : LLVMSetup () = do {
+  in_p <- llvm_alloc (llvm_array 1 (llvm_int 8));
+  llvm_points_to in_p (llvm_term {{ [0x61] : [1][8] }});
+  llvm_execute_func [in_p, llvm_term {{ 1 : [32] }}];
+  llvm_return (llvm_term {{ tok1_a }});
+};
+let ov_r160_mid_e : LLVMSetup () = do {
+  llvm_execute_func [llvm_term {{ tok1_e }}, llvm_term {{ 32 : [32] }}];
+  llvm_return (llvm_term {{ tok2_e }});
+};
+let ov_r160_mid_a : LLVMSetup () = do {
+  llvm_execute_func [llvm_term {{ tok1_a }}, llvm_term {{ 32 : [32] }}];
+  llvm_return (llvm_term {{ tok2_a }});
+};
+let ov_sha_mid_e : LLVMSetup () = do {
+  llvm_execute_func [llvm_term {{ tok1_e }}, llvm_term {{ 32 : [32] }}];
+  llvm_return (llvm_term {{ tok3_e }});
+};
+let ov_sha_mid_a : LLVMSetup () = do {
+  llvm_execute_func [llvm_term {{ tok1_a }}, llvm_term {{ 32 : [32] }}];
+  llvm_return (llvm_term {{ tok3_a }});
+};
+
+// C leg
+cspe <- llvm_unsafe_assume_spec mC "sha256_pre" ov_sha_pre_e;
+crme <- llvm_unsafe_assume_spec mC "ripemd160_mid" ov_r160_mid_e;
+llvm_verify mC "cell_hash160_empty_chain" [cspe, crme] false (ret {{ chain160_e }}) abc;
+
+cspa <- llvm_unsafe_assume_spec mC "sha256_pre" ov_sha_pre_a;
+crma <- llvm_unsafe_assume_spec mC "ripemd160_mid" ov_r160_mid_a;
+llvm_verify mC "cell_hash160_a_chain" [cspa, crma] false (ret {{ chain160_a }}) abc;
+
+csme <- llvm_unsafe_assume_spec mC "sha256_mid" ov_sha_mid_e;
+llvm_verify mC "cell_hash256_empty_chain" [cspe, csme] false (ret {{ chain256_e }}) abc;
+
+csma <- llvm_unsafe_assume_spec mC "sha256_mid" ov_sha_mid_a;
+llvm_verify mC "cell_hash256_a_chain" [cspa, csma] false (ret {{ chain256_a }}) abc;
+
+// L leg
+lspe <- llvm_unsafe_assume_spec mL "sha256_pre" ov_sha_pre_e;
+lrme <- llvm_unsafe_assume_spec mL "ripemd160_mid" ov_r160_mid_e;
+llvm_verify mL "cell_hash160_empty_chain" [lspe, lrme] false (ret {{ chain160_e }}) abc;
+
+lspa <- llvm_unsafe_assume_spec mL "sha256_pre" ov_sha_pre_a;
+lrma <- llvm_unsafe_assume_spec mL "ripemd160_mid" ov_r160_mid_a;
+llvm_verify mL "cell_hash160_a_chain" [lspa, lrma] false (ret {{ chain160_a }}) abc;
+
+lsme <- llvm_unsafe_assume_spec mL "sha256_mid" ov_sha_mid_e;
+llvm_verify mL "cell_hash256_empty_chain" [lspe, lsme] false (ret {{ chain256_e }}) abc;
+
+lsma <- llvm_unsafe_assume_spec mL "sha256_mid" ov_sha_mid_a;
+llvm_verify mL "cell_hash256_a_chain" [lspa, lsma] false (ret {{ chain256_a }}) abc;
+
+print "CELL_HASH_COMPOSE_SAW_GREEN";

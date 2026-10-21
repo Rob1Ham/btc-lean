@@ -1,0 +1,174 @@
+# cell: tapscript/C-L-w32-opcount-budget
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_opcount_guard.opt.ll build/l_cell_opcount_guard.opt.ll
+
+----------------------------------------
+define i64 @cell_opcount_guard(i32 noundef %sv, i8 noundef zeroext %wire, i32 noundef %opcount_in) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %sv, 2
+  %cmp1.i = icmp ugt i32 noundef %opcount_in, 10000
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  br i1 %or.cond.i, label %_ZL15c_opcount_guardjhj.exit, label %if.end.i
+
+if.end.i:
+  %or.cond15.i = icmp samesign ult i32 noundef %sv, 2
+  %cmp6.i = icmp ugt i8 noundef zeroext %wire, 96
+  %or.cond16.i = and i1 %or.cond15.i, %cmp6.i
+  br i1 %or.cond16.i, label %if.then7.i, label %if.end13.i
+
+if.then7.i:
+  %inc.i = add nsw nuw i32 noundef %opcount_in, 1
+  %cmp8.i = icmp samesign ugt i32 noundef %opcount_in, 200
+  br i1 %cmp8.i, label %if.then9.i, label %if.end13.i
+
+if.then9.i:
+  %#0 = shl nsw nuw i32 %inc.i, 8
+  %#1 = or disjoint i32 %#0, 28
+  br label %_ZL15c_opcount_guardjhj.exit
+
+if.end13.i:
+  %nOpCount.0.i = phi i32 [ %inc.i, %if.then7.i ], [ noundef %opcount_in, %if.end.i ]
+  %#2 = shl nsw nuw i32 %nOpCount.0.i, 8
+  %#3 = or disjoint i32 %#2, 1
+  br label %_ZL15c_opcount_guardjhj.exit
+
+_ZL15c_opcount_guardjhj.exit:
+  %retval.1.i.shrunk = phi i32 [ %#1, %if.then9.i ], [ %#3, %if.end13.i ], [ 6, %entry ]
+  %retval.1.i = zext nneg i32 %retval.1.i.shrunk to i64
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 2560288
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_opcount_guard(i32 noundef %sv, i8 noundef zeroext %wire, i32 noundef %opcount_in) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %sv, 2
+  %cmp1.i = icmp ugt i32 noundef %opcount_in, 10000
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  br i1 %or.cond.i, label %_ZL15l_opcount_guardjhj.exit, label %if.end.i
+
+if.end.i:
+  %or.cond13.i = icmp samesign ult i32 noundef %sv, 2
+  %cmp5.i = icmp ugt i8 noundef zeroext %wire, 96
+  %spec.select.i = and i1 %or.cond13.i, %cmp5.i
+  %add.i = zext i1 %spec.select.i to i32
+  %cond.i = add nsw nuw i32 noundef %opcount_in, %add.i
+  %cmp7.i = icmp samesign ugt i32 %cond.i, 201
+  %or.cond14.i = select i1 %spec.select.i, i1 %cmp7.i, i1 0
+  %#0 = shl nsw nuw i32 %cond.i, 8
+  br i1 %or.cond14.i, label %if.then8.i, label %if.end10.i
+
+if.then8.i:
+  %#1 = or disjoint i32 %#0, 28
+  br label %_ZL15l_opcount_guardjhj.exit
+
+if.end10.i:
+  %#2 = or disjoint i32 %#0, 1
+  br label %_ZL15l_opcount_guardjhj.exit
+
+_ZL15l_opcount_guardjhj.exit:
+  %retval.1.i.shrunk = phi i32 [ %#1, %if.then8.i ], [ %#2, %if.end10.i ], [ 6, %entry ]
+  %retval.1.i = zext nneg i32 %retval.1.i.shrunk to i64
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 2560288
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_nop_overbudget.opt.ll build/l_cell_nop_overbudget.opt.ll
+
+----------------------------------------
+define i64 @cell_nop_overbudget(i32 noundef %sv, i32 noundef %opcount_in, i32 noundef %top_true) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %sv, 2
+  %cmp1.i = icmp ugt i32 noundef %opcount_in, 10000
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  br i1 %or.cond.i, label %_ZL16c_nop_overbudgetjjj.exit, label %if.end.i
+
+if.end.i:
+  %or.cond16.i = icmp samesign ult i32 noundef %sv, 2
+  br i1 %or.cond16.i, label %if.then5.i, label %if.end10.i
+
+if.then5.i:
+  %inc.i = add nsw nuw i32 noundef %opcount_in, 1
+  %cmp6.i = icmp samesign ugt i32 noundef %opcount_in, 200
+  br i1 %cmp6.i, label %if.then7.i, label %if.end10.i
+
+if.then7.i:
+  %#0 = shl nsw nuw i32 %inc.i, 8
+  %#1 = or disjoint i32 %#0, 28
+  br label %_ZL16c_nop_overbudgetjjj.exit
+
+if.end10.i:
+  %nOpCount.0.i = phi i32 [ %inc.i, %if.then5.i ], [ noundef %opcount_in, %if.end.i ]
+  %cmp11.i = icmp eq i32 noundef %top_true, 0
+  %#2 = shl nsw nuw i32 %nOpCount.0.i, 8
+  br i1 %cmp11.i, label %if.then12.i, label %if.end14.i
+
+if.then12.i:
+  %#3 = or disjoint i32 %#2, 8
+  br label %_ZL16c_nop_overbudgetjjj.exit
+
+if.end14.i:
+  %#4 = or disjoint i32 %#2, 1
+  br label %_ZL16c_nop_overbudgetjjj.exit
+
+_ZL16c_nop_overbudgetjjj.exit:
+  %retval.1.i.shrunk = phi i32 [ %#1, %if.then7.i ], [ %#3, %if.then12.i ], [ %#4, %if.end14.i ], [ 6, %entry ]
+  %retval.1.i = zext nneg i32 %retval.1.i.shrunk to i64
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 2560288
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_nop_overbudget(i32 noundef %sv, i32 noundef %opcount_in, i32 noundef %top_true) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i32 noundef %sv, 2
+  %cmp1.i = icmp ugt i32 noundef %opcount_in, 10000
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  br i1 %or.cond.i, label %_ZL16l_nop_overbudgetjjj.exit, label %if.end.i
+
+if.end.i:
+  %or.cond16.i = icmp samesign ult i32 noundef %sv, 2
+  %add.i = zext i1 %or.cond16.i to i32
+  %cond.i = add nsw nuw i32 noundef %opcount_in, %add.i
+  %cmp6.i = icmp samesign ugt i32 %cond.i, 201
+  %or.cond17.i = select i1 %or.cond16.i, i1 %cmp6.i, i1 0
+  br i1 %or.cond17.i, label %if.then7.i, label %if.end9.i
+
+if.then7.i:
+  %#0 = shl nsw nuw i32 %cond.i, 8
+  %#1 = or disjoint i32 %#0, 28
+  br label %_ZL16l_nop_overbudgetjjj.exit
+
+if.end9.i:
+  %cmp10.i = icmp eq i32 noundef %top_true, 0
+  %#2 = shl nsw nuw i32 %cond.i, 8
+  br i1 %cmp10.i, label %if.then11.i, label %if.end13.i
+
+if.then11.i:
+  %#3 = or disjoint i32 %#2, 8
+  br label %_ZL16l_nop_overbudgetjjj.exit
+
+if.end13.i:
+  %#4 = or disjoint i32 %#2, 1
+  br label %_ZL16l_nop_overbudgetjjj.exit
+
+_ZL16l_nop_overbudgetjjj.exit:
+  %retval.1.i.shrunk = phi i32 [ %#1, %if.then7.i ], [ %#3, %if.then11.i ], [ %#4, %if.end13.i ], [ 6, %entry ]
+  %retval.1.i = zext nneg i32 %retval.1.i.shrunk to i64
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 1, i64 2560288
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

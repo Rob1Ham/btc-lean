@@ -1,0 +1,19 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+let spec_cell_minimalif_v0 = do {
+  flags <- llvm_fresh_var "cell_minimalif_v0_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_minimalif_v0_sv" (llvm_int 64);
+  fExec <- llvm_fresh_var "cell_minimalif_v0_fExec" (llvm_int 64);
+  vchLen <- llvm_fresh_var "cell_minimalif_v0_vchLen" (llvm_int 64);
+  vch0 <- llvm_fresh_var "cell_minimalif_v0_vch0" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term fExec, llvm_term vchLen, llvm_term vch0];
+  llvm_return (llvm_term {{ minimalif_v0 flags sv fExec vchLen vch0 }});
+};
+
+llvm_verify mC "cell_minimalif_v0" [] false spec_cell_minimalif_v0 abc;
+llvm_verify mL "cell_minimalif_v0" [] false spec_cell_minimalif_v0 abc;
+
+print "CELL_policy_flags_minimalif_v0_SAW_GREEN";

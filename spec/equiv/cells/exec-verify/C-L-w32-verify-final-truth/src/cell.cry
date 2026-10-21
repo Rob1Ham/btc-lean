@@ -1,0 +1,42 @@
+module CellVerifyFinal where
+
+// Spec of the VerifyScript tail named by SCR-002 (interpreter.cpp:2037-2040):
+// after both evaluations succeed, the stack must be non-empty and its top
+// must cast true. Errors from either EvalScript are returned unchanged.
+//
+// The observable is the ABI pair packed as
+//   result (2 bits) | error_kind (6 bits) << 2.
+// Error ordinals: 2 = EVAL_FALSE, 1 = UNKNOWN_ERROR (out-of-domain guard).
+//
+// Cryptol note: hex literals are fixed-width [8] in this version, so the
+// masks and 0x80 are written in decimal to unify with [64].
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+byte : [64] -> [64] -> [64]
+byte w i = (w >> (8 * i)) && 255
+
+// Core CastToBool in predicate form: true iff some byte before the wire-last
+// position is nonzero, or the wire-last byte is nonzero and not 0x80
+// (negative zero). Equivalent to Core's first-nonzero loop and to Lean's
+// castToBoolList on the reversed list.
+cast_bool : [64] -> [64] -> Bit
+cast_bool w len =
+  (((len > 0) && (byte w 0 != 0)) && ~((len == 1) && (byte w 0 == 128))) ||
+  (((len > 1) && (byte w 1 != 0)) && ~((len == 2) && (byte w 1 == 128))) ||
+  (((len > 2) && (byte w 2 != 0)) && ~((len == 3) && (byte w 2 == 128))) ||
+  (((len > 3) && (byte w 3 != 0)) && ~((len == 4) && (byte w 3 == 128))) ||
+  (((len > 4) && (byte w 4 != 0)) && ~((len == 5) && (byte w 4 == 128))) ||
+  (((len > 5) && (byte w 5 != 0)) && ~((len == 6) && (byte w 5 == 128))) ||
+  (((len > 6) && (byte w 6 != 0)) && ~((len == 7) && (byte w 6 == 128))) ||
+  (((len > 7) && (byte w 7 != 0)) && ~((len == 8) && (byte w 7 == 128)))
+
+verify_final : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+verify_final ss_err spk_err n top top_len =
+  if top_len > 8 then pack 0 1                       // cell encoding guard
+  else if ss_err != 0 then pack 0 ss_err
+  else if spk_err != 0 then pack 0 spk_err
+  else if n == 0 then pack 0 2                       // EVAL_FALSE (empty)
+  else if ~(cast_bool top top_len) then pack 0 2     // EVAL_FALSE (false top)
+  else pack 1 0                                      // success

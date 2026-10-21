@@ -1,0 +1,38 @@
+// Independent Cryptol oracle for the SCR-121 tapscript-ban cell.
+//
+// From Bitcoin Core interpreter.cpp:1113-1116 and BIP342: OP_CHECKMULTISIG and
+// OP_CHECKMULTISIGVERIFY are BAD_OPCODE-class rejections in tapscript, and the
+// reject happens before any stack/count/opCount work.  For base and witness-v0
+// the front-matter decision stands (depth -> pubkey range -> key depth ->
+// sig range -> sig depth).
+//
+// code: 50 = SCRIPT_ERR_TAPSCRIPT_CHECKMULTISIG, 0 ok, 1 pubkey_count,
+//       2 op_count (unused: opCount is not an argument here), 3 underflow,
+//       4 sig_count.
+module cms_ban_model where
+
+z : [64]
+z = zext (0x80000000 : [32])
+
+bias : [32] -> [64]
+bias x = z + zext x
+
+mag : [32] -> [64]
+mag x = bias x - z
+
+check : [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+check sv op depthE nkE nsE =
+  if sv == 2 then 50
+  else if depthE == 0 then 3
+  else if (bias nkE < z) || (bias nkE > z + 20) then 1
+  else if zext depthE < mag nkE + 2 then 3
+  else if (bias nsE < z) || (bias nkE < bias nsE) then 4
+  else if zext depthE < mag nkE + mag nsE + 3 then 3
+  else 0
+
+ban : [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+ban sv op depthE nkE nsE =
+  (if check sv op depthE nkE nsE == 0
+   then ((mag nkE) << 6) || ((mag nsE) << 11) || ((mag nkE + 2) << 16) ||
+        ((mag nkE + 3) << 22)
+   else 0) || check sv op depthE nkE nsE

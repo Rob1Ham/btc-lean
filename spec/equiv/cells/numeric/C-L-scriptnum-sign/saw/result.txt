@@ -1,0 +1,85 @@
+# cell: numeric/C-L-scriptnum-sign
+# rows: SCR-082 (sign bit on top byte; negative zero exists)
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (src/sign.cry, independent model)
+# script: build/cell.saw
+# expected: at least 8 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_decode...
+Simulating cell_decode...
+Checking proof obligations cell_decode...
+Proof succeeded! cell_decode
+Verifying cell_decode...
+Simulating cell_decode...
+Checking proof obligations cell_decode...
+Proof succeeded! cell_decode
+cell.saw:58:1-58:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_encode.bc";
+^^
+cell.saw:53:1-53:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_decode.bc";
+^^
+cell.saw:59:1-59:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_encode.bc";
+^^
+cell.saw:54:1-54:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_decode.bc";
+^^
+Verifying cell_encode...
+Simulating cell_encode...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_encode...
+Proof succeeded! cell_encode
+Verifying cell_encode...
+Simulating cell_encode...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_encode...
+Proof succeeded! cell_encode
+cell.saw:63:1-63:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_encode_decode.bc";
+^^
+cell.saw:58:1-58:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_encode.bc";
+^^
+cell.saw:64:1-64:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_encode_decode.bc";
+^^
+cell.saw:59:1-59:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_encode.bc";
+^^
+Verifying cell_encode_decode...
+Simulating cell_encode_decode...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_encode_decode...
+Proof succeeded! cell_encode_decode
+Verifying cell_encode_decode...
+Simulating cell_encode_decode...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_encode_decode...
+Proof succeeded! cell_encode_decode
+cell.saw:68:1-68:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_roundtrip.bc";
+^^
+cell.saw:63:1-63:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_encode_decode.bc";
+^^
+cell.saw:69:1-69:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_roundtrip.bc";
+^^
+cell.saw:64:1-64:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_encode_decode.bc";
+^^
+Verifying cell_roundtrip...
+Simulating cell_roundtrip...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_roundtrip...
+Proof succeeded! cell_roundtrip
+Verifying cell_roundtrip...
+Simulating cell_roundtrip...
+Checking proof obligations cell_roundtrip...
+Proof succeeded! cell_roundtrip
+CELL_SCR082_SAW_GREEN
+True
+(0, 0, 0, 526338)
+STATUS=saw-green

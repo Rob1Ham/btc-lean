@@ -1,0 +1,285 @@
+# cell: disabled/C-L-w32-disabled-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# wire table: build/wire_table.h sha256 e50e1868040c32edbe1933a267ae99c730a961d5597e6a9af2a0c012d00634d4
+# build: build/build.txt
+# command: alive-tv build/c_cell_guard.ll build/l_cell_guard.ll
+
+----------------------------------------
+define i64 @cell_guard(i8 noundef zeroext %w, i32 noundef %wv0, i32 noundef %nOpCount, i32 noundef %fExec) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %wv0, 0
+  %cmp1.i = icmp ugt i8 noundef zeroext %w, 96
+  %#0 = and i1 %cmp1.i, %cmp.i
+  %#1 = add i32 noundef %nOpCount, 4294967095
+  %cmp = icmp ult i32 %#1, 4294967094
+  %or.cond = and i1 %#0, %cmp
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  switch i8 noundef zeroext %w, label %if.end6 [
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+if.end6:
+  %tobool.not = icmp eq i32 noundef %fExec, 0
+  %cond = select i1 %tobool.not, i64 65, i64 64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %cond, %if.end6 ], [ 7, %entry ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 7, i64 66
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_guard(i8 noundef zeroext %w, i32 noundef %wv0, i32 noundef %nOpCount, i32 noundef %fExec) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ne i32 noundef %wv0, 0
+  %cmp1 = icmp ugt i8 noundef zeroext %w, 96
+  %or.cond = and i1 %cmp1, %cmp
+  %#0 = add i32 noundef %nOpCount, 4294967095
+  %cmp3 = icmp ult i32 %#0, 4294967094
+  %or.cond12 = and i1 %or.cond, %cmp3
+  br i1 %or.cond12, label %return, label %if.end
+
+if.end:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+lor.rhs.i:
+  %#1 = add i8 noundef zeroext %w, 107
+  %#2 = icmp ult i8 %#1, 5
+  br i1 %#2, label %return, label %if.end8
+
+if.end8:
+  %cmp9.not = icmp eq i32 noundef %fExec, 0
+  %cond = select i1 %cmp9.not, i64 65, i64 64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %cond, %if.end8 ], [ 7, %entry ], [ 17, %lor.rhs.i ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 7, i64 66
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_default.ll build/l_cell_default.ll
+
+----------------------------------------
+define i64 @cell_default(i8 noundef zeroext %w, i32 noundef %wv0, i32 noundef %nOpCount, i32 noundef %fExec) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %wv0, 0
+  %cmp1.i = icmp ugt i8 noundef zeroext %w, 96
+  %#0 = and i1 %cmp1.i, %cmp.i
+  %#1 = add i32 noundef %nOpCount, 4294967095
+  %cmp = icmp ult i32 %#1, 4294967094
+  %or.cond50 = and i1 %#0, %cmp
+  br i1 %or.cond50, label %return, label %if.end
+
+if.end:
+  switch i8 noundef zeroext %w, label %if.end6 [
+    i8 153, label %return
+    i8 152, label %return
+    i8 151, label %return
+    i8 150, label %return
+    i8 149, label %return
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+if.end6:
+  %cmp7.not = icmp ne i32 noundef %fExec, 0
+  %#2 = add i8 noundef zeroext %w, 157
+  %#3 = icmp ult i8 %#2, 6
+  %#4 = or i1 %#3, %cmp7.not
+  br i1 %#4, label %if.end14, label %return
+
+if.end14:
+  %cmp16 = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp16, label %return, label %if.end19
+
+if.end19:
+  %cmp21 = icmp eq i8 noundef zeroext %w, 79
+  %#5 = add i8 noundef zeroext %w, 175
+  %or.cond = icmp ult i8 %#5, 16
+  %or.cond51 = or i1 %cmp21, %or.cond
+  br i1 %or.cond51, label %return, label %if.end29
+
+if.end29:
+  %cmp31 = icmp eq i8 noundef zeroext %w, 186
+  br i1 %cmp31, label %return, label %if.end34
+
+if.end34:
+  %#6 = add i8 noundef zeroext %w, 175
+  %or.cond.i52 = icmp ult i8 %#6, 17
+  %#7 = add i8 noundef zeroext %w, 157
+  %#8 = icmp ult i8 %#7, 2
+  %or.cond28.i53 = or i1 %or.cond.i52, %#8
+  %#9 = add i8 noundef zeroext %w, 153
+  %or.cond29.i = icmp ult i8 %#9, 23
+  %or.cond54 = or i1 %or.cond29.i, %or.cond28.i53
+  br i1 %or.cond54, label %return, label %switch.early.test.i
+
+switch.early.test.i:
+  %switch.tableidx = add i8 noundef zeroext %w, 126
+  %#10 = icmp ult i8 %switch.tableidx, 19
+  br i1 %#10, label %switch.hole_check, label %lor.rhs.i
+
+switch.hole_check:
+  %switch.maskindex = zext nneg i8 %switch.tableidx to i32
+  %switch.shifted = lshr i32 517729, %switch.maskindex
+  %switch.lobit = trunc i32 %switch.shifted to i1
+  br i1 %switch.lobit, label %return, label %lor.rhs.i
+
+lor.rhs.i:
+  %#11 = add i8 noundef zeroext %w, 102
+  %#12 = icmp ult i8 %#11, 33
+  %#13 = select i1 %#12, i64 64, i64 16
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 7, %entry ], [ 17, %if.end ], [ 65, %if.end6 ], [ 64, %if.end14 ], [ 64, %if.end19 ], [ 16, %if.end29 ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ %#13, %lor.rhs.i ], [ 64, %if.end34 ], [ 64, %switch.hole_check ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 7, i64 66
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_default(i8 noundef zeroext %w, i32 noundef %wv0, i32 noundef %nOpCount, i32 noundef %fExec) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ne i32 noundef %wv0, 0
+  %cmp1 = icmp ugt i8 noundef zeroext %w, 96
+  %or.cond = and i1 %cmp1, %cmp
+  %#0 = add i32 noundef %nOpCount, 4294967095
+  %cmp3 = icmp ult i32 %#0, 4294967094
+  %or.cond42 = and i1 %or.cond, %cmp3
+  br i1 %or.cond42, label %return, label %if.end
+
+if.end:
+  switch i8 noundef zeroext %w, label %lor.rhs.i [
+    i8 142, label %return
+    i8 141, label %return
+    i8 134, label %return
+    i8 133, label %return
+    i8 132, label %return
+    i8 131, label %return
+    i8 129, label %return
+    i8 128, label %return
+    i8 127, label %return
+    i8 126, label %return
+  ]
+
+lor.rhs.i:
+  %#1 = add i8 noundef zeroext %w, 107
+  %#2 = icmp ult i8 %#1, 5
+  br i1 %#2, label %return, label %if.end8
+
+if.end8:
+  %cmp9.not = icmp ne i32 noundef %fExec, 0
+  %#3 = add i8 noundef zeroext %w, 157
+  %#4 = icmp ult i8 %#3, 6
+  %#5 = or i1 %#4, %cmp9.not
+  br i1 %#5, label %if.end16, label %return
+
+if.end16:
+  %cmp1.i = icmp ult i8 noundef zeroext %w, 79
+  br i1 %cmp1.i, label %return, label %lor.lhs.false
+
+lor.lhs.false:
+  %cmp.i = icmp eq i8 noundef zeroext %w, 79
+  %#6 = add i8 noundef zeroext %w, 175
+  %#7 = icmp ult i8 %#6, 16
+  %#8 = or i1 %cmp.i, %#7
+  br i1 %#8, label %return, label %if.end23
+
+if.end23:
+  switch i8 noundef zeroext %w, label %lor.rhs.i43 [
+    i8 98, label %return
+    i8 80, label %return
+    i8 138, label %return
+    i8 137, label %return
+    i8 102, label %return
+    i8 101, label %return
+  ]
+
+lor.rhs.i43:
+  %cmp9.i = icmp ugt i8 noundef zeroext %w, 185
+  br i1 %cmp9.i, label %return, label %if.end28
+
+if.end28:
+  switch i8 noundef zeroext %w, label %lor.lhs.false3.i [
+    i8 100, label %return
+    i8 99, label %return
+    i8 97, label %return
+  ]
+
+lor.lhs.false3.i:
+  %#9 = add i8 noundef zeroext %w, 153
+  %or.cond23.i = icmp ult i8 %#9, 23
+  br i1 %or.cond23.i, label %return, label %switch.early.test.i
+
+switch.early.test.i:
+  %switch.tableidx = add i8 noundef zeroext %w, 126
+  %#10 = icmp ult i8 %switch.tableidx, 19
+  br i1 %#10, label %switch.hole_check, label %lor.rhs.i44
+
+switch.hole_check:
+  %switch.maskindex = zext nneg i8 %switch.tableidx to i32
+  %switch.shifted = lshr i32 517729, %switch.maskindex
+  %switch.lobit = trunc i32 %switch.shifted to i1
+  br i1 %switch.lobit, label %return, label %lor.rhs.i44
+
+lor.rhs.i44:
+  %#11 = add i8 noundef zeroext %w, 102
+  %#12 = icmp ult i8 %#11, 32
+  %#13 = select i1 %#12, i64 64, i64 16
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 7, %entry ], [ 17, %lor.rhs.i ], [ 65, %if.end8 ], [ 64, %lor.lhs.false ], [ 64, %if.end16 ], [ 16, %lor.rhs.i43 ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 17, %if.end ], [ 16, %if.end23 ], [ 16, %if.end23 ], [ 16, %if.end23 ], [ 16, %if.end23 ], [ 16, %if.end23 ], [ 16, %if.end23 ], [ 64, %if.end28 ], [ %#13, %lor.rhs.i44 ], [ 64, %if.end28 ], [ 64, %if.end28 ], [ 64, %lor.lhs.false3.i ], [ 64, %switch.hole_check ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 7, i64 66
+  ret i64 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

@@ -1,0 +1,21 @@
+import "cell.cry";
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// SCR-083: both legs are checked against the same independent Cryptol
+// predicate over every wire vector (b0..b3) and every uint32 length.
+// Solver: z3.
+let spec = do {
+  b0 <- llvm_fresh_var "b0" (llvm_int 8);
+  b1 <- llvm_fresh_var "b1" (llvm_int 8);
+  b2 <- llvm_fresh_var "b2" (llvm_int 8);
+  b3 <- llvm_fresh_var "b3" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  llvm_execute_func [llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term len];
+  llvm_return (llvm_term {{ packed len b0 b1 b2 b3 }});
+};
+
+llvm_verify mC "cell_negzero" [] false spec z3;
+llvm_verify mL "cell_negzero" [] false spec z3;
+print "CELL_W64_NEGZERO_SAW_GREEN";

@@ -1,0 +1,21 @@
+
+----------------------------------------
+define i64 @f(ptr %p) {
+#0:
+  %r = ptrtoint ptr %p to i64
+  ret i64 %r
+}
+=>
+define i64 @f(ptr %p) {
+#0:
+  %q = ptrtoint ptr %p to i64
+  %r = add i64 %q, 0
+  ret i64 %r
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

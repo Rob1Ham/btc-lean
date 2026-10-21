@@ -1,0 +1,18 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_p2a.bc";
+mL <- llvm_load_module "l_cell_p2a.bc";
+
+// Symbolic in (version, program bytes, program length): every accept/reject
+// edge of the predicate, including versions 0/1/2/16 and lengths 1/2/3.
+let spec = do {
+  version <- llvm_fresh_var "version" (llvm_int 8);
+  p0 <- llvm_fresh_var "p0" (llvm_int 8);
+  p1 <- llvm_fresh_var "p1" (llvm_int 8);
+  plen <- llvm_fresh_var "plen" (llvm_int 32);
+  llvm_execute_func [llvm_term version, llvm_term p0, llvm_term p1,
+                     llvm_term plen];
+  llvm_return (llvm_term {{ packed version p0 p1 plen }});
+};
+llvm_verify mC "cell_p2a" [] false spec abc;
+llvm_verify mL "cell_p2a" [] false spec abc;
+print "CELL_W32_P2A_SAW_GREEN";

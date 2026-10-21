@@ -1,0 +1,133 @@
+# cell: checksig/C-L-checksig-bip66
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: bae6d2b4307e9c308614652c1de96fadb2398a0814ba637a8770dee71c6903c8
+# l source sha256: 81d65003a94936e8efdab737b5b203d75dc606c0949bfde1aad1bb6496092ec6
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_dersig_flag =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_dersig_flag.ll build/l_cell_dersig_flag.ll
+# c IR sha256: b24b27afc6809a5a7ac41bc7bb545e4d5d33a184f40d0d634e213a371c70af17
+# l IR sha256: 8681481e76a8fba4ef1bf0ccec3ddcbfdf9d218f6053cd5e0776ef5e23da5821
+
+----------------------------------------
+define i64 @cell_dersig_flag(i32 noundef %bip66_height, i32 noundef %height, i32 noundef %exc) nofree willreturn memory(none) {
+entry:
+  %switch.selectcmp.i = icmp eq i32 noundef %exc, 2
+  %switch.select.i = select i1 %switch.selectcmp.i, i32 3, i32 7
+  %switch.selectcmp5.i = icmp eq i32 noundef %exc, 1
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i32 0, i32 %switch.select.i
+  %cmp.not.i = icmp ult i32 noundef %height, noundef %bip66_height
+  %or.i = or disjoint i32 %switch.select6.i, 8
+  %spec.select.i = select i1 %cmp.not.i, i32 %switch.select6.i, i32 %or.i
+  %conv = zext nneg i32 %spec.select.i to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 16
+  ret i64 %#range_0_%conv
+}
+=>
+define i64 @cell_dersig_flag(i32 noundef %bip66_height, i32 noundef %height, i32 noundef %exc) nofree willreturn memory(none) {
+entry:
+  %switch.selectcmp.i = icmp eq i32 noundef %exc, 2
+  %switch.select.i = select i1 %switch.selectcmp.i, i64 3, i64 7
+  %switch.selectcmp5.i = icmp eq i32 noundef %exc, 1
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i64 0, i64 %switch.select.i
+  %cmp.not.not.i = icmp ugt i32 noundef %bip66_height, noundef %height
+  %or.i = select i1 %cmp.not.not.i, i64 0, i64 8
+  %or1.i = or disjoint i64 %switch.select6.i, %or.i
+  %#range_0_%or1.i = !range i64 %or1.i, i64 0, i64 16
+  ret i64 %#range_0_%or1.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_dersig_flag=alive2-green
+===== cell_dersig_flag_mainnet =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_dersig_flag_mainnet.ll build/l_cell_dersig_flag_mainnet.ll
+# c IR sha256: ab468d8922f38122a9abe8a2a9cf674b24869858551385681b9922824efcb7d3
+# l IR sha256: 909915f1c984b8799adf8a4182c1563f0c12b3f3f2801c1a5046121ee34f379c
+
+----------------------------------------
+define i64 @cell_dersig_flag_mainnet(i32 noundef %height, i32 noundef %exc) nofree willreturn memory(none) {
+entry:
+  %switch.selectcmp.i = icmp eq i32 noundef %exc, 2
+  %switch.select.i = select i1 %switch.selectcmp.i, i32 3, i32 7
+  %switch.selectcmp5.i = icmp eq i32 noundef %exc, 1
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i32 0, i32 %switch.select.i
+  %cmp.not.i = icmp ult i32 noundef %height, 363725
+  %or.i = or disjoint i32 %switch.select6.i, 8
+  %spec.select.i = select i1 %cmp.not.i, i32 %switch.select6.i, i32 %or.i
+  %conv = zext nneg i32 %spec.select.i to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 16
+  ret i64 %#range_0_%conv
+}
+=>
+define i64 @cell_dersig_flag_mainnet(i32 noundef %height, i32 noundef %exc) nofree willreturn memory(none) {
+entry:
+  %switch.selectcmp.i = icmp eq i32 noundef %exc, 2
+  %switch.select.i = select i1 %switch.selectcmp.i, i64 3, i64 7
+  %switch.selectcmp5.i = icmp eq i32 noundef %exc, 1
+  %switch.select6.i = select i1 %switch.selectcmp5.i, i64 0, i64 %switch.select.i
+  %cmp.not.not.i = icmp ult i32 noundef %height, 363725
+  %or.i = select i1 %cmp.not.not.i, i64 0, i64 8
+  %or1.i = or disjoint i64 %switch.select6.i, %or.i
+  %#range_0_%or1.i = !range i64 %or1.i, i64 0, i64 16
+  ret i64 %#range_0_%or1.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_dersig_flag_mainnet=alive2-green
+===== cell_dersig_or =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_dersig_or.ll build/l_cell_dersig_or.ll
+# c IR sha256: 11b50a1120c931ec66ec0b4e47bb47bc0c5a2f277fa620ef60a1bc9260249c58
+# l IR sha256: 33f541eb2a6175c6ab501483ced876f578277e41d1274b983e98125b9f926b93
+
+----------------------------------------
+define i64 @cell_dersig_or(i32 noundef %bip66_height, i32 noundef %height, i32 noundef %base_flags) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %base_flags, 15
+  %cmp.not.i = icmp ult i32 noundef %height, noundef %bip66_height
+  %or.i = or i32 %and, 8
+  %spec.select.i = select i1 %cmp.not.i, i32 %and, i32 %or.i
+  %conv = zext nneg i32 %spec.select.i to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 16
+  ret i64 %#range_0_%conv
+}
+=>
+define i64 @cell_dersig_or(i32 noundef %bip66_height, i32 noundef %height, i32 noundef %base_flags) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %base_flags, 15
+  %cmp.not.not.i = icmp ugt i32 noundef %bip66_height, noundef %height
+  %and.i = and i32 noundef %base_flags, 8
+  %or.i = select i1 %cmp.not.not.i, i32 %and.i, i32 8
+  %or1.i = or i32 %or.i, %and
+  %conv = zext nneg i32 %or1.i to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 16
+  ret i64 %#range_0_%conv
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_dersig_or=alive2-green
+STATUS=alive2-green

@@ -1,0 +1,22 @@
+# alive-tv self-comparison (translation check only, not a proof)
+# func: __cxa_guard_release
+
+----------------------------------------
+define void @__cxa_guard_release(ptr %g) {
+entry:
+  store i8 2, ptr %g, align 8
+  ret void
+}
+=>
+define void @__cxa_guard_release(ptr %g) {
+entry:
+  store i8 2, ptr %g, align 8
+  ret void
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

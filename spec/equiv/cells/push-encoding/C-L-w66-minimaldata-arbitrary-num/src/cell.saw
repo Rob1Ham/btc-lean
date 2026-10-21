@@ -1,0 +1,150 @@
+import "cell.cry";
+
+// Symbolic in every handler argument: five operand bytes and a FULL 32-bit
+// operand length per decoded operand (so the model covers 0..520 and beyond,
+// not a 3-bit field), the full 64-bit script flags word (so fRequireMinimal
+// and the CLTV/CSV activation bits are inputs, not constants), 16-bit stack
+// depth and opcode budget (Core's `int` arithmetic is exact on this superset),
+// and the sigversion.  C and L are each checked against the same Cryptol model.
+
+let predCap5_spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term len, llvm_term flags];
+  llvm_return (llvm_term {{ predCap5 a b c d e len flags }});
+};
+
+let predCap4_spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term len, llvm_term flags];
+  llvm_return (llvm_term {{ predCap4 a b c d e len flags }});
+};
+
+let cltv_spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  depth <- llvm_fresh_var "depth" (llvm_int 16);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term len, llvm_term flags,
+                     llvm_term depth];
+  llvm_return (llvm_term {{ cltv a b c d e len flags depth }});
+};
+
+let csv_spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  depth <- llvm_fresh_var "depth" (llvm_int 16);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term len, llvm_term flags,
+                     llvm_term depth];
+  llvm_return (llvm_term {{ csv a b c d e len flags depth }});
+};
+
+let cms_spec = do {
+  k0 <- llvm_fresh_var "k0" (llvm_int 8);
+  k1 <- llvm_fresh_var "k1" (llvm_int 8);
+  k2 <- llvm_fresh_var "k2" (llvm_int 8);
+  k3 <- llvm_fresh_var "k3" (llvm_int 8);
+  k4 <- llvm_fresh_var "k4" (llvm_int 8);
+  klen <- llvm_fresh_var "klen" (llvm_int 32);
+  s0 <- llvm_fresh_var "s0" (llvm_int 8);
+  s1 <- llvm_fresh_var "s1" (llvm_int 8);
+  s2 <- llvm_fresh_var "s2" (llvm_int 8);
+  s3 <- llvm_fresh_var "s3" (llvm_int 8);
+  s4 <- llvm_fresh_var "s4" (llvm_int 8);
+  slen <- llvm_fresh_var "slen" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  depth <- llvm_fresh_var "depth" (llvm_int 16);
+  opcount <- llvm_fresh_var "opcount" (llvm_int 16);
+  sigversion <- llvm_fresh_var "sigversion" (llvm_int 8);
+  llvm_execute_func [llvm_term k0, llvm_term k1, llvm_term k2, llvm_term k3,
+                     llvm_term k4, llvm_term klen, llvm_term s0,
+                     llvm_term s1, llvm_term s2, llvm_term s3, llvm_term s4,
+                     llvm_term slen, llvm_term flags, llvm_term depth,
+                     llvm_term opcount, llvm_term sigversion];
+  llvm_return (llvm_term {{ cms k0 k1 k2 k3 k4 klen s0 s1 s2 s3 s4 slen
+                            flags depth opcount sigversion }});
+};
+
+let checksigadd_spec = do {
+  a <- llvm_fresh_var "a" (llvm_int 8);
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  c <- llvm_fresh_var "c" (llvm_int 8);
+  d <- llvm_fresh_var "d" (llvm_int 8);
+  e <- llvm_fresh_var "e" (llvm_int 8);
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  flags <- llvm_fresh_var "flags" (llvm_int 64);
+  depth <- llvm_fresh_var "depth" (llvm_int 16);
+  sigversion <- llvm_fresh_var "sigversion" (llvm_int 8);
+  llvm_execute_func [llvm_term a, llvm_term b, llvm_term c, llvm_term d,
+                     llvm_term e, llvm_term len, llvm_term flags,
+                     llvm_term depth, llvm_term sigversion];
+  llvm_return (llvm_term {{ checksigadd a b c d e len flags depth
+                            sigversion }});
+};
+
+mCpred5 <- llvm_load_module "c_pred_cap5.bc";
+mLpred5 <- llvm_load_module "l_pred_cap5.bc";
+llvm_verify mCpred5 "pred_cap5" [] false predCap5_spec bitwuzla;
+llvm_verify mLpred5 "pred_cap5" [] false predCap5_spec bitwuzla;
+
+mCpred4 <- llvm_load_module "c_pred_cap4.bc";
+mLpred4 <- llvm_load_module "l_pred_cap4.bc";
+llvm_verify mCpred4 "pred_cap4" [] false predCap4_spec bitwuzla;
+llvm_verify mLpred4 "pred_cap4" [] false predCap4_spec bitwuzla;
+
+mCcltv <- llvm_load_module "c_cell_cltv.bc";
+mLcltv <- llvm_load_module "l_cell_cltv.bc";
+llvm_verify mCcltv "cell_cltv" [] false cltv_spec bitwuzla;
+llvm_verify mLcltv "cell_cltv" [] false cltv_spec bitwuzla;
+
+mCcsv <- llvm_load_module "c_cell_csv.bc";
+mLcsv <- llvm_load_module "l_cell_csv.bc";
+llvm_verify mCcsv "cell_csv" [] false csv_spec bitwuzla;
+llvm_verify mLcsv "cell_csv" [] false csv_spec bitwuzla;
+
+mCcms <- llvm_load_module "c_cell_cms.bc";
+mLcms <- llvm_load_module "l_cell_cms.bc";
+llvm_verify mCcms "cell_cms" [] false cms_spec bitwuzla;
+llvm_verify mLcms "cell_cms" [] false cms_spec bitwuzla;
+
+mCcsa <- llvm_load_module "c_cell_checksigadd.bc";
+mLcsa <- llvm_load_module "l_cell_checksigadd.bc";
+llvm_verify mCcsa "cell_checksigadd" [] false checksigadd_spec bitwuzla;
+llvm_verify mLcsa "cell_checksigadd" [] false checksigadd_spec bitwuzla;
+
+// The round-trip law, as a pure Cryptol obligation (no LLVM module): for
+// every five-byte operand and every length 0..5, canonical re-serialisation
+// reproduces the operand exactly when the two-byte minimality test accepts.
+// Together with the two llvm_verify proofs per predicate entry point this
+// connects the independent round-trip bit to the script.h predicate.
+prove_print bitwuzla {{ \(a : [8]) (b : [8]) (c : [8]) (d : [8]) (e : [8])
+                   (l : [32]) ->
+                   (l <= (5 : [32])) ==>
+                   (rtOK a b c d e l == ~(nonminPos a b c d e l)) }};
+print "ROUNDTRIP_LAW_PROVED";
+
+print "CELL_W66_MINIMALDATA_ARBITRARY_NUM_SAW_GREEN";

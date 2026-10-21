@@ -1,0 +1,21 @@
+Loading file "indirect.saw"
+Verifying call_g...
+Simulating call_g...
+Stack trace:
+   (builtin) in llvm_verify
+   indirect.saw:7:1-7:41 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  indirect.c:4:28: error: in call_g
+  Global symbol not allocated
+  Details:
+    Global symbol "g" has no associated allocation
+Stack frame call_g
+  No writes or allocations
+Base memory
+  Allocations:
+    GlobalAlloc 3 0x0:[64] Immutable 1-byte-aligned [defined function ] apply
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [defined function ] call_g
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [defined function ] inc
+
+

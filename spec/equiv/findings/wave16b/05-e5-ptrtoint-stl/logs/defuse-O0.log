@@ -1,0 +1,43 @@
+ptrtoint definitions: 104
+ptrtoint results used exactly once, as an operand of one `sub`: 104/104
+(the `sub` other operand being a ptrtoint is checked by census.py)
+consumers of the *byte-distance* value (sub result): {'returned-as-byte-count': 10, 'trunc-to-i32': 6, 'sdiv-exact-by-size': 52, 'call-argument': 18, 'stored': 18}
+note: `stored` / `call-argument` here are the distance, never an address;
+      the ptrtoint result itself has no use other than the sub.
+
+SUB-CONSUMER _ZNSt12_Vector_baseIhSaIhEED2Ev 19402 ['call-argument']
+SUB-CONSUMER _ZNSt12_Vector_baseIhSaIhEED2Ev 19403 ['call-argument']
+SUB-CONSUMER _ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIKhhEEPT0_PT_S7_S5_ 19874 ['stored']
+SUB-CONSUMER _ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIKhhEEPT0_PT_S7_S5_ 19875 ['stored']
+SUB-CONSUMER _ZSt9__fill_a1IhEN9__gnu_cxx11__enable_ifIXsr9__is_byteIT_EE7__valueEvE6__typeEPS2_S5_RKS2_ 20504 ['stored']
+SUB-CONSUMER _ZSt9__fill_a1IhEN9__gnu_cxx11__enable_ifIXsr9__is_byteIT_EE7__valueEvE6__typeEPS2_S5_RKS2_ 20505 ['stored']
+SUB-CONSUMER _ZNSt6vectorIhSaIhEE17_M_realloc_insertIJhEEEvN9__gnu_cxx17__normal_iteratorIPhS1_EEDpOT_ 21849 ['call-argument']
+SUB-CONSUMER _ZNSt6vectorIhSaIhEE17_M_realloc_insertIJhEEEvN9__gnu_cxx17__normal_iteratorIPhS1_EEDpOT_ 21850 ['call-argument']
+SUB-CONSUMER _ZSt14__relocate_a_1IhhENSt9enable_ifIXsr3std24__is_bitwise_relocatableIT_EE5valueEPS1_E4typeES2_S2_S2_RSaIT0_E 22036 ['stored']
+SUB-CONSUMER _ZSt14__relocate_a_1IhhENSt9enable_ifIXsr3std24__is_bitwise_relocatableIT_EE5valueEPS1_E4typeES2_S2_S2_RSaIT0_E 22037 ['stored']
+SUB-CONSUMER _ZNSt7__equalILb1EE5equalIhEEbPKT_S4_S4_ 23451 ['stored']
+SUB-CONSUMER _ZNSt7__equalILb1EE5equalIhEEbPKT_S4_S4_ 23452 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag 26972 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag 26973 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_S_copy_charsEPcPKcS7_ 27166 ['call-argument']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_S_copy_charsEPcPKcS7_ 27167 ['call-argument']
+SUB-CONSUMER _ZNSt25__lexicographical_compareILb1EE6__3wayIhhEElPKT_S4_PKT0_S7_ 28785 ['stored']
+SUB-CONSUMER _ZNSt25__lexicographical_compareILb1EE6__3wayIhhEElPKT_S4_PKT0_S7_ 28786 ['stored']
+SUB-CONSUMER _ZNSt25__lexicographical_compareILb1EE6__3wayIhhEElPKT_S4_PKT0_S7_ 28791 ['stored']
+SUB-CONSUMER _ZNSt25__lexicographical_compareILb1EE6__3wayIhhEElPKT_S4_PKT0_S7_ 28792 ['stored']
+SUB-CONSUMER _ZNSt6vectorIhSaIhEEaSERKS1_ 29587 ['call-argument']
+SUB-CONSUMER _ZNSt6vectorIhSaIhEEaSERKS1_ 29588 ['call-argument']
+SUB-CONSUMER _ZSt12__niter_wrapIN9__gnu_cxx17__normal_iteratorIPhSt6vectorIhSaIhEEEES2_ET_S7_T0_ 29972 ['call-argument']
+SUB-CONSUMER _ZSt12__niter_wrapIN9__gnu_cxx17__normal_iteratorIPhSt6vectorIhSaIhEEEES2_ET_S7_T0_ 29973 ['call-argument']
+SUB-CONSUMER _ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIhhEEPT0_PT_S6_S4_ 30081 ['stored']
+SUB-CONSUMER _ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIhhEEPT0_PT_S6_S4_ 30082 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag 33551 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag 33552 ['stored']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_S_copy_charsEPcS5_S5_ 33630 ['call-argument']
+SUB-CONSUMER _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE13_S_copy_charsEPcS5_S5_ 33631 ['call-argument']
+SUB-CONSUMER _ZN9prevectorILj36EhjiE5eraseENS0_8iteratorES1_ 35965 ['call-argument']
+SUB-CONSUMER _ZN9prevectorILj36EhjiE5eraseENS0_8iteratorES1_ 35966 ['call-argument']
+SUB-CONSUMER _ZN10tinyformat6detail24printFormatStringLiteralERSoPKc 39030 ['call-argument']
+SUB-CONSUMER _ZN10tinyformat6detail24printFormatStringLiteralERSoPKc 39031 ['call-argument']
+SUB-CONSUMER _ZN10tinyformat6detail24printFormatStringLiteralERSoPKc 39050 ['call-argument']
+SUB-CONSUMER _ZN10tinyformat6detail24printFormatStringLiteralERSoPKc 39051 ['call-argument']

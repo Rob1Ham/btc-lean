@@ -1,0 +1,56 @@
+// SCR-016: symbolic exception-map lookup plus the two named blocks' flag sets.
+import "spec.cry";
+
+mC <- llvm_load_module "../build/c_cell_exc_select.bc";
+mL <- llvm_load_module "../build/l_cell_exc_select.bc";
+mCb <- llvm_load_module "../build/c_cell_flags_bip16_at.bc";
+mLb <- llvm_load_module "../build/l_cell_flags_bip16_at.bc";
+mCt <- llvm_load_module "../build/c_cell_flags_taproot_at.bc";
+mLt <- llvm_load_module "../build/l_cell_flags_taproot_at.bc";
+mCbn <- llvm_load_module "../build/c_cell_flags_bip16_named.bc";
+mLbn <- llvm_load_module "../build/l_cell_flags_bip16_named.bc";
+mCtn <- llvm_load_module "../build/c_cell_flags_taproot_named.bc";
+mLtn <- llvm_load_module "../build/l_cell_flags_taproot_named.bc";
+
+let sel_spec = do {
+  h0 <- llvm_fresh_var "h0" (llvm_int 64);
+  h1 <- llvm_fresh_var "h1" (llvm_int 64);
+  h2 <- llvm_fresh_var "h2" (llvm_int 64);
+  h3 <- llvm_fresh_var "h3" (llvm_int 64);
+  llvm_execute_func [llvm_term h0, llvm_term h1, llvm_term h2, llvm_term h3];
+  llvm_return (llvm_term {{ exc_select h0 h1 h2 h3 }});
+};
+
+let bip16_spec = do {
+  height <- llvm_fresh_var "height" (llvm_int 32);
+  llvm_execute_func [llvm_term height];
+  llvm_return (llvm_term {{ flags_bip16_at height }});
+};
+
+let taproot_spec = do {
+  height <- llvm_fresh_var "height" (llvm_int 32);
+  llvm_execute_func [llvm_term height];
+  llvm_return (llvm_term {{ flags_taproot_at height }});
+};
+
+let bip16_named_spec = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ flags_bip16_named }});
+};
+
+let taproot_named_spec = do {
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ flags_taproot_named }});
+};
+
+llvm_verify mC "cell_exc_select" [] false sel_spec z3;
+llvm_verify mL "cell_exc_select" [] false sel_spec z3;
+llvm_verify mCb "cell_flags_bip16_at" [] false bip16_spec z3;
+llvm_verify mLb "cell_flags_bip16_at" [] false bip16_spec z3;
+llvm_verify mCt "cell_flags_taproot_at" [] false taproot_spec z3;
+llvm_verify mLt "cell_flags_taproot_at" [] false taproot_spec z3;
+llvm_verify mCbn "cell_flags_bip16_named" [] false bip16_named_spec z3;
+llvm_verify mLbn "cell_flags_bip16_named" [] false bip16_named_spec z3;
+llvm_verify mCtn "cell_flags_taproot_named" [] false taproot_named_spec z3;
+llvm_verify mLtn "cell_flags_taproot_named" [] false taproot_named_spec z3;
+print "CELL_flag_exceptions_SAW_GREEN";

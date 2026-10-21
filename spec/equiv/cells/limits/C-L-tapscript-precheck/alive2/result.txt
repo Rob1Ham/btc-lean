@@ -1,0 +1,102 @@
+# cell: limits/C-L-tapscript-precheck
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 acdd42958f4c846dde29e729e757b7e55d784fc012391340903fb2db6d86e91d
+# command: alive-tv build/c_cell_tap_precheck.ll build/l_cell_tap_precheck.ll
+
+----------------------------------------
+define i64 @cell_tap_precheck(i32 noundef %depth, i8 noundef zeroext %sv, i8 noundef zeroext %has_success, i8 noundef zeroext %discourage, i8 noundef zeroext %inner_err) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %or.cond = or i1 %cmp, %spec.select.i
+  %#0 = or i8 noundef zeroext %discourage, noundef zeroext %has_success
+  %#1 = icmp ugt i8 %#0, 1
+  %or.cond33 = or i1 %or.cond, %#1
+  %cmp8 = icmp ugt i8 noundef zeroext %inner_err, 55
+  %or.cond34 = or i1 %cmp8, %or.cond33
+  br i1 %or.cond34, label %return, label %if.end
+
+if.end:
+  %cmp4.i = icmp eq i8 noundef zeroext %sv, 2
+  br i1 %cmp4.i, label %if.then12, label %if.end24
+
+if.then12:
+  %tobool.not = icmp eq i8 noundef zeroext %has_success, 0
+  br i1 %tobool.not, label %if.end19, label %if.then13
+
+if.end19:
+  %cmp20 = icmp ugt i32 noundef %depth, 1000
+  br i1 %cmp20, label %return, label %if.end24
+
+if.then13:
+  %tobool14.not = icmp eq i8 noundef zeroext %discourage, 0
+  %. = select i1 %tobool14.not, i64 1, i64 144
+  br label %return
+
+if.end24:
+  %cmp26 = icmp eq i8 noundef zeroext %inner_err, 0
+  br i1 %cmp26, label %return, label %if.end29
+
+if.end29:
+  %#2 = shl nuw i8 noundef zeroext %inner_err, 2
+  %or.i = zext i8 %#2 to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or.i, %if.end29 ], [ 6, %entry ], [ %., %if.then13 ], [ 32, %if.end19 ], [ 1, %if.end24 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 253
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_tap_precheck(i32 noundef %depth, i8 noundef zeroext %sv, i8 noundef zeroext %has_success, i8 noundef zeroext %discourage, i8 noundef zeroext %inner_err) nofree willreturn memory(none) {
+entry:
+  %spec.select.i = icmp ugt i8 noundef zeroext %sv, 2
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %or.cond = or i1 %cmp, %spec.select.i
+  %#0 = or i8 noundef zeroext %discourage, noundef zeroext %has_success
+  %#1 = icmp ugt i8 %#0, 1
+  %or.cond33 = or i1 %or.cond, %#1
+  %cmp8 = icmp ugt i8 noundef zeroext %inner_err, 55
+  %or.cond34 = or i1 %cmp8, %or.cond33
+  br i1 %or.cond34, label %return, label %if.end
+
+if.end:
+  %cmp4.i = icmp eq i8 noundef zeroext %sv, 2
+  br i1 %cmp4.i, label %if.then12, label %if.end24
+
+if.then12:
+  %tobool.not = icmp eq i8 noundef zeroext %has_success, 0
+  br i1 %tobool.not, label %if.end19, label %if.then13
+
+if.end19:
+  %cmp20 = icmp ugt i32 noundef %depth, 1000
+  br i1 %cmp20, label %return, label %if.end24
+
+if.then13:
+  %tobool14.not = icmp eq i8 noundef zeroext %discourage, 0
+  %. = select i1 %tobool14.not, i64 1, i64 144
+  br label %return
+
+if.end24:
+  %cmp26 = icmp eq i8 noundef zeroext %inner_err, 0
+  br i1 %cmp26, label %return, label %if.end29
+
+if.end29:
+  %#2 = shl nuw i8 noundef zeroext %inner_err, 2
+  %or.i = zext i8 %#2 to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or.i, %if.end29 ], [ 6, %entry ], [ %., %if.then13 ], [ 32, %if.end19 ], [ 1, %if.end24 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 253
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

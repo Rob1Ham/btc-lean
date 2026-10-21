@@ -1,0 +1,156 @@
+// Independent Cryptol oracle for SCR-086 at the depth/count consumers.
+//
+// Written from Bitcoin Core cce32b168:
+//   src/script/script.h:32,44         MAX_OPS_PER_SCRIPT = 201, MAX_STACK_SIZE = 1000
+//   src/script/script.h:326-333       getint() int32 clamp
+//   src/script/script.h:246-271       CScriptNum width + minimal checks
+//   src/script/script.h:376-391       set_vch, little-endian sign-magnitude
+//   src/script/interpreter.cpp:833-849   OP_PICK / OP_ROLL depth read
+//   src/script/interpreter.cpp:1122-1146 CHECKMULTISIG count reads
+//
+// It is not derived from either cell leg.
+
+// ---------------------------------------------------------------------------
+// script.h:326-333.  Input is Core's int64_t m_value; result is the int
+// returned by getint().  Both firing arms are total here.
+clamp_i32 : [64] -> [32]
+clamp_i32 x =
+  if x >$ (2147483647 : [64]) then (0x7fffffff : [32])
+  else if x <$ (-2147483648 : [64]) then (0x80000000 : [32])
+  else drop x
+
+// script.h:376-391 for a length 0..4 operand.  The top byte carries the sign.
+last_byte : [32] -> [8] -> [8] -> [8] -> [8] -> [8]
+last_byte len b0 b1 b2 b3 =
+  if len == 1 then b0 else if len == 2 then b1
+  else if len == 3 then b2 else b3
+
+second_byte : [32] -> [8] -> [8] -> [8] -> [8]
+second_byte len b0 b1 b2 =
+  if len == 2 then b0 else if len == 3 then b1 else b2
+
+set_vch : [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+set_vch len b0 b1 b2 b3 =
+  if len == 0 then 0
+  else if neg then -(mag)
+  else mag
+  where
+    top = last_byte len b0 b1 b2 b3
+    neg = (top && 0x80) != 0
+    b0m = if neg && (len == 1) then b0 && 0x7f else b0
+    b1m = if neg && (len == 2) then b1 && 0x7f else b1
+    b2m = if neg && (len == 3) then b2 && 0x7f else b2
+    b3m = if neg && (len == 4) then b3 && 0x7f else b3
+    mag = (zext b0m) || ((if len >= 2 then zext b1m else 0) << 8) ||
+          ((if len >= 3 then zext b2m else 0) << 16) ||
+          ((if len >= 4 then zext b3m else 0) << 24)
+// Note: set_vch returns the 64-bit signed value, as Core's int64_t m_value.
+// After the length-4 cap it lies in [-2^31+1, 2^31-1], so clamp_i32 is the
+// identity; the clamp statement is still applied so the oracle is total.
+
+// script.h:252-268.  Reject iff the top byte minus its sign bit is zero and
+// (len <= 1 or the second byte's high bit is clear).
+minimal_fail : [32] -> [8] -> [8] -> [8] -> [8] -> Bit
+minimal_fail len b0 b1 b2 b3 =
+  if len == 0 then False
+  else if (top && 0x7f) != 0 then False
+  else if len <= 1 then True
+  else (second && 0x80) == 0
+  where
+    top = last_byte len b0 b1 b2 b3
+    second = second_byte len b0 b1 b2
+
+// ---------------------------------------------------------------------------
+// cell_depth_read observable:
+//   status(2) | err(6)<<2 | idx(16)<<8 | n(32)<<24
+// status 0 ok, 1 SCRIPTNUM, 2 INVALID_STACK_OPERATION, 3 out of depth domain.
+depth_obs : [2] -> [6] -> [16] -> [32] -> [64]
+depth_obs st err idx n =
+  (zext st) || ((zext err) << 2) || ((zext idx) << 8) || ((zext n) << 24)
+
+depth_read : [32] -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32]
+           -> [64]
+depth_read len b0 b1 b2 b3 b4 depth minimal =
+  if depth > 1000 then depth_obs 3 0 0 0
+  else if depth < 2 then depth_obs 2 18 0 0
+  else if len > 4 then depth_obs 1 4 0 0
+  else if (minimal != 0) && minimal_fail len b0 b1 b2 b3 then depth_obs 1 4 0 0
+  else if (n <$ (0 : [32])) || (n >=$ m) then depth_obs 2 18 0 0
+  else depth_obs 0 0 (drop (m - 1 - n)) n
+  where
+    n = clamp_i32 (set_vch len b0 b1 b2 b3)
+    m = depth - 1
+
+// ---------------------------------------------------------------------------
+// cell_cms_key_count observable:
+//   status(3) | nKeys(32)<<3 | ikey2(6)<<35
+// status 0 ok, 1 PUBKEY_COUNT, 2 OP_COUNT, 5 SCRIPTNUM, 7 out of domain.
+key_obs : [3] -> [32] -> [6] -> [64]
+key_obs st n ikey2 =
+  (zext st) || ((zext n) << 3) || ((zext ikey2) << 35)
+
+cms_key_count : [32] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [64]
+cms_key_count len b0 b1 b2 b3 opCount minimal =
+  if opCount > (201 : [32]) then key_obs 7 0 0
+  else if len > 4 then key_obs 5 0 0
+  else if (minimal != 0) && minimal_fail len b0 b1 b2 b3 then key_obs 5 0 0
+  else if (n <$ (0 : [32])) || (n >$ (20 : [32])) then key_obs 1 n 0
+  else if total > (201 : [32]) then key_obs 2 n 0
+  else key_obs 0 n (drop (n + 2))
+  where
+    n = clamp_i32 (set_vch len b0 b1 b2 b3)
+    total = opCount + n
+
+// ---------------------------------------------------------------------------
+// CHECKMULTISIG nSigsCount path, split at the signature read.  The prefix is
+// interpreter.cpp:1126-1138 plus the key-side depth gate; status 0 means the
+// signature read is reached, and the pack carries nKeys and ikey2.  The read
+// is :1140-1146 given that decoded key count.  The composition is recorded in
+// spec.md: the full nSigsCount path is prefix-result when status != 0 and
+// read(prefix.nKeys, depth, ...) on status 0.
+//
+// Cursor arithmetic is [32]/uint32 in both legs and here.  Core's `int i` is
+// exact on the reachable nKeys domain 0..20; the read leaf's explicit
+// out-of-domain arm keeps it total outside that domain, and all three
+// descriptions use the same modular form (the composition never enters it).
+sig_obs : [3] -> [32] -> [6] -> [6] -> [5] -> [64]
+sig_obs st ns ikey2 isig nkeys =
+  (zext st) || ((zext ns) << 3) || ((zext ikey2) << 35) ||
+  ((zext isig) << 41) || ((zext nkeys) << 47)
+
+cms_sig_prefix : [32] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [32]
+               -> [64]
+cms_sig_prefix lk kb0 kb1 kb2 kb3 depth opCount minimal =
+  if (depth > (1000 : [32])) || (opCount > (201 : [32])) then sig_obs 7 0 0 0 0
+  else if lk > (4 : [32]) then sig_obs 5 0 0 0 0
+  else if (minimal != 0) && minimal_fail lk kb0 kb1 kb2 kb3 then
+    sig_obs 5 0 0 0 0
+  else if (nk <$ (0 : [32])) || (nk >$ (20 : [32])) then
+    sig_obs 1 0 0 0 (drop nk)
+  else if total > (201 : [32]) then sig_obs 2 0 0 0 (drop nk)
+  // Core: int i = 1; ikey = ++i (i = 2); i += nk; depth < i.
+  else if depth < i then sig_obs 3 0 (drop ikey2) 0 (drop nk)
+  else sig_obs 0 0 (drop ikey2) 0 (drop nk)
+  where
+    nk = clamp_i32 (set_vch lk kb0 kb1 kb2 kb3)
+    total = opCount + nk
+    ikey2 = nk + 2
+    i = 2 + nk
+
+cms_sig_read : [32] -> [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [32]
+             -> [64]
+cms_sig_read nk depth ls sb0 sb1 sb2 sb3 minimal =
+  if (nk <$ (0 : [32])) || (nk >$ (20 : [32])) then sig_obs 7 0 0 0 0
+  else if ls > (4 : [32]) then sig_obs 5 0 (drop ikey2) 0 (drop nk)
+  else if (minimal != 0) && minimal_fail ls sb0 sb1 sb2 sb3 then
+    sig_obs 5 0 (drop ikey2) 0 (drop nk)
+  else if (ns <$ (0 : [32])) || (ns >$ nk) then
+    sig_obs 4 ns (drop ikey2) 0 (drop nk)
+  // Core: isig = ++i; i += ns; depth < i, i.e. depth < isig + ns.
+  else if depth < isig + ns then
+    sig_obs 3 ns (drop ikey2) (drop isig) (drop nk)
+  else sig_obs 0 ns (drop ikey2) (drop isig) (drop nk)
+  where
+    ikey2 = nk + 2
+    isig = 3 + nk
+    ns = clamp_i32 (set_vch ls sb0 sb1 sb2 sb3)

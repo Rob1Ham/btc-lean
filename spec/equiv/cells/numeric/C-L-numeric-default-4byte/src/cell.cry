@@ -1,0 +1,105 @@
+// cell.cry -- independent specification of the SCR-080 decode boundary.
+//
+// Written from pinned Bitcoin Core (script.h:229-271, interpreter.cpp:840,
+// 939, 972-973, 1017-1019, 1103, 1126, 1140) and from the Lean model's
+// script-number equations (spec/core/Bitcoin/Interpreter/Defs.lean,
+// Bitcoin.Numeric).  It is a *separate* model: neither leg is derived from it
+// and neither leg generates it; SAW checks each leg against it.
+//
+// The single claim modelled here is the default 4-byte operand limit: at every
+// numeric-op CScriptNum decode site, an operand of length <= 4 is accepted with
+// the value set_vch produces, and an operand of length > 4 raises
+// scriptnum_error -> SCRIPT_ERR_SCRIPTNUM.  Post-decode behaviour (the
+// arithmetic, the depth/range/signature checks) belongs to other rows.
+//
+// Packed observable (must match dflt_common.h):
+//   status(2) | error_kind(6)<<2 | site(4)<<8 | value(33)<<12
+// Accepted: status 1, error 0, value = decoded int64 low 33 bits.
+// Rejected: status 0, error 4 (SCRIPT_ERR_SCRIPTNUM), value 0.
+//
+// Cryptol literal widths follow the number of digits written; every 64-bit
+// literal below is spelled with 16 hex digits.
+
+module CellSpec where
+
+obs : [64] -> [64] -> [64] -> [64]
+obs site err v =
+  (if err == 0x0000000000000000 then 0x0000000000000001
+                                else 0x0000000000000000)
+  || (err << 2) || (site << 8) || ((v && 0x00000001ffffffff) << 12)
+
+errObs : [64] -> [64]
+errObs site = obs site 0x0000000000000004 0x0000000000000000
+
+// script.h:247-249: `vch.size() > nMaxNumSize` with the default
+// nMaxNumSize = nDefaultMaxNumSize = 4 (script.h:242,244,247).
+decodeOk : [64] -> Bit
+decodeOk L = L <= 0x0000000000000004
+
+// script.h:270 set_vch over the 4-byte domain.  `w` is the little-endian
+// content word; only the first L bytes are part of the element.
+decode : [64] -> [64] -> [64]
+decode w L = if L == 0x0000000000000000 then 0x0000000000000000
+             else if (top && 0x0000000000000080) != 0 then -(mag)
+             else mag
+  where
+    b0  = w && 0x00000000000000ff
+    b1  = (w >> 8) && 0x00000000000000ff
+    b2  = (w >> 16) && 0x00000000000000ff
+    b3  = (w >> 24) && 0x00000000000000ff
+    top = if L == 0x0000000000000001 then b0
+          else if L == 0x0000000000000002 then b1
+          else if L == 0x0000000000000003 then b2
+          else b3
+    mask = if L == 0x0000000000000001 then 0xffffffffffffff7f
+           else if L == 0x0000000000000002 then 0xffffffffffff7fff
+           else if L == 0x0000000000000003 then 0xffffffffff7fffff
+           else 0xffffffff7fffffff
+    width = if L == 0x0000000000000001 then 0x00000000000000ff
+            else if L == 0x0000000000000002 then 0x000000000000ffff
+            else if L == 0x0000000000000003 then 0x0000000000ffffff
+            else 0x00000000ffffffff
+    mag = ((b0 || (b1 << 8) || (b2 << 16) || (b3 << 24)) && width) && mask
+
+// site 1: interpreter.cpp:840, OP_PICK / OP_ROLL depth (one decode).
+pPickRoll : [64] -> [64] -> [64]
+pPickRoll w L = if ~(decodeOk L) then errObs 0x0000000000000001
+                else obs 0x0000000000000001 0x0000000000000000 (decode w L)
+
+// site 2: interpreter.cpp:939, OP_1ADD .. OP_0NOTEQUAL (one decode).
+pUnary : [64] -> [64] -> [64]
+pUnary w L = if ~(decodeOk L) then errObs 0x0000000000000002
+             else obs 0x0000000000000002 0x0000000000000000 (decode w L)
+
+// site 3: interpreter.cpp:972-973, OP_ADD .. OP_MAX (bn1 then bn2; the
+// observable is the second decoded operand).
+pBinary : [64] -> [64] -> [64] -> [64] -> [64]
+pBinary wa La wb Lb =
+  if ~(decodeOk La) then errObs 0x0000000000000003
+  else if ~(decodeOk Lb) then errObs 0x0000000000000003
+  else obs 0x0000000000000003 0x0000000000000000 (decode wb Lb)
+
+// site 4: interpreter.cpp:1017-1019, OP_WITHIN (x, min, max; observable max).
+pWithin : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pWithin wx Lx wmn Lmn wmx Lmx =
+  if ~(decodeOk Lx) then errObs 0x0000000000000004
+  else if ~(decodeOk Lmn) then errObs 0x0000000000000004
+  else if ~(decodeOk Lmx) then errObs 0x0000000000000004
+  else obs 0x0000000000000004 0x0000000000000000 (decode wmx Lmx)
+
+// site 5: interpreter.cpp:1103, OP_CHECKSIGADD (stacktop(-2)).
+pCheckSigAdd : [64] -> [64] -> [64]
+pCheckSigAdd w L = if ~(decodeOk L) then errObs 0x0000000000000005
+                   else obs 0x0000000000000005 0x0000000000000000 (decode w L)
+
+// site 6: interpreter.cpp:1126, OP_CHECKMULTISIG nKeysCount (stacktop(-1)).
+pCmsKeys : [64] -> [64] -> [64]
+pCmsKeys w L = if ~(decodeOk L) then errObs 0x0000000000000006
+               else obs 0x0000000000000006 0x0000000000000000 (decode w L)
+
+// site 7: interpreter.cpp:1140, OP_CHECKMULTISIG nSigsCount.  The harness
+// fixes nKeysCount to the one-byte encoding of 0, so the preceding decode and
+// the range/stack tests pass and `stacktop(-(2+nKeysCount))` is the operand.
+pCmsSigs : [64] -> [64] -> [64]
+pCmsSigs w L = if ~(decodeOk L) then errObs 0x0000000000000007
+               else obs 0x0000000000000007 0x0000000000000000 (decode w L)

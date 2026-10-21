@@ -1,0 +1,112 @@
+{
+  "baseline": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "catalogue_cell": "cells/e2-numeric/num-4byte-boundary",
+  "caught": true,
+  "caught_by": {
+    "alive2": true,
+    "saw": true
+  },
+  "cell": "cells/numeric/C-L-unary-4byte",
+  "classification": "KILLED",
+  "commands": {
+    "alive2": "cd spec/equiv && bash cells/numeric/C-L-unary-4byte/alive2/run.sh",
+    "saw": "cd spec/equiv && bash cells/numeric/C-L-unary-4byte/saw/run.sh"
+  },
+  "description": "CScriptNum operand width bound 4 -> 5: the C excerpt passes nMaxNumSize=5, so a 5-byte operand is accepted in base arithmetic.",
+  "diff": "--- a/spec/equiv/cells/numeric/C-L-unary-4byte/src/c_leaf.cpp\n+++ b/spec/equiv/cells/numeric/C-L-unary-4byte/src/c_leaf.cpp\n@@ -35,7 +35,7 @@\n   int64_t bn = 0;\n   uint32_t err = 0;\n   // CScriptNum bn(stacktop(-1), fRequireMinimal)  [script.h:246-271]\n-  if (!decode_num(p, len, /*fRequireMinimal=*/false, 4, bn, err))\n+  if (!decode_num(p, len, /*fRequireMinimal=*/false, 5, bn, err))  // M-E2-002 mutant: 5-byte operand accepted\n     return num_obs_err(err);\n   switch (opcode) {\n     case 0x8b: bn += 1; break;                       // OP_1ADD: bn += bnOne\n",
+  "expected_detection": "Alive2 C-vs-L must report a value mismatch at operand length 5 (C accepts, L returns SCRIPTNUM); SAW must fail the C proof against the independent decodeOk predicate (L <= 4). Witness: cell_1add, lb=5, content 0; baseline error 4 (SCRIPTNUM), mutant pushes 1.",
+  "family": "e2-numeric",
+  "find": "if (!decode_num(p, len, /*fRequireMinimal=*/false, 4, bn, err))",
+  "finished_at_utc": "2026-10-20T22:16:19+00:00",
+  "head_commit": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "mutant": {
+    "alive2": {
+      "blocks": [
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_1add.ll build/l_cell_1add.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_1add",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_1sub.ll build/l_cell_1sub.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_1sub",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_negate.ll build/l_cell_negate.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_negate",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_abs.ll build/l_cell_abs.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_abs",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_not.ll build/l_cell_not.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_not",
+          "mismatch": true
+        },
+        {
+          "command": "alive-tv --smt-to=120000 build/c_cell_0notequal.ll build/l_cell_0notequal.ll",
+          "correct": false,
+          "error": true,
+          "function": "cell_0notequal",
+          "mismatch": true
+        }
+      ],
+      "failure_excerpt": "  ret i64 %#range_0_%retval.0.i\n}\nTransformation doesn't verify!\n\nERROR: Value mismatch\n\nExample:\ni32 noundef %w = #x00000000 (0)\ni32 noundef %lb = #x00000005 (5)\n\nSource:\ni32 %and.i = #x00000005 (5)\ni8 %conv.i = #x00 (0)\ni32 %shr.i = #x00000000 (0)\ni8 %conv2.i = #x00 (0)\ni32 %shr4.i = #x00000000 (0)\ni8 %conv6.i = #x00 (0)\ni32 %shr8.i = #x00000000 (0)\ni8 %conv10.i = #x00 (0)\ni1 %cmp.i8 = #x1 (1)",
+      "rc": 1,
+      "status": "alive2-not-green"
+    },
+    "saw": {
+      "failure_excerpt": "                                 (ite _x`3 _x`129 (... ... _x`135 (... ... _x`132)) _x`128)\n                                 _x`130))))\n                     (ite _x`3\n                        (bvEq 1 _x`72\n                           (bvOr 1 _x`103 (ite _x`4 (... ... _x`36 _x`101) _x`72 _x`73)))\n                        _x`83\n                        (bvOr 64\n                           (ite _x`3 _x`129\n                              (ite _x`3 _x`120 _x`138 (bvOr 64 _x`138 _x`132))\n                              _x`137)\n                           _x`130)))\n                  (bvOr 64\n                     (ite _x`3 _x`129\n                        (ite _x`3 _x`120 _x`140 (bvOr 64 _x`140 _x`132))\n                        _x`139)\n                     _x`130)))))\n      (bvNat 64 16)\n\nGoal size 1750. Provers used: SBV->Z3\n----------Counterexample----------\n  w: 671088640\n  lb: 5\n----------------------------------\nStack trace:\n   (builtin) in z3\n   cell.saw:56:46-56:48 in (callback)\n   (builtin) in llvm_verify\n   cell.saw:56:1-56:48 (at top level)\nProof failed.",
+      "proofs_failed": 1,
+      "proofs_succeeded": 0,
+      "rc": 1,
+      "status": "saw-not-green"
+    }
+  },
+  "mutant_id": "M-E2-002",
+  "operator": "wave64/47-mutations-e2",
+  "post_revert": {
+    "alive2": {
+      "rc": 0,
+      "status": "alive2-green"
+    },
+    "saw": {
+      "rc": 0,
+      "status": "saw-green"
+    }
+  },
+  "replace": "if (!decode_num(p, len, /*fRequireMinimal=*/false, 5, bn, err))  // M-E2-002 mutant: 5-byte operand accepted",
+  "revert_verified": true,
+  "run_id": "M-E2-002-core-slice",
+  "schema": "redteam-mutant-run-v1",
+  "scratch_root": ".work",
+  "site": "core-slice",
+  "started_at_utc": "2026-10-20T22:09:54+00:00",
+  "target": "cells/numeric/C-L-unary-4byte/src/c_leaf.cpp",
+  "target_sha256_after": "c63201531534a279097f9939ff1f158ad50d54afcfe35cf138cfd3edcc238437",
+  "target_sha256_before": "40062b8734175e26491fff60f3538934be9706f6c677a050eaa861445a2dcf04",
+  "witness_input": "len=5, w=0, OP_1ADD"
+}

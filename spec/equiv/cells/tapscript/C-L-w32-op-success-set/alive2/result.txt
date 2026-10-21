@@ -1,0 +1,86 @@
+# cell: tapscript/C-L-w32-op-success-set
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# pin: cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# command: alive-tv --always-verify --smt-to=60000 build/c_cell_is_op_success.opt.ll build/l_cell_is_op_success.opt.ll
+
+----------------------------------------
+define i32 @cell_is_op_success(i8 noundef zeroext %opcode) nofree willreturn memory(none) {
+entry:
+  switch i8 noundef zeroext %opcode, label %lor.rhs.i [
+    i8 98, label %_ZL15c_is_op_successj.exit
+    i8 80, label %_ZL15c_is_op_successj.exit
+    i8 153, label %_ZL15c_is_op_successj.exit
+    i8 152, label %_ZL15c_is_op_successj.exit
+    i8 151, label %_ZL15c_is_op_successj.exit
+    i8 150, label %_ZL15c_is_op_successj.exit
+    i8 149, label %_ZL15c_is_op_successj.exit
+    i8 142, label %_ZL15c_is_op_successj.exit
+    i8 141, label %_ZL15c_is_op_successj.exit
+    i8 138, label %_ZL15c_is_op_successj.exit
+    i8 137, label %_ZL15c_is_op_successj.exit
+    i8 134, label %_ZL15c_is_op_successj.exit
+    i8 133, label %_ZL15c_is_op_successj.exit
+    i8 132, label %_ZL15c_is_op_successj.exit
+    i8 131, label %_ZL15c_is_op_successj.exit
+    i8 129, label %_ZL15c_is_op_successj.exit
+    i8 128, label %_ZL15c_is_op_successj.exit
+    i8 127, label %_ZL15c_is_op_successj.exit
+    i8 126, label %_ZL15c_is_op_successj.exit
+  ]
+
+lor.rhs.i:
+  %#0 = add i8 noundef zeroext %opcode, 69
+  %#1 = icmp ult i8 %#0, 68
+  %#2 = zext i1 %#1 to i32
+  br label %_ZL15c_is_op_successj.exit
+
+_ZL15c_is_op_successj.exit:
+  %cond = phi i32 [ 1, %entry ], [ %#2, %lor.rhs.i ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ]
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_is_op_success(i8 noundef zeroext %opcode) nofree willreturn memory(none) {
+entry:
+  switch i8 noundef zeroext %opcode, label %if.end25.i [
+    i8 98, label %_ZL15l_is_op_successj.exit
+    i8 80, label %_ZL15l_is_op_successj.exit
+    i8 153, label %_ZL15l_is_op_successj.exit
+    i8 152, label %_ZL15l_is_op_successj.exit
+    i8 151, label %_ZL15l_is_op_successj.exit
+    i8 150, label %_ZL15l_is_op_successj.exit
+    i8 149, label %_ZL15l_is_op_successj.exit
+    i8 142, label %_ZL15l_is_op_successj.exit
+    i8 141, label %_ZL15l_is_op_successj.exit
+    i8 138, label %_ZL15l_is_op_successj.exit
+    i8 137, label %_ZL15l_is_op_successj.exit
+    i8 134, label %_ZL15l_is_op_successj.exit
+    i8 133, label %_ZL15l_is_op_successj.exit
+    i8 132, label %_ZL15l_is_op_successj.exit
+    i8 131, label %_ZL15l_is_op_successj.exit
+    i8 129, label %_ZL15l_is_op_successj.exit
+    i8 128, label %_ZL15l_is_op_successj.exit
+    i8 127, label %_ZL15l_is_op_successj.exit
+    i8 126, label %_ZL15l_is_op_successj.exit
+  ]
+
+if.end25.i:
+  %#0 = add i8 noundef zeroext %opcode, 69
+  %or.cond36.i = icmp ult i8 %#0, 68
+  %#1 = zext i1 %or.cond36.i to i32
+  br label %_ZL15l_is_op_successj.exit
+
+_ZL15l_is_op_successj.exit:
+  %retval.0.i = phi i32 [ 1, %entry ], [ 1, %entry ], [ %#1, %if.end25.i ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ], [ 1, %entry ]
+  %#range_0_%retval.0.i = !range i32 %retval.0.i, i32 0, i32 2
+  ret i32 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

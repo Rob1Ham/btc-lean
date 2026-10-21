@@ -1,0 +1,23 @@
+import "cell.cry";
+
+// Both legs are checked against the same independent scan/no-scan predicate.
+// `n` is a symbolic 32-bit length constrained only by the consensus element
+// bound n <= 520, and `bs` is a fully symbolic 520-byte array.  Thus each
+// llvm_verify below is a complete finite abstraction: it covers every length
+// 0..520 and every byte value at every position, not a sample of lengths.
+mC <- llvm_load_module "c_cell_cast_arb.bc";
+mL <- llvm_load_module "l_cell_cast_arb.bc";
+
+let spec = do {
+  n  <- llvm_fresh_var "n" (llvm_int 32);
+  llvm_precond {{ n <= 520 }};
+  bs <- llvm_fresh_var "bs" (llvm_array 520 (llvm_int 8));
+  p  <- llvm_alloc (llvm_array 520 (llvm_int 8));
+  llvm_points_to p (llvm_term bs);
+  llvm_execute_func [p, llvm_term n];
+  llvm_return (llvm_term {{ cast_arb n bs }});
+};
+
+llvm_verify mC "cell_cast_arb" [] false spec abc;
+llvm_verify mL "cell_cast_arb" [] false spec abc;
+print "CELL_control_CASTTOBOOL_FULL_SAW_GREEN";

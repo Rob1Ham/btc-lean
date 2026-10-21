@@ -1,0 +1,47 @@
+module Spec where
+
+// Exact BIP143 WITNESS_V0 preimage byte sequences for the three concrete
+// scriptCode lengths checked by this cell (0, 1, 75).
+//
+// Field order (interpreter.cpp:1655-1670, Digest.lean:288-305 bip143MsgL):
+//   version(4) # hashPrevouts(32) # hashSequence(32) # outpoint(36)
+//   # CompactSize(len)(1) # script(len) # amount(8) # nSequence(4)
+//   # hashOutputs(32) # nLockTime(4) # nHashType(4)
+// Total = 157 + len.
+
+emptyScript : [0][8]
+emptyScript = []
+
+// 4 + 32 + 32 + 36 + 1 + 0 + 8 + 4 + 32 + 4 + 4 = 157
+preimage_l0 : [4][8] -> [32][8] -> [32][8] -> [32][8] -> [4][8] -> [8][8]
+           -> [4][8] -> [32][8] -> [4][8] -> [4][8] -> [157][8]
+preimage_l0 version prevouts sequence txid vout amount nseq outputs locktime hashtype =
+  version # prevouts # sequence # txid # vout
+    # [0x00] # emptyScript
+    # amount # nseq # outputs # locktime # hashtype
+
+// 157 + 1 = 158
+preimage_l1 : [4][8] -> [32][8] -> [32][8] -> [32][8] -> [4][8] -> [1][8]
+           -> [8][8] -> [4][8] -> [32][8] -> [4][8] -> [4][8] -> [158][8]
+preimage_l1 version prevouts sequence txid vout script amount nseq outputs locktime hashtype =
+  version # prevouts # sequence # txid # vout
+    # [0x01] # script
+    # amount # nseq # outputs # locktime # hashtype
+
+// 157 + 75 = 232
+preimage_l75 : [4][8] -> [32][8] -> [32][8] -> [32][8] -> [4][8] -> [75][8]
+            -> [8][8] -> [4][8] -> [32][8] -> [4][8] -> [4][8] -> [232][8]
+preimage_l75 version prevouts sequence txid vout script amount nseq outputs locktime hashtype =
+  version # prevouts # sequence # txid # vout
+    # [0x4b] # script
+    # amount # nseq # outputs # locktime # hashtype
+
+// The byte returned by each assembly function is the SHA256d input length.
+digest_input_len_l0 : [64]
+digest_input_len_l0 = 157
+
+digest_input_len_l1 : [64]
+digest_input_len_l1 = 158
+
+digest_input_len_l75 : [64]
+digest_input_len_l75 = 232

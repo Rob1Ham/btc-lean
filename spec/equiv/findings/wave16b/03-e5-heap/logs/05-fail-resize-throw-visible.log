@@ -1,0 +1,306 @@
+Loading file "fail-resize-big.saw"
+Verifying w16b_vec_resize_big...
+Simulating w16b_vec_resize_big...
+Stack trace:
+   (builtin) in llvm_verify
+   fail-resize-big.saw:22:1-22:57 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  internal: error: in _Znwm
+  Failed to load function handle: _ZSt17__throw_bad_allocv
+  Details:
+    No implementation or override found for pointer
+Stack frame _Znwm
+  No writes or allocations
+Stack frame _ZNSt15__new_allocatorIhE8allocateEmPKv
+  Allocations:
+    StackAlloc 232 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 231 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 230 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 229 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      229 |->   *(229, 0x0:[64]) := (155, 0x0:[64])
+      230 |->   *(230, 0x0:[64]) := (155, 0x0:[64])
+      231 |->   *(231, 0x0:[64]) := 0x5f5e100:[64]
+      232 |->   *(232, 0x0:[64]) := 0x0:[64]
+Stack frame _ZNSt12_Vector_baseIhSaIhEE11_M_allocateEm
+  Allocations:
+    StackAlloc 228 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 227 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 226 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 225 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 224 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 223 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      223 |->   *(223, 0x0:[64]) := (155, 0x0:[64])
+      224 |->   *(224, 0x0:[64]) := 0x5f5e100:[64]
+      225 |->   *(225, 0x0:[64]) := (155, 0x0:[64])
+      226 |->   *(226, 0x0:[64]) := 0x5f5e100:[64]
+      227 |->   *(227, 0x0:[64]) := (155, 0x0:[64])
+      228 |->   *(228, 0x0:[64]) := 0x5f5e100:[64]
+Stack frame _ZNSt6vectorIhSaIhEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPhS1_EEmRKh
+  Allocations:
+    StackAlloc 191 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 190 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 189 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 188 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 187 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 186 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 185 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 184 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 183 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 182 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 181 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 180 0x10:[64] Mutable 8-byte-aligned internal
+    StackAlloc 179 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 178 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 177 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 176 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 175 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 174 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 173 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      176 |->   *(176, 0x0:[64]) := 0x0:[64]
+      177 |->   *(177, 0x0:[64]) := (155, 0x0:[64])
+      178 |->   *(178, 0x0:[64]) := 0x5f5e100:[64]
+      179 |->   *(179, 0x0:[64]) := (156, 0x0:[64])
+      185 |->   *(185, 0x0:[64]) := 0x0:[64]
+      186 |->   *(186, 0x0:[64]) := 0x0:[64]
+      187 |->   *(187, 0x0:[64]) := 0x0:[64]
+      188 |->   *(188, 0x0:[64]) := 0x5f5e100:[64]
+      189 |->   *(189, 0x0:[64]) := 0x0:[64]
+      192 |->   *(192, 0x0:[64]) := (176, 0x0:[64])
+      193 |->   *(193, 0x0:[64]) := (155, 0x0:[64])
+      194 |->   *(194, 0x0:[64]) := 0x5f5e100:[64]
+      195 |->   *(195, 0x0:[64]) := (150, 0x0:[64])
+      196 |->   *(196, 0x0:[64]) := 0x5f5e100:[64]
+      197 |->   *(197, 0x0:[64]) := 0x0:[64]
+      198 |->   *(198, 0x0:[64]) := (155, 0x0:[64])
+      199 |->   *(199, 0x0:[64]) := (155, 0x0:[64])
+      200 |->   *(200, 0x0:[64]) := (155, 0x0:[64])
+      201 |->   *(201, 0x0:[64]) := (155, 0x0:[64])
+      202 |->   *(202, 0x0:[64]) := 0x7fffffffffffffff:[64]
+      203 |->   *(203, 0x0:[64]) := 0xffffffffffffffff:[64]
+      204 |->   *(204, 0x0:[64]) := (202, 0x0:[64])
+      205 |->   *(205, 0x0:[64]) := (202, 0x0:[64])
+      206 |->   *(206, 0x0:[64]) := (203, 0x0:[64])
+      207 |->   *(207, 0x0:[64]) := (155, 0x0:[64])
+      208 |->   *(208, 0x0:[64]) := (155, 0x0:[64])
+      209 |->   *(209, 0x0:[64]) := (155, 0x0:[64])
+      210 |->   *(210, 0x0:[64]) := (194, 0x0:[64])
+      211 |->   *(211, 0x0:[64]) := (197, 0x0:[64])
+      212 |->   *(212, 0x0:[64]) := (194, 0x0:[64])
+      213 |->   *(213, 0x0:[64]) := (155, 0x0:[64])
+      214 |->   *(214, 0x0:[64]) := (155, 0x0:[64])
+      215 |->   *(215, 0x0:[64]) := (155, 0x0:[64])
+      216 |->   *(216, 0x0:[64]) := (155, 0x0:[64])
+      217 |->   *(217, 0x0:[64]) := (155, 0x0:[64])
+      218 |->   *(218, 0x0:[64]) := 0x7fffffffffffffff:[64]
+      219 |->   *(219, 0x0:[64]) := 0xffffffffffffffff:[64]
+      220 |->   *(220, 0x0:[64]) := (218, 0x0:[64])
+      221 |->   *(221, 0x0:[64]) := (218, 0x0:[64])
+      222 |->   *(222, 0x0:[64]) := (219, 0x0:[64])
+Stack frame _ZNSt6vectorIhSaIhEE6resizeEmRKh
+  Allocations:
+    StackAlloc 166 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 165 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 164 0x8:[64] Mutable 8-byte-aligned internal
+    StackAlloc 163 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      163 |->   *(163, 0x0:[64]) := (155, 0x0:[64])
+      164 |->   *(164, 0x0:[64]) := 0x5f5e100:[64]
+      165 |->   *(165, 0x0:[64]) := (156, 0x0:[64])
+      166 |->   *(166, 0x0:[64]) := 0x0:[64]
+      167 |->   *(167, 0x0:[64]) := (155, 0x0:[64])
+      168 |->   *(168, 0x0:[64]) := 0x0:[64]
+      169 |->   *(169, 0x0:[64]) := (155, 0x0:[64])
+      170 |->   *(170, 0x0:[64]) := (168, 0x0:[64])
+      171 |->   *(171, 0x0:[64]) := (155, 0x8:[64])
+      172 |->   *(172, 0x0:[64]) := (155, 0x0:[64])
+Stack frame w16b_vec_resize_big
+  Allocations:
+    StackAlloc 156 0x1:[64] Mutable 1-byte-aligned internal
+    StackAlloc 155 0x18:[64] Mutable 8-byte-aligned internal
+    StackAlloc 154 0x8:[64] Mutable 8-byte-aligned internal
+  Writes:
+    Indexed chunk:
+      154 |->   *(154, 0x0:[64]) := 0x5f5e100:[64]
+      155 |->   memset (155, 0x10:[64]) 0x0:[8] 0x8:[64]
+                memset (155, 0x8:[64]) 0x0:[8] 0x8:[64]
+                memset (155, 0x0:[64]) 0x0:[8] 0x8:[64]
+      156 |->   *(156, 0x0:[64]) := 0xab:[8]
+      157 |->   *(157, 0x0:[64]) := (155, 0x0:[64])
+      158 |->   *(158, 0x0:[64]) := (155, 0x0:[64])
+      159 |->   *(159, 0x0:[64]) := (155, 0x0:[64])
+      160 |->   *(160, 0x0:[64]) := (155, 0x0:[64])
+      161 |->   *(161, 0x0:[64]) := (155, 0x0:[64])
+      162 |->   *(162, 0x0:[64]) := (155, 0x0:[64])
+Base memory
+  Allocations:
+    GlobalAlloc 153 0x4000000:[64] Mutable 16-byte-aligned wave16b_heap
+    GlobalAlloc 152 0x8:[64] Mutable 8-byte-aligned wave16b_off
+    GlobalAlloc 151 0x8:[64] Mutable 8-byte-aligned wave16b_alloc_calls
+    GlobalAlloc 150 0x17:[64] Immutable 1-byte-aligned [global variable  ] .str.2
+    GlobalAlloc 149 0x31:[64] Immutable 1-byte-aligned [global variable  ] .str.1
+    GlobalAlloc 148 0x1a:[64] Immutable 1-byte-aligned [global variable  ] .str
+    GlobalAlloc 147 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_new_after_full
+    GlobalAlloc 146 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_lemma_disjoint
+    GlobalAlloc 145 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_lemma_oversize
+    GlobalAlloc 144 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_lemma_nonnull
+    GlobalAlloc 143 0x0:[64] Immutable 1-byte-aligned [defined function ] realloc
+    GlobalAlloc 142 0x0:[64] Immutable 1-byte-aligned [defined function ] free
+    GlobalAlloc 141 0x0:[64] Immutable 1-byte-aligned [defined function ] malloc
+    GlobalAlloc 140 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPvm
+    GlobalAlloc 139 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPv
+    GlobalAlloc 138 0x0:[64] Immutable 1-byte-aligned [defined function ] _Znwm
+    GlobalAlloc 137 0x0:[64] Immutable 1-byte-aligned [defined function ] wave16b_raw_alloc
+    GlobalAlloc 136 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_vec_resize_big
+    GlobalAlloc 135 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_value8_StorageC2Ev
+    GlobalAlloc 134 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt18make_move_iteratorIPhESt13move_iteratorIT_ES2_
+    GlobalAlloc 133 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt20__copy_move_backwardILb1ELb1ESt26random_access_iterator_tagE13__copy_move_bIhhEEPT0_PT_S6_S4_
+    GlobalAlloc 132 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt23__copy_move_backward_a2ILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 131 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt23__copy_move_backward_a1ILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 130 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt22__copy_move_backward_aILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 129 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_value8_StorageD2Ev
+    GlobalAlloc 128 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt10destroy_atIhEvPT_
+    GlobalAlloc 127 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_value6_M_ptrEv
+    GlobalAlloc 126 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt13move_iteratorIPhEC2ES0_
+    GlobalAlloc 125 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__miter_baseIPhET_S1_
+    GlobalAlloc 124 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKRSt13move_iteratorIPhE4baseEv
+    GlobalAlloc 123 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt11__copy_moveILb1ELb0ESt26random_access_iterator_tagE12__assign_oneIhhEEvPT_PT0_
+    GlobalAlloc 122 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt11__copy_moveILb1ELb1ESt26random_access_iterator_tagE8__copy_mIhhEEPT0_PT_S6_S4_
+    GlobalAlloc 121 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt14__copy_move_a2ILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 120 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__niter_wrapIPhET_RKS1_S1_
+    GlobalAlloc 119 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt14__copy_move_a1ILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 118 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt13__copy_move_aILb1EPhS0_ET1_T0_S2_S1_
+    GlobalAlloc 117 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__miter_baseIPhEDTcl12__miter_basecldtfp_4baseEEESt13move_iteratorIT_E
+    GlobalAlloc 116 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt4copyISt13move_iteratorIPhES1_ET0_T_S4_S3_
+    GlobalAlloc 115 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt20__uninitialized_copyILb1EE13__uninit_copyISt13move_iteratorIPhES3_EET0_T_S6_S5_
+    GlobalAlloc 114 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt18uninitialized_copyISt13move_iteratorIPhES1_ET0_T_S4_S3_
+    GlobalAlloc 113 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt22__uninitialized_copy_aISt13move_iteratorIPhES1_hET0_T_S4_S3_RSaIT1_E
+    GlobalAlloc 112 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt32__make_move_if_noexcept_iteratorIhSt13move_iteratorIPhEET0_PT_
+    GlobalAlloc 111 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt34__uninitialized_move_if_noexcept_aIPhS0_SaIhEET0_T_S3_S2_RT1_
+    GlobalAlloc 110 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_valueD2Ev
+    GlobalAlloc 109 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt4fillIPhhEvT_S1_RKT0_
+    GlobalAlloc 108 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt13move_backwardIPhS0_ET0_T_S2_S1_
+    GlobalAlloc 107 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt22__uninitialized_move_aIPhS0_SaIhEET0_T_S3_S2_RT1_
+    GlobalAlloc 106 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_value6_M_valEv
+    GlobalAlloc 105 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE16_Temporary_valueC2IJRKhEEEPS1_DpOT_
+    GlobalAlloc 104 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE15_M_erase_at_endEPh
+    GlobalAlloc 103 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPhS1_EEmRKh
+    GlobalAlloc 102 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE6resizeEmRKh
+    GlobalAlloc 101 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_vec_resize64
+    GlobalAlloc 100 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE17_Vector_impl_dataC2Ev
+    GlobalAlloc 99 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE12_Vector_implC2EvQ26is_default_constructible_vIN9__gnu_cxx14__alloc_traitsIT0_NS8_10value_typeEE6rebindIT_E5otherEE
+    GlobalAlloc 98 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EEC2Ev
+    GlobalAlloc 97 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_M_create_storageEm
+    GlobalAlloc 96 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implC2ERKS0_
+    GlobalAlloc 95 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt9__fill_a1IhEN9__gnu_cxx11__enable_ifIXsr9__is_byteIT_EE7__valueEvE6__typeEPS2_S5_RKS2_
+    GlobalAlloc 94 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8__fill_aIPhhEvT_S1_RKT0_
+    GlobalAlloc 93 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt10__fill_n_aIPhmhET_S1_T0_RKT1_St26random_access_iterator_tag
+    GlobalAlloc 92 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt17__size_to_integerm
+    GlobalAlloc 91 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt6fill_nIPhmhET_S1_T0_RKT1_
+    GlobalAlloc 90 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt22__uninitialized_fill_nILb1EE15__uninit_fill_nIPhmhEET_S3_T0_RKT1_
+    GlobalAlloc 89 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt20uninitialized_fill_nIPhmhET_S1_T0_RKT1_
+    GlobalAlloc 88 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt24__uninitialized_fill_n_aIPhmhhET_S1_T0_RKT1_RSaIT2_E
+    GlobalAlloc 87 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE18_M_fill_initializeEmRKh
+    GlobalAlloc 86 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEEC2EmRKS0_
+    GlobalAlloc 85 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE17_S_check_init_lenEmRKS0_
+    GlobalAlloc 84 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_Vector_impl_dataC2EOS2_
+    GlobalAlloc 83 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implC2EOS2_
+    GlobalAlloc 82 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEEC2EOS1_
+    GlobalAlloc 81 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEC2EOS1_
+    GlobalAlloc 80 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE11_S_max_sizeERKS2_
+    GlobalAlloc 79 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE19_M_get_Tp_allocatorEv
+    GlobalAlloc 78 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE8max_sizeEv
+    GlobalAlloc 77 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorISt6vectorIhSaIhEEE8allocateEmPKv
+    GlobalAlloc 76 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt19__relocate_object_aISt6vectorIhSaIhEES2_SaIS2_EEvPT_PT0_RT1_
+    GlobalAlloc 75 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt14__relocate_a_1IPSt6vectorIhSaIhEES3_SaIS2_EET0_T_S6_S5_RT1_
+    GlobalAlloc 74 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__niter_baseIPSt6vectorIhSaIhEEET_S4_
+    GlobalAlloc 73 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__relocate_aIPSt6vectorIhSaIhEES3_SaIS2_EET0_T_S6_S5_RT1_
+    GlobalAlloc 72 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE11_S_relocateEPS1_S4_S4_RS2_
+    GlobalAlloc 71 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEE4baseEv
+    GlobalAlloc 70 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE11_M_allocateEm
+    GlobalAlloc 69 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxxmiIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKSA_SD_
+    GlobalAlloc 68 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE5beginEv
+    GlobalAlloc 67 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE12_M_check_lenEmPKc
+    GlobalAlloc 66 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEC2ERKS4_
+    GlobalAlloc 65 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEdeEv
+    GlobalAlloc 64 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPSt6vectorIhSaIhEES1_IS3_SaIS3_EEEmiEl
+    GlobalAlloc 63 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE4backEv
+    GlobalAlloc 62 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE17_M_realloc_insertIJS1_EEEvN9__gnu_cxx17__normal_iteratorIPS1_S3_EEDpOT_
+    GlobalAlloc 61 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE3endEv
+    GlobalAlloc 60 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12construct_atISt6vectorIhSaIhEEJS2_EEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS4_DpOS5_
+    GlobalAlloc 59 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE12emplace_backIJS1_EEERS1_DpOT_
+    GlobalAlloc 58 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt10destroy_atISt6vectorIhSaIhEEEvPT_
+    GlobalAlloc 57 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyISt6vectorIhSaIhEEEvPT_
+    GlobalAlloc 56 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Destroy_auxILb0EE9__destroyIPSt6vectorIhSaIhEEEEvT_S6_
+    GlobalAlloc 55 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorISt6vectorIhSaIhEEE10deallocateEPS2_m
+    GlobalAlloc 54 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE12_Vector_implD2Ev
+    GlobalAlloc 53 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE13_M_deallocateEPS2_m
+    GlobalAlloc 52 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EED2Ev
+    GlobalAlloc 51 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyIPSt6vectorIhSaIhEEEvT_S4_
+    GlobalAlloc 50 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseISt6vectorIhSaIhEESaIS2_EE19_M_get_Tp_allocatorEv
+    GlobalAlloc 49 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EED2Ev
+    GlobalAlloc 48 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EEixEm
+    GlobalAlloc 47 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIS_IhSaIhEESaIS1_EE4sizeEv
+    GlobalAlloc 46 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EE9push_backEOS1_
+    GlobalAlloc 45 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEC2EmRKhRKS0_
+    GlobalAlloc 44 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIS_IhSaIhEESaIS1_EEC2Ev
+    GlobalAlloc 43 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_stack_grow
+    GlobalAlloc 42 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE17_Vector_impl_dataC2Ev
+    GlobalAlloc 41 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implC2EvQ26is_default_constructible_vIN9__gnu_cxx14__alloc_traitsIT0_NS5_10value_typeEE6rebindIT_E5otherEE
+    GlobalAlloc 40 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEEC2Ev
+    GlobalAlloc 39 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt3minImERKT_S2_S2_
+    GlobalAlloc 38 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE11_S_max_sizeERKS0_
+    GlobalAlloc 37 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt12_Vector_baseIhSaIhEE19_M_get_Tp_allocatorEv
+    GlobalAlloc 36 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt3maxImERKT_S2_S2_
+    GlobalAlloc 35 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIhSaIhEE8max_sizeEv
+    GlobalAlloc 34 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxx17__normal_iteratorIPhSt6vectorIhSaIhEEEC2ERKS1_
+    GlobalAlloc 33 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorIhE8allocateEmPKv
+    GlobalAlloc 32 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt14__relocate_a_1IhhENSt9enable_ifIXsr3std24__is_bitwise_relocatableIT_EE5valueEPS1_E4typeES2_S2_S2_RSaIT0_E
+    GlobalAlloc 31 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__niter_baseIPhET_S1_
+    GlobalAlloc 30 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12__relocate_aIPhS0_SaIhEET0_T_S3_S2_RT1_
+    GlobalAlloc 29 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE11_S_relocateEPhS2_S2_RS0_
+    GlobalAlloc 28 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNK9__gnu_cxx17__normal_iteratorIPhSt6vectorIhSaIhEEE4baseEv
+    GlobalAlloc 27 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE11_M_allocateEm
+    GlobalAlloc 26 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZN9__gnu_cxxmiIPhSt6vectorIhSaIhEEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS8_SB_
+    GlobalAlloc 25 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE5beginEv
+    GlobalAlloc 24 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIhSaIhEE12_M_check_lenEmPKc
+    GlobalAlloc 23 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE17_M_realloc_insertIJRKhEEEvN9__gnu_cxx17__normal_iteratorIPhS1_EEDpOT_
+    GlobalAlloc 22 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE3endEv
+    GlobalAlloc 21 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt12construct_atIhJRKhEEDTgsnwcvPvLi0E_T_pispclsr3stdE7declvalIT0_EEEEPS3_DpOS4_
+    GlobalAlloc 20 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Destroy_auxILb1EE9__destroyIPhEEvT_S3_
+    GlobalAlloc 19 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt15__new_allocatorIhE10deallocateEPhm
+    GlobalAlloc 18 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE12_Vector_implD2Ev
+    GlobalAlloc 17 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE13_M_deallocateEPhm
+    GlobalAlloc 16 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEED2Ev
+    GlobalAlloc 15 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZSt8_DestroyIPhEvT_S1_
+    GlobalAlloc 14 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt12_Vector_baseIhSaIhEE19_M_get_Tp_allocatorEv
+    GlobalAlloc 13 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEED2Ev
+    GlobalAlloc 12 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEixEm
+    GlobalAlloc 11 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIhSaIhEE8capacityEv
+    GlobalAlloc 10 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNKSt6vectorIhSaIhEE4sizeEv
+    GlobalAlloc 9 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEE9push_backERKh
+    GlobalAlloc 8 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZNSt6vectorIhSaIhEEC2Ev
+    GlobalAlloc 7 0x0:[64] Immutable 1-byte-aligned [defined function ] w16b_vec_push1
+    GlobalAlloc 6 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memcpy.p0.p0.i64
+    GlobalAlloc 5 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memset.p0.i64
+    GlobalAlloc 4 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt20__throw_length_errorPKc
+    GlobalAlloc 3 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt17__throw_bad_allocv
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt28__throw_bad_array_new_lengthv
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memmove.p0.p0.i64
+  Writes:
+    Indexed chunk:
+      148 |->   *(148, 0x0:[64]) := "vector::_M_realloc_insert\NUL"
+      149 |->
+        *(149, 0x0:[64]) := "cannot create std::vector larger than max_size()\NUL"
+      150 |->   *(150, 0x0:[64]) := "vector::_M_fill_insert\NUL"
+      151 |->   *(151, 0x0:[64]) := 0x0:[64]
+      152 |->   *(152, 0x0:[64]) := 0x0:[64]
+
+

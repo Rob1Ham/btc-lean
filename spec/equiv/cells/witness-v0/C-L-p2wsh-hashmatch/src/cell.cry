@@ -1,0 +1,8 @@
+module Spec where
+
+// P2WSH program match: 32-byte SHA256(witnessScript) digest vs program.
+// The digest is an input (the hash primitive is the same-hash premise).
+// Any differing word -> WITNESS_PROGRAM_MISMATCH (0,40); equal -> continuation.
+hashmatch : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+hashmatch d0 d1 d2 d3 p0 p1 p2 p3 =
+  if d0 == p0 /\ d1 == p1 /\ d2 == p2 /\ d3 == p3 then 2 else 160

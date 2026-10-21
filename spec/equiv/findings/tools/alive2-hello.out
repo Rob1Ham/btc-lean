@@ -1,0 +1,39 @@
+
+----------------------------------------
+define i32 @add_one(i32 %x) {
+entry:
+  %r = add i32 %x, 1
+  ret i32 %r
+}
+=>
+define i32 @add_one(i32 %x) {
+entry:
+  %r = sub i32 %x, 4294967295
+  ret i32 %r
+}
+Transformation seems to be correct!
+
+
+----------------------------------------
+define i32 @abs_val(i32 %x) {
+entry:
+  %neg = icmp slt i32 %x, 0
+  %y = sub i32 0, %x
+  %r = select i1 %neg, i32 %y, i32 %x
+  ret i32 %r
+}
+=>
+define i32 @abs_val(i32 %x) {
+entry:
+  %neg = icmp slt i32 %x, 0
+  %y = mul i32 %x, 4294967295
+  %r = select i1 %neg, i32 %y, i32 %x
+  ret i32 %r
+}
+Transformation seems to be correct!
+
+Summary:
+  2 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

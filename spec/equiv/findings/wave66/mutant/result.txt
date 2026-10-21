@@ -1,0 +1,110 @@
+# SCR-001 concatenation mutant
+# saw: 1.6 (68eed5f release-1.6)
+# mutated file: build/c_cell_mutant.cpp
+# diff: mutant.diff
+
+Loading file "cell.saw"
+Verifying cell_push_boundary...
+Simulating cell_push_boundary...
+Checking proof obligations cell_push_boundary...
+Proof succeeded! cell_push_boundary
+Verifying cell_push_boundary...
+Simulating cell_push_boundary...
+Checking proof obligations cell_push_boundary...
+Proof succeeded! cell_push_boundary
+Verifying cell_split_verdict...
+Simulating cell_split_verdict...
+Checking proof obligations cell_split_verdict...
+Subgoal failed: cell_split_verdict cell.saw:35:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+split_verdict declared after`6365 truthy
+Actual term:
+let { _x`1 = Vec 8 Bool;
+      _x`2 = Vec 64 Bool;
+      _x`3 = Vec 1 Bool;
+      _x`4 = bvNat 64 2;
+      _x`5 = bvNat 8 76;
+      _x`6 = bvNat 64 4294967295;
+      _x`7 = bvNat 1 1;
+      _x`8 = bvNat 1 0;
+      _x`9 = bvNat 64 0;
+      _x`10 = bvNat 64 1;
+      _x`11 = bvNat 8 77;
+      _x`12 = bvNat 8 0;
+      _x`13 = bvult 64 declared (bvNat 64 76);
+      _x`14 = bvult 64 declared (bvNat 64 256);
+      _x`15 = ite _x`2 _x`13 _x`9 (ite _x`2 _x`14 _x`10 _x`4);
+      _x`16 = slice Bool 56 8 0 declared;
+      _x`17 = ite _x`1 _x`13 _x`16 (ite _x`1 _x`14 _x`5 _x`11);
+      _x`18 = bvAdd 64 _x`15 declared;
+      _x`19 = ite _x`1 _x`13 _x`12 _x`16;
+      _x`20 = bvAnd 64 _x`6
+                (append 56 8 Bool
+                   (append 48 8 Bool (bvNat 48 0)
+                      (ite _x`1 _x`14 _x`12 (slice Bool 48 8 8 declared)))
+                   _x`19);
+      _x`21 = ite _x`2
+                (Prelude::and (bvult 8 _x`17 (bvNat 8 79))
+                   (bvEq 1 _x`8
+                      (ite _x`3 (bvult 8 _x`17 _x`5)
+                         (ite _x`3 (bvult 64 _x`18 (bvAnd 64 _x`6 (bvUExt 56 8 _x`17)))
+                            _x`8
+                            _x`7)
+                         (ite _x`3 (bvEq 8 _x`5 _x`17)
+                            (ite _x`3 (bvEq 64 _x`9 _x`18) _x`8
+                               (ite _x`3
+                                  (bvult 64 (bvAdd 64 (... ... (... ...) _x`15) declared)
+                                     (bvAnd 64 _x`6 (bvUExt 56 8 _x`19)))
+                                  _x`8
+                                  _x`7))
+                            (ite _x`3 (bvEq 8 _x`11 _x`17)
+                               (ite _x`3 (bvult 64 _x`18 _x`4) _x`8
+                                  (ite _x`3 (bvult 64 (bvAdd 64 (... ... _x`15) declared) _x`20)
+                                     _x`8
+                                     _x`7))
+                               (ite _x`3 (bvult 64 _x`18 (bvNat 64 4)) _x`8
+                                  (ite _x`3
+                                     (bvult 64 (bvAdd 64 (... ... (... ...) _x`15) declared) _x`20)
+                                     _x`8
+                                     _x`7)))))))
+                (bvNat 64 64)
+                (ite _x`2 (bvEq 64 _x`9 truthy) (bvNat 64 8) _x`10);
+    }
+ in ite _x`2
+      (bvult 64 (bvAdd 64 (bvNat 64 18446744073709541615) declared)
+         (bvNat 64 18446744073709541616))
+      _x`4
+      (ite _x`2
+         (bvEq 1 _x`8
+            (bvOr 1 (ite _x`3 (bvult 64 declared after`6365) _x`7 _x`8)
+               (ite _x`3 (bvult 64 _x`10 truthy) _x`7 _x`8)))
+         (ite _x`2
+            (bvult 64 (bvNat 64 10000)
+               (bvAdd 64 (bvAdd 64 _x`10 _x`15) declared))
+            _x`4
+            (bvOr 64
+               (bvOr 64
+                  (bvOr 64 _x`21
+                     (bvAnd 64 (bvNat 64 4608)
+                        (bvShl 64 _x`21 (bvToNat 64 (bvNat 64 6)))))
+                  (bvShl 64 _x`21 (bvToNat 64 (bvNat 64 16))))
+               (bvAnd 64 (bvNat 64 301989888)
+                  (bvShl 64 _x`21 (bvToNat 64 (bvNat 64 22))))))
+         _x`4)
+
+Goal size 418. Provers used: abc_verilog
+----------Counterexample----------
+  declared: 8334
+  after: 8191
+  truthy: 0
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:35:65-35:68 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:35:1-35:68 (at top level)
+Proof failed.
+
+
+STATUS=mutant-rejected

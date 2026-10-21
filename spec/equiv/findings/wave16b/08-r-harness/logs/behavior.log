@@ -1,0 +1,108 @@
+case                                              C        R    wantC  verdict
+E0 OP_1 pass                                 (1, 0)   (1, 0)   (1, 0)  match
+E0 OP_0 fail                                 (0, 2)   (0, 2)   (0, 2)  match
+E0 OP_RETURN                                 (0, 3)   (0, 3)   (0, 3)  match
+E0 empty tx                                  (2, 1)   (2, 1)   (2, 1)  match
+OP_VERIFY empty                             (0, 18)  (0, 18)  (0, 18)  match
+OP_1 OP_VERIFY empties stack                 (0, 2)   (0, 2)   (0, 2)  match
+OP_0 OP_VERIFY                              (0, 11)  (0, 11)  (0, 11)  match
+EQUALVERIFY                                 (0, 12)  (0, 12)  (0, 12)  match
+NUMEQUALVERIFY                              (0, 15)  (0, 15)  (0, 15)  match
+unbalanced IF                               (0, 20)  (0, 20)  (0, 20)  match
+ELSE alone                                  (0, 20)  (0, 20)  (0, 20)  match
+ENDIF alone                                 (0, 20)  (0, 20)  (0, 20)  match
+disabled CAT                                (0, 17)  (0, 17)  (0, 17)  match
+unknown 0xba                                (0, 16)  (0, 16)  (0, 16)  match
+OP_VERIF                                    (0, 16)  (0, 16)  (0, 16)  match
+FROMALTSTACK empty                          (0, 19)  (0, 19)  (0, 19)  match
+PICK out of range                           (0, 18)  (0, 18)  (0, 18)  match
+script > 10000                               (0, 5)   (0, 5)   (0, 5)  match
+push > 520                                   (0, 6)   (0, 6)   (0, 6)  match
+MINIMALDATA                                 (0, 25)  (0, 25)  (0, 25)  match
+CLEANSTACK                                  (0, 30)  (0, 30)  (0, 30)  match
+CONST_SCRIPTCODE                            (0, 53)  (0, 53)  (0, 53)  match
+CLTV negative                               (0, 21)  (0, 21)  (0, 21)  match
+CLTV unsatisfied                            (0, 22)  (0, 22)  (0, 22)  match
+CSV negative                                (0, 21)  (0, 21)  (0, 21)  match
+CSV unsatisfied                             (0, 22)  (0, 22)  (0, 22)  match
+p2pkh hash mismatch                         (0, 12)  (0, 12)  (0, 12)  match
+p2pkh empty sig                              (0, 2)   (0, 2)   (0, 2)  match
+p2pkh bad pubkey                             (0, 2)   (0, 2)   (0, 2)  match
+p2pkh bad DER no DERSIG                      (0, 2)   (0, 2)   (0, 2)  match
+p2pkh bad DER DERSIG                        (0, 24)  (0, 24)  (0, 24)  match
+p2pkh STRICTENC pubkey                      (0, 29)  (0, 29)  (0, 29)  match
+p2pkh STRICTENC hashtype                    (0, 23)  (0, 23)  (0, 23)  match
+p2pkh LOW_S high S                          (0, 27)  (0, 27)  (0, 27)  match
+p2pkh DERSIG+LOW_S high S                   (0, 27)  (0, 27)  (0, 27)  match
+p2sh empty scriptSig                        (0, 18)  (0, 18)  (0, 18)  match
+p2sh redeem hash mismatch                    (0, 2)   (0, 2)   (0, 2)  match
+p2sh non-push scriptSig                     (0, 26)  (0, 26)  (0, 26)  match
+p2sh non-push + hash mismatch                (0, 2)  (0, 26)     None  MISMATCH  [Core evals spk (EQUAL false=>2) before the push-only check; rbitcoin checks push-only first (26)]
+p2sh witness malleated                      (0, 42)  (0, 42)  (0, 42)  match
+p2sh empty scriptSig v0/32                  (0, 18)  (0, 18)  (0, 18)  match
+p2wpkh wrong witness len                    (0, 40)  (0, 40)  (0, 40)  match
+p2wpkh pubkey hash mismatch                 (0, 12)  (0, 12)  (0, 12)  match
+p2wpkh empty sig item                        (0, 2)   (0, 1)     None  MISMATCH  [same engine token as the empty-pubkey case; Core gives 2 here]
+p2wpkh WITNESS_PUBKEYTYPE                   (0, 44)  (0, 44)  (0, 44)  match
+p2wsh empty witness (2-input tx)            (0, 39)  (0, 39)  (0, 39)  match
+p2wsh script hash mismatch                  (0, 40)  (0, 40)  (0, 40)  match
+p2wsh OP_0                                   (0, 2)   (0, 2)   (0, 2)  match
+p2wsh cleanstack                            (0, 30)  (0, 30)  (0, 30)  match
+p2wsh MINIMALIF                             (0, 31)  (0, 31)  (0, 31)  match
+witness unexpected                          (0, 43)  (0, 43)  (0, 43)  match
+witness program wrong length                (0, 38)  (0, 38)  (0, 38)  match
+discourage upgradeable witness program      (0, 34)  (0, 34)  (0, 34)  match
+malleated native witness                    (0, 41)  (0, 41)  (0, 41)  match
+malleated + false program                    (0, 2)  (0, 41)     None  MISMATCH  [Core evals spk first (false program=>2); rbitcoin checks scriptSig emptiness first (41)]
+cms null dummy                              (0, 28)  (0, 28)  (0, 28)  match
+cms underflow                               (0, 18)  (0, 18)  (0, 18)  match
+cms nkeys too big                           (0, 10)  (0, 10)  (0, 10)  match
+cms nsigs > nkeys                            (0, 9)   (0, 9)   (0, 9)  match
+cms nullfail                                (0, 32)  (0, 32)  (0, 32)  match
+cms 1of1 invalid no nullfail                 (0, 2)   (0, 2)   (0, 2)  match
+checksigverify false                        (0, 14)  (0, 14)  (0, 14)  match
+checksigverify empty sig                    (0, 14)  (0, 14)  (0, 14)  match
+p2tr empty key sig                          (0, 45)  (0, 45)  (0, 45)  match
+p2tr empty witness encoding                  (2, 1)   (2, 1)   (2, 1)  match
+multi input0 pass, input1 invalid            (1, 0)   (1, 0)   (1, 0)  match
+multi input0 fail                            (0, 2)   (0, 2)   (0, 2)  match
+multi input0 p2wsh pass, input1 invalid      (1, 0)   (1, 0)   (1, 0)  match
+multi index1                                 (1, 0)   (2, 1)     None  MISMATCH  [public entry cannot skip input 0]
+multi input0 taproot                        (0, 39)   (2, 1)     None  MISMATCH  [BIP341 hashes all spent outputs]
+multi input0 p2sh-v1 ACS (not taproot)       (1, 0)   (1, 0)   (1, 0)  match
+flags bit 5 SIGPUSHONLY                      (1, 0)   (2, 1)     None  MISMATCH
+flags bit 7 DISCOURAGE_NOPS                 (0, 33)   (2, 1)     None  MISMATCH
+flags bit 18 DISC_UPGR_TAPROOT               (1, 0)   (2, 1)     None  MISMATCH
+flags bit 19 DISC_OP_SUCCESS                 (1, 0)   (2, 1)     None  MISMATCH
+flags bit 20 DISC_UPGR_PUBKEY                (1, 0)   (2, 1)     None  MISMATCH
+flags unknown high bit                       (2, 1)   (2, 1)   (2, 1)  match
+WITNESS without P2SH                         (2, 1)   (2, 1)   (2, 1)  match
+CLEANSTACK without WITNESS                   (2, 1)   (2, 1)   (2, 1)  match
+amount > MAX_MONEY                           (2, 1)   (2, 1)   (2, 1)  match
+amount negative                              (2, 1)   (2, 1)   (2, 1)  match
+spk > 10000 bytes                            (0, 5)   (0, 5)   (0, 5)  match
+trailing tx byte                             (2, 1)   (2, 1)   (2, 1)  match
+input index out of range                     (2, 1)   (2, 1)   (2, 1)  match
+p2wpkh empty pubkey item, hash match         (0, 2)   (0, 1)     None  MISMATCH  [rbitcoin early-errors (unmapped token); Core runs the implied P2PKH script and reaches EVAL_FALSE (2)]
+p2wpkh empty pubkey item, hash mismatch     (0, 12)   (0, 1)     None  MISMATCH  [same rbitcoin token, but Core returns EQUALVERIFY (12): the token cannot be mapped faithfully without hashing the pubkey]
+
+summary (agree & C matches want, per category):
+  core      71/71
+  domain    3/10
+  external  0/5
+
+non-matching cases:
+  - p2sh non-push + hash mismatch: C=(0, 2) R=(0, 26) wantC=None [external] Core evals spk (EQUAL false=>2) before the push-only check; rbitcoin checks push-only first (26)
+  - p2wpkh empty sig item: C=(0, 2) R=(0, 1) wantC=None [external] same engine token as the empty-pubkey case; Core gives 2 here
+  - malleated + false program: C=(0, 2) R=(0, 41) wantC=None [external] Core evals spk first (false program=>2); rbitcoin checks scriptSig emptiness first (41)
+  - multi index1: C=(1, 0) R=(2, 1) wantC=None [domain] public entry cannot skip input 0
+  - multi input0 taproot: C=(0, 39) R=(2, 1) wantC=None [domain] BIP341 hashes all spent outputs
+  - flags bit 5 SIGPUSHONLY: C=(1, 0) R=(2, 1) wantC=None [domain] 
+  - flags bit 7 DISCOURAGE_NOPS: C=(0, 33) R=(2, 1) wantC=None [domain] 
+  - flags bit 18 DISC_UPGR_TAPROOT: C=(1, 0) R=(2, 1) wantC=None [domain] 
+  - flags bit 19 DISC_OP_SUCCESS: C=(1, 0) R=(2, 1) wantC=None [domain] 
+  - flags bit 20 DISC_UPGR_PUBKEY: C=(1, 0) R=(2, 1) wantC=None [domain] 
+  - p2wpkh empty pubkey item, hash match: C=(0, 2) R=(0, 1) wantC=None [external] rbitcoin early-errors (unmapped token); Core runs the implied P2PKH script and reaches EVAL_FALSE (2)
+  - p2wpkh empty pubkey item, hash mismatch: C=(0, 12) R=(0, 1) wantC=None [external] same rbitcoin token, but Core returns EQUALVERIFY (12): the token cannot be mapped faithfully without hashing the pubkey
+
+core-category mismatches: 0

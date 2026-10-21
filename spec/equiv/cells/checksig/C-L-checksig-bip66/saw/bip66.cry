@@ -1,0 +1,21 @@
+module bip66 where
+
+// Independent Cryptol reference for cell C-L-checksig-bip66.
+// Bit layout: P2SH=1, WITNESS=2, TAPROOT=4, DERSIG=8.
+
+baseFlags : [32] -> [32]
+baseFlags exc =
+  if exc == 1 then 0            // BIP16 exception hash: SCRIPT_VERIFY_NONE
+  else if exc == 2 then 3       // taproot exception hash: P2SH|WITNESS
+  else 7                        // P2SH|WITNESS|TAPROOT
+
+// validation.cpp:2262-2270 + deploymentstatus.h:27-31 (buried deployment):
+// DERSIG is OR-ed in exactly when nHeight >= BIP66Height.
+dersigOR : [32] -> [32] -> [32] -> [32]
+dersigOR since height base = base || (if since <= height then 8 else 0)
+
+flagGeneral : [32] -> [32] -> [32] -> [32]
+flagGeneral since height exc = dersigOR since height (baseFlags exc)
+
+flagMainnet : [32] -> [32] -> [32]
+flagMainnet height exc = dersigOR 363725 height (baseFlags exc)

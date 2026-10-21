@@ -1,0 +1,25 @@
+import "probe.cry";
+
+mC <- llvm_load_module "build/c_probe.fn.bc";
+mL <- llvm_load_module "build/l_probe.fn.bc";
+
+// The spec is Core's ordering.  The C leg must pass; the Lean transliteration
+// is expected to FAIL with len=1, b0=0x02, too_many=1 (L returns STACK_SIZE).
+let spec = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0" (llvm_int 8);
+  b1  <- llvm_fresh_var "b1" (llvm_int 8);
+  b2  <- llvm_fresh_var "b2" (llvm_int 8);
+  b3  <- llvm_fresh_var "b3" (llvm_int 8);
+  tm  <- llvm_fresh_var "tm" (llvm_int 32);
+  os  <- llvm_fresh_var "os" (llvm_int 32);
+  di  <- llvm_fresh_var "di" (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term tm, llvm_term os, llvm_term di];
+  llvm_return (llvm_term {{ core_order len b0 b1 b2 b3 tm os di }});
+};
+print "--- C leg against Core order (expect: Proof succeeded!)";
+llvm_verify mC "probe_prescan_order" [] false spec abc;
+print "--- L leg against Core order (expect: Proof failed, counterexample)";
+llvm_verify mL "probe_prescan_order" [] false spec abc;
+print "PROBE_DONE";

@@ -1,0 +1,38 @@
+# cell: C-L-w32-tap-single-output
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional build/c_cell_single_output.ll build/l_cell_single_output.ll
+
+----------------------------------------
+define i64 @cell_single_output(i8 noundef zeroext %hash_type, i32 noundef %in_pos, i32 noundef %vout_size) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %hash_type, 3
+  %cmp29 = icmp eq i8 %#0, 3
+  %cmp3.not = icmp ult i32 noundef %in_pos, noundef %vout_size
+  %. = select i1 %cmp3.not, i64 3, i64 11776
+  %retval.0 = select i1 %cmp29, i64 %., i64 1
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 11777
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_single_output(i8 noundef zeroext %hash_type, i32 noundef %in_pos, i32 noundef %vout_size) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = and i8 noundef zeroext %hash_type, 3
+  %cmp.i = icmp eq i8 %#0, 3
+  %cmp.not = icmp ult i32 noundef %in_pos, noundef %vout_size
+  %. = select i1 %cmp.not, i64 3, i64 11776
+  %retval.0 = select i1 %cmp.i, i64 %., i64 1
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 11777
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

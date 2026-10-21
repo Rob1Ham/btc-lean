@@ -1,0 +1,203 @@
+# cell: C-L-p2wpkh-script
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_p2wpkh_script_w0 cell_p2wpkh_script_w1 cell_p2wpkh_script_w2 cell_p2wpkh_script_w3 
+# command: alive-tv ir/c_cell_p2wpkh_script_w0.ll ir/l_cell_p2wpkh_script_w0.ll
+
+----------------------------------------
+define i64 @cell_p2wpkh_script_w0(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %conv9 = shl i64 noundef %p0, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %#0 = shl i64 noundef %p0, 24
+  %shl14 = and i64 %#0, 1095216660480
+  %#1 = shl i64 noundef %p0, 24
+  %shl18 = and i64 %#1, 280375465082880
+  %#2 = shl i64 noundef %p0, 24
+  %shl22 = and i64 %#2, 71776119061217280
+  %#3 = shl i64 noundef %p0, 24
+  %conv25 = and i64 %#3, -72057594037927936
+  %or11 = or disjoint i64 %shl14, %shl10
+  %or15 = or disjoint i64 %or11, %shl18
+  %or19 = or disjoint i64 %or15, %shl22
+  %or23 = or disjoint i64 %or19, %conv25
+  %or27 = or disjoint i64 %or23, 1354102
+  %#range_0_%or27 = !range i64 %or27, i64 1354102, i64 0
+  ret i64 %#range_0_%or27
+}
+=>
+define i64 @cell_p2wpkh_script_w0(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %conv9 = shl i64 noundef %p0, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %#0 = shl i64 noundef %p0, 24
+  %shl14 = and i64 %#0, 1095216660480
+  %#1 = shl i64 noundef %p0, 24
+  %shl18 = and i64 %#1, 280375465082880
+  %#2 = shl i64 noundef %p0, 24
+  %shl22 = and i64 %#2, 71776119061217280
+  %#3 = shl i64 noundef %p0, 24
+  %conv25 = and i64 %#3, -72057594037927936
+  %or11 = or disjoint i64 %shl14, %shl10
+  %or15 = or disjoint i64 %or11, %shl18
+  %or19 = or disjoint i64 %or15, %shl22
+  %or23 = or disjoint i64 %or19, %conv25
+  %or27 = or disjoint i64 %or23, 1354102
+  %#range_0_%or27 = !range i64 %or27, i64 1354102, i64 0
+  ret i64 %#range_0_%or27
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv ir/c_cell_p2wpkh_script_w1.ll ir/l_cell_p2wpkh_script_w1.ll
+
+----------------------------------------
+define i64 @cell_p2wpkh_script_w1(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr13.i = lshr i64 noundef %p0, 40
+  %conv = and i64 %shr13.i, 255
+  %#0 = lshr i64 noundef %p0, 40
+  %shl = and i64 %#0, 65280
+  %or = or disjoint i64 %shl, %conv
+  %#1 = lshr i64 noundef %p0, 40
+  %shl6 = and i64 %#1, 16711680
+  %or7 = or disjoint i64 %or, %shl6
+  %conv9 = shl i64 noundef %p1, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %or11 = or disjoint i64 %or7, %shl10
+  %#2 = shl i64 noundef %p1, 24
+  %shl14 = and i64 %#2, 1095216660480
+  %or15 = or disjoint i64 %or11, %shl14
+  %#3 = shl i64 noundef %p1, 24
+  %shl18 = and i64 %#3, 280375465082880
+  %or19 = or disjoint i64 %or15, %shl18
+  %#4 = shl i64 noundef %p1, 24
+  %shl22 = and i64 %#4, 71776119061217280
+  %or23 = or i64 %or19, %shl22
+  %#5 = shl i64 noundef %p1, 24
+  %conv25 = and i64 %#5, -72057594037927936
+  %or27 = or i64 %or23, %conv25
+  ret i64 %or27
+}
+=>
+define i64 @cell_p2wpkh_script_w1(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr13.i = lshr i64 noundef %p0, 40
+  %conv = and i64 %shr13.i, 255
+  %#0 = lshr i64 noundef %p0, 40
+  %shl = and i64 %#0, 65280
+  %or = or disjoint i64 %shl, %conv
+  %#1 = lshr i64 noundef %p0, 40
+  %shl6 = and i64 %#1, 16711680
+  %or7 = or disjoint i64 %or, %shl6
+  %conv9 = shl i64 noundef %p1, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %or11 = or disjoint i64 %or7, %shl10
+  %#2 = shl i64 noundef %p1, 24
+  %shl14 = and i64 %#2, 1095216660480
+  %or15 = or disjoint i64 %or11, %shl14
+  %#3 = shl i64 noundef %p1, 24
+  %shl18 = and i64 %#3, 280375465082880
+  %or19 = or disjoint i64 %or15, %shl18
+  %#4 = shl i64 noundef %p1, 24
+  %shl22 = and i64 %#4, 71776119061217280
+  %or23 = or i64 %or19, %shl22
+  %#5 = shl i64 noundef %p1, 24
+  %conv25 = and i64 %#5, -72057594037927936
+  %or27 = or i64 %or23, %conv25
+  ret i64 %or27
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv ir/c_cell_p2wpkh_script_w2.ll ir/l_cell_p2wpkh_script_w2.ll
+
+----------------------------------------
+define i64 @cell_p2wpkh_script_w2(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr37.i = lshr i64 noundef %p1, 40
+  %conv = and i64 %shr37.i, 255
+  %#0 = lshr i64 noundef %p1, 40
+  %shl = and i64 %#0, 65280
+  %#1 = lshr i64 noundef %p1, 40
+  %shl6 = and i64 %#1, 16711680
+  %conv9 = shl i64 noundef %p2, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %#2 = shl i64 noundef %p2, 24
+  %shl14 = and i64 %#2, 1095216660480
+  %#3 = shl i64 noundef %p2, 24
+  %shl18 = and i64 %#3, 280375465082880
+  %#4 = shl i64 noundef %p2, 24
+  %shl22 = and i64 %#4, 71776119061217280
+  %or = or disjoint i64 %conv, %shl
+  %or7 = or disjoint i64 %or, %shl6
+  %or11 = or disjoint i64 %or7, %shl10
+  %or15 = or disjoint i64 %or11, %shl14
+  %or19 = or disjoint i64 %or15, %shl18
+  %or23 = or i64 %or19, %shl22
+  %or27 = or i64 %or23, -8646911284551352320
+  %#range_0_%or27 = !range i64 %or27, i64 -8646911284551352320, i64 -8574853690513424384
+  ret i64 %#range_0_%or27
+}
+=>
+define i64 @cell_p2wpkh_script_w2(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr37.i = lshr i64 noundef %p1, 40
+  %conv = and i64 %shr37.i, 255
+  %#0 = lshr i64 noundef %p1, 40
+  %shl = and i64 %#0, 65280
+  %#1 = lshr i64 noundef %p1, 40
+  %shl6 = and i64 %#1, 16711680
+  %conv9 = shl i64 noundef %p2, 24
+  %shl10 = and i64 %conv9, 4278190080
+  %#2 = shl i64 noundef %p2, 24
+  %shl14 = and i64 %#2, 1095216660480
+  %#3 = shl i64 noundef %p2, 24
+  %shl18 = and i64 %#3, 280375465082880
+  %#4 = shl i64 noundef %p2, 24
+  %shl22 = and i64 %#4, 71776119061217280
+  %or = or disjoint i64 %conv, %shl
+  %or7 = or disjoint i64 %or, %shl6
+  %or11 = or disjoint i64 %or7, %shl10
+  %or15 = or disjoint i64 %or11, %shl14
+  %or19 = or disjoint i64 %or15, %shl18
+  %or23 = or i64 %or19, %shl22
+  %or27 = or i64 %or23, -8646911284551352320
+  %#range_0_%or27 = !range i64 %or27, i64 -8646911284551352320, i64 -8574853690513424384
+  ret i64 %#range_0_%or27
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv ir/c_cell_p2wpkh_script_w3.ll ir/l_cell_p2wpkh_script_w3.ll
+
+----------------------------------------
+define i64 @cell_p2wpkh_script_w3(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 172
+}
+=>
+define i64 @cell_p2wpkh_script_w3(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 172
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

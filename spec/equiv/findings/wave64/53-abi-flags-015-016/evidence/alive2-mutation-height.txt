@@ -1,0 +1,191 @@
+
+----------------------------------------
+define i64 @cell_block_flags(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %h0, 732
+  %cmp1.i = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i, %cmp3.i
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i, label %if.end3, label %if.else
+
+if.else:
+  %cmp.i30 = icmp eq i64 noundef %h0, 0
+  %cmp1.i31 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i32 = and i1 %cmp.i30, %cmp1.i31
+  %cmp3.i33 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i34 = and i1 %or.cond.i32, %cmp3.i33
+  %cmp4.i35 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i36 = and i1 %or.cond5.i34, %cmp4.i35
+  %spec.select = select i1 %spec.select.i36, i64 2049, i64 133121
+  br label %if.end3
+
+if.end3:
+  %flags.0 = phi i64 [ 0, %entry ], [ %spec.select, %if.else ]
+  %cmp = icmp ugt i32 noundef %height, 363724
+  %or = or disjoint i64 %flags.0, 4
+  %spec.select29 = select i1 %cmp, i64 %or, i64 %flags.0
+  %cmp6 = icmp ugt i32 noundef %height, 388380
+  %or8 = or disjoint i64 %spec.select29, 512
+  %flags.2 = select i1 %cmp6, i64 %or8, i64 %spec.select29
+  %cmp10 = icmp ugt i32 noundef %height, 419327
+  %or12 = or i64 %flags.2, 1024
+  %flags.3 = select i1 %cmp10, i64 %or12, i64 %flags.2
+  %cmp14 = icmp ugt i32 noundef %height, 481823
+  %or16 = or i64 %flags.3, 16
+  %flags.4 = select i1 %cmp14, i64 %or16, i64 %flags.3
+  %#range_0_%flags.4 = !range i64 %flags.4, i64 0, i64 135168
+  ret i64 %#range_0_%flags.4
+}
+=>
+define i64 @cell_block_flags(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i32 noundef %height) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %h0, 732
+  %cmp1.i = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond33.i = and i1 %or.cond.i, %cmp3.i
+  %cmp5.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %or.cond34.i = and i1 %or.cond33.i, %cmp5.i
+  br i1 %or.cond34.i, label %_ZL21mainnet_exception_mapmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp6.i = icmp eq i64 noundef %h0, 0
+  %cmp8.i = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond35.i = and i1 %cmp6.i, %cmp8.i
+  %cmp10.i = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond36.i = and i1 %or.cond35.i, %cmp10.i
+  %cmp12.i = icmp eq i64 noundef %h3, -3026448229963950675
+  %or.cond37.i = and i1 %or.cond36.i, %cmp12.i
+  %..i = zext i1 %or.cond37.i to i64
+  %#0 = select i1 %or.cond37.i, i64 65792, i64 0
+  %#1 = or disjoint i64 %#0, %..i
+  br label %_ZL21mainnet_exception_mapmmmm.exit
+
+_ZL21mainnet_exception_mapmmmm.exit:
+  %retval.sroa.0.0.insert.insert.i = phi i64 [ 1, %entry ], [ %#1, %if.else.i ]
+  %loadedv = trunc i64 %retval.sroa.0.0.insert.insert.i to i1
+  %exc.sroa.4.0.extract.shift = lshr i64 %retval.sroa.0.0.insert.insert.i, 8
+  %#2 = and i64 %exc.sroa.4.0.extract.shift, 255
+  %#3 = and i64 %retval.sroa.0.0.insert.insert.i, 65536
+  %#4 = icmp eq i64 %#3, 0
+  %base.sroa.5.0.not = and i1 %#4, %loadedv
+  %base.sroa.0.0 = select i1 %loadedv, i64 %#2, i64 1
+  %cmp.i30 = icmp ugt i32 noundef %height, 363725
+  %cmp.i31 = icmp ugt i32 noundef %height, 388380
+  %cmp.i32 = icmp ugt i32 noundef %height, 419327
+  %cmp.i33 = icmp ugt i32 noundef %height, 481823
+  %or3.i = or disjoint i64 %base.sroa.0.0, 2048
+  %out.1.i = select i1 %base.sroa.5.0.not, i64 %base.sroa.0.0, i64 %or3.i
+  %or7.i = or disjoint i64 %out.1.i, 131072
+  %out.2.i = select i1 %loadedv, i64 %out.1.i, i64 %or7.i
+  %or11.i = or i64 %out.2.i, 4
+  %out.3.i = select i1 %cmp.i30, i64 %or11.i, i64 %out.2.i
+  %or15.i = or i64 %out.3.i, 512
+  %out.4.i = select i1 %cmp.i31, i64 %or15.i, i64 %out.3.i
+  %or19.i = or i64 %out.4.i, 1024
+  %out.5.i = select i1 %cmp.i32, i64 %or19.i, i64 %out.4.i
+  %or23.i = or i64 %out.5.i, 16
+  %out.6.i = select i1 %cmp.i33, i64 %or23.i, i64 %out.5.i
+  %#range_0_%out.6.i = !range i64 %out.6.i, i64 0, i64 135168
+  ret i64 %#range_0_%out.6.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %h0 = #x0000000000000000 (0)
+i64 noundef %h1 = #x0000000000000000 (0)
+i64 noundef %h2 = #x0000000000000000 (0)
+i64 noundef %h3 = #x0000000000000000 (0)
+i32 noundef %height = #x00058ccd (363725)
+
+Source:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x0 (0)
+i1 %or.cond5.i = #x0 (0)
+i1 %cmp4.i = #x0 (0)
+i1 %spec.select.i = #x0 (0)
+  >> Jump to %if.else
+i1 %cmp.i30 = #x1 (1)
+i1 %cmp1.i31 = #x0 (0)
+i1 %or.cond.i32 = #x0 (0)
+i1 %cmp3.i33 = #x0 (0)
+i1 %or.cond5.i34 = #x0 (0)
+i1 %cmp4.i35 = #x0 (0)
+i1 %spec.select.i36 = #x0 (0)
+i64 %spec.select = #x0000000000020801 (133121)
+  >> Jump to %if.end3
+i64 %flags.0 = #x0000000000020801 (133121)
+i1 %cmp = #x1 (1)
+i64 %or = #x0000000000020805 (133125)
+i64 %spec.select29 = #x0000000000020805 (133125)
+i1 %cmp6 = #x0 (0)
+i64 %or8 = #x0000000000020a05 (133637)
+i64 %flags.2 = #x0000000000020805 (133125)
+i1 %cmp10 = #x0 (0)
+i64 %or12 = #x0000000000020c05 (134149)
+i64 %flags.3 = #x0000000000020805 (133125)
+i1 %cmp14 = #x0 (0)
+i64 %or16 = #x0000000000020815 (133141)
+i64 %flags.4 = #x0000000000020805 (133125)
+i64 %#range_0_%flags.4 = #x0000000000020805 (133125)
+
+Target:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x0 (0)
+i1 %or.cond33.i = #x0 (0)
+i1 %cmp5.i = #x0 (0)
+i1 %or.cond34.i = #x0 (0)
+  >> Jump to %if.else.i
+i1 %cmp6.i = #x1 (1)
+i1 %cmp8.i = #x0 (0)
+i1 %or.cond35.i = #x0 (0)
+i1 %cmp10.i = #x0 (0)
+i1 %or.cond36.i = #x0 (0)
+i1 %cmp12.i = #x0 (0)
+i1 %or.cond37.i = #x0 (0)
+i64 %..i = #x0000000000000000 (0)
+i64 %#0 = #x0000000000000000 (0)
+i64 %#1 = #x0000000000000000 (0)
+  >> Jump to %_ZL21mainnet_exception_mapmmmm.exit
+i64 %retval.sroa.0.0.insert.insert.i = #x0000000000000000 (0)
+i1 %loadedv = #x0 (0)
+i64 %exc.sroa.4.0.extract.shift = #x0000000000000000 (0)
+i64 %#2 = #x0000000000000000 (0)
+i64 %#3 = #x0000000000000000 (0)
+i1 %#4 = #x1 (1)
+i1 %base.sroa.5.0.not = #x0 (0)
+i64 %base.sroa.0.0 = #x0000000000000001 (1)
+i1 %cmp.i30 = #x0 (0)
+i1 %cmp.i31 = #x0 (0)
+i1 %cmp.i32 = #x0 (0)
+i1 %cmp.i33 = #x0 (0)
+i64 %or3.i = #x0000000000000801 (2049)
+i64 %out.1.i = #x0000000000000801 (2049)
+i64 %or7.i = #x0000000000020801 (133121)
+i64 %out.2.i = #x0000000000020801 (133121)
+i64 %or11.i = #x0000000000020805 (133125)
+i64 %out.3.i = #x0000000000020801 (133121)
+i64 %or15.i = #x0000000000020a01 (133633)
+i64 %out.4.i = #x0000000000020801 (133121)
+i64 %or19.i = #x0000000000020c01 (134145)
+i64 %out.5.i = #x0000000000020801 (133121)
+i64 %or23.i = #x0000000000020811 (133137)
+i64 %out.6.i = #x0000000000020801 (133121)
+i64 %#range_0_%out.6.i = #x0000000000020801 (133121)
+Source value: #x0000000000020805 (133125)
+Target value: #x0000000000020801 (133121)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

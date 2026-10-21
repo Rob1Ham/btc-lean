@@ -1,0 +1,24 @@
+Loading file "tools/tests/hello.saw"
+Verifying id32...
+Simulating id32...
+Checking proof obligations id32...
+Proof succeeded! id32
+Verifying add_one...
+Simulating add_one...
+Checking proof obligations add_one...
+Subgoal failed: add_one tools/tests/hello.c:3:39: error: in add_one
+Undefined behavior encountered
+Details:
+  Poison value created
+  Signed addition caused wrapping even though the `nsw` flag was set
+Goal size 44. Provers used: abc_verilog
+----------Counterexample----------
+  x: 2147483647
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   tools/tests/hello.saw:17:53-17:56 in (callback)
+   (builtin) in llvm_verify
+   tools/tests/hello.saw:17:11-17:56 (at top level)
+Proof failed.
+

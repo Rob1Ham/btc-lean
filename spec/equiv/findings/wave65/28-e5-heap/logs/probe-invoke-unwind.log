@@ -1,0 +1,24 @@
+Loading file "probe-invoke-unwind.saw"
+Verifying f...
+Simulating f...
+Checking proof obligations f...
+Subgoal failed: f probe-invoke-unwind.saw:2:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 32;
+    }
+ in ecNumber (TCNum 2) (seq _x`1 Bool) (PLiteralSeqBool _x`1)
+Actual term:
+bvNat 32 1
+
+Goal size 8. Provers used: SBV->Z3
+----------Counterexample----------
+<<All settings of the symbolic variables constitute a counterexample>>
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   probe-invoke-unwind.saw:2:99-2:101 in (callback)
+   (builtin) in llvm_verify
+   probe-invoke-unwind.saw:2:1-2:101 (at top level)
+Proof failed.
+

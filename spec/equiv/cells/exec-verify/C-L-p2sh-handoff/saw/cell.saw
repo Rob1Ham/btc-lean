@@ -1,0 +1,34 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_shape =
+  do {
+    n  <- llvm_fresh_var "len" (llvm_int 64);
+    b0 <- llvm_fresh_var "b0" (llvm_int 64);
+    b1 <- llvm_fresh_var "b1" (llvm_int 64);
+    bl <- llvm_fresh_var "b_last" (llvm_int 64);
+    llvm_execute_func [llvm_term n, llvm_term b0, llvm_term b1, llvm_term bl];
+    llvm_return (llvm_term {{ p2sh_shape n b0 b1 bl }});
+  };
+
+let spec_handoff =
+  do {
+    p  <- llvm_fresh_var "p2sh" (llvm_int 64);
+    sh <- llvm_fresh_var "spk_shape" (llvm_int 64);
+    sn <- llvm_fresh_var "sn" (llvm_int 64);
+    t0 <- llvm_fresh_var "t0" (llvm_int 64);
+    t1 <- llvm_fresh_var "t1" (llvm_int 64);
+    t2 <- llvm_fresh_var "t2" (llvm_int 64);
+    llvm_execute_func [llvm_term p, llvm_term sh, llvm_term sn,
+                       llvm_term t0, llvm_term t1, llvm_term t2];
+    llvm_return (llvm_term {{ handoff p sh sn t0 t1 t2 }});
+  };
+
+llvm_verify mC "cell_p2sh_shape" [] false spec_shape z3;
+llvm_verify mL "cell_p2sh_shape" [] false spec_shape z3;
+llvm_verify mC "cell_p2sh_handoff" [] false spec_handoff z3;
+llvm_verify mL "cell_p2sh_handoff" [] false spec_handoff z3;
+
+print "CELL_C_L_p2sh_handoff_SAW_GREEN";

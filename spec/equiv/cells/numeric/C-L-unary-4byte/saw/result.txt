@@ -1,0 +1,125 @@
+# cell: numeric/C-L-unary-4byte
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (tools/num.cry as module CellSpec)
+# script: build/cell.saw
+# expected: at least 12 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_1add...
+Simulating cell_1add...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_1add...
+Proof succeeded! cell_1add
+Verifying cell_1add...
+Simulating cell_1add...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_1add...
+Proof succeeded! cell_1add
+cell.saw:59:1-59:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_1sub.bc";
+^^
+cell.saw:54:1-54:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_1add.bc";
+^^
+cell.saw:60:1-60:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_1sub.bc";
+^^
+cell.saw:55:1-55:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_1add.bc";
+^^
+Verifying cell_1sub...
+Simulating cell_1sub...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_1sub...
+Proof succeeded! cell_1sub
+Verifying cell_1sub...
+Simulating cell_1sub...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_1sub...
+Proof succeeded! cell_1sub
+cell.saw:64:1-64:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_negate.bc";
+^^
+cell.saw:59:1-59:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_1sub.bc";
+^^
+cell.saw:65:1-65:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_negate.bc";
+^^
+cell.saw:60:1-60:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_1sub.bc";
+^^
+Verifying cell_negate...
+Simulating cell_negate...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_negate...
+Proof succeeded! cell_negate
+Verifying cell_negate...
+Simulating cell_negate...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_negate...
+Proof succeeded! cell_negate
+cell.saw:69:1-69:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_abs.bc";
+^^
+cell.saw:64:1-64:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_negate.bc";
+^^
+cell.saw:70:1-70:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_abs.bc";
+^^
+cell.saw:65:1-65:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_negate.bc";
+^^
+Verifying cell_abs...
+Simulating cell_abs...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_abs...
+Proof succeeded! cell_abs
+Verifying cell_abs...
+Simulating cell_abs...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_abs...
+Proof succeeded! cell_abs
+cell.saw:74:1-74:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_not.bc";
+^^
+cell.saw:69:1-69:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_abs.bc";
+^^
+cell.saw:75:1-75:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_not.bc";
+^^
+cell.saw:70:1-70:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_abs.bc";
+^^
+Verifying cell_not...
+Simulating cell_not...
+Checking proof obligations cell_not...
+Proof succeeded! cell_not
+Verifying cell_not...
+Simulating cell_not...
+Checking proof obligations cell_not...
+Proof succeeded! cell_not
+cell.saw:79:1-79:3: Warning: Redeclaration of mC
+mC <- llvm_load_module "c_cell_0notequal.bc";
+^^
+cell.saw:74:1-74:3: Previous declaration was here
+mC <- llvm_load_module "c_cell_not.bc";
+^^
+cell.saw:80:1-80:3: Warning: Redeclaration of mL
+mL <- llvm_load_module "l_cell_0notequal.bc";
+^^
+cell.saw:75:1-75:3: Previous declaration was here
+mL <- llvm_load_module "l_cell_not.bc";
+^^
+Verifying cell_0notequal...
+Simulating cell_0notequal...
+Checking proof obligations cell_0notequal...
+Proof succeeded! cell_0notequal
+Verifying cell_0notequal...
+Simulating cell_0notequal...
+Checking proof obligations cell_0notequal...
+Proof succeeded! cell_0notequal
+CELL_W16_UNARY_SAW_GREEN
+STATUS=saw-green

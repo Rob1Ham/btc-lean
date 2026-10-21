@@ -1,0 +1,235 @@
+# cell: push-encoding/C-L-w32-num-decode-minimal
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_decnum.ll build/l_cell_decnum.ll
+
+----------------------------------------
+define i64 @cell_decnum(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %len, i8 noundef zeroext %minimal, i8 noundef zeroext %wide) nofree willreturn memory(none) {
+entry:
+  %v = alloca i64 5, align 1, dead
+  start_lifetime ptr %v
+  store i8 noundef zeroext %b0, ptr %v, align 1
+  %arrayinit.element = gep inbounds nuw ptr %v, 1 x i64 1
+  store i8 noundef zeroext %b1, ptr %arrayinit.element, align 1
+  %arrayinit.element1 = gep inbounds nuw ptr %v, 1 x i64 2
+  store i8 noundef zeroext %b2, ptr %arrayinit.element1, align 1
+  %arrayinit.element2 = gep inbounds nuw ptr %v, 1 x i64 3
+  store i8 noundef zeroext %b3, ptr %arrayinit.element2, align 1
+  %arrayinit.element3 = gep inbounds nuw ptr %v, 1 x i64 4
+  store i8 noundef zeroext %b4, ptr %arrayinit.element3, align 1
+  %#0 = and i8 noundef zeroext %len, 7
+  %and = zext nneg i8 %#0 to i32
+  %tobool.not = icmp eq i8 noundef zeroext %wide, 0
+  %cond = select i1 %tobool.not, i32 4, i32 5
+  %cmp = icmp samesign ult i32 %cond, %and
+  br i1 %cmp, label %cleanup74, label %if.end
+
+if.end:
+  %tobool4 = icmp ne i8 noundef zeroext %minimal, 0
+  %cmp5 = icmp ne i8 %#0, 0
+  %or.cond = and i1 %tobool4, %cmp5
+  br i1 %or.cond, label %if.then6, label %if.end22
+
+if.then6:
+  %sub = add nsw i32 %and, 4294967295
+  %idxprom = zext nneg i32 %sub to i64
+  %arrayidx = gep inbounds nuw ptr %v, 5 x i64 0, 1 x i64 %idxprom
+  %#1 = load i8, ptr %arrayidx, align 1
+  %#2 = and i8 %#1, 127
+  %cmp9 = icmp eq i8 %#2, 0
+  br i1 %cmp9, label %if.then10, label %if.then28
+
+if.then10:
+  %cmp11 = icmp samesign ult i8 %#0, 2
+  br i1 %cmp11, label %cleanup74, label %lor.lhs.false
+
+lor.lhs.false:
+  %sub12 = add nsw i32 %and, 4294967294
+  %idxprom13 = zext nneg i32 %sub12 to i64
+  %arrayidx14 = gep inbounds nuw ptr %v, 5 x i64 0, 1 x i64 %idxprom13
+  %#3 = load i8, ptr %arrayidx14, align 1
+  %cmp17 = icmp sgt i8 %#3, 255
+  br i1 %cmp17, label %cleanup74, label %if.then28
+
+if.end22:
+  %cmp23 = icmp eq i8 %#0, 0
+  br i1 %cmp23, label %cleanup74, label %if.end22.if.then28_crit_edge
+
+if.end22.if.then28_crit_edge:
+  %.pre = add nsw i32 %and, 4294967295
+  %.pre99 = zext nneg i32 %.pre to i64
+  br label %if.then28
+
+if.then28:
+  %idxprom60.pre-phi = phi i64 [ %.pre99, %if.end22.if.then28_crit_edge ], [ %idxprom, %lor.lhs.false ], [ %idxprom, %if.then6 ]
+  %sub59.pre-phi = phi i32 [ %.pre, %if.end22.if.then28_crit_edge ], [ %sub, %lor.lhs.false ], [ %sub, %if.then6 ]
+  %conv30 = zext i8 noundef zeroext %b0 to i64
+  %cmp32.not = icmp eq i8 %#0, 1
+  %conv35 = zext i8 noundef zeroext %b1 to i64
+  %shl = shl nsw nuw i64 %conv35, 8
+  %or36 = select i1 %cmp32.not, i64 0, i64 %shl
+  %mag.1 = or disjoint i64 %or36, %conv30
+  %cmp38 = icmp samesign ugt i8 %#0, 2
+  %conv41 = zext i8 noundef zeroext %b2 to i64
+  %shl42 = shl nsw nuw i64 %conv41, 16
+  %or43 = select i1 %cmp38, i64 %shl42, i64 0
+  %mag.2 = or disjoint i64 %mag.1, %or43
+  %cmp45 = icmp samesign ugt i8 %#0, 3
+  %conv48 = zext i8 noundef zeroext %b3 to i64
+  %shl49 = shl nsw nuw i64 %conv48, 24
+  %or50 = select i1 %cmp45, i64 %shl49, i64 0
+  %mag.3 = or disjoint i64 %mag.2, %or50
+  %cmp52 = icmp samesign ugt i8 %#0, 4
+  %conv55 = zext i8 noundef zeroext %b4 to i64
+  %shl56 = shl nsw nuw i64 %conv55, 32
+  %or57 = select i1 %cmp52, i64 %shl56, i64 0
+  %mag.4 = or i64 %mag.3, %or57
+  %arrayidx61 = gep inbounds nuw ptr %v, 5 x i64 0, 1 x i64 %idxprom60.pre-phi
+  %#4 = load i8, ptr %arrayidx61, align 1
+  %cmp64.not = icmp sgt i8 %#4, 255
+  br i1 %cmp64.not, label %if.end71, label %if.then65
+
+if.end71:
+  %shl3.i96 = shl nsw nuw i64 %mag.4, 8
+  %or4.i97 = or disjoint i64 %shl3.i96, 1
+  br label %cleanup74
+
+if.then65:
+  %mul = shl nsw nuw i32 %sub59.pre-phi, 3
+  %sh_prom = zext nneg i32 %mul to i64
+  %shl67 = shl nsw nuw i64 128, %sh_prom
+  %not = xor i64 %shl67, -1
+  %and68 = and i64 %mag.4, %not
+  %.neg = mul nsw i64 %and68, -256
+  %or4.i = or disjoint i64 %.neg, 1
+  br label %cleanup74
+
+cleanup74:
+  %retval.1 = phi i64 [ %or4.i, %if.then65 ], [ %or4.i97, %if.end71 ], [ 16, %entry ], [ 16, %lor.lhs.false ], [ 16, %if.then10 ], [ 1, %if.end22 ]
+  end_lifetime ptr %v
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 1, i64 0
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_decnum(i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i8 noundef zeroext %b4, i8 noundef zeroext %len, i8 noundef zeroext %minimal, i8 noundef zeroext %wide) nofree willreturn memory(none) {
+entry:
+  %v = alloca i64 5, align 1, dead
+  start_lifetime ptr %v
+  store i8 noundef zeroext %b0, ptr %v, align 1
+  %arrayinit.element = gep inbounds nuw ptr %v, 1 x i64 1
+  store i8 noundef zeroext %b1, ptr %arrayinit.element, align 1
+  %arrayinit.element1 = gep inbounds nuw ptr %v, 1 x i64 2
+  store i8 noundef zeroext %b2, ptr %arrayinit.element1, align 1
+  %arrayinit.element2 = gep inbounds nuw ptr %v, 1 x i64 3
+  store i8 noundef zeroext %b3, ptr %arrayinit.element2, align 1
+  %arrayinit.element3 = gep inbounds nuw ptr %v, 1 x i64 4
+  store i8 noundef zeroext %b4, ptr %arrayinit.element3, align 1
+  %#0 = and i8 noundef zeroext %len, 7
+  %and = zext nneg i8 %#0 to i32
+  %tobool.not = icmp eq i8 noundef zeroext %wide, 0
+  %cond = select i1 %tobool.not, i32 4, i32 5
+  %cmp.i = icmp samesign ult i32 %cond, %and
+  br i1 %cmp.i, label %cleanup, label %if.end.i
+
+if.end.i:
+  %cmp = icmp ne i8 noundef zeroext %minimal, 0
+  %cmp1.i = icmp ne i8 %#0, 0
+  %or.cond.i = and i1 %cmp, %cmp1.i
+  br i1 %or.cond.i, label %if.then2.i, label %if.end15.i
+
+if.then2.i:
+  %#1 = zext nneg i8 %#0 to i64
+  %#2 = gep ptr %v, 1 x i64 %#1
+  %arrayidx.i = gep ptr %#2, 1 x i64 -1
+  %#3 = load i8, ptr %arrayidx.i, align 1
+  %#4 = and i8 %#3, 127
+  %cmp3.i = icmp eq i8 %#4, 0
+  br i1 %cmp3.i, label %if.then4.i, label %if.then20.i
+
+if.then4.i:
+  %cmp5.i = icmp samesign ult i8 %#0, 2
+  br i1 %cmp5.i, label %cleanup, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  %arrayidx8.i = gep ptr %#2, 1 x i64 -2
+  %#5 = load i8, ptr %arrayidx8.i, align 1
+  %cmp11.i = icmp sgt i8 %#5, 255
+  br i1 %cmp11.i, label %cleanup, label %if.then20.thread.i
+
+if.then20.thread.i:
+  %conv22101.i = zext i8 noundef zeroext %b0 to i64
+  br label %if.end29.i
+
+if.end15.i:
+  %cmp16.i = icmp eq i8 %#0, 0
+  br i1 %cmp16.i, label %cleanup, label %if.then20.i
+
+if.then20.i:
+  %conv22.i = zext i8 noundef zeroext %b0 to i64
+  %cmp24.not.i = icmp eq i8 %#0, 1
+  br i1 %cmp24.not.i, label %if.end50.i, label %if.end29.i
+
+if.end29.i:
+  %conv22103.i = phi i64 [ %conv22101.i, %if.then20.thread.i ], [ %conv22.i, %if.then20.i ]
+  %conv27.i = zext i8 noundef zeroext %b1 to i64
+  %shl.i = shl nsw nuw i64 %conv27.i, 8
+  %or28.i = or disjoint i64 %conv22103.i, %shl.i
+  %cmp30.i = icmp samesign ugt i8 %#0, 2
+  br i1 %cmp30.i, label %if.end36.i, label %if.end50.i
+
+if.end36.i:
+  %conv33.i = zext i8 noundef zeroext %b2 to i64
+  %shl34.i = shl nsw nuw i64 %conv33.i, 16
+  %or35.i = or disjoint i64 %or28.i, %shl34.i
+  %cmp37.not.i = icmp eq i8 %#0, 3
+  br i1 %cmp37.not.i, label %if.end50.i, label %if.end43.i
+
+if.end43.i:
+  %conv40.i = zext i8 noundef zeroext %b3 to i64
+  %shl41.i = shl nsw nuw i64 %conv40.i, 24
+  %or42.i = or disjoint i64 %or35.i, %shl41.i
+  %cmp44.i = icmp samesign ugt i8 %#0, 4
+  br i1 %cmp44.i, label %if.then45.i, label %if.end50.i
+
+if.then45.i:
+  %conv47.i = zext i8 noundef zeroext %b4 to i64
+  %shl48.i = shl nsw nuw i64 %conv47.i, 32
+  %or49.i = or disjoint i64 %or42.i, %shl48.i
+  br label %if.end50.i
+
+if.end50.i:
+  %v.4.i = phi i64 [ %or49.i, %if.then45.i ], [ %or42.i, %if.end43.i ], [ %or35.i, %if.end36.i ], [ %or28.i, %if.end29.i ], [ %conv22.i, %if.then20.i ]
+  %sub51.i = add nsw i32 %and, 4294967295
+  %idxprom52.i = zext nneg i32 %sub51.i to i64
+  %arrayidx53.i = gep inbounds nuw ptr %v, 1 x i64 %idxprom52.i
+  %#6 = load i8, ptr %arrayidx53.i, align 1
+  %cmp56.not.i = icmp sgt i8 %#6, 255
+  %mul.i = shl nsw nuw i32 %sub51.i, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shl61.i = shl nsw nuw i64 128, %sh_prom.i
+  %not.i = xor i64 %shl61.i, -1
+  %and62.i = select i1 %cmp56.not.i, i64 -1, i64 %not.i
+  %v.5.i = and i64 %and62.i, %v.4.i
+  %sub65.i = sub nsw i64 0, %v.5.i
+  %cond.i = select i1 %cmp56.not.i, i64 %v.4.i, i64 %sub65.i
+  %#7 = shl nsw i64 %cond.i, 8
+  %#8 = or disjoint i64 %#7, 1
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ 16, %entry ], [ 16, %lor.lhs.false.i ], [ 16, %if.then4.i ], [ %#8, %if.end50.i ], [ 1, %if.end15.i ]
+  end_lifetime ptr %v
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 -254
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

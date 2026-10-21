@@ -1,0 +1,50 @@
+// wave16b/04-e5-exceptions: VerifyScript(empty, empty) on module m2.
+//
+// m2 treatment of the B5 guard/static surface (see build.sh / mkm.py):
+//   * bnZero, bnOne: guard left at 0 and `internal global` storage allocated
+//     explicitly with its module initializer, so the real __cxa_guard
+//     acquire/release protocol runs the real dynamic initializer during the
+//     proof. Nothing is assumed about their values.
+//   * vchTrue: guard pinned to 1 and storage an explicit read-only {0x01},
+//     because its real initializer calls the heap allocator (B2). This is a
+//     STATED assumption, not an implicit one.
+//   * emptyWitness: internal constant zeroinitializer (no init needed).
+//
+// No llvm_unsafe_assume_spec is used.
+m <- llvm_load_module "m3a.bc";
+
+let vs = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m vs [] false
+  (do {
+     llvm_alloc_global "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero";
+     llvm_points_to (llvm_global "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero")
+       (llvm_global_initializer "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero");
+     llvm_alloc_global "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero";
+     llvm_points_to (llvm_global "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero")
+       (llvm_global_initializer "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero");
+     llvm_alloc_global "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne";
+     llvm_points_to (llvm_global "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne")
+       (llvm_global_initializer "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne");
+     llvm_alloc_global "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne";
+     llvm_points_to (llvm_global "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne")
+       (llvm_global_initializer "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne");
+
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ zero : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk,
+                        llvm_term {{ 0 : [64] }},   // witness nullptr -> emptyWitness
+                        llvm_term {{ 0 : [64] }},   // flags = 0
+                        chk, err];
+     // empty stack -> SCRIPT_ERR_EVAL_FALSE (2)
+     llvm_points_to err (llvm_term {{ [2,0,0,0,0,0,0,0] : [8][8] }});
+     llvm_return (llvm_term {{ 0 : [1] }});
+   }) z3;
+
+print "VS_EMPTY_M2_DONE";

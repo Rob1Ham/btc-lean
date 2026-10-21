@@ -1,0 +1,47 @@
+# cell: tapscript/C-L-taproot-scriptpath-dispatch
+# saw: 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# spec: build/cell.cry (independent packed postcondition)
+
+Loading file "cell.saw"
+Verifying cell_control_size...
+Simulating cell_control_size...
+Checking proof obligations cell_control_size...
+Proof succeeded! cell_control_size
+Verifying cell_control_size...
+Simulating cell_control_size...
+Checking proof obligations cell_control_size...
+Proof succeeded! cell_control_size
+Verifying cell_leaf_version...
+Simulating cell_leaf_version...
+Checking proof obligations cell_leaf_version...
+Proof succeeded! cell_leaf_version
+Verifying cell_leaf_version...
+Simulating cell_leaf_version...
+Checking proof obligations cell_leaf_version...
+Subgoal failed: cell_leaf_version cell.saw:20:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+leaf_version c`6324 d`6325
+Actual term:
+let { _x`1 = Vec 64 Bool;
+    }
+ in ite _x`1
+      (bvEq 64 (bvNat 64 192) (bvAnd 64 (bvNat 64 255) c`6324))
+      (bvNat 64 2)
+      (ite _x`1 (bvEq 64 (bvNat 64 0) d`6325) (bvNat 64 1)
+         (bvNat 64 140))
+
+Goal size 83. Provers used: abc_verilog
+----------Counterexample----------
+  c: 18446744073709551553
+  d: 0
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:20:55-20:58 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:20:1-20:58 (at top level)
+Proof failed.
+
+STATUS=saw-not-green (3/6 proofs)

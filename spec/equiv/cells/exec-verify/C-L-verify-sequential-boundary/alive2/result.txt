@@ -1,0 +1,1143 @@
+# cell: exec-verify/C-L-verify-sequential-boundary
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --always-verify build/c_cell_push_boundary.ll build/l_cell_push_boundary.ll
+
+----------------------------------------
+define i64 @cell_push_boundary(i8 noundef zeroext %op, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i64 noundef %after_op) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %after_op, 10000
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %cmp.i = icmp ult i8 noundef zeroext %op, 79
+  br i1 %cmp.i, label %if.then.i, label %return
+
+if.then.i:
+  %conv.i = zext nneg i8 noundef zeroext %op to i64
+  %cmp2.i = icmp ult i8 noundef zeroext %op, 76
+  br i1 %cmp2.i, label %if.end38.i, label %if.else.i
+
+if.else.i:
+  switch i8 noundef zeroext %op, label %if.else21.i [
+    i8 76, label %if.then7.i
+    i8 77, label %if.then14.i
+  ]
+
+if.else21.i:
+  %cmp22.i = icmp samesign ult i64 noundef %after_op, 4
+  br i1 %cmp22.i, label %return, label %if.end24.i
+
+if.end24.i:
+  %conv25.i = zext i8 noundef zeroext %b0 to i64
+  %conv26.i = zext i8 noundef zeroext %b1 to i64
+  %shl27.i = shl nsw nuw i64 %conv26.i, 8
+  %or28.i = or disjoint i64 %shl27.i, %conv25.i
+  %conv29.i = zext i8 noundef zeroext %b2 to i64
+  %shl30.i = shl nsw nuw i64 %conv29.i, 16
+  %or31.i = or disjoint i64 %or28.i, %shl30.i
+  %conv32.i = zext i8 noundef zeroext %b3 to i64
+  %shl33.i = shl nsw nuw i64 %conv32.i, 24
+  %or34.i = or disjoint i64 %or31.i, %shl33.i
+  %sub35.i = add nsw i64 noundef %after_op, -4
+  br label %if.end38.i
+
+if.then7.i:
+  %cmp8.i = icmp eq i64 noundef %after_op, 0
+  br i1 %cmp8.i, label %return, label %if.end.i
+
+if.end.i:
+  %conv10.i = zext i8 noundef zeroext %b0 to i64
+  %sub.i = add nsw i64 noundef %after_op, -1
+  br label %if.end38.i
+
+if.then14.i:
+  %cmp15.i = icmp samesign ult i64 noundef %after_op, 2
+  br i1 %cmp15.i, label %return, label %if.end17.i
+
+if.end17.i:
+  %conv18.i = zext i8 noundef zeroext %b0 to i64
+  %conv19.i = zext i8 noundef zeroext %b1 to i64
+  %shl.i = shl nsw nuw i64 %conv19.i, 8
+  %or.i = or disjoint i64 %shl.i, %conv18.i
+  %sub20.i = add nsw i64 noundef %after_op, -2
+  br label %if.end38.i
+
+if.end38.i:
+  %after_op.addr.0.i = phi i64 [ %sub.i, %if.end.i ], [ %sub20.i, %if.end17.i ], [ %sub35.i, %if.end24.i ], [ noundef %after_op, %if.then.i ]
+  %nSize.0.i = phi i64 [ %conv10.i, %if.end.i ], [ %or.i, %if.end17.i ], [ %or34.i, %if.end24.i ], [ %conv.i, %if.then.i ]
+  %conv39.i = and i64 %nSize.0.i, 4294967295
+  %cmp40.i = icmp ult i64 %after_op.addr.0.i, %conv39.i
+  %..i = zext i1 %cmp40.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 2, %entry ], [ 1, %if.then7.i ], [ 1, %if.then14.i ], [ 1, %if.else21.i ], [ %..i, %if.end38.i ], [ 0, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_push_boundary(i8 noundef zeroext %op, i8 noundef zeroext %b0, i8 noundef zeroext %b1, i8 noundef zeroext %b2, i8 noundef zeroext %b3, i64 noundef %after_op) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %after_op, 10000
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i8 noundef zeroext %op to i32
+  %cmp1.i = icmp eq i8 noundef zeroext %op, 0
+  br i1 %cmp1.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp5.i = icmp ult i8 noundef zeroext %op, 76
+  br i1 %cmp5.i, label %if.then6.i, label %if.end9.i
+
+if.then6.i:
+  %conv7.i = zext nneg i8 noundef zeroext %op to i64
+  %cmp8.i = icmp uge i64 noundef %after_op, %conv7.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit
+
+if.end9.i:
+  %op.off.i = add i8 noundef zeroext %op, 180
+  %switch.i = icmp ult i8 %op.off.i, 3
+  br i1 %switch.i, label %if.then17.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit
+
+if.then17.i:
+  %sub19.i = add nsw i32 %conv.i, 4294967220
+  %shl.i = shl nsw nuw i32 1, %sub19.i
+  %conv20.i = zext nneg i32 %shl.i to i64
+  %cmp1.i2.not = icmp ult i64 noundef %after_op, %conv20.i
+  br i1 %cmp1.i2.not, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit, label %if.end.i
+
+if.end.i:
+  %conv10.i = zext i8 noundef zeroext %b0 to i64
+  switch i32 %shl.i, label %if.end9.i7 [
+    i32 1, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit
+    i32 2, label %if.then6.i3
+  ]
+
+if.end9.i7:
+  %conv11.i = zext i8 noundef zeroext %b1 to i64
+  %shl12.i = shl nsw nuw i64 %conv11.i, 8
+  %conv14.i = zext i8 noundef zeroext %b2 to i64
+  %shl15.i = shl nsw nuw i64 %conv14.i, 16
+  %#0 = or disjoint i64 %shl12.i, %shl15.i
+  %conv17.i = zext i8 noundef zeroext %b3 to i64
+  %shl18.i = shl nsw nuw i64 %conv17.i, 24
+  %#1 = or disjoint i64 %#0, %shl18.i
+  %or19.i = or disjoint i64 %#1, %conv10.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit
+
+if.then6.i3:
+  %conv8.i = zext i8 noundef zeroext %b1 to i64
+  %shl.i5 = shl nsw nuw i64 %conv8.i, 8
+  %or.i = or disjoint i64 %shl.i5, %conv10.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit
+
+_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit:
+  %k.i.0 = phi i64 [ %or19.i, %if.end9.i7 ], [ %or.i, %if.then6.i3 ], [ 0, %if.then17.i ], [ %conv10.i, %if.end.i ]
+  br i1 %cmp1.i2.not, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit, label %if.end28.i
+
+if.end28.i:
+  %sub30.i = sub nsw nuw i64 noundef %after_op, %conv20.i
+  %cmp31.i = icmp ule i64 %k.i.0, %sub30.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit
+
+_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit:
+  %retval.2.i = phi i1 [ %cmp8.i, %if.then6.i ], [ 1, %if.end ], [ 1, %if.end9.i ], [ 0, %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit ], [ %cmp31.i, %if.end28.i ]
+  %not.call = xor i1 %retval.2.i, 1
+  %conv = zext i1 %not.call to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %conv, %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit ], [ 2, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify build/c_cell_split_verdict.ll build/l_cell_split_verdict.ll
+
+----------------------------------------
+define i64 @cell_split_verdict(i64 noundef %declared, i64 noundef %after_op, i64 noundef %truthy) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %declared, -10001
+  %or.cond.i = icmp ult i64 %#0, -10000
+  br i1 %or.cond.i, label %_ZL12c_split_pairmmm.exit, label %lor.lhs.false2.i
+
+lor.lhs.false2.i:
+  %cmp3.i = icmp ugt i64 noundef %after_op, noundef %declared
+  %cmp5.i = icmp ugt i64 noundef %truthy, 1
+  %or.cond30.i = or i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond30.i, label %_ZL12c_split_pairmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.i = icmp samesign ult i64 noundef %declared, 76
+  %cmp1.i = icmp samesign ult i64 noundef %declared, 256
+  %..i = select i1 %cmp1.i, i64 1, i64 2
+  %retval.0.i = select i1 %cmp.i, i64 0, i64 %..i
+  %add.i = add nsw nuw i64 noundef %declared, 1
+  %add6.i = add nsw nuw i64 %add.i, %retval.0.i
+  %cmp7.i = icmp ugt i64 %add6.i, 10000
+  br i1 %cmp7.i, label %_ZL12c_split_pairmmm.exit, label %if.end9.i
+
+if.end9.i:
+  %conv.i = trunc i64 noundef %declared to i8
+  %shr.i = lshr i64 noundef %declared, 8
+  %conv2.i = trunc nsw nuw i64 %shr.i to i8
+  %. = select i1 %cmp1.i, i8 76, i8 77
+  %op.i.0 = select i1 %cmp.i, i8 %conv.i, i8 %.
+  %b0.i.0 = select i1 %cmp.i, i8 0, i8 %conv.i
+  %b1.i.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %add10.i = add nsw nuw i64 %retval.0.i, noundef %after_op
+  %conv.i43.i = zext i8 %op.i.0 to i64
+  %cmp.i44.i = icmp ult i8 %op.i.0, 79
+  br i1 %cmp.i44.i, label %if.then.i46.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i
+
+if.then.i46.i:
+  %cmp2.i47.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp2.i47.i, label %if.end38.i57.i, label %if.else.i48.i
+
+if.else.i48.i:
+  switch i8 %op.i.0, label %if.else21.i68.i [
+    i8 76, label %if.then7.i63.i
+    i8 77, label %if.then14.i49.i
+  ]
+
+if.else21.i68.i:
+  %cmp22.i69.i = icmp samesign ult i64 %add10.i, 4
+  br i1 %cmp22.i69.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end24.i70.i
+
+if.end24.i70.i:
+  %conv25.i71.i = zext i8 %b0.i.0 to i64
+  %conv26.i72.i = zext nneg i8 %b1.i.0 to i64
+  %shl27.i73.i = shl nsw nuw i64 %conv26.i72.i, 8
+  %or28.i74.i = or disjoint i64 %shl27.i73.i, %conv25.i71.i
+  %sub35.i75.i = add nsw i64 %add10.i, -4
+  br label %if.end38.i57.i
+
+if.then7.i63.i:
+  %cmp8.i64.i = icmp eq i64 %add10.i, 0
+  br i1 %cmp8.i64.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end.i65.i
+
+if.end.i65.i:
+  %conv10.i66.i = zext i8 %b0.i.0 to i64
+  %sub.i67.i = add nsw i64 %add10.i, -1
+  br label %if.end38.i57.i
+
+if.then14.i49.i:
+  %cmp15.i50.i = icmp samesign ult i64 %add10.i, 2
+  br i1 %cmp15.i50.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end17.i51.i
+
+if.end17.i51.i:
+  %conv18.i52.i = zext i8 %b0.i.0 to i64
+  %conv19.i53.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i54.i = shl nsw nuw i64 %conv19.i53.i, 8
+  %or.i55.i = or disjoint i64 %shl.i54.i, %conv18.i52.i
+  %sub20.i56.i = add nsw i64 %add10.i, -2
+  br label %if.end38.i57.i
+
+if.end38.i57.i:
+  %after_op.addr.0.i58.i = phi i64 [ %sub.i67.i, %if.end.i65.i ], [ %sub20.i56.i, %if.end17.i51.i ], [ %sub35.i75.i, %if.end24.i70.i ], [ %add10.i, %if.then.i46.i ]
+  %nSize.0.i59.i = phi i64 [ %conv10.i66.i, %if.end.i65.i ], [ %or.i55.i, %if.end17.i51.i ], [ %or28.i74.i, %if.end24.i70.i ], [ %conv.i43.i, %if.then.i46.i ]
+  %conv39.i60.i = and i64 %nSize.0.i59.i, 4294967295
+  %cmp40.i61.i = icmp uge i64 %after_op.addr.0.i58.i, %conv39.i60.i
+  br label %_ZL15c_push_boundaryhhhhhm.exit76.i
+
+_ZL15c_push_boundaryhhhhhm.exit76.i:
+  %retval.1.i45.i = phi i1 [ 0, %if.then7.i63.i ], [ 0, %if.then14.i49.i ], [ 0, %if.else21.i68.i ], [ %cmp40.i61.i, %if.end38.i57.i ], [ 1, %if.end9.i ]
+  %add13.i = add nsw nuw i64 %retval.0.i, noundef %declared
+  br i1 %cmp.i44.i, label %if.then.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i
+
+if.then.i.i:
+  %cmp2.i.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp2.i.i, label %if.end38.i.i, label %if.else.i.i
+
+if.else.i.i:
+  switch i8 %op.i.0, label %if.else21.i.i [
+    i8 76, label %if.then7.i.i
+    i8 77, label %if.then14.i.i
+  ]
+
+if.else21.i.i:
+  %cmp22.i.i = icmp samesign ult i64 %add13.i, 4
+  br i1 %cmp22.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end24.i.i
+
+if.end24.i.i:
+  %conv25.i.i = zext i8 %b0.i.0 to i64
+  %conv26.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl27.i.i = shl nsw nuw i64 %conv26.i.i, 8
+  %or28.i.i = or disjoint i64 %shl27.i.i, %conv25.i.i
+  %sub35.i.i = add nsw i64 %add13.i, -4
+  br label %if.end38.i.i
+
+if.then7.i.i:
+  %cmp8.i.i = icmp eq i64 %add13.i, 0
+  br i1 %cmp8.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end.i.i
+
+if.end.i.i:
+  %conv10.i.i = zext i8 %b0.i.0 to i64
+  %sub.i.i = add nsw i64 %add13.i, -1
+  br label %if.end38.i.i
+
+if.then14.i.i:
+  %cmp15.i.i = icmp samesign ult i64 %add13.i, 2
+  br i1 %cmp15.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end17.i.i
+
+if.end17.i.i:
+  %conv18.i.i = zext i8 %b0.i.0 to i64
+  %conv19.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i.i = shl nsw nuw i64 %conv19.i.i, 8
+  %or.i.i = or disjoint i64 %shl.i.i, %conv18.i.i
+  %sub20.i.i = add nsw i64 %add13.i, -2
+  br label %if.end38.i.i
+
+if.end38.i.i:
+  %after_op.addr.0.i.i = phi i64 [ %sub.i.i, %if.end.i.i ], [ %sub20.i.i, %if.end17.i.i ], [ %sub35.i.i, %if.end24.i.i ], [ %add13.i, %if.then.i.i ]
+  %nSize.0.i.i = phi i64 [ %conv10.i.i, %if.end.i.i ], [ %or.i.i, %if.end17.i.i ], [ %or28.i.i, %if.end24.i.i ], [ %conv.i43.i, %if.then.i.i ]
+  %conv39.i.i = and i64 %nSize.0.i.i, 4294967295
+  %cmp40.i.i = icmp uge i64 %after_op.addr.0.i.i, %conv39.i.i
+  br label %_ZL15c_push_boundaryhhhhhm.exit.i
+
+_ZL15c_push_boundaryhhhhhm.exit.i:
+  %retval.1.i.i = phi i1 [ 0, %if.then7.i.i ], [ 0, %if.then14.i.i ], [ 0, %if.else21.i.i ], [ %cmp40.i.i, %if.end38.i.i ], [ 1, %_ZL15c_push_boundaryhhhhhm.exit76.i ]
+  %tobool.not.i = icmp eq i64 noundef %truthy, 0
+  %cond.i = select i1 %tobool.not.i, i64 8, i64 1
+  %cond23.i = select i1 %retval.1.i45.i, i64 %cond.i, i64 64
+  %cond28.i = select i1 %retval.1.i.i, i64 %cond.i, i64 64
+  %#1 = shl nsw nuw i64 %cond23.i, 6
+  %shl.i = and i64 %#1, 4608
+  %shl3.i = shl nsw nuw i64 %cond28.i, 16
+  %#2 = or disjoint i64 %shl3.i, %shl.i
+  %#3 = shl nsw nuw i64 %cond28.i, 22
+  %shl7.i = and i64 %#3, 301989888
+  %#4 = or disjoint i64 %#2, %shl7.i
+  %or8.i = or disjoint i64 %#4, %cond23.i
+  br label %_ZL12c_split_pairmmm.exit
+
+_ZL12c_split_pairmmm.exit:
+  %retval.1.i = phi i64 [ 2, %lor.lhs.false2.i ], [ 2, %entry ], [ %or8.i, %_ZL15c_push_boundaryhhhhhm.exit.i ], [ 2, %if.end.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 276824064
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_split_verdict(i64 noundef %declared, i64 noundef %after_op, i64 noundef %truthy) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %declared, -10001
+  %or.cond.i = icmp ult i64 %#0, -10000
+  br i1 %or.cond.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %lor.lhs.false2.i
+
+lor.lhs.false2.i:
+  %cmp3.i = icmp ugt i64 noundef %after_op, noundef %declared
+  %cmp5.i = icmp ugt i64 noundef %truthy, 1
+  %or.cond21.i = or i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond21.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.i15 = icmp samesign ult i64 noundef %declared, 76
+  %cmp1.i = icmp samesign ult i64 noundef %declared, 256
+  %#1 = select i1 %cmp1.i, i64 2, i64 3
+  %add.i = select i1 %cmp.i15, i64 1, i64 %#1
+  %add6.i = add nsw nuw i64 %add.i, noundef %declared
+  %cmp7.i = icmp ugt i64 %add6.i, 10000
+  br i1 %cmp7.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %if.end9.i
+
+if.end9.i:
+  %conv.i = trunc i64 noundef %declared to i8
+  %shr.i = lshr i64 noundef %declared, 8
+  %conv2.i = trunc nsw nuw i64 %shr.i to i8
+  %. = select i1 %cmp1.i, i8 76, i8 77
+  %op.i22.0 = select i1 %cmp.i15, i8 %conv.i, i8 %.
+  %b1.i24.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %add1.i30 = add nsw nuw i64 %add.i, noundef %after_op
+  %conv.i.i31 = zext i8 %op.i22.0 to i32
+  %cmp1.i.i32 = icmp eq i8 %op.i22.0, 0
+  br i1 %cmp1.i.i32, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38, label %if.end3.i.i33
+
+if.end3.i.i33:
+  %cmp5.i.i34 = icmp ult i8 %op.i22.0, 76
+  br i1 %cmp5.i.i34, label %if.then6.i.i72, label %if.end9.i.i35
+
+if.then6.i.i72:
+  %conv7.i.i73 = zext nneg i8 %op.i22.0 to i64
+  %sub.i.i74 = add nsw i64 %add1.i30, -1
+  %cmp8.i.i75 = icmp uge i64 %sub.i.i74, %conv7.i.i73
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38
+
+if.end9.i.i35:
+  %op.off.i.i36 = add i8 %op.i22.0, 180
+  %switch.i.i37 = icmp ult i8 %op.off.i.i36, 3
+  br i1 %switch.i.i37, label %if.then17.i.i43, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38
+
+if.then17.i.i43:
+  %sub19.i.i44 = add nsw i32 %conv.i.i31, 4294967220
+  %shl.i.i45 = shl nsw nuw i32 1, %sub19.i.i44
+  %conv20.i.i46 = zext nneg i32 %shl.i.i45 to i64
+  %sub.i9.i47 = add nsw i64 %add1.i30, -1
+  %cmp1.i10.i48 = icmp uge i64 %sub.i9.i47, %conv20.i.i46
+  br i1 %cmp1.i10.i48, label %if.end.i.i59, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49
+
+if.end.i.i59:
+  %#2 = and i64 noundef %declared, 255
+  %conv10.i.i68 = select i1 %cmp.i15, i64 0, i64 %#2
+  switch i32 %shl.i.i45, label %if.end9.i15.i67 [
+    i32 1, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49
+    i32 2, label %if.then6.i11.i60
+  ]
+
+if.end9.i15.i67:
+  %conv11.i.i69 = zext nneg i8 %b1.i24.0 to i64
+  %shl12.i.i70 = shl nsw nuw i64 %conv11.i.i69, 8
+  %or13.i.i71 = or disjoint i64 %shl12.i.i70, %conv10.i.i68
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49
+
+if.then6.i11.i60:
+  %conv8.i.i62 = zext nneg i8 %b1.i24.0 to i64
+  %shl.i13.i63 = shl nsw nuw i64 %conv8.i.i62, 8
+  %or.i.i64 = or disjoint i64 %shl.i13.i63, %conv10.i.i68
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49
+
+_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49:
+  %k.i.i21.0 = phi i64 [ %or13.i.i71, %if.end9.i15.i67 ], [ %or.i.i64, %if.then6.i11.i60 ], [ 0, %if.then17.i.i43 ], [ %conv10.i.i68, %if.end.i.i59 ]
+  %cmp26.not.i.i50 = icmp samesign ugt i64 %add1.i30, %conv20.i.i46
+  %or.cond.i.i51 = select i1 %cmp1.i10.i48, i1 %cmp26.not.i.i50, i1 0
+  br i1 %or.cond.i.i51, label %if.end28.i.i54, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38
+
+if.end28.i.i54:
+  %add24.neg.i.i55 = xor i64 %conv20.i.i46, -1
+  %sub30.i.i56 = add nsw i64 %add1.i30, %add24.neg.i.i55
+  %cmp31.i.i57 = icmp ule i64 %k.i.i21.0, %sub30.i.i56
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38
+
+_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38:
+  %retval.2.i.i39 = phi i1 [ %cmp8.i.i75, %if.then6.i.i72 ], [ 1, %if.end9.i ], [ 1, %if.end9.i.i35 ], [ 0, %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i49 ], [ %cmp31.i.i57, %if.end28.i.i54 ]
+  %.not = icmp eq i64 noundef %truthy, 0
+  %spec.select = select i1 %.not, i64 8, i64 1
+  %cond.i = select i1 %retval.2.i.i39, i64 %spec.select, i64 64
+  %.194 = select i1 %cmp1.i, i8 76, i8 77
+  %op.i.0 = select i1 %cmp.i15, i8 %conv.i, i8 %.194
+  %b1.i.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %conv.i.i = zext i8 %op.i.0 to i32
+  %cmp1.i.i = icmp eq i8 %op.i.0, 0
+  br i1 %cmp1.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i, label %if.end3.i.i
+
+if.end3.i.i:
+  %cmp5.i.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp5.i.i, label %if.then6.i.i, label %if.end9.i.i
+
+if.then6.i.i:
+  %conv7.i.i = zext nneg i8 %op.i.0 to i64
+  %sub.i.i = add nsw i64 %add6.i, -1
+  %cmp8.i.i = icmp uge i64 %sub.i.i, %conv7.i.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.end9.i.i:
+  %op.off.i.i = add i8 %op.i.0, 180
+  %switch.i.i = icmp ult i8 %op.off.i.i, 3
+  br i1 %switch.i.i, label %if.then17.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.then17.i.i:
+  %sub19.i.i = add nsw i32 %conv.i.i, 4294967220
+  %shl.i.i = shl nsw nuw i32 1, %sub19.i.i
+  %conv20.i.i = zext nneg i32 %shl.i.i to i64
+  %sub.i9.i = add nsw i64 %add6.i, -1
+  %cmp1.i10.i = icmp uge i64 %sub.i9.i, %conv20.i.i
+  br i1 %cmp1.i10.i, label %if.end.i.i, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+if.end.i.i:
+  %#3 = and i64 noundef %declared, 255
+  %conv10.i.i = select i1 %cmp.i15, i64 0, i64 %#3
+  switch i32 %shl.i.i, label %if.end9.i15.i [
+    i32 1, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+    i32 2, label %if.then6.i11.i
+  ]
+
+if.end9.i15.i:
+  %conv11.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl12.i.i = shl nsw nuw i64 %conv11.i.i, 8
+  %or13.i.i = or disjoint i64 %shl12.i.i, %conv10.i.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+if.then6.i11.i:
+  %conv8.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i13.i = shl nsw nuw i64 %conv8.i.i, 8
+  %or.i.i = or disjoint i64 %shl.i13.i, %conv10.i.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i:
+  %k.i.i.0 = phi i64 [ %or13.i.i, %if.end9.i15.i ], [ %or.i.i, %if.then6.i11.i ], [ 0, %if.then17.i.i ], [ %conv10.i.i, %if.end.i.i ]
+  %cmp26.not.i.i = icmp samesign ugt i64 %add6.i, %conv20.i.i
+  %or.cond.i.i = select i1 %cmp1.i10.i, i1 %cmp26.not.i.i, i1 0
+  br i1 %or.cond.i.i, label %if.end28.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.end28.i.i:
+  %add24.neg.i.i = xor i64 %conv20.i.i, -1
+  %sub30.i.i = add nsw i64 %add6.i, %add24.neg.i.i
+  %cmp31.i.i = icmp ule i64 %k.i.i.0, %sub30.i.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i:
+  %retval.2.i.i = phi i1 [ %cmp8.i.i, %if.then6.i.i ], [ 1, %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i38 ], [ 1, %if.end9.i.i ], [ 0, %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i ], [ %cmp31.i.i, %if.end28.i.i ]
+  %.not197 = icmp eq i64 noundef %truthy, 0
+  %spec.select196 = select i1 %.not197, i64 8, i64 1
+  %cond19.i = select i1 %retval.2.i.i, i64 %spec.select196, i64 64
+  %#4 = shl nsw nuw i64 %cond.i, 6
+  %shl.i = and i64 %#4, 4608
+  %and2.i = shl nsw nuw i64 %cond19.i, 16
+  %#5 = or disjoint i64 %and2.i, %shl.i
+  %#6 = shl nsw nuw i64 %cond19.i, 22
+  %shl7.i = and i64 %#6, 301989888
+  %#7 = or disjoint i64 %#5, %shl7.i
+  %or8.i = or disjoint i64 %#7, %cond.i
+  br label %_ZN14l_seq_boundaryL10split_pairEmmm.exit
+
+_ZN14l_seq_boundaryL10split_pairEmmm.exit:
+  %retval.0.i = phi i64 [ %or8.i, %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i ], [ 2, %lor.lhs.false2.i ], [ 2, %entry ], [ 2, %if.end.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 2, i64 276824064
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify build/c_cell_split_diff.ll build/l_cell_split_diff.ll
+
+----------------------------------------
+define i64 @cell_split_diff(i64 noundef %declared, i64 noundef %after_op, i64 noundef %truthy) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %declared, -10001
+  %or.cond.i = icmp ult i64 %#0, -10000
+  br i1 %or.cond.i, label %_ZL12c_split_pairmmm.exit, label %lor.lhs.false2.i
+
+lor.lhs.false2.i:
+  %cmp3.i = icmp ugt i64 noundef %after_op, noundef %declared
+  %cmp5.i = icmp ugt i64 noundef %truthy, 1
+  %or.cond30.i = or i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond30.i, label %_ZL12c_split_pairmmm.exit, label %if.end.i1
+
+if.end.i1:
+  %cmp.i3 = icmp samesign ult i64 noundef %declared, 76
+  %cmp1.i = icmp samesign ult i64 noundef %declared, 256
+  %..i = select i1 %cmp1.i, i64 1, i64 2
+  %retval.0.i4 = select i1 %cmp.i3, i64 0, i64 %..i
+  %add.i = add nsw nuw i64 noundef %declared, 1
+  %add6.i = add nsw nuw i64 %add.i, %retval.0.i4
+  %cmp7.i = icmp ugt i64 %add6.i, 10000
+  br i1 %cmp7.i, label %_ZL12c_split_pairmmm.exit, label %if.end9.i
+
+if.end9.i:
+  %conv.i5 = trunc i64 noundef %declared to i8
+  %shr.i = lshr i64 noundef %declared, 8
+  %conv2.i = trunc nsw nuw i64 %shr.i to i8
+  %. = select i1 %cmp1.i, i8 76, i8 77
+  %op.i.0 = select i1 %cmp.i3, i8 %conv.i5, i8 %.
+  %b0.i.0 = select i1 %cmp.i3, i8 0, i8 %conv.i5
+  %b1.i.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %add10.i = add nsw nuw i64 %retval.0.i4, noundef %after_op
+  %conv.i43.i = zext i8 %op.i.0 to i64
+  %cmp.i44.i = icmp ult i8 %op.i.0, 79
+  br i1 %cmp.i44.i, label %if.then.i46.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i
+
+if.then.i46.i:
+  %cmp2.i47.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp2.i47.i, label %if.end38.i57.i, label %if.else.i48.i
+
+if.else.i48.i:
+  switch i8 %op.i.0, label %if.else21.i68.i [
+    i8 76, label %if.then7.i63.i
+    i8 77, label %if.then14.i49.i
+  ]
+
+if.else21.i68.i:
+  %cmp22.i69.i = icmp samesign ult i64 %add10.i, 4
+  br i1 %cmp22.i69.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end24.i70.i
+
+if.end24.i70.i:
+  %conv25.i71.i = zext i8 %b0.i.0 to i64
+  %conv26.i72.i = zext nneg i8 %b1.i.0 to i64
+  %shl27.i73.i = shl nsw nuw i64 %conv26.i72.i, 8
+  %or28.i74.i = or disjoint i64 %shl27.i73.i, %conv25.i71.i
+  %sub35.i75.i = add nsw i64 %add10.i, -4
+  br label %if.end38.i57.i
+
+if.then7.i63.i:
+  %cmp8.i64.i = icmp eq i64 %add10.i, 0
+  br i1 %cmp8.i64.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end.i65.i
+
+if.end.i65.i:
+  %conv10.i66.i = zext i8 %b0.i.0 to i64
+  %sub.i67.i = add nsw i64 %add10.i, -1
+  br label %if.end38.i57.i
+
+if.then14.i49.i:
+  %cmp15.i50.i = icmp samesign ult i64 %add10.i, 2
+  br i1 %cmp15.i50.i, label %_ZL15c_push_boundaryhhhhhm.exit76.i, label %if.end17.i51.i
+
+if.end17.i51.i:
+  %conv18.i52.i = zext i8 %b0.i.0 to i64
+  %conv19.i53.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i54.i = shl nsw nuw i64 %conv19.i53.i, 8
+  %or.i55.i = or disjoint i64 %shl.i54.i, %conv18.i52.i
+  %sub20.i56.i = add nsw i64 %add10.i, -2
+  br label %if.end38.i57.i
+
+if.end38.i57.i:
+  %after_op.addr.0.i58.i = phi i64 [ %sub.i67.i, %if.end.i65.i ], [ %sub20.i56.i, %if.end17.i51.i ], [ %sub35.i75.i, %if.end24.i70.i ], [ %add10.i, %if.then.i46.i ]
+  %nSize.0.i59.i = phi i64 [ %conv10.i66.i, %if.end.i65.i ], [ %or.i55.i, %if.end17.i51.i ], [ %or28.i74.i, %if.end24.i70.i ], [ %conv.i43.i, %if.then.i46.i ]
+  %conv39.i60.i = and i64 %nSize.0.i59.i, 4294967295
+  %cmp40.i61.i = icmp uge i64 %after_op.addr.0.i58.i, %conv39.i60.i
+  br label %_ZL15c_push_boundaryhhhhhm.exit76.i
+
+_ZL15c_push_boundaryhhhhhm.exit76.i:
+  %retval.1.i45.i = phi i1 [ 0, %if.then7.i63.i ], [ 0, %if.then14.i49.i ], [ 0, %if.else21.i68.i ], [ %cmp40.i61.i, %if.end38.i57.i ], [ 1, %if.end9.i ]
+  %add13.i = add nsw nuw i64 %retval.0.i4, noundef %declared
+  br i1 %cmp.i44.i, label %if.then.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i
+
+if.then.i.i:
+  %cmp2.i.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp2.i.i, label %if.end38.i.i, label %if.else.i.i
+
+if.else.i.i:
+  switch i8 %op.i.0, label %if.else21.i.i [
+    i8 76, label %if.then7.i.i
+    i8 77, label %if.then14.i.i
+  ]
+
+if.else21.i.i:
+  %cmp22.i.i = icmp samesign ult i64 %add13.i, 4
+  br i1 %cmp22.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end24.i.i
+
+if.end24.i.i:
+  %conv25.i.i = zext i8 %b0.i.0 to i64
+  %conv26.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl27.i.i = shl nsw nuw i64 %conv26.i.i, 8
+  %or28.i.i = or disjoint i64 %shl27.i.i, %conv25.i.i
+  %sub35.i.i = add nsw i64 %add13.i, -4
+  br label %if.end38.i.i
+
+if.then7.i.i:
+  %cmp8.i.i = icmp eq i64 %add13.i, 0
+  br i1 %cmp8.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end.i.i
+
+if.end.i.i:
+  %conv10.i.i = zext i8 %b0.i.0 to i64
+  %sub.i.i = add nsw i64 %add13.i, -1
+  br label %if.end38.i.i
+
+if.then14.i.i:
+  %cmp15.i.i = icmp samesign ult i64 %add13.i, 2
+  br i1 %cmp15.i.i, label %_ZL15c_push_boundaryhhhhhm.exit.i, label %if.end17.i.i
+
+if.end17.i.i:
+  %conv18.i.i = zext i8 %b0.i.0 to i64
+  %conv19.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i.i = shl nsw nuw i64 %conv19.i.i, 8
+  %or.i.i = or disjoint i64 %shl.i.i, %conv18.i.i
+  %sub20.i.i = add nsw i64 %add13.i, -2
+  br label %if.end38.i.i
+
+if.end38.i.i:
+  %after_op.addr.0.i.i = phi i64 [ %sub.i.i, %if.end.i.i ], [ %sub20.i.i, %if.end17.i.i ], [ %sub35.i.i, %if.end24.i.i ], [ %add13.i, %if.then.i.i ]
+  %nSize.0.i.i = phi i64 [ %conv10.i.i, %if.end.i.i ], [ %or.i.i, %if.end17.i.i ], [ %or28.i.i, %if.end24.i.i ], [ %conv.i43.i, %if.then.i.i ]
+  %conv39.i.i = and i64 %nSize.0.i.i, 4294967295
+  %cmp40.i.i = icmp uge i64 %after_op.addr.0.i.i, %conv39.i.i
+  br label %_ZL15c_push_boundaryhhhhhm.exit.i
+
+_ZL15c_push_boundaryhhhhhm.exit.i:
+  %retval.1.i.i = phi i1 [ 0, %if.then7.i.i ], [ 0, %if.then14.i.i ], [ 0, %if.else21.i.i ], [ %cmp40.i.i, %if.end38.i.i ], [ 1, %_ZL15c_push_boundaryhhhhhm.exit76.i ]
+  %tobool.not.i = icmp eq i64 noundef %truthy, 0
+  %cond.i = select i1 %tobool.not.i, i64 8, i64 1
+  %cond23.i = select i1 %retval.1.i45.i, i64 %cond.i, i64 64
+  %cond28.i = select i1 %retval.1.i.i, i64 %cond.i, i64 64
+  %#1 = shl nsw nuw i64 %cond23.i, 6
+  %shl.i10 = and i64 %#1, 4608
+  %shl3.i = shl nsw nuw i64 %cond28.i, 16
+  %#2 = or disjoint i64 %shl3.i, %shl.i10
+  %#3 = shl nsw nuw i64 %cond28.i, 22
+  %shl7.i = and i64 %#3, 301989888
+  %#4 = or disjoint i64 %#2, %shl7.i
+  %or8.i = or disjoint i64 %#4, %cond23.i
+  br label %_ZL12c_split_pairmmm.exit
+
+_ZL12c_split_pairmmm.exit:
+  %retval.1.i = phi i64 [ 2, %lor.lhs.false2.i ], [ 2, %entry ], [ %or8.i, %_ZL15c_push_boundaryhhhhhm.exit.i ], [ 2, %if.end.i1 ]
+  %cmp.i = icmp eq i64 %retval.1.i, 2
+  br i1 %cmp.i, label %_ZL12c_split_diffmmm.exit, label %if.end.i
+
+if.end.i:
+  %and.i = and i64 %retval.1.i, 255
+  %#5 = lshr i64 %retval.1.i, 6
+  %shl.i = and i64 %#5, 252
+  %or.i = or i64 %shl.i, %and.i
+  %shr2.i = lshr i64 %retval.1.i, 16
+  %and3.i = and i64 %shr2.i, 255
+  %#6 = lshr i64 %retval.1.i, 22
+  %shl6.i = and i64 %#6, 124
+  %or7.i = or i64 %and3.i, %shl6.i
+  %cmp8.not.i = icmp ne i64 %or.i, %or7.i
+  %conv.i = zext i1 %cmp8.not.i to i64
+  br label %_ZL12c_split_diffmmm.exit
+
+_ZL12c_split_diffmmm.exit:
+  %retval.0.i = phi i64 [ %conv.i, %if.end.i ], [ 2, %_ZL12c_split_pairmmm.exit ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 3
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_split_diff(i64 noundef %declared, i64 noundef %after_op, i64 noundef %truthy) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %declared, -10001
+  %or.cond.i = icmp ult i64 %#0, -10000
+  br i1 %or.cond.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %lor.lhs.false2.i
+
+lor.lhs.false2.i:
+  %cmp3.i = icmp ugt i64 noundef %after_op, noundef %declared
+  %cmp5.i = icmp ugt i64 noundef %truthy, 1
+  %or.cond21.i = or i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond21.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.i27 = icmp samesign ult i64 noundef %declared, 76
+  %cmp1.i = icmp samesign ult i64 noundef %declared, 256
+  %#1 = select i1 %cmp1.i, i64 2, i64 3
+  %add.i = select i1 %cmp.i27, i64 1, i64 %#1
+  %add6.i = add nsw nuw i64 %add.i, noundef %declared
+  %cmp7.i = icmp ugt i64 %add6.i, 10000
+  br i1 %cmp7.i, label %_ZN14l_seq_boundaryL10split_pairEmmm.exit, label %if.end9.i
+
+if.end9.i:
+  %conv.i = trunc i64 noundef %declared to i8
+  %shr.i = lshr i64 noundef %declared, 8
+  %conv2.i = trunc nsw nuw i64 %shr.i to i8
+  %. = select i1 %cmp1.i, i8 76, i8 77
+  %op.i34.0 = select i1 %cmp.i27, i8 %conv.i, i8 %.
+  %b1.i36.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %add1.i42 = add nsw nuw i64 %add.i, noundef %after_op
+  %conv.i.i43 = zext i8 %op.i34.0 to i32
+  %cmp1.i.i44 = icmp eq i8 %op.i34.0, 0
+  br i1 %cmp1.i.i44, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50, label %if.end3.i.i45
+
+if.end3.i.i45:
+  %cmp5.i.i46 = icmp ult i8 %op.i34.0, 76
+  br i1 %cmp5.i.i46, label %if.then6.i.i84, label %if.end9.i.i47
+
+if.then6.i.i84:
+  %conv7.i.i85 = zext nneg i8 %op.i34.0 to i64
+  %sub.i.i86 = add nsw i64 %add1.i42, -1
+  %cmp8.i.i87 = icmp uge i64 %sub.i.i86, %conv7.i.i85
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50
+
+if.end9.i.i47:
+  %op.off.i.i48 = add i8 %op.i34.0, 180
+  %switch.i.i49 = icmp ult i8 %op.off.i.i48, 3
+  br i1 %switch.i.i49, label %if.then17.i.i55, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50
+
+if.then17.i.i55:
+  %sub19.i.i56 = add nsw i32 %conv.i.i43, 4294967220
+  %shl.i.i57 = shl nsw nuw i32 1, %sub19.i.i56
+  %conv20.i.i58 = zext nneg i32 %shl.i.i57 to i64
+  %sub.i9.i59 = add nsw i64 %add1.i42, -1
+  %cmp1.i10.i60 = icmp uge i64 %sub.i9.i59, %conv20.i.i58
+  br i1 %cmp1.i10.i60, label %if.end.i.i71, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61
+
+if.end.i.i71:
+  %#2 = and i64 noundef %declared, 255
+  %conv10.i.i80 = select i1 %cmp.i27, i64 0, i64 %#2
+  switch i32 %shl.i.i57, label %if.end9.i15.i79 [
+    i32 1, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61
+    i32 2, label %if.then6.i11.i72
+  ]
+
+if.end9.i15.i79:
+  %conv11.i.i81 = zext nneg i8 %b1.i36.0 to i64
+  %shl12.i.i82 = shl nsw nuw i64 %conv11.i.i81, 8
+  %or13.i.i83 = or disjoint i64 %shl12.i.i82, %conv10.i.i80
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61
+
+if.then6.i11.i72:
+  %conv8.i.i74 = zext nneg i8 %b1.i36.0 to i64
+  %shl.i13.i75 = shl nsw nuw i64 %conv8.i.i74, 8
+  %or.i.i76 = or disjoint i64 %shl.i13.i75, %conv10.i.i80
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61
+
+_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61:
+  %k.i.i33.0 = phi i64 [ %or13.i.i83, %if.end9.i15.i79 ], [ %or.i.i76, %if.then6.i11.i72 ], [ 0, %if.then17.i.i55 ], [ %conv10.i.i80, %if.end.i.i71 ]
+  %cmp26.not.i.i62 = icmp samesign ugt i64 %add1.i42, %conv20.i.i58
+  %or.cond.i.i63 = select i1 %cmp1.i10.i60, i1 %cmp26.not.i.i62, i1 0
+  br i1 %or.cond.i.i63, label %if.end28.i.i66, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50
+
+if.end28.i.i66:
+  %add24.neg.i.i67 = xor i64 %conv20.i.i58, -1
+  %sub30.i.i68 = add nsw i64 %add1.i42, %add24.neg.i.i67
+  %cmp31.i.i69 = icmp ule i64 %k.i.i33.0, %sub30.i.i68
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50
+
+_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50:
+  %retval.2.i.i51 = phi i1 [ %cmp8.i.i87, %if.then6.i.i84 ], [ 1, %if.end9.i ], [ 1, %if.end9.i.i47 ], [ 0, %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i61 ], [ %cmp31.i.i69, %if.end28.i.i66 ]
+  %.not = icmp eq i64 noundef %truthy, 0
+  %spec.select = select i1 %.not, i64 8, i64 1
+  %cond.i = select i1 %retval.2.i.i51, i64 %spec.select, i64 64
+  %.206 = select i1 %cmp1.i, i8 76, i8 77
+  %op.i.0 = select i1 %cmp.i27, i8 %conv.i, i8 %.206
+  %b1.i.0 = select i1 %cmp1.i, i8 0, i8 %conv2.i
+  %conv.i.i = zext i8 %op.i.0 to i32
+  %cmp1.i.i = icmp eq i8 %op.i.0, 0
+  br i1 %cmp1.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i, label %if.end3.i.i
+
+if.end3.i.i:
+  %cmp5.i.i = icmp ult i8 %op.i.0, 76
+  br i1 %cmp5.i.i, label %if.then6.i.i, label %if.end9.i.i
+
+if.then6.i.i:
+  %conv7.i.i = zext nneg i8 %op.i.0 to i64
+  %sub.i.i = add nsw i64 %add6.i, -1
+  %cmp8.i.i = icmp uge i64 %sub.i.i, %conv7.i.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.end9.i.i:
+  %op.off.i.i = add i8 %op.i.0, 180
+  %switch.i.i = icmp ult i8 %op.off.i.i, 3
+  br i1 %switch.i.i, label %if.then17.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.then17.i.i:
+  %sub19.i.i = add nsw i32 %conv.i.i, 4294967220
+  %shl.i.i = shl nsw nuw i32 1, %sub19.i.i
+  %conv20.i.i = zext nneg i32 %shl.i.i to i64
+  %sub.i9.i = add nsw i64 %add6.i, -1
+  %cmp1.i10.i = icmp uge i64 %sub.i9.i, %conv20.i.i
+  br i1 %cmp1.i10.i, label %if.end.i.i, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+if.end.i.i:
+  %#3 = and i64 noundef %declared, 255
+  %conv10.i.i = select i1 %cmp.i27, i64 0, i64 %#3
+  switch i32 %shl.i.i, label %if.end9.i15.i [
+    i32 1, label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+    i32 2, label %if.then6.i11.i
+  ]
+
+if.end9.i15.i:
+  %conv11.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl12.i.i = shl nsw nuw i64 %conv11.i.i, 8
+  %or13.i.i = or disjoint i64 %shl12.i.i, %conv10.i.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+if.then6.i11.i:
+  %conv8.i.i = zext nneg i8 %b1.i.0 to i64
+  %shl.i13.i = shl nsw nuw i64 %conv8.i.i, 8
+  %or.i.i = or disjoint i64 %shl.i13.i, %conv10.i.i
+  br label %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i
+
+_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i:
+  %k.i.i.0 = phi i64 [ %or13.i.i, %if.end9.i15.i ], [ %or.i.i, %if.then6.i11.i ], [ 0, %if.then17.i.i ], [ %conv10.i.i, %if.end.i.i ]
+  %cmp26.not.i.i = icmp samesign ugt i64 %add6.i, %conv20.i.i
+  %or.cond.i.i = select i1 %cmp1.i10.i, i1 %cmp26.not.i.i, i1 0
+  br i1 %or.cond.i.i, label %if.end28.i.i, label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+if.end28.i.i:
+  %add24.neg.i.i = xor i64 %conv20.i.i, -1
+  %sub30.i.i = add nsw i64 %add6.i, %add24.neg.i.i
+  %cmp31.i.i = icmp ule i64 %k.i.i.0, %sub30.i.i
+  br label %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i
+
+_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i:
+  %retval.2.i.i = phi i1 [ %cmp8.i.i, %if.then6.i.i ], [ 1, %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i50 ], [ 1, %if.end9.i.i ], [ 0, %_ZN14l_seq_boundaryL7read_leEhhhhmmmRm.exit.i ], [ %cmp31.i.i, %if.end28.i.i ]
+  %.not209 = icmp eq i64 noundef %truthy, 0
+  %spec.select208 = select i1 %.not209, i64 8, i64 1
+  %cond19.i = select i1 %retval.2.i.i, i64 %spec.select208, i64 64
+  %#4 = shl nsw nuw i64 %cond.i, 6
+  %shl.i = and i64 %#4, 4608
+  %and2.i = shl nsw nuw i64 %cond19.i, 16
+  %#5 = or disjoint i64 %and2.i, %shl.i
+  %#6 = shl nsw nuw i64 %cond19.i, 22
+  %shl7.i = and i64 %#6, 301989888
+  %#7 = or disjoint i64 %#5, %shl7.i
+  %or8.i = or disjoint i64 %#7, %cond.i
+  br label %_ZN14l_seq_boundaryL10split_pairEmmm.exit
+
+_ZN14l_seq_boundaryL10split_pairEmmm.exit:
+  %retval.0.i = phi i64 [ %or8.i, %_ZN14l_seq_boundaryL15decode_boundaryEhhhhhmm.exit.i ], [ 2, %lor.lhs.false2.i ], [ 2, %entry ], [ 2, %if.end.i ]
+  %cmp = icmp eq i64 %retval.0.i, 2
+  br i1 %cmp, label %cleanup, label %if.end
+
+if.end:
+  %and = and i64 %retval.0.i, 255
+  %#8 = lshr i64 %retval.0.i, 6
+  %shl = and i64 %#8, 252
+  %or = or i64 %shl, %and
+  %shr2 = lshr i64 %retval.0.i, 16
+  %and3 = and i64 %shr2, 255
+  %#9 = lshr i64 %retval.0.i, 22
+  %shl6 = and i64 %#9, 252
+  %or7 = or i64 %and3, %shl6
+  %cmp8.not = icmp ne i64 %or, %or7
+  %conv = zext i1 %cmp8.not to i64
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ %conv, %if.end ], [ 2, %_ZN14l_seq_boundaryL10split_pairEmmm.exit ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify build/c_cell_verify_tail.ll build/l_cell_verify_tail.ll
+
+----------------------------------------
+define i64 @cell_verify_tail(i64 noundef %trunc, i64 noundef %word, i64 noundef %len, i64 noundef %kind) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %trunc, 1
+  %cmp1.i = icmp ugt i64 noundef %len, 8
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp ugt i64 noundef %kind, 2
+  %or.cond18.i = or i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond18.i, label %_ZL13c_verify_tailmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp4.i = icmp eq i64 noundef %trunc, 1
+  br i1 %cmp4.i, label %_ZL13c_verify_tailmmmm.exit, label %if.end6.i
+
+if.end6.i:
+  switch i64 noundef %kind, label %if.end16.i [
+    i64 0, label %if.then8.i
+    i64 1, label %_ZL13c_verify_tailmmmm.exit
+  ]
+
+if.end16.i:
+  br label %_ZL13c_verify_tailmmmm.exit
+
+if.then8.i:
+  %cmp.not.i = icmp eq i64 noundef %len, 0
+  br i1 %cmp.not.i, label %if.end7.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %and.i36 = and i64 noundef %word, 255
+  %cmp1.not.i = icmp eq i64 %and.i36, 0
+  br i1 %cmp1.not.i, label %if.end7.i, label %if.then.i
+
+if.end7.i:
+  %cmp8.i = icmp samesign ugt i64 noundef %len, 1
+  br i1 %cmp8.i, label %land.lhs.true9.i, label %if.end19.i
+
+land.lhs.true9.i:
+  %shr.i7 = lshr i64 noundef %word, 8
+  %and.i8 = and i64 %shr.i7, 255
+  %cmp11.not.i = icmp eq i64 %and.i8, 0
+  br i1 %cmp11.not.i, label %if.end19.i, label %if.then12.i
+
+if.then12.i:
+  %cmp13.i = icmp ne i64 noundef %len, 2
+  %cmp16.i = icmp ne i64 %and.i8, 128
+  %or.cond37.not = or i1 %cmp13.i, %cmp16.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end19.i:
+  %cmp20.i = icmp samesign ugt i64 noundef %len, 2
+  br i1 %cmp20.i, label %land.lhs.true21.i, label %if.end31.i
+
+land.lhs.true21.i:
+  %shr.i11 = lshr i64 noundef %word, 16
+  %and.i12 = and i64 %shr.i11, 255
+  %cmp23.not.i = icmp eq i64 %and.i12, 0
+  br i1 %cmp23.not.i, label %if.end31.i, label %if.then24.i
+
+if.then24.i:
+  %cmp25.i = icmp ne i64 noundef %len, 3
+  %cmp28.i = icmp ne i64 %and.i12, 128
+  %or.cond38.not = or i1 %cmp25.i, %cmp28.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end31.i:
+  %cmp32.i = icmp samesign ugt i64 noundef %len, 3
+  br i1 %cmp32.i, label %land.lhs.true33.i, label %if.end43.i
+
+land.lhs.true33.i:
+  %shr.i15 = lshr i64 noundef %word, 24
+  %and.i16 = and i64 %shr.i15, 255
+  %cmp35.not.i = icmp eq i64 %and.i16, 0
+  br i1 %cmp35.not.i, label %if.end43.i, label %if.then36.i
+
+if.then36.i:
+  %cmp37.i = icmp ne i64 noundef %len, 4
+  %cmp40.i = icmp ne i64 %and.i16, 128
+  %or.cond39.not = or i1 %cmp37.i, %cmp40.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end43.i:
+  %cmp44.i = icmp samesign ugt i64 noundef %len, 4
+  br i1 %cmp44.i, label %land.lhs.true45.i, label %if.end55.i
+
+land.lhs.true45.i:
+  %shr.i19 = lshr i64 noundef %word, 32
+  %and.i20 = and i64 %shr.i19, 255
+  %cmp47.not.i = icmp eq i64 %and.i20, 0
+  br i1 %cmp47.not.i, label %if.end55.i, label %if.then48.i
+
+if.then48.i:
+  %cmp49.i = icmp ne i64 noundef %len, 5
+  %cmp52.i = icmp ne i64 %and.i20, 128
+  %or.cond40.not = or i1 %cmp49.i, %cmp52.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end55.i:
+  %cmp56.i = icmp samesign ugt i64 noundef %len, 5
+  br i1 %cmp56.i, label %land.lhs.true57.i, label %if.end67.i
+
+land.lhs.true57.i:
+  %shr.i23 = lshr i64 noundef %word, 40
+  %and.i24 = and i64 %shr.i23, 255
+  %cmp59.not.i = icmp eq i64 %and.i24, 0
+  br i1 %cmp59.not.i, label %if.end67.i, label %if.then60.i
+
+if.then60.i:
+  %cmp61.i = icmp ne i64 noundef %len, 6
+  %cmp64.i = icmp ne i64 %and.i24, 128
+  %or.cond41.not = or i1 %cmp61.i, %cmp64.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end67.i:
+  %cmp68.i = icmp samesign ugt i64 noundef %len, 6
+  br i1 %cmp68.i, label %land.lhs.true69.i, label %if.end79.i
+
+land.lhs.true69.i:
+  %shr.i27 = lshr i64 noundef %word, 48
+  %and.i28 = and i64 %shr.i27, 255
+  %cmp71.not.i = icmp eq i64 %and.i28, 0
+  br i1 %cmp71.not.i, label %if.end79.i, label %if.then72.i
+
+if.then72.i:
+  %cmp73.i = icmp ne i64 noundef %len, 7
+  %cmp76.i = icmp ne i64 %and.i28, 128
+  %or.cond42.not = or i1 %cmp73.i, %cmp76.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end79.i:
+  %cmp80.i = icmp ugt i64 noundef %len, 7
+  %#0 = and i64 noundef %word, 9151314442816847872
+  %#1 = icmp ne i64 %#0, 0
+  %spec.select = and i1 %#1, %cmp80.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.then.i:
+  %cmp2.i = icmp ne i64 noundef %len, 1
+  %cmp5.i = icmp ne i64 %and.i36, 128
+  %or.cond.not = or i1 %cmp2.i, %cmp5.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+_ZL18w32_cast_bool_coremm.exit:
+  %retval.0.i6 = phi i1 [ %or.cond.not, %if.then.i ], [ %or.cond37.not, %if.then12.i ], [ %or.cond38.not, %if.then24.i ], [ %or.cond39.not, %if.then36.i ], [ %or.cond40.not, %if.then48.i ], [ %or.cond41.not, %if.then60.i ], [ %or.cond42.not, %if.then72.i ], [ %spec.select, %if.end79.i ]
+  %. = select i1 %retval.0.i6, i64 1, i64 8
+  br label %_ZL13c_verify_tailmmmm.exit
+
+_ZL13c_verify_tailmmmm.exit:
+  %retval.0.i = phi i64 [ 8, %if.end16.i ], [ 2, %entry ], [ 64, %if.end.i ], [ %., %_ZL18w32_cast_bool_coremm.exit ], [ noundef %kind, %if.end6.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 65
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_verify_tail(i64 noundef %trunc, i64 noundef %word, i64 noundef %len, i64 noundef %kind) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %trunc, 1
+  %cmp1 = icmp ugt i64 noundef %len, 8
+  %or.cond = or i1 %cmp, %cmp1
+  %cmp3 = icmp ugt i64 noundef %kind, 2
+  %or.cond20 = or i1 %or.cond, %cmp3
+  br i1 %or.cond20, label %return, label %if.end
+
+if.end:
+  %cmp4 = icmp eq i64 noundef %trunc, 1
+  br i1 %cmp4, label %return, label %if.end6
+
+if.end6:
+  switch i64 noundef %kind, label %if.end.i [
+    i64 1, label %if.then8
+    i64 2, label %if.then13
+  ]
+
+if.then8:
+  br label %if.end.i
+
+if.then13:
+  br label %if.end.i
+
+if.end.i:
+  %st.sroa.10.0 = phi i64 [ noundef %len, %if.end6 ], [ 0, %if.then13 ], [ 1, %if.then8 ]
+  %st.sroa.6.0 = phi i64 [ noundef %word, %if.end6 ], [ 0, %if.then13 ], [ 1, %if.then8 ]
+  %cmp.i25 = icmp eq i64 %st.sroa.10.0, 0
+  br i1 %cmp.i25, label %return, label %if.end.i26
+
+if.end.i26:
+  %sub.i = add nsw i64 %st.sroa.10.0, -1
+  %cmp1.not.i = icmp ne i64 %sub.i, 0
+  %and.i43 = and i64 %st.sroa.6.0, 255
+  %cmp2.not.i = icmp ne i64 %and.i43, 0
+  %narrow = and i1 %cmp1.not.i, %cmp2.not.i
+  %any_prefix.0.i = zext i1 %narrow to i8
+  %cmp5.i = icmp ugt i64 %sub.i, 1
+  %#0 = and i64 %st.sroa.6.0, 65280
+  %cmp8.not.i = icmp eq i64 %#0, 0
+  %spec.select68.i = select i1 %cmp8.not.i, i8 %any_prefix.0.i, i8 1
+  %any_prefix.1.i = select i1 %cmp5.i, i8 %spec.select68.i, i8 %any_prefix.0.i
+  %cmp11.i = icmp ugt i64 %sub.i, 2
+  %#1 = and i64 %st.sroa.6.0, 16711680
+  %cmp14.not.i = icmp eq i64 %#1, 0
+  %spec.select69.i = select i1 %cmp14.not.i, i8 %any_prefix.1.i, i8 1
+  %any_prefix.2.i = select i1 %cmp11.i, i8 %spec.select69.i, i8 %any_prefix.1.i
+  %cmp17.i = icmp ugt i64 %sub.i, 3
+  %#2 = and i64 %st.sroa.6.0, 4278190080
+  %cmp20.not.i = icmp eq i64 %#2, 0
+  %spec.select70.i = select i1 %cmp20.not.i, i8 %any_prefix.2.i, i8 1
+  %any_prefix.3.i = select i1 %cmp17.i, i8 %spec.select70.i, i8 %any_prefix.2.i
+  %cmp23.i = icmp ugt i64 %sub.i, 4
+  %#3 = and i64 %st.sroa.6.0, 1095216660480
+  %cmp26.not.i = icmp eq i64 %#3, 0
+  %spec.select71.i = select i1 %cmp26.not.i, i8 %any_prefix.3.i, i8 1
+  %any_prefix.4.i = select i1 %cmp23.i, i8 %spec.select71.i, i8 %any_prefix.3.i
+  %cmp29.i = icmp ugt i64 %sub.i, 5
+  %#4 = and i64 %st.sroa.6.0, 280375465082880
+  %cmp32.not.i = icmp eq i64 %#4, 0
+  %spec.select72.i = select i1 %cmp32.not.i, i8 %any_prefix.4.i, i8 1
+  %any_prefix.5.i = select i1 %cmp29.i, i8 %spec.select72.i, i8 %any_prefix.4.i
+  %cmp35.i = icmp ugt i64 %sub.i, 6
+  %#5 = and i64 %st.sroa.6.0, 71776119061217280
+  %cmp38.not.i = icmp eq i64 %#5, 0
+  %spec.select73.i = select i1 %cmp38.not.i, i8 %any_prefix.5.i, i8 1
+  %any_prefix.6.i = select i1 %cmp35.i, i8 %spec.select73.i, i8 %any_prefix.5.i
+  %cmp41.i = icmp ugt i64 %sub.i, 7
+  %cmp44.not.i = icmp ult i64 %st.sroa.6.0, 72057594037927936
+  %spec.select74.i = select i1 %cmp44.not.i, i8 %any_prefix.6.i, i8 1
+  %any_prefix.7.i = select i1 %cmp41.i, i8 %spec.select74.i, i8 %any_prefix.6.i
+  %mul.i = shl i64 %sub.i, 3
+  %loadedv.i = trunc nuw i8 %any_prefix.7.i to i1
+  %#6 = shl i64 127, %mul.i
+  %#7 = and i64 %#6, %st.sroa.6.0
+  %#8 = icmp ne i64 %#7, 0
+  %#9 = select i1 %loadedv.i, i1 1, i1 %#8
+  %#10 = select i1 %#9, i64 1, i64 8
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 2, %entry ], [ 64, %if.end ], [ %#10, %if.end.i26 ], [ 8, %if.end.i ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 65
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

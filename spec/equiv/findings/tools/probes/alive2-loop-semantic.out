@@ -1,0 +1,53 @@
+
+----------------------------------------
+define i32 @f(i32 %n) {
+entry:
+  br label %loop
+
+loop:
+  %i = phi i32 [ 0, %entry ], [ %i.next, %loop ]
+  %s = phi i32 [ 0, %entry ], [ %s.next, %loop ]
+  %s.next = add i32 %s, %i
+  %i.next = add i32 %i, 1
+  %c = icmp slt i32 %i.next, %n
+  br i1 %c, label %loop, label %exit
+
+exit:
+  ret i32 %s.next
+}
+=>
+define i32 @f(i32 %n) {
+entry:
+  %m = sub i32 %n, 1
+  %p = mul i32 %n, %m
+  %r = lshr i32 %p, 1
+  ret i32 %r
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i32 %n = #xb2f0552d (3002094893, -1292872403)
+
+Source:
+  >> Jump to %loop
+i32 %i = #x00000000 (0)
+i32 %s = #x00000000 (0)
+i32 %s.next = #x00000000 (0)
+i32 %i.next = #x00000001 (1)
+i1 %c = #x0 (0)
+  >> Jump to %exit
+
+Target:
+i32 %m = #xb2f0552c (3002094892, -1292872404)
+i32 %p = #xb1c694bc (2982581436, -1312385860)
+i32 %r = #x58e34a5e (1491290718)
+Source value: #x00000000 (0)
+Target value: #x58e34a5e (1491290718)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

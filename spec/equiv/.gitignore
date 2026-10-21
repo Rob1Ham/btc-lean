@@ -1,0 +1,24 @@
+# Build and generated artifacts for the equiv workstream.
+# Evidence that must be preserved (cell specs, result logs, certificates,
+# pins) is tracked; large regenerable outputs are not.
+
+build/
+target/
+.lake/
+__pycache__/
+*.pyc
+*.o
+*.a
+*.so
+*.bc
+*.dylib
+results/tmp/
+**/*.tmp
+
+# Local worktrees and clones live under /tmp/opencode, never here.
+
+# Per-cell run locks
+.e3.lock
+
+# Per-cell w32 CMS run locks
+.w32.lock

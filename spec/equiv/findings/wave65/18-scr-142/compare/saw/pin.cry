@@ -1,0 +1,30 @@
+module Spec where
+
+// Height-free pinned predicate (cce32b168 validation.cpp:2249-2288 TAPROOT
+// bit + interpreter.cpp:1957-1969 gate).  No height argument: both fixed
+// wrappers (709631 and 709632) must satisfy this same predicate.
+//
+// Packed = result(2) | error_ordinal(6) << 2 | taproot_on(1) << 8.
+// taproot_on = 0 iff the block hash is one of the two mainnet
+// script_flag_exceptions entries; no height term exists at the pin.
+pin : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pin h0 h1 h2 h3 version plen p2sh wn =
+  gate || taproot_bit
+  where
+    exc_bip16 = (h0 == (0x00000000000002dc : [64])) &&
+                (h1 == (0x756eebf4f49723ed : [64])) &&
+                (h2 == (0x8d30cc28a5f108eb : [64])) &&
+                (h3 == (0x94b1ba88ac4f9c22 : [64]))
+    exc_taproot = (h0 == (0x0000000000000000 : [64])) &&
+                  (h1 == (0x000f14c35b2d841e : [64])) &&
+                  (h2 == (0x986ab5441de8c585 : [64])) &&
+                  (h3 == (0xd5ffe55ea1e395ad : [64]))
+    taproot_off = exc_bip16 || exc_taproot
+    taproot_bit : [64]
+    taproot_bit = if taproot_off then (0 : [64]) else (0x0000000000000100 : [64])
+    gate : [64]
+    gate = if version == 1 /\ plen == 32 /\ p2sh == 0 then
+             (if taproot_off then (1 : [64])
+              else if wn == 0 then (156 : [64])
+              else (2 : [64]))
+           else (3 : [64])

@@ -1,0 +1,141 @@
+; Cell-local model for the E5 heap / __cxa_guard blockers at Core cce32b168.
+;
+; Scope: exactly the externals reached by concrete VerifyScript paths whose
+; scripts fit in the CScript/prevector inline storage (<= 36 bytes) and whose
+; only dynamic allocations are the C++ operator-new calls made by
+; std::vector.  malloc/realloc/free/calloc are deliberately NOT defined here:
+; they are the prevector C-allocator path for scripts > 36 bytes and are not
+; reached by the proofs in ../specs.  Leaving them undefined keeps SAW honest:
+; a path that needs them stops instead of using an unproved model.
+;
+; @CAP@ is substituted by models/gen-specs.py.
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+@w65_arena  = internal global [@CAP@ x i8] zeroinitializer, align 16
+@w65_off    = internal global i64 0, align 8
+@w65_hw     = internal global i64 0, align 8
+@w65_calls  = internal global i64 0, align 8
+@w65_failed = internal global i64 0, align 8
+@w65_first  = internal global i64 0, align 8
+@w65_last   = internal global i64 0, align 8
+
+; Bump allocator M2 (same charge rule as findings/wave64/44-e5-heap-refinement):
+; request n is charged align16(off)-off + n + 1, so size-0 blocks stay distinct.
+; A request that does not fit the arena returns NULL; the caller decides
+; whether NULL becomes a bad_alloc throw (operator new) or a visible NULL.
+define ptr @w65_alloc_raw(i64 %n) {
+entry:
+  %off0 = load i64, ptr @w65_off, align 8
+  %a = add i64 %off0, 15
+  %al = and i64 %a, -16
+  %end = add i64 %al, %n
+  %end1 = add i64 %end, 1
+  %cap = icmp ule i64 %end1, @CAP@
+  br i1 %cap, label %ok, label %fail
+ok:
+  %gen = getelementptr inbounds [@CAP@ x i8], ptr @w65_arena, i64 0, i64 %al
+  store i64 %end1, ptr @w65_off, align 8
+  %c = load i64, ptr @w65_calls, align 8
+  %c1 = add i64 %c, 1
+  store i64 %c1, ptr @w65_calls, align 8
+  %is0 = icmp eq i64 %c, 0
+  br i1 %is0, label %setfirst, label %maybe_last
+setfirst:
+  store i64 %n, ptr @w65_first, align 8
+  br label %maybe_last
+maybe_last:
+  store i64 %n, ptr @w65_last, align 8
+  %hw = load i64, ptr @w65_hw, align 8
+  %hwmax = icmp ugt i64 %end1, %hw
+  br i1 %hwmax, label %sethw, label %ret
+sethw:
+  store i64 %end1, ptr @w65_hw, align 8
+  br label %ret
+ret:
+  ret ptr %gen
+fail:
+  %f = load i64, ptr @w65_failed, align 8
+  %f1 = add i64 %f, 1
+  store i64 %f1, ptr @w65_failed, align 8
+  store i64 %n, ptr @w65_last, align 8
+  ret ptr null
+}
+
+; The throw target stays external on purpose: exhaustion is visible to SAW as
+; an uninterpreted call, never as a silent "allocation succeeds".
+declare void @_ZSt17__throw_bad_allocv() noreturn
+
+define ptr @_Znwm(i64 %n) {
+entry:
+  %p = call ptr @w65_alloc_raw(i64 %n)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %throw, label %ret
+throw:
+  call void @_ZSt17__throw_bad_allocv()
+  unreachable
+ret:
+  ret ptr %p
+}
+
+define ptr @_Znam(i64 %n) {
+entry:
+  %p = call ptr @_Znwm(i64 %n)
+  ret ptr %p
+}
+
+define void @_ZdlPv(ptr %p) {
+entry:
+  ret void
+}
+define void @_ZdlPvm(ptr %p, i64 %n) {
+entry:
+  ret void
+}
+define void @_ZdaPv(ptr %p) {
+entry:
+  ret void
+}
+
+; ---------------------------------------------------------------------------
+; Itanium C++ ABI __cxa_guard protocol, sequential form.
+;
+; Guard byte state machine (the ABI's, restricted to one thread):
+;   0 = uninitialized, 1 = initializing, 2 = initialized.
+; The compiler emits: acquire-load byte; if byte == 0, call acquire; if
+; acquire returns nonzero, run the initializer, then call release.
+; This model returns nonzero exactly when the byte was 0 and moves 0 -> 1;
+; release moves 1 -> 2; abort moves 1 -> 0.  For a race-free single-threaded
+; execution this is value-identical to libstdc++'s implementation.  It is NOT
+; a model of concurrent first-time initialization (see README residual O-GUARD).
+; ---------------------------------------------------------------------------
+define i32 @__cxa_guard_acquire(ptr %g) {
+entry:
+  %b = load i8, ptr %g, align 8
+  %z = icmp eq i8 %b, 0
+  br i1 %z, label %init, label %done
+init:
+  store i8 1, ptr %g, align 8
+  ret i32 1
+done:
+  ret i32 0
+}
+
+define void @__cxa_guard_release(ptr %g) {
+entry:
+  store i8 2, ptr %g, align 8
+  ret void
+}
+
+define void @__cxa_guard_abort(ptr %g) {
+entry:
+  store i8 0, ptr %g, align 8
+  ret void
+}
+
+; A static-local destructor runs at process exit.  VerifyScript cannot observe
+; it, so registration is modelled as success and the handler is dropped.
+define i32 @__cxa_atexit(ptr %f, ptr %a, ptr %d) {
+entry:
+  ret i32 0
+}

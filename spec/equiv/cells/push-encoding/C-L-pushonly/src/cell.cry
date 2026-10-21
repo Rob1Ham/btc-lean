@@ -1,0 +1,29 @@
+module CellPushonly where
+
+// Independent specification of IsPushOnly for 1- and 2-byte scripts (SCR-052),
+// written from the rule: every decoded opcode must be <= OP_16 (0x60).  That
+// includes OP_RESERVED (0x50), which is push-type for IsPushOnly even though
+// executing it fails.
+//
+// A 1-byte script decodes as:
+//   0x00 (OP_0) and 0x4f..0x60 (OP_1NEGATE, OP_1..OP_16) -> one op, push-type
+//   0x01..0x4e -> truncated push (bad length field) -> false
+//   0x61..0xff -> decodes, but > OP_16 -> false
+//
+// For 2 bytes, the first op decides: a one-byte op leaves the second byte to be
+// decoded by the same 1-byte rule; a 1-byte data push consumes the second byte;
+// a length-prefixed push needs its payload (OP_PUSHDATA1 with length 0 is the
+// only success); anything else is truncation or > OP_16.
+
+po1 : [8] -> Bit
+po1 w = w == 0 \/ (w >= 0x4f /\ w <= 0x60)
+
+po2 : [8] -> [8] -> Bit
+po2 w0 w1 =
+  if w0 == 0 \/ (w0 >= 0x4f /\ w0 <= 0x60) then po1 w1
+  else if w0 == 0x01 then True             // push of exactly 1 byte
+  else if w0 == 0x4c then w1 == 0          // OP_PUSHDATA1 with a zero payload
+  else False
+
+packb : Bit -> [64]
+packb b = if b then 0x0000000000000001 else 0x0000000000000000

@@ -1,0 +1,100 @@
+module CellIfdup where
+
+// Independent specification of OP_IFDUP (SCR-077).
+//
+// Rules (interpreter.cpp:776-785):
+//   * budget: in BASE and WITNESS_V0 an opcode > OP_16 charges one unit, and
+//     running past 201 is OP_COUNT -- checked before the opcode body.
+//   * stack.size() < 1 -> INVALID_STACK_OPERATION (18).
+//   * if CastToBool(stacktop(-1)) then push a copy of that element; otherwise
+//     leave the stack unchanged.
+//   * CastToBool (interpreter.cpp:46-59): a zero-length vector is false; every
+//     byte zero is false; a one-byte 0x80 (negative zero) is false; anything
+//     else is true.
+//
+// Observable (pack_l4): res:2 | depth:3<<8 | per slot at 11+10i a two-bit
+// length and an 8-bit value at 13+10i.  All seeded and copied elements are at
+// most one byte, so the whole stack is visible for depth <= 4.
+// Failure is pack_fail: OP_COUNT 0x1c, INVALID_STACK_OPERATION 0x48.
+
+dom : [64]
+dom = 0x0000000000000007
+
+ctb : [8] -> Bit
+ctb v = v != 0x00 /\ v != 0x80
+
+p1 : [8] -> [64]
+p1 v =
+  0x0000000000000001
+  || (0x0000000000000001 << 8)
+  || (0x0000000000000001 << 11) || ((zext v : [64]) << 13)
+
+p1empty : [64]
+p1empty =
+  0x0000000000000001
+  || (0x0000000000000001 << 8)
+
+p2 : [8] -> [64]
+p2 v =
+  0x0000000000000001
+  || (0x0000000000000002 << 8)
+  || (0x0000000000000001 << 11) || ((zext v : [64]) << 13)
+  || (0x0000000000000001 << 21) || ((zext v : [64]) << 23)
+
+// d1: one symbolic top element, duplicated iff true.
+ifd1 : [8] -> [8] -> [8] -> [64]
+ifd1 v opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else if ctb v then p2 v
+  else p1 v
+
+// d2: bottoms e0,e1 and top v0; only the top is considered.  Without a
+// duplication the stack has three elements; with one it has four.
+p3e : [8] -> [8] -> [8] -> [64]
+p3e e0 e1 v =
+  0x0000000000000001
+  || (0x0000000000000003 << 8)
+  || (0x0000000000000001 << 11) || ((zext e0 : [64]) << 13)
+  || (0x0000000000000001 << 21) || ((zext e1 : [64]) << 23)
+  || (0x0000000000000001 << 31) || ((zext v : [64]) << 33)
+
+p4 : [8] -> [8] -> [8] -> [64]
+p4 e0 e1 v =
+  0x0000000000000001
+  || (0x0000000000000004 << 8)
+  || (0x0000000000000001 << 11) || ((zext e0 : [64]) << 13)
+  || (0x0000000000000001 << 21) || ((zext e1 : [64]) << 23)
+  || (0x0000000000000001 << 31) || ((zext v : [64]) << 33)
+  || (0x0000000000000001 << 41) || ((zext v : [64]) << 43)
+
+ifd2 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+ifd2 e0 e1 v opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else if ctb v then p4 e0 e1 v
+  else p3e e0 e1 v
+
+// Empty stack: budget first, then INVALID_STACK_OPERATION.
+ifd0 : [8] -> [8] -> [64]
+ifd0 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else 0x0000000000000048
+
+// One zero-length element: CastToBool is false, so no duplication.
+ifde : [8] -> [8] -> [64]
+ifde opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else p1empty
+
+// --- leaf entries -------------------------------------------------------
+e0 : [8] -> [8] -> [64]
+e0 opc sv = ifd0 opc sv
+l0 : [8] -> [8] -> [64]
+l0 opc sv = ifde opc sv
+d1 : [8] -> [8] -> [8] -> [64]
+d1 v opc sv = ifd1 v opc sv
+d2 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+d2 e0 e1 v opc sv = ifd2 e0 e1 v opc sv

@@ -1,0 +1,3555 @@
+# equiv-cells.yaml — SCR coverage ledger for spec/equiv (GENERATED FILE)
+#
+# Contract
+# --------
+# * Exactly one entry per SCR-* row in spec/db/rules.yaml (183 rows at the
+#   cce32b168 pin). rules.yaml is the coverage oracle; do not edit it here.
+# * Status enum: planned | alive2-green | saw-green | both-green |
+#   unjudged-seam | gap.
+# * Hand-maintained fields: status, cells, alive2, saw, gap_note. All other
+#   fields and the families section are regenerated from rules.yaml.
+# * Every gap/unjudged-seam entry must carry a non-empty gap_note naming the
+#   blocking IR feature or seam. Every green entry must list >=1 cell.
+# * Rebuild: python3 spec/equiv/results/scripts/build_equiv_cells.py
+# * Derive:  python3 spec/equiv/results/scripts/update_ledger.py --from-cells
+# * Drift:   python3 spec/equiv/results/scripts/update_ledger.py --check
+# * Check:   python3 spec/equiv/results/scripts/coverage_report.py --strict
+# * Matrix:  python3 spec/equiv/results/scripts/build_matrix.py
+#
+# The machine-readable contract is repeated under the top-level `contract:`
+# key below. Do not hand-edit generated fields.
+#
+version: 1
+generated_by: spec/equiv/results/scripts/build_equiv_cells.py
+source_of_truth: spec/db/rules.yaml
+pin: cce32b168
+contract:
+  scope: Exactly one entry per SCR-* row in spec/db/rules.yaml (183 rows at the cce32b168 pin). A row is adjudicated when its status is green, unjudged-seam (with gap_note) or gap (with gap_note).
+  source_of_truth: spec/db/rules.yaml
+  status_enum:
+  - planned
+  - alive2-green
+  - saw-green
+  - both-green
+  - unjudged-seam
+  - gap
+  status_meaning:
+    planned: Initialized, no tool result recorded yet.
+    alive2-green: At least one Alive2 cell is green; SAW is inapplicable/filed.
+    saw-green: At least one SAW cell is green; Alive2 is inapplicable/filed.
+    both-green: Alive2 and SAW both have a green cell for this row.
+    unjudged-seam: Deliberately outside this claim (e.g. crypto/EC seam); gap_note required.
+    gap: Filed gap; gap_note must name the blocking IR feature or tool limit.
+  fields:
+    id: SCR rule id from rules.yaml; immutable.
+    family: Family id from the top-level families section.
+    summary: Verbatim rules.yaml summary (the spec statement).
+    core_ref: Verbatim rules.yaml core_ref (file:function:lines@commit).
+    consensus: Verbatim rules.yaml consensus flag.
+    cells: List of spec/equiv/cells/<family>/<cell> ids discharging this row.
+    alive2: null or a result record (result, cell, certificate, note).
+    saw: null or a result record (result, cell, certificate, note).
+    status: Aggregate status; one of status_enum.
+    gap_note: null or a non-empty filed reason; required for gap and unjudged-seam.
+  maintenance: Only status, cells, alive2, saw and gap_note are hand-maintained. All other fields are regenerated from rules.yaml. Rebuild with build_equiv_cells.py; check with coverage_report.py --strict.
+families:
+- id: exec-verify
+  title: Execution model & VerifyScript
+  source: 06-script-interpreter.md:AppendixB §B.1 Execution model & VerifyScript
+  rows: 17
+  consensus_rows: 14
+  non_consensus_rows: 3
+- id: limits
+  title: Limits & accounting
+  source: 06-script-interpreter.md:AppendixB §B.2 Limits & accounting
+  rows: 27
+  consensus_rows: 26
+  non_consensus_rows: 1
+- id: push-encoding
+  title: Push & encoding rules
+  source: 06-script-interpreter.md:AppendixB §B.3 Push & encoding rules
+  rows: 11
+  consensus_rows: 7
+  non_consensus_rows: 4
+- id: control-flow
+  title: Control flow
+  source: 06-script-interpreter.md:AppendixB §B.4 Control flow
+  rows: 17
+  consensus_rows: 16
+  non_consensus_rows: 1
+- id: stack-ops
+  title: Stack ops
+  source: 06-script-interpreter.md:AppendixB §B.5 Stack ops
+  rows: 6
+  consensus_rows: 6
+  non_consensus_rows: 0
+- id: numeric
+  title: Numeric ops & ScriptNum
+  source: 06-script-interpreter.md:AppendixB §B.6 Numeric ops & ScriptNum
+  rows: 14
+  consensus_rows: 14
+  non_consensus_rows: 0
+- id: hash-ops
+  title: Hash ops
+  source: 06-script-interpreter.md:AppendixB §B.7 Hash ops
+  rows: 3
+  consensus_rows: 3
+  non_consensus_rows: 0
+- id: checksig
+  title: Checksig (pre-tapscript)
+  source: 06-script-interpreter.md:AppendixB §B.8 Checksig (pre-tapscript)
+  rows: 18
+  consensus_rows: 11
+  non_consensus_rows: 7
+- id: checkmultisig
+  title: CHECKMULTISIG
+  source: 06-script-interpreter.md:AppendixB §B.9 CHECKMULTISIG
+  rows: 8
+  consensus_rows: 8
+  non_consensus_rows: 0
+- id: locktime
+  title: Locktime
+  source: 06-script-interpreter.md:AppendixB §B.10 Locktime
+  rows: 11
+  consensus_rows: 11
+  non_consensus_rows: 0
+- id: witness-v0
+  title: SegWit v0
+  source: 06-script-interpreter.md:AppendixB §B.11 SegWit v0
+  rows: 9
+  consensus_rows: 9
+  non_consensus_rows: 0
+- id: tapscript
+  title: Taproot & Tapscript
+  source: 06-script-interpreter.md:AppendixB §B.12 Taproot/Tapscript
+  rows: 28
+  consensus_rows: 26
+  non_consensus_rows: 2
+- id: disabled-opcodes
+  title: Disabled opcodes
+  source: 06-script-interpreter.md:AppendixB §B.13 Disabled opcodes
+  rows: 5
+  consensus_rows: 4
+  non_consensus_rows: 1
+- id: tapscript-reimport
+  title: Tapscript re-import
+  source: w2-06-flags-activation.md:AppendixB §B.1 Tapscript re-import (consensus — new row)
+  rows: 1
+  consensus_rows: 1
+  non_consensus_rows: 0
+- id: policy-flags
+  title: Policy-only flags (non-consensus)
+  source: w2-06-flags-activation.md:AppendixB §B.12 Policy-only flag catalogue (NOT consensus — new rows)
+  rows: 8
+  consensus_rows: 0
+  non_consensus_rows: 8
+rows:
+- id: SCR-001
+  family: exec-verify
+  summary: Sequential evaluation, not concatenation
+  core_ref: interpreter.cpp:VerifyScript:2026-2036@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verify-sequential-boundary
+  - exec-verify/C-L-w32-verify-sequential
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verify-sequential-boundary
+    certificate: 8684af755609b4ef3c6dd53ccfd494486990d61a5e33bd8e14276bef2601721f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verify-sequential-boundary
+    certificate: af03d025c3cf897834d235bde488c53192b1ecbc5d7ce5b36ed6f16d507b9e4e
+    note: Proof succeeded! cell_push_boundary
+  status: both-green
+  gap_note: null
+- id: SCR-002
+  family: exec-verify
+  summary: After scriptPubKey eval, stack non-empty and top CastToBool-true
+  core_ref: interpreter.cpp:VerifyScript:2037-2040@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  - exec-verify/C-L-w32-verify-final-truth
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
+- id: SCR-003
+  family: exec-verify
+  summary: Empty/short script evaluates to success with unchanged stack
+  core_ref: interpreter.cpp:EvalScript:449,1248@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-eval-empty
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; exec-verify/C-L-eval-empty: partial — the cell covers only the zero-op/empty-script frame; the row''s
+
+    "short script" case with one or more ops is not covered.
+
+    - empty op list                         -> success, stack unchanged;
+
+    - non-empty conditional vector at exit  -> UNBALANCED_CONDITIONAL.
+
+    The row summary says "empty/short"; this cell''s reading is "a script that
+
+    parses to no opcodes", which is exactly the empty script, because any
+
+    non-empty script produces at least one opcode.  Execution of any opcode
+
+    (pushes included) is the E5 dispatch residual and is NOT covered here; the
+
+    cell therefore says nothing about "short scripts with one or more ops".'
+- id: SCR-004
+  family: exec-verify
+  summary: with the WITNESS flag off, a scriptSig leaving one truthy element validates against an empty scriptPubKey; with WITNESS on a non-empty witness still fails WITNESS_UNEXPECTED because an empty scriptPubKey is not a witness program (the cited theorem also assumes SIGPUSHONLY and CLEANSTACK off; the one-element CLEANSTACK-on arm is unproved)
+  core_ref: interpreter.cpp:VerifyScript:2037 + scriptSig@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  - exec-verify/C-L-w32-witness-flag
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-witness-flag
+    certificate: 9d983603410827f4e1008e0ef410f0d2b766eb63750dae7fdecd292c88f0e09d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-witness-flag
+    certificate: 429f1beddedf3862cfbd47032808c8e31237b567053aeb6d2691a38b5e5298a7
+    note: Proof succeeded! cell_witness_flag
+  status: both-green
+  gap_note: null
+- id: SCR-005
+  family: exec-verify
+  summary: '23-byte HASH160 script: re-eval last scriptSig stack element as subscript'
+  core_ref: interpreter.cpp:VerifyScript:2062-2105@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-p2sh-handoff
+  - exec-verify/C-L-w32-p2sh-23byte
+  - exec-verify/C-L-w64-p2sh-subscript-leaf
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-p2sh-handoff: - SCR-005 **partial** — \"23-byte HASH160 script: re-eval last scriptSig\n  stack element as subscript\".  Proved: the 23-byte shape predicate\n  exactly (all four fields Core reads, for arbitrary length/bytes) and the\n  identification/transfer of the **last scriptSig stack element** as the\n  subscript script.  NOT proved: the subscript `EvalScript(pubKey2)` call\n  itself (interpreter.cpp:2080-2082) and its EVAL_FALSE checks\n  (2083-2086) — the E5 dispatch residual.  The cell proves what is handed\n  over, not what the re-evaluation does with it.; exec-verify/C-L-w32-p2sh-23byte: partial. Proved: (a) the 23-byte HASH160/EQUAL template predicate for every byte and length (so \"23-byte HASH160 script\" is exactly Core's IsPayToScriptHash, not an approximation); (b) the P2SH arm restores the post-scriptSig stack (stackCopy), removes exactly one element (the serialized redeem script, the last scriptSig stack element) and evaluates that subscript on the remainder; (c) the resulting stack's final truth is the decision; (d) the hash-equality gate and its precedence over the push-only check. NOT proved: the HASH160 computation itsel"
+- id: SCR-006
+  family: exec-verify
+  summary: scriptSig must be push-only for P2SH evaluation
+  core_ref: interpreter.cpp:VerifyScript:2065-2066@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-pushonly
+  - exec-verify/C-L-w32-p2sh-pushonly
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-pushonly: - SCR-006 **partial** — \"scriptSig must be push-only for P2SH evaluation\"\n  (interpreter.cpp:2065-2066).  Proved: the exact `IsPushOnly` predicate\n  and the `SIG_PUSHONLY` (26) result for every script of 0..8 bytes, plus\n  the arm gating (only when P2SH is set and the scriptPubKey is P2SH).\n  Missing: scripts longer than 8 bytes, i.e. the general unbounded\n  `GetScriptOp` walk (E5 residual).  Also not claimed: that the check is\n  the *only* precondition of the arm (the handoff is `C-L-p2sh-handoff`).; exec-verify/C-L-w32-p2sh-pushonly: partial — the decoded-scriptSig branch set is covered, but malformed-tail\nerror-kind equality is excluded as F-DIV-001:\n- push-only scriptSig under P2SH passes the gate (C :2065 / Lean\n  `isPushOnlyWire ops = true`),\n- non-push-only scriptSig under P2SH returns SIG_PUSHONLY (C :2066 /\n  Lean `.fail .sigPushOnly`), including the 0x60/0x61 boundary,\n- the gate is not executed when the P2SH flag is clear (:2062), so no\n  SIG_PUSHONLY can originate here without P2SH.\nNamed boundary of the claim: scriptSig decoding is abstracted, so the\nmalformed-tail input class is not judged (F-DIV-001); that "
+- id: SCR-007
+  family: exec-verify
+  summary: stackCopy (taken after scriptSig) is restored for subscript eval
+  core_ref: interpreter.cpp:VerifyScript:2032-2033,2069@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-p2sh-handoff
+  - exec-verify/C-L-w32-p2sh-stackcopy
+  alive2:
+    result: green
+    cell: exec-verify/C-L-p2sh-handoff
+    certificate: e10d4b1ef87db4654745b0bfdfd2d67a6a7abc88f853f44299416b8d0d066417
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-p2sh-handoff
+    certificate: 7c6fff1ca22b396121e14c072f445aa554f4de84de63a536884742a0bd9c9453
+    note: Proof succeeded! cell_p2sh_shape
+  status: both-green
+  gap_note: null
+- id: SCR-008
+  family: exec-verify
+  summary: Exactly 1 element after all evaluation (flag; pol.; implicit in witness)
+  core_ref: interpreter.cpp:VerifyScript:2110-2118@cce32b168
+  consensus: false
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  - exec-verify/C-L-w32-cleanstack
+  - exec-verify/C-L-w65-scr008-cleanstack-arms
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-verifyscript-tail: - SCR-008 partial — \"exactly 1 element after all evaluation\" (flag; pol.;\n  interpreter.cpp:2110-2118): the flag/policy check is proved for every\n  final depth in Core's order, but the witness-implicit face is blocked by\n  the model divergence F-DIV-W32-01: for a valid P2SH-wrapped v0 witness\n  spend Core resizes the stack to one element at :2102 while the pinned Lean\n  `verifyScriptFull` reuses the redeem-script length and rejects with\n  CLEANSTACK.  See findings/wave64/41-div-w32-p2sh-cleanstack.  What is\n  assumed in the green flag/policy face is only the depth handed in by the\n  abstracted evaluations.; exec-verify/C-L-w32-cleanstack: partial.  Covered by this cell (both tools green):\n- the `flag` face: SCRIPT_VERIFY_CLEANSTACK on/off and the exact\n  `stack.size() != 1` test (interpreter.cpp:2110-2118),\n- the `pol.` face: the Lean model's `pol.cleanstack` reads the same bit\n  and reaches the same `cleanstack` error.\nNOT covered / blocked: the `implicit in witness` face.  Core resizes the\nstack to one element after a successful witness program, at\n:2057 (bare) and :2102 (P2SH-wrapped), so the check at :2115 ca"
+- id: SCR-009
+  family: exec-verify
+  summary: Flag combination constraint
+  core_ref: interpreter.cpp:VerifyScript:2113-2114 (assert)@cce32b168
+  consensus: false
+  cells:
+  - exec-verify/C-L-flags-domain
+  - exec-verify/C-L-w32-flag-combo
+  alive2:
+    result: green
+    cell: exec-verify/C-L-flags-domain
+    certificate: 89ffb8cab528eb3038a129cfd935e0440fcc5d2d8c51d9178c76088b52570a3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-flags-domain
+    certificate: 438c03114c6a48ab94a44b30d57853f89b668e9820d4d57658341ca6259b981b
+    note: Proof succeeded! cell_flags_guard
+  status: both-green
+  gap_note: null
+- id: SCR-010
+  family: exec-verify
+  summary: scriptSig push-only before eval (pol.)
+  core_ref: interpreter.cpp:VerifyScript:2022-2024@cce32b168
+  consensus: false
+  cells:
+  - exec-verify/C-L-pushonly
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; exec-verify/C-L-pushonly: - SCR-010 **partial** — \"scriptSig push-only before eval (pol.)\"\n  (interpreter.cpp:2022-2024).  Proved: the policy-flag short-circuit and\n  the `SIG_PUSHONLY` result for every 0..8-byte script.  Missing: the\n  *sequencing* claim \"before eval\" — that the pre-check runs before the\n  scriptSig `EvalScript` call.  That is whole-function composition\n  (SCR-001 / E5 residual), not a leaf property; and the same 8-byte bound\n  applies."
+- id: SCR-011
+  family: exec-verify
+  summary: scriptSig == ∅ for bare witness programs
+  core_ref: interpreter.cpp:VerifyScript:2048-2051@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
+- id: SCR-012
+  family: exec-verify
+  summary: scriptSig == single push of redeemScript
+  core_ref: interpreter.cpp:VerifyScript:2092-2096@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  - exec-verify/C-L-w64-p2sh-single-push
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w64-p2sh-single-push
+    certificate: e9e99114327b18b51fd76947cbda3c15f583b8badd688dbaae6d4f1f196a9030
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w64-p2sh-single-push
+    certificate: c78d0aaa79f986b14a97a5ea5e34ea35d307f435691bee101cb56618143f3576
+    note: Proof succeeded! cell_canon_prefix
+  status: both-green
+  gap_note: null
+- id: SCR-013
+  family: exec-verify
+  summary: Non-null witness without witness program fails
+  core_ref: interpreter.cpp:VerifyScript:2125-2127@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-verifyscript-tail
+  alive2:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: ce1f9d39f6e57c2180aca3434766a0f0189a092cc499978fbb5cf6ef3a9d5384
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-verifyscript-tail
+    certificate: fd722ed11b5a1f312674d545677133c17e6f2d53f6b506e07924912a40944023
+    note: Proof succeeded! cell_single_push_eq
+  status: both-green
+  gap_note: null
+- id: SCR-014
+  family: exec-verify
+  summary: Flag-combination constraint
+  core_ref: interpreter.cpp:VerifyScript:2124 (assert)@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-flags-domain
+  - exec-verify/C-L-w32-flags-combo
+  alive2:
+    result: green
+    cell: exec-verify/C-L-flags-domain
+    certificate: 89ffb8cab528eb3038a129cfd935e0440fcc5d2d8c51d9178c76088b52570a3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-flags-domain
+    certificate: 438c03114c6a48ab94a44b30d57853f89b668e9820d4d57658341ca6259b981b
+    note: Proof succeeded! cell_flags_guard
+  status: both-green
+  gap_note: null
+- id: SCR-015
+  family: exec-verify
+  summary: Away from named hash exceptions, P2SH/WITNESS/TAPROOT are enabled; DERSIG/CLTV/CSV/NULLDUMMY are added at buried heights. Scripts and costs use actual candidate flags.
+  core_ref: src/validation.cpp:2249-2288; src/kernel/chainparams.cpp:115-118@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-w32-block-flags
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-block-flags
+    certificate: 737d257184d8cdd376755ae6c816a4d2ff0a733a50f87c1a8c4043b58ba04db3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-block-flags
+    certificate: b04f4031c0a81288fb1ba924b0ec3f1e40b8463975f6d9fcb986558980864449
+    note: Proof succeeded! cell_block_flags
+  status: both-green
+  gap_note: null
+- id: SCR-016
+  family: exec-verify
+  summary: Two named mainnet blocks get reduced flag sets
+  core_ref: kernel/chainparams.cpp:115-118; validation.cpp:2262-2265@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-w32-flag-exceptions
+  alive2:
+    result: green
+    cell: exec-verify/C-L-w32-flag-exceptions
+    certificate: 191ef720ed01065f24a1b70c8270a2651b0f693ab78a94f2047cc0514d6e14f2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-w32-flag-exceptions
+    certificate: e01c25dcf888657be32616b14a954172c4034b4accc12cef8a5b92a3adbea843
+    note: Proof succeeded! cell_exc_select
+  status: both-green
+  gap_note: null
+- id: SCR-017
+  family: exec-verify
+  summary: Any EvalScript/VerifyWitnessProgram failure ⇒ input invalid
+  core_ref: src/script/interpreter.cpp:2029-2036; src/script/interpreter.cpp:2052-2054; src/script/interpreter.cpp:2080-2082; src/script/interpreter.cpp:2097-2099@cce32b168
+  consensus: true
+  cells:
+  - exec-verify/C-L-failure-propagation
+  - exec-verify/C-L-w32-fail-propagation
+  alive2:
+    result: green
+    cell: exec-verify/C-L-failure-propagation
+    certificate: 845d89a5c8fb3a632fb799a527850ead94e16d0ac46dd77c8dc86c3a64164eb0
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: exec-verify/C-L-failure-propagation
+    certificate: eaca8161b0cd5984ff33b7d11b57d05ef09fe6eaccb311683c95a94deda37a0e
+    note: Proof succeeded! cell_failprop
+  status: both-green
+  gap_note: null
+- id: SCR-018
+  family: limits
+  summary: script.size() > 10000 ⇒ SCRIPT_SIZE (BASE/WITNESS_V0 only, checked once)
+  core_ref: interpreter.cpp:EvalScript:438-440; script.h:41@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-script-size
+  alive2:
+    result: green
+    cell: limits/C-L-script-size
+    certificate: 4d2c0bb489efbd9eac5761859ad5cedd3d1990b738ad33e156cb9f613554828f
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: limits/C-L-script-size
+    certificate: b9eb060be2ed00e407d7d231aeba89888d6e09ba034b7b555d0dc3f1870a145e
+    note: Proof succeeded! cell_script_size
+  status: both-green
+  gap_note: null
+- id: SCR-019
+  family: limits
+  summary: Guard excludes TAPSCRIPT sigversion
+  core_ref: interpreter.cpp:EvalScript:438-440 (guard)@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-script-size
+  alive2:
+    result: green
+    cell: limits/C-L-script-size
+    certificate: 4d2c0bb489efbd9eac5761859ad5cedd3d1990b738ad33e156cb9f613554828f
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: limits/C-L-script-size
+    certificate: b9eb060be2ed00e407d7d231aeba89888d6e09ba034b7b555d0dc3f1870a145e
+    note: Proof succeeded! cell_script_size
+  status: both-green
+  gap_note: null
+- id: SCR-020
+  family: limits
+  summary: Push value >520 ⇒ PUSH_SIZE, even unexecuted
+  core_ref: interpreter.cpp:EvalScript:457-458; script.h:29@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-push-size
+  alive2:
+    result: green
+    cell: limits/C-L-push-size
+    certificate: 32308b94296518d972ecba638e89f3788408a1f5b7e7d1d73d17b9869a7bf502
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-push-size
+    certificate: 2ae0cbad2d40d78f9cca2538e63607afeb4bf3e3ad4577f0ac39d1704356d37c
+    note: Proof succeeded! cell_push_size
+  status: both-green
+  gap_note: null
+- id: SCR-021
+  family: limits
+  summary: witness stack items >520 bytes fail with PUSH_SIZE for base/v0 and for tapscript without OP_SUCCESSx, provided the initial stack is ≤1000 items; a tapscript containing OP_SUCCESSx returns success before the item-size loop and is exempt (BIP342)
+  core_ref: interpreter.cpp:ExecuteWitnessScript:1868-1871@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-witness-push-size
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; limits/C-L-witness-push-size: partial — the cell proves the witness item-size predicate `any (item.size() > 520) ⇒ PUSH_SIZE` (represented exactly by max_item > 520) for base/v0 and for tapscript without OP_SUCCESSx, its ordering after the SCR-031 initial-stack guard, and the BIP342 exemption ordering (a tapscript with OP_SUCCESSx returns success before the item loop).  The OP_SUCCESSx scan itself is an abstract boolean: deciding `opSuccessScan exec` over symbolic script bytes needs the per-opcode decode loop and early success, which is SCR-153 and is not modelled here. So the row''s "containing OP_SUCCESSx" branch is only modelled at its outcome, not by scanning bytes.  EvalScript is also a stub, but the row ends before it.'
+- id: SCR-022
+  family: limits
+  summary: under BASE/WITNESS_V0 an opcode with wire byte > OP_16 (0x60) is charged against the 201-op budget; once the budget is exhausted stepBody returns OP_COUNT before disabled-table and dispatch checks (OP_NOP is the concrete charging witness)
+  core_ref: interpreter.cpp:EvalScript:460-464; script.h:32@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-opcount
+  alive2:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 34848a746f2ba84c216e9c3f58f3a1e25e48252c34d9fd7f279d15530ff67217
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-023
+  family: limits
+  summary: Count is flow-insensitive
+  core_ref: interpreter.cpp:EvalScript:460-464 (pre-fExec)@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-opcount
+  alive2:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 34848a746f2ba84c216e9c3f58f3a1e25e48252c34d9fd7f279d15530ff67217
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-024
+  family: limits
+  summary: condition `opcode > OP_16` (0x00-0x60 exempt)
+  core_ref: interpreter.cpp:EvalScript:462@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-opcount
+  alive2:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 34848a746f2ba84c216e9c3f58f3a1e25e48252c34d9fd7f279d15530ff67217
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-025
+  family: limits
+  summary: op-count check precedes disabled check
+  core_ref: interpreter.cpp:EvalScript:460-482 (order)@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-opcount
+  alive2:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 9f182308d1b259263bf0c841b2565343af9b9c7343b529cd31530b9e18eff7d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-opcount
+    certificate: 34848a746f2ba84c216e9c3f58f3a1e25e48252c34d9fd7f279d15530ff67217
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-026
+  family: limits
+  summary: CMS key count ∈ [0,20] ⇒ PUBKEY_COUNT
+  core_ref: interpreter.cpp:EvalScript:1127-1128; script.h:35@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
+- id: SCR-027
+  family: limits
+  summary: nSigsCount ∈ [0, nKeysCount] ⇒ SIG_COUNT
+  core_ref: interpreter.cpp:EvalScript:1141-1142@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
+- id: SCR-028
+  family: limits
+  summary: nOpCount += nKeysCount; ≤201
+  core_ref: interpreter.cpp:EvalScript:1129-1131@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-cms-count-bounds
+  alive2:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 74ae369f18624ada29678818f4a0d249b4df85730f285c04a8325cd37efc9ee8
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-cms-count-bounds
+    certificate: 19ade41422e4107c71d6195ffbfb2a5dcb16bd4cf5a2423b81b669c2bc53ae08
+    note: Proof succeeded! cell_cms_count_bounds
+  status: both-green
+  gap_note: null
+- id: SCR-029
+  family: limits
+  summary: stack+altstack > 1000 ⇒ STACK_SIZE, checked per opcode
+  core_ref: interpreter.cpp:EvalScript:1231-1233; script.h:44@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-stack-limit
+  alive2:
+    result: green
+    cell: limits/C-L-stack-limit
+    certificate: fc4f78cb2e0c0ce6cf99aa811abbabed6b8d133ceb724c806ead8054cae71a59
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: limits/C-L-stack-limit
+    certificate: be623706bd837ce3a4284734ac8637e72764a4512453dda94d35f24e8daffe87
+    note: Proof succeeded! cell_stack_limit
+  status: both-green
+  gap_note: null
+- id: SCR-030
+  family: limits
+  summary: combined check
+  core_ref: interpreter.cpp:EvalScript:1232@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-stack-limit
+  alive2:
+    result: green
+    cell: limits/C-L-stack-limit
+    certificate: fc4f78cb2e0c0ce6cf99aa811abbabed6b8d133ceb724c806ead8054cae71a59
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: limits/C-L-stack-limit
+    certificate: be623706bd837ce3a4284734ac8637e72764a4512453dda94d35f24e8daffe87
+    note: Proof succeeded! cell_stack_limit
+  status: both-green
+  gap_note: null
+- id: SCR-031
+  family: limits
+  summary: Checked before EvalScript (altstack empty)
+  core_ref: interpreter.cpp:ExecuteWitnessScript:1864-1865@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-tapscript-precheck
+  alive2:
+    result: green
+    cell: limits/C-L-tapscript-precheck
+    certificate: bcc3d317ca30e1dd58ab4ede447c709c6130e9a122f61005e69551bd2ab092a8
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: limits/C-L-tapscript-precheck
+    certificate: 7d5d914a247d449c04e7365c8727819885aaab872b48c56b2a8734e6b1d9382e
+    note: Proof succeeded! cell_tap_precheck
+  status: both-green
+  gap_note: null
+- id: SCR-032
+  family: limits
+  summary: CHECKSIG=1; CHECKMULTISIG=20 (inaccurate)
+  core_ref: script.cpp:GetSigOpCount(false):159-181@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-sigop-site-weights
+  - limits/C-L-w32-sigop-count
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: 4e75761bda7853c886cb8ae0a7b8358f658565d1c4e5ea6291f5e8de0c5d0883
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: bacdc68685fafd720bec44818003ce35ae642006c34b8184a6f47d4c05765690
+    note: Proof succeeded! cell_sigop_site_weight
+  status: both-green
+  gap_note: null
+- id: SCR-033
+  family: limits
+  summary: accurate CHECKMULTISIG counts the immediately preceding OP_1..OP_16 value, else 20, at each site
+  core_ref: script.cpp:GetSigOpCount(true):173-177@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-sigop-site-weights
+  - limits/C-L-w32-sigop-count
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: 4e75761bda7853c886cb8ae0a7b8358f658565d1c4e5ea6291f5e8de0c5d0883
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-site-weights
+    certificate: bacdc68685fafd720bec44818003ce35ae642006c34b8184a6f47d4c05765690
+    note: Proof succeeded! cell_sigop_site_weight
+  status: both-green
+  gap_note: null
+- id: SCR-034
+  family: limits
+  summary: malformed or non-push-only scriptSig returns zero; otherwise count the final push data's valid script prefix accurately
+  core_ref: script.cpp:GetSigOpCount(scriptSig):183-205@cce32b168; tx_verify.cpp:132-146@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-w32-p2sh-scriptsig
+  alive2:
+    result: green
+    cell: limits/C-L-w32-p2sh-scriptsig
+    certificate: f59f6234eb6cbbc6b1122cfed0636ddcaafaef80693cb0aca5507ea252b8b2cf
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-w32-p2sh-scriptsig
+    certificate: aa5c02f92d927df98c17777c5d1ecd9149ecd7be8a49ff87884c7a194dd360e9
+    note: Proof succeeded! cell_p2sh_sigops
+  status: both-green
+  gap_note: null
+- id: SCR-035
+  family: limits
+  summary: v0-20=1; v0-32=accurate(witness script); v1+=0
+  core_ref: interpreter.cpp:WitnessSigOps:2133-2147@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-w32-witness-sigops
+  - limits/C-L-witness-sigop-dispatch
+  alive2:
+    result: green
+    cell: limits/C-L-w32-witness-sigops
+    certificate: 524ad50ab79124b4f176cda97e93b819f3041b83025218f985cc79a1d3370bcc
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-w32-witness-sigops
+    certificate: da1892c16fa1fb8b6ecbc8146685badae93a03a8e7dcce51a3860b74bda86f74
+    note: Proof succeeded! cell_witness_sigops
+  status: both-green
+  gap_note: null
+- id: SCR-036
+  family: limits
+  summary: push-only scriptSig; last element as program
+  core_ref: interpreter.cpp:CountWitnessSigOps:2162-2173@cce32b168
+  consensus: true
+  cells: []
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'SCR-036 (push-only scriptSig; last element as program): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+- id: SCR-037
+  family: limits
+  summary: cost in weight units
+  core_ref: tx_verify.cpp:GetTransactionSigOpCost:149-168@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-sigop-cost-arith
+  - limits/C-L-w32-sigop-cost
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
+- id: SCR-038
+  family: limits
+  summary: cumulative block sigop cost <= MAX_BLOCK_SIGOPS_COST (80,000)
+  core_ref: src/consensus/consensus.h:17; src/validation.cpp:2566-2569@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-sigop-cost-arith
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
+- id: SCR-039
+  family: limits
+  summary: mempool policy per-tx limit
+  core_ref: policy/policy.h:44; validation.cpp:905,939@cce32b168
+  consensus: false
+  cells:
+  - limits/C-L-sigop-cost-arith
+  alive2:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: 5c91067c382e6557816ecf5500296409ed58361975940f1fb3623afaf7736a02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-sigop-cost-arith
+    certificate: a355079166b0122a0b8c8c7362e8b8d972eebc5df4f45bf487bdfbb983e52cf3
+    note: Proof succeeded! cell_tx_sigop_cost
+  status: both-green
+  gap_note: null
+- id: SCR-040
+  family: limits
+  summary: budget = serialized witness stack size (including the CompactSize item count) + 50 WU
+  core_ref: interpreter.cpp:VerifyWitnessProgram:1991-1992; script.h:62-65@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-scr-040-loop-fold
+  - limits/C-L-scr-040-witness-budget
+  - limits/C-L-tapscript-weight
+  alive2:
+    result: green
+    cell: limits/C-L-scr-040-loop-fold
+    certificate: c7b0c04768b2290cc3f9923998fb138e959c1ec142c0720a9486f5be67e48fac
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-scr-040-loop-fold
+    certificate: 8ed6dc847b9d8199732b61971c03ddf1d34bd1d5b1cca3e6a01d0474d7ed991a
+    note: Proof succeeded! cell_compact_size_size
+  status: both-green
+  gap_note: null
+- id: SCR-041
+  family: limits
+  summary: decrement on non-empty sig regardless of validity; <0 ⇒ TAPSCRIPT_VALIDATION_WEIGHT
+  core_ref: interpreter.cpp:EvalChecksigTapscript:367-376@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-tapscript-weight
+  alive2:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 8ed55a1207b7d1a541877614c12bbc63fa171136f6d48292a5d02790264a471b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 1b2196c49c21145089cf040d7dd88d09d19b005491692292470d3a3423a8de6f
+    note: Proof succeeded! cell_tapscript_budget
+  status: both-green
+  gap_note: null
+- id: SCR-042
+  family: limits
+  summary: non-empty sig + upgradable key still decrements
+  core_ref: interpreter.cpp:EvalChecksigTapscript:368-376@cce32b168
+  consensus: true
+  cells:
+  - limits/C-L-tapscript-weight
+  alive2:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 8ed55a1207b7d1a541877614c12bbc63fa171136f6d48292a5d02790264a471b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: limits/C-L-tapscript-weight
+    certificate: 1b2196c49c21145089cf040d7dd88d09d19b005491692292470d3a3423a8de6f
+    note: Proof succeeded! cell_tapscript_budget
+  status: both-green
+  gap_note: null
+- id: SCR-043
+  family: limits
+  summary: tapscript multisig-mimic bound (miniscript-side resource limit)
+  core_ref: script.h:37-38@cce32b168
+  consensus: true
+  cells: []
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'SCR-043 (tapscript multisig-mimic bound (miniscript-side resource limit)): inapplicable to the script-interpreter harness, not a missing bounded limit cell. script.h:37-38 only defines MAX_PUBKEYS_PER_MULTI_A=999; at the pin the interpreter never reads it (no reference in interpreter.cpp/.h or consensus/). Its src uses are wallet construction code: miniscript.h:1879,2404,2418, miniscript.cpp:79, solver.cpp:124, descriptor.cpp:2469-2470. The consensus limits in this area are MAX_PUBKEYS_PER_MULTISIG=20 (interpreter.cpp:1195, SCR-026) and MAX_STACK_SIZE=1000 (interpreter.cpp:1309, SCR-029). The Lean model agrees (Rules.lean:346-351: "not an interpreter check ... bounds script construction") and proves only the constant identity PDW36.MAX_PUBKEYS_PER_MULTI_A_eq (rfl). A miniscript-parse cell is blocked: the pinned Lean tree has no Miniscript FromString parser (Wallet/Miniscript.lean scope note; wallet obligation MS-035 is unmodelled, WALLET-OBLIGATIONS.md:403-408) and Node.lean:442 checks an already-built AST, not parse input. No C/L pair exists in this harness, so no cell and no green are claimed. Report: spec/equiv/findings/coverage/SCR-043-miniscript-bound.md. Census flag consensus:true is inconsistent with the row text and with wallet MS-035 (consensus:false); rules.yaml is generated and was not hand-edited.'
+- id: SCR-044
+  family: limits
+  summary: lower bound for serialized tx weight
+  core_ref: src/consensus/consensus.h:23@cce32b168
+  consensus: true
+  cells: []
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'SCR-044 (lower bound for serialized tx weight): no bounded limit cell covers this row; the E2 limit attempt does not exercise this boundary/placement. No green is claimed.'
+- id: SCR-045
+  family: push-encoding
+  summary: pushdata1/2/4 length parsing; truncation ⇒ false (⇒ BAD_OPCODE in EvalScript)
+  core_ref: script.cpp:GetScriptOp:313-363@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-push-parse
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-push-parse
+    certificate: b0ba567a8e69d5508b478b64e5ebbe4678248698c35ff31ad1ba369cdf461507
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-push-parse
+    certificate: 659441cfcabb9cc016fbf9a4ae3c0af27aa2568cf61d264586c4c5183c749041
+    note: Proof succeeded! cell_parse_meta
+  status: both-green
+  gap_note: null
+- id: SCR-046
+  family: push-encoding
+  summary: OP_0→∅; OP_1..16→single byte 0x01..0x10
+  core_ref: interpreter.cpp:EvalScript:499-523@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-pushnum
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 5917b66299c33aab7e64e9cf0acb56daa4bb2c3c1cfe9b1b1d7251b25a650618
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 0c3209d2994648a5ec53adc8f380673ffaeff4eadf3e1b78ea4178eb8d4ec320
+    note: Proof succeeded! cell_pushnum
+  status: both-green
+  gap_note: null
+- id: SCR-047
+  family: push-encoding
+  summary: 'OP_1NEGATE (0x4f) pushes the single byte 0x81: encodeScriptNum (-1) false = serU8 0x81, and an executed OP_1NEGATE pushes it with no MINIMALDATA gate'
+  core_ref: interpreter.cpp:EvalScript:499-523@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-pushnum
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 5917b66299c33aab7e64e9cf0acb56daa4bb2c3c1cfe9b1b1d7251b25a650618
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-pushnum
+    certificate: 0c3209d2994648a5ec53adc8f380673ffaeff4eadf3e1b78ea4178eb8d4ec320
+    note: Proof succeeded! cell_pushnum
+  status: both-green
+  gap_note: null
+- id: SCR-048
+  family: push-encoding
+  summary: canonical push opcode for each data length (under MINIMALDATA, pol.)
+  core_ref: script.cpp:CheckMinimalPush:373-396@cce32b168
+  consensus: false
+  cells:
+  - push-encoding/C-L-w32-checkminimalpush
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-checkminimalpush
+    certificate: a5a200c8342b216859f48913fb28dff380970cbeb026d4fe5c1aeb8530dbd96b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-checkminimalpush
+    certificate: 3e84665b57880275eac363a09eaa2eef0352407534b9bf8ac6ec8cd67b3108dd
+    note: Proof succeeded! cell_minpush
+  status: both-green
+  gap_note: null
+- id: SCR-049
+  family: push-encoding
+  summary: fExec-gated (unexecuted non-minimal pushes OK)
+  core_ref: interpreter.cpp:EvalScript:488-492@cce32b168
+  consensus: false
+  cells:
+  - push-encoding/C-L-w32-fexec-push
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-fexec-push
+    certificate: b06b5f1d7d483304bb113643b28ef92b8516ae7391d99e66c2e5beceea9135ae
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-fexec-push
+    certificate: 0fcb8aa2da146f676d1e9c600dc7c49d5ff56f23ed426071f337bae47c96210a
+    note: Proof succeeded! cell_fexec_false
+  status: both-green
+  gap_note: null
+- id: SCR-050
+  family: push-encoding
+  summary: top byte &0x7f==0 requires size 1 or next-byte high bit (under fRequireMinimal)
+  core_ref: script.h:CScriptNum:252-268@cce32b168
+  consensus: false
+  cells:
+  - push-encoding/C-L-w32-cscriptnum-minimal
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-cscriptnum-minimal
+    certificate: 79fbe50fd0e05b024cdad2c42e7414f03aed3e80d1ae24cccadbae1672a7a052
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-cscriptnum-minimal
+    certificate: f1d2a35861a29a954e6c337d56ebf13871cdcb71d0ff75cfa6c218360e01245b
+    note: Proof succeeded! cell_cscriptnum
+  status: both-green
+  gap_note: null
+- id: SCR-051
+  family: push-encoding
+  summary: minimal numeric operands under MINIMALDATA (policy, not consensus)
+  core_ref: interpreter.cpp:556,584,1126,1140,1103@cce32b168
+  consensus: false
+  cells:
+  - push-encoding/C-L-w32-num-callsites
+  - push-encoding/C-L-w32-num-decode-minimal
+  - push-encoding/C-L-w66-minimaldata-arbitrary-num
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w66-minimaldata-arbitrary-num
+    certificate: 98fdf42bb90cea396080876d15f5b155044532b10c9ad81e83e0cfcadce36909
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w66-minimaldata-arbitrary-num
+    certificate: 935577de5af2548aaa38a9243853be445a1a039f451015d478edfb570b37111e
+    note: Proof succeeded! pred_cap5
+  status: both-green
+  gap_note: null
+- id: SCR-052
+  family: push-encoding
+  summary: opcode ≤ OP_16 (incl. OP_RESERVED!) counts as push
+  core_ref: script.cpp:266-286@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-pushonly
+  - push-encoding/C-L-w32-pushonly-opcode
+  alive2:
+    result: green
+    cell: push-encoding/C-L-pushonly
+    certificate: aac1936c7a5e282ebf20e93617a25b128e48b5facab303e1e493feb762794147
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-pushonly
+    certificate: 417c3f73ea19a18de2c551cdbd29812cb208b5ecd3fd6163793a536cb7a2a517
+    note: Proof succeeded! cell_pushonly1
+  status: both-green
+  gap_note: null
+- id: SCR-053
+  family: push-encoding
+  summary: 4..42 bytes; OP_0/OP_N + exact-length push; program 2..40
+  core_ref: script.cpp:250-264@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-witness-program
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-witness-program
+    certificate: 20154bf9e06eca2b2ac91898727bf8c872ffac73608e4ac5ad35cc3adc9ffc9a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-witness-program
+    certificate: 169b5b9d9e0a8ca21a60e3042a4d2492c7c048161a67a2ac40b3f553110a27ce
+    note: Proof succeeded! cell_wp
+  status: both-green
+  gap_note: null
+- id: SCR-054
+  family: push-encoding
+  summary: 23-byte HASH160 pattern
+  core_ref: script.cpp:224-231@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-p2sh-pattern
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-p2sh-pattern
+    certificate: 31460a00c7f6e2390d984f2c3a095d28318d978371c1f1cb7c4471f452f7d377
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-p2sh-pattern
+    certificate: 5ab6c97dcabd569d02e96b8b741de73969f983e23ba62d67a96e44da19944d79
+    note: Proof succeeded! cell_p2sh
+  status: both-green
+  gap_note: null
+- id: SCR-055
+  family: push-encoding
+  summary: OP_1 0x4e73 (4-byte script / 2-byte v1 program)
+  core_ref: script.cpp:207-222@cce32b168
+  consensus: true
+  cells:
+  - push-encoding/C-L-w32-p2a-anchor
+  alive2:
+    result: green
+    cell: push-encoding/C-L-w32-p2a-anchor
+    certificate: 2f4ec58da2a43220bf0c81b99dbeb1b9ac80cfe064d1929c9e6e47cf05fa498e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: push-encoding/C-L-w32-p2a-anchor
+    certificate: 5d09bd7c6f1f175c9fb4c3422281178d998243e38b357a3dec7ac7f3fb96b686
+    note: Proof succeeded! cell_p2a
+  status: both-green
+  gap_note: null
+- id: SCR-056
+  family: control-flow
+  summary: CastToBool of top (NOTIF inverts); pop
+  core_ref: interpreter.cpp:EvalScript:613-645@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
+- id: SCR-057
+  family: control-flow
+  summary: any nonzero byte = true; lone 0x80 = false; ∅ = false
+  core_ref: interpreter.cpp:46-59@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-casttobool
+  - control-flow/C-L-casttobool-full
+  alive2:
+    result: green
+    cell: control-flow/C-L-casttobool-full
+    certificate: 9b51c788ed835910fc4fe5edf2e36f503d017f790fe6b5ce67dca0f35e1e6649
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-casttobool-full
+    certificate: 9cba827f7dda36f868e5407f56fba463ab07fcb0db534f95b8cc6c7a90e6f977
+    note: Proof succeeded! cell_cast_arb
+  status: both-green
+  gap_note: null
+- id: SCR-058
+  family: control-flow
+  summary: IF/NOTIF arg ∈ {∅, 01} else TAPSCRIPT_MINIMALIF
+  core_ref: interpreter.cpp:EvalScript:624-630@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
+- id: SCR-059
+  family: control-flow
+  summary: same check under flag
+  core_ref: interpreter.cpp:EvalScript:632-637@cce32b168
+  consensus: false
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
+- id: SCR-060
+  family: control-flow
+  summary: no stack pop when skipped
+  core_ref: interpreter.cpp:EvalScript:617-643@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-if-notif
+  alive2:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 83dba9b7a2c8383923605398a44f20e5db49116c0f2f935b10666d836c6e9258
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-if-notif
+    certificate: 989cc2bd3e79a2fcedb962b1342f16de89743b165bf23058695bc49e0070b546
+    note: Proof succeeded! cell_if_len0
+  status: both-green
+  gap_note: null
+- id: SCR-061
+  family: control-flow
+  summary: toggle_top; empty cond-stack ⇒ UNBALANCED_CONDITIONAL
+  core_ref: interpreter.cpp:EvalScript:647-653@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
+- id: SCR-062
+  family: control-flow
+  summary: empty cond-stack ⇒ UNBALANCED_CONDITIONAL
+  core_ref: interpreter.cpp:EvalScript:655-661@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
+- id: SCR-063
+  family: control-flow
+  summary: non-empty cond-stack after loop ⇒ fail
+  core_ref: interpreter.cpp:EvalScript:1245-1246@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
+- id: SCR-064
+  family: control-flow
+  summary: in [OP_IF..OP_ENDIF] gate
+  core_ref: interpreter.cpp:EvalScript:493@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-conditional-stack
+  alive2:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 96d7b8058a316ec35eef29d01d03a7dfa306f636ee62bab28b78356a0bebadb5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-conditional-stack
+    certificate: 58334707d1b20fc38edf350912f9f9dd41366719df5652b517a09f2fe1694893
+    note: Proof succeeded! cell_cond
+  status: both-green
+  gap_note: null
+- id: SCR-065
+  family: control-flow
+  summary: BAD_OPCODE even in unexecuted branches
+  core_ref: interpreter.cpp:EvalScript:493,1227-1228@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-bad-opcode
+  alive2:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 1694200919ad3c2f183f41ca0505742b1ecb8c83aed2e5c32fa97db7b584528a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 9925764d22f02700814e60b4a893c8fa5f47bb7cc66fa399e26598bc9f051c5a
+    note: Proof succeeded! cell_bad
+  status: both-green
+  gap_note: null
+- id: SCR-066
+  family: control-flow
+  summary: BAD_OPCODE when executed; unexecuted OP_VER passes
+  core_ref: interpreter.cpp:EvalScript:1227-1228@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-bad-opcode
+  alive2:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 1694200919ad3c2f183f41ca0505742b1ecb8c83aed2e5c32fa97db7b584528a
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-bad-opcode
+    certificate: 9925764d22f02700814e60b4a893c8fa5f47bb7cc66fa399e26598bc9f051c5a
+    note: Proof succeeded! cell_bad
+  status: both-green
+  gap_note: null
+- id: SCR-067
+  family: control-flow
+  summary: each IF counts 1 opcode
+  core_ref: interpreter.cpp:EvalScript:460-464@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-opcount
+  alive2:
+    result: green
+    cell: control-flow/C-L-opcount
+    certificate: 0c2df4479a3d8885df89c10e2f4e00370550795786cc897c02ea00154e5e0597
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-opcount
+    certificate: 70b4c155b3fb42fa3617734aab0430485ce546b527a6a1b9f74c00bafaceaa9e
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-068
+  family: control-flow
+  summary: pop iff true else VERIFY
+  core_ref: interpreter.cpp:EvalScript:663-675@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-verify
+  - stack/C-L-verify
+  alive2:
+    result: green
+    cell: control-flow/C-L-verify
+    certificate: d05d65cc0aa0671d9f671e37acb455829d4423eb40f61d07fe3ed331da4d74a9
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-verify
+    certificate: 86f3ab6be0cd38cde07eaa6093bd458288cb57bf45e4d9467cae42adc3ac7eb8
+    note: Proof succeeded! cell_verify_len0
+  status: both-green
+  gap_note: null
+- id: SCR-069
+  family: control-flow
+  summary: OP_RETURN error
+  core_ref: interpreter.cpp:EvalScript:677-681@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-nop-return
+  alive2:
+    result: green
+    cell: control-flow/C-L-nop-return
+    certificate: 941b38e12f1cfd1f551b2e2ff783396e748bb0fcebaf26e434f68b52ea31b6fc
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: control-flow/C-L-nop-return
+    certificate: 5fe704b0003b93277b638e828a1dd139638ee92a957f8714b9279ef490be3c8b
+    note: Proof succeeded! cell_op_return
+  status: both-green
+  gap_note: null
+- id: SCR-070
+  family: control-flow
+  summary: first-byte OP_RETURN or >10k script ⇒ never spendable
+  core_ref: script.h:IsUnspendable:564-567@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-unspendable
+  alive2:
+    result: green
+    cell: control-flow/C-L-unspendable
+    certificate: 63165685dc9450309f106fec52469c09a49fc1f259825d03529f6bede532ab1b
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: control-flow/C-L-unspendable
+    certificate: 1a83471ed25a7e852f4748f816560b1c940186f36a0add0a3e3e9aaba835766f
+    note: Proof succeeded! cell_unspendable
+  status: both-green
+  gap_note: null
+- id: SCR-071
+  family: control-flow
+  summary: OP_NOP1 and OP_NOP4..OP_NOP10 are no-ops and succeed in a block
+  core_ref: interpreter.cpp:EvalScript:605-611@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-nop-return
+  alive2:
+    result: green
+    cell: control-flow/C-L-nop-return
+    certificate: 941b38e12f1cfd1f551b2e2ff783396e748bb0fcebaf26e434f68b52ea31b6fc
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: control-flow/C-L-nop-return
+    certificate: 5fe704b0003b93277b638e828a1dd139638ee92a957f8714b9279ef490be3c8b
+    note: Proof succeeded! cell_op_return
+  status: both-green
+  gap_note: null
+- id: SCR-072
+  family: control-flow
+  summary: without flags they are plain NOPs
+  core_ref: interpreter.cpp:EvalScript:534-537,573-576@cce32b168
+  consensus: true
+  cells:
+  - control-flow/C-L-cltv-csv-nop
+  alive2:
+    result: green
+    cell: control-flow/C-L-cltv-csv-nop
+    certificate: 5f367649f447bad956f26a032afc297e982ef430744809a974be08d2013df7ba
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: control-flow/C-L-cltv-csv-nop
+    certificate: 4f534595e56dc302fcbc890d40c4f1b79ee5a0fc590fc684f19dd1c5c4b88315
+    note: Proof succeeded! cell_cltv_flagoff
+  status: both-green
+  gap_note: null
+- id: SCR-073
+  family: stack-ops
+  summary: executed TOALTSTACK/FROMALTSTACK with one opcode of budget left move the top item; FROMALTSTACK on an empty altstack ⇒ INVALID_ALTSTACK_OPERATION and TOALTSTACK on an empty main stack ⇒ INVALID_STACK_OPERATION; unexecuted branches skip and budget exhaustion yields OP_COUNT first
+  core_ref: interpreter.cpp:687-703@cce32b168
+  consensus: true
+  cells:
+  - e1-altstack/roundtrip
+  - stack-ops/C-L-w32-altstack-step
+  - stack/C-L-altstack
+  alive2:
+    result: green
+    cell: stack-ops/C-L-w32-altstack-step
+    certificate: 3d49b836628f640365943df65f574b3d92068ad590f5250945c9477b7899112f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-w32-altstack-step
+    certificate: 6b24a670b5cab9910d87f8b743db6fba46571255dcb95fe2bcea5325021dcdb7
+    note: Proof succeeded! cell_altstep
+  status: both-green
+  gap_note: null
+- id: SCR-074
+  family: stack-ops
+  summary: each op checks depth ⇒ INVALID_STACK_OPERATION
+  core_ref: interpreter.cpp:705-880@cce32b168
+  consensus: true
+  cells:
+  - e1-stack/dup-order
+  - e1-stack/rot-direction
+  - e1-stack/swap-order
+  - stack-ops/C-L-arity
+  - stack/C-L-dup-drop-swap
+  alive2:
+    result: green
+    cell: stack-ops/C-L-arity
+    certificate: f5c24a5b5cdd2870508a73fa9bfc85a1cecdd5794aebce6d3e3ce02aca016301
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-arity
+    certificate: ecf51bd7a89bf2480998128b37df4ac09eca41a2e5d4a06d02cade7518a9c75d
+    note: Proof succeeded! cell_2drop_d0
+  status: both-green
+  gap_note: null
+- id: SCR-075
+  family: stack-ops
+  summary: ScriptNum(top); after the index is popped, n∈[0, remaining-stack size) (= tail.length) else INVALID_STACK_OPERATION; ROLL erases; the same transition runs executed in BASE/WITNESS_V0/TAPSCRIPT (BASE/WITNESS_V0 also charge one opcode-budget unit, tapscript does not), and the unexecuted case is a skip
+  core_ref: interpreter.cpp:833-849@cce32b168
+  consensus: true
+  cells:
+  - e1-stack/pick-depth
+  - stack-ops/C-L-pick
+  alive2:
+    result: green
+    cell: stack-ops/C-L-pick
+    certificate: 038e678223bcb5599358347d6cdd6f357926186f383fca6352aa0bf2e9e6564e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-pick
+    certificate: afb1c6e6c467f0e62450fd4180adb0f078fc6b7b4ff9372efa4974df2cebb82b
+    note: Proof succeeded! cell_pick_d3_sym
+  status: both-green
+  gap_note: null
+- id: SCR-076
+  family: stack-ops
+  summary: size as minimal CScriptNum encoding
+  core_ref: interpreter.cpp:787-793,883-891@cce32b168
+  consensus: true
+  cells:
+  - e1-stack/depth-count
+  - stack-ops/C-L-depth-size
+  alive2:
+    result: green
+    cell: stack-ops/C-L-depth-size
+    certificate: 779bd35958b59e14f1debf584a87f825d0abfc6efe831500772299f248b9bcb7
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-depth-size
+    certificate: ff43edbcf9199b7c0b269d3d4bc7679d0565c8e9ade227318b180dca2a859a6a
+    note: Proof succeeded! cell_depth_d0
+  status: both-green
+  gap_note: null
+- id: SCR-077
+  family: stack-ops
+  summary: dup iff CastToBool
+  core_ref: interpreter.cpp:776-785@cce32b168
+  consensus: true
+  cells:
+  - stack-ops/C-L-ifdup
+  alive2:
+    result: green
+    cell: stack-ops/C-L-ifdup
+    certificate: a8db4ea4142522dc413eee535f0f66b0c62cb718fa9228383866465f1f579c02
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: stack-ops/C-L-ifdup
+    certificate: f4ad57688f8dbe1ce35e46bc7273dcfebbcbae6687a2348e62b6ee566ac80bb5
+    note: Proof succeeded! cell_ifdup_empty
+  status: both-green
+  gap_note: null
+- id: SCR-078
+  family: stack-ops
+  summary: popstack throws ⇒ UNKNOWN_ERROR; all ops pre-check
+  core_ref: interpreter.cpp:67-72,65 (.at)@cce32b168
+  consensus: true
+  cells:
+  - e1-stack/dup-order
+  - e1-stack/swap-order
+  - stack/C-L-dup-drop-swap
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; e1-stack/dup-order: partial success branch only: DUP executes at depth 2 with no underflow and no stack-size edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; e1-stack/swap-order: partial success branch only: SWAP executes at depth 2 with no underflow and no opcode-budget edge; the depth-failure branch of SCR-074 and the popstack path of SCR-078 are not exercised.; stack/C-L-dup-drop-swap: partial — closed branches only: empty-stack DUP/SWAP/DROP failures plus one success composition; no symbolic depth or elements, no stack-size edge.'
+- id: SCR-079
+  family: numeric
+  summary: '>limit ⇒ scriptnum_error ⇒ SCRIPT_ERR_SCRIPTNUM'
+  core_ref: script.h:246-271@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-scriptnum-width
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-width
+    certificate: 617720d66148b516997fa2386baa2767cf768e7df67e0884549ca555cd79c286
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-width
+    certificate: a4c4bf76d9fa9aa1dda1291d480911925b23f9dd33f802fc0303807c8567f5a0
+    note: Proof succeeded! cell_scriptnum
+  status: both-green
+  gap_note: null
+- id: SCR-080
+  family: numeric
+  summary: all numeric opcodes
+  core_ref: script.h:244,247@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-numeric-default-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-numeric-default-4byte
+    certificate: ad37157cc30130143ee819156089aba823d56a10cd425068b6d1218698a76c99
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-numeric-default-4byte
+    certificate: 8edd6da0b189b4ee090a0683f3d974d7061202a996f518de354cbc2d1bf7eb49
+    note: Proof succeeded! cell_pick_roll
+  status: both-green
+  gap_note: null
+- id: SCR-081
+  family: numeric
+  summary: nMaxNumSize=5 special case
+  core_ref: interpreter.cpp:556,584@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-nmaxnum5
+  alive2:
+    result: green
+    cell: numeric/C-L-nmaxnum5
+    certificate: e3dae7f64b9d4ee34917383749033836c877c35722a20d6ae10fd536e3250ca2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-nmaxnum5
+    certificate: 8fd332a216abc6f73356fbcf04f859981132f6c106b04805ab238b105bc649ad
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
+- id: SCR-082
+  family: numeric
+  summary: 0x80 sign bit on top byte; negative zero exists
+  core_ref: script.h:set_vch:376-391, serialize:342-373@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-scriptnum-sign
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-sign
+    certificate: 06e24d110f6c2ad399ace37edb21a12bc371a631fc0be4a3bb0d80716a38c1fe
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-sign
+    certificate: 24bc54edb51db7014fbd9d82f9ffa7fbf167dc9004e43e1b888a44920e03835d
+    note: Proof succeeded! cell_decode
+  status: both-green
+  gap_note: null
+- id: SCR-083
+  family: numeric
+  summary: 0x80 → 0; CastToBool(0x80)=false
+  core_ref: script.h:387-390@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-w64-negzero
+  alive2:
+    result: green
+    cell: numeric/C-L-w64-negzero
+    certificate: d35573e98fc2c157470ac8f2210822dc689ad95e5c303d2da8356491ecffdae5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-w64-negzero
+    certificate: 9191501b3c1cd9723732ed97cae31900184850eb6f476a9c91ed5133b55935d8
+    note: Proof succeeded! cell_negzero
+  status: both-green
+  gap_note: null
+- id: SCR-084
+  family: numeric
+  summary: 'CScriptNum minimal-encoding sign-extension exception: +255 and -255 encode to 0xff00 and 0xff80 (little-endian on the wire) and BOTH are minimal; the exception is required because the extra byte carries the sign (script.h:262-268).'
+  core_ref: script.h:262-268@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-scriptnum-signext-exception
+  alive2:
+    result: green
+    cell: numeric/C-L-scriptnum-signext-exception
+    certificate: 0a55b436a0aa839b9c1e44c2204d99e080e4952370d637585464c2fa22320f9d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-scriptnum-signext-exception
+    certificate: 409e88cbcc67131580e496caa506d0f5adbb77205ac98fa1b61c7b12e1e2e7d6
+    note: Proof succeeded! cell_signext_roundtrip
+  status: both-green
+  gap_note: null
+- id: SCR-085
+  family: numeric
+  summary: only re-interpretation enforces limit
+  core_ref: script.h:229-236 (comment), getvch@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-reinterpret-limit
+  alive2:
+    result: green
+    cell: numeric/C-L-reinterpret-limit
+    certificate: b0e33d39e7404db4f9ad35c88efae4b1e3a1fee5ef535c2c993b25194b150870
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-reinterpret-limit
+    certificate: 4d119b2412016166ac4e7b82d16885b2dead72b0c3b30ae9a684411de5d5d729
+    note: Proof succeeded! cell_push_raw
+  status: both-green
+  gap_note: null
+- id: SCR-086
+  family: numeric
+  summary: clamp to int32 for depth/count uses
+  core_ref: script.h:326-333@cce32b168
+  consensus: true
+  cells:
+  - e2-numeric/C-L-w32-cms-getint-counts
+  - e2-numeric/C-L-w66-scr086-clamp-uses
+  alive2:
+    result: green
+    cell: e2-numeric/C-L-w66-scr086-clamp-uses
+    certificate: 94d4e31fc9996b3a5c2f9e2288f9c550bef43b03154801f54446b4124f9b417d
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: e2-numeric/C-L-w66-scr086-clamp-uses
+    certificate: afe37c77425284d3730e4908ce6d33b88b4bdac36570f6b36d40fee655c54ea6
+    note: Proof succeeded! cell_clamp_int32
+  status: both-green
+  gap_note: null
+- id: SCR-087
+  family: numeric
+  summary: 1ADD/1SUB/NEGATE/ABS/NOT/0NOTEQUAL
+  core_ref: interpreter.cpp:929-953@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-unary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-unary-4byte
+    certificate: 41abbe060d7e6cc5c56de97771b79b1c56f39c44c1075245c6eb746db773dcd3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-unary-4byte
+    certificate: 6a39188cb0a3ae1014308e0c29066ef43513bf17c8e7ffd718a0d4f22d762273
+    note: Proof succeeded! cell_1add
+  status: both-green
+  gap_note: null
+- id: SCR-088
+  family: numeric
+  summary: ADD/SUB/BOOLAND/BOOLOR/NUMEQUAL/NUMNOTEQUAL/LE/GE/LT/GT/MIN/MAX (wire 0x93, 0x94, 0x9a-0x9c, 0x9e-0xa4) push the binary result; OP_NUMEQUALVERIFY (0x9d) is a separate non-pushing op — false => NUMEQUALVERIFY error (SCR-090, PDW79.lean:94-105), and its success arm (both operands dropped) is not yet proved
+  core_ref: interpreter.cpp:955-1010@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-binary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ce25aabe6ba5626392ad042fc2fb48c0c842de9ddf424b983c7ff7b394397ad4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ff9fc20ac88b6282364d87eb6b2e281c888ae78c325095d7acd4f3de60d8aef7
+    note: Proof succeeded! cell_add
+  status: both-green
+  gap_note: null
+- id: SCR-089
+  family: numeric
+  summary: min ≤ x < max
+  core_ref: interpreter.cpp:1012-1026@cce32b168
+  consensus: true
+  cells:
+  - e2-numeric/within-boundary
+  - numeric/C-L-within-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-within-4byte
+    certificate: 8b41b87b1e07b8d63f2d4e5e265136f2abe03c4ff349365594aff90131721051
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-within-4byte
+    certificate: 0e26c439c6e60b41de6535a0f851b5ea3026fea4b768271588c458eefff7577a
+    note: Proof succeeded! cell_within
+  status: both-green
+  gap_note: null
+- id: SCR-090
+  family: numeric
+  summary: false ⇒ NUMEQUALVERIFY error
+  core_ref: interpreter.cpp:1002-1008@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-binary-4byte
+  alive2:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ce25aabe6ba5626392ad042fc2fb48c0c842de9ddf424b983c7ff7b394397ad4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-binary-4byte
+    certificate: ff9fc20ac88b6282364d87eb6b2e281c888ae78c325095d7acd4f3de60d8aef7
+    note: Proof succeeded! cell_add
+  status: both-green
+  gap_note: null
+- id: SCR-091
+  family: numeric
+  summary: raw bytes, not numeric
+  core_ref: interpreter.cpp:897-923@cce32b168
+  consensus: true
+  cells:
+  - numeric/C-L-equal-rawbytes
+  alive2:
+    result: green
+    cell: numeric/C-L-equal-rawbytes
+    certificate: acb9dbf6f836663c843a1ed16855b27993b3932344dc0b09ac502f4feb8e279d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: numeric/C-L-equal-rawbytes
+    certificate: ec565e9d57d0595a1c15d6c307105838d9e1a945207e192b4260d5ee4a313360
+    note: Proof succeeded! cell_equal
+  status: both-green
+  gap_note: null
+- id: SCR-092
+  family: numeric
+  summary: 0x8e is OP_2DIV (no OP_NOTEQUAL opcode exists); legacy and witness-v0 execution reject it as a disabled opcode, and tapscript treats it as OP_SUCCESS142
+  core_ref: interpreter.cpp:899,907-911 (comment)@cce32b168
+  consensus: true
+  cells:
+  - e2-numeric/C-L-w32-disabled-2div
+  - numeric/C-L-2div-disabled
+  alive2:
+    result: green
+    cell: e2-numeric/C-L-w32-disabled-2div
+    certificate: 650b401f181edc855bf7e25c2cad150e893631b13d2e432526c86220d09baa56
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e2-numeric/C-L-w32-disabled-2div
+    certificate: d22de1cdf726c624b6919c2072febf18ce0b4d2d7acae988485f0c78859b2d15
+    note: Proof succeeded! cell_base
+  status: both-green
+  gap_note: null
+- id: SCR-093
+  family: hash-ops
+  summary: 20/20/32
+  core_ref: interpreter.cpp:1032-1056@cce32b168
+  consensus: true
+  cells:
+  - e2-hash/hash160-vector
+  - hash-ops/C-L-hash-widths
+  alive2:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: b200dea82d58d12861577f38172f92b5a28b40ebb30699f8ce609139b144dec1
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: a16729a1743ef230a89823cf5f574d19205686cf67ad67568bc741dc463500e4
+    note: Proof succeeded! cell_ripemd160_empty
+  status: both-green
+  gap_note: null
+- id: SCR-094
+  family: hash-ops
+  summary: RIPEMD160∘SHA256; SHA256d
+  core_ref: interpreter.cpp:1049-1052@cce32b168
+  consensus: true
+  cells:
+  - e2-hash/hash160-vector
+  - hash-ops/C-L-hash-compose
+  alive2:
+    result: green
+    cell: hash-ops/C-L-hash-compose
+    certificate: 382ca9b92b22610eb0c8fa67ec92d5c66dc0ca4c77e64407d892a852efba423d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: hash-ops/C-L-hash-compose
+    certificate: 79d5a2a7877c135deebd6051b988aa2f41daf9118abe2a1d27b73144536dd704
+    note: Proof succeeded! cell_hash160_empty
+  status: both-green
+  gap_note: null
+- id: SCR-095
+  family: hash-ops
+  summary: works (∅ hashes fine)
+  core_ref: interpreter.cpp:1038-1054@cce32b168
+  consensus: true
+  cells:
+  - hash-ops/C-L-hash-widths
+  alive2:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: b200dea82d58d12861577f38172f92b5a28b40ebb30699f8ce609139b144dec1
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: hash-ops/C-L-hash-widths
+    certificate: a16729a1743ef230a89823cf5f574d19205686cf67ad67568bc741dc463500e4
+    note: Proof succeeded! cell_ripemd160_empty
+  status: both-green
+  gap_note: null
+- id: SCR-096
+  family: checksig
+  summary: pbegincodehash .. end
+  core_ref: interpreter.cpp:1058-1067,336@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
+- id: SCR-097
+  family: checksig
+  summary: only executed CODESEPARATOR updates
+  core_ref: interpreter.cpp:1058-1067 (in fExec switch)@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
+- id: SCR-098
+  family: checksig
+  summary: byte-level removal of each matched serialized sig push from scriptCode, continuing after the match
+  core_ref: interpreter.cpp:239-265,339-343@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-w32-checksig-findanddelete
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-findanddelete
+    certificate: 6d46e9e1d3be07d3ec6b1451beb657917b88203bfa3944ad5d8a322485d6aa3b
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-findanddelete
+    certificate: ae57b2f6660f67dd8163bee996835919ab105b9042a5d25c8974d2967a492339
+    note: Proof succeeded! cell_fad_pl1
+  status: both-green
+  gap_note: null
+- id: SCR-099
+  family: checksig
+  summary: found>0 ⇒ SIG_FINDANDDELETE (pol.)
+  core_ref: interpreter.cpp:341-342@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-w32-checksig-constscriptcode
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-constscriptcode
+    certificate: c057316ef5f17e43031efa45439ac33efb6e29dc538e08c44055c052005d1230
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-constscriptcode
+    certificate: 92a6a8e85b2edc33b85a534a1965278732526dca375486e2a0fbe6a23c113353
+    note: Proof succeeded! cell_fadpol_pl1
+  status: both-green
+  gap_note: null
+- id: SCR-100
+  family: checksig
+  summary: BASE, even unexecuted (pol.)
+  core_ref: interpreter.cpp:484-486@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-w32-checksig-codesep
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 7c21fa49b811f106b3c3c312c6057a2c42089d1957a128bce47588baa186f934
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-codesep
+    certificate: 1179dae2f94760ac187d15100eef144e052219aa5ee123ddfe45d1d4d8a17d82
+    note: Proof succeeded! cell_codesep
+  status: both-green
+  gap_note: null
+- id: SCR-101
+  family: checksig
+  summary: 1-byte opcodes removed from serialization
+  core_ref: interpreter.cpp:SerializeScriptCode:1282-1302@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-w32-checksig-serialize-scriptcode
+  alive2:
+    result: green
+    cell: checksig/C-L-w32-checksig-serialize-scriptcode
+    certificate: 748068fbbb09b6dc9dec2b688dd2069cb5abaf8ce7cb2bbde3c7ca9cd573aa75
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-w32-checksig-serialize-scriptcode
+    certificate: 80f05bf22c1bdd48e72551980e58b20297b0073829b1a1df9584ed8542e7110f
+    note: Proof succeeded! cell_ser
+  status: both-green
+  gap_note: null
+- id: SCR-102
+  family: checksig
+  summary: 9..73 bytes; strict DER structure; consensus since BIP66
+  core_ref: interpreter.cpp:118-181@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-der
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 9164bc13de0903b3076a9004e076122a2cf8996232d289ac4f2e6de9638e5889
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 4afa00465c92698f736dfe69d69299fdbc53974b35fee96731258ff0505bea29
+    note: Proof succeeded! cell_der
+  status: both-green
+  gap_note: null
+- id: SCR-103
+  family: checksig
+  summary: applied from BIP66 height 363725
+  core_ref: validation.cpp:2262-2270@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-bip66
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-bip66
+    certificate: 9c1b1b9e2fdbf083e5bb21a7b3ee7b8c69f7a60837ac06383b4eb2976754bf80
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-bip66
+    certificate: b2255cb2ed88d02cead887a3fbfa4a4b4132d91dfe456220009a15623ddc56c2
+    note: Proof succeeded! cell_dersig_flag
+  status: both-green
+  gap_note: null
+- id: SCR-104
+  family: checksig
+  summary: S ≤ order/2 under LOW_S (pol.)
+  core_ref: interpreter.cpp:183-198; pubkey.cpp:393-399@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-checksig-lows
+  - checksig/C-L-checksig-lows-numeric
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-lows: The cell assumes the canonical-scalar domain `s < n` (the signature already passed strict BIP66 DER and the compact parser did not hit its overflow window). It does **not** model how S is extracted from the DER blob, nor the `ecdsa_signature_parse_der_lax` `s >= n` overflow/reduction window (the SGN-107 seam of `docs/DECISION-lax-ecdsa.md`). SCR-104 therefore stays partial.; checksig/C-L-checksig-lows-numeric: partial'
+- id: SCR-105
+  family: checksig
+  summary: last byte & ~0x80 ∈ {1,2,3} (pol.)
+  core_ref: interpreter.cpp:200-209@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
+- id: SCR-106
+  family: checksig
+  summary: 33B 02/03 or 65B 04 (pol.)
+  core_ref: interpreter.cpp:74-94,228-231@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
+- id: SCR-107
+  family: checksig
+  summary: v0 witness pubkeys compressed (pol.)
+  core_ref: interpreter.cpp:96-106,233-235@cce32b168
+  consensus: false
+  cells:
+  - checksig/C-L-checksig-policy
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: f4db95fce519de72afd05bf6e7c5c3ecb2015cd16d6ac5dc3a3ee51ed8380b59
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-policy
+    certificate: b77c523eeb4dfbddecb3e1070ddcddaa81a215dc3b51f688470b66997cb1c944
+    note: Proof succeeded! cell_hashtype_gate
+  status: both-green
+  gap_note: null
+- id: SCR-108
+  family: checksig
+  summary: ∅ sig bypasses DER checks
+  core_ref: interpreter.cpp:213-216@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-der
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 9164bc13de0903b3076a9004e076122a2cf8996232d289ac4f2e6de9638e5889
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-der
+    certificate: 4afa00465c92698f736dfe69d69299fdbc53974b35fee96731258ff0505bea29
+    note: Proof succeeded! cell_der
+  status: both-green
+  gap_note: null
+- id: SCR-109
+  family: checksig
+  summary: OP_CHECKSIG pushes FALSE on ∅ sig
+  core_ref: interpreter.cpp:1710-1711,1083@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-empty
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-empty
+    certificate: 0f632427f587546c51047691b945aa549784b3f787a0bdebbeaaf845ef503b1e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-empty
+    certificate: d17a2bf4a10d025d0e56ab51c1557e7ecfb3ed01edf072b9779baa512c42b454
+    note: Proof succeeded! cell_checksig_empty
+  status: both-green
+  gap_note: null
+- id: SCR-110
+  family: checksig
+  summary: failed check w/ non-empty sig ⇒ SIG_NULLFAIL (pol.)
+  core_ref: interpreter.cpp:351-352,1196-1197@cce32b168
+  consensus: false
+  cells:
+  - checkmultisig/C-L-cms-nullfail-loop
+  - checksig/C-L-checksig-nullfail-hashtype
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: b0466dc188510bbdfa6a53ac4ffa6e5e831feaf512ac04dceb783904e7a53b4e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: 667014fdb75a867109111cf1bb85c151b4ff992521cabc1d767d0f0b587d56c3
+    note: Proof succeeded! cell_checksig_nullfail
+  status: both-green
+  gap_note: null
+- id: SCR-111
+  family: checksig
+  summary: ANYONECANPAY bit passed through
+  core_ref: interpreter.cpp:1712-1713@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-nullfail-hashtype
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: b0466dc188510bbdfa6a53ac4ffa6e5e831feaf512ac04dceb783904e7a53b4e
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-nullfail-hashtype
+    certificate: 667014fdb75a867109111cf1bb85c151b4ff992521cabc1d767d0f0b587d56c3
+    note: Proof succeeded! cell_checksig_nullfail
+  status: both-green
+  gap_note: null
+- id: SCR-112
+  family: checksig
+  summary: an invalid pubkey makes CHECKSIG push false and continue in a block; the pubkey-encoding abort is policy (STRICTENC on SCR-106, WITNESS_PUBKEYTYPE on SCR-107), and tapscript x-only size rules stay on SCR-158/SCR-159
+  core_ref: interpreter.cpp:1704-1706@cce32b168 (CheckPubKeyEncoding interpreter.cpp:228-237)
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-invalid-pubkey
+  - checksig/C-L-checksig-pubkey-encoding
+  - e3-checksig/C-L-checksig-dispatch
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; checksig/C-L-checksig-invalid-pubkey: - `CPubKey::IsValid()` / `CPubKey::Set` is taken as an input, not computed from the pubkey bytes; the byte-level structural parse is not modelled. - The valid-key branch uses the abstract EC verdict (`crypto_ok`), i.e. the same-crypto premise of `docs/DECISION-lax-ecdsa.md`. The invalid-key implication itself does not depend on it. - No R leg (F-HARNESS-002 / F-TOOL-001). - The existing ledger anchor `e3-checksig/C-L-checksig-dispatch` is outside this task''s write scope and was not edited; this cell supplements it.; checksig/C-L-checksig-pubkey-encoding: (and why the row must stay `gap`) The L leg uses `validPubKeySize` (the size-exact port already present at `Bitcoin/Crypto/EcdsaDeep/PubKeyParse.lean:135-136`), **not** the pinned `Bitcoin/Crypto/Seam/Der.isValidPubKey` (`Der.lean:175`), which is header-only and is F-DIV-004. The pinned `Seam/Entry.ecdsaVerdict` gate therefore does not compute the predicate proved here. The cell demonstrates that the corrected gate is behavior-preserving against Core and gives the exact coverage a post-fix cell would carry; it does not certify the current model. The divergence'
+- id: SCR-113
+  family: checksig
+  summary: each executed op counts 1 toward 201
+  core_ref: src/script/interpreter.cpp:460-464@cce32b168
+  consensus: true
+  cells:
+  - checksig/C-L-checksig-opcount
+  alive2:
+    result: green
+    cell: checksig/C-L-checksig-opcount
+    certificate: 0de8b1eb1f5f106717d4b900c32969a036acb87eec5165b4c1f1c72892fc9d8f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checksig/C-L-checksig-opcount
+    certificate: 070b35d41a0fd96455049bf6f67b9a7cf0dcee9e559207c34287530539052a75
+    note: Proof succeeded! cell_opcount
+  status: both-green
+  gap_note: null
+- id: SCR-114
+  family: checkmultisig
+  summary: nKeys∈[0,20], nSigs∈[0,nKeys], depth checks
+  core_ref: interpreter.cpp:1122-1146@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-layout-sym
+  - e3-cms/C-L-cms-1of1
+  - e3-cms/C-L-w32-cms-counts
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-layout-sym
+    certificate: 223c64b3f518f7b934be5f3310a342907925a6212fe22fc951918955245fa5c4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-layout-sym
+    certificate: 42de61318ca951f13f900e10e5ba813a3bf324ca0133bac384e2082670989991
+    note: Proof succeeded! cell_cms_layout
+  status: both-green
+  gap_note: null
+- id: SCR-115
+  family: checkmultisig
+  summary: all nSigsCount sigs FindAndDelete'd before any check (BASE)
+  core_ref: interpreter.cpp:1152-1160@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-fad-probe
+  - e3-cms/C-L-w32-cms-finddelete
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; checkmultisig/C-L-cms-fad-probe: - FindAndDelete is abstract (algorithm = SCR-098/INV-056). - The fold and probe loop are unrolled to nSigs = nKeys <= 2; the row allows 20. Larger counts are rejected by the guard.; e3-cms/C-L-w32-cms-finddelete: partial'
+- id: SCR-116
+  family: checkmultisig
+  summary: sigs to keys in order; early fail when sigs>keys remain
+  core_ref: interpreter.cpp:1163-1191@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-order-unroll
+  - e3-cms/C-L-w32-cms-loop
+  alive2:
+    result: green
+    cell: e3-cms/C-L-w32-cms-loop
+    certificate: d1aed275de8ccd29b1ce37c1a7ef2d1483798aa0d93ee0a87382458d06cffbb2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e3-cms/C-L-w32-cms-loop
+    certificate: 251d4d3bb6de746fccfa0fa40c1b88652bc50a579b280638d8dfe693e18d32c9
+    note: Proof succeeded! cell_cms_loop
+  status: both-green
+  gap_note: null
+- id: SCR-117
+  family: checkmultisig
+  summary: CheckSignatureEncoding+CheckPubKeyEncoding inside loop
+  core_ref: interpreter.cpp:1171-1174@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-enc-loop
+  - e3-cms/C-L-w32-cms-loop
+  alive2:
+    result: green
+    cell: e3-cms/C-L-w32-cms-loop
+    certificate: d1aed275de8ccd29b1ce37c1a7ef2d1483798aa0d93ee0a87382458d06cffbb2
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e3-cms/C-L-w32-cms-loop
+    certificate: 251d4d3bb6de746fccfa0fa40c1b88652bc50a579b280638d8dfe693e18d32c9
+    note: Proof succeeded! cell_cms_loop
+  status: both-green
+  gap_note: null
+- id: SCR-118
+  family: checkmultisig
+  summary: extra stack item consumed unchecked
+  core_ref: interpreter.cpp:1209-1213@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-tail-sym
+  - e3-cms/C-L-cms-1of1
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
+- id: SCR-119
+  family: checkmultisig
+  summary: dummy must be ∅ (cons. post-SegWit)
+  core_ref: interpreter.cpp:1211-1212@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-tail-sym
+  - e3-cms/C-L-cms-1of1
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
+- id: SCR-120
+  family: checkmultisig
+  summary: false ⇒ CHECKMULTISIGVERIFY error
+  core_ref: interpreter.cpp:1217-1223@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-tail-sym
+  - e3-cms/C-L-cms-1of1
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: c1b90f85fc6a2da3c5722be0f7fdfa7739e37d0d263ce69da45dfc07a7d63b3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tail-sym
+    certificate: 7e7d44a8c518e22ccc7869c7230c9b6f50c1221c090f95bcf04a1b84aeb20851
+    note: Proof succeeded! cell_cms_tail
+  status: both-green
+  gap_note: null
+- id: SCR-121
+  family: checkmultisig
+  summary: TAPSCRIPT_CHECKMULTISIG
+  core_ref: interpreter.cpp:1118@cce32b168
+  consensus: true
+  cells:
+  - checkmultisig/C-L-cms-tapscript-ban
+  alive2:
+    result: green
+    cell: checkmultisig/C-L-cms-tapscript-ban
+    certificate: 4bba75e83bb8a4b9d6034bfff33ae0995253a903c3fd5b7b0046ee6813e0c108
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: checkmultisig/C-L-cms-tapscript-ban
+    certificate: 2d177f55f7f7e3a006ef83b8133a33fc316c9dbc5732226992e368fa1e4ca6ef
+    note: Proof succeeded! cell_cms_tapscript_ban
+  status: both-green
+  gap_note: null
+- id: SCR-122
+  family: locktime
+  summary: negative ⇒ NEGATIVE_LOCKTIME
+  core_ref: interpreter.cpp:556@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
+- id: SCR-123
+  family: locktime
+  summary: both sides < or ≥ 500000000 (script.h:48)
+  core_ref: interpreter.cpp:CheckLockTime:1764-1768@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
+- id: SCR-124
+  family: locktime
+  summary: operand ≤ tx nLockTime
+  core_ref: interpreter.cpp:1772-1773@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
+- id: SCR-125
+  family: locktime
+  summary: vin[nIn].nSequence ≠ 0xffffffff
+  core_ref: interpreter.cpp:1785-1786@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-cltv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 403e505dacdce22e8a275051da2153e47baec735f97bd90ae60a6b419e4b6b30
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-cltv-op
+    certificate: 6669773002c9f309be58d12eb90294239a1fda14c0547c9a3a2b4da211a89dcd
+    note: Proof succeeded! cell_cltv
+  status: both-green
+  gap_note: null
+- id: SCR-126
+  family: locktime
+  summary: negative ⇒ NEGATIVE_LOCKTIME
+  core_ref: interpreter.cpp:584@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
+- id: SCR-127
+  family: locktime
+  summary: operand bit 31 ⇒ NOP
+  core_ref: interpreter.cpp:595-596@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
+- id: SCR-128
+  family: locktime
+  summary: else fail
+  core_ref: interpreter.cpp:CheckSequence:1800-1801@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
+- id: SCR-129
+  family: locktime
+  summary: else fail
+  core_ref: interpreter.cpp:1807-1808@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
+- id: SCR-130
+  family: locktime
+  summary: mask 0x0040ffff
+  core_ref: interpreter.cpp:1812-1833@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-op
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 4db61a74878c673a253d5ea17f78ebc477815ba603c85b57fbf9f138c2d767ed
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-op
+    certificate: 5a3a779480c8d5b3e00f93af4de01011e390714425d655ce6e6dfff3ebad5b90
+    note: Proof succeeded! cell_csv
+  status: both-green
+  gap_note: null
+- id: SCR-131
+  family: locktime
+  summary: CSV script-level compares raw masked values; granularity in SequenceLocks
+  core_ref: primitives/transaction.h:115; tx_verify.cpp:94-95@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-csv-granularity
+  alive2:
+    result: green
+    cell: locktime/C-L-csv-granularity
+    certificate: ffee3fb5249b7b690e24a25a7339f40e97b08e64d7cfda989e1793b17b0e15ce
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-csv-granularity
+    certificate: 131557e501146d21289e0af09323e7b266b14b9cf16598fc9ae350f344b632f8
+    note: Proof succeeded! cell_csv_masked
+  status: both-green
+  gap_note: null
+- id: SCR-132
+  family: locktime
+  summary: CheckLockTime/Sequence see only input nIn
+  core_ref: interpreter.cpp:1755,1792-1796@cce32b168
+  consensus: true
+  cells:
+  - locktime/C-L-locktime-input-index
+  - locktime/C-L-locktime-input-index-general
+  alive2:
+    result: green
+    cell: locktime/C-L-locktime-input-index-general
+    certificate: 1863b0487b81ecf882dbc3f7d414dfb0871bf6fcf0f3cecec3bcac5170014a4f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: locktime/C-L-locktime-input-index-general
+    certificate: 926b5dc6565a1fd3cbe80cebb96475f3a5942fc1832a7d0a54994f546c38c22f
+    note: Proof succeeded! cell_cltv_general
+  status: both-green
+  gap_note: null
+- id: SCR-133
+  family: witness-v0
+  summary: SHA256(witnessScript) == program
+  core_ref: interpreter.cpp:VerifyWitnessProgram:1933-1946@cce32b168
+  consensus: true
+  cells:
+  - e4-witness/C-L-w32-witness-hash-compare
+  - witness-v0/C-L-p2wsh-hashmatch
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; e4-witness/C-L-w32-witness-hash-compare: partial for SCR-133.  The comparison half is full: for all 2^256
+
+    (digest, program) pairs the cell proves that a mismatch in any of the 32
+
+    bytes yields WITNESS_PROGRAM_MISMATCH and that a full 32-byte match
+
+    proceeds, against an independent Cryptol equality on the same marshalling.
+
+    The other half -- `CSHA256().Write(exec_script).Finalize(hash_exec_script)`
+
+    at interpreter.cpp:1940-1941 -- is not modelled.  SCR-133 is therefore not
+
+    closed: no SHA256 model exists at the leaf seam (see the task report for the
+
+    exact blocker and the smallest next experiment).; witness-v0/C-L-p2wsh-hashmatch: partial.  The row''s stated check is "SHA256(witnessScript) == program".  The
+
+    32-byte equality and the mismatch/continue dispatch are proved completely
+
+    and for every input, but SHA256(witnessScript) is an abstract digest input,
+
+    so the hash computation itself is not proved.  The row stays partial; it is
+
+    not promoted as a hash proof.  Because equality is invariant under any fixed
+
+    byte permutation, the four-word encoding is an exact representation of
+
+    memcmp(digest, program, 32) == 0, not a weakened comparison.'
+- id: SCR-134
+  family: witness-v0
+  summary: empty ⇒ WITNESS_PROGRAM_WITNESS_EMPTY
+  core_ref: interpreter.cpp:1936-1938@cce32b168
+  consensus: true
+  cells:
+  - e4-witness/C-L-w32-witness-v0-error-total
+  - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
+  alive2:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 3d9e7e9346e1ac0ef42fae0048fef31b04abddf461052f8fb2ad151fe4fff478
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 871924310c59941cbdfd914ad6697cb1224409c10a6271c4493ce03e61f815f9
+    note: Proof succeeded! cell_v0_error_total
+  status: both-green
+  gap_note: null
+- id: SCR-135
+  family: witness-v0
+  summary: else WITNESS_PROGRAM_MISMATCH
+  core_ref: interpreter.cpp:1949-1951@cce32b168
+  consensus: true
+  cells:
+  - e4-witness/C-L-w32-witness-v0-error-total
+  - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
+  alive2:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 3d9e7e9346e1ac0ef42fae0048fef31b04abddf461052f8fb2ad151fe4fff478
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 871924310c59941cbdfd914ad6697cb1224409c10a6271c4493ce03e61f815f9
+    note: Proof succeeded! cell_v0_error_total
+  status: both-green
+  gap_note: null
+- id: SCR-136
+  family: witness-v0
+  summary: DUP HASH160 <20> EQUALVERIFY CHECKSIG
+  core_ref: interpreter.cpp:1952-1953@cce32b168
+  consensus: true
+  cells:
+  - e4-witness/C-L-w32-p2wpkh-build
+  - e4-witness/C-L-w32-p2wpkh-exec
+  - e4-witness/C-L-w32-p2wpkh-oracle-v0
+  - witness-v0/C-L-p2wpkh-script
+  alive2:
+    result: green
+    cell: e4-witness/C-L-w32-p2wpkh-oracle-v0
+    certificate: 1303beb9d07f24a16a96999c8072c77ff04274a0bf6140a26763f773d7bdb05d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e4-witness/C-L-w32-p2wpkh-oracle-v0
+    certificate: 431ee194602049048624fb1ab264e310ad4facfdb683b9f46528a4c98f11d723
+    note: Proof succeeded! cell_p2wpkh_scr136
+  status: both-green
+  gap_note: null
+- id: SCR-137
+  family: witness-v0
+  summary: else WRONG_LENGTH
+  core_ref: interpreter.cpp:1954-1956@cce32b168
+  consensus: true
+  cells:
+  - e4-witness/C-L-w32-witness-v0-error-total
+  - e4-witness/C-L-witness-v0-dispatch
+  - witness-v0/C-L-witness-v0-dispatch
+  alive2:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 3d9e7e9346e1ac0ef42fae0048fef31b04abddf461052f8fb2ad151fe4fff478
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: e4-witness/C-L-w32-witness-v0-error-total
+    certificate: 871924310c59941cbdfd914ad6697cb1224409c10a6271c4493ce03e61f815f9
+    note: Proof succeeded! cell_v0_error_total
+  status: both-green
+  gap_note: null
+- id: SCR-138
+  family: witness-v0
+  summary: exactly 1 true element (cons.)
+  core_ref: interpreter.cpp:ExecuteWitnessScript:1876-1879@cce32b168
+  consensus: true
+  cells:
+  - witness-v0/C-L-witness-v0-cleanstack
+  alive2:
+    result: green
+    cell: witness-v0/C-L-witness-v0-cleanstack
+    certificate: 4c182d88a90e52ac7af7419118420a618db78f5104d38cc6e6558776b8de8ac8
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: witness-v0/C-L-witness-v0-cleanstack
+    certificate: 8907f5a858c5f7395cb8c7fa8212803bb4d28d33d305ca98cc0cf3e65f3b4a02
+    note: Proof succeeded! cell_v0_cleanstack
+  status: both-green
+  gap_note: null
+- id: SCR-139
+  family: witness-v0
+  summary: sigversion≠BASE skips deletion
+  core_ref: interpreter.cpp:333-343@cce32b168
+  consensus: true
+  cells:
+  - witness-v0/C-L-sigversion-findanddelete
+  alive2:
+    result: green
+    cell: witness-v0/C-L-sigversion-findanddelete
+    certificate: e5c6c03c67a2f8b7a8e8648a62e7ada15eae42520f6f02763dbbb8eeff96169f
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: witness-v0/C-L-sigversion-findanddelete
+    certificate: 02eafc377c4e41acb205baf44e1e44c4dda793992fd60e146606b3bec8ad80f5
+    note: Proof succeeded! cell_checksig_verdict
+  status: both-green
+  gap_note: null
+- id: SCR-140
+  family: witness-v0
+  summary: field order per BIP143; amount included
+  core_ref: interpreter.cpp:1633-1670@cce32b168
+  consensus: true
+  cells:
+  - witness-v0/C-L-bip143-encoding-cs
+  - witness-v0/C-L-bip143-layout
+  - witness-v0/C-L-bip143-preimage-order
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; witness-v0/C-L-bip143-encoding-cs: partial, but this closes two limits the sibling SCR-140 cells name:\ninteger field ENCODING and CompactSize ordering beyond one byte.\nCovered:\n  (a) version, amount, nSequence, nLockTime and nHashType are written as\n      little-endian wire integers at their BIP143 positions (preimage at\n      L=253); the amount is exactly 8 bytes of LE u64 at [360,368), i.e.\n      105 + L + 2 with L=253;\n  (b) CompactSize selects a 1/3/5/9-byte prefix at the 253 / 65536 /\n      2^32 boundaries for every u64 length, and each branch's bytes are\n      the canonical LE encoding;\n  (c) the amount offset is 105 + L + (cs_width(L) - 1) for every\n      0 <= L <= 4294967295, so field order after scriptCode is correct for\n      one-, three- and five-byte prefixes.\nNOT covered (SCR-140 therefore stays partial):\n  - the CONTENTS of hashPrevouts / hashSequence / hashOutputs.  Exact\n    dependency: a decoded-transaction model (vin/vout vectors) plus the\n    sub-hash serializers (serOutpointL, sequence and serTxOutL folds) and\n    the ACP/SINGLE/NONE value selection, then SHA256d.  The txid/vout\n    fields here are opaque wire slices; no transa"
+- id: SCR-141
+  family: witness-v0
+  summary: hashOutputs = 0 (not uint256::ONE)
+  core_ref: interpreter.cpp:1647-1653@cce32b168
+  consensus: true
+  cells:
+  - witness-v0/C-L-bip143-hashoutputs-single-oor
+  alive2:
+    result: green
+    cell: witness-v0/C-L-bip143-hashoutputs-single-oor
+    certificate: 3fb4ebd493ccc12c9d669d1af38e753f6dca57226271c6c2b5d5702aa321639f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: witness-v0/C-L-bip143-hashoutputs-single-oor
+    certificate: 2b7e0444bc93f8f6a5ec1c3741a51f10dd4d5f7d4f859976fe0ec4daf3918f32
+    note: Proof succeeded! cell_bip143_hashoutputs_mode
+  status: both-green
+  gap_note: null
+- id: SCR-142
+  family: tapscript
+  summary: 'TAPROOT gate: with the flag, a v1-32 non-P2SH spend is not anyone-can-spend; without the flag it succeeds silently only pre-activation (height 709632, except block 692261)'
+  core_ref: interpreter.cpp:1959@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-activation-gate
+  - tapscript/C-L-taproot-gate
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-taproot-activation-gate: partial, and the remaining gap is now exact.\n- COVERED: \"with the flag, a v1-32 non-P2SH spend is not anyone-can-spend\"\n  (empty witness -> error 39; non-empty -> continuation) for every\n  hash/height/shape.  COVERED: \"without the flag it succeeds silently\"\n  for the taproot exception block, hash `…1e395ad` at height 692261, and\n  for the same hash at every other height.  COVERED/NEGATIVE: the pinned\n  assembly has no height term for TAPROOT, so the cell proves height\n  709631 and 709632 produce identical results (the historical \"only\n  pre-activation\" window is not a property of this pin).\n- NOT COVERED: the row's historical clause \"only pre-activation (height\n  709632 ...)\" as a height-gated behaviour.  At cce32b168 there is no\n  DEPLOYMENT_TAPROOT and no height compare on the TAPROOT bit; the BIP9\n  window survives only as a historical Lean record\n  (Activation/Taproot.lean, TPR-075/078, min_activation 709632).  The\n  exact missing contract context is filed in GAP-CONTEXT.md: the tape has\n  no block-height/block-hash flag-assembly channel, and the pin has no\n  function to transliterate.  A cell asserting a"
+- id: SCR-143
+  family: tapscript
+  summary: ≥2 items, last non-empty, first byte 0x50
+  core_ref: interpreter.cpp:1961-1969; script.h:59@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-annex
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-annex
+    certificate: 6a865a77b4da3f6db20a3e3a36d7f402c04c141b7d5318142f9c54d152f00267
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-annex
+    certificate: 7fc0126dca22a184beb30a2e9888133b6c63b8e930f69b862bee29faa3bc6fc5
+    note: Proof succeeded! cell_annex_detected
+  status: both-green
+  gap_note: null
+- id: SCR-144
+  family: tapscript
+  summary: 'Key path: exactly one item is a BIP340 signature checked against the 32-byte output key'
+  core_ref: interpreter.cpp:1970-1975@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-keypath
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-keypath
+    certificate: 5f2a9f46eacd7b354b16ec1c7400305452e66fa9440632bec01fc0a4ca2cfca5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-keypath
+    certificate: 358408904dacabf57eb9d22d0ce19bbb9aa9279c27f88317ac7e79d7240a06d8
+    note: Proof succeeded! cell_keypath
+  status: both-green
+  gap_note: null
+- id: SCR-145
+  family: tapscript
+  summary: 33+32k bytes, k≤128 ⇒ TAPROOT_WRONG_CONTROL_SIZE
+  core_ref: interpreter.cpp:1980-1982@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-scriptpath-dispatch
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389
+    note: Proof succeeded! cell_control_size
+  status: both-green
+  gap_note: null
+- id: SCR-146
+  family: tapscript
+  summary: TaggedHash("TapLeaf", leaf_ver, CompactSize, script); leaf_ver = control[0]&0xfe
+  core_ref: interpreter.cpp:1882-1885@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-tapleaf-taggedhash
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-tapleaf-taggedhash: partial, explicitly, and deliberately so.  SCR-146's row text names the\n*digest*: `TaggedHash(\"TapLeaf\", leaf_ver, CompactSize, script)` with\n`leaf_ver = control[0] & 0xfe`.  This cell proves the complete tagged-hash\n*input construction* against the named opaque oracle H:\n  (a) the tag string is exactly the seven ASCII bytes \"TapLeaf\";\n  (b) the prefix is exactly 64 bytes = T || T for ONE symbolic 32-byte T,\n      so the two copies are the same value (tag derivation, not two calls);\n  (c) the leaf-version mask and its separation from the parity bit, for all\n      256 control bytes;\n  (d) the exact CompactSize encoding (1/3/5/9-byte forms, all boundaries)\n      at offset 65, total over all 64-bit lengths;\n  (e) the exact field map for every 64-bit length and the exact composed\n      preimage byte string for scripts of 0..4 bytes;\n  (f) preimage invariance under the parity bit, hence digest equality by\n      function congruence for any deterministic H.\nIt does NOT prove SHA256: no compression, padding, length loop, streamed\nvs one-shot equivalence, or concrete 32-byte value.  The residual is the\nnamed premise\n  `H ="
+- id: SCR-147
+  family: tapscript
+  summary: 32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key
+  core_ref: interpreter.cpp:1913-1925@cce32b168
+  consensus: true
+  cells: []
+  alive2: null
+  saw: null
+  status: unjudged-seam
+  gap_note: 'SCR-147 (32-byte program == x(tweak(p, merkle_root)); control[0]&1 == parity of the tweaked key): interpreter.cpp:1913-1925 checks program == x(tweak(p, merkle_root)) and control[0]&1 == tweaked-key parity. Pure secp256k1 EC; outside the seam.'
+- id: SCR-148
+  family: tapscript
+  summary: control[0]&0xfe == 0xc0 ⇒ TAPSCRIPT eval
+  core_ref: interpreter.cpp:1988-1994@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-scriptpath-dispatch
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389
+    note: Proof succeeded! cell_control_size
+  status: both-green
+  gap_note: null
+- id: SCR-149
+  family: tapscript
+  summary: Unknown leaf versions succeed (upgradable); the DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM flag is policy
+  core_ref: interpreter.cpp:1995-1998@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389
+    note: Proof succeeded! cell_control_size
+  status: both-green
+  gap_note: null
+- id: SCR-150
+  family: tapscript
+  summary: v1 2-byte 4e73 program ⇒ success, no execution
+  core_ref: interpreter.cpp:2000-2001@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389
+    note: Proof succeeded! cell_control_size
+  status: both-green
+  gap_note: null
+- id: SCR-151
+  family: tapscript
+  summary: v2-v16 / wrong-size v1 / P2SH-wrapped v1 ⇒ success (upgradable)
+  core_ref: interpreter.cpp:2002-2008@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-taproot-scriptpath-dispatch
+  - tapscript/C-L-w32-witness-dispatch-upgradable
+  alive2:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 0a584c57db8bff981852212f795184ee86dc0d33101507d06fb37a8e47e5a943
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-taproot-scriptpath-dispatch
+    certificate: 4df7fcab4099baa5592463bd422ec515a199305cf9e7ddd0eed428c41da9c389
+    note: Proof succeeded! cell_control_size
+  status: both-green
+  gap_note: null
+- id: SCR-152
+  family: tapscript
+  summary: '{80,98,126-129,131-134,137-138,141-142,149-153,187-254}'
+  core_ref: script.cpp:IsOpSuccess:365-371@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-tapscript-isopsuccess
+  - tapscript/C-L-w32-op-success-set
+  alive2:
+    result: green
+    cell: tapscript/C-L-tapscript-isopsuccess
+    certificate: ba3ce148c6f7b2e2ce831a52b528b19d44642074902cd755dba0357f23cb29c1
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-tapscript-isopsuccess
+    certificate: 24cb85de649e0c414a22f8f6c2aea45409251637fcc1b04b1d0e134d786f0cc1
+    note: Proof succeeded! cell_is_op_success
+  status: both-green
+  gap_note: null
+- id: SCR-153
+  family: tapscript
+  summary: overrides all later checks (incl. size limits)
+  core_ref: interpreter.cpp:ExecuteWitnessScript:1846-1862@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-op-success-prescan
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-w32-op-success-prescan: - SCR-153 \"overrides all later checks (incl. size limits)\": partial —\n  proved for every script of length <= 4 over all byte values: an OP_SUCCESSx\n  returns success before the initial stack-size check, the 520-byte item\n  check and EvalScript, and its outcome is independent of those inputs.  Not\n  proved: scripts longer than 4 bytes (the scan is straight-line unrolled;\n  the 8-byte version was attempted and Alive2 could not discharge it inside\n  the 60 s SMT budget), and the BAD_OPCODE-vs-STACK_SIZE ordering on a\n  truncated tail (F-DIV-w32-001; the cell compares the found bit only)."
+- id: SCR-154
+  family: tapscript
+  summary: pol. flag fails them
+  core_ref: interpreter.cpp:1857-1859@cce32b168
+  consensus: false
+  cells:
+  - tapscript/C-L-w32-op-success-prescan
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: "auto(cells): partial row coverage; tapscript/C-L-w32-op-success-prescan: - SCR-154 \"pol. flag fails them\": partial — same bound: with\n  DISCOURAGE_OP_SUCCESS set, every found OP_SUCCESSx in a <= 4-byte script\n  yields DISCOURAGE_OP_SUCCESS (36) and not success.  The row is policy\n  (consensus=false), and the flag is modelled as a policy input, not as a\n  consensus ScriptFlags bit.\nNOT claimed: the EvalScript result for scripts without OP_SUCCESSx\n(`later_rc`), the initial stack-size/item-size preconditions themselves, and\nany script longer than 4 bytes."
+- id: SCR-155
+  family: tapscript
+  summary: 'the MAX_OPS budget is not consulted on the tapscript path: an already-over-budget tapscript OP_NOP still succeeds and leaves opCount untouched; on BASE/WITNESS_V0 an over-budget counting opcode instead returns OP_COUNT'
+  core_ref: interpreter.cpp:460-464 (guard)@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-opcount-budget
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-opcount-budget
+    certificate: 458cb50549f356e5583e152ed4b9f5da0e243cce2762609c17a7a58eafbe8c75
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-opcount-budget
+    certificate: 08fd239f8b31928df24806fada920700e444c53c3095597d548b6f730ad4f084
+    note: Proof succeeded! cell_opcount_guard
+  status: both-green
+  gap_note: null
+- id: SCR-156
+  family: tapscript
+  summary: (sig,num,pk)→num+[sigok]; BAD_OPCODE outside tapscript
+  core_ref: interpreter.cpp:1094-1113@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-checksigadd
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 80c72ce6001938e6a734c8654d3f67282b696ee5417c58d5fe7d277b2c641f80
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 9e239c63038245f02c8c7ba008747e2d573f6a32b24105e1197154bcf52f3bfe
+    note: Proof succeeded! cell_add_dispatch
+  status: both-green
+  gap_note: null
+- id: SCR-157
+  family: tapscript
+  summary: CScriptNum(fRequireMinimal)
+  core_ref: interpreter.cpp:1103@cce32b168
+  consensus: false
+  cells:
+  - tapscript/C-L-w32-checksigadd
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 80c72ce6001938e6a734c8654d3f67282b696ee5417c58d5fe7d277b2c641f80
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-checksigadd
+    certificate: 9e239c63038245f02c8c7ba008747e2d573f6a32b24105e1197154bcf52f3bfe
+    note: Proof succeeded! cell_add_dispatch
+  status: both-green
+  gap_note: null
+- id: SCR-158
+  family: tapscript
+  summary: 0 ⇒ fail; 32 ⇒ schnorr; else upgradable
+  core_ref: interpreter.cpp:377-392@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
+- id: SCR-159
+  family: tapscript
+  summary: 'TAPSCRIPT_EMPTY_PUBKEY: a zero-length (empty) tapscript pubkey fails immediately after the validation-weight decrement'
+  core_ref: interpreter.cpp:377-378@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
+- id: SCR-160
+  family: tapscript
+  summary: 'An empty tapscript signature against a 32-byte x-only key fails the check and continues: no Schnorr verification and no validation weight charged'
+  core_ref: interpreter.cpp:367-368@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-pubkey-triage
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: f7dea8d5ff446f5f289521c165b794c85eef0959d2b703dd1289046f4d77bf77
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-pubkey-triage
+    certificate: 1f25b5528aa865418f3e640a784770bb43eb7fa3e567576a74ae3b3c3930f589
+    note: Proof succeeded! cell_triage
+  status: both-green
+  gap_note: null
+- id: SCR-161
+  family: tapscript
+  summary: else SCHNORR_SIG_SIZE
+  core_ref: interpreter.cpp:1736@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-schnorr-shape
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: ddc02bf5f2de9be4bd4fc8dd5a7aa835cd1df07eb339ba10244e55ab6eafec3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: 907cef4a4fbe4c60ace32988b68f06cad73e24cf5a0d8087d38416406681ea57
+    note: Proof succeeded! cell_schnorr_shape
+  status: both-green
+  gap_note: null
+- id: SCR-162
+  family: tapscript
+  summary: SIGHASH_DEFAULT invalid as explicit byte
+  core_ref: interpreter.cpp:1741-1744@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-schnorr-shape
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: ddc02bf5f2de9be4bd4fc8dd5a7aa835cd1df07eb339ba10244e55ab6eafec3c
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-schnorr-shape
+    certificate: 907cef4a4fbe4c60ace32988b68f06cad73e24cf5a0d8087d38416406681ea57
+    note: Proof succeeded! cell_schnorr_shape
+  status: both-green
+  gap_note: null
+- id: SCR-163
+  family: tapscript
+  summary: ≤0x03 or 0x81..0x83 else fail
+  core_ref: interpreter.cpp:1526@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-hashtype
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: b5b169f6013d27d05637f1cfbab5d0407c9065ab7de74c0010ec96adfc2c1479
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: eacf2fe5ee3f4f98d91c2ddfb6f5f623c22182a3906e73037e30aed23c744f86
+    note: Proof succeeded! cell_ht_valid
+  status: both-green
+  gap_note: null
+- id: SCR-164
+  family: tapscript
+  summary: tapleaf hash, key_version=0, codeseparator_pos
+  core_ref: interpreter.cpp:1570-1576@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-extslice
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-extslice
+    certificate: dfe434aaca0d9d84e6d16b60e170e578243eb2014ba6daf0ef7e996664a904d5
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-extslice
+    certificate: b3356bab1bae761a296beb56a90ee5dd4464aead33621627aca31a119046c293
+    note: Proof succeeded! cell_ext_w0
+  status: both-green
+  gap_note: null
+- id: SCR-165
+  family: tapscript
+  summary: only for 64-byte key-path sigs
+  core_ref: interpreter.cpp:1524,1740@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-hashtype
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: b5b169f6013d27d05637f1cfbab5d0407c9065ab7de74c0010ec96adfc2c1479
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-hashtype
+    certificate: eacf2fe5ee3f4f98d91c2ddfb6f5f623c22182a3906e73037e30aed23c744f86
+    note: Proof succeeded! cell_ht_valid
+  status: both-green
+  gap_note: null
+- id: SCR-166
+  family: tapscript
+  summary: in_pos ≥ vout.size ⇒ construction fails ⇒ SCHNORR_SIG_HASHTYPE
+  core_ref: interpreter.cpp:1559-1560@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-single-output
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-single-output
+    certificate: 8c3a162346fac5291fcdd978e999dbd06efdcfbe2ed87744f2b0fef36779a9e6
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-single-output
+    certificate: 8c74b77fdf8d8a3f45f6300fa816a1fdbfb2831250390c758db1d27f9d9a1615
+    note: Proof succeeded! cell_single_output
+  status: both-green
+  gap_note: null
+- id: SCR-167
+  family: tapscript
+  summary: Executed OP_CODESEPARATOR records the 0-based opcode index (opcode_pos) in m_codeseparator_pos; the field is initialized to 0xFFFFFFFF (interpreter.cpp:445,1065). The candidate's State.codeSepPos is a UInt32 initialized to 0xFFFFFFFF and set to the current 0-based instruction index on each executed separator; the byte offset in State.codeSep remains for the legacy scriptCode path.
+  core_ref: interpreter.cpp:1065,444-445@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-codesep-pos
+  - tapscript/C-L-w64-tap-codesep-byteseq
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-codesep-pos: partial — the counter/assignment semantics, the sentinel, the push-length independence and the executed/unexecuted distinction are proved for every pre-decoded 4-opcode stream; the byte-level parse (GetScriptOp), the fExec derivation from vfExec, the loop bound beyond four opcodes, and the switch''s other branches are not modelled.  The Core loop itself is not executed by either tool.; tapscript/C-L-w64-tap-codesep-byteseq: partial — the init, the per-parsed-opcode increment, the
+
+    executed/unexecuted split, the push-length independence, the tapscript
+
+    opcode-index assignment, and the strict byte-offset/index separation are
+
+    proved for every six-byte script and symbolic fExec mask.  Not modelled:
+
+    the vfExec derivation, scripts longer than six bytes / more than six
+
+    parsed opcodes, the pre-checks named above, and the downstream
+
+    scriptCode/final-stack consumers.  Neither tool executes the Core loop.'
+- id: SCR-168
+  family: tapscript
+  summary: budget may reach exactly 0
+  core_ref: interpreter.cpp:373-375@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-vw-zero
+  alive2:
+    result: green
+    cell: tapscript/C-L-w32-tap-vw-zero
+    certificate: 6b152a4bb6271bc975207052349a9000da4b62e4132bc452454a0a118e59a58f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript/C-L-w32-tap-vw-zero
+    certificate: f1951b03a10690542d2d5ddb8e06c5273f148762e5aa9d622017b960d956c7f2
+    note: Proof succeeded! cell_eval_checksig
+  status: both-green
+  gap_note: null
+- id: SCR-169
+  family: tapscript
+  summary: epoch 0; spend_type; annex hash
+  core_ref: interpreter.cpp:1492-1580@cce32b168
+  consensus: true
+  cells:
+  - tapscript/C-L-w32-tap-epoch-annex
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; tapscript/C-L-w32-tap-epoch-annex: partial — the epoch byte/position, the spend_type formula and the annex-hash inclusion/length/first-word placement are proved for all inputs in the domain; the SHA256 of the annex, the TapSighash tagged hash, the tx-level sub-hashes and the full SigMsg byte order are not modelled.  The row''s own text names the digest, so the row is not claimed full.'
+- id: SCR-170
+  family: disabled-opcodes
+  summary: CAT,SUBSTR,LEFT,RIGHT,INVERT,AND,OR,XOR,2MUL,2DIV,MUL,DIV,MOD,LSHIFT,RSHIFT ⇒ DISABLED_OPCODE in base/witness-v0, even unexecuted, unless the 201-op budget is already exhausted (OP_COUNT then preempts). Tapscript treats these bytes as OP_SUCCESSx, so they never reach stepBody there.
+  core_ref: interpreter.cpp:467-482@cce32b168
+  consensus: true
+  cells:
+  - disabled/C-L-w32-disabled-dispatch
+  alive2:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: ee7486006927e3456c2d5a8c32efe4191d6168c041af162d2b777212125ccb4f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: 1a3c4d2b3f663a5d0ffc54a39f98bf3533f38bafbe82fb20af7df3c9a10bbc7f
+    note: Proof succeeded! cell_guard
+  status: both-green
+  gap_note: null
+- id: SCR-171
+  family: disabled-opcodes
+  summary: after op-count, before fExec
+  core_ref: interpreter.cpp:460-482@cce32b168
+  consensus: true
+  cells:
+  - disabled/C-L-w32-disabled-dispatch
+  alive2:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: ee7486006927e3456c2d5a8c32efe4191d6168c041af162d2b777212125ccb4f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: 1a3c4d2b3f663a5d0ffc54a39f98bf3533f38bafbe82fb20af7df3c9a10bbc7f
+    note: Proof succeeded! cell_guard
+  status: both-green
+  gap_note: null
+- id: SCR-172
+  family: disabled-opcodes
+  summary: same bytes become success in tapscript
+  core_ref: script.cpp:365-371; interpreter.cpp:1846-1862@cce32b168
+  consensus: true
+  cells:
+  - disabled/C-L-w32-opsuccess-scan
+  - disabled/C-L-w64-row172-flip
+  - disabled/C-L-w65-row172-arbscan
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; disabled/C-L-w32-opsuccess-scan: partial. (a) The wire mapping is full: IsOpSuccess is proved over every byte 0x00..0xff, including all fifteen disabled bytes. (b) The success mechanism is proved for scripts of exactly two non-push opcodes: the scan returns success at the first success byte, in either position, before any evaluation, with the DISCOURAGE_OP_SUCCESS policy arm. Not machine-checked: the n-opcode induction for arbitrary script length (the scan is a fold of the same per-byte predicate), push-payload decode ordering (F-DIV-001), and the rest of ExecuteWitnessScript (item/stack limits, annex, control block), which is SCR-153/157/168 territory.; disabled/C-L-w64-row172-flip: partial, with the flip itself machine-checked on a one-byte script. Proved: for every 8-bit wire and every 64-bit flag word the BASE disabled classification and the tapscript one-byte OP_SUCCESSx pre-scan are exactly the table above, and the fifteen legacy-disabled wires are precisely the bytes whose outcome flips from 17 to 0 (or 36 under the policy bit). Not machine-checked: the n-opcode/arbitrary-length scan induction (the scan is a fold of the same per-byte predic'
+- id: SCR-173
+  family: disabled-opcodes
+  summary: name table; unknown ⇒ "OP_UNKNOWN"
+  core_ref: script.cpp:19-157@cce32b168
+  consensus: false
+  cells:
+  - disabled/C-L-w32-opname-table
+  alive2:
+    result: green
+    cell: disabled/C-L-w32-opname-table
+    certificate: b200d9ccc3daf0f0cd1a9c634cc75401a5e8466d35d815cfb94a268aad517447
+    note: Transformation seems to be correct! (syntactically equal)
+  saw:
+    result: green
+    cell: disabled/C-L-w32-opname-table
+    certificate: 9cc830593432b5e7e7fb28cd359186c2e924a16a37c3ce927cd347e990fad4b3
+    note: Proof succeeded! cell_opname
+  status: both-green
+  gap_note: null
+- id: SCR-174
+  family: disabled-opcodes
+  summary: default case BAD_OPCODE
+  core_ref: interpreter.cpp:1227-1228@cce32b168
+  consensus: true
+  cells:
+  - disabled/C-L-w32-disabled-dispatch
+  alive2:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: ee7486006927e3456c2d5a8c32efe4191d6168c041af162d2b777212125ccb4f
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: disabled/C-L-w32-disabled-dispatch
+    certificate: 1a3c4d2b3f663a5d0ffc54a39f98bf3533f38bafbe82fb20af7df3c9a10bbc7f
+    note: Proof succeeded! cell_guard
+  status: both-green
+  gap_note: null
+- id: SCR-175
+  family: policy-flags
+  summary: SCRIPT_VERIFY_LOW_S is mempool policy, never in GetBlockScriptFlags
+  core_ref: src/script/interpreter.cpp:219-221@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-flag-source
+  - policy-flags/C-L-lows-policy
+  alive2: null
+  saw: null
+  status: gap
+  gap_note: 'auto(cells): partial row coverage; policy-flags/C-L-flag-source: partial; policy-flags/C-L-lows-policy: partial'
+- id: SCR-176
+  family: policy-flags
+  summary: SCRIPT_VERIFY_STRICTENC is policy (hybrid/hybrid pubkey rejection)
+  core_ref: src/script/interpreter.cpp:74-94; src/script/interpreter.cpp:229-231@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-strictenc-pubkey
+  alive2:
+    result: green
+    cell: policy-flags/C-L-strictenc-pubkey
+    certificate: f7c3d9e83ebfd894096d0a26439984016f70107b5d3449d672beb287d881e7cb
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-strictenc-pubkey
+    certificate: 2a8a9db130d12735e9082ee7dc2c99bce76241181c0fc00388f6ff78bd7b0b64
+    note: Proof succeeded! cell_strictenc_pubkey
+  status: both-green
+  gap_note: null
+- id: SCR-177
+  family: policy-flags
+  summary: SCRIPT_VERIFY_MINIMALDATA is policy (push minimality)
+  core_ref: src/script/interpreter.cpp:442; src/script/interpreter.cpp:488-491@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-minimaldata-push
+  alive2:
+    result: green
+    cell: policy-flags/C-L-minimaldata-push
+    certificate: 83d964186932d14b251b2581e99dace672c091c03ada4ac9e0155905e4010cc4
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-minimaldata-push
+    certificate: 771ee6887a96f5416e3faccd0b11c66dedbf621d3171f19d720023da779d51ce
+    note: Proof succeeded! cell_minimaldata_push
+  status: both-green
+  gap_note: null
+- id: SCR-178
+  family: policy-flags
+  summary: SCRIPT_VERIFY_MINIMALIF applies to v0 witness spends only; tapscript re-imports it (SCR-183)
+  core_ref: src/script/interpreter.cpp:631-637@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-minimalif-v0
+  alive2:
+    result: green
+    cell: policy-flags/C-L-minimalif-v0
+    certificate: ab6a4bd4cb192a513684f0da1e51103a534fbe9a8eaf022891f62d8b231c75e0
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-minimalif-v0
+    certificate: cde622ea2c5572db4a8419699c7cef4cb203c2354f3255383238c97c7f245966
+    note: Proof succeeded! cell_minimalif_v0
+  status: both-green
+  gap_note: null
+- id: SCR-179
+  family: policy-flags
+  summary: SCRIPT_VERIFY_NULLFAIL is policy (empty sig must fail check)
+  core_ref: src/script/interpreter.cpp:351-352@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-nullfail
+  alive2:
+    result: green
+    cell: policy-flags/C-L-nullfail
+    certificate: a7589c6075e77928b0f100167f7478ef109e3c72464aaac2f50e53530665f0cd
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-nullfail
+    certificate: 782322c628a04a1f0eaf29a653d5426295481779389dd93879417df5345a8756
+    note: Proof succeeded! cell_nullfail
+  status: both-green
+  gap_note: null
+- id: SCR-180
+  family: policy-flags
+  summary: SCRIPT_VERIFY_CLEANSTACK is a policy flag for base (non-witness) spends; witness-v0 and tapscript clean-stack are enforced implicitly as consensus regardless of the policy bit (the general tapscript face is not yet proved — only the concrete Tapscript.cleanstack_implicit_tapscript)
+  core_ref: src/script/interpreter.cpp:2110-2118@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-cleanstack-base
+  alive2:
+    result: green
+    cell: policy-flags/C-L-cleanstack-base
+    certificate: 96f12bd798e87d34724cc2fe32890349e5f13f695cd03e0b9d61cf0318ff9bf3
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-cleanstack-base
+    certificate: 131f89c184c8fe806dda302d2e8bbe00c76ca2305d23de51762f3dec5bc1d3b9
+    note: Proof succeeded! cell_cleanstack
+  status: both-green
+  gap_note: null
+- id: SCR-181
+  family: policy-flags
+  summary: SCRIPT_VERIFY_CONST_SCRIPTCODE is policy (no OP_CODESEPARATOR evolution)
+  core_ref: src/script/interpreter.cpp:484-486; src/script/interpreter.cpp:339-343@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-const-scriptcode
+  - policy-flags/C-L-flag-source
+  alive2:
+    result: green
+    cell: policy-flags/C-L-const-scriptcode
+    certificate: 231da309d535b268137512d6c60b0a2a944b0d610860bdcd62541e45c41e2173
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-const-scriptcode
+    certificate: b7678981b99907151bc573f0f0552d8eb517d5df417ba01aabe8c4e1460c32c1
+    note: Proof succeeded! cell_const_scriptcode_codesep
+  status: both-green
+  gap_note: null
+- id: SCR-182
+  family: policy-flags
+  summary: SCRIPT_VERIFY_WITNESS_PUBKEYTYPE is policy (compressed keys)
+  core_ref: src/script/interpreter.cpp:233-235@cce32b168
+  consensus: false
+  cells:
+  - policy-flags/C-L-witness-pubkeytype
+  alive2:
+    result: green
+    cell: policy-flags/C-L-witness-pubkeytype
+    certificate: dec1dc79240ebd2c8788742115c339a298091eeef64046485edf53ea92062553
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: policy-flags/C-L-witness-pubkeytype
+    certificate: 7859ab812f2fe860f8e30785d347531efee0a8327cca54441d858f1fda822314
+    note: Proof succeeded! cell_witness_pubkeytype
+  status: both-green
+  gap_note: null
+- id: SCR-183
+  family: tapscript-reimport
+  summary: for SigVersion::TAPSCRIPT minimal-IF and clean-stack are consensus requirements regardless of the policy flags
+  core_ref: src/script/interpreter.cpp:623-629; src/script/interpreter.cpp:1876-1878@cce32b168
+  consensus: true
+  cells:
+  - tapscript-reimport/C-L-tapscript-reimport
+  alive2:
+    result: green
+    cell: tapscript-reimport/C-L-tapscript-reimport
+    certificate: 86e4b96acb6a3adf2d2c9a7f4efb629e00f18bc67c9481404c1d99323038516d
+    note: Transformation seems to be correct!
+  saw:
+    result: green
+    cell: tapscript-reimport/C-L-tapscript-reimport
+    certificate: 0389ffd8e16129e0eca54ab9fbd4b9e67c8b105bd7606f405976fa3592c3c497
+    note: Proof succeeded! cell_tapscript_minimalif
+  status: both-green
+  gap_note: null

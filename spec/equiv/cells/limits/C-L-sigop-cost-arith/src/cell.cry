@@ -1,0 +1,24 @@
+module CellSigopCostArith where
+
+// Independent specification of GetTransactionSigOpCost's aggregation and the
+// two caps (Core tx_verify.cpp:149-168, consensus.h:17/21, policy.h:44,
+// validation.cpp:939-941 and 2566-2569; Lean Block/Sigops.lean and
+// Interpreter/Rules.lean).
+//
+// Cost: 4 * (legacy + P2SH) + witness, with the P2SH term gated by the P2SH
+// flag, the witness term gated by the WITNESS flag, and a coinbase paying
+// legacy only (the Lean model's coinbase counters are zero).
+sigop_cost : [32] -> [32] -> [32] -> [8] -> [8] -> [8] -> [64]
+sigop_cost legacy p2sh witness coinbase p2sh_flag witness_flag =
+  if coinbase != 0 then 4 * zext legacy
+  else 4 * zext legacy
+       + (if p2sh_flag != 0 then 4 * zext p2sh else 0)
+       + (if witness_flag != 0 then zext witness else 0)
+
+// ConnectBlock: accepted iff cumulative cost <= 80000 (bad-blk-sigops above).
+block_gate : [64] -> [32]
+block_gate cumulative = if cumulative <=$ 80000 then 1 else 0
+
+// Mempool standardness: accepted iff cost <= 16000.
+tx_policy : [64] -> [32]
+tx_policy cost = if cost <=$ 16000 then 1 else 0

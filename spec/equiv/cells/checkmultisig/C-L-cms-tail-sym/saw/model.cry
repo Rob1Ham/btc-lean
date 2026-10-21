@@ -1,0 +1,68 @@
+// Independent Cryptol oracle for the SCR-118 / SCR-119 / SCR-120 tail cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1194-1223 and the Lean
+// cmsCleanup/checkMultiSig equations, NOT from either cell leg.  The stack is
+// the canonical test stack: `extra` items below the CHECKMULTISIG arguments,
+// element i being length 1 and value i+2.  `dbytes` is an argument and is
+// deliberately absent from every right-hand side: the rule reads only the extra
+// item's *size* (SCR-119) and otherwise consumes it unchecked (SCR-118).
+//
+// Path:
+//   cleanup pops nKeys+nSigs+2 -> the dummy is on top of `extra` items
+//   NULLDUMMY && dummyLen /= 0        -> SIG_NULLDUMMY (28)
+//   wire = 0xaf && !fsuccess          -> CHECKMULTISIGVERIFY (13)
+//   wire = 0xaf && fsuccess           -> pushed true popped: depth = extra
+//   wire = 0xae && fsuccess           -> pushed true stays:   depth = extra+1
+//   wire = 0xae && !fsuccess          -> EVAL_FALSE (2), pushed false stays
+module cms_tail_model where
+
+w64 : [32] -> [64]
+w64 x = zext x
+
+// field helpers work in [32]; every literal is written at full width because
+// Cryptol does not widen numeric literals for us.
+failv : [32] -> [64]
+failv e = w64 e << 1
+
+base : [32] -> [32]
+base pushed = if pushed == 0x00000002 then 0x00000000 else 0x00000001
+
+atBool : [32] -> [32] -> Bit
+atBool pushed k = (pushed != 0x00000002) && (k == 0x00000000)
+
+flen : [32] -> [32] -> [32] -> [32]
+flen k pushed remain =
+  if atBool pushed k then (if pushed == 0x00000000 then 0x00000000 else 0x00000001)
+  else if k < base pushed then 0x00000000
+  else if remain > (k - base pushed) then 0x00000001
+  else 0x00000000
+
+fval : [32] -> [32] -> [32] -> [32]
+fval k pushed remain =
+  if atBool pushed k then (if pushed == 0x00000000 then 0x00000000 else 0x00000001)
+  else if k < base pushed then 0x00000000
+  else if remain > (k - base pushed)
+       then (remain - (k - base pushed) + 0x00000001) && 0x000000ff
+  else 0x00000000
+
+pack : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+pack res err depth l0 v0 l1 v1 l2 v2 =
+  (w64 res) || (w64 err << 1) || (w64 depth << 7) || (w64 l0 << 13) ||
+  (w64 v0 << 15) || (w64 l1 << 23) || (w64 v1 << 25) ||
+  (w64 l2 << 33) || (w64 v2 << 35)
+
+packTop : [32] -> [32] -> [32] -> [32] -> [64]
+packTop res err remain pushed =
+  pack res err ((remain + (if pushed == 0x00000002 then 0x00000000 else 0x00000001)) && 0x0000003f)
+       (flen 0x00000000 pushed remain) (fval 0x00000000 pushed remain)
+       (flen 0x00000001 pushed remain) (fval 0x00000001 pushed remain)
+       (flen 0x00000002 pushed remain) (fval 0x00000002 pushed remain)
+
+cms_tail : [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+cms_tail nk ns extra fs nd w dlen dbytes =
+  if (nd != 0x00000000) && (dlen != 0x00000000) then failv 0x0000001c
+  else if w == 0x000000af then
+    (if fs != 0x00000000 then packTop 0x00000001 0x00000000 extra 0x00000002
+     else failv 0x0000000d)
+  else if fs != 0x00000000 then packTop 0x00000001 0x00000000 extra 0x00000001
+  else packTop 0x00000000 0x00000002 extra 0x00000000

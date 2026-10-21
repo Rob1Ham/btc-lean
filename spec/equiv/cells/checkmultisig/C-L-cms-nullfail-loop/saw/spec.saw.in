@@ -1,0 +1,25 @@
+// SAW script template for the SCR-110 CHECKMULTISIG NULLFAIL cell.  @CASE@
+// selects the shared checker stub instance: 0 checker always false (the
+// failing-signature path), 1 checker always true (the continuation path).
+// Alive2 quantifies over the checker; SAW pins one concrete instance per case.
+import "model.cry";
+
+mC <- llvm_load_module "c_saw_c@CASE@.bc";
+mL <- llvm_load_module "l_saw_c@CASE@.bc";
+
+let spec = do {
+  nk <- llvm_fresh_var "nk" (llvm_int 32);
+  ns <- llvm_fresh_var "ns" (llvm_int 32);
+  nf <- llvm_fresh_var "nf" (llvm_int 32);
+  nd <- llvm_fresh_var "nd" (llvm_int 32);
+  s0 <- llvm_fresh_var "s0" (llvm_int 32);
+  s1 <- llvm_fresh_var "s1" (llvm_int 32);
+  dl <- llvm_fresh_var "dl" (llvm_int 32);
+  llvm_execute_func [llvm_term nk, llvm_term ns, llvm_term nf, llvm_term nd,
+                     llvm_term s0, llvm_term s1, llvm_term dl];
+  llvm_return (llvm_term {{ cms_nullfail@CASE@ nk ns nf nd s0 s1 dl }});
+};
+
+llvm_verify mC "cell_cms_nullfail" [] false spec abc;
+llvm_verify mL "cell_cms_nullfail" [] false spec abc;
+print "CASE_@CASE@_OK";

@@ -1,0 +1,62 @@
+Loading file "/tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/fail-new-full.saw"
+Verifying w64_lemma_new_after_full...
+Simulating w64_lemma_new_after_full...
+Stack trace:
+   (builtin) in llvm_verify
+   /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/fail-new-full.saw:29:1-29:63 (at top level)
+Symbolic execution failed.
+Abort due to assertion failure:
+  internal: error: in _Znwm
+  Failed to load function handle: _ZSt17__throw_bad_allocv
+  Details:
+    No implementation or override found for pointer
+Stack frame _Znwm
+  Writes:
+    Indexed chunk:
+      28 |->   *(28, 0x0:[64]) := 0x1:[64]
+Stack frame w64_lemma_new_after_full
+  No writes or allocations
+Base memory
+  Allocations:
+    GlobalAlloc 32 0x4000000:[64] Mutable 16-byte-aligned w64_heap
+    GlobalAlloc 31 0x8:[64] Mutable 8-byte-aligned w64_off
+    GlobalAlloc 30 0x8:[64] Mutable 8-byte-aligned w64_hw
+    GlobalAlloc 29 0x8:[64] Mutable 8-byte-aligned w64_calls
+    GlobalAlloc 28 0x8:[64] Mutable 8-byte-aligned w64_failed
+    GlobalAlloc 27 0x8:[64] Mutable 8-byte-aligned w64_first_n
+    GlobalAlloc 26 0x8:[64] Mutable 8-byte-aligned w64_last_n
+    GlobalAlloc 25 0x8:[64] Mutable 8-byte-aligned w64_last_start
+    GlobalAlloc 24 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_realloc_preserve
+    GlobalAlloc 23 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_new_after_full
+    GlobalAlloc 22 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_malloc_full_null
+    GlobalAlloc 21 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_failed_counted
+    GlobalAlloc 20 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_malloc_nonnull
+    GlobalAlloc 19 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_alignment
+    GlobalAlloc 18 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_three_distinct
+    GlobalAlloc 17 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_disjoint
+    GlobalAlloc 16 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_oversize
+    GlobalAlloc 15 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_lemma_nonnull
+    GlobalAlloc 14 0x0:[64] Immutable 1-byte-aligned [defined function ] realloc
+    GlobalAlloc 13 0x0:[64] Immutable 1-byte-aligned [defined function ] free
+    GlobalAlloc 12 0x0:[64] Immutable 1-byte-aligned [defined function ] calloc
+    GlobalAlloc 11 0x0:[64] Immutable 1-byte-aligned [defined function ] malloc
+    GlobalAlloc 10 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdaPv
+    GlobalAlloc 9 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPvm
+    GlobalAlloc 8 0x0:[64] Immutable 1-byte-aligned [defined function ] _ZdlPv
+    GlobalAlloc 7 0x0:[64] Immutable 1-byte-aligned [defined function ] _Znam
+    GlobalAlloc 6 0x0:[64] Immutable 1-byte-aligned [defined function ] _Znwm
+    GlobalAlloc 5 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_raw_alloc
+    GlobalAlloc 4 0x0:[64] Immutable 1-byte-aligned [defined function ] w64_reset
+    GlobalAlloc 3 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memcpy.p0.p0.i64
+    GlobalAlloc 2 0x0:[64] Immutable 1-byte-aligned [external function] llvm.memset.p0.i64
+    GlobalAlloc 1 0x0:[64] Immutable 1-byte-aligned [external function] _ZSt17__throw_bad_allocv
+  Writes:
+    Indexed chunk:
+      26 |->   *(26, 0x0:[64]) := 0x0:[64]
+      27 |->   *(27, 0x0:[64]) := 0x0:[64]
+      28 |->   *(28, 0x0:[64]) := 0x0:[64]
+      29 |->   *(29, 0x0:[64]) := 0x0:[64]
+      30 |->   *(30, 0x0:[64]) := 0x4000000:[64]
+      31 |->   *(31, 0x0:[64]) := 0x4000000:[64]
+
+

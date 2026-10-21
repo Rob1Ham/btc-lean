@@ -1,0 +1,158 @@
+# cell: C-L-failure-propagation
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_failprop
+# command: alive-tv  build/c_cell_failprop.ll build/l_cell_failprop.ll
+
+----------------------------------------
+define i64 @cell_failprop(i64 noundef %ok1, i64 noundef %err1, i64 noundef %ok2, i64 noundef %err2, i64 noundef %act3, i64 noundef %ok3, i64 noundef %err3, i64 noundef %act4, i64 noundef %ok4, i64 noundef %err4, i64 noundef %act5, i64 noundef %ok5, i64 noundef %err5) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %ok1, 1
+  %and4 = and i64 noundef %act3, 1
+  %and5 = and i64 noundef %ok3, 1
+  %and7 = and i64 noundef %act4, 1
+  %and8 = and i64 noundef %ok4, 1
+  %and11 = and i64 noundef %ok5, 1
+  %tobool.not.i = icmp eq i64 %and, 0
+  br i1 %tobool.not.i, label %if.then.i, label %if.end.i
+
+if.end.i:
+  %and2 = and i64 noundef %ok2, 1
+  %tobool1.not.i = icmp eq i64 %and2, 0
+  br i1 %tobool1.not.i, label %if.then2.i, label %if.end4.i
+
+if.then2.i:
+  %and3 = shl i64 noundef %err2, 2
+  %shl.i13 = and i64 %and3, 252
+  %or4.i14 = or disjoint i64 %shl.i13, 512
+  br label %_ZL10c_failpropmmmmmmmmmmmmm.exit
+
+if.end4.i:
+  %tobool5.i = icmp eq i64 %and4, 0
+  %tobool6.i = icmp ne i64 %and5, 0
+  %or.cond.i = or i1 %tobool5.i, %tobool6.i
+  br i1 %or.cond.i, label %if.end9.i, label %if.then7.i
+
+if.end9.i:
+  %tobool10.i = icmp eq i64 %and7, 0
+  %tobool12.i = icmp ne i64 %and8, 0
+  %or.cond25.i = or i1 %tobool10.i, %tobool12.i
+  br i1 %or.cond25.i, label %if.end15.i, label %if.then13.i
+
+if.end15.i:
+  %#0 = and i64 noundef %act4, 1
+  %#1 = and i64 %#0, noundef %act5
+  %or.cond26.not29.i = icmp eq i64 %#1, 0
+  %tobool20.i = icmp ne i64 %and11, 0
+  %or.cond27.i = or i1 %or.cond26.not29.i, %tobool20.i
+  br i1 %or.cond27.i, label %_ZL10c_failpropmmmmmmmmmmmmm.exit, label %if.then21.i
+
+if.then21.i:
+  %and12 = shl i64 noundef %err5, 2
+  %shl.i15 = and i64 %and12, 252
+  %or4.i16 = or disjoint i64 %shl.i15, 1280
+  br label %_ZL10c_failpropmmmmmmmmmmmmm.exit
+
+if.then13.i:
+  %and9 = shl i64 noundef %err4, 2
+  %shl.i17 = and i64 %and9, 252
+  %or4.i18 = or disjoint i64 %shl.i17, 1024
+  br label %_ZL10c_failpropmmmmmmmmmmmmm.exit
+
+if.then7.i:
+  %and6 = shl i64 noundef %err3, 2
+  %shl.i19 = and i64 %and6, 252
+  %or4.i20 = or disjoint i64 %shl.i19, 768
+  br label %_ZL10c_failpropmmmmmmmmmmmmm.exit
+
+if.then.i:
+  %and1 = shl i64 noundef %err1, 2
+  %shl.i = and i64 %and1, 252
+  %or4.i = or disjoint i64 %shl.i, 256
+  br label %_ZL10c_failpropmmmmmmmmmmmmm.exit
+
+_ZL10c_failpropmmmmmmmmmmmmm.exit:
+  %retval.0.i = phi i64 [ %or4.i16, %if.then21.i ], [ %or4.i18, %if.then13.i ], [ %or4.i20, %if.then7.i ], [ %or4.i14, %if.then2.i ], [ %or4.i, %if.then.i ], [ 1, %if.end15.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 1536
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_failprop(i64 noundef %ok1, i64 noundef %err1, i64 noundef %ok2, i64 noundef %err2, i64 noundef %act3, i64 noundef %ok3, i64 noundef %err3, i64 noundef %act4, i64 noundef %ok4, i64 noundef %err4, i64 noundef %act5, i64 noundef %ok5, i64 noundef %err5) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %ok1, 1
+  %and4 = and i64 noundef %act3, 1
+  %and5 = and i64 noundef %ok3, 1
+  %and7 = and i64 noundef %act4, 1
+  %and8 = and i64 noundef %ok4, 1
+  %and11 = and i64 noundef %ok5, 1
+  %cmp.i = icmp eq i64 %and, 0
+  %tobool.i = icmp ne i64 %and4, 0
+  %tobool3.not.i = icmp eq i64 %and5, 0
+  %#0 = and i1 %tobool.i, %tobool3.not.i
+  %tobool5.i = icmp ne i64 %and7, 0
+  %tobool7.not.i = icmp eq i64 %and8, 0
+  %#1 = and i1 %tobool5.i, %tobool7.not.i
+  %tobool14.not.i = icmp eq i64 %and11, 0
+  %#2 = and i64 noundef %act4, 1
+  %#3 = and i64 %#2, noundef %act5
+  %#4 = icmp ne i64 %#3, 0
+  %#5 = and i1 %#4, %tobool14.not.i
+  br i1 %cmp.i, label %cond.true.i, label %cond.false.i
+
+cond.false.i:
+  %and2 = and i64 noundef %ok2, 1
+  %cmp1.i = icmp eq i64 %and2, 0
+  br i1 %cmp1.i, label %cond.true20.i, label %cond.false22.i
+
+cond.true20.i:
+  %and3 = shl i64 noundef %err2, 2
+  %shl.i13 = and i64 %and3, 252
+  %or4.i14 = or disjoint i64 %shl.i13, 512
+  br label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+cond.false22.i:
+  br i1 %#0, label %cond.true24.i, label %cond.false26.i
+
+cond.true24.i:
+  %and6 = shl i64 noundef %err3, 2
+  %shl.i15 = and i64 %and6, 252
+  %or4.i16 = or disjoint i64 %shl.i15, 768
+  br label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+cond.false26.i:
+  br i1 %#1, label %cond.true28.i, label %cond.false30.i
+
+cond.true28.i:
+  %and9 = shl i64 noundef %err4, 2
+  %shl.i17 = and i64 %and9, 252
+  %or4.i18 = or disjoint i64 %shl.i17, 1024
+  br label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+cond.false30.i:
+  br i1 %#5, label %cond.true32.i, label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+cond.true32.i:
+  %and12 = shl i64 noundef %err5, 2
+  %shl.i19 = and i64 %and12, 252
+  %or4.i20 = or disjoint i64 %shl.i19, 1280
+  br label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+cond.true.i:
+  %and1 = shl i64 noundef %err1, 2
+  %shl.i = and i64 %and1, 252
+  %or4.i = or disjoint i64 %shl.i, 256
+  br label %_ZL10l_failpropmmmmmmmmmmmmm.exit
+
+_ZL10l_failpropmmmmmmmmmmmmm.exit:
+  %cond43.i = phi i64 [ %or4.i, %cond.true.i ], [ %or4.i14, %cond.true20.i ], [ %or4.i16, %cond.true24.i ], [ %or4.i18, %cond.true28.i ], [ %or4.i20, %cond.true32.i ], [ 1, %cond.false30.i ]
+  %#range_0_%cond43.i = !range i64 %cond43.i, i64 1, i64 1536
+  ret i64 %#range_0_%cond43.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

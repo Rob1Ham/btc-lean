@@ -1,0 +1,27 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_isopsuccess.bc";
+mL <- llvm_load_module "l_cell_isopsuccess.bc";
+mCs <- llvm_load_module "c_cell_scan.bc";
+mLs <- llvm_load_module "l_cell_scan.bc";
+
+// SCR-172 mapping: IsOpSuccess over every byte 0x00..0xff.
+let sMap = do {
+  w <- llvm_fresh_var "w" (llvm_int 8);
+  llvm_execute_func [llvm_term w];
+  llvm_return (llvm_term {{ if opSuccess w then (1 : [64]) else 0 }});
+};
+llvm_verify mC "cell_isopsuccess" [] false sMap abc;
+llvm_verify mL "cell_isopsuccess" [] false sMap abc;
+
+// SCR-172 outcome: two-opcode tapscript pre-scan, both wires symbolic.
+let sScan = do {
+  w0 <- llvm_fresh_var "w0" (llvm_int 8);
+  w1 <- llvm_fresh_var "w1" (llvm_int 8);
+  d  <- llvm_fresh_var "d"  (llvm_int 32);
+  llvm_execute_func [llvm_term w0, llvm_term w1, llvm_term d];
+  llvm_return (llvm_term {{ scan w0 w1 d }});
+};
+llvm_verify mCs "cell_scan" [] false sScan abc;
+llvm_verify mLs "cell_scan" [] false sScan abc;
+
+print "CELL_W32_OPSUCCESS_SCAN_SAW_GREEN";

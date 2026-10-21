@@ -1,0 +1,25 @@
+# NON-PROOF: retired clang 18.1.3 artifacts
+
+The orchestrator handoff `orchestrator-to-CORE-IR-001-clang-pin.md` identified
+that the first Core IR extraction used `Ubuntu clang version 18.1.3`, not the
+pin `clang 20.1.2`. Those artifacts are **retired**. They are not evidence,
+must not be cited by any cell, and are superseded by the clang-20 hashes in
+`core-ir-report.md`.
+
+| Artifact | clang 18.1.3 sha256 | Status |
+|---|---|---|
+| `interpreter-O0.bc` | `ff8b4028f3fa8afb05b609a3008fab3655176a085bc86f132ff4d475c76d4101` | NON-PROOF |
+| `interpreter-O1.bc` | `114e84075243920fab85c4c1323cb345cc190edabb402edf5fda6dfbdff94c0c` | NON-PROOF |
+| `interpreter-O0-ftrapv.bc` | `ee8137f06ad96667bc36b77781b9db4c2661a3b62c5fa0099545177f634cfb32` | NON-PROOF |
+| `interpreter-O0-patched.bc` | `2820c1f26d5e3e5654e4475253ebb43e49324275a1a9c36eee08c56ff1c404fe` | NON-PROOF |
+| `interpreter-O0-patched-noexc-s.bc` | `48c647b4aa2a2060f546f97a3861eb7d1e4a50147a2653f0df729f5f07c625e9` | NON-PROOF |
+| `roots.bc` | `625d22e9601c0a7bc6d71ef93c09484e1d5f02832bfcfe16ab7d12a38bdb5059` | NON-PROOF |
+
+The earlier Alive2/SAW logs from those artifacts are also retired; the
+authoritative logs are `findings/core/logs/*.log` produced by the clang-20
+commands in `commands.md`.
+
+Action for CELLS/LEDGER: if any cell record currently cites one of these
+hashes or says `clang-18`, replace it with the clang-20 artifact from
+`core-ir-report.md` or mark the cell `planned`. No green cell may rest on a
+retired hash.

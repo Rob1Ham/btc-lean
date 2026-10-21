@@ -1,0 +1,533 @@
+# probe: findings/wave65/18-scr-142/compare
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# scope: pinned cce32b168 slice vs TPR-078 historical model, fixed contexts
+
+===== A_pin709631_vs_pin709632 =====
+# command: alive-tv --bidirectional build/v1.ll build/v2.ll
+# src IR sha256: 885a28762f9f5490ab3a29d3ff831a35b03e2037e99ac870ee761d06b301dc2a
+# tgt IR sha256: c1c673c3d403a27e3345d50ef01d356c1eca9fca169593d7cfecccb8857dc8eb
+# expect: EQUIV   got: EQUIV
+
+----------------------------------------
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL9pin_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL9pin_flagsmmmmj.exit
+
+_ZL9pin_flagsmmmmj.exit:
+  %flags.0.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.0.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL9pin_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.0.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+=>
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL9pin_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL9pin_flagsmmmmj.exit
+
+_ZL9pin_flagsmmmmj.exit:
+  %flags.0.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.0.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL9pin_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.0.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== B_model709631_vs_model709632 =====
+# command: alive-tv --bidirectional build/v3.ll build/v4.ll
+# src IR sha256: 4bb2e371670dd739da1aea717da84f27f77e7b436b9097e698d7abe1f92f4340
+# tgt IR sha256: 270a00c1b075b3a1393f13826cc065fa02e582b0ba2f90fc7db13400aa9db0b2
+# expect: DIFF   got: DIFF
+
+----------------------------------------
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  %. = select i1 %or.cond16.i, i64 1, i64 3
+  %#range_0_%. = !range i64 %., i64 1, i64 4
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL11model_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL11model_flagsmmmmj.exit
+
+_ZL11model_flagsmmmmj.exit:
+  %flags.1.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.1.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL11model_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.1.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %h0 = #x0000000000000000 (0)
+i64 noundef %h1 = #x0000000000000000 (0)
+i64 noundef %h2 = #x0000000000000000 (0)
+i64 noundef %h3 = #x0000000000000000 (0)
+i64 noundef %version = #x0000000000000000 (0)
+i64 noundef %plen = #x0000000000000000 (0)
+i64 noundef %p2sh = #x0000000000000000 (0)
+i64 noundef %wn = #x0000000000000000 (0)
+
+Source:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x1 (1)
+i1 %or.cond16.i = #x0 (0)
+i64 %. = #x0000000000000003 (3)
+i64 %#range_0_%. = #x0000000000000003 (3)
+
+Target:
+i1 %cmp.i4 = #x0 (0)
+i1 %cmp1.i5 = #x0 (0)
+i1 %or.cond.i6 = #x0 (0)
+i1 %cmp3.i7 = #x0 (0)
+i1 %or.cond5.i = #x0 (0)
+i1 %cmp4.i = #x0 (0)
+i1 %spec.select.i8 = #x0 (0)
+  >> Jump to %if.else.i3
+i1 %cmp.i9 = #x1 (1)
+i1 %cmp1.i10 = #x0 (0)
+i1 %or.cond.i11 = #x0 (0)
+i1 %cmp3.i12 = #x0 (0)
+i1 %or.cond5.i13 = #x0 (0)
+i1 %cmp4.i14 = #x0 (0)
+i1 %spec.select.i15 = #x0 (0)
+i64 %spec.select.i = #x0000000000020e15 (134677)
+  >> Jump to %_ZL11model_flagsmmmmj.exit
+i64 %flags.1.i = #x0000000000020e15 (134677)
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x1 (1)
+i1 %or.cond16.i = #x0 (0)
+  >> Jump to %_ZL13gate_and_packmmmmm.exit
+i64 %gate.0.i = #x0000000000000003 (3)
+i1 %cmp15.not.i = #x1 (1)
+i64 %conv.i = #x0000000000000100 (256)
+i64 %or.i = #x0000000000000103 (259)
+i64 %#range_0_%or.i = #x0000000000000103 (259)
+Source value: #x0000000000000003 (3)
+Target value: #x0000000000000103 (259)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== C_pin709632_vs_model709632 =====
+# command: alive-tv --bidirectional build/v2.ll build/v4.ll
+# src IR sha256: c1c673c3d403a27e3345d50ef01d356c1eca9fca169593d7cfecccb8857dc8eb
+# tgt IR sha256: 270a00c1b075b3a1393f13826cc065fa02e582b0ba2f90fc7db13400aa9db0b2
+# expect: EQUIV   got: EQUIV
+
+----------------------------------------
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL9pin_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL9pin_flagsmmmmj.exit
+
+_ZL9pin_flagsmmmmj.exit:
+  %flags.0.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.0.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL9pin_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.0.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+=>
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL11model_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL11model_flagsmmmmj.exit
+
+_ZL11model_flagsmmmmj.exit:
+  %flags.1.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.1.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL11model_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.1.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== D_pin709631_vs_model709631 =====
+# command: alive-tv --bidirectional build/v1.ll build/v3.ll
+# src IR sha256: 885a28762f9f5490ab3a29d3ff831a35b03e2037e99ac870ee761d06b301dc2a
+# tgt IR sha256: 4bb2e371670dd739da1aea717da84f27f77e7b436b9097e698d7abe1f92f4340
+# expect: DIFF   got: DIFF
+
+----------------------------------------
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree willreturn memory(none) {
+entry:
+  %cmp.i4 = icmp eq i64 noundef %h0, 732
+  %cmp1.i5 = icmp eq i64 noundef %h1, 8461960187183834093
+  %or.cond.i6 = and i1 %cmp.i4, %cmp1.i5
+  %cmp3.i7 = icmp eq i64 noundef %h2, -8272888040524805909
+  %or.cond5.i = and i1 %or.cond.i6, %cmp3.i7
+  %cmp4.i = icmp eq i64 noundef %h3, -7732193989049213918
+  %spec.select.i8 = and i1 %or.cond5.i, %cmp4.i
+  br i1 %spec.select.i8, label %_ZL9pin_flagsmmmmj.exit, label %if.else.i3
+
+if.else.i3:
+  %cmp.i9 = icmp eq i64 noundef %h0, 0
+  %cmp1.i10 = icmp eq i64 noundef %h1, 4244953931547678
+  %or.cond.i11 = and i1 %cmp.i9, %cmp1.i10
+  %cmp3.i12 = icmp eq i64 noundef %h2, -7463954128248978043
+  %or.cond5.i13 = and i1 %or.cond.i11, %cmp3.i12
+  %cmp4.i14 = icmp eq i64 noundef %h3, -3026448229963950675
+  %spec.select.i15 = and i1 %or.cond5.i13, %cmp4.i14
+  %spec.select.i = select i1 %spec.select.i15, i64 3605, i64 134677
+  br label %_ZL9pin_flagsmmmmj.exit
+
+_ZL9pin_flagsmmmmj.exit:
+  %flags.0.i = phi i64 [ 1556, %entry ], [ %spec.select.i, %if.else.i3 ]
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  br i1 %or.cond16.i, label %if.then.i, label %_ZL13gate_and_packmmmmm.exit
+
+if.then.i:
+  %tobool.not.i = icmp samesign ult i64 %flags.0.i, 131072
+  br i1 %tobool.not.i, label %_ZL13gate_and_packmmmmm.exit, label %if.else.i
+
+if.else.i:
+  %cmp5.i = icmp eq i64 noundef %wn, 0
+  %. = select i1 %cmp5.i, i64 156, i64 2
+  br label %_ZL13gate_and_packmmmmm.exit
+
+_ZL13gate_and_packmmmmm.exit:
+  %gate.0.i = phi i64 [ 1, %if.then.i ], [ %., %if.else.i ], [ 3, %_ZL9pin_flagsmmmmj.exit ]
+  %cmp15.not.i = icmp samesign ugt i64 %flags.0.i, 131071
+  %conv.i = select i1 %cmp15.not.i, i64 256, i64 0
+  %or.i = or disjoint i64 %gate.0.i, %conv.i
+  %#range_0_%or.i = !range i64 %or.i, i64 1, i64 512
+  ret i64 %#range_0_%or.i
+}
+=>
+define i64 @cell_compare(i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %h3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  %. = select i1 %or.cond16.i, i64 1, i64 3
+  %#range_0_%. = !range i64 %., i64 1, i64 4
+  ret i64 %#range_0_%.
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %h0 = #x0000000000000000 (0)
+i64 noundef %h1 = #x0000000000000000 (0)
+i64 noundef %h2 = #x0000000000000000 (0)
+i64 noundef %h3 = #x0000000000000000 (0)
+i64 noundef %version = #x0000000000000000 (0)
+i64 noundef %plen = #x0000000000000000 (0)
+i64 noundef %p2sh = #x0000000000000000 (0)
+i64 noundef %wn = #x0000000000000000 (0)
+
+Source:
+i1 %cmp.i4 = #x0 (0)
+i1 %cmp1.i5 = #x0 (0)
+i1 %or.cond.i6 = #x0 (0)
+i1 %cmp3.i7 = #x0 (0)
+i1 %or.cond5.i = #x0 (0)
+i1 %cmp4.i = #x0 (0)
+i1 %spec.select.i8 = #x0 (0)
+  >> Jump to %if.else.i3
+i1 %cmp.i9 = #x1 (1)
+i1 %cmp1.i10 = #x0 (0)
+i1 %or.cond.i11 = #x0 (0)
+i1 %cmp3.i12 = #x0 (0)
+i1 %or.cond5.i13 = #x0 (0)
+i1 %cmp4.i14 = #x0 (0)
+i1 %spec.select.i15 = #x0 (0)
+i64 %spec.select.i = #x0000000000020e15 (134677)
+  >> Jump to %_ZL9pin_flagsmmmmj.exit
+i64 %flags.0.i = #x0000000000020e15 (134677)
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x1 (1)
+i1 %or.cond16.i = #x0 (0)
+  >> Jump to %_ZL13gate_and_packmmmmm.exit
+i64 %gate.0.i = #x0000000000000003 (3)
+i1 %cmp15.not.i = #x1 (1)
+i64 %conv.i = #x0000000000000100 (256)
+i64 %or.i = #x0000000000000103 (259)
+i64 %#range_0_%or.i = #x0000000000000103 (259)
+
+Target:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp3.i = #x1 (1)
+i1 %or.cond16.i = #x0 (0)
+i64 %. = #x0000000000000003 (3)
+i64 %#range_0_%. = #x0000000000000003 (3)
+Source value: #x0000000000000103 (259)
+Target value: #x0000000000000003 (3)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== E_pin_exc692261_vs_model_exc692261 =====
+# command: alive-tv --bidirectional build/v5.ll build/v6.ll
+# src IR sha256: 43c34cd6bad8592ab07cef45775278a3ab732dd03b0e88d2e8410604710eb918
+# tgt IR sha256: 30e7b2c0aa75ab74b353c6fe97075e6768f0185b113e10dfb49f1fdbe74654b7
+# expect: EQUIV   got: EQUIV
+
+----------------------------------------
+define i64 @cell_compare(i64 noundef %#0, i64 noundef %#1, i64 noundef %#2, i64 noundef %#3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  %. = select i1 %or.cond16.i, i64 1, i64 3
+  %#range_0_%. = !range i64 %., i64 1, i64 4
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @cell_compare(i64 noundef %#0, i64 noundef %#1, i64 noundef %#2, i64 noundef %#3, i64 noundef %version, i64 noundef %plen, i64 noundef %p2sh, i64 noundef %wn) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i64 noundef %version, 1
+  %cmp1.i = icmp eq i64 noundef %plen, 32
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp3.i = icmp eq i64 noundef %p2sh, 0
+  %or.cond16.i = and i1 %or.cond.i, %cmp3.i
+  %. = select i1 %or.cond16.i, i64 1, i64 3
+  %#range_0_%. = !range i64 %., i64 1, i64 4
+  ret i64 %#range_0_%.
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=probe-as-expected (2 equivalence pairs, 2 inequivalence pairs, 1 exception pair)
+RESULT=pin_has_no_height_term; model_has_709632_gate; they_agree_at_709632_and_at_exc692261

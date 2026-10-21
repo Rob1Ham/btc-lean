@@ -1,0 +1,52 @@
+module CellCastToBoolFull where
+
+// Independent specification of Bitcoin Core CastToBool
+// (src/script/interpreter.cpp:46-59 at cce32b168) for every element length
+// n in 0..520 and every byte value.
+//
+// Core scans the element until the first nonzero byte:
+//
+//   * the empty vector is false;
+//   * a nonzero byte at any position i < n-1 is true (the scan stops, so the
+//     last-byte negative-zero test cannot apply);
+//   * if every byte before the last is zero, only the last byte decides:
+//       - 0x00 -> false (all zero)
+//       - 0x80 -> false (negative zero, the single special case)
+//       - any other nonzero byte -> true.
+//
+// This is the complete scan/no-scan abstraction: for a fixed n the result is
+// exactly (prefix_nonzero, last_byte in {0,0x80}).  The proofs below quantify
+// the 32-bit length symbolically under n <= 520, so all 521 lengths and all
+// byte vectors are covered in one machine check per leg.
+
+type Bytes = [520][8]
+
+// Indices 0..518: every position that can be "before the last" for n <= 520.
+idxset : [519][10]
+idxset = [0 .. 518]
+
+// Index of the last byte.  For n == 0 use 0 so the gather remains in range;
+// the empty case is selected separately by cast_arb.
+last_ix : [32] -> [10]
+last_ix n = if n == 0 then 0 else drop (n - 1) : [10]
+
+// The scan: is there a nonzero byte strictly before the last position?
+prefix_nonzero : [32] -> Bytes -> Bit
+prefix_nonzero n bs =
+  any (\(i : [10]) -> (zext i : [32]) < n - 1 /\ head (bs @@ [i]) != 0) idxset
+
+last_byte : [32] -> Bytes -> [8]
+last_byte n bs = head (bs @@ [last_ix n])
+
+// 0x80 in the last position is the only negative-zero encoding Core treats
+// as false; 0x80 anywhere earlier is an ordinary nonzero byte (true).
+last_is_false : [32] -> Bytes -> Bit
+last_is_false n bs =
+  last_byte n bs == 0 \/ last_byte n bs == 0x80
+
+cast_arb : [32] -> Bytes -> [32]
+cast_arb n bs =
+  if n == 0 then 0
+  else if prefix_nonzero n bs then 1
+  else if last_is_false n bs then 0
+  else 1

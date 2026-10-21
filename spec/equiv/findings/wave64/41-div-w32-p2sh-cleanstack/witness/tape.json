@@ -1,0 +1,48 @@
+{
+  "finding": "F-DIV-W32-01",
+  "wave": "wave64",
+  "agent": "41-div-w32-p2sh-cleanstack",
+  "pin": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+  "description": "Lean verifyScriptFull finalLen does not model Core's stack.resize(1) for the P2SH-wrapped witness arm, so a valid P2SH-wrapped witness spend is rejected with CLEANSTACK when pol.cleanstack = true.",
+  "flags": {"p2sh": true, "witness": true, "cleanstack": true},
+  "tapes": {
+    "p2sh-p2wpkh": {
+      "role": "divergent witness (minimal redeem script)",
+      "scriptSig": "160014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "scriptPubKey": "a914173727a17ada832a0fd90be6c628f63598b3400f87",
+      "redeemScript": "0014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "witness": ["300101", "02" + "11"*32],
+      "core": {"verify": true, "err": "OK"},
+      "lean": {"outcome": "fail", "err": "cleanstack"}
+    },
+    "p2sh-p2wsh": {
+      "role": "divergent witness (minimal witness data: one 1-byte item)",
+      "scriptSig": "2200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "scriptPubKey": "a91472c44f957fc011d97e3406667dca5b1c930c402687",
+      "redeemScript": "00204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "witnessScript": "51",
+      "witness": ["51"],
+      "core": {"verify": true, "err": "OK"},
+      "lean": {"outcome": "fail", "err": "cleanstack"}
+    },
+    "bare-p2wpkh": {
+      "role": "control: the bare arm the Lean model does resize",
+      "scriptSig": "",
+      "scriptPubKey": "0014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "witness": ["300101", "02" + "11"*32],
+      "core": {"verify": true, "err": "OK"},
+      "lean": {"outcome": "ok", "err": null}
+    },
+    "p2sh-plain": {
+      "role": "control: non-witness P2SH; the finalLen re-evaluation agrees with Core",
+      "scriptSig": "0151",
+      "scriptPubKey": "a914da1745e9b549bd0bfa1a569971c77eba30cd5a4b87",
+      "redeemScript": "51",
+      "witness": [],
+      "core": {"verify": true, "err": "OK"},
+      "lean": {"outcome": "ok", "err": null}
+    }
+  },
+  "checker": "Bitcoin.Crypto.Seam.stubChecker (Lean) / AcceptAllChecker (Core); the finding is independent of signature validity",
+  "note": "CLEANSTACK is policy-only (rules.yaml SCR-008 consensus: false); the divergence is a false rejection at the policy face, not a consensus split."
+}

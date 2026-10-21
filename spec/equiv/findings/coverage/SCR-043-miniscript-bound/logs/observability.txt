@@ -1,0 +1,40 @@
+# corpus generation
+$ python3 tapegen.py --out /tmp/opencode/w65-07/corpus.json
+wrote 14 cases to /tmp/opencode/w65-07/corpus.json
+
+# ABI run (three shims)
+$ python3 run_observability.py --corpus /tmp/opencode/w65-07/corpus.json \
+    --lib base=... --lib mut-pubkeys=... --lib mut-stack=... --tsv /tmp/opencode/w65-07/results.tsv
+cases: 14
+base vs mut-pubkeys differing cases: 0 []
+base vs mut-stack  differing cases: 2 ['multi_a-n999-k1', 'multi_a-n999-k999']
+SCR043_OBSERVABILITY_OK
+rc=0
+
+# result table (result/error_kind; 0=fail 1=pass 2=bad-input 3=internal)
+case                    base        mut-pubkeys mut-stack
+legacy-OP_1             1/0         1/0         1/0
+legacy-OP_0             0/2         0/2         0/2
+tap-trivial-OP_1        1/0         1/0         1/0
+multi_a-n1-k1           0/2         0/2         0/2
+multi_a-n2-k1           0/2         0/2         0/2
+multi_a-n20-k1          0/2         0/2         0/2
+multi_a-n21-k1          0/2         0/2         0/2
+multi_a-n998-k1         0/2         0/2         0/2
+multi_a-n999-k1         0/2         0/2         0/8
+multi_a-n1000-k1        0/8         0/8         0/8
+multi_a-n1001-k1        0/8         0/8         0/8
+multi_a-n1005-k1        0/8         0/8         0/8
+multi_a-n999-k999       0/2         0/2         0/8
+control-parity-flipped  0/40        0/40        0/40
+
+# kinds present: 0 2 8 40 
+
+# cross-check: from-scratch base vs fleet shim /tmp/opencode/cbuild/libequiv-core.so
+$ python3 run_observability.py --corpus /tmp/opencode/w65-07/corpus.json \
+    --lib base=... --lib fleet=/tmp/opencode/cbuild/libequiv-core.so \
+    --tsv /tmp/opencode/w65-07/results-fleet.tsv
+# (script's OK/FAIL line keys on the names mut-pubkeys/mut-stack; compare data columns)
+$ diff <(cut -f1,2 results.tsv) <(cut -f1,3 results-fleet.tsv)   # header name only
+same verdicts on 14/14 cases (base column of results.tsv == fleet column of results-fleet.tsv)
+FLEET_MATCH_14_14

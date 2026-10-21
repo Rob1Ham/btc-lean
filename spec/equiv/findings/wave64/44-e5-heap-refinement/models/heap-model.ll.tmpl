@@ -1,0 +1,233 @@
+; wave64/44-e5-heap-refinement -- bounded, explicit-failure allocator model M2.
+;
+; This is a refinement of findings/wave16b/03-e5-heap/models/alloc-model.ll.
+; Differences that matter:
+;   * CAP is a build parameter (@CAP@ bytes), so proofs can be re-run at a
+;     capacity threshold instead of only at 64 MiB.
+;   * the bump cursor invariant is explicit and testable:
+;       off is 16-aligned after every successful request, 0 <= off <= CAP;
+;   * first/last request size, call count and failure count are observable
+;     globals, so a SAW post-state can pin the concrete allocation trace;
+;   * malloc has a 16-byte size header; realloc preserves min(old,new) bytes;
+;     calloc zeroes; new[] is covered too.
+;
+; SEMANTICS (the contract this IR is claimed to implement):
+;   raw_alloc(n) : returns a 16-aligned block of at least n bytes, or NULL.
+;   _Znwm/_Znam : NEVER returns NULL; on exhaustion calls the external
+;                 _ZSt17__throw_bad_allocv (C++ [new.delete.single]).
+;   malloc       : returns a block of at least n bytes, or NULL.
+;   calloc       : zero-filled, overflow-checked, or NULL.
+;   realloc      : NULL preserves the old block; success copies min(old,new)
+;                  bytes and leaks the old block (no recycling).
+;   free/_ZdlPv/_ZdlPvm/_ZdaPv : no-ops.  Non-recycling over-approximates
+;                  capacity use; it is valid for a UAF-free execution whose
+;                  value semantics never observe a recycled address.
+;
+; NOT LIBC.  Refinement model => glibc/libstdc++ is NOT proved here; it is
+; stated as obligation O6 in REFINEMENT.md.  No ptrtoint/inttoptr is used.
+
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+@w64_heap = dso_local global [@CAP@ x i8] zeroinitializer, align 16
+@w64_off = dso_local global i64 0, align 8
+@w64_hw = dso_local global i64 0, align 8
+@w64_calls = dso_local global i64 0, align 8
+@w64_failed = dso_local global i64 0, align 8
+@w64_first_n = dso_local global i64 0, align 8
+@w64_last_start = dso_local global i64 0, align 8
+@w64_last_n = dso_local global i64 0, align 8
+
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly, ptr noalias nocapture readonly, i64, i1 immarg)
+declare void @llvm.memset.p0.i64(ptr nocapture writeonly, i8, i64, i1 immarg)
+declare void @_ZSt17__throw_bad_allocv() noreturn
+
+; measurement-only reset; never called from the engine path.
+define dso_local void @w64_reset() {
+entry:
+  store i64 0, ptr @w64_off, align 8
+  store i64 0, ptr @w64_hw, align 8
+  store i64 0, ptr @w64_calls, align 8
+  store i64 0, ptr @w64_failed, align 8
+  store i64 0, ptr @w64_first_n, align 8
+  store i64 0, ptr @w64_last_n, align 8
+  store i64 0, ptr @w64_last_start, align 8
+  ret void
+}
+
+; ---------------------------------------------------------------------------
+; raw bump allocation.  Failure is a return value, never silent.
+; ---------------------------------------------------------------------------
+define dso_local ptr @w64_raw_alloc(i64 %n) {
+entry:
+  %off = load i64, ptr @w64_off, align 8
+  %rounded = add i64 %off, 15
+  %aligned = and i64 %rounded, -16
+  ; the cursor invariant gives off <= CAP, so aligned <= CAP+15: no wrap.
+  %over = icmp ugt i64 %aligned, @CAP@
+  ; n > CAP is already impossible to satisfy; the +1 keeps size-0 requests
+  ; distinct and covers the n+1 addition below.
+  %toobig = icmp ugt i64 %n, @CAP@
+  %rem = sub i64 @CAP@, %aligned
+  %need = add i64 %n, 1
+  %noroom = icmp ugt i64 %need, %rem
+  %f0 = or i1 %over, %toobig
+  %fail = or i1 %f0, %noroom
+  br i1 %fail, label %failbb, label %okbb
+
+okbb:
+  %p = getelementptr inbounds i8, ptr @w64_heap, i64 %aligned
+  %newoff = add i64 %aligned, %need
+  store i64 %aligned, ptr @w64_last_start, align 8
+  store i64 %newoff, ptr @w64_off, align 8
+  store i64 %newoff, ptr @w64_hw, align 8
+  %calls = load i64, ptr @w64_calls, align 8
+  %isfirst = icmp eq i64 %calls, 0
+  br i1 %isfirst, label %first, label %after
+
+first:
+  store i64 %n, ptr @w64_first_n, align 8
+  br label %after
+
+after:
+  store i64 %n, ptr @w64_last_n, align 8
+  %calls1 = add i64 %calls, 1
+  store i64 %calls1, ptr @w64_calls, align 8
+  ret ptr %p
+
+failbb:
+  %failed = load i64, ptr @w64_failed, align 8
+  %failed1 = add i64 %failed, 1
+  store i64 %failed1, ptr @w64_failed, align 8
+  ret ptr null
+}
+
+; ---------------------------------------------------------------------------
+; C++ operator new / delete.  Failure throws; it never returns null.
+; ---------------------------------------------------------------------------
+define dso_local noalias noundef nonnull ptr @_Znwm(i64 noundef %n) {
+entry:
+  %p = call ptr @w64_raw_alloc(i64 %n)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %fail, label %ok
+
+fail:
+  call void @_ZSt17__throw_bad_allocv()
+  unreachable
+
+ok:
+  ret ptr %p
+}
+
+define dso_local noalias noundef nonnull ptr @_Znam(i64 noundef %n) {
+entry:
+  %p = call ptr @w64_raw_alloc(i64 %n)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %fail, label %ok
+
+fail:
+  call void @_ZSt17__throw_bad_allocv()
+  unreachable
+
+ok:
+  ret ptr %p
+}
+
+define dso_local void @_ZdlPv(ptr noundef %p) {
+entry:
+  ; non-recycling no-op; see the model contract above.
+  ret void
+}
+
+define dso_local void @_ZdlPvm(ptr noundef %p, i64 noundef %n) {
+entry:
+  ret void
+}
+
+define dso_local void @_ZdaPv(ptr noundef %p) {
+entry:
+  ret void
+}
+
+; ---------------------------------------------------------------------------
+; C allocator
+; ---------------------------------------------------------------------------
+define dso_local noalias ptr @malloc(i64 noundef %n) {
+entry:
+  %ovf = icmp ugt i64 %n, @CAPM16@
+  br i1 %ovf, label %retnull, label %alloc
+
+alloc:
+  %sz = add i64 %n, 16
+  %p = call ptr @w64_raw_alloc(i64 %sz)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %retnull, label %hdr
+
+hdr:
+  store i64 %n, ptr %p, align 8
+  %q = getelementptr inbounds i8, ptr %p, i64 16
+  ret ptr %q
+
+retnull:
+  ret ptr null
+}
+
+define dso_local noalias ptr @calloc(i64 noundef %nmemb, i64 noundef %size) {
+entry:
+  %z = icmp eq i64 %size, 0
+  br i1 %z, label %zero, label %chk
+
+chk:
+  %lim = udiv i64 @CAPM16@, %size
+  %ovf = icmp ugt i64 %nmemb, %lim
+  br i1 %ovf, label %retnull, label %mul
+
+mul:
+  %n = mul i64 %nmemb, %size
+  br label %zero
+
+zero:
+  %nn = phi i64 [ 0, %entry ], [ %n, %mul ]
+  %p = call ptr @malloc(i64 %nn)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %retnull, label %fill
+
+fill:
+  call void @llvm.memset.p0.i64(ptr align 1 %p, i8 0, i64 %nn, i1 false)
+  ret ptr %p
+
+retnull:
+  ret ptr null
+}
+
+define dso_local void @free(ptr %p) {
+entry:
+  ret void
+}
+
+define dso_local ptr @realloc(ptr %p, i64 noundef %n) {
+entry:
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %domalloc, label %copy
+
+domalloc:
+  %m = call ptr @malloc(i64 %n)
+  ret ptr %m
+
+copy:
+  %oldp = getelementptr inbounds i8, ptr %p, i64 -16
+  %old = load i64, ptr %oldp, align 8
+  %newp = call ptr @malloc(i64 %n)
+  %newnull = icmp eq ptr %newp, null
+  br i1 %newnull, label %retnull, label %docopy
+
+docopy:
+  %take = icmp ult i64 %old, %n
+  %cn = select i1 %take, i64 %old, i64 %n
+  call void @llvm.memcpy.p0.p0.i64(ptr align 1 %newp, ptr align 1 %p, i64 %cn, i1 false)
+  ret ptr %newp
+
+retnull:
+  ; C: on failure the original block is unchanged and still valid.
+  ret ptr null
+}

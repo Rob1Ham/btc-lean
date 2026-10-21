@@ -1,0 +1,39 @@
+--- /tmp/opencode/wave16b-scratch/12-witness-exec/l_cell.cpp	2026-10-20 18:57:30.689374446 +0000
++++ /tmp/opencode/wave16b-scratch/12-witness-exec/mutation-gate/l_cell.cpp	2026-10-20 19:07:32.956734415 +0000
+@@ -171,7 +171,9 @@
+     if (hash_eq == 0) {
+         o.result = 0;
+         o.error = w2::ERR_EQUALVERIFY;
+-        o.fn = 2;
++        // evalScriptBytes pops the two inputs and pushes pushBoolV false
++        // before the .equalVerifyFailed return, so [sig,pubkey,false].
++        o.fn = 3;
+         return o;
+     }
+     o.hash_ok = 1;
+@@ -231,12 +233,14 @@
+         // if witness.length ≠ 2 then .fail .witnessProgramMismatch
+         if (wit_n != 2) {
+             o.error = w2::ERR_MISMATCH;
++            o.fn = (uint32_t)(wit_n & 3u);  // dispatch returns before evalScript
+             return w2::w2_pack(o);
+         }
+         return w2::w2_pack(l_exec_p2wpkh(hash_eq, sig_ok, fd_found, const_sc));
+     }
+     // else .fail .witnessProgramWrongLength
+     o.error = w2::ERR_WRONG_LENGTH;
++    o.fn = (uint32_t)(wit_n & 3u);  // dispatch returns before evalScript
+     return w2::w2_pack(o);
+ }
+ 
+@@ -244,8 +248,8 @@
+ // result(1) | found(1)<<1 | applied(1)<<2 | err(6)<<3 | sv(2)<<9.
+ extern "C" uint64_t cell_checksig_gate(uint64_t sv, uint64_t fd_found, uint64_t const_sc) {
+     if (sv > 1 || fd_found > 1 || const_sc > 1) return w2::SENT;
+-    const uint32_t found = (sv == 0) ? (uint32_t)fd_found : 0u;
+-    const uint32_t applied = (sv == 0 && fd_found != 0) ? 1u : 0u;
++    const uint32_t found = (sv <= 1) ? (uint32_t)fd_found : 0u;
++    const uint32_t applied = (sv <= 1 && fd_found != 0) ? 1u : 0u;
+     const uint32_t err = (applied != 0 && const_sc != 0) ? w2::ERR_SIG_FINDANDDELETE : 0u;
+     return 1u | ((uint64_t)found << 1) | ((uint64_t)applied << 2) |
+            ((uint64_t)(err & 0x3fu) << 3) | ((uint64_t)(sv & 3u) << 9);

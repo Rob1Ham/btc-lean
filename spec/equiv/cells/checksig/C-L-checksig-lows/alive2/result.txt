@@ -1,0 +1,104 @@
+# cell: checksig/C-L-checksig-lows
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: 8208d7f961157b28a806d37edaa37da4834c5ffde8604a98a702bf66b677d33b
+# l source sha256: fc84da757754f05bb1954e7df70e054906525dab142bbf25a1d4d79b9361b54a
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_lows_gate =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_lows_gate.ll build/l_cell_lows_gate.ll
+# c IR sha256: 84ede2a38afc91ae482c2b63d31aadf0a3817b5ad378462d3e3b2e309f18f2fc
+# l IR sha256: dbea56134fa17e3b467a6b95ebf744724279bac09707eee2e8ebf32bd2cebf5a
+
+----------------------------------------
+define i64 @cell_lows_gate(i32 noundef %lowS, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i32 noundef %lowS, 0
+  br i1 %cmp.i, label %_ZL15core_low_s_gatejmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.not.i = icmp eq i64 noundef %s3, 9223372036854775807
+  br i1 %cmp.not.i, label %if.end.i2, label %if.then.i
+
+if.end.i2:
+  %cmp2.not.i = icmp eq i64 noundef %s2, -1
+  br i1 %cmp2.not.i, label %if.end6.i, label %_ZL14core_le_half_nmmmm.exit
+
+if.end6.i:
+  %cmp7.not.i = icmp eq i64 noundef %s1, 6725966010171805725
+  br i1 %cmp7.not.i, label %if.end11.i, label %if.then8.i
+
+if.end11.i:
+  %cmp12.i = icmp ult i64 noundef %s0, -2312264954237214559
+  br label %_ZL14core_le_half_nmmmm.exit
+
+if.then8.i:
+  %cmp9.i = icmp ult i64 noundef %s1, 6725966010171805725
+  br label %_ZL14core_le_half_nmmmm.exit
+
+if.then.i:
+  %cmp1.i = icmp ult i64 noundef %s3, 9223372036854775807
+  br label %_ZL14core_le_half_nmmmm.exit
+
+_ZL14core_le_half_nmmmm.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp1.i, %if.then.i ], [ %cmp9.i, %if.then8.i ], [ %cmp12.i, %if.end11.i ], [ 1, %if.end.i2 ]
+  %#0 = select i1 %retval.0.shrunk.i, i64 0, i64 27
+  br label %_ZL15core_low_s_gatejmmmm.exit
+
+_ZL15core_low_s_gatejmmmm.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ %#0, %_ZL14core_le_half_nmmmm.exit ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_lows_gate(i32 noundef %lowS, i64 noundef %s0, i64 noundef %s1, i64 noundef %s2, i64 noundef %s3) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i32 noundef %lowS, 0
+  br i1 %cmp.i, label %_ZL15lean_low_s_gatejmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp.not.i = icmp eq i64 noundef %s3, 9223372036854775807
+  br i1 %cmp.not.i, label %if.end.i2, label %if.then.i
+
+if.end.i2:
+  %cmp2.not.i = icmp eq i64 noundef %s2, -1
+  br i1 %cmp2.not.i, label %if.end6.i, label %_ZL14lean_le_half_nmmmm.exit
+
+if.end6.i:
+  %cmp7.not.i = icmp eq i64 noundef %s1, 6725966010171805725
+  br i1 %cmp7.not.i, label %if.end11.i, label %if.then8.i
+
+if.end11.i:
+  %cmp12.i = icmp ult i64 noundef %s0, -2312264954237214559
+  br label %_ZL14lean_le_half_nmmmm.exit
+
+if.then8.i:
+  %cmp9.i = icmp ult i64 noundef %s1, 6725966010171805725
+  br label %_ZL14lean_le_half_nmmmm.exit
+
+if.then.i:
+  %cmp1.i = icmp ult i64 noundef %s3, 9223372036854775807
+  br label %_ZL14lean_le_half_nmmmm.exit
+
+_ZL14lean_le_half_nmmmm.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp1.i, %if.then.i ], [ %cmp9.i, %if.then8.i ], [ %cmp12.i, %if.end11.i ], [ 1, %if.end.i2 ]
+  %#0 = select i1 %retval.0.shrunk.i, i64 0, i64 27
+  br label %_ZL15lean_low_s_gatejmmmm.exit
+
+_ZL15lean_low_s_gatejmmmm.exit:
+  %retval.0.i = phi i64 [ 0, %entry ], [ %#0, %_ZL14lean_le_half_nmmmm.exit ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 28
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_lows_gate=alive2-green
+STATUS=alive2-green

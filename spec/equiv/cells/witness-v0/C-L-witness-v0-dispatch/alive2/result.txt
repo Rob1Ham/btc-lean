@@ -1,0 +1,68 @@
+# cell: C-L-witness-v0-dispatch
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_v0_dispatch 
+# command: alive-tv ir/c_cell_v0_dispatch.ll ir/l_cell_v0_dispatch.ll
+
+----------------------------------------
+define i64 @cell_v0_dispatch(i64 noundef %program_len, i64 noundef %witness_n, i64 noundef %hash_match) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %program_len, label %return [
+    i64 32, label %if.then
+    i64 20, label %if.then8
+  ]
+
+if.then8:
+  %cmp9.not = icmp eq i64 noundef %witness_n, 2
+  %.19 = select i1 %cmp9.not, i64 2, i64 160
+  br label %return
+
+if.then:
+  %cmp1 = icmp eq i64 noundef %witness_n, 0
+  br i1 %cmp1, label %return, label %if.end
+
+if.end:
+  %tobool.not = icmp eq i64 noundef %hash_match, 0
+  %. = select i1 %tobool.not, i64 160, i64 2
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 156, %if.then ], [ %., %if.end ], [ %.19, %if.then8 ], [ 152, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 2, i64 161
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_v0_dispatch(i64 noundef %program_len, i64 noundef %witness_n, i64 noundef %hash_match) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %program_len, label %return [
+    i64 32, label %if.then
+    i64 20, label %if.then8
+  ]
+
+if.then8:
+  %cmp9.not = icmp eq i64 noundef %witness_n, 2
+  %.19 = select i1 %cmp9.not, i64 2, i64 160
+  br label %return
+
+if.then:
+  %cmp1 = icmp eq i64 noundef %witness_n, 0
+  br i1 %cmp1, label %return, label %if.end
+
+if.end:
+  %tobool.not = icmp eq i64 noundef %hash_match, 0
+  %. = select i1 %tobool.not, i64 160, i64 2
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 156, %if.then ], [ %., %if.end ], [ %.19, %if.then8 ], [ 152, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 2, i64 161
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

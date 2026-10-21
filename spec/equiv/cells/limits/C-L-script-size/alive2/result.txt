@@ -1,0 +1,60 @@
+# cell: limits/C-L-script-size
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 ad56786191a812219c24111756430687446f2780f614a1eed7bb8f65340f0e94
+# command: alive-tv build/c_cell_script_size.ll build/l_cell_script_size.ll
+
+----------------------------------------
+define i64 @cell_script_size(i64 noundef %script_len, i8 noundef zeroext %sv) nofree willreturn memory(none) {
+entry:
+  %switch = icmp ult i8 noundef zeroext %sv, 3
+  br i1 %switch, label %if.end, label %return
+
+if.end:
+  %or.cond.i = icmp ne i8 noundef zeroext %sv, 2
+  %cmp4 = icmp ugt i64 noundef %script_len, 10000
+  %or.cond10 = and i1 %cmp4, %or.cond.i
+  br i1 %or.cond10, label %return, label %if.end7
+
+if.end7:
+  %conv8 = shl i64 noundef %script_len, 8
+  %or68.i = and i64 %conv8, 4294967040
+  %or6.i = or disjoint i64 %or68.i, 1
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or6.i, %if.end7 ], [ 6, %entry ], [ 20, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 4294967042
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_script_size(i64 noundef %script_len, i8 noundef zeroext %sv) nofree willreturn memory(none) {
+entry:
+  %switch = icmp ult i8 noundef zeroext %sv, 3
+  br i1 %switch, label %if.end, label %return
+
+if.end:
+  %or.cond.i = icmp ne i8 noundef zeroext %sv, 2
+  %cmp4 = icmp ugt i64 noundef %script_len, 10000
+  %or.cond10 = and i1 %cmp4, %or.cond.i
+  br i1 %or.cond10, label %return, label %if.end7
+
+if.end7:
+  %conv8 = shl i64 noundef %script_len, 8
+  %or68.i = and i64 %conv8, 4294967040
+  %or6.i = or disjoint i64 %or68.i, 1
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or6.i, %if.end7 ], [ 6, %entry ], [ 20, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 4294967042
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

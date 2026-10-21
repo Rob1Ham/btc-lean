@@ -1,0 +1,64 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-w65-scr008-cleanstack-arms.
+//
+// Read off the row table in spec.md, which is read off VerifyScript at pin
+// cce32b168 (interpreter.cpp:2045-2127).  Error ordinals from
+// contract/error_kind.h: CLEANSTACK 30, WITNESS_MALLEATED 41,
+// WITNESS_MALLEATED_P2SH 42, WITNESS_UNEXPECTED 43.
+//
+// Observable: result (2) | error (6) << 2 ; result 1 = pass, 0 = fail.
+// 16 hex digits = 64 bits.
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m2 : [64] -> [64]
+m2 x = x && 0x0000000000000003
+
+one : [64]
+one = 0x0000000000000001
+zero : [64]
+zero = 0x0000000000000000
+ood : [64]
+ood = 0xffffffffffffffff
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2)
+
+// The cell's declared input domain.  Mirrors ev_scr008_in_domain() in
+// src/common.h, which both legs call.
+in_domain : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+in_domain cs w p spkw spkp pwit pshok =
+  if (m1 spkw && m1 spkp) != zero then zero
+  else if (m1 p && m1 spkp && m1 w && m1 pwit && m1 cs && m1 pshok) != zero
+    then zero
+  else one
+
+// CLEANSTACK-relevant final length.  Core: resize(1) on either witness arm,
+// the subscript eval depth for plain P2SH, the post-spk depth otherwise.
+// (On this domain Core's rule and the pinned Lean `finalLen` coincide; the
+// divergent class is fenced out by in_domain and proved red in the finding.)
+final_len : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+final_len w p n spkw spkp pwit ilen =
+  if (m1 p && m1 spkp) != zero
+    then (if (m1 w && m1 pwit) != zero then one else m2 ilen)
+    else (if (m1 w && m1 spkw) != zero then one else m2 n)
+
+// hadWitness: set by either witness arm, and by nothing else (2047/2091).
+had : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+had w p spkw spkp pwit =
+  (m1 w && m1 spkw) || (m1 p && m1 spkp && m1 w && m1 pwit)
+
+scr008_arms : [64] -> [64] -> [64] -> [64] -> [64] -> [64] ->
+              [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+scr008_arms cs w p n spkw spkp pwit pshok sign witn ilen =
+  if in_domain cs w p spkw spkp pwit pshok == zero then ood
+  else if m1 w != zero /\ m1 spkw != zero /\ m2 sign != zero
+    then pack zero 0x0000000000000029
+  else if (m1 p && m1 spkp && m1 w && m1 pwit) != zero /\ m1 pshok == zero
+    then pack zero 0x000000000000002a
+  else if m1 cs != zero /\ final_len w p n spkw spkp pwit ilen != one
+    then pack zero 0x000000000000001e
+  else if m1 w != zero /\ had w p spkw spkp pwit == zero /\ m2 witn != zero
+    then pack zero 0x000000000000002b
+  else pack one zero

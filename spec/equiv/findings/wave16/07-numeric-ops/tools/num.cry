@@ -1,0 +1,312 @@
+// num.cry -- independent specification of the numeric opcode layer.
+//
+// This module is a *separate* model from both the C excerpt and the twin IR:
+// it is written directly from Bitcoin Core's script.h/interpreter.cpp and from
+// the Lean equations in spec/core/Bitcoin/Interpreter/Defs.lean (unOp/binOp),
+// and it is checked *against* each leg by SAW.  Everything is a 64-bit
+// two's-complement bitvector; the cell's operand domain is a 4-byte CScriptNum
+// so |value| < 2^33 and no intermediate result overflows int64.
+//
+// Cryptol literal widths follow the number of digits written, so every
+// word-sized literal is spelled with 16 hex digits.
+//
+// Packed observable (must match the C/L harness in num_common.h):
+//   result(2) | error_kind(6) | depth(3) | top_len(4) | top bytes 0..4 (40)
+//   => res | err<<2 | depth<<8 | len<<11 | b0<<15 | b1<<23 | b2<<31 |
+//      b3<<39 | b4<<47
+//
+// ABI note: after an error the stack is not part of the contract (the script
+// has already failed), so error observables carry no stack.
+
+module Num where
+
+// ---------------------------------------------------------------- ScriptNum
+// CScriptNum serialize (script.h:342-373) is canonical and total; the helpers
+// below return its length and its k-th byte for the int64 value v.
+isNeg : [64] -> Bit
+isNeg v = (v && 0x8000000000000000) != 0
+
+magOf : [64] -> [64]
+magOf v = if isNeg v then -v else v
+
+// number of significant magnitude bytes (0 has none: handled by the callers)
+nbOf : [64] -> [64]
+nbOf m = if m < 0x0000000000000100 then 0x0000000000000001
+         else if m < 0x0000000000010000 then 0x0000000000000002
+         else if m < 0x0000000001000000 then 0x0000000000000003
+         else if m < 0x0000000100000000 then 0x0000000000000004
+         else 0x0000000000000005
+
+byteOf : [64] -> [64] -> [64]
+byteOf m k = if k == 0x0000000000000000 then m && 0x00000000000000ff
+             else if k == 0x0000000000000001 then (m >> 8) && 0x00000000000000ff
+             else if k == 0x0000000000000002 then (m >> 16) && 0x00000000000000ff
+             else if k == 0x0000000000000003 then (m >> 24) && 0x00000000000000ff
+             else (m >> 32) && 0x00000000000000ff
+
+topOf : [64] -> [64] -> [64]
+topOf m nb = byteOf m (nb - 0x0000000000000001)
+
+needsSignByte : [64] -> Bit
+needsSignByte m = ((topOf m (nbOf m)) && 0x0000000000000080) != 0
+
+encLen : [64] -> [64]
+encLen v = if v == 0x0000000000000000 then 0x0000000000000000
+           else nbOf (magOf v) + (if needsSignByte (magOf v)
+                                  then 0x0000000000000001
+                                  else 0x0000000000000000)
+
+encByte : [64] -> [64] -> [64]
+encByte v k = if v == 0x0000000000000000 then 0x0000000000000000
+              else if k < nbOf (magOf v) then
+                     signByte v k
+              else if k == nbOf (magOf v) then
+                     (if needsSignByte (magOf v) then signExt v
+                      else 0x0000000000000000)
+              else 0x0000000000000000
+
+// k-th magnitude byte with the CScriptNum sign bit folded in.  Written as a
+// top-level equation (no local function) so SAW's Cryptol quotation reduces.
+signByte : [64] -> [64] -> [64]
+signByte v k = if (k == nbOf (magOf v) - 0x0000000000000001) &&
+                  isNeg v && ~(needsSignByte (magOf v))
+                 then (byteOf (magOf v) k) + 0x0000000000000080
+                 else byteOf (magOf v) k
+
+signExt : [64] -> [64]
+signExt v = if isNeg v then 0x0000000000000080 else 0x0000000000000000
+
+valField : [64] -> [64]
+valField v = (encLen v) << 11
+          || (encByte v 0x0000000000000000) << 15
+          || (encByte v 0x0000000000000001) << 23
+          || (encByte v 0x0000000000000002) << 31
+          || (encByte v 0x0000000000000003) << 39
+          || (encByte v 0x0000000000000004) << 47
+
+obs : [64] -> [64] -> [64] -> [64] -> [64]
+obs res err depth v = res || (err << 2) || (depth << 8) || valField v
+
+errObs : [64] -> [64]
+errObs e = e << 2
+
+// CScriptNum(vch, minimal=false, nMaxNumSize=4) decode over the cell domain:
+// the content word w holds the little-endian bytes, L is the element length.
+// Lengths 5..7 are the width-cap reject (script.h:247-249 / SCR-079/080).
+decodeOk : [64] -> [64] -> Bit
+decodeOk _ L = L <= 0x0000000000000004
+
+decode : [64] -> [64] -> [64]
+decode w L = if L == 0x0000000000000000 then 0x0000000000000000
+             else if (top && 0x0000000000000080) != 0 then -(mag)
+             else mag
+  where
+    b0  = w && 0x00000000000000ff
+    b1  = (w >> 8) && 0x00000000000000ff
+    b2  = (w >> 16) && 0x00000000000000ff
+    b3  = (w >> 24) && 0x00000000000000ff
+    top = if L == 0x0000000000000001 then b0
+          else if L == 0x0000000000000002 then b1
+          else if L == 0x0000000000000003 then b2
+          else b3
+    mask = if L == 0x0000000000000001 then 0xffffffffffffff7f
+           else if L == 0x0000000000000002 then 0xffffffffffff7fff
+           else if L == 0x0000000000000003 then 0xffffffffff7fffff
+           else 0xffffffff7fffffff
+    // set_vch (script.h:376-391) reads exactly L bytes: zero the tail before
+    // clearing the sign bit of the top byte.
+    width = if L == 0x0000000000000001 then 0x00000000000000ff
+            else if L == 0x0000000000000002 then 0x000000000000ffff
+            else if L == 0x0000000000000003 then 0x0000000000ffffff
+            else 0x00000000ffffffff
+    mag = ((b0 || (b1 << 8) || (b2 << 16) || (b3 << 24)) && width) && mask
+
+// CastToBool of a *canonically encoded* value: true iff the value is nonzero
+// (0 encodes to the empty vector; every nonzero value has a nonzero byte and
+// is not the negative-zero 0x80).
+truthy : [64] -> Bit
+truthy v = v != 0x0000000000000000
+
+// ---------------------------------------------------------- signed compare
+slt : [64] -> [64] -> Bit
+slt a b = (a ^ 0x8000000000000000) < (b ^ 0x8000000000000000)
+sle a b = ~(slt b a)
+sgt a b = slt b a
+sge a b = ~(slt a b)
+
+// ------------------------------------------------------- opcode semantics
+// Defs.lean:646-653 unOp; interpreter.cpp:929-953.
+unOp : [64] -> [64] -> [64]
+unOp wi v = if wi == 0x000000000000008b then v + 0x0000000000000001
+            else if wi == 0x000000000000008c then v - 0x0000000000000001
+            else if wi == 0x000000000000008f then -v
+            else if wi == 0x0000000000000090 then (if slt v 0 then -v else v)
+            else if wi == 0x0000000000000091
+              then (if v == 0x0000000000000000 then 0x0000000000000001
+                    else 0x0000000000000000)
+            else (if v == 0x0000000000000000 then 0x0000000000000000
+                  else 0x0000000000000001)
+
+// Defs.lean:656-670 binOp; interpreter.cpp:955-1010.
+binOp : [64] -> [64] -> [64] -> [64]
+binOp wi a b = if wi == 0x0000000000000093 then a + b
+               else if wi == 0x0000000000000094 then a - b
+               else if wi == 0x000000000000009a
+                 then (if (a != 0x0000000000000000) && (b != 0x0000000000000000)
+                       then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x000000000000009b
+                 then (if (a != 0x0000000000000000) || (b != 0x0000000000000000)
+                       then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x000000000000009c then (if a == b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x000000000000009d then (if a == b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x000000000000009e then (if a != b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x000000000000009f then (if slt a b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x00000000000000a0 then (if sgt a b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x00000000000000a1 then (if sle a b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x00000000000000a2 then (if sge a b then 0x0000000000000001 else 0x0000000000000000)
+               else if wi == 0x00000000000000a3 then (if sle a b then a else b)
+               else (if sge a b then a else b)
+
+// --------------------------------------------- per-opcode packed postcondition
+// Unary: stack [x] -- out.  On success the pushed value is the only element;
+// the VerifyScript tail then reports OK for a nonzero result and EVAL_FALSE
+// for an empty/false top (0 encodes to the empty vector).
+pUnary : [64] -> [64] -> [64] -> [64]
+pUnary wi w L = if ~(decodeOk w L) then errObs 0x0000000000000004
+                else if truthy v then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001 v
+                else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001 v
+  where v = unOp wi (decode w L)
+
+// Binary: stack [a b] -- out (or -- for NUMEQUALVERIFY).
+pBinary : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pBinary wi wa La wb Lb =
+  if ~(decodeOk wa La) then errObs 0x0000000000000004
+  else if ~(decodeOk wb Lb) then errObs 0x0000000000000004
+  else if wi == 0x000000000000009d
+    then (if a == b then errObs 0x0000000000000002 else errObs 0x000000000000000f)
+  else if truthy v then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001 v
+  else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001 v
+  where
+    a = decode wa La
+    b = decode wb Lb
+    v = binOp wi a b
+
+// WITHIN: stack [x min max] -- out (interpreter.cpp:1012-1026).
+pWithin : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pWithin wx Lx wmn Lmn wmx Lmx =
+  if ~(decodeOk wx Lx) then errObs 0x0000000000000004
+  else if ~(decodeOk wmn Lmn) then errObs 0x0000000000000004
+  else if ~(decodeOk wmx Lmx) then errObs 0x0000000000000004
+  else if (sle mn x && slt x mx)
+    then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001 0x0000000000000001
+  else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001 0x0000000000000000
+  where
+    x  = decode wx Lx
+    mn = decode wmn Lmn
+    mx = decode wmx Lmx
+
+// OP_EQUAL / OP_EQUALVERIFY (interpreter.cpp:897-923): raw byte equality --
+// equal lengths and equal bytes, no numeric decoding.
+//
+// `valtype` equality is length first, then exactly `len` bytes: bytes at index
+// >= len are not part of the element.  Each byte is therefore compared only
+// when the (already equal) length reaches it.  An unguarded comparison of all
+// eight bytes is *not* equivalent -- it rejects two one-byte elements whose
+// padding happens to differ -- and was caught by the SAW leg of
+// numeric/C-L-equal-rawbytes (see that cell's notes.md).
+equalRaw : [64] -> [64] -> [64] -> [64] -> Bit
+equalRaw wa La wb Lb = (La == Lb) &&
+  ((La < 0x0000000000000001) || (rawByte wa 0x0000000000000000 == rawByte wb 0x0000000000000000)) &&
+  ((La < 0x0000000000000002) || (rawByte wa 0x0000000000000001 == rawByte wb 0x0000000000000001)) &&
+  ((La < 0x0000000000000003) || (rawByte wa 0x0000000000000002 == rawByte wb 0x0000000000000002)) &&
+  ((La < 0x0000000000000004) || (rawByte wa 0x0000000000000003 == rawByte wb 0x0000000000000003)) &&
+  ((La < 0x0000000000000005) || (rawByte wa 0x0000000000000004 == rawByte wb 0x0000000000000004)) &&
+  ((La < 0x0000000000000006) || (rawByte wa 0x0000000000000005 == rawByte wb 0x0000000000000005)) &&
+  ((La < 0x0000000000000007) || (rawByte wa 0x0000000000000006 == rawByte wb 0x0000000000000006)) &&
+  ((La < 0x0000000000000008) || (rawByte wa 0x0000000000000007 == rawByte wb 0x0000000000000007))
+
+// k-th raw byte of a little-endian content word (no sign handling).
+rawByte : [64] -> [64] -> [64]
+rawByte w k = if k == 0x0000000000000000 then w && 0x00000000000000ff
+              else if k == 0x0000000000000001 then (w >> 8) && 0x00000000000000ff
+              else if k == 0x0000000000000002 then (w >> 16) && 0x00000000000000ff
+              else if k == 0x0000000000000003 then (w >> 24) && 0x00000000000000ff
+              else if k == 0x0000000000000004 then (w >> 32) && 0x00000000000000ff
+              else if k == 0x0000000000000005 then (w >> 40) && 0x00000000000000ff
+              else if k == 0x0000000000000006 then (w >> 48) && 0x00000000000000ff
+              else (w >> 56) && 0x00000000000000ff
+
+// Bounded element length for the raw-byte cell (harness projection, applied to
+// both legs): 4 length bits, element capped at 8 bytes.
+clamp8 : [32] -> [64]
+clamp8 l = if (l && 0x0000000f) > 0x00000008
+             then 0x0000000000000008
+             else zext (l && 0x0000000f)
+
+// EQUAL pushes vchTrue/vchFalse; EQUALVERIFY drops both on success and errors
+// on failure.
+pEqual : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+pEqual wi wa La wb Lb =
+  if wi == 0x0000000000000087
+    then (if eq then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001 0x0000000000000001
+                else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001 0x0000000000000000)
+    else (if eq then errObs 0x0000000000000002 else errObs 0x000000000000000c)
+  where eq = equalRaw wa La wb Lb
+
+// ---------------------------------------------------- opcode gate (SCR-092)
+// The wire-level decision Bitcoin Core makes before dispatching an opcode.
+//
+// `disabledWire` is interpreter.cpp:471-489 -- a disjunction, not a
+// sigversion-dependent branch: EvalScript rejects these wires in every
+// sigversion it runs in.  `OP_2DIV` (script.h:156) is wire 0x8e and is a
+// member.  There is no OP_NOTEQUAL opcode: the only use of that name in Core
+// is the commented-out case at interpreter.cpp:907-911, and the disabled check
+// precedes the opcode switch, so 0x8e can never reach the OP_EQUAL block.
+// Cryptol binds `||` tighter than `==`, so every comparison is parenthesised
+// (same quirk as the `!=` chains elsewhere in this file).
+disabledWire : [64] -> Bit
+disabledWire w =
+     ((w == 0x000000000000007e) || (w == 0x000000000000007f))   // CAT, SUBSTR
+  || ((w == 0x0000000000000080) || (w == 0x0000000000000081))   // LEFT, RIGHT
+  || ((w == 0x0000000000000083) || (w == 0x0000000000000084))   // INVERT, AND
+  || ((w == 0x0000000000000085) || (w == 0x0000000000000086))   // OR, XOR
+  || ((w == 0x000000000000008d) || (w == 0x000000000000008e))   // 2MUL, 2DIV
+  || ((w == 0x0000000000000095) || (w == 0x0000000000000096))   // MUL, DIV
+  || ((w == 0x0000000000000097) || (w == 0x0000000000000098))   // MOD, LSHIFT
+  || (w == 0x0000000000000099)                                // RSHIFT
+
+// `IsOpSuccess` (script.cpp:365-371, BIP342).  Called by
+// ExecuteWitnessScript's pre-pass over the raw tapscript bytes
+// (interpreter.cpp:1846-1862) before EvalScript runs.
+opSuccessWire : [64] -> Bit
+opSuccessWire w =
+     ((w == 0x0000000000000050) || (w == 0x0000000000000062))         // 80, 98
+  || ((0x000000000000007e <= w) && (w <= 0x0000000000000081))         // 126..129
+  || ((0x0000000000000083 <= w) && (w <= 0x0000000000000086))         // 131..134
+  || ((0x0000000000000089 <= w) && (w <= 0x000000000000008a))         // 137..138
+  || ((0x000000000000008d <= w) && (w <= 0x000000000000008e))         // 141..142
+  || ((0x0000000000000095 <= w) && (w <= 0x0000000000000099))         // 149..153
+  || ((0x00000000000000bb <= w) && (w <= 0x00000000000000fe))         // 187..254
+
+// Gate observable: result(2) | error_kind(6), same ABI packing as `obs` with
+// no stack.  Result tags: 0 = terminal error, 1 = terminal success,
+// 2 = no terminal decision here (the interpreter proceeds to opcode dispatch).
+gateObs : [64] -> [64] -> [64]
+gateObs res err = res || (err << 2)
+
+// EvalScript's disabled-opcode gate (interpreter.cpp:471-489).  Sigversion
+// independent: BASE, WITNESS_V0 and (if reached) TAPSCRIPT all reject here.
+pGate : [64] -> [64]
+pGate w = if disabledWire w
+            then gateObs 0x0000000000000000 0x0000000000000011   // 17 DISABLED
+            else gateObs 0x0000000000000002 0x0000000000000000
+
+// ExecuteWitnessScript's OP_SUCCESSx pre-pass, one-opcode script
+// (interpreter.cpp:1846-1862 with DISCOURAGE_OP_SUCCESS off, i.e. flags = 0).
+// A success wire terminates verification successfully and never reaches
+// EvalScript -- this is the ordering that makes 0x8e (OP_SUCCESS142) succeed
+// in tapscript although pGate rejects it.
+pTapScan : [64] -> [64]
+pTapScan w = if opSuccessWire w
+               then gateObs 0x0000000000000001 0x0000000000000000
+               else gateObs 0x0000000000000002 0x0000000000000000

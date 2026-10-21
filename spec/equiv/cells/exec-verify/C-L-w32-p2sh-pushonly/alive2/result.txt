@@ -1,0 +1,86 @@
+# cell: exec-verify/C-L-w32-p2sh-pushonly
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# expected: green
+# command: alive-tv build/c_cell_p2sh_pushonly_gate.ll build/l_cell_p2sh_pushonly_gate.ll
+
+----------------------------------------
+define i64 @cell_p2sh_pushonly_gate(i64 noundef %n_ops, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %p2sh_flag) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %p2sh_flag, 0
+  br i1 %cmp.not, label %if.end6, label %if.then
+
+if.then:
+  %#0 = trunc i64 noundef %n_ops to i32
+  %conv = and i32 %#0, 255
+  %and1 = and i64 noundef %w0, 255
+  %and3 = and i64 noundef %w2, 255
+  %cmp1.i = icmp ne i32 %conv, 0
+  %cmp2.i = icmp samesign ugt i64 %and1, 96
+  %or.cond.i = select i1 %cmp1.i, i1 %cmp2.i, i1 0
+  br i1 %or.cond.i, label %return, label %if.end.i
+
+if.end.i:
+  %and2 = and i64 noundef %w1, 255
+  %cmp3.i = icmp samesign ugt i32 %conv, 1
+  %cmp5.i = icmp samesign ugt i64 %and2, 96
+  %or.cond13.i = select i1 %cmp3.i, i1 %cmp5.i, i1 0
+  br i1 %or.cond13.i, label %return, label %if.end7.i
+
+if.end7.i:
+  %cmp8.i = icmp samesign ult i32 %conv, 3
+  %cmp10.i = icmp samesign ult i64 %and3, 97
+  %or.cond14.i.not = select i1 %cmp8.i, i1 1, i1 %cmp10.i
+  br i1 %or.cond14.i.not, label %if.end6, label %return
+
+if.end6:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 1, %if.end6 ], [ 104, %if.end7.i ], [ 104, %if.end.i ], [ 104, %if.then ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 105
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_p2sh_pushonly_gate(i64 noundef %n_ops, i64 noundef %w0, i64 noundef %w1, i64 noundef %w2, i64 noundef %p2sh_flag) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %p2sh_flag, 0
+  br i1 %cmp.not, label %if.end6, label %if.then
+
+if.then:
+  %#0 = trunc i64 noundef %n_ops to i32
+  %conv = and i32 %#0, 255
+  %and1 = and i64 noundef %w0, 255
+  %cmp1.i = icmp eq i32 %conv, 0
+  %cmp2.i = icmp samesign ult i64 %and1, 97
+  %#1 = select i1 %cmp1.i, i1 1, i1 %cmp2.i
+  br i1 %#1, label %land.lhs.true.i, label %return
+
+land.lhs.true.i:
+  %cmp8.i = icmp samesign ult i32 %conv, 3
+  %and3 = and i64 noundef %w2, 255
+  %cmp10.i = icmp samesign ult i64 %and3, 97
+  %#2 = select i1 %cmp8.i, i1 1, i1 %cmp10.i
+  %and2 = and i64 noundef %w1, 255
+  %cmp3.i = icmp samesign ult i32 %conv, 2
+  %cmp5.i = icmp samesign ult i64 %and2, 97
+  %#3 = select i1 %cmp3.i, i1 1, i1 %cmp5.i
+  %spec.select.i = select i1 %#3, i1 %#2, i1 0
+  br i1 %spec.select.i, label %if.end6, label %return
+
+if.end6:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 1, %if.end6 ], [ 104, %land.lhs.true.i ], [ 104, %if.then ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 105
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

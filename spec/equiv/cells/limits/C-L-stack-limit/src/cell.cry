@@ -1,0 +1,29 @@
+module CellStackLimit where
+
+// Independent spec of the post-opcode combined stack limit
+// (interpreter.cpp:1231-1233; Defs.lean:1128-1139):
+//   stack.size() + altstack.size() > 1000  =>  STACK_SIZE.
+// Observable: result(2) | error(6) | payload(24), payload = combined depth.
+//
+// Both depths are bounded to [0, 2000]; the sum is then exact in 32 bits and
+// the whole boundary region around 1000 is inside the domain.
+
+pack : [2] -> [6] -> [24] -> [64]
+pack res err payload = (zero : [32]) # (payload : [24]) # (err : [6]) # (res : [2])
+
+failStackSize : [64]
+failStackSize = pack 0 8 0
+
+badInput : [64]
+badInput = pack 2 1 0
+
+low24 : [32] -> [24]
+low24 x = [ x @ i | i <- [8 .. 31] ]
+
+stack_limit_spec : [32] -> [32] -> [64]
+stack_limit_spec depth alt =
+  if depth > 2000 \/ alt > 2000
+    then badInput
+    else if depth + alt > 1000
+           then failStackSize
+           else pack 1 0 (low24 (depth + alt))

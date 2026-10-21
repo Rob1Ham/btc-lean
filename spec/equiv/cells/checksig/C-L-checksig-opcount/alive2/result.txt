@@ -1,0 +1,126 @@
+# cell: checksig/C-L-checksig-opcount
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: c931f243e4f3c2d3b6646d79cfdc2efa3915294483eea4fc3ec8aff7fbcd66ec
+# l source sha256: 92949beee8737b8fc1b3b875a68b0af5c0e5a225d7b48d6a5486a27002edc7ac
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_opcount =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_opcount.ll build/l_cell_opcount.ll
+# c IR sha256: 437870d5e6a9b92710c78c38394732d2632fcd1793a60fa32b5b715bb3d2713e
+# l IR sha256: 6f46a251cfd850b4559548764f16c848c654a84fa4d55e6a776c9cb719611068
+
+----------------------------------------
+define i64 @cell_opcount(i32 noundef %n0, i32 noundef %sv, i32 noundef %fExec, i32 noundef %w0, i32 noundef %w1, i32 noundef %w2, i32 noundef %w3, i32 noundef %w4, i32 noundef %w5, i32 noundef %w6, i32 noundef %w7) nofree willreturn memory(none) {
+entry:
+  %ws = alloca i64 32, align 16, dead
+  start_lifetime ptr %ws
+  store i32 noundef %w0, ptr %ws, align 16
+  %arrayinit.element = gep inbounds nuw ptr %ws, 1 x i64 4
+  store i32 noundef %w1, ptr %arrayinit.element, align 4
+  %arrayinit.element1 = gep inbounds nuw ptr %ws, 1 x i64 8
+  store i32 noundef %w2, ptr %arrayinit.element1, align 8
+  %arrayinit.element2 = gep inbounds nuw ptr %ws, 1 x i64 12
+  store i32 noundef %w3, ptr %arrayinit.element2, align 4
+  %arrayinit.element3 = gep inbounds nuw ptr %ws, 1 x i64 16
+  store i32 noundef %w4, ptr %arrayinit.element3, align 16
+  %arrayinit.element4 = gep inbounds nuw ptr %ws, 1 x i64 20
+  store i32 noundef %w5, ptr %arrayinit.element4, align 4
+  %arrayinit.element5 = gep inbounds nuw ptr %ws, 1 x i64 24
+  store i32 noundef %w6, ptr %arrayinit.element5, align 8
+  %arrayinit.element6 = gep inbounds nuw ptr %ws, 1 x i64 28
+  store i32 noundef %w7, ptr %arrayinit.element6, align 4
+  %or.cond.i14 = icmp ult i32 noundef %sv, 2
+  br label %if.end
+
+if.end:
+  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %if.end ]
+  %err.019 = phi i32 [ 0, %entry ], [ %spec.select, %if.end ]
+  %n.018 = phi i32 [ noundef %n0, %entry ], [ %cond.i, %if.end ]
+  %arrayidx = gep inbounds nuw ptr %ws, 32 x i64 0, 4 x i64 %indvars.iv
+  %#0 = load i32, ptr %arrayidx, align 4
+  %cmp2.i = icmp ugt i32 %#0, 96
+  %narrow = select i1 %or.cond.i14, i1 %cmp2.i, i1 0
+  %add.i = zext i1 %narrow to i32
+  %cond.i = add i32 %n.018, %add.i
+  %cmp.i = icmp ugt i32 %cond.i, 201
+  %or.cond.i = select i1 %narrow, i1 %cmp.i, i1 0
+  %spec.select = select i1 %or.cond.i, i32 7, i32 %err.019
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %cmp = icmp samesign ult i64 %indvars.iv, 7
+  %cmp7.not = icmp eq i32 %spec.select, 0
+  %or.cond = select i1 %cmp, i1 %cmp7.not, i1 0
+  br i1 %or.cond, label %if.end, label %cleanup
+
+cleanup:
+  %conv = zext i32 %cond.i to i64
+  %shl = shl nsw nuw i64 %conv, 8
+  %conv8 = zext nneg i32 %spec.select to i64
+  %or = or disjoint i64 %shl, %conv8
+  end_lifetime ptr %ws
+  %#range_0_%or = !range i64 %or, i64 0, i64 1099511627528
+  ret i64 %#range_0_%or
+}
+=>
+define i64 @cell_opcount(i32 noundef %n0, i32 noundef %sv, i32 noundef %fExec, i32 noundef %w0, i32 noundef %w1, i32 noundef %w2, i32 noundef %w3, i32 noundef %w4, i32 noundef %w5, i32 noundef %w6, i32 noundef %w7) nofree willreturn memory(none) {
+entry:
+  %ws = alloca i64 32, align 16, dead
+  start_lifetime ptr %ws
+  store i32 noundef %w0, ptr %ws, align 16
+  %arrayinit.element = gep inbounds nuw ptr %ws, 1 x i64 4
+  store i32 noundef %w1, ptr %arrayinit.element, align 4
+  %arrayinit.element1 = gep inbounds nuw ptr %ws, 1 x i64 8
+  store i32 noundef %w2, ptr %arrayinit.element1, align 8
+  %arrayinit.element2 = gep inbounds nuw ptr %ws, 1 x i64 12
+  store i32 noundef %w3, ptr %arrayinit.element2, align 4
+  %arrayinit.element3 = gep inbounds nuw ptr %ws, 1 x i64 16
+  store i32 noundef %w4, ptr %arrayinit.element3, align 16
+  %arrayinit.element4 = gep inbounds nuw ptr %ws, 1 x i64 20
+  store i32 noundef %w5, ptr %arrayinit.element4, align 4
+  %arrayinit.element5 = gep inbounds nuw ptr %ws, 1 x i64 24
+  store i32 noundef %w6, ptr %arrayinit.element5, align 8
+  %arrayinit.element6 = gep inbounds nuw ptr %ws, 1 x i64 28
+  store i32 noundef %w7, ptr %arrayinit.element6, align 4
+  %#0 = icmp ult i32 noundef %sv, 2
+  br label %if.end
+
+if.end:
+  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %if.end ]
+  %err.018 = phi i32 [ 0, %entry ], [ %spec.select, %if.end ]
+  %n.017 = phi i32 [ noundef %n0, %entry ], [ %cond.i, %if.end ]
+  %arrayidx = gep inbounds nuw ptr %ws, 32 x i64 0, 4 x i64 %indvars.iv
+  %#1 = load i32, ptr %arrayidx, align 4
+  %cmp2.i = icmp ugt i32 %#1, 96
+  %#2 = and i1 %#0, %cmp2.i
+  %add.i = zext i1 %#2 to i32
+  %cond.i = add i32 %n.017, %add.i
+  %cmp.i = icmp ugt i32 %cond.i, 201
+  %or.cond.i = select i1 %#2, i1 %cmp.i, i1 0
+  %spec.select = select i1 %or.cond.i, i32 7, i32 %err.018
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %cmp = icmp samesign ult i64 %indvars.iv, 7
+  %cmp7.not = icmp eq i32 %spec.select, 0
+  %or.cond = select i1 %cmp, i1 %cmp7.not, i1 0
+  br i1 %or.cond, label %if.end, label %cleanup
+
+cleanup:
+  %conv = zext i32 %cond.i to i64
+  %shl = shl nsw nuw i64 %conv, 8
+  %conv8 = zext nneg i32 %spec.select to i64
+  %or = or disjoint i64 %shl, %conv8
+  end_lifetime ptr %ws
+  %#range_0_%or = !range i64 %or, i64 0, i64 1099511627528
+  ret i64 %#range_0_%or
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_opcount=alive2-green
+STATUS=alive2-green

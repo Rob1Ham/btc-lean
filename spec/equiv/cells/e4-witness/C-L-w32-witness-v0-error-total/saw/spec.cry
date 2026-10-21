@@ -1,0 +1,26 @@
+module Spec where
+
+// Independent Cryptol encoding of the v0 VerifyWitnessProgram
+// (result, error) pair at the pin.  packed = result(2) | error(6) << 2:
+//   (0,38) = 152  WITNESS_PROGRAM_WRONG_LENGTH
+//   (0,39) = 156  WITNESS_PROGRAM_WITNESS_EMPTY
+//   (0,40) = 160  WITNESS_PROGRAM_MISMATCH
+//   (1,0)  = 1    pass (the ExecuteWitnessScript pair, passed through)
+//
+// hash_ok is the SHA256(witnessScript) == program predicate as an input;
+// er/ee are ExecuteWitnessScript's result and error ordinal as inputs.
+
+execPair : [64] -> [64] -> [64]
+execPair er ee =
+  if (er && 1) == 1 then 1 else (ee && 63) * 4
+
+v0_error_total : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+v0_error_total plen wn hash_ok er ee =
+  if plen == 32 then
+    if wn == 0 then 156
+    else if hash_ok == 0 then 160
+    else execPair er ee
+  else if plen == 20 then
+    if wn != 2 then 160
+    else execPair er ee
+  else 152

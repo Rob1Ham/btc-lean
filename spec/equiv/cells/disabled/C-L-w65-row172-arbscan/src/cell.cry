@@ -1,0 +1,180 @@
+// Independent Cryptol specification for SCR-172's bounded context pair.
+//
+// It is written in Core's *jump* form (a variable `next` from GetScriptOp),
+// independent of the byte-granular shift-register encoding used by both IR
+// legs.  SAW checks each IR leg against this file, so the encoding is
+// machine-checked rather than assumed.
+//
+// Observable codes
+//   base 17 = a decoded opcode is in the legacy disabled table
+//         16 = GetOp truncation before any disabled opcode
+//         66 = fully decoded, no disabled opcode (EvalScript would run)
+//   tap   0 / 36 = an OP_SUCCESSx opcode is decoded (36 = policy bit)
+//         16 = GetOp truncation before any OP_SUCCESSx (Core's pre-scan)
+//         66 = fully decoded, no OP_SUCCESSx
+module CellRow172 where
+
+type Byte = [8]
+type Status = [32]
+
+MAX_SCAN : [32]
+MAX_SCAN = 8
+
+NO_NEXT : [32]
+NO_NEXT = 0xffffffff
+
+is_success_byte : Byte -> Bit
+is_success_byte c =
+  (c == 80) \/ (c == 98) \/ (126 <= c /\ c <= 129) \/ (131 <= c /\ c <= 134) \/
+  (137 <= c /\ c <= 138) \/ (141 <= c /\ c <= 142) \/ (149 <= c /\ c <= 153) \/
+  (187 <= c /\ c <= 254)
+
+is_disabled_byte : Byte -> Bit
+is_disabled_byte c =
+  (c == 0x7e) \/ (c == 0x7f) \/ (c == 0x80) \/ (c == 0x81) \/
+  (c == 0x83) \/ (c == 0x84) \/ (c == 0x85) \/ (c == 0x86) \/
+  (c == 0x8d) \/ (c == 0x8e) \/ (c == 0x95) \/ (c == 0x96) \/
+  (c == 0x97) \/ (c == 0x98) \/ (c == 0x99)
+
+// Lean's `Opcode.op` wire set (getOpAux): OP_RESERVED 0x50 and 0x61..0xff.
+is_op_byte : Byte -> Bit
+is_op_byte c = (c == 0x50) \/ (c >= 0x61)
+
+// GetScriptOp's next index, or NO_NEXT on truncation.  Same rule as
+// script.cpp:311-362 (and Lean's getOpAux).
+getop_next : [8]Byte -> [32] -> [32] -> [32]
+getop_next bs len i =
+  if i >= len then NO_NEXT
+  else if c < 0x4c then
+    (if i + 1 + (zext c : [32]) > len then NO_NEXT
+     else i + 1 + (zext c : [32]))
+  else if c == 0x4c then
+    (if i + 2 > len then NO_NEXT
+     else if (zext (bs @ (i + 1)) : [32]) > len - (i + 2) then NO_NEXT
+     else i + 2 + (zext (bs @ (i + 1)) : [32]))
+  else if c == 0x4d then
+    (if i + 3 > len then NO_NEXT
+     else if k2 > len - (i + 3) then NO_NEXT
+     else i + 3 + k2)
+  else if c == 0x4e then
+    (if (zext i : [64]) + 5 + (zext k4 : [64]) > (zext len : [64]) then NO_NEXT
+     else i + 5 + k4)
+  else i + 1
+  where
+    c  = bs @ i
+    k2 = (zext (bs @ (i + 1)) : [32]) || ((zext (bs @ (i + 2)) : [32]) << 8)
+    k4 = (zext (bs @ (i + 1)) : [32]) || ((zext (bs @ (i + 2)) : [32]) << 8) ||
+         ((zext (bs @ (i + 3)) : [32]) << 16) || ((zext (bs @ (i + 4)) : [32]) << 24)
+
+// One jump step of the two classification walks: (index, base status, tap status).
+// 0 scanning, 1 classified, 2 decode failure.
+step : [8]Byte -> [32] -> ([32], Status, Status) -> ([32], Status, Status)
+step bs len (i, b, t) =
+  if (b != 0) && (t != 0) then (i, b, t)
+  else if i >= len then (i, b, t)
+  else if n == NO_NEXT then (i, (if b == 0 then 2 else b),
+                                (if t == 0 then 2 else t))
+  else ( n,
+         (if (b == 0) && is_disabled_byte c then 1 else b),
+         (if (t == 0) && is_op_byte c && is_success_byte c then 1 else t) )
+  where
+    c = bs @ i
+    n = getop_next bs len i
+
+scan_state : [8]Byte -> [32] -> ([32], Status, Status)
+scan_state bs len =
+  step bs len (step bs len (step bs len (step bs len
+  (step bs len (step bs len (step bs len (step bs len
+  ((0, 0, 0)))))))))
+
+base_of : [32] -> [8]Byte -> [8]
+base_of len bs =
+  if len > MAX_SCAN then 254
+  else if b == 1 then 17 else if b == 2 then 16 else 66
+  where (_, b, _) = scan_state bs len
+
+tap_of : [32] -> [8]Byte -> [32] -> [8]
+tap_of len bs disc =
+  if len > MAX_SCAN then 254
+  else if t == 1 then (if disc != 0 then 36 else 0)
+  else if t == 2 then 16 else 66
+  where (_, _, t) = scan_state bs len
+
+flip : [32] -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte
+    -> [32] -> [64]
+flip len b0 b1 b2 b3 b4 b5 b6 b7 disc =
+  if len > MAX_SCAN then 254
+  else ((zext (base_of len bs) : [64]) << 32) ||
+       (zext (tap_of len bs disc) : [64])
+  where bs = [b0, b1, b2, b3, b4, b5, b6, b7]
+
+// ---------------------------------------------------------------------------
+// Core's post-scan order vs Lean's `executeWitnessScript` order.
+// ---------------------------------------------------------------------------
+
+tail_core : [32] -> [32] -> [32] -> [32] -> [32] -> [8]
+tail_core found decode_fail disc too_many oversize =
+  if found != 0 then (if disc != 0 then 36 else 0)
+  else if decode_fail != 0 then 16
+  else if too_many != 0 then 8
+  else if oversize != 0 then 6
+  else 66
+
+tail_lean : [32] -> [32] -> [32] -> [32] -> [32] -> [8]
+tail_lean found decode_fail disc too_many oversize =
+  if found != 0 then (if disc != 0 then 36 else 0)
+  else if too_many != 0 then 8
+  else if oversize != 0 then 6
+  else if decode_fail != 0 then 16
+  else 66
+
+// The exact divergence boundary: the contexts differ iff the pre-scan failed
+// to decode and a size check would have preempted Core's BAD_OPCODE.
+prop_divergence : [32] -> [32] -> [32] -> [32] -> [32] -> Bit
+prop_divergence found decode_fail disc too_many oversize =
+  (tail_core found decode_fail disc too_many oversize !=
+   tail_lean found decode_fail disc too_many oversize) ==
+  (found == 0 /\ decode_fail != 0 /\ (too_many != 0 \/ oversize != 0))
+
+prop_agree_found : [32] -> [32] -> [32] -> [32] -> [32] -> Bit
+prop_agree_found found decode_fail disc too_many oversize =
+  (found != 0) ==>
+    (tail_core found decode_fail disc too_many oversize ==
+     tail_lean found decode_fail disc too_many oversize)
+
+prop_agree_no_size : [32] -> [32] -> [32] -> [32] -> [32] -> Bit
+prop_agree_no_size found decode_fail disc too_many oversize =
+  ((too_many == 0) && (oversize == 0)) ==>
+    (tail_core found decode_fail disc too_many oversize ==
+     tail_lean found decode_fail disc too_many oversize)
+
+// ---------------------------------------------------------------------------
+// Row statements checked over the bounded domain (all len 0..8, all bytes).
+// ---------------------------------------------------------------------------
+
+// A legacy-disabled opcode reached by the walk forces tapscript success.
+prop_base17_tap_success : [32] -> Byte -> Byte -> Byte -> Byte -> Byte -> Byte
+    -> Byte -> Byte -> [32] -> Bit
+prop_base17_tap_success len b0 b1 b2 b3 b4 b5 b6 b7 disc =
+  (base_of len [b0, b1, b2, b3, b4, b5, b6, b7] != 17) \/
+  (tap_of len [b0, b1, b2, b3, b4, b5, b6, b7] disc == 0) \/
+  (tap_of len [b0, b1, b2, b3, b4, b5, b6, b7] disc == 36)
+
+// Every disabled byte, as a one-byte tapscript, flips: base 17 -> tap 0.
+prop_disabled_byte_flip : Byte -> Bit
+prop_disabled_byte_flip c =
+  is_disabled_byte c ==>
+    ((base_of 1 [c, 0, 0, 0, 0, 0, 0, 0] == 17) /\
+     (tap_of 1 [c, 0, 0, 0, 0, 0, 0, 0] 0 == 0))
+
+// A non-disabled OP_SUCCESSx also wins tapscript, but is not a flip: base 66.
+prop_non_disabled_success : Bit
+prop_non_disabled_success =
+  (base_of 1 [0xbb, 0, 0, 0, 0, 0, 0, 0] == 66) /\
+  (tap_of 1 [0xbb, 0, 0, 0, 0, 0, 0, 0] 0 == 0)
+
+// A disabled byte inside a push payload is data on both legs: no flip.
+prop_push_payload_no_flip : Bit
+prop_push_payload_no_flip =
+  (base_of 2 [0x01, 0x7e, 0, 0, 0, 0, 0, 0] == 66) /\
+  (tap_of 2 [0x01, 0x7e, 0, 0, 0, 0, 0, 0] 0 == 66)

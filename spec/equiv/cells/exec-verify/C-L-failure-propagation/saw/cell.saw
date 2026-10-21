@@ -1,0 +1,33 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_failprop =
+  do {
+    ok1  <- llvm_fresh_var "ok1" (llvm_int 64);
+    e1   <- llvm_fresh_var "err1" (llvm_int 64);
+    ok2  <- llvm_fresh_var "ok2" (llvm_int 64);
+    e2   <- llvm_fresh_var "err2" (llvm_int 64);
+    a3   <- llvm_fresh_var "act3" (llvm_int 64);
+    ok3  <- llvm_fresh_var "ok3" (llvm_int 64);
+    e3   <- llvm_fresh_var "err3" (llvm_int 64);
+    a4   <- llvm_fresh_var "act4" (llvm_int 64);
+    ok4  <- llvm_fresh_var "ok4" (llvm_int 64);
+    e4   <- llvm_fresh_var "err4" (llvm_int 64);
+    a5   <- llvm_fresh_var "act5" (llvm_int 64);
+    ok5  <- llvm_fresh_var "ok5" (llvm_int 64);
+    e5   <- llvm_fresh_var "err5" (llvm_int 64);
+    llvm_execute_func [llvm_term ok1, llvm_term e1, llvm_term ok2,
+                       llvm_term e2, llvm_term a3, llvm_term ok3,
+                       llvm_term e3, llvm_term a4, llvm_term ok4,
+                       llvm_term e4, llvm_term a5, llvm_term ok5,
+                       llvm_term e5];
+    llvm_return (llvm_term {{ failprop ok1 e1 ok2 e2 a3 ok3 e3
+                                       a4 ok4 e4 a5 ok5 e5 }});
+  };
+
+llvm_verify mC "cell_failprop" [] false spec_failprop z3;
+llvm_verify mL "cell_failprop" [] false spec_failprop z3;
+
+print "CELL_C_L_failure_propagation_SAW_GREEN";

@@ -1,0 +1,21 @@
+// SAW script template for the SCR-121 tapscript-ban cell.  @CASE@ selects the
+// shared checker stub instance; this cell never calls the checker.
+import "model.cry";
+
+mC <- llvm_load_module "c_saw_c@CASE@.bc";
+mL <- llvm_load_module "l_saw_c@CASE@.bc";
+
+let spec = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  op <- llvm_fresh_var "op" (llvm_int 32);
+  d  <- llvm_fresh_var "depth" (llvm_int 32);
+  nk <- llvm_fresh_var "nkeys" (llvm_int 32);
+  ns <- llvm_fresh_var "nsigs" (llvm_int 32);
+  llvm_execute_func [llvm_term sv, llvm_term op, llvm_term d, llvm_term nk,
+                     llvm_term ns];
+  llvm_return (llvm_term {{ ban sv op d nk ns }});
+};
+
+llvm_verify mC "cell_cms_tapscript_ban" [] false spec abc;
+llvm_verify mL "cell_cms_tapscript_ban" [] false spec abc;
+print "CASE_@CASE@_OK";

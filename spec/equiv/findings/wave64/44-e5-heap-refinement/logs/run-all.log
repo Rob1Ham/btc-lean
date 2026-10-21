@@ -1,0 +1,33 @@
+== allocator model M2 lemmas ==
+heap-lemmas                  exit=0   expect=ok    PASS
+heap-lemmas-negative         exit=2   expect=fail  PASS (proof failed as required)
+== E5 OP_1 on the PINNED probe lane ==
+e5-op1-pinned-cap64          exit=0   expect=ok    PASS
+e5-op1-pinned-cap41          exit=0   expect=ok    PASS
+e5-op1-pinned-cap40          exit=2   expect=throw PASS (visible bad_alloc edge)
+e5-op1-pinned-negative       exit=2   expect=fail  PASS (proof failed as required)
+== allocation failure disclosure ==
+fail-new-full                exit=2   expect=throw PASS (visible bad_alloc edge)
+vec-5-cap41-overflow         exit=2   expect=throw PASS (visible bad_alloc edge)
+== real-libstdc++ vector-growth cumulative bounds ==
+vec-1-good                   exit=0   expect=ok    PASS
+vec-1-bad                    exit=2   expect=fail  PASS (proof failed as required)
+vec-2-good                   exit=0   expect=ok    PASS
+vec-2-bad                    exit=2   expect=fail  PASS (proof failed as required)
+vec-3-good                   exit=0   expect=ok    PASS
+vec-3-bad                    exit=2   expect=fail  PASS (proof failed as required)
+vec-5-good                   exit=0   expect=ok    PASS
+vec-5-bad                    exit=2   expect=fail  PASS (proof failed as required)
+vec-8-good                   exit=0   expect=ok    PASS
+vec-8-bad                    exit=2   expect=fail  PASS (proof failed as required)
+vec-16-good                  exit=0   expect=ok    PASS
+vec-16-bad                   exit=2   expect=fail  PASS (proof failed as required)
+vec-64-good                  exit=0   expect=ok    PASS
+vec-64-bad                   exit=2   expect=fail  PASS (proof failed as required)
+vec-256-good                 exit=0   expect=ok    PASS
+vec-256-bad                  exit=2   expect=fail  PASS (proof failed as required)
+vec-1000-good                exit=0   expect=ok    PASS
+vec-1000-bad                 exit=2   expect=fail  PASS (proof failed as required)
+
+exit codes: /tmp/opencode/wave64/44-e5-heap-refinement-scratch/logs/RUN-EXIT-CODES.txt
+RUN-ALL: all expectations held

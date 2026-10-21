@@ -1,0 +1,107 @@
+import "cell.cry";
+
+// ---------------------------------------------------------------------------
+// cell_clamp_int32: script.h:326-333 on an arbitrary int64_t.  Both firing
+// arms are in the domain.  C is Core getint(); L is Lean getIntClamped.
+mCc <- llvm_load_module "c_cell_clamp_int32.bc";
+mLc <- llvm_load_module "l_cell_clamp_int32.bc";
+let clamp_setup = do {
+  x <- llvm_fresh_var "x" (llvm_int 64);
+  llvm_execute_func [llvm_term x];
+  llvm_return (llvm_term {{ clamp_i32 x }});
+};
+llvm_verify mCc "cell_clamp_int32" [] false clamp_setup z3;
+llvm_verify mLc "cell_clamp_int32" [] false clamp_setup z3;
+
+// ---------------------------------------------------------------------------
+// cell_depth_read: the OP_PICK/OP_ROLL depth read.  Symbolic operand length,
+// all operand bytes, symbolic pre-pop stack depth and both minimal-data
+// settings.  C applies getint(); L is the twin decode_num plus the handler's
+// guard/index prefix and has no clamp.
+mCd <- llvm_load_module "c_cell_depth_read.bc";
+mLd <- llvm_load_module "l_cell_depth_read.bc";
+let depth_setup = do {
+  len     <- llvm_fresh_var "len"     (llvm_int 32);
+  b0      <- llvm_fresh_var "b0"      (llvm_int 8);
+  b1      <- llvm_fresh_var "b1"      (llvm_int 8);
+  b2      <- llvm_fresh_var "b2"      (llvm_int 8);
+  b3      <- llvm_fresh_var "b3"      (llvm_int 8);
+  b4      <- llvm_fresh_var "b4"      (llvm_int 8);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  minimal <- llvm_fresh_var "minimal" (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term depth,
+                     llvm_term minimal];
+  llvm_return (llvm_term {{ depth_read len b0 b1 b2 b3 b4 depth minimal }});
+};
+llvm_verify mCd "cell_depth_read" [] false depth_setup z3;
+llvm_verify mLd "cell_depth_read" [] false depth_setup z3;
+
+// ---------------------------------------------------------------------------
+// cell_cms_key_count: the CHECKMULTISIG nKeysCount read, arbitrary operand,
+// MINIMALDATA either way, symbolic nOpCount.
+mCk <- llvm_load_module "c_cell_cms_key_count.bc";
+mLk <- llvm_load_module "l_cell_cms_key_count.bc";
+let key_setup = do {
+  len     <- llvm_fresh_var "len"     (llvm_int 32);
+  b0      <- llvm_fresh_var "b0"      (llvm_int 8);
+  b1      <- llvm_fresh_var "b1"      (llvm_int 8);
+  b2      <- llvm_fresh_var "b2"      (llvm_int 8);
+  b3      <- llvm_fresh_var "b3"      (llvm_int 8);
+  opCount <- llvm_fresh_var "opCount" (llvm_int 32);
+  minimal <- llvm_fresh_var "minimal" (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term opCount, llvm_term minimal];
+  llvm_return (llvm_term {{ cms_key_count len b0 b1 b2 b3 opCount minimal }});
+};
+llvm_verify mCk "cell_cms_key_count" [] false key_setup z3;
+llvm_verify mLk "cell_cms_key_count" [] false key_setup z3;
+
+// ---------------------------------------------------------------------------
+// cell_cms_sig_prefix: the key-side read in the nSigsCount path, its gates and
+// the key-side depth gate.  C is Core getint(); L is the twin decode_num.  A
+// status-0 result means the signature read is reached.
+mCp <- llvm_load_module "c_cell_cms_sig_prefix.bc";
+mLp <- llvm_load_module "l_cell_cms_sig_prefix.bc";
+let sig_prefix_setup = do {
+  lk      <- llvm_fresh_var "lk"      (llvm_int 32);
+  kb0     <- llvm_fresh_var "kb0"     (llvm_int 8);
+  kb1     <- llvm_fresh_var "kb1"     (llvm_int 8);
+  kb2     <- llvm_fresh_var "kb2"     (llvm_int 8);
+  kb3     <- llvm_fresh_var "kb3"     (llvm_int 8);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  opCount <- llvm_fresh_var "opCount" (llvm_int 32);
+  minimal <- llvm_fresh_var "minimal" (llvm_int 32);
+  llvm_execute_func [llvm_term lk, llvm_term kb0, llvm_term kb1, llvm_term kb2,
+                     llvm_term kb3, llvm_term depth, llvm_term opCount,
+                     llvm_term minimal];
+  llvm_return (llvm_term {{ cms_sig_prefix lk kb0 kb1 kb2 kb3 depth opCount
+                              minimal }});
+};
+llvm_verify mCp "cell_cms_sig_prefix" [] false sig_prefix_setup z3;
+llvm_verify mLp "cell_cms_sig_prefix" [] false sig_prefix_setup z3;
+
+// ---------------------------------------------------------------------------
+// cell_cms_sig_read: the nSigsCount read and its gates given the decoded key
+// count.  C is Core getint(); L is the twin decode_num (unclamped).
+mCr <- llvm_load_module "c_cell_cms_sig_read.bc";
+mLr <- llvm_load_module "l_cell_cms_sig_read.bc";
+let sig_read_setup = do {
+  nk      <- llvm_fresh_var "nk"      (llvm_int 32);
+  depth   <- llvm_fresh_var "depth"   (llvm_int 32);
+  ls      <- llvm_fresh_var "ls"      (llvm_int 32);
+  sb0     <- llvm_fresh_var "sb0"     (llvm_int 8);
+  sb1     <- llvm_fresh_var "sb1"     (llvm_int 8);
+  sb2     <- llvm_fresh_var "sb2"     (llvm_int 8);
+  sb3     <- llvm_fresh_var "sb3"     (llvm_int 8);
+  minimal <- llvm_fresh_var "minimal" (llvm_int 32);
+  llvm_execute_func [llvm_term nk, llvm_term depth, llvm_term ls,
+                     llvm_term sb0, llvm_term sb1, llvm_term sb2,
+                     llvm_term sb3, llvm_term minimal];
+  llvm_return (llvm_term {{ cms_sig_read nk depth ls sb0 sb1 sb2 sb3
+                              minimal }});
+};
+llvm_verify mCr "cell_cms_sig_read" [] false sig_read_setup z3;
+llvm_verify mLr "cell_cms_sig_read" [] false sig_read_setup z3;
+
+print "CELL_W66_SCR086_CLAMP_USES_SAW_GREEN";

@@ -1,0 +1,60 @@
+module CellLocktimeInputIndexGeneral where
+
+// Independent specification for the general-vin (SCR-132) cell, written from
+// the Core text (interpreter.cpp:1754-1836) and the Lean environment rule
+// (Interpreter/Rules.lean:87-129).  It shares no code with either leg.
+//
+// The row's claim is input locality: for an arbitrary vin list and any nIn,
+// the verdict is a function of the `nIn`-th slot only; out of range the
+// getD default sequence is used.  `getd` models `(tx.vin.getD nIn default)`
+// over a symbolic array and a symbolic length.
+
+threshold : [64]
+threshold = 0x000000001dcd6500   // LOCKTIME_THRESHOLD = 500_000_000
+
+type_flag : [64]
+type_flag = 0x0000000000400000   // SEQUENCE_LOCKTIME_TYPE_FLAG = 1 << 22
+
+is_neg : [64] -> Bit
+is_neg n = (n && 0x8000000000000000) != 0
+
+agree : [64] -> [64] -> Bit
+agree a b = ((a < threshold) && (b < threshold)) || ((a >= threshold) && (b >= threshold))
+
+// BIP68 splits at TYPE_FLAG, not at LOCKTIME_THRESHOLD.
+agree_seq : [64] -> [64] -> Bit
+agree_seq a b = ((a < type_flag) && (b < type_flag)) || ((a >= type_flag) && (b >= type_flag))
+
+// CheckLockTime: type agreement, numeric compare against txTo->nLockTime,
+// then the SEQUENCE_FINAL test on vin[nIn].
+cltv_core : [32] -> [64] -> [32] -> [32]
+cltv_core txlt n s =
+  if is_neg n then 0xffffffff
+  else if ~ (agree (zext txlt) n) then 0
+  else if n > zext txlt then 0
+  else if s == 0xffffffff then 0
+  else 1
+
+// CheckSequence: version gate, disable flag, BIP68 mask, type agreement and
+// the masked numeric compare, all on vin[nIn].nSequence.
+csv_core : [32] -> [64] -> [32] -> [32]
+csv_core ver n s =
+  if is_neg n then 0xffffffff
+  else if ver < 2 then 0
+  else if (s && 0x80000000) != 0 then 0
+  else if ~ (agree_seq (zext (s && 0x0040ffff)) (n && 0x000000000040ffff)) then 0
+  else if (n && 0x000000000040ffff) > zext (s && 0x0040ffff) then 0
+  else 1
+
+// `(tx.vin.getD nIn default).sequence` over a sequence of slots: in range it
+// is the nIn-th slot, out of range the default (Lean's totalisation of the
+// asserted `vin[nIn]`).  `len` is symbolic; only the predicate `nIn < len`
+// is observed.
+getd : [64] -> [32] -> [16][32] -> [4] -> [32]
+getd len d vin i = if (zext i) < len then vin @ i else d
+
+cltv : [32] -> [64] -> [64] -> [32] -> [16][32] -> [4] -> [32]
+cltv txlt n len d vin i = cltv_core txlt n (getd len d vin i)
+
+csv : [32] -> [64] -> [64] -> [32] -> [16][32] -> [4] -> [32]
+csv ver n len d vin i = csv_core ver n (getd len d vin i)

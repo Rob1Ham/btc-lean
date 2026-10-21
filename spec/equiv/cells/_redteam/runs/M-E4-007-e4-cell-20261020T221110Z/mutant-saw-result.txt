@@ -1,0 +1,50 @@
+# cell: tapscript/C-L-tapscript-isopsuccess
+# saw: 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# spec: build/cell.cry (independent byte-set membership test)
+
+Loading file "cell.saw"
+Verifying cell_is_op_success...
+Simulating cell_is_op_success...
+Checking proof obligations cell_is_op_success...
+Proof succeeded! cell_is_op_success
+Verifying cell_is_op_success...
+Simulating cell_is_op_success...
+Checking proof obligations cell_is_op_success...
+Subgoal failed: cell_is_op_success cell.saw:10:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+isop w`6311
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = bvNat 1 0;
+      _x`3 = bvAdd 64 (bvNat 64 18446744073709551490) w`6311;
+      _x`4 = bvUExt 63 1
+               (ite (Vec 1 Bool)
+                  (bvult 64 (bvAdd 64 (bvNat 64 18446744073709551429) w`6311)
+                     (bvNat 64 68))
+                  (bvNat 1 1)
+                  _x`2);
+    }
+ in ite _x`1 (bvult 64 _x`3 (bvNat 64 28))
+      (ite _x`1
+         (bvEq 1 _x`2
+            (slice Bool 31 1 0
+               (bvShr 32 (bvNat 32 260151791)
+                  (bvToNat 32 (slice Bool 32 32 0 _x`3)))))
+         _x`4
+         (bvNat 64 1))
+      _x`4
+
+Goal size 205. Provers used: abc_verilog
+----------Counterexample----------
+  w: 98
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:10:51-10:54 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:10:1-10:54 (at top level)
+Proof failed.
+
+STATUS=saw-not-green (1/2 proofs)

@@ -1,0 +1,344 @@
+# cell: numeric/C-L-unary-4byte
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry (tools/num.cry as module CellSpec)
+# script: build/cell.saw
+# expected: at least 12 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+Verifying cell_1add...
+Simulating cell_1add...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_1add...
+Subgoal failed: cell_1add cell.saw:56:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 64;
+      _x`2 = TCNum 32;
+      _x`3 = seq _x`2 Bool;
+      _x`4 = PFin_TCNum 64;
+      _x`5 = unsafeAssumePGeq _x`1 _x`2;
+    }
+ in pUnary
+      (ecNumber (TCNum 139) (seq _x`1 Bool) (PLiteralSeqBool _x`1))
+      (zext _x`1 _x`2 _x`4 _x`5 w)
+      (zext _x`1 _x`2 _x`4 _x`5
+         (ecAnd _x`3 (PLogicSeqBool _x`2) lb
+            (ecNumber (TCNum 7) _x`3 (PLiteralSeqBool _x`2))))
+Actual term:
+let { _x`1 = Vec 8 Bool;
+      _x`2 = Vec 32 Bool;
+      _x`3 = Vec 64 Bool;
+      _x`4 = Vec 1 Bool;
+      _x`5 = bvAnd 32 (bvNat 32 7) lb;
+      _x`6 = bvNat 32 6;
+      _x`7 = bvNat 64 0;
+      _x`8 = bvNat 32 1;
+      _x`9 = bvEq 32 _x`8 _x`5;
+      _x`10 = bvNat 8 255;
+      _x`11 = bvUExt 32 32 (bvAnd 32 (bvNat 32 255) w);
+      _x`12 = bvNat 64 18446744073709551615;
+      _x`13 = bvNat 32 2;
+      _x`14 = bvNat 32 3;
+      _x`15 = bvEq 32 _x`14 _x`5;
+      _x`16 = ite _x`3 _x`9 (bvNat 64 18446744073709551487)
+                (ite _x`3 (bvEq 32 _x`13 _x`5) (bvNat 64 18446744073709518847)
+                   (ite _x`3 _x`15 (bvNat 64 18446744073701163007)
+                      (bvNat 64 18446744071562067967)));
+      _x`17 = slice Bool 8 8 16 w;
+      _x`18 = bvUExt 32 32 (bvAnd 32 (bvNat 32 16777215) w);
+      _x`19 = bvNat 32 4;
+      _x`20 = slice Bool 0 8 24 w;
+      _x`21 = bvUExt 32 32 w;
+      _x`22 = bvUExt 32 32 (bvAnd 32 (bvNat 32 65535) w);
+      _x`23 = ite _x`3 _x`9
+                (ite _x`3 (bvslt 8 _x`10 (slice Bool 24 8 0 w)) _x`11
+                   (bvMul 64 _x`12 (bvAnd 64 _x`11 _x`16)))
+                (ite _x`3 (bvult 32 _x`13 _x`5)
+                   (ite _x`3 _x`15
+                      (ite _x`3 (bvslt 8 _x`10 _x`17) _x`18
+                         (bvMul 64 _x`12 (bvAnd 64 _x`18 _x`16)))
+                      (ite _x`3 (bvEq 32 _x`19 _x`5)
+                         (ite _x`3 (bvslt 8 _x`10 _x`20) _x`21
+                            (bvMul 64 _x`12 (bvAnd 64 _x`21 _x`16)))
+                         _x`21))
+                   (ite _x`3 (bvslt 8 _x`10 (slice Bool 16 8 8 w)) _x`22
+                      (bvMul 64 _x`12 (bvAnd 64 _x`22 _x`16))));
+      _x`24 = bvAdd 64 (bvNat 64 1) _x`23;
+      _x`25 = bvslt 64 _x`24 _x`7;
+      _x`26 = bvAdd 64 _x`12 (bvMul 64 _x`12 _x`23);
+      _x`27 = ite _x`3 _x`25 _x`26 _x`24;
+      _x`28 = bvult 64 _x`27 (bvNat 64 256);
+      _x`29 = bvult 64 _x`27 (bvNat 64 65536);
+      _x`30 = bvult 64 _x`27 (bvNat 64 16777216);
+      _x`31 = bvult 64 _x`27 (bvNat 64 4294967296);
+      _x`32 = Prelude::and
+                (Prelude::and (Prelude::and _x`28 _x`29) _x`30)
+                _x`31;
+      _x`33 = bvNat 64 128;
+      _x`34 = bvNat 8 0;
+      _x`35 = slice Bool 56 8 0
+                (ite _x`3 _x`25 (bvOr 64 _x`33 _x`26) _x`24);
+      _x`36 = bvNat 8 128;
+      _x`37 = bvToNat 64 (bvNat 64 15);
+      _x`38 = slice Bool 56 8 0 _x`27;
+      _x`39 = bvAnd 8 _x`36 (slice Bool 0 8 56 _x`24);
+      _x`40 = bvNat 64 4360;
+      _x`41 = slice Bool 40 8 16 _x`27;
+      _x`42 = ite _x`1 _x`32 _x`17 _x`41;
+      _x`43 = not _x`28;
+      _x`44 = not _x`29;
+      _x`45 = not _x`30;
+      _x`46 = not _x`31;
+      _x`47 = Prelude::or
+                (Prelude::or (Prelude::or _x`43 _x`44) _x`45)
+                _x`46;
+      _x`48 = bvNat 32 5;
+      _x`49 = bvult 32 _x`14
+                (ite _x`2 _x`31
+                   (ite _x`2 _x`30
+                      (ite _x`2 _x`29 (ite _x`2 _x`28 _x`13 _x`14) _x`19)
+                      _x`48)
+                   _x`6);
+      _x`50 = Prelude::and _x`47 (not _x`49);
+      _x`51 = bvNat 64 6408;
+      _x`52 = slice Bool 32 8 24 _x`27;
+      _x`53 = ite _x`1 _x`32 _x`20 (ite _x`1 _x`49 _x`52 _x`20);
+      _x`54 = bvToNat 64 (bvNat 64 39);
+      _x`55 = bvShl 64 (bvUExt 56 8 _x`53) _x`54;
+      _x`56 = Prelude::and (Prelude::and _x`44 _x`30) _x`31;
+      _x`57 = ite _x`2 _x`32 _x`13
+                (ite _x`2 _x`49 (ite _x`2 _x`56 _x`19 _x`48) _x`14);
+      _x`58 = slice Bool 24 8 32 _x`27;
+      _x`59 = bvToNat 64 (bvNat 64 47);
+      _x`60 = ite _x`3 _x`50 _x`7
+                (ite _x`3 (bvult 32 _x`19 _x`57)
+                   (bvShl 64
+                      (bvUExt 56 8
+                         (ite _x`1 _x`32 _x`34
+                            (ite _x`1 _x`49 (ite _x`1 _x`56 _x`34 _x`58) _x`34)))
+                      _x`59)
+                   _x`7);
+      _x`61 = Prelude::and (Prelude::and _x`47 _x`49)
+                (Prelude::or (Prelude::or _x`29 _x`45) _x`46);
+      _x`62 = bvNat 32 257;
+      _x`63 = bvNat 32 30720;
+      _x`64 = bvToNat 32 (bvNat 32 11);
+      _x`65 = bvUExt 32 32
+                (bvOr 32 _x`62 (bvAnd 32 _x`63 (bvShl 32 _x`57 _x`64)));
+      _x`66 = bvult 32 _x`13 _x`57;
+      _x`67 = ite _x`3 _x`66 _x`60 _x`7;
+      _x`68 = bvNat 64 12552;
+      _x`69 = bvNat 64 10504;
+      _x`70 = ite _x`3 _x`32 _x`68
+                (ite _x`3 _x`49 (ite _x`3 _x`56 _x`68 _x`69) _x`68);
+      _x`71 = bvNat 64 8456;
+      _x`72 = bvNat 1 0;
+      _x`73 = bvNat 1 1;
+      _x`74 = ite _x`4 _x`56 _x`72 _x`73;
+      _x`75 = ite _x`4 _x`32 _x`73 (ite _x`4 _x`49 _x`74 _x`73);
+      _x`76 = bvNat 64 70368744186120;
+      _x`77 = ite _x`4 _x`32 _x`73 (ite _x`4 _x`49 _x`73 _x`72);
+      _x`78 = bvNat 64 274877913352;
+      _x`79 = bvToNat 64 (bvNat 64 31);
+      _x`80 = bvShl 64 (bvUExt 56 8 _x`42) _x`79;
+      _x`81 = bvOr 64 _x`65 _x`80;
+      _x`82 = ite _x`4 _x`32 _x`72 _x`73;
+      _x`83 = bvNat 64 1073746184;
+      _x`84 = bvToNat 64 (bvNat 64 23);
+      _x`85 = bvShl 64 (bvUExt 56 8 _x`39) _x`84;
+      _x`86 = bvOr 64 _x`65 _x`85;
+      _x`87 = bvOr 64 _x`86 _x`80;
+      _x`88 = bvOr 64
+                (bvOr 64 _x`65 (bvShl 64 (bvUExt 56 8 _x`38) _x`37))
+                _x`85;
+      _x`89 = bvOr 64 _x`88 _x`80;
+      _x`90 = Prelude::and (Prelude::and _x`43 _x`29) _x`30;
+      _x`91 = Prelude::and _x`90 _x`31;
+      _x`92 = ite _x`1 _x`28 _x`34 (slice Bool 48 8 8 _x`27);
+      _x`93 = bvslt 8 _x`10 _x`92;
+      _x`94 = slice Bool 56 8 0 _x`26;
+      _x`95 = ite _x`1 _x`25 (ite _x`1 _x`91 _x`94 _x`94)
+                (slice Bool 56 8 0 _x`24);
+      _x`96 = bvslt 8 _x`10 _x`41;
+      _x`97 = Prelude::and _x`45 _x`31;
+      _x`98 = bvslt 8 _x`10 _x`52;
+      _x`99 = ite _x`1 _x`91 (ite _x`1 _x`93 _x`95 _x`38)
+                (ite _x`1 _x`56 (ite _x`1 _x`96 _x`95 _x`38)
+                   (ite _x`1 _x`97 (ite _x`1 _x`98 _x`95 _x`38) _x`38));
+      _x`100 = ite _x`1 _x`25
+                 (ite _x`1 _x`91 (bvOr 8 _x`36 _x`92) _x`92)
+                 _x`92;
+      _x`101 = ite _x`1 _x`91 (ite _x`1 _x`93 _x`100 _x`92)
+                 (ite _x`1 _x`56 (ite _x`1 _x`96 _x`100 _x`92)
+                    (ite _x`1 _x`97 (ite _x`1 _x`98 _x`100 _x`92) _x`92));
+      _x`102 = ite _x`4 _x`25 (ite _x`4 _x`91 _x`72 _x`73)
+                 (ite _x`4 _x`90 _x`72 _x`73);
+      _x`103 = ite _x`4 _x`91 (ite _x`4 _x`93 _x`102 _x`82)
+                 (ite _x`4 _x`56 (ite _x`4 _x`96 _x`102 _x`82)
+                    (ite _x`4 _x`97 (ite _x`4 _x`98 _x`102 _x`82) _x`73));
+      _x`104 = ite _x`1 _x`25
+                 (ite _x`1 _x`91 _x`17
+                    (ite _x`1 _x`56 (bvOr 8 _x`36 _x`41) _x`41))
+                 (ite _x`1 _x`90 _x`17 _x`41);
+      _x`105 = ite _x`1 _x`32 _x`17 (ite _x`1 _x`91 _x`39 _x`41);
+      _x`106 = ite _x`1 _x`91 (ite _x`1 _x`93 _x`104 _x`105)
+                 (ite _x`1 _x`56 (ite _x`1 _x`96 _x`104 _x`105)
+                    (ite _x`1 _x`97 (ite _x`1 _x`98 _x`104 _x`105) _x`41));
+      _x`107 = bvult 32 _x`14 (ite _x`2 _x`56 _x`14 _x`19);
+      _x`108 = bvult 32 _x`14
+                 (ite _x`2 _x`30
+                    (ite _x`2 _x`29 (ite _x`2 _x`28 _x`8 _x`13) _x`14)
+                    _x`19);
+      _x`109 = ite _x`4 _x`25
+                 (ite _x`4 _x`91 _x`72 (ite _x`4 _x`107 _x`72 _x`73))
+                 (ite _x`4 _x`90 _x`72 (ite _x`4 _x`108 _x`72 _x`73));
+      _x`110 = ite _x`4 _x`32 _x`72 (ite _x`4 _x`49 _x`72 _x`73);
+      _x`111 = ite _x`1 _x`25
+                 (ite _x`1 _x`91 _x`20
+                    (ite _x`1 _x`107 (ite _x`1 _x`56 _x`52 (bvOr 8 _x`36 _x`52))
+                       _x`20))
+                 (ite _x`1 _x`90 _x`20 (ite _x`1 _x`108 _x`52 _x`20));
+      _x`112 = ite _x`1 _x`32 _x`20
+                 (ite _x`1 _x`49
+                    (ite _x`1 _x`91 _x`52 (ite _x`1 _x`56 _x`39 _x`52))
+                    _x`20);
+      _x`113 = ite _x`1 _x`91 (ite _x`1 _x`93 _x`111 _x`112)
+                 (ite _x`1 _x`56 (ite _x`1 _x`96 _x`111 _x`112)
+                    (ite _x`1 _x`97 (ite _x`1 _x`98 _x`111 _x`112) _x`52));
+      _x`114 = ite _x`4 _x`56 _x`73 _x`72;
+      _x`115 = ite _x`4 _x`30 _x`73 _x`72;
+      _x`116 = ite _x`4 _x`25
+                 (ite _x`4 _x`91 _x`72 (ite _x`4 _x`107 _x`114 _x`72))
+                 (ite _x`4 _x`90 _x`72 (ite _x`4 _x`108 _x`115 _x`72));
+      _x`117 = ite _x`4 _x`32 _x`72 (ite _x`4 _x`49 _x`74 _x`72);
+      _x`118 = ite _x`2 _x`25
+                 (ite _x`2 _x`91 _x`13
+                    (ite _x`2 _x`107 (ite _x`2 _x`56 _x`48 _x`19) _x`14))
+                 (ite _x`2 _x`90 _x`13
+                    (ite _x`2 _x`108 (ite _x`2 _x`30 _x`48 _x`19) _x`14));
+      _x`119 = ite _x`2 _x`91 (ite _x`2 _x`93 _x`118 _x`57)
+                 (ite _x`2 _x`56 (ite _x`2 _x`96 _x`118 _x`57)
+                    (ite _x`2 _x`97 (ite _x`2 _x`98 _x`118 _x`57) _x`48));
+      _x`120 = bvEq 32 _x`14 _x`119;
+      _x`121 = ite _x`1 _x`25
+                 (ite _x`1 _x`91 _x`34
+                    (ite _x`1 _x`107 (ite _x`1 _x`56 _x`58 _x`34) _x`34))
+                 (ite _x`1 _x`90 _x`34
+                    (ite _x`1 _x`108 (ite _x`1 _x`30 _x`58 _x`34) _x`34));
+      _x`122 = ite _x`1 _x`32 _x`34
+                 (ite _x`1 _x`49
+                    (ite _x`1 _x`56 _x`34
+                       (ite _x`1 _x`91 _x`58 (ite _x`1 _x`56 _x`58 _x`39)))
+                    _x`34);
+      _x`123 = ite _x`1 _x`91 (ite _x`1 _x`93 _x`121 _x`122)
+                 (ite _x`1 _x`56 (ite _x`1 _x`96 _x`121 _x`122)
+                    (ite _x`1 _x`97 (ite _x`1 _x`98 _x`121 _x`122)
+                       (ite _x`1 _x`25 (bvOr 8 _x`36 _x`58) _x`58)));
+      _x`124 = ite _x`3 _x`120 _x`7
+                 (ite _x`3 (bvult 32 _x`19 _x`119)
+                    (bvShl 64 (bvUExt 56 8 _x`123) _x`59)
+                    _x`7);
+      _x`125 = ite _x`3 _x`25
+                 (ite _x`3 _x`91 _x`68
+                    (ite _x`3 _x`107 (ite _x`3 _x`56 _x`69 _x`68) _x`68))
+                 (ite _x`3 _x`90 _x`68
+                    (ite _x`3 _x`108 (ite _x`3 _x`30 _x`69 _x`68) _x`68));
+      _x`126 = ite _x`4 _x`25
+                 (ite _x`4 _x`91 _x`73 (ite _x`4 _x`107 _x`74 _x`73))
+                 (ite _x`4 _x`90 _x`73
+                    (ite _x`4 _x`108 (ite _x`4 _x`30 _x`72 _x`73) _x`73));
+      _x`127 = ite _x`4 _x`32 _x`73 (ite _x`4 _x`49 _x`114 _x`73);
+      _x`128 = bvUExt 32 32
+                 (bvOr 32 _x`62 (bvAnd 32 _x`63 (bvShl 32 _x`119 _x`64)));
+      _x`129 = bvult 32 _x`13 _x`119;
+      _x`130 = ite _x`3 _x`129 _x`124 _x`7;
+      _x`131 = ite _x`4 _x`25
+                 (ite _x`4 _x`91 _x`73 (ite _x`4 _x`107 _x`114 _x`73))
+                 (ite _x`4 _x`90 _x`73 (ite _x`4 _x`108 _x`115 _x`73));
+      _x`132 = bvShl 64 (bvUExt 56 8 _x`113) _x`54;
+      _x`133 = ite _x`4 _x`25
+                 (ite _x`4 _x`91 _x`73 (ite _x`4 _x`107 _x`73 _x`72))
+                 (ite _x`4 _x`90 _x`73 (ite _x`4 _x`108 _x`73 _x`72));
+      _x`134 = bvShl 64 (bvUExt 56 8 _x`106) _x`79;
+      _x`135 = bvOr 64 _x`128 _x`134;
+      _x`136 = bvShl 64 (bvUExt 56 8 _x`101) _x`84;
+      _x`137 = bvOr 64 _x`128 _x`136;
+      _x`138 = bvOr 64 _x`137 _x`134;
+      _x`139 = bvOr 64
+                 (bvOr 64 _x`128 (bvShl 64 (bvUExt 56 8 _x`99) _x`37))
+                 _x`136;
+      _x`140 = bvOr 64 _x`139 _x`134;
+    }
+ in ite _x`3 (bvult 32 _x`5 _x`6)
+      (ite _x`3 (bvEq 32 (bvNat 32 0) _x`5) (bvNat 64 35073)
+         (ite _x`3 (bvEq 64 _x`7 _x`24) (bvNat 64 264)
+            (ite _x`3 _x`32
+               (ite _x`3 (bvEq 64 _x`7 (bvAnd 64 _x`33 _x`27))
+                  (ite _x`3 (bvEq 8 _x`34 _x`35) (bvNat 64 2312)
+                     (ite _x`3 (bvEq 8 _x`36 _x`35) (bvNat 64 4196616)
+                        (bvOr 64 (bvNat 64 2305) (bvShl 64 (bvUExt 56 8 _x`35) _x`37))))
+                  (ite _x`3 (bvEq 8 _x`34 _x`38)
+                     (ite _x`3 (bvEq 8 _x`34 _x`39)
+                        (ite _x`3 _x`32 _x`40
+                           (ite _x`3 (bvEq 8 _x`34 _x`42)
+                              (ite _x`3 _x`50 (... ... (... ...) _x`60)
+                                 (... ... (... ...) (... ... (... ...))
+                                    (... ... _x`76 (... ... _x`67))))
+                              (ite _x`3 (... ... _x`72 (... ... (... ...))) _x`78
+                                 (bvOr 64 (... ... (... ...) _x`65) _x`67))))
+                        (ite _x`3
+                           (bvEq 1 _x`72 (bvOr 1 _x`82 (... ... (... ...) _x`72 _x`73)))
+                           _x`83
+                           (bvOr 64
+                              (ite _x`3 _x`66 (... ... _x`50 _x`87 (... ... _x`87 _x`55))
+                                 _x`86)
+                              _x`67)))
+                     (bvOr 64
+                        (ite _x`3 _x`66 (ite _x`3 _x`50 _x`89 (bvOr 64 _x`89 _x`55))
+                           _x`88)
+                        _x`67)))
+               (ite _x`3 (bvEq 8 _x`34 _x`99)
+                  (ite _x`3 (bvEq 8 _x`34 _x`101)
+                     (ite _x`3 (bvEq 1 _x`72 _x`103) _x`40
+                        (ite _x`3 (bvEq 8 _x`34 _x`106)
+                           (ite _x`3 (bvEq 1 _x`72 (... ... (... ...) (... ... (... ...))))
+                              (ite _x`3 (... ... _x`113)
+                                 (... ... (... ...) (... ... (... ...)))
+                                 (... ... (... ...) _x`76 (... ... (... ...) _x`130)))
+                              (bvOr 64 (... ... _x`120 _x`51 (... ... _x`51 _x`132)) _x`124))
+                           (ite _x`3
+                              (bvEq 1 _x`72
+                                 (bvOr 1 (... ... (... ...)) (... ... _x`72 _x`73)))
+                              _x`78
+                              (bvOr 64
+                                 (ite _x`3 _x`129 (... ... _x`135 (... ... _x`132)) _x`128)
+                                 _x`130))))
+                     (ite _x`3
+                        (bvEq 1 _x`72
+                           (bvOr 1 _x`103 (ite _x`4 (... ... _x`36 _x`101) _x`72 _x`73)))
+                        _x`83
+                        (bvOr 64
+                           (ite _x`3 _x`129
+                              (ite _x`3 _x`120 _x`138 (bvOr 64 _x`138 _x`132))
+                              _x`137)
+                           _x`130)))
+                  (bvOr 64
+                     (ite _x`3 _x`129
+                        (ite _x`3 _x`120 _x`140 (bvOr 64 _x`140 _x`132))
+                        _x`139)
+                     _x`130)))))
+      (bvNat 64 16)
+
+Goal size 1750. Provers used: SBV->Z3
+----------Counterexample----------
+  w: 671088640
+  lb: 5
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   cell.saw:56:46-56:48 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:56:1-56:48 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

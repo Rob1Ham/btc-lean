@@ -1,0 +1,113 @@
+{
+  "schema": "redteam-mutant-run-v2",
+  "mutant_id": "M-E4-004",
+  "target_kind": "e4-cell",
+  "cell": "cells/e4-witness/C-L-witness-v0-dispatch",
+  "operator": "wave64/48-mutations-e3e4 (subagent)",
+  "git_head": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "git_status_before": [
+    " M spec/equiv/cells/_redteam/mutate.py",
+    " M spec/equiv/cells/e3-cms/C-L-cms-1of1/alive2/certificate.sha256",
+    " M spec/equiv/cells/e3-cms/C-L-cms-1of1/alive2/result.txt",
+    " M spec/equiv/cells/e3-cms/C-L-cms-1of1/saw/certificate.sha256",
+    " M spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/alive2/certificate.sha256",
+    " M spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/alive2/result.txt",
+    " M spec/equiv/cells/tapscript/C-L-taproot-scriptpath-dispatch/saw/certificate.sha256",
+    "?? spec/equiv/cells/_redteam/mutants/M-E3-002-e3-cell-20261020T220759Z-f775117e.json",
+    "?? spec/equiv/cells/_redteam/mutants/M-E3-002-e3-cell-20261020T220759Z-f775117e.json.revert.json",
+    "?? spec/equiv/cells/_redteam/mutants/M-E3-008-e3-cell-20261020T220904Z-f775117e.json",
+    "?? spec/equiv/cells/_redteam/mutants/M-E3-008-e3-cell-20261020T220904Z-f775117e.json.revert.json",
+    "?? spec/equiv/cells/_redteam/mutants/M-E4-003-e4-cell-20261020T221035Z-27f8ab24.json",
+    "?? spec/equiv/cells/_redteam/mutants/M-E4-003-e4-cell-20261020T221035Z-27f8ab24.json.revert.json",
+    "?? spec/equiv/cells/_redteam/run_mutant_admissible.py",
+    "?? spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/",
+    "?? spec/equiv/cells/_redteam/runs/M-E3-008-e3-cell-20261020T220846Z/",
+    "?? spec/equiv/cells/_redteam/runs/M-E4-003-e4-cell-20261020T221027Z/"
+  ],
+  "target": "spec/equiv/cells/_tools/e4/l_cell.cpp",
+  "target_sha256_before": "5d97ae96c2447459c0a66c6d156289ff57033c8f3013acb7cd81c28d6d723a2b",
+  "target_sha256_mutant": "3db906555567f62a90bbe6ee17c4d4c16f9ea715ef85a07249eefcc63488f672",
+  "target_sha256_after_revert": "5d97ae96c2447459c0a66c6d156289ff57033c8f3013acb7cd81c28d6d723a2b",
+  "cell_spec_sha256_before": "d1595ab67ea1e18ea4beb01504b5dff9c223761dc047b09fcd91771e03169975",
+  "cell_spec_sha256_after": "d1595ab67ea1e18ea4beb01504b5dff9c223761dc047b09fcd91771e03169975",
+  "witness_plan": "cell_v0_dispatch: program_len=20, witness_n=3. Baseline: the P2WPKH arm requires exactly 2 witness elements, so it returns (result 0, error 40 = WITNESS_PROGRAM_MISMATCH), packed 160. Mutant (witness_n != 2 -> witness_n < 2): 3 is accepted and the cell returns success (1,0), packed 1. Expected: cell_v0_dispatch non-green on both tools.",
+  "baseline_before": {
+    "alive2": {
+      "exit_code": 0,
+      "status": "alive2-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/alive2/result.txt",
+      "result_sha256": "5ffcadb416067ce69736781dd7fc5414855af410ef5696a31db7d90125751ddf",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 0,
+      "status": "saw-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/saw/result.txt",
+      "result_sha256": "701a7663b3508f468075b863ec3e25d1861ec97e4ddff95230af650045e2fb4e",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "mutant": {
+    "alive2": {
+      "exit_code": 1,
+      "status": "alive2-not-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/alive2/result.txt",
+      "result_sha256": "d1ca307b4b86d7a2df3950b74938542e59a265a6b8c54f7857b812254585979e",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 1,
+      "status": "saw-not-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/saw/result.txt",
+      "result_sha256": "fd198d3fe3b2d19bf1dbf10401ae0118a9f688cebb1851c0f90b7365fa233e97",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "baseline_after": {
+    "alive2": {
+      "exit_code": 0,
+      "status": "alive2-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/alive2/result.txt",
+      "result_sha256": "5ffcadb416067ce69736781dd7fc5414855af410ef5696a31db7d90125751ddf",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 0,
+      "status": "saw-green",
+      "result_path": "spec/equiv/cells/e4-witness/C-L-witness-v0-dispatch/saw/result.txt",
+      "result_sha256": "701a7663b3508f468075b863ec3e25d1861ec97e4ddff95230af650045e2fb4e",
+      "log": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reverted": true,
+  "revert_output": "REVERTED M-E4-004 (e4-cell)\ntarget:      /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_tools/e4/l_cell.cpp\nsha256 now:  5d97ae96c2447459c0a66c6d156289ff57033c8f3013acb7cd81c28d6d723a2b\nreceipt:     /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_redteam/mutants/M-E4-004-e4-cell-20261020T221058Z-5d97ae96.json.revert.json\nNext: rebuild and confirm the baseline cell is green again.",
+  "classification": "KILLED",
+  "witness": "alive2:\nSource value: #x00000000000000a0 (160)\nTarget value: #x0000000000000001 (1)\nsaw:\nplen: 20\n  wn: 3",
+  "log_hashes": [
+    "2136295624496030869d901318214bd931867ad34a1a4b7647a24b987e1864a6  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/apply.log",
+    "5ffcadb416067ce69736781dd7fc5414855af410ef5696a31db7d90125751ddf  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-alive2.log",
+    "701a7663b3508f468075b863ec3e25d1861ec97e4ddff95230af650045e2fb4e  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-after-saw.log",
+    "5ffcadb416067ce69736781dd7fc5414855af410ef5696a31db7d90125751ddf  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-alive2.log",
+    "701a7663b3508f468075b863ec3e25d1861ec97e4ddff95230af650045e2fb4e  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/baseline-before-saw.log",
+    "9baf8d44698daedb6d84c0c143d9cf22d1e67896092372eeb39fc8f8ecb73677  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/dry-run.log",
+    "d1ca307b4b86d7a2df3950b74938542e59a265a6b8c54f7857b812254585979e  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-alive2.log",
+    "fd198d3fe3b2d19bf1dbf10401ae0118a9f688cebb1851c0f90b7365fa233e97  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/mutant-saw.log",
+    "6a15c52598c20fc5177eecaf28eb3336bb40682543bfd6ad48fc1cac984b2336  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/plan.md",
+    "704947cbf750196439de8fe3ce851089c607fa3c34f8292ac836bfe9df3aeb73  spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z/revert.log"
+  ],
+  "record": "spec/equiv/cells/_redteam/mutants/M-E4-004-e4-cell-20261020T221058Z-5d97ae96.json",
+  "run_dir": "spec/equiv/cells/_redteam/runs/M-E4-004-e4-cell-20261020T221054Z",
+  "started_at_utc": "20261020T221054Z"
+}

@@ -1,0 +1,125 @@
+# cell: push-encoding/C-L-w32-checkminimalpush
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv build/c_cell_minpush.ll build/l_cell_minpush.ll
+
+----------------------------------------
+define i64 @cell_minpush(i64 noundef %n, i8 noundef zeroext %b0, i8 noundef zeroext %opcode) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i8 noundef zeroext %opcode, 78
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %cmp.i = icmp eq i64 noundef %n, 0
+  br i1 %cmp.i, label %if.then.i, label %if.else.i
+
+if.then.i:
+  %cmp1.i = icmp eq i8 noundef zeroext %opcode, 0
+  br label %_ZL23core_check_minimal_pushmhj.exit
+
+if.else.i:
+  %cmp2.i = icmp eq i64 noundef %n, 1
+  %#0 = add i8 noundef zeroext %b0, 255
+  %#1 = icmp ult i8 %#0, 16
+  %cmp12.i = icmp eq i8 noundef zeroext %b0, 129
+  %or.cond33.i4 = or i1 %cmp12.i, %#1
+  %or.cond.i = and i1 %cmp2.i, %or.cond33.i4
+  br i1 %or.cond.i, label %_ZL23core_check_minimal_pushmhj.exit, label %if.else14.i
+
+if.else14.i:
+  %cmp15.i = icmp ult i64 noundef %n, 76
+  br i1 %cmp15.i, label %if.then16.i, label %if.else19.i
+
+if.then16.i:
+  %conv17.i = zext nneg i8 noundef zeroext %opcode to i64
+  %cmp18.i = icmp eq i64 noundef %n, %conv17.i
+  br label %_ZL23core_check_minimal_pushmhj.exit
+
+if.else19.i:
+  %cmp20.i = icmp ult i64 noundef %n, 256
+  br i1 %cmp20.i, label %if.then21.i, label %if.else23.i
+
+if.then21.i:
+  %cmp22.i = icmp eq i8 noundef zeroext %opcode, 76
+  br label %_ZL23core_check_minimal_pushmhj.exit
+
+if.else23.i:
+  %cmp24.i = icmp ugt i64 noundef %n, 65535
+  %cmp26.i = icmp eq i8 noundef zeroext %opcode, 77
+  %spec.select.i = or i1 %cmp24.i, %cmp26.i
+  br label %_ZL23core_check_minimal_pushmhj.exit
+
+_ZL23core_check_minimal_pushmhj.exit:
+  %retval.0.i = phi i1 [ %cmp1.i, %if.then.i ], [ %cmp18.i, %if.then16.i ], [ %cmp22.i, %if.then21.i ], [ 0, %if.else.i ], [ %spec.select.i, %if.else23.i ]
+  %conv2 = zext i1 %retval.0.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %conv2, %_ZL23core_check_minimal_pushmhj.exit ], [ 2, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_minpush(i64 noundef %n, i8 noundef zeroext %b0, i8 noundef zeroext %opcode) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i8 noundef zeroext %opcode, 78
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %cmp.i = icmp eq i64 noundef %n, 0
+  br i1 %cmp.i, label %if.then.i, label %if.else.i
+
+if.then.i:
+  %cmp1.i = icmp eq i8 noundef zeroext %opcode, 0
+  br label %_ZL23lean_check_minimal_pushmhj.exit
+
+if.else.i:
+  %cmp2.i = icmp eq i64 noundef %n, 1
+  %#0 = add i8 noundef zeroext %b0, 255
+  %#1 = icmp ult i8 %#0, 16
+  %cmp12.i = icmp eq i8 noundef zeroext %b0, 129
+  %or.cond29.i4 = or i1 %cmp12.i, %#1
+  %or.cond.i = and i1 %cmp2.i, %or.cond29.i4
+  br i1 %or.cond.i, label %_ZL23lean_check_minimal_pushmhj.exit, label %if.else14.i
+
+if.else14.i:
+  %cmp15.i = icmp ult i64 noundef %n, 76
+  br i1 %cmp15.i, label %if.then16.i, label %if.else19.i
+
+if.then16.i:
+  %conv17.i = zext nneg i8 noundef zeroext %opcode to i64
+  %cmp18.i = icmp eq i64 noundef %n, %conv17.i
+  br label %_ZL23lean_check_minimal_pushmhj.exit
+
+if.else19.i:
+  %cmp20.i = icmp ult i64 noundef %n, 256
+  br i1 %cmp20.i, label %if.then21.i, label %if.else23.i
+
+if.then21.i:
+  %cmp22.i = icmp eq i8 noundef zeroext %opcode, 76
+  br label %_ZL23lean_check_minimal_pushmhj.exit
+
+if.else23.i:
+  %cmp24.i = icmp ugt i64 noundef %n, 65535
+  %cmp26.i = icmp eq i8 noundef zeroext %opcode, 77
+  %spec.select.i = or i1 %cmp24.i, %cmp26.i
+  br label %_ZL23lean_check_minimal_pushmhj.exit
+
+_ZL23lean_check_minimal_pushmhj.exit:
+  %retval.0.i = phi i1 [ %cmp1.i, %if.then.i ], [ %cmp18.i, %if.then16.i ], [ %cmp22.i, %if.then21.i ], [ 0, %if.else.i ], [ %spec.select.i, %if.else23.i ]
+  %conv2 = zext i1 %retval.0.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %conv2, %_ZL23lean_check_minimal_pushmhj.exit ], [ 2, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 3
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

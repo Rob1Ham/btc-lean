@@ -1,0 +1,211 @@
+# cell: locktime/C-L-csv-granularity
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# contract: contract/error_kind.h sha256 7a5f778f4aed8947a7768da3d3856c99eec2715f5502cb8f59af576c72dca170
+# command: alive-tv build/c_cell_csv_masked.ll build/l_cell_csv_masked.ll
+
+----------------------------------------
+define i32 @cell_csv_masked(i64 noundef %operand, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  %#0 = and i32 noundef %tx_sequence, 4259839
+  %and.i = zext nneg i32 %#0 to i64
+  %and.i.i = and i64 noundef %operand, 4259839
+  %cmp.i = icmp samesign ult i32 %#0, 4194304
+  %cmp.i28.i = icmp samesign ule i64 %and.i.i, %and.i
+  %#1 = icmp samesign ugt i64 %and.i.i, 4194303
+  %not.or.cond = xor i1 %#1, %cmp.i
+  %spec.select = select i1 %not.or.cond, i1 %cmp.i28.i, i1 0
+  %cond = select i1 %spec.select, i32 0, i32 22
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 23
+  ret i32 %#range_0_%cond
+}
+=>
+define i32 @cell_csv_masked(i64 noundef %operand, i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %tx_sequence, 4259839
+  %conv = trunc i64 noundef %operand to i32
+  %and1 = and i32 %conv, 4259839
+  %#0 = or i32 noundef %tx_sequence, %conv
+  %#1 = and i32 %#0, 4194304
+  %or.cond = icmp eq i32 %#1, 0
+  br i1 %or.cond, label %if.end, label %lor.rhs
+
+lor.rhs:
+  %cmp3 = icmp samesign ugt i32 %and, 4194303
+  %cmp4 = icmp samesign ugt i32 %and1, 4194303
+  %#2 = select i1 %cmp3, i1 %cmp4, i1 0
+  br i1 %#2, label %if.end, label %cleanup
+
+if.end:
+  %cmp5 = icmp samesign ugt i32 %and1, %and
+  %. = select i1 %cmp5, i32 22, i32 0
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i32 [ 22, %lor.rhs ], [ %., %if.end ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 0, i32 23
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_csv_mask_probe.ll build/l_cell_csv_mask_probe.ll
+
+----------------------------------------
+define i32 @cell_csv_mask_probe(i64 noundef %operand, i32 noundef %tx_sequence, i32 noundef %junk) nofree willreturn memory(none) {
+entry:
+  %#0 = and i32 noundef %tx_sequence, 4259839
+  %and.i = zext nneg i32 %#0 to i64
+  %and.i.i = and i64 noundef %operand, 4259839
+  %cmp.i = icmp samesign ult i32 %#0, 4194304
+  %cmp.i28.i = icmp samesign ule i64 %and.i.i, %and.i
+  %#1 = icmp samesign ugt i64 %and.i.i, 4194303
+  %not.or.cond = xor i1 %#1, %cmp.i
+  %spec.select = select i1 %not.or.cond, i1 %cmp.i28.i, i1 0
+  %#2 = and i32 noundef %tx_sequence, 4259839
+  %and.i9 = zext nneg i32 %#2 to i64
+  %and.i.i10 = and i64 noundef %operand, 4259839
+  %cmp.i11 = icmp samesign ult i32 %#2, 4194304
+  %#3 = icmp samesign ult i64 %and.i.i10, 4194304
+  %#4 = xor i1 %#3, %cmp.i11
+  %#5 = icmp samesign ugt i64 %and.i.i10, %and.i9
+  %#6 = select i1 %#4, i1 1, i1 %#5
+  %cmp = xor i1 %spec.select, %#6
+  %cond6 = zext i1 %cmp to i32
+  %#range_0_%cond6 = !range i32 %cond6, i32 0, i32 2
+  ret i32 %#range_0_%cond6
+}
+=>
+define i32 @cell_csv_mask_probe(i64 noundef %operand, i32 noundef %tx_sequence, i32 noundef %junk) nofree willreturn memory(none) {
+entry:
+  %and1 = and i32 noundef %tx_sequence, 4259839
+  %conv = trunc i64 noundef %operand to i32
+  %and2 = and i32 %conv, 4259839
+  %#0 = or i32 noundef %tx_sequence, %conv
+  %#1 = and i32 %#0, 4194304
+  %or.cond = icmp eq i32 %#1, 0
+  br i1 %or.cond, label %land.rhs, label %lor.lhs.false
+
+lor.lhs.false:
+  %cmp9 = icmp samesign ugt i32 %and1, 4194303
+  %cmp11 = icmp samesign ugt i32 %and2, 4194303
+  %or.cond29 = select i1 %cmp9, i1 %cmp11, i1 0
+  br i1 %or.cond29, label %land.rhs, label %land.end
+
+land.rhs:
+  %cmp12 = icmp samesign ule i32 %and2, %and1
+  %#2 = zext i1 %cmp12 to i32
+  br label %land.end
+
+land.end:
+  %conv25 = phi i32 [ 0, %lor.lhs.false ], [ %#2, %land.rhs ]
+  br i1 %or.cond, label %land.rhs20, label %lor.lhs.false16
+
+lor.lhs.false16:
+  %cmp17 = icmp samesign ugt i32 %and1, 4194303
+  %cmp19 = icmp samesign ugt i32 %and2, 4194303
+  %or.cond31 = select i1 %cmp17, i1 %cmp19, i1 0
+  br i1 %or.cond31, label %land.rhs20, label %land.end23
+
+land.rhs20:
+  %cmp21 = icmp samesign ule i32 %and2, %and1
+  %#3 = zext i1 %cmp21 to i32
+  br label %land.end23
+
+land.end23:
+  %conv27 = phi i32 [ 0, %lor.lhs.false16 ], [ %#3, %land.rhs20 ]
+  %cmp28 = icmp eq i32 %conv25, %conv27
+  %cond = zext i1 %cmp28 to i32
+  %#range_0_%cond = !range i32 %cond, i32 0, i32 2
+  ret i32 %#range_0_%cond
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_seq_granularity.ll build/l_cell_seq_granularity.ll
+
+----------------------------------------
+define i64 @cell_seq_granularity(i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  %and = shl i32 noundef %tx_sequence, 9
+  %shl = and i32 %and, 33553920
+  %conv = zext nneg i32 %shl to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 33553921
+  ret i64 %#range_0_%conv
+}
+=>
+define i64 @cell_seq_granularity(i32 noundef %tx_sequence) nofree willreturn memory(none) {
+entry:
+  %and.i = shl i32 noundef %tx_sequence, 9
+  %#0 = and i32 %and.i, 33553920
+  %mul = zext nneg i32 %#0 to i64
+  %#range_0_%mul = !range i64 %mul, i64 0, i64 33553921
+  ret i64 %#range_0_%mul
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_seq_time_ok.ll build/l_cell_seq_time_ok.ll
+
+----------------------------------------
+define i32 @cell_seq_time_ok(i32 noundef %mtp_parent, i32 noundef %tx_sequence, i32 noundef %mtp_block) nofree willreturn memory(none) {
+entry:
+  %and = and i32 noundef %tx_sequence, 4194304
+  %tobool.not = icmp eq i32 %and, 0
+  %conv = zext i32 noundef %mtp_parent to i64
+  %and1 = shl i32 noundef %tx_sequence, 9
+  %shl = and i32 %and1, 33553920
+  %conv2 = zext nneg i32 %shl to i64
+  %add = add nsw i64 %conv, -1
+  %sub = add nsw i64 %add, %conv2
+  %conv3 = zext i32 noundef %mtp_block to i64
+  %cmp.not11 = icmp slt i64 %sub, %conv3
+  %cmp.not = select i1 %tobool.not, i1 1, i1 %cmp.not11
+  %. = zext i1 %cmp.not to i32
+  %#range_0_%. = !range i32 %., i32 0, i32 2
+  ret i32 %#range_0_%.
+}
+=>
+define i32 @cell_seq_time_ok(i32 noundef %mtp_parent, i32 noundef %tx_sequence, i32 noundef %mtp_block) nofree willreturn memory(none) {
+entry:
+  %and.i = and i32 noundef %tx_sequence, 4194304
+  %cmp.i.not = icmp eq i32 %and.i, 0
+  br i1 %cmp.i.not, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %mtp_parent to i64
+  %conv1 = zext i32 noundef %mtp_block to i64
+  %and.i.i = shl i32 noundef %tx_sequence, 9
+  %#0 = and i32 %and.i.i, 33553920
+  %mul.i = zext nneg i32 %#0 to i64
+  %add.i = add nsw nuw i64 %mul.i, %conv
+  %cmp.i4 = icmp samesign ule i64 %add.i, %conv1
+  %cond = zext i1 %cmp.i4 to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ %cond, %if.end ], [ 1, %entry ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 0, i32 2
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

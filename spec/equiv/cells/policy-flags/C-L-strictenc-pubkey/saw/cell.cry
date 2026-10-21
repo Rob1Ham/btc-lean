@@ -1,0 +1,13 @@
+module PolicyCell where
+
+// Independent predicate for SCR-176 (STRICTENC pubkey encoding).
+// ordinal 0 = pass, 29 = SCRIPT_ERR_PUBKEYTYPE.
+strictenc_pubkey : [64] -> [64] -> [64] -> [64]
+strictenc_pubkey flags pkLen pk0 =
+  if ((((flags >> 1) % 2) == 1) && ~encOk) then 29 else 0
+  where
+    n     = pkLen
+    b0    = pk0 % 256
+    ok04  = (b0 == 4) && (n == 65)
+    ok023 = ((b0 == 2) || (b0 == 3)) && (n == 33)
+    encOk = (n >= 33) && (ok04 || ok023)

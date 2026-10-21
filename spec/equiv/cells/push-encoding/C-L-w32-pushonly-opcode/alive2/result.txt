@@ -1,0 +1,100 @@
+# cell: push-encoding/C-L-w32-pushonly-opcode
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_po0.ll build/l_cell_po0.ll
+
+----------------------------------------
+define i64 @cell_po0() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_1 = !range i64 1, i64 0, i64 2
+  ret i64 %#range_0_1
+}
+=>
+define i64 @cell_po0() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_1 = !range i64 1, i64 0, i64 2
+  ret i64 %#range_0_1
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_po1.ll build/l_cell_po1.ll
+
+----------------------------------------
+define i64 @cell_po1(i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %cmp1.i.i = icmp ult i8 noundef zeroext %b0, 76
+  br i1 %cmp1.i.i, label %if.then2.i.i, label %if.else.i.i
+
+if.else.i.i:
+  %cmp1.i = icmp ult i8 noundef zeroext %b0, 97
+  %#0 = add i8 noundef zeroext %b0, 177
+  %switch.i = icmp ult i8 %#0, 253
+  %or.cond = and i1 %cmp1.i, %switch.i
+  br i1 %or.cond, label %while.cond.i.backedge, label %_ZL17core_is_push_onlyPKhj.exit
+
+if.then2.i.i:
+  %cmp3.i.i = icmp eq i8 noundef zeroext %b0, 0
+  br i1 %cmp3.i.i, label %while.cond.i.backedge, label %_ZL17core_is_push_onlyPKhj.exit
+
+while.cond.i.backedge:
+  br label %_ZL17core_is_push_onlyPKhj.exit
+
+_ZL17core_is_push_onlyPKhj.exit:
+  %cmp.not.not.not.i.lcssa = phi i64 [ 1, %while.cond.i.backedge ], [ 0, %if.then2.i.i ], [ 0, %if.else.i.i ]
+  %#range_0_%cmp.not.not.not.i.lcssa = !range i64 %cmp.not.not.not.i.lcssa, i64 0, i64 2
+  ret i64 %#range_0_%cmp.not.not.not.i.lcssa
+}
+=>
+define i64 @cell_po1(i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %cmp1.i.i = icmp eq i8 noundef zeroext %b0, 0
+  br i1 %cmp1.i.i, label %cleanup.i.thread, label %if.end3.i.i
+
+if.end3.i.i:
+  %cmp4.i.i = icmp ult i8 noundef zeroext %b0, 76
+  br i1 %cmp4.i.i, label %_ZN4twinL18classify_push_onlyEPKhj.exit, label %if.end17.i.i
+
+if.end17.i.i:
+  switch i8 noundef zeroext %b0, label %lor.lhs.false52.i.i [
+    i8 76, label %_ZN4twinL18classify_push_onlyEPKhj.exit
+    i8 77, label %_ZN4twinL18classify_push_onlyEPKhj.exit
+    i8 78, label %_ZN4twinL18classify_push_onlyEPKhj.exit
+    i8 79, label %cleanup.i.thread
+  ]
+
+lor.lhs.false52.i.i:
+  %#0 = add i8 noundef zeroext %b0, 175
+  %or.cond65.i.i = icmp ult i8 %#0, 16
+  br i1 %or.cond65.i.i, label %cleanup.i.thread, label %if.end59.i.i
+
+if.end59.i.i:
+  %cmp1.i = icmp ult i8 noundef zeroext %b0, 97
+  %spec.select = zext i1 %cmp1.i to i64
+  br label %_ZN4twinL18classify_push_onlyEPKhj.exit
+
+cleanup.i.thread:
+  br label %_ZN4twinL18classify_push_onlyEPKhj.exit
+
+_ZN4twinL18classify_push_onlyEPKhj.exit:
+  %cmp = phi i64 [ 1, %cleanup.i.thread ], [ 0, %if.end3.i.i ], [ 0, %if.end17.i.i ], [ 0, %if.end17.i.i ], [ 0, %if.end17.i.i ], [ %spec.select, %if.end59.i.i ]
+  %#range_0_%cmp = !range i64 %cmp, i64 0, i64 2
+  ret i64 %#range_0_%cmp
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

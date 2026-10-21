@@ -1,0 +1,17 @@
+import "cell.cry";
+// functions: cell_push_size
+mC <- llvm_load_module "c_cell_push_size.bc";
+mL <- llvm_load_module "l_cell_push_size.bc";
+
+// Both legs are verified against the same independent Cryptol predicate for
+// every 16-bit push length, every fExec bit, and every kind byte.
+let spec = do {
+  dlen  <- llvm_fresh_var "dlen"  (llvm_int 16);
+  fexec <- llvm_fresh_var "fexec" (llvm_int 8);
+  kind  <- llvm_fresh_var "kind"  (llvm_int 8);
+  llvm_execute_func [llvm_term dlen, llvm_term fexec, llvm_term kind];
+  llvm_return (llvm_term {{ push_size_spec dlen fexec kind }});
+};
+llvm_verify mC "cell_push_size" [] false spec abc;
+llvm_verify mL "cell_push_size" [] false spec abc;
+print "CELL_LIMITS_PUSH_SIZE_SAW_GREEN";

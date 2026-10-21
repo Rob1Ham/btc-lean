@@ -1,0 +1,36 @@
+module CellExtSlice where
+
+// Independent specification of the BIP342 tapscript extension slice
+// (SCR-164): for SigVersion::TAPSCRIPT the slice appended at the end of the
+// BIP341 SigMsg is
+//     tapleaf_hash (32 bytes, verbatim)
+//  ++ key_version  (one 0x00 byte)
+//  ++ codeseparator_pos (4 little-endian bytes)
+// For SigVersion::TAPROOT nothing is appended.
+//
+// Observable: five 64-bit words of the 37-byte slice.  Word 4 carries the
+// key_version byte, the four LE codesep bytes, and (cell harness only) the
+// slice length in its top byte.
+
+w4 : [8] -> [32] -> [64]
+w4 len cs =
+  (((zext len) : [64]) << 56)
+    || (((zext ((cs >> 24)  && 0x000000ff)) : [64]) << 32)
+    || (((zext ((cs >> 16)  && 0x000000ff)) : [64]) << 24)
+    || (((zext ((cs >> 8)  && 0x000000ff)) : [64]) << 16)
+    || (((zext (cs  && 0x000000ff)) : [64]) << 8)
+
+slice : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [5][64]
+slice sv t0 t1 t2 t3 cs =
+  if sv == 1 then [t0, t1, t2, t3, w4 37 cs] else [0, 0, 0, 0, 0]
+
+extw0 : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+extw0 sv t0 t1 t2 t3 cs = (slice sv t0 t1 t2 t3 cs) @ 0
+extw1 : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+extw1 sv t0 t1 t2 t3 cs = (slice sv t0 t1 t2 t3 cs) @ 1
+extw2 : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+extw2 sv t0 t1 t2 t3 cs = (slice sv t0 t1 t2 t3 cs) @ 2
+extw3 : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+extw3 sv t0 t1 t2 t3 cs = (slice sv t0 t1 t2 t3 cs) @ 3
+extw4 : [32] -> [64] -> [64] -> [64] -> [64] -> [32] -> [64]
+extw4 sv t0 t1 t2 t3 cs = (slice sv t0 t1 t2 t3 cs) @ 4

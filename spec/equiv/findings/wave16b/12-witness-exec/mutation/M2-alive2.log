@@ -1,0 +1,125 @@
+
+----------------------------------------
+define i64 @cell_checksig_gate(i64 noundef %sv, i64 noundef %fd_found, i64 noundef %const_sc) nofree willreturn memory(none) {
+entry:
+  %#0 = or i64 noundef %fd_found, noundef %sv
+  %#1 = or i64 %#0, noundef %const_sc
+  %or.cond23.not = icmp ult i64 %#1, 2
+  br i1 %or.cond23.not, label %if.end, label %return
+
+if.end:
+  %cmp4 = icmp eq i64 noundef %sv, 0
+  %cmp6 = icmp ne i64 noundef %fd_found, 0
+  %#2 = and i1 %cmp4, %cmp6
+  %cmp10 = icmp ne i64 noundef %const_sc, 0
+  %#3 = and i1 %#2, %cmp10
+  %#4 = shl i64 noundef %fd_found, 1
+  %#5 = and i64 %#4, 8589934590
+  %#6 = or disjoint i64 %#5, 1
+  %or = select i1 %cmp4, i64 %#6, i64 1
+  %shl15 = select i1 %#2, i64 4, i64 0
+  %conv17 = select i1 %#3, i64 432, i64 0
+  %and20 = shl i64 noundef %sv, 9
+  %shl21 = and i64 %and20, 1536
+  %or16 = or disjoint i64 %shl15, %shl21
+  %or19 = or i64 %or16, %or
+  %or22 = or i64 %or19, %conv17
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or22, %if.end ], [ -1, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 -1, i64 1024
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_checksig_gate(i64 noundef %sv, i64 noundef %fd_found, i64 noundef %const_sc) nofree willreturn memory(none) {
+entry:
+  %#0 = or i64 noundef %fd_found, noundef %sv
+  %#1 = or i64 %#0, noundef %const_sc
+  %or.cond23.not = icmp ult i64 %#1, 2
+  br i1 %or.cond23.not, label %if.end, label %return
+
+if.end:
+  %cmp6 = icmp ne i64 noundef %fd_found, 0
+  %cmp10 = icmp ne i64 noundef %const_sc, 0
+  %#2 = and i1 %cmp6, %cmp10
+  %conv13 = shl i64 noundef %fd_found, 1
+  %shl = and i64 %conv13, 8589934590
+  %shl15 = select i1 %cmp6, i64 4, i64 0
+  %conv17 = select i1 %#2, i64 432, i64 0
+  %and20 = shl i64 noundef %sv, 9
+  %shl21 = and i64 %and20, 1536
+  %or = or disjoint i64 %shl21, %shl15
+  %or16 = or i64 %or, %shl
+  %or19 = or i64 %or16, %conv17
+  %or22 = or disjoint i64 %or19, 1
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or22, %if.end ], [ -1, %entry ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 -1, i64 1024
+  ret i64 %#range_0_%retval.0
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %sv = #x0000000000000001 (1)
+i64 noundef %fd_found = #x0000000000000001 (1)
+i64 noundef %const_sc = #x0000000000000000 (0)
+
+Source:
+i64 %#0 = #x0000000000000001 (1)
+i64 %#1 = #x0000000000000001 (1)
+i1 %or.cond23.not = #x1 (1)
+  >> Jump to %if.end
+i1 %cmp4 = #x0 (0)
+i1 %cmp6 = #x1 (1)
+i1 %#2 = #x0 (0)
+i1 %cmp10 = #x0 (0)
+i1 %#3 = #x0 (0)
+i64 %#4 = #x0000000000000002 (2)
+i64 %#5 = #x0000000000000002 (2)
+i64 %#6 = #x0000000000000003 (3)
+i64 %or = #x0000000000000001 (1)
+i64 %shl15 = #x0000000000000000 (0)
+i64 %conv17 = #x0000000000000000 (0)
+i64 %and20 = #x0000000000000200 (512)
+i64 %shl21 = #x0000000000000200 (512)
+i64 %or16 = #x0000000000000200 (512)
+i64 %or19 = #x0000000000000201 (513)
+i64 %or22 = #x0000000000000201 (513)
+  >> Jump to %return
+i64 %retval.0 = #x0000000000000201 (513)
+i64 %#range_0_%retval.0 = #x0000000000000201 (513)
+
+Target:
+i64 %#0 = #x0000000000000001 (1)
+i64 %#1 = #x0000000000000001 (1)
+i1 %or.cond23.not = #x1 (1)
+  >> Jump to %if.end
+i1 %cmp6 = #x1 (1)
+i1 %cmp10 = #x0 (0)
+i1 %#2 = #x0 (0)
+i64 %conv13 = #x0000000000000002 (2)
+i64 %shl = #x0000000000000002 (2)
+i64 %shl15 = #x0000000000000004 (4)
+i64 %conv17 = #x0000000000000000 (0)
+i64 %and20 = #x0000000000000200 (512)
+i64 %shl21 = #x0000000000000200 (512)
+i64 %or = #x0000000000000204 (516)
+i64 %or16 = #x0000000000000206 (518)
+i64 %or19 = #x0000000000000206 (518)
+i64 %or22 = #x0000000000000207 (519)
+  >> Jump to %return
+i64 %retval.0 = #x0000000000000207 (519)
+i64 %#range_0_%retval.0 = #x0000000000000207 (519)
+Source value: #x0000000000000201 (513)
+Target value: #x0000000000000207 (519)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

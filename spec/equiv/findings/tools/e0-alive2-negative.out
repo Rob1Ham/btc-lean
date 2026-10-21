@@ -1,0 +1,33 @@
+
+----------------------------------------
+define i32 @add_one(i32 %x) {
+entry:
+  %r = add i32 %x, 1
+  ret i32 %r
+}
+=>
+define i32 @add_one(i32 %x) {
+entry:
+  %r = add i32 %x, 2
+  ret i32 %r
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i32 %x = #x00000003 (3)
+
+Source:
+i32 %r = #x00000004 (4)
+
+Target:
+i32 %r = #x00000005 (5)
+Source value: #x00000004 (4)
+Target value: #x00000005 (5)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

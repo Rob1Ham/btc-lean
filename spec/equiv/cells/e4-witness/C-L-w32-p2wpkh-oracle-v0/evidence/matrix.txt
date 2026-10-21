@@ -1,0 +1,39 @@
+# (A) outcome export
+ok                                       packed=0x01 result=1 error=0 word=0x0000000000000001
+checksig false                           packed=0x08 result=0 error=2 word=0x0000000000000008
+hash mismatch (byte 0)                   packed=0x30 result=0 error=12 word=0x0000000000000030
+hash mismatch (byte 19)                  packed=0x30 result=0 error=12 word=0x0000000000000030
+hash high bits ignored                   packed=0x01 result=1 error=0 word=0x0000000000000001
+checksig DER error 24                    packed=0x60 result=0 error=24 word=0x0000000000000060
+checksig error, mismatch wins            packed=0x30 result=0 error=12 word=0x0000000000000030
+arity 1 -> mismatch                      packed=0xa0 result=0 error=40 word=0x00000000000000a0
+sig 520 (boundary)                       packed=0x01 result=1 error=0 word=0x0000000000000001
+sig 521 -> push size                     packed=0x18 result=0 error=6 word=0x0000000000000018
+checksig err low 6 bits (64->0)          packed=0x01 result=1 error=0 word=0x0000000000000001
+# (B) oracle-interface export
+sel0 HASH160 preimage word 0             word=0x0706050403020100
+sel0 preimage word 4 (byte 32 only)      word=0x0000000000000021
+sel0 preimage word 5 (past pk_len)       word=0x0000000000000000
+sel0 preimage word 0, pk_len 0           word=0x0000000000000000
+sel4 HASH160 preimage length             word=0x0000000000000021
+sel5 HASH160 output width                word=0x0000000000000014
+sel1 checksig sig word 0                 word=0x0706050403020100
+sel1 checksig sig word 9                 word=0x0000000000000048
+sel1 checksig sig word 10                word=0x0000000000000000
+sel2 checksig pubkey word 0              word=0x0706050403020100
+sel3 scriptCode word 0                   word=0x040302010014a976
+sel3 scriptCode word 3 (byte 24)         word=0x00000000000000ac
+sel6 checksig sig length                 word=0x0000000000000049
+sel7 checksig pubkey length              word=0x0000000000000021
+sel8 checksig scriptCode length          word=0x0000000000000019
+# (B) sentinel / precedence / truncation edges
+sel2, hash mismatch -> sentinel          word=SENT
+sel1, n_wit 1 -> sentinel                word=SENT
+sel0, sig_len 521 -> sentinel            word=SENT
+sel1, pk_len 521 -> sentinel             word=SENT
+sel none (0xffffffff) -> sentinel        word=SENT
+sel 9 (outside slice) -> sentinel        word=SENT
+sel 2^32 truncates to 0 (preimage)       word=0x0706050403020100
+k 2^32+4 truncates to 4                  word=0x0000000000000021
+ck_err/ck_ok do not affect transcript    word=0x0706050403020100
+# asserts: OK

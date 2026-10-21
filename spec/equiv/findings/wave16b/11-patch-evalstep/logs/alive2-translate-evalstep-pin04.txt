@@ -1,0 +1,16 @@
+# Alive2 translation check: pin + P-CORE-04, exceptions erased, EvalStep
+# module: interpreter-O0-evalstep-erased-s.ll
+# command: alive-tv <module> --func=_ZN12_GLOBAL__N_18EvalStepERNS_15ScriptEvalStateE --passes=verify --skip-smt
+# (full Alive IR dump omitted; this is the verdict block)
+
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# EvalScript in the same module FAILS to translate (not shown):
+# ERROR: Unsupported instruction: %47 = load atomic i8, ptr @_ZGVZ10EvalScript...
+# i.e. P-CORE-03 is still required for the whole-function translation.

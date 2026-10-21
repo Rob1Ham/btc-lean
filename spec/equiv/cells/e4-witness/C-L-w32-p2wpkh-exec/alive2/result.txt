@@ -1,0 +1,374 @@
+# cell: e4-witness/C-L-w32-p2wpkh-exec
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_p2wpkh_exec =====
+
+----------------------------------------
+define i64 @cell_p2wpkh_exec(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2, i64 noundef %n_wit, i64 noundef %sig_len, i64 noundef %pk_len, i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %ck_err, i64 noundef %ck_ok) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %n_wit, 2
+  br i1 %cmp.not, label %if.end, label %return
+
+if.end:
+  %cmp1 = icmp ugt i64 noundef %sig_len, 520
+  %cmp2 = icmp ugt i64 noundef %pk_len, 520
+  %or.cond = or i1 %cmp1, %cmp2
+  br i1 %or.cond, label %return, label %if.end5
+
+if.end5:
+  %cmp11.not.i6497 = icmp eq i64 noundef %h0, noundef %p0
+  %cmp30.not.i6505 = icmp eq i64 noundef %h1, noundef %p1
+  %or.cond10424 = and i1 %cmp11.not.i6497, %cmp30.not.i6505
+  %and56.i76010426 = xor i64 noundef %h2, noundef %p2
+  %#0 = and i64 %and56.i76010426, 4294967295
+  %cmp51.i6513 = icmp eq i64 %#0, 0
+  %#1 = and i1 %or.cond10424, %cmp51.i6513
+  br i1 %#1, label %if.end93.i, label %return
+
+if.end93.i:
+  %and = and i64 noundef %ck_err, 63
+  %cmp94.not.i = icmp eq i64 %and, 0
+  %cmp101.not.i = icmp ne i64 noundef %ck_ok, 0
+  %.10421 = zext i1 %cmp101.not.i to i64
+  %s.sroa.0.sroa.0.0 = select i1 %cmp94.not.i, i64 %.10421, i64 0
+  %s.sroa.0.sroa.118.0 = select i1 %cmp94.not.i, i64 %.10421, i64 noundef %pk_len
+  %cond = icmp eq i64 %and, 0
+  br i1 %cond, label %if.end93, label %if.then81
+
+if.end93:
+  %#2 = add nsw i64 %s.sroa.0.sroa.118.0, -21
+  %or.cond.i1052 = icmp ult i64 %#2, -20
+  br i1 %or.cond.i1052, label %return, label %if.end4.i
+
+if.end4.i:
+  %cond.i = umin i64 %s.sroa.0.sroa.118.0, 8
+  %cmp.i6826 = icmp ugt i64 %s.sroa.0.sroa.118.0, 7
+  %mul.i6827 = shl nsw nuw i64 %cond.i, 3
+  %notmask.i6828 = shl nsw i64 -1, %mul.i6827
+  %sub.i6829 = xor i64 %notmask.i6828, -1
+  %cond.i6830 = select i1 %cmp.i6826, i64 7, i64 %sub.i6829
+  %and35.i = and i64 %cond.i6830, %s.sroa.0.sroa.0.0
+  %cmp39.i = icmp eq i64 %and35.i, 0
+  %spec.select = select i1 %cmp39.i, i64 8, i64 1
+  br label %return
+
+if.then81:
+  %and1.i1080 = shl nsw nuw i64 %and, 2
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 160, %entry ], [ 24, %if.end ], [ %and1.i1080, %if.then81 ], [ 8, %if.end93 ], [ 48, %if.end5 ], [ %spec.select, %if.end4.i ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 253
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_p2wpkh_exec(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2, i64 noundef %n_wit, i64 noundef %sig_len, i64 noundef %pk_len, i64 noundef %h0, i64 noundef %h1, i64 noundef %h2, i64 noundef %ck_err, i64 noundef %ck_ok) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i64 noundef %n_wit, 2
+  br i1 %cmp.not, label %if.end, label %return
+
+if.end:
+  %cmp1 = icmp ugt i64 noundef %sig_len, 520
+  %cmp2 = icmp ugt i64 noundef %pk_len, 520
+  %or.cond = or i1 %cmp1, %cmp2
+  br i1 %or.cond, label %return, label %if.end5
+
+if.end5:
+  %and = and i64 noundef %ck_err, 63
+  %or13.i4324 = and i64 noundef %p2, 4294967295
+  %#0 = xor i64 noundef %p0, noundef %h0
+  %#1 = and i64 %#0, 255
+  %cmp10.not.i7197 = icmp eq i64 %#1, 0
+  br i1 %cmp10.not.i7197, label %land.lhs.true15.i7310, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true15.i7310:
+  %shr.i854714575 = xor i64 noundef %p0, noundef %h0
+  %#2 = and i64 %shr.i854714575, 65280
+  %cmp20.not.i7313 = icmp eq i64 %#2, 0
+  br i1 %cmp20.not.i7313, label %land.lhs.true25.i7306, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true25.i7306:
+  %shr.i855714576 = xor i64 noundef %p0, noundef %h0
+  %#3 = and i64 %shr.i855714576, 16711680
+  %cmp30.not.i7309 = icmp eq i64 %#3, 0
+  br i1 %cmp30.not.i7309, label %land.lhs.true35.i7302, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true35.i7302:
+  %shr.i856714577 = xor i64 noundef %p0, noundef %h0
+  %#4 = and i64 %shr.i856714577, 4278190080
+  %cmp40.not.i7305 = icmp eq i64 %#4, 0
+  br i1 %cmp40.not.i7305, label %land.lhs.true45.i7298, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true45.i7298:
+  %shr.i857714578 = xor i64 noundef %p0, noundef %h0
+  %#5 = and i64 %shr.i857714578, 1095216660480
+  %cmp50.not.i7301 = icmp eq i64 %#5, 0
+  br i1 %cmp50.not.i7301, label %land.lhs.true55.i7294, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true55.i7294:
+  %shr.i858714579 = xor i64 noundef %p0, noundef %h0
+  %#6 = and i64 %shr.i858714579, 280375465082880
+  %cmp60.not.i7297 = icmp eq i64 %#6, 0
+  br i1 %cmp60.not.i7297, label %land.lhs.true65.i7290, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true65.i7290:
+  %shr.i859714580 = xor i64 noundef %p0, noundef %h0
+  %#7 = and i64 %shr.i859714580, 71776119061217280
+  %cmp70.not.i7293 = icmp eq i64 %#7, 0
+  %cmp80.not.i7289.unshifted = xor i64 noundef %p0, noundef %h0
+  %cmp80.not.i7289 = icmp ult i64 %cmp80.not.i7289.unshifted, 72057594037927936
+  %or.cond14590 = and i1 %cmp80.not.i7289, %cmp70.not.i7293
+  br i1 %or.cond14590, label %land.lhs.true85.i7282, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true85.i7282:
+  %#8 = xor i64 noundef %p1, noundef %h1
+  %#9 = and i64 %#8, 255
+  %cmp90.not.i7285 = icmp eq i64 %#9, 0
+  br i1 %cmp90.not.i7285, label %land.lhs.true95.i7278, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true95.i7278:
+  %shr5.i863514581 = xor i64 noundef %p1, noundef %h1
+  %#10 = and i64 %shr5.i863514581, 65280
+  %cmp100.not.i7281 = icmp eq i64 %#10, 0
+  br i1 %cmp100.not.i7281, label %land.lhs.true105.i7274, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true105.i7274:
+  %shr5.i864914582 = xor i64 noundef %p1, noundef %h1
+  %#11 = and i64 %shr5.i864914582, 16711680
+  %cmp110.not.i7277 = icmp eq i64 %#11, 0
+  br i1 %cmp110.not.i7277, label %land.lhs.true115.i7270, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true115.i7270:
+  %shr5.i866314583 = xor i64 noundef %p1, noundef %h1
+  %#12 = and i64 %shr5.i866314583, 4278190080
+  %cmp120.not.i7273 = icmp eq i64 %#12, 0
+  br i1 %cmp120.not.i7273, label %land.lhs.true125.i7266, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true125.i7266:
+  %shr5.i867714584 = xor i64 noundef %p1, noundef %h1
+  %#13 = and i64 %shr5.i867714584, 1095216660480
+  %cmp130.not.i7269 = icmp eq i64 %#13, 0
+  br i1 %cmp130.not.i7269, label %land.lhs.true135.i7262, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true135.i7262:
+  %shr5.i869114585 = xor i64 noundef %p1, noundef %h1
+  %#14 = and i64 %shr5.i869114585, 280375465082880
+  %cmp140.not.i7265 = icmp eq i64 %#14, 0
+  br i1 %cmp140.not.i7265, label %land.lhs.true145.i7258, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true145.i7258:
+  %shr5.i870514586 = xor i64 noundef %p1, noundef %h1
+  %#15 = and i64 %shr5.i870514586, 71776119061217280
+  %cmp150.not.i7261 = icmp eq i64 %#15, 0
+  %cmp160.not.i7257.unshifted = xor i64 noundef %p1, noundef %h1
+  %cmp160.not.i7257 = icmp ult i64 %cmp160.not.i7257.unshifted, 72057594037927936
+  %or.cond14591 = and i1 %cmp150.not.i7261, %cmp160.not.i7257
+  br i1 %or.cond14591, label %land.lhs.true165.i7250, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true165.i7250:
+  %#16 = xor i64 noundef %h2, noundef %p2
+  %#17 = and i64 %#16, 255
+  %cmp170.not.i7253 = icmp eq i64 %#17, 0
+  br i1 %cmp170.not.i7253, label %land.lhs.true175.i7246, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true175.i7246:
+  %shr11.i874314587 = xor i64 noundef %h2, noundef %p2
+  %#18 = and i64 %shr11.i874314587, 65280
+  %cmp180.not.i7249 = icmp eq i64 %#18, 0
+  br i1 %cmp180.not.i7249, label %land.lhs.true185.i7242, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true185.i7242:
+  %shr11.i875514588 = xor i64 noundef %h2, noundef %p2
+  %#19 = and i64 %shr11.i875514588, 16711680
+  %cmp190.not.i7245 = icmp eq i64 %#19, 0
+  br i1 %cmp190.not.i7245, label %land.lhs.true195.i7238, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+land.lhs.true195.i7238:
+  %and83.i69614593 = xor i64 noundef %h2, noundef %p2
+  %#20 = and i64 %and83.i69614593, 4278190080
+  %cmp200.not.i7241 = icmp eq i64 %#20, 0
+  br i1 %cmp200.not.i7241, label %if.then72.i1005, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+if.then72.i1005:
+  br label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136
+
+_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136:
+  %st.sroa.0.sroa.0.1 = phi i64 [ 0, %if.then72.i1005 ], [ noundef %p0, %land.lhs.true195.i7238 ], [ noundef %p0, %land.lhs.true185.i7242 ], [ noundef %p0, %land.lhs.true175.i7246 ], [ noundef %p0, %land.lhs.true165.i7250 ], [ noundef %p0, %land.lhs.true145.i7258 ], [ noundef %p0, %land.lhs.true135.i7262 ], [ noundef %p0, %land.lhs.true125.i7266 ], [ noundef %p0, %land.lhs.true115.i7270 ], [ noundef %p0, %land.lhs.true105.i7274 ], [ noundef %p0, %land.lhs.true95.i7278 ], [ noundef %p0, %land.lhs.true85.i7282 ], [ noundef %p0, %land.lhs.true65.i7290 ], [ noundef %p0, %land.lhs.true55.i7294 ], [ noundef %p0, %land.lhs.true45.i7298 ], [ noundef %p0, %land.lhs.true35.i7302 ], [ noundef %p0, %land.lhs.true25.i7306 ], [ noundef %p0, %land.lhs.true15.i7310 ], [ noundef %p0, %if.end5 ]
+  %st.sroa.0.sroa.113.1 = phi i64 [ 0, %if.then72.i1005 ], [ noundef %p1, %land.lhs.true195.i7238 ], [ noundef %p1, %land.lhs.true185.i7242 ], [ noundef %p1, %land.lhs.true175.i7246 ], [ noundef %p1, %land.lhs.true165.i7250 ], [ noundef %p1, %land.lhs.true145.i7258 ], [ noundef %p1, %land.lhs.true135.i7262 ], [ noundef %p1, %land.lhs.true125.i7266 ], [ noundef %p1, %land.lhs.true115.i7270 ], [ noundef %p1, %land.lhs.true105.i7274 ], [ noundef %p1, %land.lhs.true95.i7278 ], [ noundef %p1, %land.lhs.true85.i7282 ], [ noundef %p1, %land.lhs.true65.i7290 ], [ noundef %p1, %land.lhs.true55.i7294 ], [ noundef %p1, %land.lhs.true45.i7298 ], [ noundef %p1, %land.lhs.true35.i7302 ], [ noundef %p1, %land.lhs.true25.i7306 ], [ noundef %p1, %land.lhs.true15.i7310 ], [ noundef %p1, %if.end5 ]
+  %st.sroa.0.sroa.118.1 = phi i64 [ 0, %if.then72.i1005 ], [ %or13.i4324, %land.lhs.true195.i7238 ], [ %or13.i4324, %land.lhs.true185.i7242 ], [ %or13.i4324, %land.lhs.true175.i7246 ], [ %or13.i4324, %land.lhs.true165.i7250 ], [ %or13.i4324, %land.lhs.true145.i7258 ], [ %or13.i4324, %land.lhs.true135.i7262 ], [ %or13.i4324, %land.lhs.true125.i7266 ], [ %or13.i4324, %land.lhs.true115.i7270 ], [ %or13.i4324, %land.lhs.true105.i7274 ], [ %or13.i4324, %land.lhs.true95.i7278 ], [ %or13.i4324, %land.lhs.true85.i7282 ], [ %or13.i4324, %land.lhs.true65.i7290 ], [ %or13.i4324, %land.lhs.true55.i7294 ], [ %or13.i4324, %land.lhs.true45.i7298 ], [ %or13.i4324, %land.lhs.true35.i7302 ], [ %or13.i4324, %land.lhs.true25.i7306 ], [ %or13.i4324, %land.lhs.true15.i7310 ], [ %or13.i4324, %if.end5 ]
+  %st.sroa.0.sroa.123.1 = phi i64 [ noundef %pk_len, %if.then72.i1005 ], [ 20, %land.lhs.true195.i7238 ], [ 20, %land.lhs.true185.i7242 ], [ 20, %land.lhs.true175.i7246 ], [ 20, %land.lhs.true165.i7250 ], [ 20, %land.lhs.true145.i7258 ], [ 20, %land.lhs.true135.i7262 ], [ 20, %land.lhs.true125.i7266 ], [ 20, %land.lhs.true115.i7270 ], [ 20, %land.lhs.true105.i7274 ], [ 20, %land.lhs.true95.i7278 ], [ 20, %land.lhs.true85.i7282 ], [ 20, %land.lhs.true65.i7290 ], [ 20, %land.lhs.true55.i7294 ], [ 20, %land.lhs.true45.i7298 ], [ 20, %land.lhs.true35.i7302 ], [ 20, %land.lhs.true25.i7306 ], [ 20, %land.lhs.true15.i7310 ], [ 20, %if.end5 ]
+  %cond = phi i1 [ 1, %if.then72.i1005 ], [ 0, %land.lhs.true195.i7238 ], [ 0, %land.lhs.true185.i7242 ], [ 0, %land.lhs.true175.i7246 ], [ 0, %land.lhs.true165.i7250 ], [ 0, %land.lhs.true145.i7258 ], [ 0, %land.lhs.true135.i7262 ], [ 0, %land.lhs.true125.i7266 ], [ 0, %land.lhs.true115.i7270 ], [ 0, %land.lhs.true105.i7274 ], [ 0, %land.lhs.true95.i7278 ], [ 0, %land.lhs.true85.i7282 ], [ 0, %land.lhs.true65.i7290 ], [ 0, %land.lhs.true55.i7294 ], [ 0, %land.lhs.true45.i7298 ], [ 0, %land.lhs.true35.i7302 ], [ 0, %land.lhs.true25.i7306 ], [ 0, %land.lhs.true15.i7310 ], [ 0, %if.end5 ]
+  %retval.0.i132 = phi i64 [ 0, %if.then72.i1005 ], [ 48, %land.lhs.true195.i7238 ], [ 48, %land.lhs.true185.i7242 ], [ 48, %land.lhs.true175.i7246 ], [ 48, %land.lhs.true165.i7250 ], [ 48, %land.lhs.true145.i7258 ], [ 48, %land.lhs.true135.i7262 ], [ 48, %land.lhs.true125.i7266 ], [ 48, %land.lhs.true115.i7270 ], [ 48, %land.lhs.true105.i7274 ], [ 48, %land.lhs.true95.i7278 ], [ 48, %land.lhs.true85.i7282 ], [ 48, %land.lhs.true65.i7290 ], [ 48, %land.lhs.true55.i7294 ], [ 48, %land.lhs.true45.i7298 ], [ 48, %land.lhs.true35.i7302 ], [ 48, %land.lhs.true25.i7306 ], [ 48, %land.lhs.true15.i7310 ], [ 48, %if.end5 ]
+  br i1 %cond, label %if.end95.i1110, label %return
+
+if.end95.i1110:
+  %cmp96.not.i1112 = icmp eq i64 %and, 0
+  br i1 %cmp96.not.i1112, label %if.end110.i1118, label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit
+
+if.end110.i1118:
+  %cmp103.not.i1117 = icmp ne i64 noundef %ck_ok, 0
+  %.14569 = zext i1 %cmp103.not.i1117 to i64
+  br label %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit
+
+_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit:
+  %st.sroa.0.sroa.0.0 = phi i64 [ %.14569, %if.end110.i1118 ], [ %st.sroa.0.sroa.0.1, %if.end95.i1110 ]
+  %st.sroa.0.sroa.113.0 = phi i64 [ 0, %if.end110.i1118 ], [ %st.sroa.0.sroa.113.1, %if.end95.i1110 ]
+  %st.sroa.0.sroa.118.0 = phi i64 [ 0, %if.end110.i1118 ], [ %st.sroa.0.sroa.118.1, %if.end95.i1110 ]
+  %st.sroa.0.sroa.123.0 = phi i64 [ %.14569, %if.end110.i1118 ], [ %st.sroa.0.sroa.123.1, %if.end95.i1110 ]
+  %retval.0.i = phi i64 [ 0, %if.end110.i1118 ], [ %and, %if.end95.i1110 ]
+  %cond14592 = icmp eq i64 %retval.0.i, 0
+  br i1 %cond14592, label %if.end68, label %if.then61
+
+if.end68:
+  br i1 %cmp96.not.i1112, label %if.end73, label %return
+
+if.end73:
+  %#21 = add nsw i64 %st.sroa.0.sroa.123.0, -21
+  %or.cond.i = icmp ult i64 %#21, -20
+  br i1 %or.cond.i, label %return, label %if.end4.i
+
+if.end4.i:
+  %conv.i = trunc nsw nuw i64 %st.sroa.0.sroa.123.0 to i32
+  %sub.i = add nsw i32 %conv.i, 4294967295
+  %cmp.i9135 = icmp ult i32 %sub.i, 8
+  br i1 %cmp.i9135, label %if.then.i9148, label %if.end.i9136
+
+if.then.i9148:
+  %mul.i9149 = shl nsw nuw i32 %sub.i, 3
+  br label %_ZL9l_byte_at6L_Elemj.exit
+
+if.end.i9136:
+  %cmp1.i9137 = icmp ult i32 %sub.i, 16
+  %sub.i9144 = shl i32 %sub.i, 3
+  br i1 %cmp1.i9137, label %if.then2.i9142, label %if.end7.i
+
+if.then2.i9142:
+  %mul3.i9145 = add nsw i32 %sub.i9144, 4294967232
+  br label %_ZL9l_byte_at6L_Elemj.exit
+
+if.end7.i:
+  %mul9.i = add nsw i32 %sub.i9144, 4294967168
+  br label %_ZL9l_byte_at6L_Elemj.exit
+
+_ZL9l_byte_at6L_Elemj.exit:
+  %mul.i9149.sink = phi i32 [ %mul.i9149, %if.then.i9148 ], [ %mul3.i9145, %if.then2.i9142 ], [ %mul9.i, %if.end7.i ]
+  %st.sroa.0.sroa.0.0.sink = phi i64 [ %st.sroa.0.sroa.0.0, %if.then.i9148 ], [ %st.sroa.0.sroa.113.0, %if.then2.i9142 ], [ %st.sroa.0.sroa.118.0, %if.end7.i ]
+  %sh_prom.i9150 = zext nneg i32 %mul.i9149.sink to i64
+  %cmp6.not.i = icmp eq i32 %sub.i, 0
+  %retval.0.i9133 = and i64 %st.sroa.0.sroa.0.0, 255
+  %spec.select14570 = select i1 %cmp6.not.i, i64 0, i64 %retval.0.i9133
+  %cmp11.i = icmp ugt i32 %sub.i, 1
+  %shr.i9022 = lshr i64 %st.sroa.0.sroa.0.0, 8
+  %retval.0.i9024 = and i64 %shr.i9022, 255
+  %or15.i = select i1 %cmp11.i, i64 %retval.0.i9024, i64 0
+  %rest.1.i = or i64 %spec.select14570, %or15.i
+  %cmp17.i = icmp ugt i32 %sub.i, 2
+  %shr.i9027 = lshr i64 %st.sroa.0.sroa.0.0, 16
+  %retval.0.i9029 = and i64 %shr.i9027, 255
+  %or21.i = select i1 %cmp17.i, i64 %retval.0.i9029, i64 0
+  %rest.2.i = or i64 %rest.1.i, %or21.i
+  %cmp23.i = icmp ugt i32 %sub.i, 3
+  %shr.i9032 = lshr i64 %st.sroa.0.sroa.0.0, 24
+  %retval.0.i9034 = and i64 %shr.i9032, 255
+  %or27.i = select i1 %cmp23.i, i64 %retval.0.i9034, i64 0
+  %rest.3.i = or i64 %rest.2.i, %or27.i
+  %cmp29.i = icmp ugt i32 %sub.i, 4
+  %shr.i9037 = lshr i64 %st.sroa.0.sroa.0.0, 32
+  %retval.0.i9039 = and i64 %shr.i9037, 255
+  %or33.i = select i1 %cmp29.i, i64 %retval.0.i9039, i64 0
+  %rest.4.i = or i64 %rest.3.i, %or33.i
+  %cmp35.i = icmp ugt i32 %sub.i, 5
+  %shr.i9042 = lshr i64 %st.sroa.0.sroa.0.0, 40
+  %retval.0.i9044 = and i64 %shr.i9042, 255
+  %or39.i = select i1 %cmp35.i, i64 %retval.0.i9044, i64 0
+  %rest.5.i = or i64 %rest.4.i, %or39.i
+  %cmp41.i = icmp ugt i32 %sub.i, 6
+  %shr.i9047 = lshr i64 %st.sroa.0.sroa.0.0, 48
+  %retval.0.i9049 = and i64 %shr.i9047, 255
+  %or45.i = select i1 %cmp41.i, i64 %retval.0.i9049, i64 0
+  %rest.6.i = or i64 %rest.5.i, %or45.i
+  %cmp47.i = icmp ugt i32 %sub.i, 7
+  %shr.i9052 = lshr i64 %st.sroa.0.sroa.0.0, 56
+  %or51.i = select i1 %cmp47.i, i64 %shr.i9052, i64 0
+  %rest.7.i = or i64 %rest.6.i, %or51.i
+  %cmp53.i = icmp ugt i32 %sub.i, 8
+  %retval.0.i9061 = and i64 %st.sroa.0.sroa.113.0, 255
+  %or57.i = select i1 %cmp53.i, i64 %retval.0.i9061, i64 0
+  %rest.8.i = or i64 %rest.7.i, %or57.i
+  %cmp59.i = icmp ugt i32 %sub.i, 9
+  %shr5.i9066 = lshr i64 %st.sroa.0.sroa.113.0, 8
+  %retval.0.i9068 = and i64 %shr5.i9066, 255
+  %or63.i = select i1 %cmp59.i, i64 %retval.0.i9068, i64 0
+  %rest.9.i = or i64 %rest.8.i, %or63.i
+  %cmp65.i = icmp ugt i32 %sub.i, 10
+  %shr5.i9073 = lshr i64 %st.sroa.0.sroa.113.0, 16
+  %retval.0.i9075 = and i64 %shr5.i9073, 255
+  %or69.i = select i1 %cmp65.i, i64 %retval.0.i9075, i64 0
+  %rest.10.i = or i64 %rest.9.i, %or69.i
+  %cmp71.i = icmp ugt i32 %sub.i, 11
+  %shr5.i9080 = lshr i64 %st.sroa.0.sroa.113.0, 24
+  %retval.0.i9082 = and i64 %shr5.i9080, 255
+  %or75.i = select i1 %cmp71.i, i64 %retval.0.i9082, i64 0
+  %rest.11.i = or i64 %rest.10.i, %or75.i
+  %cmp77.i = icmp ugt i32 %sub.i, 12
+  %shr5.i9087 = lshr i64 %st.sroa.0.sroa.113.0, 32
+  %retval.0.i9089 = and i64 %shr5.i9087, 255
+  %or81.i = select i1 %cmp77.i, i64 %retval.0.i9089, i64 0
+  %rest.12.i = or i64 %rest.11.i, %or81.i
+  %cmp83.i = icmp ugt i32 %sub.i, 13
+  %shr5.i9094 = lshr i64 %st.sroa.0.sroa.113.0, 40
+  %retval.0.i9096 = and i64 %shr5.i9094, 255
+  %or87.i = select i1 %cmp83.i, i64 %retval.0.i9096, i64 0
+  %rest.13.i = or i64 %rest.12.i, %or87.i
+  %cmp89.i = icmp ugt i32 %sub.i, 14
+  %shr5.i9101 = lshr i64 %st.sroa.0.sroa.113.0, 48
+  %retval.0.i9103 = and i64 %shr5.i9101, 255
+  %or93.i = select i1 %cmp89.i, i64 %retval.0.i9103, i64 0
+  %rest.14.i = or i64 %rest.13.i, %or93.i
+  %cmp95.i = icmp ugt i32 %sub.i, 15
+  %shr5.i9108 = lshr i64 %st.sroa.0.sroa.113.0, 56
+  %or99.i = select i1 %cmp95.i, i64 %shr5.i9108, i64 0
+  %rest.15.i = or i64 %rest.14.i, %or99.i
+  %cmp101.i = icmp ugt i32 %sub.i, 16
+  %retval.0.i9116 = and i64 %st.sroa.0.sroa.118.0, 255
+  %or105.i = select i1 %cmp101.i, i64 %retval.0.i9116, i64 0
+  %rest.16.i = or i64 %rest.15.i, %or105.i
+  %cmp107.i = icmp ugt i32 %sub.i, 17
+  %shr11.i9120 = lshr i64 %st.sroa.0.sroa.118.0, 8
+  %retval.0.i9122 = and i64 %shr11.i9120, 255
+  %or111.i = select i1 %cmp107.i, i64 %retval.0.i9122, i64 0
+  %rest.17.i = or i64 %rest.16.i, %or111.i
+  %cmp113.i = icmp ugt i32 %sub.i, 18
+  %shr11.i9126 = lshr i64 %st.sroa.0.sroa.118.0, 16
+  %retval.0.i9128 = and i64 %shr11.i9126, 255
+  %or117.i = select i1 %cmp113.i, i64 %retval.0.i9128, i64 0
+  %rest.18.i = or i64 %rest.17.i, %or117.i
+  %cmp119.not.i = icmp ne i64 %rest.18.i, 0
+  %#22 = shl i64 127, %sh_prom.i9150
+  %#23 = and i64 %st.sroa.0.sroa.0.0.sink, %#22
+  %#24 = icmp ne i64 %#23, 0
+  %#25 = select i1 %cmp119.not.i, i1 1, i1 %#24
+  %#26 = select i1 %#25, i64 1, i64 8
+  br label %return
+
+if.then61:
+  %and1.i173 = shl nsw nuw i64 %retval.0.i, 2
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 160, %entry ], [ 24, %if.end ], [ %and1.i173, %if.then61 ], [ 120, %if.end68 ], [ %#26, %_ZL9l_byte_at6L_Elemj.exit ], [ 8, %if.end73 ], [ %retval.0.i132, %_ZL10l_run_stepR7L_StackmmmjRjRK5L_Ctx.exit136 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 253
+  ret i64 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

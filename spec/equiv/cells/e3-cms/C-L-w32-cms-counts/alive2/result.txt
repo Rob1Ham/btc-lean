@@ -1,0 +1,469 @@
+# cell: e3-cms/C-L-w32-cms-counts
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c_src: c_counts.cpp sha256 19b46ef43e7f0ad58eed719e46f1a0d020e71dd6d2cf28a274f842fb8d39bbbd
+# l_src: l_counts.cpp sha256 23a88592d283cf8d9787be5ad908b6cc02f3eb437eb2a9b184822398f2c178f6
+# twin_ops sha256: 980b465ffe4863a64317b005edaa0e75768c6f4b3f0425e5a15d682c7f7222f2
+# c_leaf sha256: 9d5ad5335443e75e6f2a46002a7b0a119be11ec609f4be38d4d06f193b356606
+# l_leaf sha256: 7214feade7f29e2d47cf63d6c747cf1567e44dc073a7ed190287290c087dc5f8
+
+===== cell_cms_counts =====
+# command: /usr/local/bin/alive-tv --bidirectional --smt-to=600000 build/c_cell_cms_counts.ll build/l_cell_cms_counts.ll
+# c IR sha256: d833b016b0bebc0e139b6a3529846bc53a9c57ccee4a39ca3a8d60f1b4fd991c
+# l IR sha256: b2d510c1421271b2716764a173e5dd21d0227264b1f014e53ec85fca56226316
+
+----------------------------------------
+define i64 @cell_cms_counts(i64 noundef %n, i64 noundef %keys_enc, i64 noundef %sigs_enc, i64 noundef %ops_before) nofree willreturn memory(none) {
+entry:
+  %conv.i = trunc i64 noundef %n to i32
+  %cmp.i = icmp eq i32 %conv.i, 0
+  br i1 %cmp.i, label %_ZL11core_countsmmmm.exit, label %if.end.i
+
+if.end.i:
+  %#0 = trunc i64 noundef %keys_enc to i32
+  %conv.i66 = and i32 %#0, 255
+  %cmp.i14 = icmp samesign ult i32 %conv.i66, 5
+  br i1 %cmp.i14, label %if.end.i16, label %_ZL11core_countsmmmm.exit
+
+if.end.i16:
+  %cmp1.i17 = icmp eq i32 %conv.i66, 0
+  br i1 %cmp1.i17, label %if.end9.i, label %if.then5.i18
+
+if.then5.i18:
+  %#1 = lshr i32 %#0, 8
+  %conv.i79 = and i32 %#1, 255
+  %cmp8.not.i20 = icmp eq i32 %conv.i66, 1
+  br i1 %cmp8.not.i20, label %if.end27.i30, label %if.end13.i24
+
+if.end13.i24:
+  %or1255.i23 = and i32 %#1, 65535
+  %cmp14.i26 = icmp samesign ugt i32 %conv.i66, 2
+  br i1 %cmp14.i26, label %if.end20.i27, label %if.end27.i30
+
+if.end20.i27:
+  %cmp21.i29 = icmp eq i32 %conv.i66, 4
+  br i1 %cmp21.i29, label %if.then22.i45, label %if.end27.i30
+
+if.then22.i45:
+  %sh.diff = lshr i64 noundef %keys_enc, 8
+  %tr.sh.diff = trunc i64 %sh.diff to i32
+  %conv.i70 = and i32 %tr.sh.diff, 4278190080
+  %or2657.i47 = or disjoint i32 %#1, %conv.i70
+  br label %if.end27.i30
+
+if.end27.i30:
+  %v.3.in.i31 = phi i32 [ %or2657.i47, %if.then22.i45 ], [ %#1, %if.end20.i27 ], [ %or1255.i23, %if.end13.i24 ], [ %conv.i79, %if.then5.i18 ]
+  %v.3.i32 = zext i32 %v.3.in.i31 to i64
+  %sub.i33 = shl nsw nuw i32 %conv.i66, 3
+  %mul.i71 = add nsw i32 %sub.i33, 4294967288
+  %sh_prom.i73 = zext nneg i32 %sub.i33 to i64
+  %#2 = shl nsw nuw i64 128, %sh_prom.i73
+  %#3 = and i64 %#2, noundef %keys_enc
+  %cmp29.not.i35.not.not = icmp eq i64 %#3, 0
+  %sh_prom.i38 = zext nneg i32 %mul.i71 to i64
+  %shl32.i39 = shl nsw nuw i64 128, %sh_prom.i38
+  %not.i40 = xor i64 %shl32.i39, -1
+  %and33.i41 = and i64 %v.3.i32, %not.i40
+  %sub34.i42 = sub nsw i64 0, %and33.i41
+  %nk.i.0.ph = select i1 %cmp29.not.i35.not.not, i64 %v.3.i32, i64 %sub34.i42
+  %or.cond.i = icmp ugt i64 %nk.i.0.ph, 20
+  br i1 %or.cond.i, label %_ZL11core_countsmmmm.exit, label %if.end9.i
+
+if.end9.i:
+  %nk.i.0.ph136 = phi i64 [ %nk.i.0.ph, %if.end27.i30 ], [ 0, %if.end.i16 ]
+  %conv10.i = trunc i64 noundef %ops_before to i32
+  %conv11.i = trunc nsw nuw i64 %nk.i.0.ph136 to i32
+  %add.i = add i32 %conv11.i, %conv10.i
+  %cmp12.i = icmp ugt i32 %add.i, 201
+  br i1 %cmp12.i, label %_ZL11core_countsmmmm.exit, label %if.end15.i
+
+if.end15.i:
+  %add17.i = add nsw nuw i32 %conv11.i, 2
+  %cmp18.i = icmp ugt i32 %add17.i, %conv.i
+  br i1 %cmp18.i, label %_ZL11core_countsmmmm.exit, label %if.end.i95
+
+if.end.i95:
+  br i1 %cmp1.i17, label %_ZL18e32_decode_harnessmRl.exit, label %if.then5.i97
+
+if.then5.i97:
+  %#4 = lshr i32 %#0, 8
+  %conv.i66.i = and i32 %#4, 255
+  %cmp8.not.i98 = icmp eq i32 %conv.i66, 1
+  br i1 %cmp8.not.i98, label %if.end27.i107, label %if.end13.i101
+
+if.end13.i101:
+  %or1255.i100 = and i32 %#4, 65535
+  %cmp14.i103 = icmp samesign ugt i32 %conv.i66, 2
+  br i1 %cmp14.i103, label %if.end20.i104, label %if.end27.i107
+
+if.end20.i104:
+  %cmp21.i106 = icmp eq i32 %conv.i66, 4
+  br i1 %cmp21.i106, label %if.then22.i121, label %if.end27.i107
+
+if.then22.i121:
+  %sh.diff167 = lshr i64 noundef %keys_enc, 8
+  %tr.sh.diff168 = trunc i64 %sh.diff167 to i32
+  %conv.i60.i = and i32 %tr.sh.diff168, 4278190080
+  %or2657.i122 = or disjoint i32 %#4, %conv.i60.i
+  br label %if.end27.i107
+
+if.end27.i107:
+  %v.3.in.i108 = phi i32 [ %or2657.i122, %if.then22.i121 ], [ %#4, %if.end20.i104 ], [ %or1255.i100, %if.end13.i101 ], [ %conv.i66.i, %if.then5.i97 ]
+  %v.3.i109 = zext i32 %v.3.in.i108 to i64
+  %sub.i110 = shl nsw nuw i32 %conv.i66, 3
+  %sh_prom.i.i = zext nneg i32 %sub.i110 to i64
+  %#5 = shl nsw nuw i64 128, %sh_prom.i.i
+  %#6 = and i64 %#5, noundef %keys_enc
+  %cmp29.not.i111.not.not = icmp eq i64 %#6, 0
+  br i1 %cmp29.not.i111.not.not, label %_ZL18e32_decode_harnessmRl.exit, label %if.then30.i112
+
+if.then30.i112:
+  %mul.i.i = add nsw i32 %sub.i110, 4294967288
+  %sh_prom.i114 = zext nneg i32 %mul.i.i to i64
+  %shl32.i115 = shl nsw nuw i64 128, %sh_prom.i114
+  %not.i116 = xor i64 %shl32.i115, -1
+  %and33.i117 = and i64 %v.3.i109, %not.i116
+  %sub34.i118 = sub nsw i64 0, %and33.i117
+  br label %_ZL18e32_decode_harnessmRl.exit
+
+_ZL18e32_decode_harnessmRl.exit:
+  %nk.i53.0 = phi i64 [ 0, %if.end.i95 ], [ %sub34.i118, %if.then30.i112 ], [ %v.3.i109, %if.end27.i107 ]
+  %cmp5.i = icmp sgt i64 %nk.i53.0, -1
+  %conv.i58 = trunc i64 %nk.i53.0 to i32
+  %cmp7.i = icmp eq i32 %conv11.i, %conv.i58
+  %or.cond14.i = and i1 %cmp5.i, %cmp7.i
+  br i1 %or.cond14.i, label %_ZL7e32_topjjmm.exit, label %if.end34.i
+
+_ZL7e32_topjjmm.exit:
+  %#7 = trunc i64 noundef %sigs_enc to i32
+  %conv.i67 = and i32 %#7, 255
+  %cmp.i9 = icmp samesign ult i32 %conv.i67, 5
+  br i1 %cmp.i9, label %if.end.i11, label %_ZL11core_countsmmmm.exit
+
+if.end.i11:
+  %cmp1.i = icmp eq i32 %conv.i67, 0
+  br i1 %cmp1.i, label %if.end34.i, label %if.then5.i
+
+if.then5.i:
+  %#8 = lshr i32 %#7, 8
+  %conv.i92 = and i32 %#8, 255
+  %cmp8.not.i = icmp eq i32 %conv.i67, 1
+  br i1 %cmp8.not.i, label %if.end27.i, label %if.end13.i
+
+if.end13.i:
+  %or1255.i = and i32 %#8, 65535
+  %cmp14.i = icmp samesign ugt i32 %conv.i67, 2
+  br i1 %cmp14.i, label %if.end20.i, label %if.end27.i
+
+if.end20.i:
+  %cmp21.i = icmp eq i32 %conv.i67, 4
+  br i1 %cmp21.i, label %if.then22.i, label %if.end27.i
+
+if.then22.i:
+  %sh.diff170 = lshr i64 noundef %sigs_enc, 8
+  %tr.sh.diff171 = trunc i64 %sh.diff170 to i32
+  %conv.i83 = and i32 %tr.sh.diff171, 4278190080
+  %or2657.i = or disjoint i32 %#8, %conv.i83
+  br label %if.end27.i
+
+if.end27.i:
+  %v.3.in.i = phi i32 [ %or2657.i, %if.then22.i ], [ %#8, %if.end20.i ], [ %or1255.i, %if.end13.i ], [ %conv.i92, %if.then5.i ]
+  %v.3.i = zext i32 %v.3.in.i to i64
+  %sub.i = shl nsw nuw i32 %conv.i67, 3
+  %sh_prom.i86 = zext nneg i32 %sub.i to i64
+  %#9 = shl nsw nuw i64 128, %sh_prom.i86
+  %#10 = and i64 %#9, noundef %sigs_enc
+  %cmp29.not.i.not.not = icmp eq i64 %#10, 0
+  br i1 %cmp29.not.i.not.not, label %lor.lhs.false30.i, label %if.end28.i
+
+lor.lhs.false30.i:
+  %cmp31.i = icmp samesign ult i64 %nk.i.0.ph136, %v.3.i
+  br i1 %cmp31.i, label %_ZL11core_countsmmmm.exit, label %if.end34.i
+
+if.end28.i:
+  %mul.i84 = add nsw i32 %sub.i, 4294967288
+  %sh_prom.i = zext nneg i32 %mul.i84 to i64
+  %shl32.i = shl nsw nuw i64 128, %sh_prom.i
+  %not.i = xor i64 %shl32.i, -1
+  %and33.i = and i64 %v.3.i, %not.i
+  %cmp29.i.not = icmp eq i64 %and33.i, 0
+  br i1 %cmp29.i.not, label %if.end34.i, label %_ZL11core_countsmmmm.exit
+
+if.end34.i:
+  %ns.i.0.ph162165 = phi i32 [ %v.3.in.i, %lor.lhs.false30.i ], [ 0, %if.end.i11 ], [ 0, %_ZL18e32_decode_harnessmRl.exit ], [ 0, %if.end28.i ]
+  %add37.i = add nsw nuw i32 %conv11.i, 3
+  %add38.i = add nsw nuw i32 %add37.i, %ns.i.0.ph162165
+  %cmp39.i = icmp ugt i32 %add38.i, %conv.i
+  br i1 %cmp39.i, label %_ZL11core_countsmmmm.exit, label %if.end42.i
+
+if.end42.i:
+  %and3.i = shl nsw nuw i32 %conv11.i, 8
+  %and7.i = shl nsw nuw i32 %ns.i.0.ph162165, 16
+  %#11 = and i32 %and7.i, 16711680
+  %or620.i = or disjoint i32 %#11, %and3.i
+  %#12 = shl nuw i32 %add.i, 24
+  %or1021.i = or disjoint i32 %or620.i, %#12
+  %or1422.i = or disjoint i32 %or1021.i, 1
+  %or14.i = zext i32 %or1422.i to i64
+  %and15.i = shl i64 noundef %n, 32
+  %shl17.i = and i64 %and15.i, 1095216660480
+  %or18.i = or disjoint i64 %shl17.i, %or14.i
+  br label %_ZL11core_countsmmmm.exit
+
+_ZL11core_countsmmmm.exit:
+  %retval.3.i = phi i64 [ 72, %entry ], [ 16, %if.end.i ], [ 40, %if.end27.i30 ], [ 28, %if.end9.i ], [ 72, %if.end15.i ], [ %or18.i, %if.end42.i ], [ 16, %_ZL7e32_topjjmm.exit ], [ 36, %lor.lhs.false30.i ], [ 36, %if.end28.i ], [ 72, %if.end34.i ]
+  %#range_0_%retval.3.i = !range i64 %retval.3.i, i64 1, i64 1099511627776
+  ret i64 %#range_0_%retval.3.i
+}
+=>
+define i64 @cell_cms_counts(i64 noundef %n, i64 noundef %keys_enc, i64 noundef %sigs_enc, i64 noundef %ops_before) nofree willreturn memory(none) {
+entry:
+  %conv.i = trunc i64 noundef %n to i32
+  %conv1.i = trunc i64 noundef %ops_before to i32
+  %cmp.i = icmp eq i32 %conv.i, 0
+  br i1 %cmp.i, label %_ZL8l_countsmmmm.exit, label %if.else.i
+
+if.else.i:
+  %#0 = trunc i64 noundef %keys_enc to i32
+  %conv.i49 = and i32 %#0, 255
+  %cmp.i6 = icmp samesign ult i32 %conv.i49, 5
+  br i1 %cmp.i6, label %for.body.i26.preheader, label %_ZL8l_countsmmmm.exit
+
+for.body.i26.preheader:
+  %#1 = and i64 noundef %keys_enc, 255
+  %cmp2.i27.not = icmp eq i64 %#1, 0
+  br i1 %cmp2.i27.not, label %for.inc.i28.3, label %for.inc.i28
+
+for.inc.i28:
+  %sub4.i33 = shl nsw nuw i32 %conv.i49, 3
+  %sh_prom.i53 = zext nneg i32 %sub4.i33 to i64
+  %shr.i = lshr i64 noundef %keys_enc, %sh_prom.i53
+  %conv.i54 = and i64 %shr.i, 255
+  %cmp2.i27.1.not = icmp eq i64 %#1, 1
+  br i1 %cmp2.i27.1.not, label %for.inc.i28.3, label %for.inc.i28.1
+
+for.inc.i28.1:
+  %mul.i32.1 = shl nsw nuw i64 %conv.i54, 8
+  %sub4.i33.1 = shl nsw nuw i32 %conv.i49, 3
+  %add.i52.1 = add nsw i32 %sub4.i33.1, 4294967288
+  %sh_prom.i53.1 = zext nneg i32 %add.i52.1 to i64
+  %shr.i.1 = lshr i64 noundef %keys_enc, %sh_prom.i53.1
+  %conv.i54.1 = and i64 %shr.i.1, 255
+  %add.i36.1 = or disjoint i64 %conv.i54.1, %mul.i32.1
+  %cmp2.i27.2 = icmp samesign ugt i64 %#1, 2
+  br i1 %cmp2.i27.2, label %for.inc.i28.2, label %for.inc.i28.3
+
+for.inc.i28.2:
+  %mul.i32.2 = shl nsw nuw i64 %add.i36.1, 8
+  %sub4.i33.2 = shl nsw nuw i32 %conv.i49, 3
+  %add.i52.2 = add nsw i32 %sub4.i33.2, 4294967280
+  %sh_prom.i53.2 = zext nneg i32 %add.i52.2 to i64
+  %shr.i.2 = lshr i64 noundef %keys_enc, %sh_prom.i53.2
+  %conv.i54.2 = and i64 %shr.i.2, 255
+  %add.i36.2 = or disjoint i64 %conv.i54.2, %mul.i32.2
+  %cmp2.i27.3.not = icmp eq i64 %#1, 3
+  br i1 %cmp2.i27.3.not, label %for.inc.i28.3, label %if.then3.i31.3
+
+if.then3.i31.3:
+  %mul.i32.3 = shl nsw nuw i64 %add.i36.2, 8
+  %sub4.i33.3 = shl nsw nuw i32 %conv.i49, 3
+  %add.i52.3 = add nsw i32 %sub4.i33.3, 4294967272
+  %sh_prom.i53.3 = zext nneg i32 %add.i52.3 to i64
+  %shr.i.3 = lshr i64 noundef %keys_enc, %sh_prom.i53.3
+  %conv.i54.3 = and i64 %shr.i.3, 255
+  %add.i36.3 = or disjoint i64 %conv.i54.3, %mul.i32.3
+  br label %for.inc.i28.3
+
+for.inc.i28.3:
+  %acc.1.i29.3 = phi i64 [ %add.i36.3, %if.then3.i31.3 ], [ %add.i36.2, %for.inc.i28.2 ], [ %add.i36.1, %for.inc.i28.1 ], [ %conv.i54, %for.inc.i28 ], [ 0, %for.body.i26.preheader ]
+  %cmp7.i12 = icmp eq i32 %conv.i49, 0
+  br i1 %cmp7.i12, label %if.else7.i, label %if.else3.i
+
+if.else3.i:
+  %sub10.i14 = shl nsw nuw i32 %conv.i49, 3
+  %sh_prom.i57 = zext nneg i32 %sub10.i14 to i64
+  %#2 = shl nsw nuw i64 128, %sh_prom.i57
+  %#3 = and i64 %#2, noundef %keys_enc
+  %cmp12.not.i16.not.not = icmp eq i64 %#3, 0
+  %mul.i55 = add nsw i32 %sub10.i14, 4294967288
+  %sh_prom.i19 = zext nneg i32 %mul.i55 to i64
+  %shl.i20 = shl nsw nuw i64 128, %sh_prom.i19
+  %not.i21 = xor i64 %shl.i20, -1
+  %and16.i22 = and i64 %acc.1.i29.3, %not.i21
+  %sub17.i23 = sub nsw i64 0, %and16.i22
+  %nkv.i.0 = select i1 %cmp12.not.i16.not.not, i64 %acc.1.i29.3, i64 %sub17.i23
+  %or.cond.i = icmp ugt i64 %nkv.i.0, 20
+  br i1 %or.cond.i, label %_ZL8l_countsmmmm.exit, label %if.else7.i
+
+if.else7.i:
+  %nkv.i.07984 = phi i64 [ %nkv.i.0, %if.else3.i ], [ 0, %for.inc.i28.3 ]
+  %conv8.i = trunc nsw nuw i64 %nkv.i.07984 to i32
+  %add.i = add i32 %conv8.i, %conv1.i
+  %cmp9.i = icmp ugt i32 %add.i, 201
+  br i1 %cmp9.i, label %_ZL8l_countsmmmm.exit, label %if.else11.i
+
+if.else11.i:
+  %add13.i = add nsw nuw i32 %conv8.i, 2
+  %cmp14.i = icmp ugt i32 %add13.i, %conv.i
+  br i1 %cmp14.i, label %_ZL8l_countsmmmm.exit, label %if.end.i
+
+if.end.i:
+  br i1 %cmp7.i12, label %_ZL18e32_decode_harnessmRl.exit, label %if.then5.i
+
+if.then5.i:
+  %#4 = lshr i32 %#0, 8
+  %conv.i66.i = and i32 %#4, 255
+  %cmp8.not.i = icmp eq i32 %conv.i49, 1
+  br i1 %cmp8.not.i, label %if.end27.i, label %if.end13.i
+
+if.end13.i:
+  %or1255.i = and i32 %#4, 65535
+  %cmp14.i73 = icmp samesign ugt i32 %conv.i49, 2
+  br i1 %cmp14.i73, label %if.end20.i, label %if.end27.i
+
+if.end20.i:
+  %cmp21.i = icmp eq i32 %conv.i49, 4
+  br i1 %cmp21.i, label %if.then22.i, label %if.end27.i
+
+if.then22.i:
+  %sh.diff = lshr i64 noundef %keys_enc, 8
+  %tr.sh.diff = trunc i64 %sh.diff to i32
+  %conv.i60.i = and i32 %tr.sh.diff, 4278190080
+  %or2657.i = or disjoint i32 %#4, %conv.i60.i
+  br label %if.end27.i
+
+if.end27.i:
+  %v.3.in.i = phi i32 [ %or2657.i, %if.then22.i ], [ %#4, %if.end20.i ], [ %or1255.i, %if.end13.i ], [ %conv.i66.i, %if.then5.i ]
+  %v.3.i = zext i32 %v.3.in.i to i64
+  %sub.i = shl nsw nuw i32 %conv.i49, 3
+  %sh_prom.i.i = zext nneg i32 %sub.i to i64
+  %#5 = shl nsw nuw i64 128, %sh_prom.i.i
+  %#6 = and i64 %#5, noundef %keys_enc
+  %cmp29.not.i.not.not = icmp eq i64 %#6, 0
+  br i1 %cmp29.not.i.not.not, label %_ZL18e32_decode_harnessmRl.exit, label %if.then30.i
+
+if.then30.i:
+  %mul.i.i = add nsw i32 %sub.i, 4294967288
+  %sh_prom.i75 = zext nneg i32 %mul.i.i to i64
+  %shl32.i = shl nsw nuw i64 128, %sh_prom.i75
+  %not.i76 = xor i64 %shl32.i, -1
+  %and33.i = and i64 %v.3.i, %not.i76
+  %sub34.i = sub nsw i64 0, %and33.i
+  br label %_ZL18e32_decode_harnessmRl.exit
+
+_ZL18e32_decode_harnessmRl.exit:
+  %nk.i.0 = phi i64 [ 0, %if.end.i ], [ %sub34.i, %if.then30.i ], [ %v.3.i, %if.end27.i ]
+  %cmp5.i = icmp sgt i64 %nk.i.0, -1
+  %conv.i40 = trunc i64 %nk.i.0 to i32
+  %cmp7.i42 = icmp eq i32 %conv8.i, %conv.i40
+  %or.cond14.i = and i1 %cmp5.i, %cmp7.i42
+  %spec.select = select i1 %or.cond14.i, i64 noundef %sigs_enc, i64 256
+  %#7 = trunc i64 %spec.select to i32
+  %conv.i50 = and i32 %#7, 255
+  %cmp.i2 = icmp samesign ult i32 %conv.i50, 5
+  br i1 %cmp.i2, label %for.body.i.preheader, label %_ZL8l_countsmmmm.exit
+
+for.body.i.preheader:
+  %#8 = and i64 %spec.select, 255
+  %cmp2.i.not = icmp eq i64 %#8, 0
+  br i1 %cmp2.i.not, label %for.inc.i.3, label %for.inc.i
+
+for.inc.i:
+  %sub4.i = shl nsw nuw i32 %conv.i50, 3
+  %sh_prom.i62 = zext nneg i32 %sub4.i to i64
+  %shr.i63 = lshr i64 %spec.select, %sh_prom.i62
+  %conv.i64 = and i64 %shr.i63, 255
+  %cmp2.i.1.not = icmp eq i64 %#8, 1
+  br i1 %cmp2.i.1.not, label %for.inc.i.3, label %for.inc.i.1
+
+for.inc.i.1:
+  %mul.i.1 = shl nsw nuw i64 %conv.i64, 8
+  %sub4.i.1 = shl nsw nuw i32 %conv.i50, 3
+  %add.i61.1 = add nsw i32 %sub4.i.1, 4294967288
+  %sh_prom.i62.1 = zext nneg i32 %add.i61.1 to i64
+  %shr.i63.1 = lshr i64 %spec.select, %sh_prom.i62.1
+  %conv.i64.1 = and i64 %shr.i63.1, 255
+  %add.i4.1 = or disjoint i64 %conv.i64.1, %mul.i.1
+  %cmp2.i.2 = icmp samesign ugt i64 %#8, 2
+  br i1 %cmp2.i.2, label %for.inc.i.2, label %for.inc.i.3
+
+for.inc.i.2:
+  %mul.i.2 = shl nsw nuw i64 %add.i4.1, 8
+  %sub4.i.2 = shl nsw nuw i32 %conv.i50, 3
+  %add.i61.2 = add nsw i32 %sub4.i.2, 4294967280
+  %sh_prom.i62.2 = zext nneg i32 %add.i61.2 to i64
+  %shr.i63.2 = lshr i64 %spec.select, %sh_prom.i62.2
+  %conv.i64.2 = and i64 %shr.i63.2, 255
+  %add.i4.2 = or disjoint i64 %conv.i64.2, %mul.i.2
+  %cmp2.i.3.not = icmp eq i64 %#8, 3
+  br i1 %cmp2.i.3.not, label %for.inc.i.3, label %if.then3.i.3
+
+if.then3.i.3:
+  %mul.i.3 = shl nsw nuw i64 %add.i4.2, 8
+  %sub4.i.3 = shl nsw nuw i32 %conv.i50, 3
+  %add.i61.3 = add nsw i32 %sub4.i.3, 4294967272
+  %sh_prom.i62.3 = zext nneg i32 %add.i61.3 to i64
+  %shr.i63.3 = lshr i64 %spec.select, %sh_prom.i62.3
+  %conv.i64.3 = and i64 %shr.i63.3, 255
+  %add.i4.3 = or disjoint i64 %conv.i64.3, %mul.i.3
+  br label %for.inc.i.3
+
+for.inc.i.3:
+  %acc.1.i.3 = phi i64 [ %add.i4.3, %if.then3.i.3 ], [ %add.i4.2, %for.inc.i.2 ], [ %add.i4.1, %for.inc.i.1 ], [ %conv.i64, %for.inc.i ], [ 0, %for.body.i.preheader ]
+  %cmp7.i = icmp eq i32 %conv.i50, 0
+  br i1 %cmp7.i, label %if.else27.i, label %if.else22.i
+
+if.else22.i:
+  %sub10.i = shl nsw nuw i32 %conv.i50, 3
+  %mul.i65 = add nsw i32 %sub10.i, 4294967288
+  %sh_prom.i67 = zext nneg i32 %sub10.i to i64
+  %#9 = shl nsw nuw i64 128, %sh_prom.i67
+  %#10 = and i64 %#9, %spec.select
+  %cmp12.not.i.not.not = icmp eq i64 %#10, 0
+  %sh_prom.i = zext nneg i32 %mul.i65 to i64
+  %shl.i = shl nsw nuw i64 128, %sh_prom.i
+  %not.i = xor i64 %shl.i, -1
+  %and16.i = and i64 %acc.1.i.3, %not.i
+  %sub17.i = sub nsw i64 0, %and16.i
+  %nsv.i.0 = select i1 %cmp12.not.i.not.not, i64 %acc.1.i.3, i64 %sub17.i
+  %or.cond68.i = icmp ugt i64 %nsv.i.0, %nkv.i.07984
+  br i1 %or.cond68.i, label %_ZL8l_countsmmmm.exit, label %if.else27.i
+
+if.else27.i:
+  %nsv.i.090143 = phi i64 [ %nsv.i.0, %if.else22.i ], [ 0, %for.inc.i.3 ]
+  %conv29.i = trunc nsw nuw i64 %nsv.i.090143 to i32
+  %add30.i = add nsw nuw i32 %conv8.i, 3
+  %add31.i = add nsw nuw i32 %add30.i, %conv29.i
+  %cmp32.i = icmp ugt i32 %add31.i, %conv.i
+  br i1 %cmp32.i, label %_ZL8l_countsmmmm.exit, label %if.end45.i
+
+if.end45.i:
+  %#11 = shl nsw nuw i32 %conv8.i, 8
+  %#12 = shl nsw nuw i32 %conv29.i, 16
+  %or620.i = or disjoint i32 %#12, %#11
+  %#13 = shl nuw i32 %add.i, 24
+  %or1021.i = or i32 %#13, %or620.i
+  %or1422.i = or disjoint i32 %or1021.i, 1
+  %or14.i48 = zext i32 %or1422.i to i64
+  %and15.i = shl i64 noundef %n, 32
+  %shl17.i = and i64 %and15.i, 1095216660480
+  %or18.i = or disjoint i64 %shl17.i, %or14.i48
+  br label %_ZL8l_countsmmmm.exit
+
+_ZL8l_countsmmmm.exit:
+  %retval.0.i = phi i64 [ %or18.i, %if.end45.i ], [ 28, %if.else7.i ], [ 72, %entry ], [ 16, %if.else.i ], [ 16, %_ZL18e32_decode_harnessmRl.exit ], [ 40, %if.else3.i ], [ 36, %if.else22.i ], [ 72, %if.else11.i ], [ 72, %if.else27.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 1099511627776
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_cms_counts=alive2-green
+STATUS=alive2-green

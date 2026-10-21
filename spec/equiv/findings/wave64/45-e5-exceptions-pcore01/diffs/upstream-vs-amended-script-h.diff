@@ -1,0 +1,30 @@
+--- core/src/script/script.h	2026-10-20 22:01:07.971070183 +0000
++++ core-p1-amend/src/script/script.h	2026-10-20 22:00:35.965075276 +0000
+@@ -243,6 +243,27 @@
+ 
+     static constexpr size_t nDefaultMaxNumSize{4};
+ 
++#ifdef BTC_EQUIV_NO_SCRIPTNUM_THROW
++    /** Default-constructed value used only as the out-parameter of from_vch(). */
++    CScriptNum() : m_value(0) {}
++
++    /** Non-throwing form of the vector constructor. Returns false where the
++     *  throwing constructor would throw scriptnum_error; the caller maps that
++     *  to SCRIPT_ERR_SCRIPTNUM at the original call site. */
++    static bool from_vch(const std::vector<unsigned char>& vch, bool fRequireMinimal,
++                         const size_t nMaxNumSize, CScriptNum& out)
++    {
++        if (vch.size() > nMaxNumSize) return false;
++        if (fRequireMinimal && vch.size() > 0) {
++            if ((vch.back() & 0x7f) == 0) {
++                if (vch.size() <= 1 || (vch[vch.size() - 2] & 0x80) == 0) return false;
++            }
++        }
++        out.m_value = set_vch(vch);
++        return true;
++    }
++#endif
++
+     explicit CScriptNum(const std::vector<unsigned char>& vch, bool fRequireMinimal,
+                         const size_t nMaxNumSize = nDefaultMaxNumSize)
+     {

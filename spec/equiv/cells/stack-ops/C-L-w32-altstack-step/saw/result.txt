@@ -1,0 +1,21 @@
+# cell: stack-ops/C-L-w32-altstack-step
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# script: build/cell.saw
+# expected: at least 2 'Proof succeeded!' and no 'Proof failed'
+
+Loading file "cell.saw"
+cell.saw:12:3-12:7: Warning: Redeclaration of exec
+  exec <- llvm_fresh_var "exec" (llvm_int 8);
+  ^^^^
+[internal:<<builtin>>]: Previous declaration was here
+Verifying cell_altstep...
+Simulating cell_altstep...
+Checking proof obligations cell_altstep...
+Proof succeeded! cell_altstep
+Verifying cell_altstep...
+Simulating cell_altstep...
+Checking proof obligations cell_altstep...
+Proof succeeded! cell_altstep
+CELL_W32_ALTSTEP_SAW_GREEN
+STATUS=saw-green

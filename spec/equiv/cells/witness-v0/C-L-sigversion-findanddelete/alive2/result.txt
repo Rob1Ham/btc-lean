@@ -1,0 +1,69 @@
+# cell: C-L-sigversion-findanddelete
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_checksig_verdict cell_checksig_scriptcode 
+# command: alive-tv ir/c_cell_checksig_verdict.ll ir/l_cell_checksig_verdict.ll
+
+----------------------------------------
+define i64 @cell_checksig_verdict(i64 noundef %sigversion, i64 noundef %found, i64 noundef %const_scriptcode_flag) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp eq i64 noundef %sigversion, 0
+  %cmp1 = icmp ne i64 noundef %found, 0
+  %or.cond = and i1 %cmp, %cmp1
+  %tobool = icmp ne i64 noundef %const_scriptcode_flag, 0
+  %or.cond4 = and i1 %or.cond, %tobool
+  %. = select i1 %or.cond4, i64 216, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 217
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @cell_checksig_verdict(i64 noundef %sigversion, i64 noundef %found, i64 noundef %const_scriptcode_flag) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp eq i64 noundef %sigversion, 0
+  %cmp1 = icmp ne i64 noundef %found, 0
+  %or.cond = and i1 %cmp, %cmp1
+  %tobool = icmp ne i64 noundef %const_scriptcode_flag, 0
+  %or.cond4 = and i1 %or.cond, %tobool
+  %. = select i1 %or.cond4, i64 216, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 217
+  ret i64 %#range_0_%.
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv ir/c_cell_checksig_scriptcode.ll ir/l_cell_checksig_scriptcode.ll
+
+----------------------------------------
+define i64 @cell_checksig_scriptcode(i64 noundef %sigversion, i64 noundef %found, i64 noundef %const_scriptcode_flag, i64 noundef %script_id, i64 noundef %fd_script_id) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp eq i64 noundef %sigversion, 0
+  %cmp1 = icmp ne i64 noundef %found, 0
+  %tobool = icmp ne i64 noundef %const_scriptcode_flag, 0
+  %or.cond = and i1 %cmp1, %tobool
+  %script_id.fd_script_id = select i1 %or.cond, i64 noundef %script_id, i64 noundef %fd_script_id
+  %retval.0 = select i1 %cmp, i64 %script_id.fd_script_id, i64 noundef %script_id
+  ret i64 %retval.0
+}
+=>
+define i64 @cell_checksig_scriptcode(i64 noundef %sigversion, i64 noundef %found, i64 noundef %const_scriptcode_flag, i64 noundef %script_id, i64 noundef %fd_script_id) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp eq i64 noundef %sigversion, 0
+  %cmp1 = icmp ne i64 noundef %found, 0
+  %tobool = icmp ne i64 noundef %const_scriptcode_flag, 0
+  %or.cond = and i1 %cmp1, %tobool
+  %script_id.fd_script_id = select i1 %or.cond, i64 noundef %script_id, i64 noundef %fd_script_id
+  %retval.0 = select i1 %cmp, i64 %script_id.fd_script_id, i64 noundef %script_id
+  ret i64 %retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

@@ -1,0 +1,21 @@
+DRY RUN — no write, no record
+mutation:    M-E4-004 (e4-witness)
+target:      /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_tools/e4/l_cell.cpp
+target kind: e4-cell
+sha256 before: 5d97ae96c2447459c0a66c6d156289ff57033c8f3013acb7cd81c28d6d723a2b
+sha256 after:  3db906555567f62a90bbe6ee17c4d4c16f9ea715ef85a07249eefcc63488f672
+expected failing cells: cells/e4-witness/C-L-witness-v0-dispatch
+catchers: alive2, saw
+
+--- a/spec/equiv/cells/_tools/e4/l_cell.cpp
++++ b/spec/equiv/cells/_tools/e4/l_cell.cpp
+@@ -33,7 +33,7 @@
+         // hashSha256 script == program and executeWitnessScript abstracted .ok
+         return {L_OK, 0};
+     } else if (program_len == 20) {
+-        if (witness_n != 2) return {L_FAIL, 40};
++        if (witness_n < 2) return {L_FAIL, 40}; // M-E4-004 mutant
+         // implied P2WPKH script executeWitnessScript abstracted .ok
+         return {L_OK, 0};
+     }
+

@@ -1,0 +1,34 @@
+// wave64/44-e5-heap-refinement -- vector-growth cumulative-bound proof.
+// Generated from this template with @MODULE@ and @FUNC@ substituted.
+//
+// The leaf drives K pushes on the real libstdc++
+// std::vector<std::vector<unsigned char>> and returns 1 only if size, final
+// capacity, every element byte, the cumulative bump cursor w64_off <= BOUND,
+// and a non-zero allocation count all hold.  BOUND is the closed-form
+// prediction from build/gen_vec_growth.py, independent of the trace.
+//
+// Proving return 1 is the bounded vector-growth refinement for this K.
+m <- llvm_load_module "@MODULE@";
+
+let growth_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  seed <- llvm_fresh_var "seed" (llvm_int 8);
+  llvm_execute_func [llvm_term seed];
+  llvm_return (llvm_term {{ 1 : [32] }});
+};
+
+llvm_verify m "@FUNC@" [] false growth_spec z3;
+print "W64_VEC_GROWTH_OK @FUNC@";

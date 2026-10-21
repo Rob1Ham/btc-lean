@@ -1,0 +1,305 @@
+# cell: limits/C-L-tapscript-weight
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt (limits_common.h sha256 recorded there)
+# command: alive-tv build/c_cell_tapscript_budget.ll build/l_cell_tapscript_budget.ll
+
+----------------------------------------
+define i64 @cell_tapscript_budget(i32 noundef %n_items, i32 noundef %len0, i32 noundef %len1, i32 noundef %len2, i32 noundef %len3) nofree willreturn memory(none) {
+entry:
+  %cmp.i13 = icmp ult i32 noundef %n_items, 253
+  %cmp1.i14 = icmp ult i32 noundef %n_items, 65536
+  %spec.select.i15 = select i1 %cmp1.i14, i64 3, i64 5
+  %retval.0.i16 = select i1 %cmp.i13, i64 1, i64 %spec.select.i15
+  %cmp.not.i = icmp eq i32 noundef %n_items, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %conv1.i = zext i32 noundef %len0 to i64
+  %cmp.i9 = icmp ult i32 noundef %len0, 253
+  %cmp1.i10 = icmp ult i32 noundef %len0, 65536
+  %spec.select.i11 = select i1 %cmp1.i10, i64 3, i64 5
+  %retval.0.i12 = select i1 %cmp.i9, i64 1, i64 %spec.select.i11
+  %add.i = add nsw nuw i64 %retval.0.i16, %conv1.i
+  %add4.i = add nsw nuw i64 %add.i, %retval.0.i12
+  br label %if.end.i
+
+if.end.i:
+  %total.0.i = phi i64 [ %add4.i, %if.then.i ], [ %retval.0.i16, %entry ]
+  %cmp5.i = icmp ugt i32 noundef %n_items, 1
+  br i1 %cmp5.i, label %if.then6.i, label %if.end12.i
+
+if.then6.i:
+  %conv7.i = zext i32 noundef %len1 to i64
+  %cmp.i = icmp ult i32 noundef %len1, 253
+  %cmp1.i = icmp ult i32 noundef %len1, 65536
+  %spec.select.i = select i1 %cmp1.i, i64 3, i64 5
+  %retval.0.i = select i1 %cmp.i, i64 1, i64 %spec.select.i
+  %add10.i = add nsw nuw i64 %retval.0.i, %conv7.i
+  %add11.i = add nsw nuw i64 %add10.i, %total.0.i
+  br label %if.end12.i
+
+if.end12.i:
+  %total.1.i = phi i64 [ %add11.i, %if.then6.i ], [ %total.0.i, %if.end.i ]
+  %cmp13.i = icmp ugt i32 noundef %n_items, 2
+  br i1 %cmp13.i, label %if.then14.i, label %if.end20.i
+
+if.then14.i:
+  %conv15.i = zext i32 noundef %len2 to i64
+  %cmp.i1 = icmp ult i32 noundef %len2, 253
+  %cmp1.i2 = icmp ult i32 noundef %len2, 65536
+  %spec.select.i3 = select i1 %cmp1.i2, i64 3, i64 5
+  %retval.0.i4 = select i1 %cmp.i1, i64 1, i64 %spec.select.i3
+  %add18.i = add nsw nuw i64 %retval.0.i4, %conv15.i
+  %add19.i = add nsw nuw i64 %add18.i, %total.1.i
+  br label %if.end20.i
+
+if.end20.i:
+  %total.2.i = phi i64 [ %add19.i, %if.then14.i ], [ %total.1.i, %if.end12.i ]
+  %cmp21.i = icmp ugt i32 noundef %n_items, 3
+  br i1 %cmp21.i, label %if.then22.i, label %_ZL18c_tapscript_budgetjjjjj.exit
+
+if.then22.i:
+  %conv23.i = zext i32 noundef %len3 to i64
+  %cmp.i5 = icmp ult i32 noundef %len3, 253
+  %cmp1.i6 = icmp ult i32 noundef %len3, 65536
+  %spec.select.i7 = select i1 %cmp1.i6, i64 3, i64 5
+  %retval.0.i8 = select i1 %cmp.i5, i64 1, i64 %spec.select.i7
+  %add26.i = add nsw nuw i64 %retval.0.i8, %conv23.i
+  %add27.i = add nsw i64 %add26.i, %total.2.i
+  br label %_ZL18c_tapscript_budgetjjjjj.exit
+
+_ZL18c_tapscript_budgetjjjjj.exit:
+  %total.3.i = phi i64 [ %add27.i, %if.then22.i ], [ %total.2.i, %if.end20.i ]
+  %add29.i = add nsw i64 %total.3.i, 50
+  %#range_0_%add29.i = !range i64 %add29.i, i64 -9223372036854775758, i64 -9223372036854775808
+  ret i64 %#range_0_%add29.i
+}
+=>
+define i64 @cell_tapscript_budget(i32 noundef %n_items, i32 noundef %len0, i32 noundef %len1, i32 noundef %len2, i32 noundef %len3) nofree willreturn memory(none) {
+entry:
+  %cmp.i13 = icmp ult i32 noundef %n_items, 253
+  %cmp1.i14 = icmp ult i32 noundef %n_items, 65536
+  %spec.select.i15 = select i1 %cmp1.i14, i64 3, i64 5
+  %retval.0.i16 = select i1 %cmp.i13, i64 1, i64 %spec.select.i15
+  %cmp.not.i = icmp eq i32 noundef %n_items, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.then.i:
+  %conv1.i = zext i32 noundef %len0 to i64
+  %cmp.i9 = icmp ult i32 noundef %len0, 253
+  %cmp1.i10 = icmp ult i32 noundef %len0, 65536
+  %spec.select.i11 = select i1 %cmp1.i10, i64 3, i64 5
+  %retval.0.i12 = select i1 %cmp.i9, i64 1, i64 %spec.select.i11
+  %add.i = add nsw nuw i64 %retval.0.i16, %conv1.i
+  %add4.i = add nsw nuw i64 %add.i, %retval.0.i12
+  br label %if.end.i
+
+if.end.i:
+  %total.0.i = phi i64 [ %add4.i, %if.then.i ], [ %retval.0.i16, %entry ]
+  %cmp5.i = icmp ugt i32 noundef %n_items, 1
+  br i1 %cmp5.i, label %if.then6.i, label %if.end12.i
+
+if.then6.i:
+  %conv7.i = zext i32 noundef %len1 to i64
+  %cmp.i = icmp ult i32 noundef %len1, 253
+  %cmp1.i = icmp ult i32 noundef %len1, 65536
+  %spec.select.i = select i1 %cmp1.i, i64 3, i64 5
+  %retval.0.i = select i1 %cmp.i, i64 1, i64 %spec.select.i
+  %add10.i = add nsw nuw i64 %retval.0.i, %conv7.i
+  %add11.i = add nsw nuw i64 %add10.i, %total.0.i
+  br label %if.end12.i
+
+if.end12.i:
+  %total.1.i = phi i64 [ %add11.i, %if.then6.i ], [ %total.0.i, %if.end.i ]
+  %cmp13.i = icmp ugt i32 noundef %n_items, 2
+  br i1 %cmp13.i, label %if.then14.i, label %if.end20.i
+
+if.then14.i:
+  %conv15.i = zext i32 noundef %len2 to i64
+  %cmp.i1 = icmp ult i32 noundef %len2, 253
+  %cmp1.i2 = icmp ult i32 noundef %len2, 65536
+  %spec.select.i3 = select i1 %cmp1.i2, i64 3, i64 5
+  %retval.0.i4 = select i1 %cmp.i1, i64 1, i64 %spec.select.i3
+  %add18.i = add nsw nuw i64 %retval.0.i4, %conv15.i
+  %add19.i = add nsw nuw i64 %add18.i, %total.1.i
+  br label %if.end20.i
+
+if.end20.i:
+  %total.2.i = phi i64 [ %add19.i, %if.then14.i ], [ %total.1.i, %if.end12.i ]
+  %cmp21.i = icmp ugt i32 noundef %n_items, 3
+  br i1 %cmp21.i, label %if.then22.i, label %_ZL18l_tapscript_budgetjjjjj.exit
+
+if.then22.i:
+  %conv23.i = zext i32 noundef %len3 to i64
+  %cmp.i5 = icmp ult i32 noundef %len3, 253
+  %cmp1.i6 = icmp ult i32 noundef %len3, 65536
+  %spec.select.i7 = select i1 %cmp1.i6, i64 3, i64 5
+  %retval.0.i8 = select i1 %cmp.i5, i64 1, i64 %spec.select.i7
+  %add26.i = add nsw nuw i64 %retval.0.i8, %conv23.i
+  %add27.i = add nsw i64 %add26.i, %total.2.i
+  br label %_ZL18l_tapscript_budgetjjjjj.exit
+
+_ZL18l_tapscript_budgetjjjjj.exit:
+  %total.3.i = phi i64 [ %add27.i, %if.then22.i ], [ %total.2.i, %if.end20.i ]
+  %add29.i = add nsw i64 %total.3.i, 50
+  %#range_0_%add29.i = !range i64 %add29.i, i64 -9223372036854775758, i64 -9223372036854775808
+  ret i64 %#range_0_%add29.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_tapscript_checksig.ll build/l_cell_tapscript_checksig.ll
+
+----------------------------------------
+define i64 @cell_tapscript_checksig(i64 noundef %w_in, i8 noundef zeroext %sig_nonempty, i8 noundef zeroext %pk_class, i8 noundef zeroext %discourage, i8 noundef zeroext %checker_ok) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i8 noundef zeroext %sig_nonempty, 0
+  br i1 %cmp.not.i, label %if.end3.i, label %if.then.i
+
+if.then.i:
+  %sub.i = add nsw i64 noundef %w_in, -50
+  %cmp1.i = icmp slt i64 noundef %w_in, 50
+  br i1 %cmp1.i, label %if.then2.i, label %if.end3.i
+
+if.then2.i:
+  %conv8.i = shl i64 %sub.i, 9
+  %shl9.i = and i64 %conv8.i, 2199023255040
+  %or10.i = or disjoint i64 %shl9.i, 452
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+if.end3.i:
+  %w.0.i = phi i64 [ %sub.i, %if.then.i ], [ noundef %w_in, %entry ]
+  switch i8 noundef zeroext %pk_class, label %if.end20.i [
+    i8 0, label %if.then6.i
+    i8 1, label %if.then12.i
+  ]
+
+if.end20.i:
+  %tobool21.not.i = icmp eq i8 noundef zeroext %discourage, 0
+  %conv8.i1 = shl i64 %w.0.i, 9
+  %shl9.i2 = and i64 %conv8.i1, 2199023255040
+  br i1 %tobool21.not.i, label %if.end26.i, label %if.then22.i
+
+if.end26.i:
+  %or6.i = select i1 %cmp.not.i, i64 1, i64 257
+  %or10.i3 = or disjoint i64 %shl9.i2, %or6.i
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+if.then22.i:
+  %or6.i5 = select i1 %cmp.not.i, i64 148, i64 404
+  %or10.i8 = or disjoint i64 %shl9.i2, %or6.i5
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+if.then6.i:
+  %or6.i10 = select i1 %cmp.not.i, i64 208, i64 464
+  %conv8.i11 = shl i64 %w.0.i, 9
+  %shl9.i12 = and i64 %conv8.i11, 2199023255040
+  %or10.i13 = or disjoint i64 %shl9.i12, %or6.i10
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+if.then12.i:
+  %tobool.i = icmp ne i8 noundef zeroext %checker_ok, 0
+  %or.cond.i = or i1 %cmp.not.i, %tobool.i
+  br i1 %or.cond.i, label %if.end16.i, label %if.then14.i
+
+if.end16.i:
+  %or6.i15 = select i1 %cmp.not.i, i64 1, i64 257
+  %conv8.i16 = shl i64 %w.0.i, 9
+  %shl9.i17 = and i64 %conv8.i16, 2199023255040
+  %or10.i18 = or disjoint i64 %shl9.i17, %or6.i15
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+if.then14.i:
+  %conv8.i19 = shl i64 %w.0.i, 9
+  %shl9.i20 = and i64 %conv8.i19, 2199023255040
+  %or10.i21 = or disjoint i64 %shl9.i20, 258
+  br label %_ZL20c_tapscript_checksiglhhhh.exit
+
+_ZL20c_tapscript_checksiglhhhh.exit:
+  %retval.0.i = phi i64 [ %or10.i, %if.then2.i ], [ %or10.i13, %if.then6.i ], [ %or10.i18, %if.end16.i ], [ %or10.i21, %if.then14.i ], [ %or10.i8, %if.then22.i ], [ %or10.i3, %if.end26.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 2199023255552
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_tapscript_checksig(i64 noundef %w_in, i8 noundef zeroext %sig_nonempty, i8 noundef zeroext %pk_class, i8 noundef zeroext %discourage, i8 noundef zeroext %checker_ok) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i8 noundef zeroext %sig_nonempty, 0
+  br i1 %cmp.not.i, label %if.end3.i, label %if.then.i
+
+if.then.i:
+  %sub.i = add nsw i64 noundef %w_in, -50
+  %cmp1.i = icmp slt i64 noundef %w_in, 50
+  br i1 %cmp1.i, label %if.then2.i, label %if.end3.i
+
+if.then2.i:
+  %conv8.i = shl i64 %sub.i, 9
+  %shl9.i = and i64 %conv8.i, 2199023255040
+  %or10.i = or disjoint i64 %shl9.i, 452
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+if.end3.i:
+  %w.0.i = phi i64 [ %sub.i, %if.then.i ], [ noundef %w_in, %entry ]
+  switch i8 noundef zeroext %pk_class, label %if.end20.i [
+    i8 0, label %if.then6.i
+    i8 1, label %if.then12.i
+  ]
+
+if.end20.i:
+  %tobool21.not.i = icmp eq i8 noundef zeroext %discourage, 0
+  %conv8.i1 = shl i64 %w.0.i, 9
+  %shl9.i2 = and i64 %conv8.i1, 2199023255040
+  br i1 %tobool21.not.i, label %if.end26.i, label %if.then22.i
+
+if.end26.i:
+  %or6.i = select i1 %cmp.not.i, i64 1, i64 257
+  %or10.i3 = or disjoint i64 %shl9.i2, %or6.i
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+if.then22.i:
+  %or6.i5 = select i1 %cmp.not.i, i64 148, i64 404
+  %or10.i8 = or disjoint i64 %shl9.i2, %or6.i5
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+if.then6.i:
+  %or6.i10 = select i1 %cmp.not.i, i64 208, i64 464
+  %conv8.i11 = shl i64 %w.0.i, 9
+  %shl9.i12 = and i64 %conv8.i11, 2199023255040
+  %or10.i13 = or disjoint i64 %shl9.i12, %or6.i10
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+if.then12.i:
+  %tobool.i = icmp ne i8 noundef zeroext %checker_ok, 0
+  %or.cond.i = or i1 %cmp.not.i, %tobool.i
+  br i1 %or.cond.i, label %if.end16.i, label %if.then14.i
+
+if.end16.i:
+  %or6.i15 = select i1 %cmp.not.i, i64 1, i64 257
+  %conv8.i16 = shl i64 %w.0.i, 9
+  %shl9.i17 = and i64 %conv8.i16, 2199023255040
+  %or10.i18 = or disjoint i64 %shl9.i17, %or6.i15
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+if.then14.i:
+  %conv8.i19 = shl i64 %w.0.i, 9
+  %shl9.i20 = and i64 %conv8.i19, 2199023255040
+  %or10.i21 = or disjoint i64 %shl9.i20, 258
+  br label %_ZL20l_tapscript_checksiglhhhh.exit
+
+_ZL20l_tapscript_checksiglhhhh.exit:
+  %retval.0.i = phi i64 [ %or10.i, %if.then2.i ], [ %or10.i13, %if.then6.i ], [ %or10.i18, %if.end16.i ], [ %or10.i21, %if.then14.i ], [ %or10.i8, %if.then22.i ], [ %or10.i3, %if.end26.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 2199023255552
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

@@ -1,0 +1,17 @@
+# F-DIV-W32-01 concrete Core probe
+# core_src=/tmp/pcore01
+# core_head=cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
+# pristine_interpreter_blob=98b16eca6bcdfb5c98b5f51f6afc42062efb5f01
+# pristine_script_h_blob=08cd18f2a27ea968a9db49b50743c46b74eb5e30
+# clang=Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: /tmp/opencode/wave64/41-div-w32-p2sh-cleanstack/spec/equiv/findings/wave64/41-div-w32-p2sh-cleanstack/witness/build/core_probe
+# expected: P2SH-P2WPKH/P2WSH cleanstack=1 verify=true; bare and plain-P2SH controls verify=true
+
+tape=p2sh-p2wpkh    cleanstack=1 verify=true err=OK(0) scriptSig=160014adfce54f529b2154e3c361bbe3f7d41db0635717 scriptPubKey=a914173727a17ada832a0fd90be6c628f63598b3400f87
+tape=p2sh-p2wsh     cleanstack=1 verify=true err=OK(0) scriptSig=2200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260 scriptPubKey=a91472c44f957fc011d97e3406667dca5b1c930c402687
+tape=p2sh-p2wpkh    cleanstack=0 verify=true err=OK(0) scriptSig=160014adfce54f529b2154e3c361bbe3f7d41db0635717 scriptPubKey=a914173727a17ada832a0fd90be6c628f63598b3400f87
+tape=p2sh-p2wsh     cleanstack=0 verify=true err=OK(0) scriptSig=2200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260 scriptPubKey=a91472c44f957fc011d97e3406667dca5b1c930c402687
+tape=bare-p2wpkh    cleanstack=1 verify=true err=OK(0) scriptSig= scriptPubKey=0014adfce54f529b2154e3c361bbe3f7d41db0635717
+tape=bare-p2wpkh    cleanstack=0 verify=true err=OK(0) scriptSig= scriptPubKey=0014adfce54f529b2154e3c361bbe3f7d41db0635717
+tape=p2sh-plain     cleanstack=1 verify=true err=OK(0) scriptSig=0151 scriptPubKey=a914da1745e9b549bd0bfa1a569971c77eba30cd5a4b87
+tape=p2sh-plain     cleanstack=0 verify=true err=OK(0) scriptSig=0151 scriptPubKey=a914da1745e9b549bd0bfa1a569971c77eba30cd5a4b87

@@ -1,0 +1,92 @@
+// Cell-local additions to the shared wave-16 numeric model (tools/num.cry).
+//
+// The shared module already defines CScriptNum decode/serialize (`decode`,
+// `encLen`, `obs`, `unOp`) and `pUnary`, which is exactly the OP_1ADD
+// postcondition for a 0..4-byte operand and the SCRIPTNUM reject for a
+// longer one.  This file adds only the *raw push* observable: a pushed
+// valtype is never decoded, so its bytes and length are observed directly.
+//
+// Packed observable, identical to num_common.h:
+//   result(2) | error(6) | depth(3) | top_len(4) | top bytes 0..4 (40)
+
+rawMaskedByte : [64] -> [64] -> [64] -> [64]
+rawMaskedByte w L k = if L > k then rawByte w k else 0x0000000000000000
+
+// Raw stack observable with depth 1.  `L` is the element length (0..8); bytes
+// at or beyond L are not part of the element, so they are observed as zero
+// exactly like num_obs() in num_common.h.
+rawObs : [64] -> [64] -> [64] -> [64] -> [64]
+rawObs res err w L =
+     res
+  || (err << 2)
+  || (0x0000000000000001 << 8)
+  || (L << 11)
+  || (rawMaskedByte w L 0x0000000000000000) << 15
+  || (rawMaskedByte w L 0x0000000000000001) << 23
+  || (rawMaskedByte w L 0x0000000000000002) << 31
+  || (rawMaskedByte w L 0x0000000000000003) << 39
+  || (rawMaskedByte w L 0x0000000000000004) << 47
+
+// CastToBool over a raw element of length L (interpreter.cpp:46-59):
+// true iff some byte is nonzero, except when the first nonzero byte is the
+// last byte and equals 0x80 (negative zero).
+rawTruthy : [64] -> [64] -> Bit
+rawTruthy w L =
+  if L == 0x0000000000000000 then False
+  else if b0 != 0x0000000000000000
+    then ~((L == 0x0000000000000001) && (b0 == 0x0000000000000080))
+  else if (L >= 0x0000000000000002) && (b1 != 0x0000000000000000)
+    then ~((L == 0x0000000000000002) && (b1 == 0x0000000000000080))
+  else if (L >= 0x0000000000000003) && (b2 != 0x0000000000000000)
+    then ~((L == 0x0000000000000003) && (b2 == 0x0000000000000080))
+  else if (L >= 0x0000000000000004) && (b3 != 0x0000000000000000)
+    then ~((L == 0x0000000000000004) && (b3 == 0x0000000000000080))
+  else if (L >= 0x0000000000000005) && (b4 != 0x0000000000000000)
+    then ~((L == 0x0000000000000005) && (b4 == 0x0000000000000080))
+  else if (L >= 0x0000000000000006) && (b5 != 0x0000000000000000)
+    then ~((L == 0x0000000000000006) && (b5 == 0x0000000000000080))
+  else if (L >= 0x0000000000000007) && (b6 != 0x0000000000000000)
+    then ~((L == 0x0000000000000007) && (b6 == 0x0000000000000080))
+  else (L >= 0x0000000000000008) && (b7 != 0x0000000000000000) &&
+       (b7 != 0x0000000000000080)
+  where
+    b0 = rawByte w 0x0000000000000000
+    b1 = rawByte w 0x0000000000000001
+    b2 = rawByte w 0x0000000000000002
+    b3 = rawByte w 0x0000000000000003
+    b4 = rawByte w 0x0000000000000004
+    b5 = rawByte w 0x0000000000000005
+    b6 = rawByte w 0x0000000000000006
+    b7 = rawByte w 0x0000000000000007
+
+// Raw push then the VerifyScript tail.  No CScriptNum is constructed, so
+// SCRIPTNUM (error 4) is unreachable for every length 0..8.
+pRawPush : [64] -> [64] -> [64]
+pRawPush w L =
+  if rawTruthy w L
+    then rawObs 0x0000000000000001 0x0000000000000000 w L
+    else rawObs 0x0000000000000000 0x0000000000000002 w L
+
+// Four-byte operand, one OP_1ADD.  The single input whose result needs five
+// bytes is w = 0x7fffffff (value 2^31), matching the Lean witness
+// Bitcoin.Numeric.encodeScriptNum_five_byte_witness.
+firstAdd4 : [64] -> [64]
+firstAdd4 w = unOp 0x000000000000008b (decode w 0x0000000000000004)
+
+pAdd4Observe : [64] -> [64]
+pAdd4Observe w = pUnary 0x000000000000008b w 0x0000000000000004
+
+// Four-byte operand, OP_1ADD, then a second OP_1ADD which re-interprets the
+// serialized first result.  The second decode fails exactly when that result
+// is longer than four bytes; otherwise it adds one and the tail observes the
+// new value.
+pAdd4Readd : [64] -> [64]
+pAdd4Readd w =
+  if encLen v1 > 0x0000000000000004
+    then errObs 0x0000000000000004
+  else if truthy v2
+    then obs 0x0000000000000001 0x0000000000000000 0x0000000000000001 v2
+    else obs 0x0000000000000000 0x0000000000000002 0x0000000000000001 v2
+  where
+    v1 = firstAdd4 w
+    v2 = unOp 0x000000000000008b v1

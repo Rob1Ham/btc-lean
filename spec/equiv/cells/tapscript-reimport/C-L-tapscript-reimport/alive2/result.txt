@@ -1,0 +1,260 @@
+# cell: tapscript-reimport/C-L-tapscript-reimport
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_tapscript_minimalif cell_tapscript_cleanstack
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_tapscript_minimalif (L ⊑ C) =====
+# command: alive-tv ir/c_cell_tapscript_minimalif.ll ir/l_cell_tapscript_minimalif.ll
+
+----------------------------------------
+define i64 @cell_tapscript_minimalif(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %fExec, i64 noundef %vchLen, i64 noundef %vch0Arg) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 2
+  br i1 %cmp.i, label %_Z21c_tapscript_minimalifmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %fExec, 0
+  br i1 %cmp1.i, label %_Z21c_tapscript_minimalifmmmmm.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ugt i64 noundef %vchLen, 1
+  br i1 %cmp4.i, label %lor.end.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %and.i.i = and i64 noundef %vch0Arg, 255
+  %cmp5.i = icmp ne i64 noundef %vchLen, 1
+  %cmp6.i = icmp eq i64 %and.i.i, 1
+  %.not24.i = or i1 %cmp5.i, %cmp6.i
+  br label %lor.end.i
+
+lor.end.i:
+  %.not.i = phi i1 [ 0, %if.end3.i ], [ %.not24.i, %lor.rhs.i ]
+  %cmp7.i = icmp ne i64 noundef %sigversion, 2
+  %brmerge.i = or i1 %cmp7.i, %.not.i
+  br i1 %brmerge.i, label %if.end9.i, label %_Z21c_tapscript_minimalifmmmmm.exit
+
+if.end9.i:
+  %cmp10.i = icmp ne i64 noundef %sigversion, 1
+  %and.i = and i64 noundef %flags, 8192
+  %cmp12.not.i = icmp eq i64 %and.i, 0
+  %or.cond.i = or i1 %cmp10.i, %cmp12.not.i
+  %brmerge23.i = or i1 %or.cond.i, %.not.i
+  %spec.select.i = select i1 %brmerge23.i, i64 0, i64 31
+  br label %_Z21c_tapscript_minimalifmmmmm.exit
+
+_Z21c_tapscript_minimalifmmmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end.i ], [ 51, %lor.end.i ], [ %spec.select.i, %if.end9.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_tapscript_minimalif(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %fExec, i64 noundef %vchLen, i64 noundef %vch0Arg) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 2
+  br i1 %cmp.i, label %_Z21l_tapscript_minimalifmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %fExec, 0
+  br i1 %cmp1.i, label %_Z21l_tapscript_minimalifmmmmm.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ugt i64 noundef %vchLen, 1
+  br i1 %cmp4.i, label %lor.end.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %and.i.i = and i64 noundef %vch0Arg, 255
+  %cmp5.i = icmp ne i64 noundef %vchLen, 1
+  %cmp6.i = icmp eq i64 %and.i.i, 1
+  %.not28.i = or i1 %cmp5.i, %cmp6.i
+  br label %lor.end.i
+
+lor.end.i:
+  %.not.i = phi i1 [ 0, %if.end3.i ], [ %.not28.i, %lor.rhs.i ]
+  %cmp9.i = icmp ne i64 noundef %sigversion, 2
+  %brmerge.i = or i1 %cmp9.i, %.not.i
+  br i1 %brmerge.i, label %if.end11.i, label %_Z21l_tapscript_minimalifmmmmm.exit
+
+if.end11.i:
+  %and.i = and i64 noundef %flags, 8192
+  %cmp7.not.i = icmp eq i64 %and.i, 0
+  %cmp12.i = icmp ne i64 noundef %sigversion, 1
+  %brmerge25.i = or i1 %cmp12.i, %cmp7.not.i
+  %brmerge27.i = or i1 %brmerge25.i, %.not.i
+  %spec.select.i = select i1 %brmerge27.i, i64 0, i64 31
+  br label %_Z21l_tapscript_minimalifmmmmm.exit
+
+_Z21l_tapscript_minimalifmmmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end.i ], [ 51, %lor.end.i ], [ %spec.select.i, %if.end11.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_tapscript_minimalif (C ⊑ L) =====
+# command: alive-tv ir/l_cell_tapscript_minimalif.ll ir/c_cell_tapscript_minimalif.ll
+
+----------------------------------------
+define i64 @cell_tapscript_minimalif(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %fExec, i64 noundef %vchLen, i64 noundef %vch0Arg) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 2
+  br i1 %cmp.i, label %_Z21l_tapscript_minimalifmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %fExec, 0
+  br i1 %cmp1.i, label %_Z21l_tapscript_minimalifmmmmm.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ugt i64 noundef %vchLen, 1
+  br i1 %cmp4.i, label %lor.end.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %and.i.i = and i64 noundef %vch0Arg, 255
+  %cmp5.i = icmp ne i64 noundef %vchLen, 1
+  %cmp6.i = icmp eq i64 %and.i.i, 1
+  %.not28.i = or i1 %cmp5.i, %cmp6.i
+  br label %lor.end.i
+
+lor.end.i:
+  %.not.i = phi i1 [ 0, %if.end3.i ], [ %.not28.i, %lor.rhs.i ]
+  %cmp9.i = icmp ne i64 noundef %sigversion, 2
+  %brmerge.i = or i1 %cmp9.i, %.not.i
+  br i1 %brmerge.i, label %if.end11.i, label %_Z21l_tapscript_minimalifmmmmm.exit
+
+if.end11.i:
+  %and.i = and i64 noundef %flags, 8192
+  %cmp7.not.i = icmp eq i64 %and.i, 0
+  %cmp12.i = icmp ne i64 noundef %sigversion, 1
+  %brmerge25.i = or i1 %cmp12.i, %cmp7.not.i
+  %brmerge27.i = or i1 %brmerge25.i, %.not.i
+  %spec.select.i = select i1 %brmerge27.i, i64 0, i64 31
+  br label %_Z21l_tapscript_minimalifmmmmm.exit
+
+_Z21l_tapscript_minimalifmmmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end.i ], [ 51, %lor.end.i ], [ %spec.select.i, %if.end11.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_tapscript_minimalif(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %fExec, i64 noundef %vchLen, i64 noundef %vch0Arg) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 2
+  br i1 %cmp.i, label %_Z21c_tapscript_minimalifmmmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %fExec, 0
+  br i1 %cmp1.i, label %_Z21c_tapscript_minimalifmmmmm.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ugt i64 noundef %vchLen, 1
+  br i1 %cmp4.i, label %lor.end.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %and.i.i = and i64 noundef %vch0Arg, 255
+  %cmp5.i = icmp ne i64 noundef %vchLen, 1
+  %cmp6.i = icmp eq i64 %and.i.i, 1
+  %.not24.i = or i1 %cmp5.i, %cmp6.i
+  br label %lor.end.i
+
+lor.end.i:
+  %.not.i = phi i1 [ 0, %if.end3.i ], [ %.not24.i, %lor.rhs.i ]
+  %cmp7.i = icmp ne i64 noundef %sigversion, 2
+  %brmerge.i = or i1 %cmp7.i, %.not.i
+  br i1 %brmerge.i, label %if.end9.i, label %_Z21c_tapscript_minimalifmmmmm.exit
+
+if.end9.i:
+  %cmp10.i = icmp ne i64 noundef %sigversion, 1
+  %and.i = and i64 noundef %flags, 8192
+  %cmp12.not.i = icmp eq i64 %and.i, 0
+  %or.cond.i = or i1 %cmp10.i, %cmp12.not.i
+  %brmerge23.i = or i1 %or.cond.i, %.not.i
+  %spec.select.i = select i1 %brmerge23.i, i64 0, i64 31
+  br label %_Z21c_tapscript_minimalifmmmmm.exit
+
+_Z21c_tapscript_minimalifmmmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end.i ], [ 51, %lor.end.i ], [ %spec.select.i, %if.end9.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_tapscript_cleanstack (L ⊑ C) =====
+# command: alive-tv ir/c_cell_tapscript_cleanstack.ll ir/l_cell_tapscript_cleanstack.ll
+
+----------------------------------------
+define i64 @cell_tapscript_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %sigversion, -3
+  %or.cond.i = icmp ult i64 %#0, -2
+  %cmp2.not.i = icmp eq i64 noundef %finalLen, 1
+  %..i = select i1 %cmp2.not.i, i64 0, i64 30
+  %retval.0.i = select i1 %or.cond.i, i64 255, i64 %..i
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_tapscript_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %sigversion, -3
+  %or.cond.i = icmp ult i64 %#0, -2
+  %cmp2.not.i = icmp eq i64 noundef %finalLen, 1
+  %..i = select i1 %cmp2.not.i, i64 0, i64 30
+  %retval.0.i = select i1 %or.cond.i, i64 255, i64 %..i
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_tapscript_cleanstack (C ⊑ L) =====
+# command: alive-tv ir/l_cell_tapscript_cleanstack.ll ir/c_cell_tapscript_cleanstack.ll
+
+----------------------------------------
+define i64 @cell_tapscript_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %sigversion, -3
+  %or.cond.i = icmp ult i64 %#0, -2
+  %cmp2.not.i = icmp eq i64 noundef %finalLen, 1
+  %..i = select i1 %cmp2.not.i, i64 0, i64 30
+  %retval.0.i = select i1 %or.cond.i, i64 255, i64 %..i
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_tapscript_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %sigversion, -3
+  %or.cond.i = icmp ult i64 %#0, -2
+  %cmp2.not.i = icmp eq i64 noundef %finalLen, 1
+  %..i = select i1 %cmp2.not.i, i64 0, i64 30
+  %retval.0.i = select i1 %or.cond.i, i64 255, i64 %..i
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (4 direction checks)

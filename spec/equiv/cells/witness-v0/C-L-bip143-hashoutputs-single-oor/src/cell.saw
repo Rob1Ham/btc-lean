@@ -1,0 +1,17 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_bip143_hashoutputs_mode.bc";
+mL <- llvm_load_module "l_cell_bip143_hashoutputs_mode.bc";
+
+let spec = do {
+  ht <- llvm_fresh_var "hash_type" (llvm_int 64);
+  ni <- llvm_fresh_var "n_in" (llvm_int 64);
+  vl <- llvm_fresh_var "vout_len" (llvm_int 64);
+  llvm_execute_func [llvm_term ht, llvm_term ni, llvm_term vl];
+  llvm_return (llvm_term {{ hashoutputs_mode ht ni vl }});
+};
+
+llvm_verify mC "cell_bip143_hashoutputs_mode" [] false spec abc;
+llvm_verify mL "cell_bip143_hashoutputs_mode" [] false spec abc;
+
+print "CELL_BIP143_HASHOUTPUTS_SINGLE_OOR_SAW_GREEN";

@@ -1,0 +1,73 @@
+{
+  "applied_at_utc": "2026-10-20T22:11:14+00:00",
+  "catalogue_version": "0.2-wave64",
+  "catchers": [
+    "alive2",
+    "saw"
+  ],
+  "classification": "KILLED",
+  "description": "OP_SUCCESSx treated as BAD_OPCODE (or not immediate success)",
+  "diff": "--- a/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp\n+++ b/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp\n@@ -13,7 +13,7 @@\n //\n // The Nat domain is total, matching the C leg's total 64-bit input.\n TAP_INLINE uint64_t l_is_op_success(uint64_t w) {\n-  const bool r = w == 80u || w == 98u || (126u <= w && w <= 129u) ||\n+  const bool r = (126u <= w && w <= 129u) ||  // M-E4-007 mutant: drop OP_SUCCESS 80/98\n                  (131u <= w && w <= 134u) || (137u <= w && w <= 138u) ||\n                  (141u <= w && w <= 142u) || (149u <= w && w <= 153u) ||\n                  (187u <= w && w <= 254u);\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/tapscript/C-L-tapscript-isopsuccess"
+  ],
+  "family": "e4-taproot",
+  "find": "  const bool r = w == 80u || w == 98u || (126u <= w && w <= 129u) ||",
+  "git_head": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "log_hashes": [
+    "d836ecf4e98469a6ca35adafbdb2c98995be0043be9848d01f11dabee0eef65a  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/apply.log",
+    "1a74b2ee5771dfc4ac7b9a8a9470fdc2b1b21db4720f2b3519763c9fa55e8d42  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-after-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-after-alive2.log",
+    "24cb85de649e0c414a22f8f6c2aea45409251637fcc1b04b1d0e134d786f0cc1  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-after-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-after-saw.log",
+    "1a74b2ee5771dfc4ac7b9a8a9470fdc2b1b21db4720f2b3519763c9fa55e8d42  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-before-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-before-alive2.log",
+    "24cb85de649e0c414a22f8f6c2aea45409251637fcc1b04b1d0e134d786f0cc1  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-before-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/baseline-before-saw.log",
+    "9834f9c2f021417f952af2e7b9c2134413cbfcf37382cfdf42db3e350c64f8b2  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/dry-run.log",
+    "dfe3ec988a256a4ae2b894bcb0c1d8c6a71a4eb59aa61e2c533ad7f80b72cce4  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/mutant-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/mutant-alive2.log",
+    "7b5cb4d7853f9af033e9a76203cd63a848aa90005bf4b1345da17ad6173c895f  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/mutant-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/mutant-saw.log",
+    "46f3838fec4fad245b9f12c132c116953fdd4473e355abb14e53d7c2be476469  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/plan.md",
+    "071fdc181d1c6680aae9236c6eb44043660d8c32b75a96a73dc210f22b18d2af  spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/revert.log"
+  ],
+  "mutant_id": "M-E4-007",
+  "observed": {
+    "baseline_after": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (2/2 proofs)"
+    },
+    "baseline_before": {
+      "alive2": "alive2-green",
+      "saw": "saw-green (2/2 proofs)"
+    },
+    "cell": "cells/tapscript/C-L-tapscript-isopsuccess",
+    "exit_codes_mutant": {
+      "alive2": 1,
+      "saw": 1
+    },
+    "mutant": {
+      "alive2": "alive2-not-green",
+      "saw": "saw-not-green (1/2 proofs)"
+    }
+  },
+  "operator": "wave64/48-mutations-e3e4 (subagent)",
+  "outcome": "killed",
+  "pins_sha256": "84a2d3cf9eb9f36aff00d0441ee4b98b4f9320415d511cb775a029f36f0e4400",
+  "replace": "  const bool r = (126u <= w && w <= 129u) ||  // M-E4-007 mutant: drop OP_SUCCESS 80/98",
+  "reverted_at_utc": "2026-10-20T22:11:22+00:00",
+  "run_meta": "spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/meta.json",
+  "run_report": "spec/equiv/cells/_redteam/runs/M-E4-007-e4-cell-20261020T221110Z/report.md",
+  "schema": "redteam-mutant-v1",
+  "status": "reverted",
+  "target": {
+    "path": "/tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp",
+    "path_relative_to_repo": "spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp",
+    "sha256_after": "48bcbc2d010f8be3c36ddf80111896bea0fd4b5e69c3da481df3634f08208b01",
+    "sha256_before": "387da37e4cd894e468007de249941906be9d91534d1d581ac8f9213a9c303840"
+  },
+  "target_kind": "e4-cell",
+  "witness": "alive2:\n=====\nSource value: #x0000000000000001 (1)\nTarget value: #x0000000000000000 (0)\nsaw:\nw: 98"
+}

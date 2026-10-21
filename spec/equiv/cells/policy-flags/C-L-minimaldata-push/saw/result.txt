@@ -1,0 +1,20 @@
+# cell: policy-flags/C-L-minimaldata-push
+# tool: saw 1.6 (68eed5f release-1.6)
+# command: (cd build && saw cell.saw)
+# roots: cell_minimaldata_push (each verified in the C module and in the L module)
+# spec: saw/cell.cry (independent predicate, written from the row's rule)
+# modules: build/<leg>_leaf.bc, byte-identical to tracked ir/<leg>_leaf.ll
+# ir-match c_leaf.bc == ir/c_leaf.ll
+# ir-match l_leaf.bc == ir/l_leaf.ll
+
+Loading file "cell.saw"
+Verifying cell_minimaldata_push...
+Simulating cell_minimaldata_push...
+Checking proof obligations cell_minimaldata_push...
+Proof succeeded! cell_minimaldata_push
+Verifying cell_minimaldata_push...
+Simulating cell_minimaldata_push...
+Checking proof obligations cell_minimaldata_push...
+Proof succeeded! cell_minimaldata_push
+CELL_policy_flags_minimaldata_SAW_GREEN
+STATUS=saw-green (2 proofs for 1 root(s) x 2 legs)

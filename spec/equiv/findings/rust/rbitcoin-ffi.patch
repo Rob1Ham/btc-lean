@@ -1,0 +1,293 @@
+diff --git a/crates/rbitcoin-consensus/Cargo.toml b/crates/rbitcoin-consensus/Cargo.toml
+index cd85a76..14dcba1 100644
+--- a/crates/rbitcoin-consensus/Cargo.toml
++++ b/crates/rbitcoin-consensus/Cargo.toml
+@@ -8,6 +8,8 @@ repository.workspace = true
+ description = "Block and transaction validation / confirmability"
+ 
+ [features]
++# C ABI used only by the spec/equiv LLVM harness. Off for the node.
++equiv-ffi = []
+ # Lets script-oracle call the Core script assembler. Off for the node.
+ corpus = ["dep:serde_json"]
+ # Nightly cargo-mutants only. Off for the node build.
+diff --git a/crates/rbitcoin-consensus/src/lib.rs b/crates/rbitcoin-consensus/src/lib.rs
+index 3b661a8..c58e1e7 100644
+--- a/crates/rbitcoin-consensus/src/lib.rs
++++ b/crates/rbitcoin-consensus/src/lib.rs
+@@ -19,6 +19,10 @@ mod tx_precompute;
+ 
+ pub(crate) use block::ScriptCheckJob;
+ 
++/// C ABI for `spec/equiv`; present only with the `equiv-ffi` feature.
++#[cfg(feature = "equiv-ffi")]
++pub use script::ffi::rbtc_rust_verify;
++
+ /// Consensus script verify for a single tx on the shared `rbtc-scripts` path.
+ ///
+ /// Always hops to a detached script worker (same naming/pool family as IBD
+diff --git a/crates/rbitcoin-consensus/src/script/ffi.rs b/crates/rbitcoin-consensus/src/script/ffi.rs
+new file mode 100644
+index 0000000..74453d2
+--- /dev/null
++++ b/crates/rbitcoin-consensus/src/script/ffi.rs
+@@ -0,0 +1,238 @@
++//! C ABI used only by the LLVM-equivalence harness (`spec/equiv`).
++//!
++//! This module is not part of the node build. It is added by the
++//! `spec/equiv/findings/rust/rbitcoin-ffi.patch` patch and exists so the
++//! Rust leg presents the same `extern "C"` entry as the Core and twin shims.
++//!
++//! Contract flags are Core `SCRIPT_VERIFY_*` bits. rbitcoin models a subset
++//! as a bool struct; unsupported-but-known bits are rejected as bad input
++//! (2) rather than silently ignored.
++
++#[cfg(panic = "unwind")]
++use std::panic::{catch_unwind, AssertUnwindSafe};
++
++use bitcoin::consensus::deserialize;
++use bitcoin::{Amount, ScriptBuf, Transaction, TxOut};
++
++use crate::block::{ScriptCheckJob, ScriptVerifyFlags};
++use crate::error::ConsensusError;
++
++const P2SH: u64 = 1 << 0;
++const STRICTENC: u64 = 1 << 1;
++const DERSIG: u64 = 1 << 2;
++const LOW_S: u64 = 1 << 3;
++const NULLDUMMY: u64 = 1 << 4;
++const SIGPUSHONLY: u64 = 1 << 5;
++const MINIMALDATA: u64 = 1 << 6;
++const DISCOURAGE_NOPS: u64 = 1 << 7;
++const CLEANSTACK: u64 = 1 << 8;
++const CLTV: u64 = 1 << 9;
++const CSV: u64 = 1 << 10;
++const WITNESS: u64 = 1 << 11;
++const DISCOURAGE_WITNESS: u64 = 1 << 12;
++const MINIMALIF: u64 = 1 << 13;
++const NULLFAIL: u64 = 1 << 14;
++const WITNESS_PUBKEYTYPE: u64 = 1 << 15;
++const CONST_SCRIPTCODE: u64 = 1 << 16;
++const TAPROOT: u64 = 1 << 17;
++const DISCOURAGE_TAPROOT: u64 = 1 << 18;
++const DISCOURAGE_SUCCESS: u64 = 1 << 19;
++const DISCOURAGE_PUBKEY: u64 = 1 << 20;
++
++/// Bits rbitcoin can represent. Everything else is a harness-domain gap.
++const SUPPORTED: u64 = P2SH
++    | STRICTENC
++    | DERSIG
++    | LOW_S
++    | NULLDUMMY
++    | MINIMALDATA
++    | CLEANSTACK
++    | CLTV
++    | CSV
++    | WITNESS
++    | DISCOURAGE_WITNESS
++    | MINIMALIF
++    | NULLFAIL
++    | WITNESS_PUBKEYTYPE
++    | CONST_SCRIPTCODE
++    | TAPROOT;
++
++/// Known but not modelled by [`ScriptVerifyFlags`]: policy-only in Core, or
++/// absent from rbitcoin. Returning 2 keeps the cell out of the proof instead
++/// of pretending the flag was applied.
++const KNOWN_UNSUPPORTED: u64 = SIGPUSHONLY
++    | DISCOURAGE_NOPS
++    | DISCOURAGE_TAPROOT
++    | DISCOURAGE_SUCCESS
++    | DISCOURAGE_PUBKEY;
++
++fn flags_from_core(bits: u64) -> Option<ScriptVerifyFlags> {
++    if bits & !(SUPPORTED | KNOWN_UNSUPPORTED) != 0 || bits & KNOWN_UNSUPPORTED != 0 {
++        return None;
++    }
++    Some(ScriptVerifyFlags {
++        bip65_active: bits & CLTV != 0,
++        bip112_active: bits & CSV != 0,
++        bip66_active: bits & DERSIG != 0,
++        bip16_active: bits & P2SH != 0,
++        taproot_active: bits & TAPROOT != 0,
++        minimal_if: bits & MINIMALIF != 0,
++        nullfail: bits & NULLFAIL != 0,
++        low_s: bits & LOW_S != 0,
++        strictenc: bits & STRICTENC != 0,
++        null_dummy: bits & NULLDUMMY != 0,
++        minimal_data: bits & MINIMALDATA != 0,
++        witness_pubkeytype: bits & WITNESS_PUBKEYTYPE != 0,
++        witness_active: bits & WITNESS != 0,
++        discourage_upgradable_witness: bits & DISCOURAGE_WITNESS != 0,
++        const_scriptcode: bits & CONST_SCRIPTCODE != 0,
++        cleanstack: bits & CLEANSTACK != 0,
++    })
++}
++
++unsafe fn verify_impl(
++    tx_bytes: *const u8,
++    tx_len: usize,
++    spk: *const u8,
++    spk_len: usize,
++    amount: i64,
++    input_index: u32,
++    flags: u64,
++) -> i32 {
++    if amount < 0 || (tx_bytes.is_null() && tx_len != 0) || (spk.is_null() && spk_len != 0) {
++        return 2;
++    }
++    let tx_raw = unsafe { std::slice::from_raw_parts(tx_bytes, tx_len) };
++    let spk_raw = unsafe { std::slice::from_raw_parts(spk, spk_len) };
++
++    let tx: Transaction = match deserialize(tx_raw) {
++        Ok(tx) => tx,
++        Err(e) => {
++            // `encode::Error::Io` boxes a `dyn Error`; dropping it emits the
++            // only indirect call / inttoptr in `entry`. The shim is
++            // short-lived per tape, so leak the error on the reject path.
++            std::mem::forget(e);
++            return 2;
++        }
++    };
++    let idx = input_index as usize;
++    if idx >= tx.input.len() {
++        return 2;
++    }
++    let Some(flags) = flags_from_core(flags) else {
++        return 2;
++    };
++
++    // The tape carries one prevout. BIP341 commits to every spent output, so
++    // non-target slots are placeholders; the contract's domain is a
++    // single-input tx (or non-taproot inputs).
++    let target = TxOut {
++        value: Amount::from_sat(amount as u64),
++        script_pubkey: ScriptBuf::from_bytes(spk_raw.to_vec()),
++    };
++    let prevouts = (0..tx.input.len())
++        .map(|i| {
++            if i == idx {
++                target.clone()
++            } else {
++                TxOut {
++                    value: Amount::ZERO,
++                    script_pubkey: ScriptBuf::new(),
++                }
++            }
++        })
++        .collect();
++
++    let job = ScriptCheckJob::new(prevouts, tx, flags);
++    let mut cache = None;
++    let tap_spent = crate::script::crypto::TapSpentHashes::default();
++    match crate::script::verify_input(
++        &job,
++        idx,
++        &job.tx,
++        &mut cache,
++        job.pre(),
++        &tap_spent,
++    ) {
++        Ok(()) => 1,
++        Err(ConsensusError::Internal(_)) => 3,
++        Err(_) => 0,
++    }
++}
++
++/// `0 fail | 1 pass | 2 bad input | 3 internal/panic` — the contract ABI.
++#[no_mangle]
++pub unsafe extern "C" fn rbtc_rust_verify(
++    tx_bytes: *const u8,
++    tx_len: usize,
++    spk: *const u8,
++    spk_len: usize,
++    amount: i64,
++    input_index: u32,
++    flags: u64,
++) -> i32 {
++    // `panic=abort` cannot unwind, and `catch_unwind`'s payload-drop guard is
++    // the only indirect call in this function. Omit it so the IR stays inside
++    // the Alive2/SAW callable subset. The unwind build keeps the guard.
++    #[cfg(panic = "unwind")]
++    {
++        match catch_unwind(AssertUnwindSafe(|| unsafe {
++            verify_impl(tx_bytes, tx_len, spk, spk_len, amount, input_index, flags)
++        })) {
++            Ok(code) => code,
++            Err(_) => 3,
++        }
++    }
++    #[cfg(not(panic = "unwind"))]
++    {
++        unsafe { verify_impl(tx_bytes, tx_len, spk, spk_len, amount, input_index, flags) }
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use bitcoin::absolute::LockTime;
++    use bitcoin::consensus::serialize;
++    use bitcoin::transaction::Version;
++    use bitcoin::{OutPoint, Sequence, TxIn, Witness};
++
++    fn one_input_tx() -> Transaction {
++        Transaction {
++            version: Version::TWO,
++            lock_time: LockTime::ZERO,
++            input: vec![TxIn {
++                previous_output: OutPoint::null(),
++                script_sig: ScriptBuf::new(),
++                sequence: Sequence::MAX,
++                witness: Witness::new(),
++            }],
++            output: vec![TxOut {
++                value: Amount::from_sat(1),
++                script_pubkey: ScriptBuf::from_bytes(vec![0x51]),
++            }],
++        }
++    }
++
++    #[test]
++    fn entry_maps_pass_fail_and_bad_input() {
++        let raw = serialize(&one_input_tx());
++        let spk_true = [0x51u8];
++        let spk_false = [0x00u8];
++        unsafe {
++            assert_eq!(
++                rbtc_rust_verify(raw.as_ptr(), raw.len(), spk_true.as_ptr(), 1, 0, 0, 0),
++                1
++            );
++            assert_eq!(
++                rbtc_rust_verify(raw.as_ptr(), raw.len(), spk_false.as_ptr(), 1, 0, 0, 0),
++                0
++            );
++            assert_eq!(
++                rbtc_rust_verify(raw.as_ptr(), raw.len(), spk_true.as_ptr(), 1, 0, 1, 0),
++                2
++            );
++            assert_eq!(rbtc_rust_verify(raw.as_ptr(), 3, spk_true.as_ptr(), 1, 0, 0, 0), 2);
++        }
++    }
++}
+diff --git a/crates/rbitcoin-consensus/src/script/mod.rs b/crates/rbitcoin-consensus/src/script/mod.rs
+index a228692..f5f6a1e 100644
+--- a/crates/rbitcoin-consensus/src/script/mod.rs
++++ b/crates/rbitcoin-consensus/src/script/mod.rs
+@@ -5,6 +5,8 @@
+ //! same-block) — not a full coins cache.
+ 
+ mod classify;
++#[cfg(feature = "equiv-ffi")]
++pub mod ffi;
+ pub(crate) mod interpreter;
+ mod nested;
+ mod p2pkh;
+@@ -105,6 +107,7 @@ fn sighash_cache<'a, 't>(
+     cache.get_or_insert_with(|| bitcoin::sighash::SighashCache::new(tx))
+ }
+ 
++#[cfg_attr(feature = "equiv-ffi", inline(always))]
+ pub(crate) fn verify_input<'a>(
+     job: &ScriptCheckJob,
+     input_index: usize,

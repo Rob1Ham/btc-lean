@@ -1,0 +1,109 @@
+# cell: policy-flags/C-L-flag-source (negative control)
+# mutant: exception replacement moved AFTER the four buried ORs
+# command: alive-tv mutant_cell_flag_source.ll ir/l_cell_flag_source.ll
+
+----------------------------------------
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  switch i64 noundef %exceptionKind, label %if.end18.fold.split.i [
+    i64 1, label %_ZL18mutant_flag_sourcemm.exit
+    i64 2, label %if.then16.i
+  ]
+
+if.then16.i:
+  br label %_ZL18mutant_flag_sourcemm.exit
+
+if.end18.fold.split.i:
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp9.i = icmp samesign ugt i64 %rem.i, 481823
+  %cmp5.i = icmp samesign ugt i64 %rem.i, 419327
+  %cmp1.i = icmp samesign ugt i64 %rem.i, 388380
+  %cmp.i = icmp samesign ugt i64 %rem.i, 363724
+  %spec.select.i = select i1 %cmp.i, i64 133125, i64 133121
+  %or3.i = or disjoint i64 %spec.select.i, 512
+  %flags.1.i = select i1 %cmp1.i, i64 %or3.i, i64 %spec.select.i
+  %or7.i = or disjoint i64 %flags.1.i, 1024
+  %flags.2.i = select i1 %cmp5.i, i64 %or7.i, i64 %flags.1.i
+  %or11.i = or disjoint i64 %flags.2.i, 16
+  %flags.3.i = select i1 %cmp9.i, i64 %or11.i, i64 %flags.2.i
+  br label %_ZL18mutant_flag_sourcemm.exit
+
+_ZL18mutant_flag_sourcemm.exit:
+  %flags.4.i = phi i64 [ 2049, %if.then16.i ], [ 0, %entry ], [ %flags.3.i, %if.end18.fold.split.i ]
+  %#range_0_%flags.4.i = !range i64 %flags.4.i, i64 0, i64 135168
+  ret i64 %#range_0_%flags.4.i
+}
+=>
+define i64 @cell_flag_source(i64 noundef %exceptionKind, i64 noundef %height) nofree willreturn memory(none) {
+entry:
+  %#0 = add i64 noundef %exceptionKind, -3
+  %or.cond.i.i = icmp ult i64 %#0, -2
+  %cond16.i.i = select i1 %or.cond.i.i, i64 131072, i64 0
+  %.not.i = icmp eq i64 noundef %exceptionKind, 1
+  %retval.i.sroa.14.0.i = select i1 %.not.i, i64 0, i64 2048
+  %narrow.i = icmp ne i64 noundef %exceptionKind, 1
+  %retval.i.sroa.0.0.i = zext i1 %narrow.i to i64
+  %rem.i = and i64 noundef %height, 4294967295
+  %cmp.i16.i = icmp samesign ugt i64 %rem.i, 363724
+  %cmp.i15.i = icmp samesign ugt i64 %rem.i, 388380
+  %cmp.i14.i = icmp samesign ugt i64 %rem.i, 419327
+  %cmp.i.i = icmp samesign ugt i64 %rem.i, 481823
+  %cond2.i.i = select i1 %cmp.i16.i, i64 4, i64 0
+  %cond4.i.i = select i1 %cmp.i.i, i64 16, i64 0
+  %cond7.i.i = select i1 %cmp.i15.i, i64 512, i64 0
+  %cond10.i.i = select i1 %cmp.i14.i, i64 1024, i64 0
+  %or.i.i = or disjoint i64 %retval.i.sroa.14.0.i, %retval.i.sroa.0.0.i
+  %or5.i.i = or disjoint i64 %or.i.i, %cond16.i.i
+  %or8.i.i = or disjoint i64 %or5.i.i, %cond2.i.i
+  %or11.i.i = or disjoint i64 %or8.i.i, %cond4.i.i
+  %or14.i.i = or disjoint i64 %or11.i.i, %cond7.i.i
+  %or17.i.i = or i64 %or14.i.i, %cond10.i.i
+  %#range_0_%or17.i.i = !range i64 %or17.i.i, i64 0, i64 135168
+  ret i64 %#range_0_%or17.i.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %exceptionKind = #x0000000000000001 (1)
+i64 noundef %height = #x0000000000070000 (458752)
+
+Source:
+  >> Jump to %_ZL18mutant_flag_sourcemm.exit
+i64 %flags.4.i = #x0000000000000000 (0)
+i64 %#range_0_%flags.4.i = #x0000000000000000 (0)
+
+Target:
+i64 %#0 = #xfffffffffffffffe (18446744073709551614, -2)
+i1 %or.cond.i.i = #x0 (0)
+i64 %cond16.i.i = #x0000000000000000 (0)
+i1 %.not.i = #x1 (1)
+i64 %retval.i.sroa.14.0.i = #x0000000000000000 (0)
+i1 %narrow.i = #x0 (0)
+i64 %retval.i.sroa.0.0.i = #x0000000000000000 (0)
+i64 %rem.i = #x0000000000070000 (458752)
+i1 %cmp.i16.i = #x1 (1)
+i1 %cmp.i15.i = #x1 (1)
+i1 %cmp.i14.i = #x1 (1)
+i1 %cmp.i.i = #x0 (0)
+i64 %cond2.i.i = #x0000000000000004 (4)
+i64 %cond4.i.i = #x0000000000000000 (0)
+i64 %cond7.i.i = #x0000000000000200 (512)
+i64 %cond10.i.i = #x0000000000000400 (1024)
+i64 %or.i.i = #x0000000000000000 (0)
+i64 %or5.i.i = #x0000000000000000 (0)
+i64 %or8.i.i = #x0000000000000004 (4)
+i64 %or11.i.i = #x0000000000000004 (4)
+i64 %or14.i.i = #x0000000000000204 (516)
+i64 %or17.i.i = #x0000000000000604 (1540)
+i64 %#range_0_%or17.i.i = #x0000000000000604 (1540)
+Source value: #x0000000000000000 (0)
+Target value: #x0000000000000604 (1540)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+MUTANT=caught (rc=0)

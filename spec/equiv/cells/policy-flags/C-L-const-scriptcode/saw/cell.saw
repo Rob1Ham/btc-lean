@@ -1,0 +1,27 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+let spec_cell_const_scriptcode_codesep = do {
+  flags <- llvm_fresh_var "cell_const_scriptcode_codesep_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_const_scriptcode_codesep_sv" (llvm_int 64);
+  opcode <- llvm_fresh_var "cell_const_scriptcode_codesep_opcode" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term opcode];
+  llvm_return (llvm_term {{ const_codesep flags sv opcode }});
+};
+
+let spec_cell_const_scriptcode_finddelete = do {
+  flags <- llvm_fresh_var "cell_const_scriptcode_finddelete_flags" (llvm_int 64);
+  sv <- llvm_fresh_var "cell_const_scriptcode_finddelete_sv" (llvm_int 64);
+  foundPositive <- llvm_fresh_var "cell_const_scriptcode_finddelete_foundPositive" (llvm_int 64);
+  llvm_execute_func [llvm_term flags, llvm_term sv, llvm_term foundPositive];
+  llvm_return (llvm_term {{ const_finddelete flags sv foundPositive }});
+};
+
+llvm_verify mC "cell_const_scriptcode_codesep" [] false spec_cell_const_scriptcode_codesep abc;
+llvm_verify mL "cell_const_scriptcode_codesep" [] false spec_cell_const_scriptcode_codesep abc;
+llvm_verify mC "cell_const_scriptcode_finddelete" [] false spec_cell_const_scriptcode_finddelete abc;
+llvm_verify mL "cell_const_scriptcode_finddelete" [] false spec_cell_const_scriptcode_finddelete abc;
+
+print "CELL_policy_flags_const_scriptcode_SAW_GREEN";

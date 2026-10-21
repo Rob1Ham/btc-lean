@@ -1,0 +1,35 @@
+import "cell.cry";
+
+mC0 <- llvm_load_module "c_cell_epoch_ht.bc";
+mL0 <- llvm_load_module "l_cell_epoch_ht.bc";
+mC1 <- llvm_load_module "c_cell_spend_type.bc";
+mL1 <- llvm_load_module "l_cell_spend_type.bc";
+mC2 <- llvm_load_module "c_cell_annex_slice.bc";
+mL2 <- llvm_load_module "l_cell_annex_slice.bc";
+
+let e0 = do {
+  ht <- llvm_fresh_var "ht" (llvm_int 8);
+  llvm_execute_func [llvm_term ht];
+  llvm_return (llvm_term {{ epochHt ht }});
+};
+let e1 = do {
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  annex <- llvm_fresh_var "annex" (llvm_int 1);
+  llvm_execute_func [llvm_term sv, llvm_term annex];
+  llvm_return (llvm_term {{ spendType sv annex }});
+};
+let e2 = do {
+  present <- llvm_fresh_var "present" (llvm_int 1);
+  h0 <- llvm_fresh_var "h0" (llvm_int 64);
+  llvm_execute_func [llvm_term present, llvm_term h0];
+  llvm_return (llvm_term {{ annexSlice present h0 }});
+};
+
+llvm_verify mC0 "cell_epoch_ht" [] false e0 z3;
+llvm_verify mL0 "cell_epoch_ht" [] false e0 z3;
+llvm_verify mC1 "cell_spend_type" [] false e1 z3;
+llvm_verify mL1 "cell_spend_type" [] false e1 z3;
+llvm_verify mC2 "cell_annex_slice" [] false e2 z3;
+llvm_verify mL2 "cell_annex_slice" [] false e2 z3;
+
+print "CELL_W32_EPOCH_ANNEX_SAW_GREEN";

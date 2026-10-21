@@ -1,0 +1,12 @@
+module Spec where
+
+// SCR-009 spec: the two flag-combination constraints VerifyScript asserts.
+//   2113-2114  CLEANSTACK => (P2SH && WITNESS)
+//   2124       WITNESS    => P2SH
+// The observable is the contract's domain answer: 0 admissible, 2 rejected
+// as bad input (Core's debug assert turned into a total domain rule).
+spec_cell_flag_combo_admissible : [64] -> [64] -> [64] -> [64]
+spec_cell_flag_combo_admissible p2sh witness cleanstack =
+  if (((cleanstack == 0) || ((p2sh != 0) && (witness != 0))) &&
+      ((witness == 0) || (p2sh != 0)))
+  then 0 else 2

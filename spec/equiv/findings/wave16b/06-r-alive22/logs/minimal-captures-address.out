@@ -1,0 +1,39 @@
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+
+----------------------------------------
+define i8 @src(ptr align(1) %p) {
+#0:
+  %v = load i8, ptr align(1) %p, align 1
+  ret i8 %v
+}
+=>
+define i8 @src(ptr align(1) %p) {
+#0:
+  %v = load i8, ptr align(1) %p, align 1
+  ret i8 %v
+}
+Transformation seems to be correct! (syntactically equal)
+
+ERROR: Unsupported attribute: captures(address)
+ERROR: Unsupported attribute: captures(address)
+
+----------------------------------------
+define i8 @tgt(ptr align(1) %p) {
+#0:
+  %v = load i8, ptr align(1) %p, align 1
+  ret i8 %v
+}
+=>
+define i8 @tgt(ptr align(1) %p) {
+#0:
+  %v = load i8, ptr align(1) %p, align 1
+  ret i8 %v
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  2 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

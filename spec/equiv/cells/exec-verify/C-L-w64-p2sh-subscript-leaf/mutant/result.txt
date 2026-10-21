@@ -1,0 +1,1003 @@
+# cell: exec-verify/C-L-w64-p2sh-subscript-leaf (mutants)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# each mutant must NOT verify against the real L leg
+
+## mutant: m1_no_popstack
+# command: alive-tv --always-verify mutant/build/m1_no_popstack.fn.ll build/l_cell_p2sh_subscript_leaf.ll
+
+----------------------------------------
+define i64 @cell_p2sh_subscript_leaf(i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %prev_top, i64 noundef %prev_len) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %ss_top_len, 2
+  %cmp1 = icmp ugt i64 noundef %prev_len, 8
+  %or.cond = or i1 %cmp, %cmp1
+  %#0 = add i64 noundef %ss_depth, -1001
+  %or.cond109 = icmp ult i64 %#0, -1000
+  %or.cond179 = or i1 %or.cond109, %or.cond
+  br i1 %or.cond179, label %return, label %if.end7
+
+if.end7:
+  %conv = trunc i64 noundef %ss_top to i32
+  %shr = lshr i64 noundef %ss_top, 8
+  switch i64 noundef %ss_top_len, label %if.else43 [
+    i64 0, label %if.end78
+    i64 1, label %if.then12
+  ]
+
+if.else43:
+  %trunc = trunc i64 noundef %ss_top to i8
+  switch i8 %trunc, label %if.else57 [
+    i8 1, label %if.then46
+    i8 76, label %if.then51
+  ]
+
+if.else57:
+  %conv44 = and i32 %conv, 255
+  %#1 = add nsw i32 %conv44, 4294967295
+  %or.cond111 = icmp ult i32 %#1, 75
+  %#2 = add nsw i32 %conv44, 4294967219
+  %or.cond112 = icmp ult i32 %#2, 2
+  %or.cond138 = select i1 %or.cond111, i1 1, i1 %or.cond112
+  br i1 %or.cond138, label %if.end78, label %return
+
+if.then46:
+  %conv47 = and i64 %shr, 255
+  br label %if.end78
+
+if.then51:
+  %#3 = and i64 noundef %ss_top, 65280
+  %cmp53 = icmp eq i64 %#3, 0
+  %.137 = select i1 %cmp53, i64 0, i64 64
+  br label %if.end78
+
+if.then12:
+  %conv13 = and i32 %conv, 255
+  %cmp14 = icmp samesign ult i32 %conv13, 79
+  br i1 %cmp14, label %if.then15, label %if.else21
+
+if.then15:
+  %cmp17 = icmp eq i32 %conv13, 0
+  %.135 = select i1 %cmp17, i64 0, i64 64
+  br label %if.end78
+
+if.else21:
+  %cmp23 = icmp eq i32 %conv13, 79
+  br i1 %cmp23, label %if.end78, label %if.else25
+
+if.else25:
+  %#4 = add nsw i32 %conv13, 4294967215
+  %or.cond110 = icmp ult i32 %#4, 16
+  br i1 %or.cond110, label %if.then30, label %if.else33
+
+if.then30:
+  %sub = add nsw i32 %conv13, 4294967216
+  %conv32 = zext nneg i32 %sub to i64
+  br label %if.end78
+
+if.else33:
+  %cmp35 = icmp eq i32 %conv13, 106
+  br i1 %cmp35, label %if.end78, label %return
+
+if.end78:
+  %pushed.0 = phi i1 [ 0, %if.end7 ], [ 1, %if.then30 ], [ 1, %if.then46 ], [ %cmp17, %if.then15 ], [ 1, %if.else21 ], [ 0, %if.else33 ], [ %cmp53, %if.then51 ], [ 0, %if.else57 ]
+  %push_val.0 = phi i64 [ noundef %ss_top_len, %if.end7 ], [ %conv32, %if.then30 ], [ %conv47, %if.then46 ], [ 0, %if.then15 ], [ 129, %if.else21 ], [ 0, %if.else33 ], [ 0, %if.then51 ], [ 0, %if.else57 ]
+  %push_len.0 = phi i64 [ noundef %ss_top_len, %if.end7 ], [ 1, %if.then30 ], [ 1, %if.then46 ], [ 0, %if.then15 ], [ 1, %if.else21 ], [ 0, %if.else33 ], [ 0, %if.then51 ], [ 0, %if.else57 ]
+  %cmp79.not = phi i1 [ 1, %if.end7 ], [ 1, %if.then30 ], [ 1, %if.then46 ], [ %cmp17, %if.then15 ], [ 1, %if.else21 ], [ 0, %if.else33 ], [ %cmp53, %if.then51 ], [ 0, %if.else57 ]
+  %err.0 = phi i64 [ noundef %ss_top_len, %if.end7 ], [ 0, %if.then30 ], [ 0, %if.then46 ], [ %.135, %if.then15 ], [ 0, %if.else21 ], [ 12, %if.else33 ], [ %.137, %if.then51 ], [ 64, %if.else57 ]
+  br i1 %cmp79.not, label %if.end83, label %return
+
+if.end83:
+  br i1 %pushed.0, label %if.then84, label %if.end90
+
+if.then84:
+  %cmp86 = icmp ugt i64 noundef %ss_depth, 999
+  br i1 %cmp86, label %return, label %if.end90
+
+if.end90:
+  %stack.sroa.10.0 = phi i64 [ %push_len.0, %if.then84 ], [ noundef %ss_top_len, %if.end83 ]
+  %stack.sroa.7.0 = phi i64 [ %push_val.0, %if.then84 ], [ noundef %ss_top, %if.end83 ]
+  %stack.sroa.0.0 = phi i64 [ 1, %if.then84 ], [ noundef %ss_depth, %if.end83 ]
+  %cmp92 = icmp eq i64 %stack.sroa.0.0, 0
+  br i1 %cmp92, label %return, label %if.end95
+
+if.end95:
+  %cmp.not.i = icmp eq i64 %stack.sroa.10.0, 0
+  br i1 %cmp.not.i, label %if.end7.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %and.i168 = and i64 %stack.sroa.7.0, 255
+  %cmp1.not.i = icmp eq i64 %and.i168, 0
+  br i1 %cmp1.not.i, label %if.end7.i, label %if.then.i
+
+if.end7.i:
+  %cmp8.i = icmp ugt i64 %stack.sroa.10.0, 1
+  br i1 %cmp8.i, label %land.lhs.true9.i, label %if.end19.i
+
+land.lhs.true9.i:
+  %shr.i139 = lshr i64 %stack.sroa.7.0, 8
+  %and.i140 = and i64 %shr.i139, 255
+  %cmp11.not.i = icmp eq i64 %and.i140, 0
+  br i1 %cmp11.not.i, label %if.end19.i, label %if.then12.i
+
+if.then12.i:
+  %cmp13.i = icmp ne i64 %stack.sroa.10.0, 2
+  %cmp16.i = icmp ne i64 %and.i140, 128
+  %or.cond172.not = or i1 %cmp13.i, %cmp16.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end19.i:
+  %cmp20.i = icmp ugt i64 %stack.sroa.10.0, 2
+  br i1 %cmp20.i, label %land.lhs.true21.i, label %if.end31.i
+
+land.lhs.true21.i:
+  %shr.i143 = lshr i64 %stack.sroa.7.0, 16
+  %and.i144 = and i64 %shr.i143, 255
+  %cmp23.not.i = icmp eq i64 %and.i144, 0
+  br i1 %cmp23.not.i, label %if.end31.i, label %if.then24.i
+
+if.then24.i:
+  %cmp25.i = icmp ne i64 %stack.sroa.10.0, 3
+  %cmp28.i = icmp ne i64 %and.i144, 128
+  %or.cond173.not = or i1 %cmp25.i, %cmp28.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end31.i:
+  %cmp32.i = icmp ugt i64 %stack.sroa.10.0, 3
+  br i1 %cmp32.i, label %land.lhs.true33.i, label %if.end43.i
+
+land.lhs.true33.i:
+  %shr.i147 = lshr i64 %stack.sroa.7.0, 24
+  %and.i148 = and i64 %shr.i147, 255
+  %cmp35.not.i = icmp eq i64 %and.i148, 0
+  br i1 %cmp35.not.i, label %if.end43.i, label %if.then36.i
+
+if.then36.i:
+  %cmp37.i = icmp ne i64 %stack.sroa.10.0, 4
+  %cmp40.i = icmp ne i64 %and.i148, 128
+  %or.cond174.not = or i1 %cmp37.i, %cmp40.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end43.i:
+  %cmp44.i = icmp ugt i64 %stack.sroa.10.0, 4
+  br i1 %cmp44.i, label %land.lhs.true45.i, label %if.end55.i
+
+land.lhs.true45.i:
+  %shr.i151 = lshr i64 %stack.sroa.7.0, 32
+  %and.i152 = and i64 %shr.i151, 255
+  %cmp47.not.i = icmp eq i64 %and.i152, 0
+  br i1 %cmp47.not.i, label %if.end55.i, label %if.then48.i
+
+if.then48.i:
+  %cmp49.i = icmp ne i64 %stack.sroa.10.0, 5
+  %cmp52.i = icmp ne i64 %and.i152, 128
+  %or.cond175.not = or i1 %cmp49.i, %cmp52.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end55.i:
+  %cmp56.i = icmp ugt i64 %stack.sroa.10.0, 5
+  br i1 %cmp56.i, label %land.lhs.true57.i, label %if.end67.i
+
+land.lhs.true57.i:
+  %shr.i155 = lshr i64 %stack.sroa.7.0, 40
+  %and.i156 = and i64 %shr.i155, 255
+  %cmp59.not.i = icmp eq i64 %and.i156, 0
+  br i1 %cmp59.not.i, label %if.end67.i, label %if.then60.i
+
+if.then60.i:
+  %cmp61.i = icmp ne i64 %stack.sroa.10.0, 6
+  %cmp64.i = icmp ne i64 %and.i156, 128
+  %or.cond176.not = or i1 %cmp61.i, %cmp64.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end67.i:
+  %cmp68.i = icmp ugt i64 %stack.sroa.10.0, 6
+  br i1 %cmp68.i, label %land.lhs.true69.i, label %if.end79.i
+
+land.lhs.true69.i:
+  %shr.i159 = lshr i64 %stack.sroa.7.0, 48
+  %and.i160 = and i64 %shr.i159, 255
+  %cmp71.not.i = icmp eq i64 %and.i160, 0
+  br i1 %cmp71.not.i, label %if.end79.i, label %if.then72.i
+
+if.then72.i:
+  %cmp73.i = icmp ne i64 %stack.sroa.10.0, 7
+  %cmp76.i = icmp ne i64 %and.i160, 128
+  %or.cond177.not = or i1 %cmp73.i, %cmp76.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.end79.i:
+  %cmp80.i = icmp ult i64 %stack.sroa.10.0, 8
+  %cmp83.not.i = icmp ult i64 %stack.sroa.7.0, 72057594037927936
+  %or.cond187 = select i1 %cmp80.i, i1 1, i1 %cmp83.not.i
+  br i1 %or.cond187, label %_ZL18w32_cast_bool_coremm.exit, label %if.then84.i
+
+if.then84.i:
+  %cmp85.i = icmp ne i64 %stack.sroa.10.0, 8
+  %cmp88.i = icmp sgt i64 %stack.sroa.7.0, -9151314442816847873
+  %or.cond178.not = or i1 %cmp85.i, %cmp88.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.then.i:
+  %cmp2.i = icmp ne i64 %stack.sroa.10.0, 1
+  %cmp5.i = icmp ne i64 %and.i168, 128
+  %or.cond171.not = or i1 %cmp2.i, %cmp5.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+_ZL18w32_cast_bool_coremm.exit:
+  %retval.0.i = phi i1 [ 0, %if.end79.i ], [ %or.cond171.not, %if.then.i ], [ %or.cond172.not, %if.then12.i ], [ %or.cond173.not, %if.then24.i ], [ %or.cond174.not, %if.then36.i ], [ %or.cond175.not, %if.then48.i ], [ %or.cond176.not, %if.then60.i ], [ %or.cond177.not, %if.then72.i ], [ %or.cond178.not, %if.then84.i ]
+  %. = select i1 %retval.0.i, i64 1, i64 8
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 4, %entry ], [ 4, %if.else33 ], [ 4, %if.else57 ], [ 32, %if.then84 ], [ 8, %if.end90 ], [ %., %_ZL18w32_cast_bool_coremm.exit ], [ %err.0, %if.end78 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 65
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_p2sh_subscript_leaf(i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %prev_top, i64 noundef %prev_len) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %ss_top_len, 2
+  %cmp1.i = icmp ugt i64 noundef %prev_len, 8
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  %#0 = add i64 noundef %ss_depth, -1001
+  %or.cond57.i = icmp ult i64 %#0, -1000
+  %or.cond = or i1 %or.cond57.i, %or.cond.i
+  br i1 %or.cond, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end7.i
+
+if.end7.i:
+  %and.i = and i64 noundef %ss_top, 255
+  %shr.i = lshr i64 noundef %ss_top, 8
+  %and1.i = and i64 %shr.i, 255
+  %cmp.i1 = icmp eq i64 noundef %ss_top_len, 0
+  br i1 %cmp.i1, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end.i2
+
+if.end.i2:
+  %cmp2.i = icmp eq i64 %and.i, 0
+  br i1 %cmp2.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end4.i
+
+if.end4.i:
+  %cmp5.i = icmp samesign ult i64 %and.i, 76
+  br i1 %cmp5.i, label %if.then6.i, label %if.end11.i
+
+if.then6.i:
+  %cmp7.not.i = icmp samesign ugt i64 noundef %ss_top_len, %and.i
+  br i1 %cmp7.not.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.then8.i
+
+if.then8.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.end11.i:
+  %trunc = trunc i64 noundef %ss_top to i8
+  switch i8 %trunc, label %if.end42.i [
+    i8 76, label %if.then13.i
+    i8 77, label %if.then31.i
+    i8 78, label %if.then31.i
+    i8 79, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+  ]
+
+if.end42.i:
+  %#1 = add nsw i64 %and.i, -81
+  %or.cond.i4 = icmp ult i64 %#1, 16
+  br i1 %or.cond.i4, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end51.i
+
+if.end51.i:
+  %cmp52.i = icmp eq i64 %and.i, 106
+  br i1 %cmp52.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end54.i
+
+if.end54.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.then13.i:
+  %cmp14.i = icmp eq i64 noundef %ss_top_len, 1
+  br i1 %cmp14.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end16.i
+
+if.end16.i:
+  %cmp18.not.i = icmp eq i64 %and1.i, 0
+  br i1 %cmp18.not.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.then19.i
+
+if.then19.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.then31.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+_ZN15l_w64_subscriptL10parse_wireEmm.exit:
+  %cmp19.i = phi i1 [ 1, %if.then8.i ], [ 0, %if.end54.i ], [ 1, %if.then31.i ], [ 1, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ 0, %if.then6.i ], [ 0, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 1, %if.then13.i ]
+  %p.i.sroa.0.0 = phi i64 [ 3, %if.then8.i ], [ 4, %if.end54.i ], [ 3, %if.then31.i ], [ 3, %if.then19.i ], [ 0, %if.end7.i ], [ 1, %if.end.i2 ], [ 1, %if.then6.i ], [ 1, %if.end16.i ], [ 2, %if.end11.i ], [ 2, %if.end42.i ], [ 2, %if.end51.i ], [ 3, %if.then13.i ]
+  %p.i.sroa.27.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ 0, %if.then6.i ], [ 0, %if.end16.i ], [ 79, %if.end11.i ], [ %and.i, %if.end42.i ], [ 106, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.33.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ %and1.i, %if.then6.i ], [ 0, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.37.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ %and.i, %if.then6.i ], [ %and1.i, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.41.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 1, %if.end.i2 ], [ 2, %if.then6.i ], [ 2, %if.end16.i ], [ 1, %if.end11.i ], [ 1, %if.end42.i ], [ 1, %if.end51.i ], [ 0, %if.then13.i ]
+  switch i64 %p.i.sroa.0.0, label %land.lhs.true.i [
+    i64 4, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+    i64 3, label %if.then20.i
+  ]
+
+land.lhs.true.i:
+  %cmp14.not.i = icmp eq i64 %p.i.sroa.41.0, noundef %ss_top_len
+  br i1 %cmp14.not.i, label %if.end17.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+if.end17.i:
+  br i1 %cmp19.i, label %if.then20.i, label %if.end22.i
+
+if.end22.i:
+  %sub.i = add nsw i64 noundef %ss_depth, -1
+  switch i64 %p.i.sroa.0.0, label %if.end38.i [
+    i64 1, label %if.then25.i
+    i64 2, label %if.then28.i
+  ]
+
+if.then25.i:
+  br label %if.end38.i
+
+if.then28.i:
+  %cmp29.i = icmp eq i64 %p.i.sroa.27.0, 106
+  br i1 %cmp29.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end32.i
+
+if.end32.i:
+  %cmp34.i = icmp eq i64 %p.i.sroa.27.0, 79
+  %sub36.i = add nsw i64 %p.i.sroa.27.0, -80
+  %cond.i = select i1 %cmp34.i, i64 129, i64 %sub36.i
+  br label %if.end38.i
+
+if.end38.i:
+  %st.i.sroa.12.0 = phi i64 [ noundef %prev_len, %if.end22.i ], [ 1, %if.end32.i ], [ %p.i.sroa.37.0, %if.then25.i ]
+  %st.i.sroa.8.0 = phi i64 [ noundef %prev_top, %if.end22.i ], [ %cond.i, %if.end32.i ], [ %p.i.sroa.33.0, %if.then25.i ]
+  %st.i.sroa.0.0 = phi i64 [ %sub.i, %if.end22.i ], [ noundef %ss_depth, %if.end32.i ], [ noundef %ss_depth, %if.then25.i ]
+  %executed.0.i = phi i1 [ 0, %if.end22.i ], [ 1, %if.end32.i ], [ 1, %if.then25.i ]
+  %cmp41.i = icmp ugt i64 %st.i.sroa.0.0, 1000
+  %or.cond58.i = select i1 %executed.0.i, i1 %cmp41.i, i1 0
+  br i1 %or.cond58.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end44.i
+
+if.end44.i:
+  %cmp46.i = icmp eq i64 %st.i.sroa.0.0, 0
+  %cmp.i15 = icmp eq i64 %st.i.sroa.12.0, 0
+  %or.cond96 = or i1 %cmp.i15, %cmp46.i
+  br i1 %or.cond96, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end.i16
+
+if.end.i16:
+  %sub.i17 = add nsw i64 %st.i.sroa.12.0, -1
+  %cmp1.not.i = icmp ne i64 %sub.i17, 0
+  %and.i44 = and i64 %st.i.sroa.8.0, 255
+  %cmp2.not.i = icmp ne i64 %and.i44, 0
+  %narrow = select i1 %cmp1.not.i, i1 %cmp2.not.i, i1 0
+  %any_prefix.0.i = zext i1 %narrow to i8
+  %cmp5.i20 = icmp ugt i64 %sub.i17, 1
+  %#2 = and i64 %st.i.sroa.8.0, 65280
+  %cmp8.not.i = icmp eq i64 %#2, 0
+  %spec.select68.i = select i1 %cmp8.not.i, i8 %any_prefix.0.i, i8 1
+  %any_prefix.1.i = select i1 %cmp5.i20, i8 %spec.select68.i, i8 %any_prefix.0.i
+  %cmp11.i = icmp ugt i64 %sub.i17, 2
+  %#3 = and i64 %st.i.sroa.8.0, 16711680
+  %cmp14.not.i26 = icmp eq i64 %#3, 0
+  %spec.select69.i = select i1 %cmp14.not.i26, i8 %any_prefix.1.i, i8 1
+  %any_prefix.2.i = select i1 %cmp11.i, i8 %spec.select69.i, i8 %any_prefix.1.i
+  %cmp17.i = icmp ugt i64 %sub.i17, 3
+  %#4 = and i64 %st.i.sroa.8.0, 4278190080
+  %cmp20.not.i = icmp eq i64 %#4, 0
+  %spec.select70.i = select i1 %cmp20.not.i, i8 %any_prefix.2.i, i8 1
+  %any_prefix.3.i = select i1 %cmp17.i, i8 %spec.select70.i, i8 %any_prefix.2.i
+  %cmp23.i = icmp ugt i64 %sub.i17, 4
+  %#5 = and i64 %st.i.sroa.8.0, 1095216660480
+  %cmp26.not.i = icmp eq i64 %#5, 0
+  %spec.select71.i = select i1 %cmp26.not.i, i8 %any_prefix.3.i, i8 1
+  %any_prefix.4.i = select i1 %cmp23.i, i8 %spec.select71.i, i8 %any_prefix.3.i
+  %cmp29.i23 = icmp ugt i64 %sub.i17, 5
+  %#6 = and i64 %st.i.sroa.8.0, 280375465082880
+  %cmp32.not.i = icmp eq i64 %#6, 0
+  %spec.select72.i = select i1 %cmp32.not.i, i8 %any_prefix.4.i, i8 1
+  %any_prefix.5.i = select i1 %cmp29.i23, i8 %spec.select72.i, i8 %any_prefix.4.i
+  %cmp35.i = icmp ugt i64 %sub.i17, 6
+  %#7 = and i64 %st.i.sroa.8.0, 71776119061217280
+  %cmp38.not.i = icmp eq i64 %#7, 0
+  %spec.select73.i = select i1 %cmp38.not.i, i8 %any_prefix.5.i, i8 1
+  %any_prefix.6.i = select i1 %cmp35.i, i8 %spec.select73.i, i8 %any_prefix.5.i
+  %cmp41.i24 = icmp ugt i64 %sub.i17, 7
+  %cmp44.not.i = icmp ult i64 %st.i.sroa.8.0, 72057594037927936
+  %spec.select74.i = select i1 %cmp44.not.i, i8 %any_prefix.6.i, i8 1
+  %any_prefix.7.i = select i1 %cmp41.i24, i8 %spec.select74.i, i8 %any_prefix.6.i
+  %mul.i = shl i64 %sub.i17, 3
+  %loadedv.i = trunc nuw i8 %any_prefix.7.i to i1
+  %#8 = shl i64 127, %mul.i
+  %#9 = and i64 %#8, %st.i.sroa.8.0
+  %#10 = icmp ne i64 %#9, 0
+  %#11 = select i1 %loadedv.i, i1 1, i1 %#10
+  %spec.select = select i1 %#11, i64 1, i64 8
+  br label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+if.then20.i:
+  br label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit:
+  %retval.2.i = phi i64 [ 4, %entry ], [ 64, %if.then20.i ], [ %p.i.sroa.0.0, %_ZN15l_w64_subscriptL10parse_wireEmm.exit ], [ 4, %land.lhs.true.i ], [ 12, %if.then28.i ], [ 32, %if.end38.i ], [ 8, %if.end44.i ], [ %spec.select, %if.end.i16 ]
+  %#range_0_%retval.2.i = !range i64 %retval.2.i, i64 1, i64 65
+  ret i64 %#range_0_%retval.2.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %ss_depth = #x0000000000000002 (2)
+i64 noundef %ss_top = #x0000000000000000 (0)
+i64 noundef %ss_top_len = #x0000000000000000 (0)
+i64 noundef %prev_top = #x0000000000000001 (1)
+i64 noundef %prev_len = #x0000000000000002 (2)
+
+Source:
+i1 %cmp = #x0 (0)
+i1 %cmp1 = #x0 (0)
+i1 %or.cond = #x0 (0)
+i64 %#0 = #xfffffffffffffc19 (18446744073709550617, -999)
+i1 %or.cond109 = #x0 (0)
+i1 %or.cond179 = #x0 (0)
+  >> Jump to %if.end7
+i32 %conv = #x00000000 (0)
+i64 %shr = #x0000000000000000 (0)
+  >> Jump to %if.end78
+i1 %pushed.0 = #x0 (0)
+i64 %push_val.0 = #x0000000000000000 (0)
+i64 %push_len.0 = #x0000000000000000 (0)
+i1 %cmp79.not = #x1 (1)
+i64 %err.0 = #x0000000000000000 (0)
+  >> Jump to %if.end83
+  >> Jump to %if.end90
+i64 %stack.sroa.10.0 = #x0000000000000000 (0)
+i64 %stack.sroa.7.0 = #x0000000000000000 (0)
+i64 %stack.sroa.0.0 = #x0000000000000002 (2)
+i1 %cmp92 = #x0 (0)
+  >> Jump to %if.end95
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end7.i
+i1 %cmp8.i = #x0 (0)
+  >> Jump to %if.end19.i
+i1 %cmp20.i = #x0 (0)
+  >> Jump to %if.end31.i
+i1 %cmp32.i = #x0 (0)
+  >> Jump to %if.end43.i
+i1 %cmp44.i = #x0 (0)
+  >> Jump to %if.end55.i
+i1 %cmp56.i = #x0 (0)
+  >> Jump to %if.end67.i
+i1 %cmp68.i = #x0 (0)
+  >> Jump to %if.end79.i
+i1 %cmp80.i = #x1 (1)
+i1 %cmp83.not.i = #x1 (1)
+i1 %or.cond187 = #x1 (1)
+  >> Jump to %_ZL18w32_cast_bool_coremm.exit
+i1 %retval.0.i = #x0 (0)
+i64 %. = #x0000000000000008 (8)
+  >> Jump to %return
+i64 %retval.1 = #x0000000000000008 (8)
+i64 %#range_0_%retval.1 = #x0000000000000008 (8)
+
+Target:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i64 %#0 = #xfffffffffffffc19 (18446744073709550617, -999)
+i1 %or.cond57.i = #x0 (0)
+i1 %or.cond = #x0 (0)
+  >> Jump to %if.end7.i
+i64 %and.i = #x0000000000000000 (0)
+i64 %shr.i = #x0000000000000000 (0)
+i64 %and1.i = #x0000000000000000 (0)
+i1 %cmp.i1 = #x1 (1)
+  >> Jump to %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+i1 %cmp19.i = #x0 (0)
+i64 %p.i.sroa.0.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.27.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.33.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.37.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.41.0 = #x0000000000000000 (0)
+  >> Jump to %land.lhs.true.i
+i1 %cmp14.not.i = #x1 (1)
+  >> Jump to %if.end17.i
+  >> Jump to %if.end22.i
+i64 %sub.i = #x0000000000000001 (1)
+  >> Jump to %if.end38.i
+i64 %st.i.sroa.12.0 = #x0000000000000002 (2)
+i64 %st.i.sroa.8.0 = #x0000000000000001 (1)
+i64 %st.i.sroa.0.0 = #x0000000000000001 (1)
+i1 %executed.0.i = #x0 (0)
+i1 %cmp41.i = #x0 (0)
+i1 %or.cond58.i = #x0 (0)
+  >> Jump to %if.end44.i
+i1 %cmp46.i = #x0 (0)
+i1 %cmp.i15 = #x0 (0)
+i1 %or.cond96 = #x0 (0)
+  >> Jump to %if.end.i16
+i64 %sub.i17 = #x0000000000000001 (1)
+i1 %cmp1.not.i = #x1 (1)
+i64 %and.i44 = #x0000000000000001 (1)
+i1 %cmp2.not.i = #x1 (1)
+i1 %narrow = #x1 (1)
+i8 %any_prefix.0.i = #x01 (1)
+i1 %cmp5.i20 = #x0 (0)
+i64 %#2 = #x0000000000000000 (0)
+i1 %cmp8.not.i = #x1 (1)
+i8 %spec.select68.i = #x01 (1)
+i8 %any_prefix.1.i = #x01 (1)
+i1 %cmp11.i = #x0 (0)
+i64 %#3 = #x0000000000000000 (0)
+i1 %cmp14.not.i26 = #x1 (1)
+i8 %spec.select69.i = #x01 (1)
+i8 %any_prefix.2.i = #x01 (1)
+i1 %cmp17.i = #x0 (0)
+i64 %#4 = #x0000000000000000 (0)
+i1 %cmp20.not.i = #x1 (1)
+i8 %spec.select70.i = #x01 (1)
+i8 %any_prefix.3.i = #x01 (1)
+i1 %cmp23.i = #x0 (0)
+i64 %#5 = #x0000000000000000 (0)
+i1 %cmp26.not.i = #x1 (1)
+i8 %spec.select71.i = #x01 (1)
+i8 %any_prefix.4.i = #x01 (1)
+i1 %cmp29.i23 = #x0 (0)
+i64 %#6 = #x0000000000000000 (0)
+i1 %cmp32.not.i = #x1 (1)
+i8 %spec.select72.i = #x01 (1)
+i8 %any_prefix.5.i = #x01 (1)
+i1 %cmp35.i = #x0 (0)
+i64 %#7 = #x0000000000000000 (0)
+i1 %cmp38.not.i = #x1 (1)
+i8 %spec.select73.i = #x01 (1)
+i8 %any_prefix.6.i = #x01 (1)
+i1 %cmp41.i24 = #x0 (0)
+i1 %cmp44.not.i = #x1 (1)
+i8 %spec.select74.i = #x01 (1)
+i8 %any_prefix.7.i = #x01 (1)
+i64 %mul.i = #x0000000000000008 (8)
+i1 %loadedv.i = #x1 (1)
+i64 %#8 = #x0000000000007f00 (32512)
+i64 %#9 = #x0000000000000000 (0)
+i1 %#10 = #x0 (0)
+i1 %#11 = #x1 (1)
+i64 %spec.select = #x0000000000000001 (1)
+  >> Jump to %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+i64 %retval.2.i = #x0000000000000001 (1)
+i64 %#range_0_%retval.2.i = #x0000000000000001 (1)
+Source value: #x0000000000000008 (8)
+Target value: #x0000000000000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+MUTANT_CAUGHT=m1_no_popstack
+
+## mutant: m2_wrong_top
+# command: alive-tv --always-verify mutant/build/m2_wrong_top.fn.ll build/l_cell_p2sh_subscript_leaf.ll
+
+----------------------------------------
+define i64 @cell_p2sh_subscript_leaf(i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %prev_top, i64 noundef %prev_len) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %ss_top_len, 2
+  %cmp1 = icmp ugt i64 noundef %prev_len, 8
+  %or.cond = or i1 %cmp, %cmp1
+  %#0 = add i64 noundef %ss_depth, -1001
+  %or.cond108 = icmp ult i64 %#0, -1000
+  %or.cond148 = or i1 %or.cond108, %or.cond
+  br i1 %or.cond148, label %return, label %if.end7
+
+if.end7:
+  %conv = trunc i64 noundef %ss_top to i32
+  %sub = add nsw i64 noundef %ss_depth, -1
+  switch i64 noundef %ss_top_len, label %if.else44 [
+    i64 0, label %if.end79
+    i64 1, label %if.then12
+  ]
+
+if.else44:
+  %trunc = trunc i64 noundef %ss_top to i8
+  switch i8 %trunc, label %if.else58 [
+    i8 1, label %if.end79
+    i8 76, label %if.then52
+  ]
+
+if.else58:
+  %conv45 = and i32 %conv, 255
+  %#1 = add nsw i32 %conv45, 4294967295
+  %or.cond110 = icmp ult i32 %#1, 75
+  %#2 = add nsw i32 %conv45, 4294967219
+  %or.cond111 = icmp ult i32 %#2, 2
+  %or.cond138 = select i1 %or.cond110, i1 1, i1 %or.cond111
+  br i1 %or.cond138, label %if.end79, label %return
+
+if.then52:
+  %#3 = and i64 noundef %ss_top, 65280
+  %cmp54 = icmp eq i64 %#3, 0
+  %.137 = select i1 %cmp54, i64 0, i64 64
+  br label %if.end79
+
+if.then12:
+  %conv13 = and i32 %conv, 255
+  %cmp14 = icmp samesign ult i32 %conv13, 79
+  br i1 %cmp14, label %if.then15, label %if.else21
+
+if.then15:
+  %cmp17 = icmp eq i32 %conv13, 0
+  %.135 = select i1 %cmp17, i64 0, i64 64
+  br label %if.end79
+
+if.else21:
+  %cmp23 = icmp eq i32 %conv13, 79
+  %#4 = add nsw i32 %conv13, 4294967215
+  %or.cond109 = icmp ult i32 %#4, 16
+  %or.cond149 = select i1 %cmp23, i1 1, i1 %or.cond109
+  br i1 %or.cond149, label %if.end79, label %if.else34
+
+if.else34:
+  %cmp36 = icmp eq i32 %conv13, 106
+  br i1 %cmp36, label %if.end79, label %return
+
+if.end79:
+  %pushed.0 = phi i1 [ 0, %if.end7 ], [ %cmp17, %if.then15 ], [ 1, %if.else21 ], [ 0, %if.else34 ], [ %cmp54, %if.then52 ], [ 0, %if.else58 ], [ 1, %if.else44 ]
+  %cmp80.not = phi i1 [ 1, %if.end7 ], [ %cmp17, %if.then15 ], [ 1, %if.else21 ], [ 0, %if.else34 ], [ %cmp54, %if.then52 ], [ 0, %if.else58 ], [ 1, %if.else44 ]
+  %err.0 = phi i64 [ noundef %ss_top_len, %if.end7 ], [ %.135, %if.then15 ], [ 0, %if.else21 ], [ 12, %if.else34 ], [ %.137, %if.then52 ], [ 64, %if.else58 ], [ 0, %if.else44 ]
+  br i1 %cmp80.not, label %if.end84, label %return
+
+if.end84:
+  br i1 %pushed.0, label %if.then85, label %if.end91
+
+if.then85:
+  %cmp87 = icmp ugt i64 noundef %ss_depth, 1000
+  br i1 %cmp87, label %return, label %if.end91
+
+if.end91:
+  %stack.sroa.0.0 = phi i64 [ noundef %ss_depth, %if.then85 ], [ %sub, %if.end84 ]
+  %cmp93 = icmp eq i64 %stack.sroa.0.0, 0
+  br i1 %cmp93, label %return, label %if.end96
+
+if.end96:
+  %cmp.not.i = icmp eq i64 noundef %ss_top_len, 0
+  br i1 %cmp.not.i, label %if.end7.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %and.i144 = and i64 noundef %ss_top, 255
+  %cmp1.not.i = icmp eq i64 %and.i144, 0
+  br i1 %cmp1.not.i, label %if.end7.i, label %if.then.i
+
+if.end7.i:
+  %cmp8.i = icmp samesign ugt i64 noundef %ss_top_len, 1
+  br i1 %cmp8.i, label %land.lhs.true9.i, label %_ZL18w32_cast_bool_coremm.exit
+
+land.lhs.true9.i:
+  %#5 = and i64 noundef %ss_top, 32512
+  %spec.select = icmp ne i64 %#5, 0
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+if.then.i:
+  %cmp2.i = icmp ne i64 noundef %ss_top_len, 1
+  %cmp5.i = icmp ne i64 %and.i144, 128
+  %or.cond147.not = or i1 %cmp2.i, %cmp5.i
+  br label %_ZL18w32_cast_bool_coremm.exit
+
+_ZL18w32_cast_bool_coremm.exit:
+  %retval.0.i = phi i1 [ 0, %if.end7.i ], [ %or.cond147.not, %if.then.i ], [ %spec.select, %land.lhs.true9.i ]
+  %. = select i1 %retval.0.i, i64 1, i64 8
+  br label %return
+
+return:
+  %retval.1 = phi i64 [ 4, %entry ], [ 4, %if.else34 ], [ 4, %if.else58 ], [ 32, %if.then85 ], [ 8, %if.end91 ], [ %., %_ZL18w32_cast_bool_coremm.exit ], [ %err.0, %if.end79 ]
+  %#range_0_%retval.1 = !range i64 %retval.1, i64 0, i64 65
+  ret i64 %#range_0_%retval.1
+}
+=>
+define i64 @cell_p2sh_subscript_leaf(i64 noundef %ss_depth, i64 noundef %ss_top, i64 noundef %ss_top_len, i64 noundef %prev_top, i64 noundef %prev_len) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %ss_top_len, 2
+  %cmp1.i = icmp ugt i64 noundef %prev_len, 8
+  %or.cond.i = or i1 %cmp.i, %cmp1.i
+  %#0 = add i64 noundef %ss_depth, -1001
+  %or.cond57.i = icmp ult i64 %#0, -1000
+  %or.cond = or i1 %or.cond57.i, %or.cond.i
+  br i1 %or.cond, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end7.i
+
+if.end7.i:
+  %and.i = and i64 noundef %ss_top, 255
+  %shr.i = lshr i64 noundef %ss_top, 8
+  %and1.i = and i64 %shr.i, 255
+  %cmp.i1 = icmp eq i64 noundef %ss_top_len, 0
+  br i1 %cmp.i1, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end.i2
+
+if.end.i2:
+  %cmp2.i = icmp eq i64 %and.i, 0
+  br i1 %cmp2.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end4.i
+
+if.end4.i:
+  %cmp5.i = icmp samesign ult i64 %and.i, 76
+  br i1 %cmp5.i, label %if.then6.i, label %if.end11.i
+
+if.then6.i:
+  %cmp7.not.i = icmp samesign ugt i64 noundef %ss_top_len, %and.i
+  br i1 %cmp7.not.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.then8.i
+
+if.then8.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.end11.i:
+  %trunc = trunc i64 noundef %ss_top to i8
+  switch i8 %trunc, label %if.end42.i [
+    i8 76, label %if.then13.i
+    i8 77, label %if.then31.i
+    i8 78, label %if.then31.i
+    i8 79, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+  ]
+
+if.end42.i:
+  %#1 = add nsw i64 %and.i, -81
+  %or.cond.i4 = icmp ult i64 %#1, 16
+  br i1 %or.cond.i4, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end51.i
+
+if.end51.i:
+  %cmp52.i = icmp eq i64 %and.i, 106
+  br i1 %cmp52.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end54.i
+
+if.end54.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.then13.i:
+  %cmp14.i = icmp eq i64 noundef %ss_top_len, 1
+  br i1 %cmp14.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.end16.i
+
+if.end16.i:
+  %cmp18.not.i = icmp eq i64 %and1.i, 0
+  br i1 %cmp18.not.i, label %_ZN15l_w64_subscriptL10parse_wireEmm.exit, label %if.then19.i
+
+if.then19.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+if.then31.i:
+  br label %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+
+_ZN15l_w64_subscriptL10parse_wireEmm.exit:
+  %cmp19.i = phi i1 [ 1, %if.then8.i ], [ 0, %if.end54.i ], [ 1, %if.then31.i ], [ 1, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ 0, %if.then6.i ], [ 0, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 1, %if.then13.i ]
+  %p.i.sroa.0.0 = phi i64 [ 3, %if.then8.i ], [ 4, %if.end54.i ], [ 3, %if.then31.i ], [ 3, %if.then19.i ], [ 0, %if.end7.i ], [ 1, %if.end.i2 ], [ 1, %if.then6.i ], [ 1, %if.end16.i ], [ 2, %if.end11.i ], [ 2, %if.end42.i ], [ 2, %if.end51.i ], [ 3, %if.then13.i ]
+  %p.i.sroa.27.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ 0, %if.then6.i ], [ 0, %if.end16.i ], [ 79, %if.end11.i ], [ %and.i, %if.end42.i ], [ 106, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.33.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ %and1.i, %if.then6.i ], [ 0, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.37.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 0, %if.end.i2 ], [ %and.i, %if.then6.i ], [ %and1.i, %if.end16.i ], [ 0, %if.end11.i ], [ 0, %if.end42.i ], [ 0, %if.end51.i ], [ 0, %if.then13.i ]
+  %p.i.sroa.41.0 = phi i64 [ 0, %if.then8.i ], [ 0, %if.end54.i ], [ 0, %if.then31.i ], [ 0, %if.then19.i ], [ 0, %if.end7.i ], [ 1, %if.end.i2 ], [ 2, %if.then6.i ], [ 2, %if.end16.i ], [ 1, %if.end11.i ], [ 1, %if.end42.i ], [ 1, %if.end51.i ], [ 0, %if.then13.i ]
+  switch i64 %p.i.sroa.0.0, label %land.lhs.true.i [
+    i64 4, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+    i64 3, label %if.then20.i
+  ]
+
+land.lhs.true.i:
+  %cmp14.not.i = icmp eq i64 %p.i.sroa.41.0, noundef %ss_top_len
+  br i1 %cmp14.not.i, label %if.end17.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+if.end17.i:
+  br i1 %cmp19.i, label %if.then20.i, label %if.end22.i
+
+if.end22.i:
+  %sub.i = add nsw i64 noundef %ss_depth, -1
+  switch i64 %p.i.sroa.0.0, label %if.end38.i [
+    i64 1, label %if.then25.i
+    i64 2, label %if.then28.i
+  ]
+
+if.then25.i:
+  br label %if.end38.i
+
+if.then28.i:
+  %cmp29.i = icmp eq i64 %p.i.sroa.27.0, 106
+  br i1 %cmp29.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end32.i
+
+if.end32.i:
+  %cmp34.i = icmp eq i64 %p.i.sroa.27.0, 79
+  %sub36.i = add nsw i64 %p.i.sroa.27.0, -80
+  %cond.i = select i1 %cmp34.i, i64 129, i64 %sub36.i
+  br label %if.end38.i
+
+if.end38.i:
+  %st.i.sroa.12.0 = phi i64 [ noundef %prev_len, %if.end22.i ], [ 1, %if.end32.i ], [ %p.i.sroa.37.0, %if.then25.i ]
+  %st.i.sroa.8.0 = phi i64 [ noundef %prev_top, %if.end22.i ], [ %cond.i, %if.end32.i ], [ %p.i.sroa.33.0, %if.then25.i ]
+  %st.i.sroa.0.0 = phi i64 [ %sub.i, %if.end22.i ], [ noundef %ss_depth, %if.end32.i ], [ noundef %ss_depth, %if.then25.i ]
+  %executed.0.i = phi i1 [ 0, %if.end22.i ], [ 1, %if.end32.i ], [ 1, %if.then25.i ]
+  %cmp41.i = icmp ugt i64 %st.i.sroa.0.0, 1000
+  %or.cond58.i = select i1 %executed.0.i, i1 %cmp41.i, i1 0
+  br i1 %or.cond58.i, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end44.i
+
+if.end44.i:
+  %cmp46.i = icmp eq i64 %st.i.sroa.0.0, 0
+  %cmp.i15 = icmp eq i64 %st.i.sroa.12.0, 0
+  %or.cond96 = or i1 %cmp.i15, %cmp46.i
+  br i1 %or.cond96, label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit, label %if.end.i16
+
+if.end.i16:
+  %sub.i17 = add nsw i64 %st.i.sroa.12.0, -1
+  %cmp1.not.i = icmp ne i64 %sub.i17, 0
+  %and.i44 = and i64 %st.i.sroa.8.0, 255
+  %cmp2.not.i = icmp ne i64 %and.i44, 0
+  %narrow = select i1 %cmp1.not.i, i1 %cmp2.not.i, i1 0
+  %any_prefix.0.i = zext i1 %narrow to i8
+  %cmp5.i20 = icmp ugt i64 %sub.i17, 1
+  %#2 = and i64 %st.i.sroa.8.0, 65280
+  %cmp8.not.i = icmp eq i64 %#2, 0
+  %spec.select68.i = select i1 %cmp8.not.i, i8 %any_prefix.0.i, i8 1
+  %any_prefix.1.i = select i1 %cmp5.i20, i8 %spec.select68.i, i8 %any_prefix.0.i
+  %cmp11.i = icmp ugt i64 %sub.i17, 2
+  %#3 = and i64 %st.i.sroa.8.0, 16711680
+  %cmp14.not.i26 = icmp eq i64 %#3, 0
+  %spec.select69.i = select i1 %cmp14.not.i26, i8 %any_prefix.1.i, i8 1
+  %any_prefix.2.i = select i1 %cmp11.i, i8 %spec.select69.i, i8 %any_prefix.1.i
+  %cmp17.i = icmp ugt i64 %sub.i17, 3
+  %#4 = and i64 %st.i.sroa.8.0, 4278190080
+  %cmp20.not.i = icmp eq i64 %#4, 0
+  %spec.select70.i = select i1 %cmp20.not.i, i8 %any_prefix.2.i, i8 1
+  %any_prefix.3.i = select i1 %cmp17.i, i8 %spec.select70.i, i8 %any_prefix.2.i
+  %cmp23.i = icmp ugt i64 %sub.i17, 4
+  %#5 = and i64 %st.i.sroa.8.0, 1095216660480
+  %cmp26.not.i = icmp eq i64 %#5, 0
+  %spec.select71.i = select i1 %cmp26.not.i, i8 %any_prefix.3.i, i8 1
+  %any_prefix.4.i = select i1 %cmp23.i, i8 %spec.select71.i, i8 %any_prefix.3.i
+  %cmp29.i23 = icmp ugt i64 %sub.i17, 5
+  %#6 = and i64 %st.i.sroa.8.0, 280375465082880
+  %cmp32.not.i = icmp eq i64 %#6, 0
+  %spec.select72.i = select i1 %cmp32.not.i, i8 %any_prefix.4.i, i8 1
+  %any_prefix.5.i = select i1 %cmp29.i23, i8 %spec.select72.i, i8 %any_prefix.4.i
+  %cmp35.i = icmp ugt i64 %sub.i17, 6
+  %#7 = and i64 %st.i.sroa.8.0, 71776119061217280
+  %cmp38.not.i = icmp eq i64 %#7, 0
+  %spec.select73.i = select i1 %cmp38.not.i, i8 %any_prefix.5.i, i8 1
+  %any_prefix.6.i = select i1 %cmp35.i, i8 %spec.select73.i, i8 %any_prefix.5.i
+  %cmp41.i24 = icmp ugt i64 %sub.i17, 7
+  %cmp44.not.i = icmp ult i64 %st.i.sroa.8.0, 72057594037927936
+  %spec.select74.i = select i1 %cmp44.not.i, i8 %any_prefix.6.i, i8 1
+  %any_prefix.7.i = select i1 %cmp41.i24, i8 %spec.select74.i, i8 %any_prefix.6.i
+  %mul.i = shl i64 %sub.i17, 3
+  %loadedv.i = trunc nuw i8 %any_prefix.7.i to i1
+  %#8 = shl i64 127, %mul.i
+  %#9 = and i64 %#8, %st.i.sroa.8.0
+  %#10 = icmp ne i64 %#9, 0
+  %#11 = select i1 %loadedv.i, i1 1, i1 %#10
+  %spec.select = select i1 %#11, i64 1, i64 8
+  br label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+if.then20.i:
+  br label %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+
+_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit:
+  %retval.2.i = phi i64 [ 4, %entry ], [ 64, %if.then20.i ], [ %p.i.sroa.0.0, %_ZN15l_w64_subscriptL10parse_wireEmm.exit ], [ 4, %land.lhs.true.i ], [ 12, %if.then28.i ], [ 32, %if.end38.i ], [ 8, %if.end44.i ], [ %spec.select, %if.end.i16 ]
+  %#range_0_%retval.2.i = !range i64 %retval.2.i, i64 1, i64 65
+  ret i64 %#range_0_%retval.2.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %ss_depth = #x000000000000000c (12)
+i64 noundef %ss_top = #x0000000000000000 (0)
+i64 noundef %ss_top_len = #x0000000000000000 (0)
+i64 noundef %prev_top = #x0000000000000001 (1)
+i64 noundef %prev_len = #x0000000000000001 (1)
+
+Source:
+i1 %cmp = #x0 (0)
+i1 %cmp1 = #x0 (0)
+i1 %or.cond = #x0 (0)
+i64 %#0 = #xfffffffffffffc23 (18446744073709550627, -989)
+i1 %or.cond108 = #x0 (0)
+i1 %or.cond148 = #x0 (0)
+  >> Jump to %if.end7
+i32 %conv = #x00000000 (0)
+i64 %sub = #x000000000000000b (11)
+  >> Jump to %if.end79
+i1 %pushed.0 = #x0 (0)
+i1 %cmp80.not = #x1 (1)
+i64 %err.0 = #x0000000000000000 (0)
+  >> Jump to %if.end84
+  >> Jump to %if.end91
+i64 %stack.sroa.0.0 = #x000000000000000b (11)
+i1 %cmp93 = #x0 (0)
+  >> Jump to %if.end96
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end7.i
+i1 %cmp8.i = #x0 (0)
+  >> Jump to %_ZL18w32_cast_bool_coremm.exit
+i1 %retval.0.i = #x0 (0)
+i64 %. = #x0000000000000008 (8)
+  >> Jump to %return
+i64 %retval.1 = #x0000000000000008 (8)
+i64 %#range_0_%retval.1 = #x0000000000000008 (8)
+
+Target:
+i1 %cmp.i = #x0 (0)
+i1 %cmp1.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+i64 %#0 = #xfffffffffffffc23 (18446744073709550627, -989)
+i1 %or.cond57.i = #x0 (0)
+i1 %or.cond = #x0 (0)
+  >> Jump to %if.end7.i
+i64 %and.i = #x0000000000000000 (0)
+i64 %shr.i = #x0000000000000000 (0)
+i64 %and1.i = #x0000000000000000 (0)
+i1 %cmp.i1 = #x1 (1)
+  >> Jump to %_ZN15l_w64_subscriptL10parse_wireEmm.exit
+i1 %cmp19.i = #x0 (0)
+i64 %p.i.sroa.0.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.27.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.33.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.37.0 = #x0000000000000000 (0)
+i64 %p.i.sroa.41.0 = #x0000000000000000 (0)
+  >> Jump to %land.lhs.true.i
+i1 %cmp14.not.i = #x1 (1)
+  >> Jump to %if.end17.i
+  >> Jump to %if.end22.i
+i64 %sub.i = #x000000000000000b (11)
+  >> Jump to %if.end38.i
+i64 %st.i.sroa.12.0 = #x0000000000000001 (1)
+i64 %st.i.sroa.8.0 = #x0000000000000001 (1)
+i64 %st.i.sroa.0.0 = #x000000000000000b (11)
+i1 %executed.0.i = #x0 (0)
+i1 %cmp41.i = #x0 (0)
+i1 %or.cond58.i = #x0 (0)
+  >> Jump to %if.end44.i
+i1 %cmp46.i = #x0 (0)
+i1 %cmp.i15 = #x0 (0)
+i1 %or.cond96 = #x0 (0)
+  >> Jump to %if.end.i16
+i64 %sub.i17 = #x0000000000000000 (0)
+i1 %cmp1.not.i = #x0 (0)
+i64 %and.i44 = #x0000000000000001 (1)
+i1 %cmp2.not.i = #x1 (1)
+i1 %narrow = #x0 (0)
+i8 %any_prefix.0.i = #x00 (0)
+i1 %cmp5.i20 = #x0 (0)
+i64 %#2 = #x0000000000000000 (0)
+i1 %cmp8.not.i = #x1 (1)
+i8 %spec.select68.i = #x00 (0)
+i8 %any_prefix.1.i = #x00 (0)
+i1 %cmp11.i = #x0 (0)
+i64 %#3 = #x0000000000000000 (0)
+i1 %cmp14.not.i26 = #x1 (1)
+i8 %spec.select69.i = #x00 (0)
+i8 %any_prefix.2.i = #x00 (0)
+i1 %cmp17.i = #x0 (0)
+i64 %#4 = #x0000000000000000 (0)
+i1 %cmp20.not.i = #x1 (1)
+i8 %spec.select70.i = #x00 (0)
+i8 %any_prefix.3.i = #x00 (0)
+i1 %cmp23.i = #x0 (0)
+i64 %#5 = #x0000000000000000 (0)
+i1 %cmp26.not.i = #x1 (1)
+i8 %spec.select71.i = #x00 (0)
+i8 %any_prefix.4.i = #x00 (0)
+i1 %cmp29.i23 = #x0 (0)
+i64 %#6 = #x0000000000000000 (0)
+i1 %cmp32.not.i = #x1 (1)
+i8 %spec.select72.i = #x00 (0)
+i8 %any_prefix.5.i = #x00 (0)
+i1 %cmp35.i = #x0 (0)
+i64 %#7 = #x0000000000000000 (0)
+i1 %cmp38.not.i = #x1 (1)
+i8 %spec.select73.i = #x00 (0)
+i8 %any_prefix.6.i = #x00 (0)
+i1 %cmp41.i24 = #x0 (0)
+i1 %cmp44.not.i = #x1 (1)
+i8 %spec.select74.i = #x00 (0)
+i8 %any_prefix.7.i = #x00 (0)
+i64 %mul.i = #x0000000000000000 (0)
+i1 %loadedv.i = #x0 (0)
+i64 %#8 = #x000000000000007f (127)
+i64 %#9 = #x0000000000000001 (1)
+i1 %#10 = #x1 (1)
+i1 %#11 = #x1 (1)
+i64 %spec.select = #x0000000000000001 (1)
+  >> Jump to %_ZN15l_w64_subscriptL16verify_subscriptEmmmmm.exit
+i64 %retval.2.i = #x0000000000000001 (1)
+i64 %#range_0_%retval.2.i = #x0000000000000001 (1)
+Source value: #x0000000000000008 (8)
+Target value: #x0000000000000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+MUTANT_CAUGHT=m2_wrong_top
+STATUS=mutants-caught

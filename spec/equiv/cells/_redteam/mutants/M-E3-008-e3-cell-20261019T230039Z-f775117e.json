@@ -1,0 +1,37 @@
+{
+  "applied_at_utc": "2026-10-19T23:00:39+00:00",
+  "catalogue_version": "0.1-planned",
+  "catchers": [
+    "alive2",
+    "saw",
+    "error-enum"
+  ],
+  "classification": null,
+  "description": "CHECKMULTISIGVERIFY failure maps to EVAL_FALSE",
+  "diff": "--- a/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp\n+++ b/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp\n@@ -66,7 +66,7 @@\n   if (pe != TWIN_OK) return pe;\n   if (wire == 0xaf) {\n     if (fSuccess) { st.stack.n -= 1; return TWIN_OK; }\n-    return TWIN_CHECKMULTISIGVERIFY;\n+    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE\n   }\n   return TWIN_OK;\n }\n",
+  "expect_count": 1,
+  "expected_failing_cells": [
+    "cells/e3-cms/C-L-cms-1of1"
+  ],
+  "family": "e3-cms",
+  "find": "    return TWIN_CHECKMULTISIGVERIFY;",
+  "git_head": "4d62a97e551082a69b13f495365bff0a903b0c99",
+  "log_hashes": [],
+  "mutant_id": "M-E3-008",
+  "observed": null,
+  "operator": null,
+  "outcome": "pending",
+  "pins_sha256": "84a2d3cf9eb9f36aff00d0441ee4b98b4f9320415d511cb775a029f36f0e4400",
+  "replace": "    return (TwinErr)2; // M-E3-008 mutant: CHECKMULTISIGVERIFY -> EVAL_FALSE",
+  "reverted_at_utc": null,
+  "schema": "redteam-mutant-v1",
+  "status": "applied",
+  "target": {
+    "path": "/home/ubuntu/btc-lean-public/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp",
+    "path_relative_to_repo": "spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp",
+    "sha256_after": "7aefca80f280dcaf92c15af22fd375365e3ba2fe8cb96bd25e7b4af6d7be1434",
+    "sha256_before": "f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41"
+  },
+  "target_kind": "e3-cell",
+  "witness": null
+}

@@ -1,0 +1,25 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_altstep.bc";
+mL <- llvm_load_module "l_cell_altstep.bc";
+
+// Symbolic in the wire, the fExec flag, the pre-step opcode count, both
+// depths and both top bytes.  This ranges over, in particular:
+//   - opc = 200 (one opcode of budget left) and opc = 201 (exhausted);
+//   - sn = 0 (TOALTSTACK underflow) and an = 0 (FROMALTSTACK underflow);
+//   - exec = 0 (unexecuted branch) and exec = 1.
+let spec = do {
+  wire <- llvm_fresh_var "wire" (llvm_int 8);
+  exec <- llvm_fresh_var "exec" (llvm_int 8);
+  opc <- llvm_fresh_var "opc" (llvm_int 32);
+  sn <- llvm_fresh_var "sn" (llvm_int 8);
+  an <- llvm_fresh_var "an" (llvm_int 8);
+  s_top <- llvm_fresh_var "s_top" (llvm_int 8);
+  a_top <- llvm_fresh_var "a_top" (llvm_int 8);
+  llvm_execute_func [llvm_term wire, llvm_term exec, llvm_term opc,
+                     llvm_term sn, llvm_term an, llvm_term s_top,
+                     llvm_term a_top];
+  llvm_return (llvm_term {{ step wire exec opc sn an s_top a_top }});
+};
+llvm_verify mC "cell_altstep" [] false spec z3;
+llvm_verify mL "cell_altstep" [] false spec z3;
+print "CELL_W32_ALTSTEP_SAW_GREEN";

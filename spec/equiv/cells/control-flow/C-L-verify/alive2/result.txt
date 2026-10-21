@@ -1,0 +1,193 @@
+# cell: control-flow/C-L-verify
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops source: build/twin_ops.h sha256 c3077ef1f962c8d68be7493cc54f78f963ba919f0ea125dbc809e6b44c7ed5f8
+# build: build/build.txt
+# command: alive-tv build/c_cell_verify_len0.ll build/l_cell_verify_len0.ll
+
+----------------------------------------
+define i64 @cell_verify_len0(i32 noundef %depth) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i32 noundef %depth, 0
+  %spec.select10 = select i1 %cmp.i, i32 72, i32 44
+  %and1.i = shl i32 noundef %depth, 8
+  %#0 = and i32 %and1.i, 65280
+  %add48.i = or i32 %spec.select10, %#0
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 44, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+=>
+define i64 @cell_verify_len0(i32 noundef %depth) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp eq i32 noundef %depth, 0
+  %retval.0.i = select i1 %cmp.i, i32 72, i32 44
+  %and1.i = shl i32 noundef %depth, 8
+  %#0 = and i32 %and1.i, 65280
+  %add48.i = or i32 %retval.0.i, %#0
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 44, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_verify_len1.ll build/l_cell_verify_len1.ll
+
+----------------------------------------
+define i64 @cell_verify_len1(i32 noundef %depth, i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i7, label %_ZL11core_verifyILj1EEjjPKh.exit, label %for.cond.i.i.preheader
+
+for.cond.i.i.preheader:
+  %cmp1.not.i.i = icmp eq i8 noundef zeroext %b0, 0
+  br label %for.cond.i.i
+
+for.cond.i.i:
+  %i.0.i.i = phi i1 [ 0, %for.body.i.i ], [ 1, %for.cond.i.i.preheader ]
+  br i1 %i.0.i.i, label %for.body.i.i, label %_ZL13core_cast_lenILj1EEbPKh.exit
+
+for.body.i.i:
+  br i1 %cmp1.not.i.i, label %for.cond.i.i, label %if.then.i.i
+
+if.then.i.i:
+  %cmp6.i.i = icmp ne i8 noundef zeroext %b0, 128
+  br label %_ZL13core_cast_lenILj1EEbPKh.exit
+
+_ZL13core_cast_lenILj1EEbPKh.exit:
+  %retval.0.i.i = phi i1 [ %cmp6.i.i, %if.then.i.i ], [ undef, %for.cond.i.i ]
+  %spec.select.i.i = and i1 %i.0.i.i, %retval.0.i.i
+  %..i = select i1 %spec.select.i.i, i32 0, i32 11
+  br label %_ZL11core_verifyILj1EEjjPKh.exit
+
+_ZL11core_verifyILj1EEjjPKh.exit:
+  %retval.1.i = phi i32 [ %..i, %_ZL13core_cast_lenILj1EEbPKh.exit ], [ 18, %entry ]
+  %cmp = icmp eq i32 %retval.1.i, 0
+  %sub = sext i1 %cmp to i32
+  %spec.select = add i32 noundef %depth, %sub
+  %#0 = shl nsw nuw i32 %retval.1.i, 2
+  %#1 = zext i1 %cmp to i32
+  %#2 = or i32 %#0, %#1
+  %and1.i = shl i32 %spec.select, 8
+  %#3 = and i32 %and1.i, 65280
+  %add48.i = or i32 %#3, %#2
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+=>
+define i64 @cell_verify_len1(i32 noundef %depth, i8 noundef zeroext %b0) nofree willreturn memory(none) {
+entry:
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  %#0 = and i8 noundef zeroext %b0, 127
+  %spec.select.i.not = icmp eq i8 %#0, 0
+  %spec.select10 = select i1 %spec.select.i.not, i32 11, i32 0
+  %retval.0.i = select i1 %cmp.i7, i32 18, i32 %spec.select10
+  %cmp = icmp eq i32 %retval.0.i, 0
+  %sub = sext i1 %cmp to i32
+  %spec.select = add i32 noundef %depth, %sub
+  %#1 = shl nsw nuw i32 %retval.0.i, 2
+  %#2 = zext i1 %cmp to i32
+  %#3 = or i32 %#1, %#2
+  %and1.i = shl i32 %spec.select, 8
+  %#4 = and i32 %and1.i, 65280
+  %add48.i = or i32 %#4, %#3
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv build/c_cell_verify_len2.ll build/l_cell_verify_len2.ll
+
+----------------------------------------
+define i64 @cell_verify_len2(i32 noundef %depth, i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %vch = alloca i64 2, align 1, dead
+  start_lifetime ptr %vch
+  store i8 noundef zeroext %b0, ptr %vch, align 1
+  %arrayinit.element = gep inbounds nuw ptr %vch, 1 x i64 1
+  store i8 noundef zeroext %b1, ptr %arrayinit.element, align 1
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  br i1 %cmp.i7, label %_ZL11core_verifyILj2EEjjPKh.exit, label %for.body.i.i
+
+for.body.i.i:
+  %indvars.iv = phi i64 [ %indvars.iv.next, %for.inc.i.i ], [ 0, %entry ]
+  %arrayidx.i.i = gep inbounds nuw ptr %vch, 1 x i64 %indvars.iv
+  %#0 = load i8, ptr %arrayidx.i.i, align 1
+  %cmp1.not.i.i.not.not.not = icmp ne i8 %#0, 0
+  br i1 %cmp1.not.i.i.not.not.not, label %if.then.i.i, label %for.inc.i.i
+
+if.then.i.i:
+  %cmp2.i.i = icmp ne i64 %indvars.iv, 1
+  %cmp6.i.i = icmp ne i8 %#0, 128
+  %or.cond.i.i.not = or i1 %cmp2.i.i, %cmp6.i.i
+  br label %_ZL13core_cast_lenILj2EEbPKh.exit
+
+for.inc.i.i:
+  %indvars.iv.next = add nsw nuw i64 %indvars.iv, 1
+  %cmp.i.i = icmp eq i64 %indvars.iv, 0
+  br i1 %cmp.i.i, label %for.body.i.i, label %_ZL13core_cast_lenILj2EEbPKh.exit
+
+_ZL13core_cast_lenILj2EEbPKh.exit:
+  %retval.0.i.i = phi i1 [ %or.cond.i.i.not, %if.then.i.i ], [ undef, %for.inc.i.i ]
+  %spec.select.i.i = and i1 %cmp1.not.i.i.not.not.not, %retval.0.i.i
+  %..i = select i1 %spec.select.i.i, i32 0, i32 11
+  br label %_ZL11core_verifyILj2EEjjPKh.exit
+
+_ZL11core_verifyILj2EEjjPKh.exit:
+  %retval.1.i = phi i32 [ %..i, %_ZL13core_cast_lenILj2EEbPKh.exit ], [ 18, %entry ]
+  %cmp = icmp eq i32 %retval.1.i, 0
+  %sub = sext i1 %cmp to i32
+  %spec.select = add i32 noundef %depth, %sub
+  %#1 = shl nsw nuw i32 %retval.1.i, 2
+  %#2 = zext i1 %cmp to i32
+  %#3 = or i32 %#1, %#2
+  %and1.i = shl i32 %spec.select, 8
+  %#4 = and i32 %and1.i, 65280
+  %add48.i = or i32 %#4, %#3
+  %add4.i = zext nneg i32 %add48.i to i64
+  end_lifetime ptr %vch
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+=>
+define i64 @cell_verify_len2(i32 noundef %depth, i8 noundef zeroext %b0, i8 noundef zeroext %b1) nofree willreturn memory(none) {
+entry:
+  %cmp.i7 = icmp eq i32 noundef %depth, 0
+  %#0 = and i8 noundef zeroext %b1, 127
+  %#1 = or i8 noundef zeroext %b0, %#0
+  %#2 = icmp eq i8 %#1, 0
+  %retval.0.i8 = select i1 %#2, i32 11, i32 0
+  %retval.0.i = select i1 %cmp.i7, i32 18, i32 %retval.0.i8
+  %cmp = icmp eq i32 %retval.0.i, 0
+  %sub = sext i1 %cmp to i32
+  %spec.select = add i32 noundef %depth, %sub
+  %#3 = shl nsw nuw i32 %retval.0.i, 2
+  %#4 = zext i1 %cmp to i32
+  %#5 = or i32 %#3, %#4
+  %and1.i = shl i32 %spec.select, 8
+  %#6 = and i32 %and1.i, 65280
+  %add48.i = or i32 %#6, %#5
+  %add4.i = zext nneg i32 %add48.i to i64
+  %#range_0_%add4.i = !range i64 %add4.i, i64 0, i64 65354
+  ret i64 %#range_0_%add4.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

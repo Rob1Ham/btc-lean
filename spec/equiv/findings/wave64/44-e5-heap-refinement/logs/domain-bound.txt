@@ -1,0 +1,27 @@
+== E5 B2 capacity envelope (counting argument, not a proof) ==
+CAP                          = 67108864
+MAX_SCRIPT_SIZE              = 10000
+MAX_STACK_SIZE               = 1000
+MAX_SCRIPT_ELEMENT_SIZE      = 520
+MAX_OPS_PER_SCRIPT           = 201
+
+outer stack growth churn     = 98608
+inner element vector churn   = 5360000
+parser prevector allocations = 14336
+CScript signature copies     = 2010000
+small temporaries            = 64000
+per EvalScript call          = 7546944
+x 4 EvalScript calls      = 30187776
+headroom CAP/total           = 2.22x
+
+ASSUMPTIONS (not proved here):
+  A1 libstdc++ vector growth doubles capacity and requests exactly
+     capacity*sizeof(element) bytes (verified for K<=1000 by SAW).
+  A2 the analysed execution is free of use-after-free/double-free, so
+     M2's no-recycle free/delete is unobservable in the value domain.
+  A3 cumulative requests, not live bytes, are what CAP must cover.
+
+OBLIGATION O-CAP: cumulative w64_off <= CAP on every executed path.
+Outside that domain M2 reaches _ZSt17__throw_bad_allocv, which is
+left external on purpose (no silent success).
+RESULT: envelope fits with 2.22x headroom

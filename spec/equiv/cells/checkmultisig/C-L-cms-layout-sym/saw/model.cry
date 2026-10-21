@@ -1,0 +1,42 @@
+// Independent Cryptol oracle for the SCR-114 layout cell.
+//
+// Written from Bitcoin Core interpreter.cpp:1118-1146 at the pin (and the
+// Lean checkMultiSig front matter), NOT from either cell leg:
+//   depth < 1                          -> underflow (3)
+//   nKeys < 0 || nKeys > 20            -> pubkey_count (1)
+//   opCount+nKeys > 201                -> op_count (2)
+//   depth < nKeys+2                    -> underflow (3)
+//   nSigs < 0 || nSigs > nKeys         -> sig_count (4)
+//   depth < nKeys+nSigs+3              -> underflow (3)
+//   otherwise                          -> ok (0), ikey2 = nKeys+2, isig = nKeys+3
+//
+// Signed-order-preserving encoding: a 32-bit two's-complement input x is
+// mapped to 0x80000000 + zext x in [64], so unsigned comparisons on the image
+// are signed comparisons on x, and the magnitude is (image - 0x80000000).
+module cms_layout_model where
+
+z : [64]
+z = zext (0x80000000 : [32])
+
+bias : [32] -> [64]
+bias x = z + zext x
+
+mag : [32] -> [64]
+mag x = bias x - z
+
+status : [32] -> [32] -> [32] -> [32] -> [64]
+status nkE nsE depthE opE =
+  if depthE == 0 then 3
+  else if (bias nkE < z) || (bias nkE > z + 20) then 1
+  else if zext opE + mag nkE > 201 then 2
+  else if zext depthE < mag nkE + 2 then 3
+  else if (bias nsE < z) || (bias nkE < bias nsE) then 4
+  else if zext depthE < mag nkE + mag nsE + 3 then 3
+  else 0
+
+cms_layout : [32] -> [32] -> [32] -> [32] -> [64]
+cms_layout nk ns d o =
+  (if status nk ns d o == 0
+   then ((mag nk) << 3) || ((mag ns) << 8) || ((mag nk + 2) << 13) ||
+        ((mag nk + 3) << 19)
+   else 0) || status nk ns d o

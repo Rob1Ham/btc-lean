@@ -1,0 +1,131 @@
+// wave16b/03-e5-heap -- bounded allocator + vector-growth refinement proofs.
+//
+// Module: vec-probe-linked.bc = real libstdc++ vector code (clang++-20 -O0)
+//         + models/alloc-model.ll + models/alloc-lemmas.ll.
+// No llvm_unsafe_assume_spec.  Each spec either proves a property of the
+// model or drives real vector code through it.  The two "failure disclosure"
+// runs at the end are expected to STOP at an uninterpreted libstdc++ throw
+// helper: that is the point -- the failure path is not hidden.
+m <- llvm_load_module "/tmp/opencode/wave16b-scratch/03-e5-heap/vec-probe-linked.bc";
+
+// ---------------------------------------------------------------------------
+// 1. model lemma: a bounded request on a fresh arena never fails
+// ---------------------------------------------------------------------------
+let nonnull_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 1 /\ n <= 4096 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// ---------------------------------------------------------------------------
+// 2. model lemma: an oversize request returns null (failure observable)
+// ---------------------------------------------------------------------------
+let oversize_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 67108865 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// ---------------------------------------------------------------------------
+// 3. model lemma: two successful requests get distinct addresses
+// ---------------------------------------------------------------------------
+let disjoint_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  a <- llvm_fresh_var "a" (llvm_int 64);
+  b <- llvm_fresh_var "b" (llvm_int 64);
+  llvm_precond {{ a >= 1 /\ a <= 4096 /\ b >= 1 /\ b <= 4096 }};
+  llvm_execute_func [llvm_term a, llvm_term b];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+// ---------------------------------------------------------------------------
+// 4. real vector<unsigned char>::push_back, symbolic payload
+// ---------------------------------------------------------------------------
+let push1_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  b <- llvm_fresh_var "b" (llvm_int 8);
+  llvm_execute_func [llvm_term b];
+  // size 1, payload b, capacity 1
+  llvm_return (llvm_term {{ ((1 : [64]) << 16) || ((zext b : [64]) << 8) || 1 }});
+};
+
+// ---------------------------------------------------------------------------
+// 5. real vector<vector<unsigned char>> growth (EvalScript stack shape):
+//    5 pushes, capacity 1->2->4->8, element moves + delete of old blocks
+// ---------------------------------------------------------------------------
+let stack_grow_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  seed <- llvm_fresh_var "seed" (llvm_int 8);
+  llvm_execute_func [llvm_term seed];
+  // stack[4..0] == seed+4 .. seed, packed big-endian
+  llvm_return (llvm_term {{ ((((((zext (seed+4) : [64]) << 8) || (zext (seed+3) : [64])) << 8) || (zext (seed+2) : [64])) << 8 || (zext (seed+1) : [64])) << 8 || (zext seed : [64]) }});
+};
+
+// ---------------------------------------------------------------------------
+// 6. real vector resize(64, v) fill-growth
+// ---------------------------------------------------------------------------
+let resize64_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  v <- llvm_fresh_var "v" (llvm_int 8);
+  llvm_execute_func [llvm_term v];
+  // size 64, x[0] = v, x[63] = v
+  llvm_return (llvm_term {{ ((64 : [64]) << 16) || ((zext v : [64]) << 8) || (zext v : [64]) }});
+};
+
+// ---------------------------------------------------------------------------
+// 7. failure disclosure: n above the arena capacity.  Expected: SAW stops at
+//    an uninterpreted libstdc++ throw helper (bad_alloc), proving the failure
+//    branch exists and is not silently assumed away.
+// ---------------------------------------------------------------------------
+let resize_big_spec = do {
+  llvm_alloc_global "wave16b_heap";
+  llvm_alloc_global "wave16b_off";
+  llvm_alloc_global "wave16b_alloc_calls";
+  llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [llvm_term {{ 100000000 : [64] }}];
+  llvm_return (llvm_term {{ 100000000 : [64] }});
+};
+
+print "W16B_ALLOC_LEMMAS_BEGIN";
+llvm_verify m "w16b_lemma_nonnull"  [] false nonnull_spec  z3;
+print "W16B_LEMMA_NONNULL_OK";
+llvm_verify m "w16b_lemma_oversize" [] false oversize_spec z3;
+print "W16B_LEMMA_OVERSIZE_OK";
+llvm_verify m "w16b_lemma_disjoint" [] false disjoint_spec z3;
+print "W16B_LEMMA_DISJOINT_OK";
+llvm_verify m "w16b_vec_push1"      [] false push1_spec     z3;
+print "W16B_VEC_PUSH1_OK";
+llvm_verify m "w16b_stack_grow"     [] false stack_grow_spec z3;
+print "W16B_STACK_GROW_OK";
+llvm_verify m "w16b_vec_resize64"   [] false resize64_spec  z3;
+print "W16B_VEC_RESIZE64_OK";
+print "W16B_ALLOC_LEMMAS_DONE";

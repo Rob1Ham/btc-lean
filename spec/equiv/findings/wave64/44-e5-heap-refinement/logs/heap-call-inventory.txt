@@ -1,0 +1,34 @@
+== declared allocator symbols in the pinned single-TU module ==
+  declare @_ZdlPvm
+  declare @_Znwm
+  declare @free
+  declare @malloc
+  declare @realloc
+
+== reachable call/invoke sites by function ==
+  _ZN10tinyformat12format_errorD0Ev	_ZdlPvm	1
+  _ZN15scriptnum_errorD0Ev	_ZdlPvm	1
+  _ZN20BaseSignatureCheckerD0Ev	_ZdlPvm	1
+  _ZN34GenericTransactionSignatureCheckerI12CTransactionED0Ev	_ZdlPvm	1
+  _ZN34GenericTransactionSignatureCheckerI19CMutableTransactionED0Ev	_ZdlPvm	1
+  _ZN9prevectorILj36EhjiE15change_capacityEj	free	1
+  _ZN9prevectorILj36EhjiE15change_capacityEj	malloc	1
+  _ZN9prevectorILj36EhjiE15change_capacityEj	realloc	1
+  _ZN9prevectorILj36EhjiED2Ev	free	1
+  _ZN9prevectorILj36EhjiEaSEOS0_	free	1
+  _ZNSt15__new_allocatorI6CTxOutE10deallocateEPS0_m	_ZdlPvm	1
+  _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE10deallocateEPS5_m	_ZdlPvm	1
+  _ZNSt15__new_allocatorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE8allocateEmPKv	_Znwm	1
+  _ZNSt15__new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE23script_verify_flag_nameEEE10deallocateEPSB_m	_ZdlPvm	1
+  _ZNSt15__new_allocatorISt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE23script_verify_flag_nameEEE8allocateEmPKv	_Znwm	1
+  _ZNSt15__new_allocatorISt6vectorIhSaIhEEE10deallocateEPS2_m	_ZdlPvm	1
+  _ZNSt15__new_allocatorISt6vectorIhSaIhEEE8allocateEmPKv	_Znwm	1
+  _ZNSt15__new_allocatorIcE10deallocateEPcm	_ZdlPvm	1
+  _ZNSt15__new_allocatorIcE8allocateEmPKv	_Znwm	1
+  _ZNSt15__new_allocatorIhE10deallocateEPhm	_ZdlPvm	1
+  _ZNSt15__new_allocatorIhE8allocateEmPKv	_Znwm	1
+  _ZNSt19bad_optional_accessD0Ev	_ZdlPvm	1
+
+total call/invoke sites: 22
+functions containing them: 20
+wrote /tmp/opencode/wave64/44-e5-heap-refinement-scratch/logs/heap-call-sites.json

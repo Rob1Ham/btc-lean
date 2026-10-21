@@ -1,0 +1,31 @@
+// wave64/44-e5-heap-refinement -- NEGATIVE CONTROL for the vector-growth bound.
+// Generated from this template with @MODULE@ and @FUNC@ substituted.
+//
+// The leaf is identical to the good one except BAD_BOUND = BOUND-1 (the
+// closed-form cumulative prediction minus one byte).  SAW must report
+// "Proof failed."; if it succeeded, the positive bound would be vacuous and
+// would not pin the actual cumulative allocation.
+m <- llvm_load_module "@MODULE@";
+
+let growth_bad_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  seed <- llvm_fresh_var "seed" (llvm_int 8);
+  llvm_execute_func [llvm_term seed];
+  llvm_return (llvm_term {{ 1 : [32] }});
+};
+
+llvm_verify m "@FUNC@" [] false growth_bad_spec z3;
+print "UNEXPECTED_SUCCESS @FUNC@";

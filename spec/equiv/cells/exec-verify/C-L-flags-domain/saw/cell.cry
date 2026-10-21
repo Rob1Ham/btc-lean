@@ -1,0 +1,36 @@
+module Spec where
+
+// Declared postcondition for cells/exec-verify/C-L-flags-domain.
+//
+// Flags word: contract/tape.md §5.  Bit values (Core pin, interpreter.h):
+//   P2SH = 0x1, CLEANSTACK = 0x100, WITNESS = 0x800, mask = 0x1fffff.
+// Cryptol literals are width-typed by their digit count; 16 hex digits = 64.
+//
+// guard(f) = 1 iff the ABI accepts the mask (VerifyScript is called at all).
+guard : [64] -> [64]
+guard f =
+  if (f && 0x00000000001fffff) != f then 0x0000000000000000
+  else if ((f && 0x0000000000000800) != 0x0000000000000000) /\
+          ((f && 0x0000000000000001) == 0x0000000000000000) then 0x0000000000000000
+  else if ((f && 0x0000000000000100) != 0x0000000000000000) /\
+          (((f && 0x0000000000000001) == 0x0000000000000000) \/
+           ((f && 0x0000000000000800) == 0x0000000000000000)) then 0x0000000000000000
+  else 0x0000000000000001
+
+// assertsafe(f) = 1 iff both Code asserts hold:
+//   interpreter.cpp:2124  WITNESS  => P2SH
+//   interpreter.cpp:2113-2114  CLEANSTACK => P2SH /\ WITNESS
+assertsafe : [64] -> [64]
+assertsafe f =
+  if ((f && 0x0000000000000800) != 0x0000000000000000) /\
+     ((f && 0x0000000000000001) == 0x0000000000000000) then 0x0000000000000000
+  else if ((f && 0x0000000000000100) != 0x0000000000000000) /\
+          (((f && 0x0000000000000001) == 0x0000000000000000) \/
+           ((f && 0x0000000000000800) == 0x0000000000000000)) then 0x0000000000000000
+  else 0x0000000000000001
+
+// implication(f) = 1 iff accepted => assert-safe; CLAIMED to be 1 for every
+// 64-bit mask (the two asserts are unreachable through the ABI).
+implication : [64] -> [64]
+implication f =
+  if guard f == 0x0000000000000000 then 0x0000000000000001 else assertsafe f

@@ -1,0 +1,22 @@
+module CellArity where
+
+// SCR-074 — packed observables for the 2DROP..TUCK arity rows.
+// Format is leaf_common.h:
+//   failure  pack_fail: res:2 | error_kind:6<<2
+//            INVALID_STACK_OPERATION = 18 -> 18 << 2 = 0x48.
+//   boundary pack_vals: res:2 | err:6<<2 | depth:3<<8 | value-lo of slot i
+//            at bit 11+8i.  The seed is the uniform one-byte 0x01, so every
+//            live slot contributes 1 << (11+8i).
+underflowv : [64]
+underflowv = 0x0000000000000048
+
+obs : [4] -> [64]
+obs n =
+  0x0000000000000001
+  || ((zext n : [64]) << 8)
+  || (if n > 0 then 0x0000000000000800 else 0)
+  || (if n > 1 then 0x0000000000080000 else 0)
+  || (if n > 2 then 0x0000000008000000 else 0)
+  || (if n > 3 then 0x0000000800000000 else 0)
+  || (if n > 4 then 0x0000080000000000 else 0)
+  || (if n > 5 then 0x0008000000000000 else 0)

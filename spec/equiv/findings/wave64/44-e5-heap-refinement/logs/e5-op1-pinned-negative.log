@@ -1,0 +1,24 @@
+Loading file "/tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/e5-op1-pinned-heap-negative.saw"
+Verifying _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Simulating _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Checking proof obligations _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Subgoal failed: _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/e5-op1-pinned-heap-negative.saw:10:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 1;
+    }
+ in ecNumber (TCNum 0) (seq _x`1 Bool) (PLiteralSeqBool _x`1)
+Actual term:
+bvNat 1 1
+
+Goal size 8. Provers used: SBV->Z3
+----------Counterexample----------
+<<All settings of the symbolic variables constitute a counterexample>>
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/e5-op1-pinned-heap-negative.saw:37:7-37:9 in (callback)
+   (builtin) in llvm_verify
+   /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/e5-op1-pinned-heap-negative.saw:10:8-37:9 (at top level)
+Proof failed.
+

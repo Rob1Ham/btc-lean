@@ -1,0 +1,95 @@
+module CellDepthSize where
+
+// Independent specification of OP_DEPTH / OP_SIZE (SCR-076).
+//
+// Rules (interpreter.cpp:787-793,883-891):
+//   * budget: in BASE and WITNESS_V0 an opcode > OP_16 charges one unit, and
+//     running past 201 is OP_COUNT -- checked before the opcode body.
+//   * OP_DEPTH has no stack-size pre-check.  It pushes
+//     CScriptNum(stack.size()).getvch(); an empty stack therefore pushes the
+//     empty vector, i.e. zero.
+//   * OP_SIZE requires stack.size() >= 1 (else INVALID_STACK_OPERATION, 18),
+//     then pushes CScriptNum(stacktop(-1).size()).getvch().
+//   * CScriptNum::getvch is little-endian, minimal, sign-magnitude: 0 is the
+//     empty vector, 1..127 is one byte, and a low byte with bit 7 set gains a
+//     0x00 sign byte (128 -> 0x80 0x00, 255 -> 0xff 0x00, 256 -> 0x00 0x01).
+//
+// Observable encodings match src/obs.h:
+//   DEPTH: res:2 | depth:3<<8 | top len:2<<11 | top b0:8<<13 | top b1:8<<21
+//   SIZE:  res:2 | depth:2<<8 | orig len:10<<10 | orig b0:8<<20 |
+//          result len:2<<28 | result b0:8<<30 | result b1:8<<38
+// A failure is pack_fail: OP_COUNT 0x1c, INVALID_STACK_OPERATION 0x48.
+
+dom : [64]
+dom = 0x0000000000000007
+
+// DEPTH at data depth d: final depth d+1; the pushed value is d+1 (or the
+// empty vector when d = 0).  The four fixed slots mirror pack_dcount.
+dep : [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+dep d e0 e1 e2 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else
+    0x0000000000000001
+    || (((zext d : [64]) + 1) << 8)
+    || (if d > 0 then ((0x0000000000000001 << 11) || ((zext e0 : [64]) << 12)) else 0)
+    || (if d > 1 then ((0x0000000000000001 << 20) || ((zext e1 : [64]) << 21)) else 0)
+    || (if d > 2 then ((0x0000000000000001 << 29) || ((zext e2 : [64]) << 30)) else 0)
+    || (if d == 0 then 0
+        else if d == 1 then ((0x0000000000000001 << 20) || (0x0000000000000001 << 21))
+        else if d == 2 then ((0x0000000000000001 << 29) || (0x0000000000000002 << 30))
+        else ((0x0000000000000001 << 38) || (0x0000000000000003 << 39)))
+
+// SIZE: the original element (length v, first byte e0) stays in slot 0 and
+// the minimal encoding of v (length l, bytes b0/b1) is pushed into slot 1.
+// The wrappers pass the encoding explicitly, so the Cryptol has no shifts or
+// truncations over the 0..520 range.
+se : [10] -> [8] -> [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+se v l b0 b1 e0 opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else
+    0x0000000000000001
+    || (0x0000000000000002 << 8)
+    || ((zext v : [64]) << 10)
+    || ((if v == 0 then 0x0000000000000000 else (zext e0 : [64])) << 20)
+    || ((zext l : [64]) << 28)
+    || ((zext b0 : [64]) << 30)
+    || ((zext b1 : [64]) << 38)
+
+// Empty-stack SIZE: budget first, then INVALID_STACK_OPERATION.
+sem : [8] -> [8] -> [64]
+sem opc sv =
+  if sv > 2 then dom
+  else if (sv <= 1) /\ (opc >= 201) then 0x000000000000001c
+  else 0x0000000000000048
+
+// --- leaf entries -------------------------------------------------------
+d0 : [8] -> [8] -> [64]
+d0 opc sv = dep 0x00 0 0 0 opc sv
+d1 : [8] -> [8] -> [8] -> [64]
+d1 e0 opc sv = dep 0x01 e0 0 0 opc sv
+d2 : [8] -> [8] -> [8] -> [8] -> [64]
+d2 e0 e1 opc sv = dep 0x02 e0 e1 0 opc sv
+d3 : [8] -> [8] -> [8] -> [8] -> [8] -> [64]
+d3 e0 e1 e2 opc sv = dep 0x03 e0 e1 e2 opc sv
+
+s0 : [8] -> [8] -> [8] -> [64]
+s0 e0 opc sv = se 0 0 0x00 0x00 e0 opc sv
+s1 : [8] -> [8] -> [8] -> [64]
+s1 e0 opc sv = se 1 1 0x01 0x00 e0 opc sv
+s2 : [8] -> [8] -> [8] -> [64]
+s2 e0 opc sv = se 2 1 0x02 0x00 e0 opc sv
+s127 : [8] -> [8] -> [8] -> [64]
+s127 e0 opc sv = se 127 1 0x7f 0x00 e0 opc sv
+s128 : [8] -> [8] -> [8] -> [64]
+s128 e0 opc sv = se 128 2 0x80 0x00 e0 opc sv
+s255 : [8] -> [8] -> [8] -> [64]
+s255 e0 opc sv = se 255 2 0xff 0x00 e0 opc sv
+s256 : [8] -> [8] -> [8] -> [64]
+s256 e0 opc sv = se 256 2 0x00 0x01 e0 opc sv
+s520 : [8] -> [8] -> [8] -> [64]
+s520 e0 opc sv = se 520 2 0x08 0x02 e0 opc sv
+
+sempty : [8] -> [8] -> [64]
+sempty opc sv = sem opc sv

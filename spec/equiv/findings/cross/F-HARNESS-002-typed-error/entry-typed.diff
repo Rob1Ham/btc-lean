@@ -1,0 +1,42 @@
+--- a/spec/equiv/shims/rust/entry.rs
++++ b/spec/equiv/shims/rust/entry.rs
+@@ -19,6 +19,9 @@
+     verify_tx_scripts_with_flags, ConsensusError, ScriptVerifyFlags,
+ };
+ 
++// F-HARNESS-002 typed boundary map. Copy `typed_error.rs` next to this file.
++mod typed_error;
++
+ const OK: i32 = 1;
+ const FAIL: i32 = 0;
+ const BAD_INPUT: i32 = 2;
+@@ -47,24 +50,11 @@
+ }
+ 
+ fn kind_of(e: &ConsensusError) -> i32 {
+-    match e {
+-        ConsensusError::Script(s) => {
+-            // rbitcoin exposes only `Script(String)` (R-GAP-01). This is a
+-            // boundary map, not engine logic; it is deliberately narrow and
+-            // every unmapped token stays UNKNOWN rather than being guessed.
+-            if s.contains("script false") {
+-                2 // Core SCRIPT_ERR_EVAL_FALSE
+-            } else if s.contains("unknown opcode 0x6a") {
+-                3 // Core SCRIPT_ERR_OP_RETURN
+-            } else if s.contains("unknown opcode") {
+-                16 // Core SCRIPT_ERR_BAD_OPCODE
+-            } else {
+-                ERR_UNKNOWN
+-            }
+-        }
+-        ConsensusError::BadBlock(_) => INTERNAL,
+-        _ => ERR_UNKNOWN,
+-    }
++    // rbitcoin exposes only `Script(String)` (R-GAP-01). `typed_error` maps
++    // the full source-token census onto Core ordinals where the token is
++    // identity-preserving, and returns UNKNOWN for internal/context-dependent
++    // tokens. Boundary mapping only: no engine semantics.
++    typed_error::classify_consensus_error(e)
+ }
+ 
+ /// # Safety

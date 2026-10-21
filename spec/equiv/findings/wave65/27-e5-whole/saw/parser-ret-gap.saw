@@ -1,0 +1,33 @@
+// wave65/27-e5-whole -- reproduction of the exact residual IR edge for the
+// `pvchRet != nullptr` path (O-PVCHRET in README.md section 4).
+//
+// This is a *negative* artifact: it is expected to FAIL.  It points the real
+// `GetScriptOp` (Core pin cce32b1, build/script-O0.bc, sha256 657530a8...) at
+// an empty std::vector<unsigned char>, exactly like the EvalScript call at
+// interpreter.cpp:455.  script.cpp:356-357 then executes
+// `pvchRet->assign(pc, pc + nSize)`, which walks libstdc++'s allocator path.
+//
+// Expected terminal message (logs/parser-ret-gap.log):
+//   llvm_verify failed / no specification for the STL/allocator callee
+// and the log records the first unresolved symbol, which is the edge that must
+// be discharged before EvalScript's parser call can be refined.
+m <- llvm_load_module "/tmp/opencode/wave65/27-e5-whole/spec/equiv/findings/wave65/27-e5-whole/build/script-O0.bc";
+let gso = "_Z11GetScriptOpRN9prevectorILj36EhjiE14const_iteratorES1_R10opcodetypePSt6vectorIhSaIhEE";
+thm <- llvm_verify m gso [] false
+  (do {
+     // 1-byte OP_PUSHDATA1 push: [76, n, payload...] with n <= 520
+     n    <- llvm_fresh_var "n" (llvm_int 8);
+     payload <- llvm_fresh_var "payload" (llvm_array 520 (llvm_int 8));
+     a    <- llvm_alloc_aligned 8 (llvm_array 522 (llvm_int 8));
+     it0  <- llvm_alloc (llvm_pointer (llvm_int 8));
+     op   <- llvm_alloc_aligned 4 (llvm_array 4 (llvm_int 8));
+     v    <- llvm_alloc_aligned 8 (llvm_array 24 (llvm_int 8));   // std::vector: 3 pointers
+     llvm_points_to a   (llvm_term {{ [76] # [n] # payload }});
+     llvm_points_to it0 (llvm_elem a 0);
+     llvm_points_to op  (llvm_term {{ zero : [4][8] }});
+     llvm_points_to v   (llvm_term {{ zero : [24][8] }});          // empty vector
+     llvm_execute_func [it0, llvm_elem a 522, op, llvm_elem v 0];
+     llvm_points_to op (llvm_term {{ [76, 0, 0, 0] : [4][8] }});
+     llvm_return (llvm_term {{ 1 : [1] }});
+   }) z3;
+print "PVCHRET_GAP_UNEXPECTEDLY_CLOSED";

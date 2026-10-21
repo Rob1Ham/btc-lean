@@ -1,0 +1,21 @@
+DRY RUN — no write, no record
+mutation:    M-E4-007 (e4-taproot)
+target:      /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp
+target kind: e4-cell
+sha256 before: 387da37e4cd894e468007de249941906be9d91534d1d581ac8f9213a9c303840
+sha256 after:  48bcbc2d010f8be3c36ddf80111896bea0fd4b5e69c3da481df3634f08208b01
+expected failing cells: cells/tapscript/C-L-tapscript-isopsuccess
+catchers: alive2, saw
+
+--- a/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp
++++ b/spec/equiv/cells/tapscript/C-L-tapscript-isopsuccess/l_leg.cpp
+@@ -13,7 +13,7 @@
+ //
+ // The Nat domain is total, matching the C leg's total 64-bit input.
+ TAP_INLINE uint64_t l_is_op_success(uint64_t w) {
+-  const bool r = w == 80u || w == 98u || (126u <= w && w <= 129u) ||
++  const bool r = (126u <= w && w <= 129u) ||  // M-E4-007 mutant: drop OP_SUCCESS 80/98
+                  (131u <= w && w <= 134u) || (137u <= w && w <= 138u) ||
+                  (141u <= w && w <= 142u) || (149u <= w && w <= 153u) ||
+                  (187u <= w && w <= 254u);
+

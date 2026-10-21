@@ -1,0 +1,14 @@
+module PolicyCell where
+
+// Independent predicate for SCR-178 (witness-v0 MINIMALIF policy).
+// sigversion: 0 = BASE, 1 = WITNESS_V0; anything else is out of domain (255).
+// ordinal 0 pass, 31 SCRIPT_ERR_MINIMALIF.
+minimalif_v0 : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+minimalif_v0 flags sv fExec vchLen vch0 =
+  if sv > 1 then 255
+  else if fExec == 0 then 0
+  else if ((sv == 1) && ((((flags >> 13) % 2) == 1) && notMinimal)) then 31
+  else 0
+  where
+    b0         = vch0 % 256
+    notMinimal = (vchLen > 1) || ((vchLen == 1) && (b0 != 1))

@@ -1,0 +1,38 @@
+// wave16b/03-e5-heap PROBE: E5 OP_1 through the modelled allocator.
+//
+// Same concrete input as cells/e5-whole/saw/e5-verifyscript-op1-linked3.saw,
+// but the module is the linked3 probe module plus models/alloc-model.ll
+// (bounded explicit-failure bump arena implementing _Znwm/_ZdlPv/malloc/free/
+// realloc).  Point of the run: does the first std::vector growth get PAST
+// `_Znwm`, and where does SAW stop next?
+//
+// No llvm_unsafe_assume_spec.  The allocator model is real IR that SAW can
+// execute; allocation failure stays an explicit branch.
+m <- llvm_load_module "/tmp/opencode/wave16b-scratch/03-e5-heap/e5-interp-script-roots3-heap.bc";
+
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+
+thm <- llvm_verify m verify_script [] false
+  (do {
+     // the allocator model's mutable globals must be allocated explicitly
+     // (SAW does not auto-allocate non-constant globals); start from a fresh
+     // empty arena so allocation offsets are concrete.
+     llvm_alloc_global "wave16b_heap";
+     llvm_alloc_global "wave16b_off";
+     llvm_alloc_global "wave16b_alloc_calls";
+     llvm_points_to (llvm_global "wave16b_off") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "wave16b_alloc_calls") (llvm_term {{ 0 : [64] }});
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ ([0x51] # (zero : [35][8]) # [0x01,0x00,0x00,0x00]) : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     llvm_return (llvm_term {{ 1 : [1] }});
+   }) z3;
+
+print "W16B_E5_OP1_HEAPMODEL_DONE";

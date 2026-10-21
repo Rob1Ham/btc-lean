@@ -1,0 +1,40 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_push =
+  do {
+    n  <- llvm_fresh_var "len" (llvm_int 64);
+    sc <- llvm_fresh_var "script" (llvm_int 64);
+    llvm_execute_func [llvm_term n, llvm_term sc];
+    llvm_return (llvm_term {{ is_push_only n sc }});
+  };
+
+let spec_early =
+  do {
+    f  <- llvm_fresh_var "sigpushonly" (llvm_int 64);
+    n  <- llvm_fresh_var "len" (llvm_int 64);
+    sc <- llvm_fresh_var "script" (llvm_int 64);
+    llvm_execute_func [llvm_term f, llvm_term n, llvm_term sc];
+    llvm_return (llvm_term {{ pushonly_early f n sc }});
+  };
+
+let spec_p2sh =
+  do {
+    p  <- llvm_fresh_var "p2sh" (llvm_int 64);
+    sh <- llvm_fresh_var "spk_p2sh" (llvm_int 64);
+    n  <- llvm_fresh_var "len" (llvm_int 64);
+    sc <- llvm_fresh_var "script" (llvm_int 64);
+    llvm_execute_func [llvm_term p, llvm_term sh, llvm_term n, llvm_term sc];
+    llvm_return (llvm_term {{ pushonly_p2sh p sh n sc }});
+  };
+
+llvm_verify mC "cell_ispushonly" [] false spec_push bitwuzla;
+llvm_verify mL "cell_ispushonly" [] false spec_push bitwuzla;
+llvm_verify mC "cell_pushonly_early" [] false spec_early bitwuzla;
+llvm_verify mL "cell_pushonly_early" [] false spec_early bitwuzla;
+llvm_verify mC "cell_pushonly_p2sh" [] false spec_p2sh bitwuzla;
+llvm_verify mL "cell_pushonly_p2sh" [] false spec_p2sh bitwuzla;
+
+print "CELL_C_L_pushonly_SAW_GREEN";

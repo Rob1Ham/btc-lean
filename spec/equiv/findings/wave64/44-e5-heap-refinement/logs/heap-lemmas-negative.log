@@ -1,0 +1,34 @@
+Loading file "/tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/heap-lemmas-negative.saw"
+Verifying w64_lemma_nonnull...
+Simulating w64_lemma_nonnull...
+Checking proof obligations w64_lemma_nonnull...
+Subgoal failed: w64_lemma_nonnull /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/heap-lemmas-negative.saw:30:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 1;
+    }
+ in ecNumber _x`1 (seq _x`1 Bool) (PLiteralSeqBool _x`1)
+Actual term:
+let { _x`1 = Vec 1 Bool;
+      _x`2 = bvNat 1 0;
+      _x`3 = bvNat 64 67108864;
+      _x`4 = bvNat 1 1;
+    }
+ in ite _x`1
+      (bvEq 1 _x`2
+         (bvOr 1 (ite _x`1 (bvult 64 _x`3 n) _x`4 _x`2)
+            (ite _x`1 (bvult 64 _x`3 (bvAdd 64 (bvNat 64 1) n)) _x`4 _x`2)))
+      _x`4
+      _x`2
+
+Goal size 114. Provers used: SBV->Z3
+----------Counterexample----------
+  n: 100397055
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/heap-lemmas-negative.saw:30:53-30:55 in (callback)
+   (builtin) in llvm_verify
+   /tmp/opencode/wave64/44-e5-heap-refinement/spec/equiv/findings/wave64/44-e5-heap-refinement/specs/heap-lemmas-negative.saw:30:1-30:55 (at top level)
+Proof failed.
+

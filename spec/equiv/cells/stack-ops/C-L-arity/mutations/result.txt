@@ -1,0 +1,21 @@
+# cell: stack-ops/C-L-arity (negative controls)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# twin_ops.h sha256 eb7aa6e1b93311c66f74b47ec4fc4bb9583a6063509031322008f42b0cf6b5eb
+# mutants patch the generated build/twin_ops.h only; src is untouched
+
+== m1: 2ROT n<6->n<2
+cell_2rot_d0       green 2ROT n<6->n<2    -
+cell_2rot_d2       red  2ROT n<6->n<2    Transformation doesn't verify!
+cell_2rot_d5       red  2ROT n<6->n<2    Transformation doesn't verify!
+cell_2rot_ok       green 2ROT n<6->n<2    -
+
+== m2: NIP n<2->n<1
+cell_nip_d0        green NIP n<2->n<1     -
+cell_nip_d1        red  NIP n<2->n<1     Transformation doesn't verify!
+cell_nip_ok        green NIP n<2->n<1     -
+
+== m3: 2ROT n<6->n<7
+cell_2rot_d0       green 2ROT n<6->n<7    -
+cell_2rot_ok       red  2ROT n<6->n<7    Transformation doesn't verify!
+STATUS=mutants-killed

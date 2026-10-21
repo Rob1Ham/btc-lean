@@ -1,0 +1,68 @@
+# probe: exec-verify/C-L-w32-cleanstack witness-implicit (domain-exact)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# expected: counterexample at bare=0 wrapped=1 cs=1 inner_len!=1
+# command: alive-tv build/c_probe.ll build/l_probe.ll
+
+----------------------------------------
+define i64 @probe_cleanstack_witness(i64 noundef %inner_len, i64 noundef %cs_flag, i32 noundef %bare, i32 noundef %wrapped) nofree noundef willreturn memory(none) {
+entry:
+  %#0 = or i32 noundef %wrapped, noundef %bare
+  %#1 = icmp eq i32 %#0, 0
+  %cmp5 = icmp ne i64 noundef %cs_flag, 0
+  %cmp612 = icmp ne i64 noundef %inner_len, 1
+  %cmp6 = and i1 %cmp612, %#1
+  %or.cond = and i1 %cmp5, %cmp6
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+=>
+define i64 @probe_cleanstack_witness(i64 noundef %inner_len, i64 noundef %cs_flag, i32 noundef %bare, i32 noundef %wrapped) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %bare, 0
+  %cmp1 = icmp ne i64 noundef %cs_flag, 0
+  %cmp26 = icmp ne i64 noundef %inner_len, 1
+  %cmp2 = and i1 %cmp26, %cmp.not
+  %or.cond = and i1 %cmp1, %cmp2
+  %. = select i1 %or.cond, i64 120, i64 1
+  %#range_0_%. = !range i64 %., i64 1, i64 121
+  ret i64 %#range_0_%.
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %inner_len = #x0000000000000000 (0)
+i64 noundef %cs_flag = #x0000000000000001 (1)
+i32 noundef %bare = #x00000000 (0)
+i32 noundef %wrapped = #x00000001 (1)
+
+Source:
+i32 %#0 = #x00000001 (1)
+i1 %#1 = #x0 (0)
+i1 %cmp5 = #x1 (1)
+i1 %cmp612 = #x1 (1)
+i1 %cmp6 = #x0 (0)
+i1 %or.cond = #x0 (0)
+i64 %. = #x0000000000000001 (1)
+i64 %#range_0_%. = #x0000000000000001 (1)
+
+Target:
+i1 %cmp.not = #x1 (1)
+i1 %cmp1 = #x1 (1)
+i1 %cmp26 = #x1 (1)
+i1 %cmp2 = #x1 (1)
+i1 %or.cond = #x1 (1)
+i64 %. = #x0000000000000078 (120)
+i64 %#range_0_%. = #x0000000000000078 (120)
+Source value: #x0000000000000001 (1)
+Target value: #x0000000000000078 (120)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-counterexample-as-expected

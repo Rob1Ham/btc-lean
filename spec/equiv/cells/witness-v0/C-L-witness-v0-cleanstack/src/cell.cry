@@ -1,0 +1,10 @@
+module Spec where
+
+// Witness-v0 implicit cleanstack + truthiness post-state.
+//   n = final stack size, t = CastToBool(top).
+//   n != 1 -> CLEANSTACK (30), n == 1 and not t -> EVAL_FALSE (2), else OK.
+cleanstack : [64] -> [1] -> [64]
+cleanstack n t =
+  if n != 1 then 120          // (0,30)
+  else if t == 0 then 8       // (0,2)
+  else 1                      // (1,0)

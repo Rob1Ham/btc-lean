@@ -1,0 +1,31 @@
+// wave64/44-e5-heap-refinement -- NEGATIVE CONTROL for the lemma non-vacuity.
+//
+// Same function/lemma as heap-lemmas.saw, but the precondition admits n >= CAP
+// where the model must return NULL.  The postcondition still claims non-NULL,
+// so SAW must report "Proof failed."  If this run succeeded, the positive
+// lemma would be vacuous or the model would be unsound.
+m <- llvm_load_module "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/cap64/lemmas-linked.bc";
+
+let bad_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_precond {{ n >= 67108864 }};
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ 1 : [1] }});
+};
+
+llvm_verify m "w64_lemma_nonnull" [] false bad_spec z3;
+print "UNEXPECTED_SUCCESS";

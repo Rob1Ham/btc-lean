@@ -1,0 +1,41 @@
+# Baseline environment (E0 pin)
+date: 2026-10-20T19:07:06Z
+
+## exact commands
+git -C . rev-parse HEAD
+805c8042f92d3bed909ca40219a4d21fc9150cc1
+git -C /tmp/opencode/equiv-work/rbitcoin-clean rev-parse HEAD
+ae47aa98174e04d0d8c493f13041daf65e4ac1d3
+git -C /tmp/opencode/equiv-work/rbitcoin-clean status --porcelain
+
+rustc --version
+rustc 1.99.0 (b940084d7 2026-09-28)
+cargo --version
+cargo 1.99.0 (5f94df478 2026-08-27)
+python3 --version
+Python 3.12.3
+sha256sum /tmp/opencode/cbuild/libequiv-core.so
+5fef1df004adae637ffd7d3d7bf7dc96700c552dc2c22729d0de06d81457fbb5  /tmp/opencode/cbuild/libequiv-core.so
+
+## pinned shim rebuild (spec/equiv/shims/rust/entry.rs)
+    Finished `release` profile [optimized] target(s) in 1.45s
+R shim: /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-e0-baseline.so
+73e3d2d96de864e11e7cfb7cc5cc9fbba5d0dad1dc5de08b4cad6114ad1dffde  /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-e0-baseline.so
+
+## adapter rebuild (this finding)
+
+RUSTUP_TOOLCHAIN=1.95.0 rustc --version
+rustc 1.95.0 (59807616e 2026-04-14)
+RUSTUP_TOOLCHAIN=1.95.0 cargo --version
+cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+toolchain override used by both build.sh scripts (export RUSTUP_TOOLCHAIN=1.95.0)
+
+sha256sum /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-r3.so
+94a60b1f4004b16ac304ad1c6e59655ccb21bd0038c47eb19d2a5cf9a0b236ca  /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-r3.so
+nm -D --defined-only ... | grep equiv_entry
+000000000013b0b0 T equiv_entry
+
+## adapter build log (see logs/build.log)
+    Finished `release` profile [optimized] target(s) in 0.48s
+R adapter: /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-r3.so
+94a60b1f4004b16ac304ad1c6e59655ccb21bd0038c47eb19d2a5cf9a0b236ca  /tmp/opencode/wave16b-scratch/08-r-harness/libequiv-rust-r3.so

@@ -1,0 +1,25 @@
+# cell: limits/C-L-scr-040-loop-fold
+# tool: Lean (version 4.35.0, x86_64-unknown-linux-gnu, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)
+# package: spec/core (zero-dependency Bitcoin model)
+# file: src/lean/LoopToFold.lean
+# pin check: src/extract_pinned.py --check (Core pin cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66)
+
+'Wave66.Scr040LoopFold.runLoop_eq_fold' depends on axioms: [propext, Quot.sound]
+'Wave66.Scr040LoopFold.seed_eq_validationWeightInit' depends on axioms: [propext, Quot.sound]
+'Wave66.Scr040LoopFold.pinned_vector_ser' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+# pinned-text extraction check
+PIN_FILE src/serialize.h 9acb4bab2fe63ef351429b19d6ed75a9e719705060999c4e5dba78ce7c08db6f
+PIN_FILE src/script/script.h 43e4eb10ee85ac31996e257d0c5dc45cbe3b29b2d61d1a72d101453ba64ded01
+PIN_FILE src/script/interpreter.cpp 57a6f328c7e6202f499e48366a86eb26e09c8ebb78e92eef7e839207230be333
+OK exSizeComputerWrite serialize.h:1121-1124 SizeComputer::write (src/serialize.h:1123-1123)
+OK exSizeComputerSeek serialize.h:1127-1130 SizeComputer::seek (src/serialize.h:1129-1129)
+OK exWriteCompactSize serialize.h:1151-1154 WriteCompactSize(SizeComputer&, n) (src/serialize.h:1153-1153)
+OK exVectorFormatterSer serialize.h:666-676 VectorFormatter::Ser (the element loop) (src/serialize.h:671-675)
+OK exBasicByteSerialize serialize.h:900-902 Serialize(SizeComputer&, vector<u8>) BasicByte arm (src/serialize.h:901-902)
+OK exGetSerializeSize serialize.h:1156-1160 GetSerializeSize (src/serialize.h:1159-1159)
+OK exValidationWeightOffset script.h:62-65 VALIDATION_WEIGHT_OFFSET (src/script/script.h:65-65)
+OK exValidationWeightSeed interpreter.cpp:1991-1992 tapscript validation-weight seed (src/script/interpreter.cpp:1991-1991)
+RESULT=excerpts-pinned core=cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66 file=/tmp/opencode/wave66/09-scr-040/spec/equiv/cells/limits/C-L-scr-040-loop-fold/src/lean/LoopToFold.lean
+PIN_CHECK=ok
+STATUS=lean-green

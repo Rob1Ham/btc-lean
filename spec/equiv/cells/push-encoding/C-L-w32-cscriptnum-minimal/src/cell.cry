@@ -1,0 +1,66 @@
+module CellCScriptNum where
+
+// Independent statement of the CScriptNum decode rule at nMaxNumSize = 4
+// (script.h:246-268, 376-391; Numeric/Interface.lean:45-47).
+//
+// `len` is the payload length (0..4), b0..b3 the little-endian bytes.
+// `minimal` is fRequireMinimal.
+//
+// Packed observable: valid(1) | error(4) | value low 32 bits at bit 6.
+// error 4 = SCRIPT_ERR_SCRIPTNUM.
+//
+// SCR-050 is exactly the minimality test: (top & 0x7f) == 0 requires len == 1
+// or (prev & 0x80) != 0.
+
+zext8 : [8] -> [32]
+zext8 x = (0 : [24]) # x
+
+topB : [32] -> [8] -> [8] -> [8] -> [8] -> [8]
+topB len b0 b1 b2 b3 =
+  if len == 1 then b0 else if len == 2 then b1
+  else if len == 3 then b2 else b3
+
+prevB : [32] -> [8] -> [8] -> [8] -> [8] -> [8]
+prevB len b0 b1 b2 b3 =
+  if len == 2 then b0 else if len == 3 then b1
+  else if len == 4 then b2 else b0
+
+minimalOk : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> Bit
+minimalOk md len b0 b1 b2 b3 =
+  if md == 0 then True
+  else if len == 0 then True
+  else if (topB len b0 b1 b2 b3 && 0x7f) != 0 then True
+  else if len <= 1 then False
+  else (prevB len b0 b1 b2 b3 && 0x80) != 0
+
+magOf : [32] -> [8] -> [8] -> [8] -> [8] -> [32]
+magOf len b0 b1 b2 b3 =
+  (if len > 0 then zext8 b0 else 0)
+  || (if len > 1 then zext8 b1 << 8 else 0)
+  || (if len > 2 then zext8 b2 << 16 else 0)
+  || (if len > 3 then zext8 b3 << 24 else 0)
+
+clearOf : [32] -> [32]
+clearOf len =
+  if len == 1 then 0xffffff7f
+  else if len == 2 then 0xffff7fff
+  else if len == 3 then 0xff7fffff
+  else 0x7fffffff
+
+negOf : [32] -> [8] -> [8] -> [8] -> [8] -> Bit
+negOf len b0 b1 b2 b3 =
+  (len > 0) && ((topB len b0 b1 b2 b3 && 0x80) != 0)
+
+valueOf : [32] -> [8] -> [8] -> [8] -> [8] -> [32]
+valueOf len b0 b1 b2 b3 =
+  if negOf len b0 b1 b2 b3
+    then -((magOf len b0 b1 b2 b3) && clearOf len)
+    else (magOf len b0 b1 b2 b3)
+
+packed : [32] -> [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+packed md len b0 b1 b2 b3 =
+  (if minimalOk md len b0 b1 b2 b3 then (1 : [64]) else (0 : [64]))
+  || (if minimalOk md len b0 b1 b2 b3 then (0 : [64]) else ((4 : [64]) << 2))
+  || (if minimalOk md len b0 b1 b2 b3
+        then ((0 : [32]) # valueOf len b0 b1 b2 b3) << 6
+        else (0 : [64]))

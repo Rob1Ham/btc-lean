@@ -1,0 +1,44 @@
+# cell: e4-witness/C-L-witness-v0-dispatch
+# saw: 1.6 (68eed5f release-1.6)
+# spec: build/cell.cry
+# expected: (plen=32,wn=0)->156; (plen=20,wn!=2)->160; plen!={20,32}->152; else 1
+# abstraction: SHA256 match and ExecuteWitnessScript are inputs fixed to success
+
+Loading file "cell.saw"
+Verifying cell_v0_dispatch...
+Simulating cell_v0_dispatch...
+Checking proof obligations cell_v0_dispatch...
+Proof succeeded! cell_v0_dispatch
+Verifying cell_v0_dispatch...
+Simulating cell_v0_dispatch...
+Checking proof obligations cell_v0_dispatch...
+Subgoal failed: cell_v0_dispatch cell.saw:11:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+v0_dispatch plen`6313 wn`6314
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = bvNat 64 1;
+      _x`3 = ite _x`1 (bvEq 64 (bvNat 64 32) plen`6313)
+               (ite _x`1 (bvEq 64 (bvNat 64 0) wn`6314) (bvNat 64 167503724544)
+                  _x`2)
+               (ite _x`1 (bvEq 64 (bvNat 64 20) plen`6313)
+                  (ite _x`1 (bvult 64 _x`2 wn`6314) _x`2 (bvNat 64 171798691840))
+                  (bvNat 64 163208757248));
+    }
+ in bvOr 64 (bvShr 64 _x`3 (bvToNat 64 (bvNat 64 30)))
+      (bvAnd 64 _x`2 _x`3)
+
+Goal size 197. Provers used: abc_verilog
+----------Counterexample----------
+  plen: 20
+  wn: 3
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:11:49-11:52 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:11:1-11:52 (at top level)
+Proof failed.
+
+STATUS=saw-not-green

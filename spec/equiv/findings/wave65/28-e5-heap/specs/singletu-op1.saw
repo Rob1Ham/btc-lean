@@ -1,0 +1,53 @@
+// E5 OP_1: pinned single-TU carrier + script.cpp, modeled guards, CAP=128
+//
+// Module: /tmp/opencode/wave65/28-e5-heap-scratch/singletu-model-128.bc (sha256 in ../logs/build-hashes.txt)
+// Script: OP_1 (0x51), 1 byte
+// Pre-state: scriptSig empty; scriptPubKey inline prevector with size 1;
+//            no witness; flags 0; 8-byte checker and error cells (unread on
+//            this path).
+// Heap: cell-local bump arena (CAP=128) via ../../models/cell-model.ll.tmpl.
+// Guards: modeled: start 0, execute the real static initializers
+m <- llvm_load_module "/tmp/opencode/wave65/28-e5-heap-scratch/singletu-model-128.bc";
+let gz = "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero";
+let go = "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne";
+let gt = "_ZGVZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE7vchTrue";
+let oz = "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE6bnZero";
+let oo = "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE5bnOne";
+let ot = "_ZZ10EvalScriptRSt6vectorIS_IhSaIhEESaIS1_EERK7CScript19script_verify_flagsRK20BaseSignatureChecker10SigVersionR19ScriptExecutionDataP13ScriptError_tE7vchTrue";
+let verify_script = "_Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t";
+thm <- llvm_verify m verify_script [] false
+  (do {
+     llvm_alloc_global "__dso_handle"; llvm_points_to (llvm_global "__dso_handle") (llvm_term {{ 0 : [8] }});
+     llvm_alloc_global oz; llvm_alloc_global oo; llvm_alloc_global ot;
+     llvm_alloc_global gz; llvm_points_to (llvm_global gz) (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global go; llvm_points_to (llvm_global go) (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global gt; llvm_points_to (llvm_global gt) (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_arena"; llvm_points_to (llvm_global "w65_arena") (llvm_term {{ zero : [128][8] }});
+     llvm_alloc_global "w65_off";    llvm_points_to (llvm_global "w65_off")    (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_hw";     llvm_points_to (llvm_global "w65_hw")     (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_calls";  llvm_points_to (llvm_global "w65_calls")  (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_failed"; llvm_points_to (llvm_global "w65_failed") (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_first";  llvm_points_to (llvm_global "w65_first")  (llvm_term {{ 0 : [64] }});
+     llvm_alloc_global "w65_last";   llvm_points_to (llvm_global "w65_last")   (llvm_term {{ 0 : [64] }});
+     ss  <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     spk <- llvm_alloc_aligned 8 (llvm_array 40 (llvm_int 8));
+     chk <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     err <- llvm_alloc_aligned 8 (llvm_array 8 (llvm_int 8));
+     llvm_points_to ss  (llvm_term {{ zero : [40][8] }});
+     llvm_points_to spk (llvm_term {{ [0x51,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00] : [40][8] }});
+     llvm_points_to chk (llvm_term {{ zero : [8][8] }});
+     llvm_points_to err (llvm_term {{ zero : [8][8] }});
+     llvm_execute_func [ss, spk, llvm_term {{ 0 : [64] }},
+                        llvm_term {{ 0 : [64] }}, chk, err];
+     llvm_return (llvm_term {{ 1 : [1] }});
+     llvm_points_to (llvm_global "w65_failed") (llvm_term {{ 0 : [64] }});
+     llvm_points_to (llvm_global "w65_calls")  (llvm_term {{ 3 : [64] }});
+     llvm_points_to (llvm_global "w65_first")  (llvm_term {{ 1 : [64] }});
+     llvm_points_to (llvm_global "w65_last")   (llvm_term {{ 24 : [64] }});
+     llvm_points_to (llvm_global "w65_off")    (llvm_term {{ 57 : [64] }});
+     llvm_points_to (llvm_global "w65_hw")     (llvm_term {{ 57 : [64] }});
+     llvm_points_to (llvm_global gz) (llvm_term {{ 2 : [64] }});
+     llvm_points_to (llvm_global go) (llvm_term {{ 2 : [64] }});
+     llvm_points_to (llvm_global gt) (llvm_term {{ 2 : [64] }});
+   }) z3;
+print "PROOF_DONE";

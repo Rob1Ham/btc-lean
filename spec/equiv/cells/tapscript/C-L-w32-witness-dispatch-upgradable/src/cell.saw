@@ -1,0 +1,35 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_leaf.bc";
+mL <- llvm_load_module "l_leaf.bc";
+
+// SCR-149: every control[0] byte, both policy-flag states, arbitrary tapscript
+// execution outcome.
+let leaf_spec = do {
+  c0   <- llvm_fresh_var "c0" (llvm_int 8);
+  disc <- llvm_fresh_var "disc" (llvm_int 32);
+  trc  <- llvm_fresh_var "trc" (llvm_int 64);
+  llvm_execute_func [llvm_term c0, llvm_term disc, llvm_term trc];
+  llvm_return (llvm_term {{ leaf_version_dispatch c0 disc trc }});
+};
+llvm_verify mC "cell_leaf_version_dispatch" [] false leaf_spec abc;
+llvm_verify mL "cell_leaf_version_dispatch" [] false leaf_spec abc;
+
+// SCR-150 / SCR-151: every witversion 0..2^32-1, program length and first two
+// program bytes, both p2sh states, both policy-flag states.
+let tail_spec = do {
+  v    <- llvm_fresh_var "v" (llvm_int 32);
+  plen <- llvm_fresh_var "plen" (llvm_int 32);
+  b0   <- llvm_fresh_var "b0" (llvm_int 8);
+  b1   <- llvm_fresh_var "b1" (llvm_int 8);
+  p2sh <- llvm_fresh_var "p2sh" (llvm_int 32);
+  disc <- llvm_fresh_var "disc" (llvm_int 32);
+  trc  <- llvm_fresh_var "trc" (llvm_int 64);
+  llvm_execute_func [llvm_term v, llvm_term plen, llvm_term b0, llvm_term b1,
+                     llvm_term p2sh, llvm_term disc, llvm_term trc];
+  llvm_return (llvm_term {{ program_tail_dispatch v plen b0 b1 p2sh disc trc }});
+};
+llvm_verify mC "cell_program_tail_dispatch" [] false tail_spec abc;
+llvm_verify mL "cell_program_tail_dispatch" [] false tail_spec abc;
+
+print "CELL_W32_WITNESS_DISPATCH_UPGRADABLE_SAW_GREEN";

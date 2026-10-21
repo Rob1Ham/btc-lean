@@ -1,0 +1,160 @@
+// Independent Cryptol specification of Core's P2SH scriptSig sigop arm
+// (`CScript::GetSigOpCount(const CScript& scriptSig)`, script.cpp:183-205 at
+// pin cce32b168), over the cell's four-byte scriptSig domain.
+//
+//   parse the whole scriptSig all-or-nothing; a truncated push makes the
+//   whole call return 0 (script.cpp:193-196), and an opcode above OP_16
+//   returns 0 (script.cpp:197-198).
+//   keep the final GetOp payload register (cleared for non-push opcodes) and
+//   return the accurate static sigop count of that data's valid prefix.
+//
+// The cell assumes the P2SH branch of the caller (`IsPayToScriptHash()` is
+// true); the non-P2SH branch is a different arm of the same function.
+module CellP2shScriptSig where
+
+o_chk  : [64];  o_chk  = 0x00000000000000ac
+o_chkv : [64];  o_chkv = 0x00000000000000ad
+o_cms  : [64];  o_cms  = 0x00000000000000ae
+o_cmsv : [64];  o_cmsv = 0x00000000000000af
+o_pd1  : [64];  o_pd1  = 0x000000000000004c
+o_pd2  : [64];  o_pd2  = 0x000000000000004d
+o_pd4  : [64];  o_pd4  = 0x000000000000004e
+o_p16  : [64];  o_p16  = 0x0000000000000060
+o_p1   : [64];  o_p1   = 0x0000000000000051
+k0     : [64];  k0     = 0
+k1     : [64];  k1     = 1
+k2     : [64];  k2     = 2
+k4     : [64];  k4     = 4
+k20    : [64];  k20    = 20
+kff    : [64];  kff    = 0x00000000000000ff
+ksent  : [64];  ksent  = 0x00000000ffffffff
+
+s8  : [64];  s8  = 8
+s16 : [64];  s16 = 16
+s24 : [64];  s24 = 24
+s32 : [64];  s32 = 32
+s40 : [64];  s40 = 40
+s48 : [64];  s48 = 48
+s56 : [64];  s56 = 56
+
+// Script byte i of the little-endian packed word (constant-shift dispatch).
+sbyte : [64] -> [64] -> [64]
+sbyte w i =
+  if i == 0 then w && kff
+  else if i == 1 then (w >> s8) && kff
+  else if i == 2 then (w >> s16) && kff
+  else if i == 3 then (w >> s24) && kff
+  else if i == 4 then (w >> s32) && kff
+  else if i == 5 then (w >> s40) && kff
+  else if i == 6 then (w >> s48) && kff
+  else if i == 7 then (w >> s56) && kff
+  else k0
+
+sbyteAt : [64] -> [64] -> [64] -> [64]
+sbyteAt w base i = sbyte w (base + i)
+
+// (ok, decoded opcode byte, payload start, payload length, next index)
+// relative to the virtual script [base, base + n).
+decodeAt : [64] -> [64] -> [64] -> [64] -> (Bit, [64], [64], [64], [64])
+decodeAt w base n pc =
+  if pc >= n then (False, k0, k0, k0, pc)
+  else if b <= o_pd4
+       then if b <= 0x000000000000004b
+            then if (pc + k1) + b <= n
+                 then (True, b, pc + k1, b, (pc + k1) + b)
+                 else (False, k0, k0, k0, pc)
+            else if b == o_pd1
+                 then pd1 w base n (pc + k1)
+            else if b == o_pd2
+                 then pd2 w base n (pc + k1)
+                 else pd4 w base n (pc + k1)
+       else (True, b, k0, k0, pc + k1)
+  where
+    b = sbyteAt w base pc
+
+pd1 : [64] -> [64] -> [64] -> [64] -> (Bit, [64], [64], [64], [64])
+pd1 w base n p =
+  if (p + k1 <= n) && ((p + k1) + l <= n)
+  then (True, o_pd1, p + k1, l, (p + k1) + l)
+  else (False, k0, k0, k0, p)
+  where
+    l = sbyteAt w base p
+
+pd2 : [64] -> [64] -> [64] -> [64] -> (Bit, [64], [64], [64], [64])
+pd2 w base n p =
+  if (p + k2 <= n) && ((p + k2) + l <= n)
+  then (True, o_pd2, p + k2, l, (p + k2) + l)
+  else (False, k0, k0, k0, p)
+  where
+    l = sbyteAt w base p + (256 : [64]) * sbyteAt w base (p + k1)
+
+pd4 : [64] -> [64] -> [64] -> [64] -> (Bit, [64], [64], [64], [64])
+pd4 w base n p =
+  if (p + k4 <= n) && ((p + k4) + l <= n)
+  then (True, o_pd4, p + k4, l, (p + k4) + l)
+  else (False, k0, k0, k0, p)
+  where
+    l = sbyteAt w base p + (256 : [64]) * sbyteAt w base (p + k1) +
+        (65536 : [64]) * sbyteAt w base (p + k2) +
+        (16777216 : [64]) * sbyteAt w base (p + (3 : [64]))
+
+contrib : Bit -> [64] -> [64] -> [64]
+contrib accurate prev c =
+  if (c == o_chk) || (c == o_chkv) then k1
+  else if (c == o_cms) || (c == o_cmsv)
+       then if accurate && (prev >= o_p1) && (prev <= o_p16)
+            then prev - 0x0000000000000050
+            else k20
+       else k0
+
+// Accurate/inaccurate prefix count over [base, base + n).
+type CSt = { pc : [64], n : [64], prev : [64] }
+cinit : CSt
+cinit = { pc = k0, n = k0, prev = kff }
+capply : Bit -> CSt -> (Bit, [64], [64], [64], [64]) -> CSt
+capply accurate st (ok, c, _ds, _dl, nx) =
+  if ~ok then st
+  else { pc = nx, n = st.n + contrib accurate st.prev c, prev = c }
+cstep : [64] -> [64] -> [64] -> Bit -> CSt -> CSt
+cstep w base n accurate st =
+  if st.pc >= n then st
+  else capply accurate st (decodeAt w base n st.pc)
+crounds : [64] -> [64] -> [64] -> Bit -> CSt
+crounds w base n accurate =
+  cstep w base n accurate (cstep w base n accurate (cstep w base n accurate
+    (cstep w base n accurate cinit)))
+countAt : [64] -> [64] -> [64] -> Bit -> [64]
+countAt w base n accurate = (crounds w base n accurate).n
+
+// All-or-nothing scriptSig parse plus the final payload register.
+type PSt = { ok : Bit, pc : [64], pushOnly : Bit, hasLast : Bit,
+             dstart : [64], dlen : [64] }
+pinit : PSt
+pinit = { ok = True, pc = k0, pushOnly = True, hasLast = False,
+          dstart = k0, dlen = k0 }
+papply : PSt -> (Bit, [64], [64], [64], [64]) -> PSt
+papply st (ok, c, ds, dl, nx) =
+  if ~ok then { ok = False, pc = st.pc, pushOnly = st.pushOnly,
+                hasLast = st.hasLast, dstart = st.dstart, dlen = st.dlen }
+  else { ok = True, pc = nx, pushOnly = st.pushOnly && (c <= o_p16),
+         hasLast = True, dstart = ds, dlen = dl }
+pstep : [64] -> [64] -> PSt -> PSt
+pstep w n st =
+  if ~st.ok then st
+  else if st.pc >= n then st
+  else papply st (decodeAt w k0 n st.pc)
+prounds : [64] -> [64] -> PSt
+prounds w n = pstep w n (pstep w n (pstep w n (pstep w n pinit)))
+
+p2shOps : [64] -> [32] -> [64]
+p2shOps w len =
+  if (zext len : [64]) > k4 then ksent
+  else if st.ok && (st.pc >= (zext len : [64])) && st.pushOnly && st.hasLast
+       then countAt w st.dstart st.dlen True
+       else k0
+  where
+    st = prounds w (zext len : [64])
+
+// Lossless [32] projection for the uint32_t cell ABI.
+p2shOps32 : [64] -> [32] -> [32]
+p2shOps32 w len = drop (p2shOps w len)

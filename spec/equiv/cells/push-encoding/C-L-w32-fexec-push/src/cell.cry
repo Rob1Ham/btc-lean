@@ -1,0 +1,18 @@
+module CellFexec where
+
+// Independent statement of SCR-049 for the fixed 6-byte script
+//   [cond, OP_IF, 0x01 0x01, OP_ENDIF, OP_1]
+// where 0x01 0x01 is a non-minimal push of {1} (canonical is OP_1).
+//
+// minimalData = 0: the push is accepted.
+// minimalData != 0: the push is MINIMALDATA iff it is executed.
+//
+// packed: res(2) | err(6) | depth(2) | top len(2) | top byte(8).
+// OP_0 cond -> IF not taken -> push skipped -> stack [{1}] -> pass.
+// OP_1 cond -> IF taken  -> push executed -> MINIMALDATA with the flag.
+
+packedFalse : [32] -> [64]
+packedFalse md = 0x0000000000001501
+
+packedTrue : [32] -> [64]
+packedTrue md = if md == 0 then 0x0000000000001601 else 0x0000000000000064

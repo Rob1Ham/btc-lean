@@ -1,0 +1,30 @@
+// wave64/44-e5-heap-refinement -- FAILURE DISCLOSURE (expected to stop).
+//
+// The arena starts full (w64_off == CAP).  Calling operator new must take the
+// throw branch, so SAW stops at the uninterpreted _ZSt17__throw_bad_allocv.
+// A silent NULL return would be a modelling bug and would let this run print
+// UNEXPECTED_SUCCESS.  This is the negative half of "do not assume allocation
+// success silently": the failure edge is executable and visible.
+m <- llvm_load_module "/tmp/opencode/wave64/44-e5-heap-refinement-scratch/cap64/lemmas-linked.bc";
+
+let full_spec = do {
+  llvm_alloc_global "w64_heap";
+  llvm_alloc_global "w64_off";
+  llvm_alloc_global "w64_hw";
+  llvm_alloc_global "w64_calls";
+  llvm_alloc_global "w64_failed";
+  llvm_alloc_global "w64_first_n";
+  llvm_alloc_global "w64_last_n";
+     llvm_alloc_global "w64_last_start";
+  llvm_points_to (llvm_global "w64_off") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_hw") (llvm_term {{ 67108864 : [64] }});
+  llvm_points_to (llvm_global "w64_calls") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_failed") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_first_n") (llvm_term {{ 0 : [64] }});
+  llvm_points_to (llvm_global "w64_last_n") (llvm_term {{ 0 : [64] }});
+  llvm_execute_func [];
+  llvm_return (llvm_term {{ 0 : [64] }});
+};
+
+llvm_verify m "w64_lemma_new_after_full" [] false full_spec z3;
+print "UNEXPECTED_SUCCESS";

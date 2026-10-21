@@ -1,0 +1,156 @@
+// sign.cry -- independent specification of the ScriptNum sign/magnitude map.
+//
+// Written from Bitcoin Core script.h:342-373 (serialize) and script.h:376-391
+// (set_vch) @ cce32b168, and from the Lean equations they are proved against:
+//
+//   spec/core/Bitcoin/Numeric/ScriptNum.lean:385-423  encodeSignBE / magBE
+//   spec/core/Bitcoin/Numeric/ScriptNum.lean:449-460  setVchBE, setVchBE_neg_zero
+//   spec/core/Bitcoin/Numeric/Interface.lean:45-56    decodeScriptNum / encodeScriptNum
+//
+// This file is a *separate* model: it is not generated from the C excerpt or
+// the twin IR, and SAW checks both legs against it.  Every value is a 64-bit
+// two's-complement bitvector.
+//
+// Wire order is little-endian.  `w` packs bytes 0..7 at bits 0..63 and `L` is
+// the element length.  The decode domain of this cell is L in 0..7 (the
+// bounded leaf's 8-byte element; the CScriptNum width guard is deliberately
+// off -- SCR-079/080 own it).  The encode domain is |value| <= 2^32-1, the
+// closure of the numeric-op operand domain (4-byte operands; OP_ADD/OP_SUB
+// results reach 2^32-2).
+//
+// Observable layouts (must match src/c_leaf.cpp and src/l_leaf.cpp):
+//   decode           -> the int64 value, as a bitvector
+//   encode/roundtrip -> len(4) << 0 | byte0 << 4 | byte1 << 12 |
+//                       byte2 << 20 | byte3 << 28 | byte4 << 36
+
+module CellSpec where
+
+// ---------------------------------------------------------------- decode
+// k-th wire byte of the packed word (constant indices only: SAW reduces the
+// quotation without a symbolic shift amount).
+wireByte : [64] -> [64] -> [64]
+wireByte w k = if k == 0x0000000000000000 then (w && 0x00000000000000ff)
+               else if k == 0x0000000000000001 then ((w >> 8) && 0x00000000000000ff)
+               else if k == 0x0000000000000002 then ((w >> 16) && 0x00000000000000ff)
+               else if k == 0x0000000000000003 then ((w >> 24) && 0x00000000000000ff)
+               else if k == 0x0000000000000004 then ((w >> 32) && 0x00000000000000ff)
+               else if k == 0x0000000000000005 then ((w >> 40) && 0x00000000000000ff)
+               else if k == 0x0000000000000006 then ((w >> 48) && 0x00000000000000ff)
+               else ((w >> 56) && 0x00000000000000ff)
+
+// Most-significant (wire-last) byte: the one that carries the sign bit.
+// Only called for 1 <= L <= 8.
+topByte : [64] -> [64] -> [64]
+topByte w L = if L == 0x0000000000000001 then wireByte w 0x0000000000000000
+              else if L == 0x0000000000000002 then wireByte w 0x0000000000000001
+              else if L == 0x0000000000000003 then wireByte w 0x0000000000000002
+              else if L == 0x0000000000000004 then wireByte w 0x0000000000000003
+              else if L == 0x0000000000000005 then wireByte w 0x0000000000000004
+              else if L == 0x0000000000000006 then wireByte w 0x0000000000000005
+              else if L == 0x0000000000000007 then wireByte w 0x0000000000000006
+              else wireByte w 0x0000000000000007
+
+// L low bytes; bytes above the element length are not read (set_vch reads
+// exactly vch.size() bytes).
+widthMask : [64] -> [64]
+widthMask L = if L == 0x0000000000000001 then 0x00000000000000ff
+              else if L == 0x0000000000000002 then 0x000000000000ffff
+              else if L == 0x0000000000000003 then 0x0000000000ffffff
+              else if L == 0x0000000000000004 then 0x00000000ffffffff
+              else if L == 0x0000000000000005 then 0x000000ffffffffff
+              else if L == 0x0000000000000006 then 0x0000ffffffffffff
+              else if L == 0x0000000000000007 then 0x00ffffffffffffff
+              else 0xffffffffffffffff
+
+// ~(0x80 << (8*(L-1))): clear bit 7 of the top byte.
+signClear : [64] -> [64]
+signClear L = if L == 0x0000000000000001 then 0xffffffffffffff7f
+              else if L == 0x0000000000000002 then 0xffffffffffff7fff
+              else if L == 0x0000000000000003 then 0xffffffffff7fffff
+              else if L == 0x0000000000000004 then 0xffffffff7fffffff
+              else if L == 0x0000000000000005 then 0xffffff7fffffffff
+              else if L == 0x0000000000000006 then 0xffff7fffffffffff
+              else if L == 0x0000000000000007 then 0xff7fffffffffffff
+              else 0x7fffffffffffffff
+
+decodeMag : [64] -> [64] -> [64]
+decodeMag w L = (w && widthMask L) && signClear L
+
+// set_vch: empty -> 0; sign iff bit 0x80 of the wire-last byte; magnitude is
+// the remaining low seven bits of that byte plus the lower bytes.  A sign bit
+// over a zero magnitude is the negative zero (0x80, 00 80, ...), and this
+// equation maps it to 0 (Lean: setVchBE_neg_zero).
+decode : [64] -> [64] -> [64]
+decode w L = if L == 0x0000000000000000 then 0x0000000000000000
+             else if (topByte w L && 0x0000000000000080) != 0
+               then -(decodeMag w L)
+               else decodeMag w L
+
+// ---------------------------------------------------------------- encode
+isNegV : [64] -> Bit
+isNegV v = (v && 0x8000000000000000) != 0
+
+magV : [64] -> [64]
+magV v = if isNegV v then -v else v
+
+// Significant magnitude bytes; the cell domain gives 0..4.
+nbV : [64] -> [64]
+nbV v = if v == 0x0000000000000000 then 0x0000000000000000
+        else if magV v < 0x0000000000000100 then 0x0000000000000001
+        else if magV v < 0x0000000000010000 then 0x0000000000000002
+        else if magV v < 0x0000000001000000 then 0x0000000000000003
+        else 0x0000000000000004
+
+// k-th magnitude byte (k constant in this cell).
+magByte : [64] -> [64] -> [64]
+magByte m k = if k == 0x0000000000000000 then (m && 0x00000000000000ff)
+              else if k == 0x0000000000000001 then ((m >> 8) && 0x00000000000000ff)
+              else if k == 0x0000000000000002 then ((m >> 16) && 0x00000000000000ff)
+              else if k == 0x0000000000000003 then ((m >> 24) && 0x00000000000000ff)
+              else ((m >> 32) && 0x00000000000000ff)
+
+topMagV : [64] -> [64]
+topMagV v = magByte (magV v) (nbV v - 0x0000000000000001)
+
+// The magnitude's top byte already has bit 7 set: encode must carry a fresh
+// sign byte instead of OR-ing bit 7 into a magnitude byte.
+needsSignV : [64] -> Bit
+needsSignV v = (v != 0x0000000000000000) &&
+               (((topMagV v) && 0x0000000000000080) != 0)
+
+encLenV : [64] -> [64]
+encLenV v = if v == 0x0000000000000000 then 0x0000000000000000
+            else nbV v + (if needsSignV v then 0x0000000000000001
+                          else 0x0000000000000000)
+
+// Byte k of serialize(v): magnitude bytes, sign folded in, optional fresh
+// 0x80/0x00 sign byte.
+encByteV : [64] -> [64] -> [64]
+encByteV v k = if v == 0x0000000000000000 then 0x0000000000000000
+               else if k < nbV v then
+                 (if (k == nbV v - 0x0000000000000001) && isNegV v && ~(needsSignV v)
+                  then (magByte (magV v) k) + 0x0000000000000080
+                  else magByte (magV v) k)
+               else if k == nbV v then
+                 (if needsSignV v
+                  then (if isNegV v then 0x0000000000000080 else 0x0000000000000000)
+                  else 0x0000000000000000)
+               else 0x0000000000000000
+
+encPackV : [64] -> [64]
+encPackV v = (encLenV v) ||
+             (encByteV v 0x0000000000000000) << 4 ||
+             (encByteV v 0x0000000000000001) << 12 ||
+             (encByteV v 0x0000000000000002) << 20 ||
+             (encByteV v 0x0000000000000003) << 28 ||
+             (encByteV v 0x0000000000000004) << 36
+
+// The two facts this row states, as equations over the model:
+//   * negative zero exists as a wire form and decodes to 0
+//   * encode(0) is the empty vector (no canonical -0)
+// They are not separate SAW obligations; they are instances of the total
+// equalities the legs are verified against below.
+negZeroEq : Bit
+negZeroEq = (decode 0x0000000000000080 0x0000000000000001 == 0x0000000000000000) &&
+            (decode 0x0000000000008000 0x0000000000000002 == 0x0000000000000000) &&
+            (encLenV 0x0000000000000000 == 0x0000000000000000)

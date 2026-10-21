@@ -1,0 +1,83 @@
+module CellParse where
+
+// Independent statement of GetScriptOp / getOp at offset 0 for a script of
+// at most 8 bytes (script.cpp:313-363; Parser/Defs.lean:206-229).
+//
+// bs: the 8 script bytes (bs @ 0 is the opcode); n: valid length 0..8.
+// Result: (ok, wire, data length, next offset); a decode failure is
+// SCRIPT_ERR_BAD_OPCODE = 16 in EvalScript.
+
+zext8 : [8] -> [32]
+zext8 x = (0 : [24]) # x
+
+w64 : [32] -> [64]
+w64 x = (0 : [32]) # x
+
+wn : [8] -> [64]
+wn b = w64 (zext8 b)
+
+sel8 : [32] -> [8][8] -> [8]
+sel8 k bs =
+  if k == 0 then bs @ 0 else if k == 1 then bs @ 1
+  else if k == 2 then bs @ 2 else if k == 3 then bs @ 3
+  else if k == 4 then bs @ 4 else if k == 5 then bs @ 5
+  else if k == 6 then bs @ 6 else if k == 7 then bs @ 7
+  else 0
+
+read16 : [8][8] -> [32]
+read16 bs = zext8 (bs @ 1) || (zext8 (bs @ 2) << 8)
+
+read32 : [8][8] -> [32]
+read32 bs = zext8 (bs @ 1) || (zext8 (bs @ 2) << 8)
+         || (zext8 (bs @ 3) << 16) || (zext8 (bs @ 4) << 24)
+
+parse : [32] -> [8][8] -> ([2], [8], [32], [32])
+parse n bs =
+  if n == 0 then (0, 0, 0, 0)
+  else if (bs @ 0) <= 0x4b then
+    (if zext8 (bs @ 0) <= (n - 1)
+       then (1, bs @ 0, zext8 (bs @ 0), 1 + zext8 (bs @ 0))
+       else (0, bs @ 0, 0, 0))
+  else if (bs @ 0) == 0x4c then
+    (if n < 2 then (0, bs @ 0, 0, 0)
+     else if zext8 (bs @ 1) <= (n - 2)
+       then (1, bs @ 0, zext8 (bs @ 1), 2 + zext8 (bs @ 1))
+       else (0, bs @ 0, 0, 0))
+  else if (bs @ 0) == 0x4d then
+    (if n < 3 then (0, bs @ 0, 0, 0)
+     else if read16 bs <= (n - 3)
+       then (1, bs @ 0, read16 bs, 3 + read16 bs)
+       else (0, bs @ 0, 0, 0))
+  else if (bs @ 0) == 0x4e then
+    (if n < 5 then (0, bs @ 0, 0, 0)
+     else if read32 bs <= (n - 5)
+       then (1, bs @ 0, read32 bs, 5 + read32 bs)
+       else (0, bs @ 0, 0, 0))
+  else (1, bs @ 0, 0, 1)
+
+packedMeta : [32] -> [8][8] -> [64]
+packedMeta n bs =
+  (if (parse n bs).0 == 1 then (1 : [64]) else (0 : [64]))
+  || (if (parse n bs).0 == 1 then (0 : [64]) else ((16 : [64]) << 2))
+  || (wn ((parse n bs).1) << 8)
+  || (w64 ((parse n bs).2) << 16)
+  || (w64 ((parse n bs).3) << 32)
+
+// Payload lanes: for a successful parse, data[i] = script[next - dlen + i]
+// for i < dlen, else 0.  A failed parse has no payload.
+payloadByte : [32] -> [8][8] -> [32] -> [8]
+payloadByte n bs i =
+  if ((parse n bs).0 == 1) && (i < (parse n bs).2)
+    then sel8 ((parse n bs).3 - (parse n bs).2 + i) bs
+    else 0
+
+packedPayload : [32] -> [8][8] -> [64]
+packedPayload n bs =
+  (wn (payloadByte n bs 0))
+  || (wn (payloadByte n bs 1) << 8)
+  || (wn (payloadByte n bs 2) << 16)
+  || (wn (payloadByte n bs 3) << 24)
+  || (wn (payloadByte n bs 4) << 32)
+  || (wn (payloadByte n bs 5) << 40)
+  || (wn (payloadByte n bs 6) << 48)
+  || (wn (payloadByte n bs 7) << 56)

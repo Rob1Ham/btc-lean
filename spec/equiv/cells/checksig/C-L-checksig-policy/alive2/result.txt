@@ -1,0 +1,304 @@
+# cell: checksig/C-L-checksig-policy
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: 8208d7f961157b28a806d37edaa37da4834c5ffde8604a98a702bf66b677d33b
+# l source sha256: fc84da757754f05bb1954e7df70e054906525dab142bbf25a1d4d79b9361b54a
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_hashtype_gate =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_hashtype_gate.ll build/l_cell_hashtype_gate.ll
+# c IR sha256: ad4c5174e30c5c1e8df4c4f7859f15b9f24bd040c8fbd3b2fb003dfdfef12db7
+# l IR sha256: a17e7fa365018033ec98b5a2e5b37e5ff1f949a2d358a9c3f782092bb05354af
+
+----------------------------------------
+define i64 @cell_hashtype_gate(i32 noundef %strictEnc, i32 noundef %last, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i32 noundef %strictEnc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i = icmp eq i32 noundef %n, 0
+  %and1.i = and i32 noundef %last, 127
+  %#0 = add nsw i32 %and1.i, 4294967292
+  %or.cond.i = icmp ult i32 %#0, 4294967293
+  %narrow.not = select i1 %cmp.i, i1 1, i1 %or.cond.i
+  br i1 %narrow.not, label %_ZL18core_hashtype_gatejjj.exit, label %if.end.i
+
+if.end.i:
+  br label %_ZL18core_hashtype_gatejjj.exit
+
+_ZL18core_hashtype_gatejjj.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 23, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 24
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_hashtype_gate(i32 noundef %strictEnc, i32 noundef %last, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i32 noundef %strictEnc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i = icmp eq i32 noundef %n, 0
+  %and1.i = and i32 noundef %last, 127
+  %#0 = add nsw i32 %and1.i, 4294967292
+  %#1 = icmp ult i32 %#0, 4294967293
+  %narrow.not = select i1 %cmp.i, i1 1, i1 %#1
+  br i1 %narrow.not, label %_ZL18lean_hashtype_gatejjj.exit, label %if.end.i
+
+if.end.i:
+  br label %_ZL18lean_hashtype_gatejjj.exit
+
+_ZL18lean_hashtype_gatejjj.exit:
+  %retval.0.i = phi i64 [ 0, %if.end.i ], [ 23, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 24
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_hashtype_gate=alive2-green
+===== cell_is_defined_hashtype =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_is_defined_hashtype.ll build/l_cell_is_defined_hashtype.ll
+# c IR sha256: 03dc6ec2943ae8d9f163b920d23c0f7fc2f4e0b44410e8e6ca108bf19d1e5671
+# l IR sha256: ab5f740d1c35f49dbb8bdf6ad8eed919553ea477949492159ab4ecf3fc5998ee
+
+----------------------------------------
+define i64 @cell_is_defined_hashtype(i32 noundef %last, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %n, 0
+  %and1.i = and i32 noundef %last, 127
+  %#0 = add nsw i32 %and1.i, 4294967295
+  %or.cond.i = icmp ult i32 %#0, 3
+  %narrow = select i1 %cmp.i, i1 %or.cond.i, i1 0
+  %conv = zext i1 %narrow to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 2
+  ret i64 %#range_0_%conv
+}
+=>
+define i64 @cell_is_defined_hashtype(i32 noundef %last, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %n, 0
+  %and1.i = and i32 noundef %last, 127
+  %#0 = add nsw i32 %and1.i, 4294967295
+  %#1 = icmp ult i32 %#0, 3
+  %narrow = select i1 %cmp.i, i1 %#1, i1 0
+  %conv = zext i1 %narrow to i64
+  %#range_0_%conv = !range i64 %conv, i64 0, i64 2
+  ret i64 %#range_0_%conv
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_is_defined_hashtype=alive2-green
+===== cell_pubkey_encoding =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_pubkey_encoding.ll build/l_cell_pubkey_encoding.ll
+# c IR sha256: f9eb039a476f8acb2c1dacbf10657d674d64d7bff951e5265e1ab5816440764c
+# l IR sha256: 26a772f3a35d61dc527b020b0daf6daac1bf9890cfbe0247fb387a37a413d14d
+
+----------------------------------------
+define i64 @cell_pubkey_encoding(i32 noundef %strictEnc, i32 noundef %witnessPubkeyType, i32 noundef %sv, i32 noundef %n, i32 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i32 noundef %strictEnc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i = icmp ult i32 noundef %n, 33
+  br i1 %cmp.i, label %_ZL26core_check_pubkey_encodingjjjjj.exit, label %if.end.i1
+
+if.end.i1:
+  %cmp1.i2 = icmp eq i32 noundef %pk0, 4
+  br i1 %cmp1.i2, label %if.then2.i, label %if.else.i
+
+if.then2.i:
+  %cmp3.not.i = icmp eq i32 noundef %n, 65
+  br i1 %cmp3.not.i, label %if.end.i, label %_ZL26core_check_pubkey_encodingjjjjj.exit
+
+if.else.i:
+  %#0 = and i32 noundef %pk0, 4294967294
+  %or.cond.i3 = icmp eq i32 %#0, 2
+  %cmp9.not.i = icmp eq i32 noundef %n, 33
+  %or.cond19.i = and i1 %cmp9.not.i, %or.cond.i3
+  br i1 %or.cond19.i, label %if.end.i, label %_ZL26core_check_pubkey_encodingjjjjj.exit
+
+if.end.i:
+  %cmp1.i = icmp ne i32 noundef %witnessPubkeyType, 0
+  %cmp3.i = icmp eq i32 noundef %sv, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %land.lhs.true4.i, label %if.end8.i
+
+land.lhs.true4.i:
+  %cmp.not.i5 = icmp ne i32 noundef %n, 33
+  %#1 = and i32 noundef %pk0, 4294967294
+  %or.cond.i6 = icmp ne i32 %#1, 2
+  %narrow.not = or i1 %cmp.not.i5, %or.cond.i6
+  br i1 %narrow.not, label %_ZL26core_check_pubkey_encodingjjjjj.exit, label %if.end8.i
+
+if.end8.i:
+  br label %_ZL26core_check_pubkey_encodingjjjjj.exit
+
+_ZL26core_check_pubkey_encodingjjjjj.exit:
+  %retval.0.i = phi i64 [ 0, %if.end8.i ], [ 44, %land.lhs.true4.i ], [ 29, %land.lhs.true.i ], [ 29, %if.then2.i ], [ 29, %if.else.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 45
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_pubkey_encoding(i32 noundef %strictEnc, i32 noundef %witnessPubkeyType, i32 noundef %sv, i32 noundef %n, i32 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.not.i = icmp eq i32 noundef %strictEnc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i = icmp ult i32 noundef %n, 33
+  br i1 %cmp.i, label %_ZL26lean_check_pubkey_encodingjjjjj.exit, label %if.end.i1
+
+if.end.i1:
+  %cmp1.i2 = icmp eq i32 noundef %pk0, 4
+  br i1 %cmp1.i2, label %if.then2.i, label %if.end4.i
+
+if.then2.i:
+  %cmp3.i5 = icmp eq i32 noundef %n, 65
+  br label %_ZL34lean_is_compressed_or_uncompressedjj.exit
+
+if.end4.i:
+  %#0 = and i32 noundef %pk0, 4294967294
+  %or.cond.i3 = icmp eq i32 %#0, 2
+  %cmp8.i = icmp eq i32 noundef %n, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i3
+  br label %_ZL34lean_is_compressed_or_uncompressedjj.exit
+
+_ZL34lean_is_compressed_or_uncompressedjj.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp3.i5, %if.then2.i ], [ %spec.select.i, %if.end4.i ]
+  br i1 %retval.0.shrunk.i, label %if.end.i, label %_ZL26lean_check_pubkey_encodingjjjjj.exit
+
+if.end.i:
+  %cmp1.i = icmp ne i32 noundef %witnessPubkeyType, 0
+  %cmp3.i = icmp eq i32 noundef %sv, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %land.lhs.true4.i, label %if.end8.i
+
+land.lhs.true4.i:
+  %cmp.i6 = icmp ne i32 noundef %n, 33
+  %#1 = and i32 noundef %pk0, 4294967294
+  %#2 = icmp ne i32 %#1, 2
+  %narrow.not = or i1 %cmp.i6, %#2
+  br i1 %narrow.not, label %_ZL26lean_check_pubkey_encodingjjjjj.exit, label %if.end8.i
+
+if.end8.i:
+  br label %_ZL26lean_check_pubkey_encodingjjjjj.exit
+
+_ZL26lean_check_pubkey_encodingjjjjj.exit:
+  %retval.0.i = phi i64 [ 0, %if.end8.i ], [ 29, %_ZL34lean_is_compressed_or_uncompressedjj.exit ], [ 44, %land.lhs.true4.i ], [ 29, %land.lhs.true.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 45
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_pubkey_encoding=alive2-green
+===== cell_pubkey_predicates =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_pubkey_predicates.ll build/l_cell_pubkey_predicates.ll
+# c IR sha256: 37280c90e0faa7e250e01ee91f381dba4a22ac754dcad642782dd3e06eed60a7
+# l IR sha256: 5104deb925874acf3bdedca7e1e969f82b2262d1b15c9630674e19e61fc177a8
+
+----------------------------------------
+define i64 @cell_pubkey_predicates(i32 noundef %n, i32 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i32 noundef %n, 33
+  br i1 %cmp.i, label %_ZL34core_is_compressed_or_uncompressedjj.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i32 noundef %pk0, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.else.i
+
+if.then2.i:
+  %cmp3.not.i = icmp eq i32 noundef %n, 65
+  br i1 %cmp3.not.i, label %if.end14.i, label %_ZL34core_is_compressed_or_uncompressedjj.exit
+
+if.else.i:
+  %#0 = and i32 noundef %pk0, 4294967294
+  %or.cond.i = icmp eq i32 %#0, 2
+  %cmp9.not.i = icmp eq i32 noundef %n, 33
+  %or.cond19.i = and i1 %cmp9.not.i, %or.cond.i
+  br i1 %or.cond19.i, label %if.end14.i, label %_ZL34core_is_compressed_or_uncompressedjj.exit
+
+if.end14.i:
+  br label %_ZL34core_is_compressed_or_uncompressedjj.exit
+
+_ZL34core_is_compressed_or_uncompressedjj.exit:
+  %retval.0.i = phi i64 [ 1, %if.end14.i ], [ 0, %entry ], [ 0, %if.then2.i ], [ 0, %if.else.i ]
+  %cmp.not.i = icmp eq i32 noundef %n, 33
+  %#1 = and i32 noundef %pk0, 4294967294
+  %or.cond.i4 = icmp eq i32 %#1, 2
+  %narrow = and i1 %cmp.not.i, %or.cond.i4
+  %shl = select i1 %narrow, i64 2, i64 0
+  %or = or disjoint i64 %retval.0.i, %shl
+  %#range_0_%or = !range i64 %or, i64 0, i64 4
+  ret i64 %#range_0_%or
+}
+=>
+define i64 @cell_pubkey_predicates(i32 noundef %n, i32 noundef %pk0) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i32 noundef %n, 33
+  br i1 %cmp.i, label %_ZL34lean_is_compressed_or_uncompressedjj.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i32 noundef %pk0, 4
+  br i1 %cmp1.i, label %if.then2.i, label %if.end4.i
+
+if.then2.i:
+  %cmp3.i = icmp eq i32 noundef %n, 65
+  br label %_ZL34lean_is_compressed_or_uncompressedjj.exit
+
+if.end4.i:
+  %#0 = and i32 noundef %pk0, 4294967294
+  %or.cond.i = icmp eq i32 %#0, 2
+  %cmp8.i = icmp eq i32 noundef %n, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i
+  br label %_ZL34lean_is_compressed_or_uncompressedjj.exit
+
+_ZL34lean_is_compressed_or_uncompressedjj.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp3.i, %if.then2.i ], [ 0, %entry ], [ %spec.select.i, %if.end4.i ]
+  %retval.0.i = zext i1 %retval.0.shrunk.i to i64
+  %cmp.i4 = icmp eq i32 noundef %n, 33
+  %#1 = and i32 noundef %pk0, 4294967294
+  %#2 = icmp eq i32 %#1, 2
+  %narrow = and i1 %cmp.i4, %#2
+  %shl = select i1 %narrow, i64 2, i64 0
+  %or = or disjoint i64 %shl, %retval.0.i
+  %#range_0_%or = !range i64 %or, i64 0, i64 4
+  ret i64 %#range_0_%or
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_pubkey_predicates=alive2-green
+STATUS=alive2-green

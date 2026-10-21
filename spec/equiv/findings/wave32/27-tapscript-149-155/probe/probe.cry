@@ -1,0 +1,117 @@
+module ProbePrescanOrder where
+
+// Independent specification of the TAPSCRIPT OP_SUCCESSx pre-scan
+// (interpreter.cpp:1846-1862) and the branches it overrides
+// (interpreter.cpp:1864-1871), over four symbolic script bytes and a symbolic
+// script length 0..4.
+//
+// Packed observable: result(2) | error(6) << 2 | aux << 8.
+//   1   pass
+//   144 fail DISCOURAGE_OP_SUCCESS (pack(0,36))
+//   32  fail STACK_SIZE (pack(0,8))
+//   24  fail PUSH_SIZE (pack(0,6))
+//   6   bad-input marker (pack(2,1))
+//
+// The scan is a fold of a single decode step over the four bytes, written
+// independently of the C leg's unrolled code.
+
+MAX_SCAN = 4
+NO_NEXT = 0xffffffff
+
+is_op_byte : [8] -> Bit
+is_op_byte c = (c == 0x50) \/ (c >= 0x61)
+
+is_success_byte : [8] -> Bit
+is_success_byte c =
+  (c == 80) \/ (c == 98) \/ (126 <= c /\ c <= 129) \/ (131 <= c /\ c <= 134) \/
+  (137 <= c /\ c <= 138) \/ (141 <= c /\ c <= 142) \/ (149 <= c /\ c <= 153) \/
+  (187 <= c /\ c <= 254)
+
+// GetOp next index (script.cpp:311-362 / Lean Parser getOpAux), or NO_NEXT on
+// a truncated push.  Every payload index is bounds-checked against `len`
+// before it is read.
+getop_next : [4][8] -> [32] -> [32] -> [32]
+getop_next bs len i =
+  if i >= len then NO_NEXT
+  else if c < 0x4c then
+    (if i + 1 + (zext c) > len then NO_NEXT else i + 1 + (zext c))
+  else if c == 0x4c then
+    (if len < i + 2 then NO_NEXT
+     else if (zext (bs @ (i + 1))) > len - (i + 2) then NO_NEXT
+     else i + 2 + (zext (bs @ (i + 1))))
+  else if c == 0x4d then
+    (if len < i + 3 then NO_NEXT
+     else if k2 > len - (i + 3) then NO_NEXT
+     else i + 3 + k2)
+  else if c == 0x4e then
+    (if len < i + 5 then NO_NEXT
+     else if k4 > len - (i + 5) then NO_NEXT
+     else i + 5 + k4)
+  else i + 1
+  where
+    c  = bs @ i
+    k2 = (zext (bs @ (i + 1)) : [32]) || ((zext (bs @ (i + 2)) : [32]) << 8)
+    k4 = (zext (bs @ (i + 1)) : [32]) || ((zext (bs @ (i + 2)) : [32]) << 8) ||
+         ((zext (bs @ (i + 3)) : [32]) << 16) || ((zext (bs @ (i + 4)) : [32]) << 24)
+
+// One step of the scan: (next index, found).
+step : [4][8] -> [32] -> ([32], Bit) -> ([32], Bit)
+step bs len (i, found) =
+  if found then (i, True)
+  else if i >= len then (i, found)
+  else if getop_next bs len i == NO_NEXT then (i, found)
+  else if is_op_byte (bs @ i) /\ is_success_byte (bs @ i) then (i, True)
+  else (getop_next bs len i, found)
+
+second : {a, b} (a, b) -> b
+second (_, x) = x
+
+scan_finds_success : [32] -> [8] -> [8] -> [8] -> [8] -> [64]
+scan_finds_success len b0 b1 b2 b3 =
+  if len > MAX_SCAN then 6
+  else if second (step bs len (step bs len (step bs len (step bs len (0, False)))))
+         then 1
+         else 0
+  where
+    bs = [b0, b1, b2, b3]
+
+// The branches Core runs after a completed pre-scan.  `later_rc` is the
+// uninterpreted EvalScript + witness-tail outcome.
+prescan_tail : [32] -> [32] -> [32] -> [32] -> [64] -> [64]
+prescan_tail found discourage too_many oversize later_rc =
+  if found != 0 then
+    (if discourage != 0 then 144 else 1)
+  else if too_many != 0 then 32
+  else if oversize != 0 then 24
+  else later_rc
+
+// Core order: the pre-scan's BAD_OPCODE on a decode failure comes *before* the
+// stack-size and item-size checks (interpreter.cpp:1855-1865).  The L probe
+// (probe_l.cpp / Defs.lean:1211-1233) runs the size checks first.
+step3 : [4][8] -> [32] -> ([32], Bit, Bit) -> ([32], Bit, Bit)
+step3 bs len (i, found, failed) =
+  if found \/ failed then (i, found, failed)
+  else if i >= len then (i, found, failed)
+  else if getop_next bs len i == NO_NEXT then (i, found, True)
+  else if is_op_byte (bs @ i) /\ is_success_byte (bs @ i) then (i, True, failed)
+  else (getop_next bs len i, found, failed)
+
+second3 : {a, b, c} (a, b, c) -> b
+second3 (_, y, _) = y
+
+third3 : {a, b, c} (a, b, c) -> c
+third3 (_, _, z) = z
+
+core_order : [32] -> [8] -> [8] -> [8] -> [8] -> [32] -> [32] -> [32] -> [64]
+core_order len b0 b1 b2 b3 too_many oversize discourage =
+  if len > MAX_SCAN then 6
+  else if failed then 64                       // BAD_OPCODE, before the sizes
+  else if found then (if discourage != 0 then 144 else 1)
+  else if too_many != 0 then 32
+  else if oversize != 0 then 24
+  else 1
+  where
+    bs  = [b0, b1, b2, b3]
+    st  = step3 bs len (step3 bs len (step3 bs len (step3 bs len (0, False, False))))
+    found  = second3 st
+    failed = third3 st

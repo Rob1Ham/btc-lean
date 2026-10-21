@@ -1,0 +1,243 @@
+module CellP2shSinglePush where
+
+// Independent statement of the SCR-012 P2SH-wrapped witness guard
+// (interpreter.cpp:2092-2096 at cce32b168) for the row's 4..42-byte domain.
+//
+// This Cryptol module is NOT a transliteration of either leg: it states the
+// three decisions the guard depends on in their shortest form —
+//   * the canonical push prefix (script.h:408-424 AppendDataSize, i.e.
+//     Parser/Defs.lean:363-372 lenBytes),
+//   * GetScriptOp's single-opcode decode (script.cpp:313-363), including the
+//     four push encodings and their truncation conditions,
+//   * CheckMinimalPush (script.cpp:373-396) and IsWitnessProgram
+//     (script.cpp:250-264),
+// and then the guard's error precedence: BAD_OPCODE (16) -> MINIMALDATA (25)
+// -> WITNESS_MALLEATED_P2SH (42) -> pass.
+//
+// Byte storage: the harness passes script bytes as little-endian u64 chunks
+// (`chunk[k]` holds bytes 8k..8k+7; byte 8k+j is `chunk[k] >> 8j`), the
+// convention used by the bounded cells in this family.
+//
+// Note on literals: in this Cryptol build a hex literal has type [8] and does
+// not unify with [64], so word-width comparisons use decimal constants
+// (`c76 : [64]; c76 = 76`); byte-width comparisons keep hex.
+
+// ---------------------------------------------------------------- bits/bytes
+
+// Low 8 bits of a 64-bit value (Cryptol bitvectors are MSB-first, so `drop`
+// keeps the least significant bits).
+b8 : [64] -> [8]
+b8 x = drop`{56} x
+
+bit64 : Bit -> [64]
+bit64 b = if b then 1 else 0
+
+// Word-width constants, one per magic number the guard reads.
+c0 : [64]
+c0 = 0
+c1 : [64]
+c1 = 1
+c2 : [64]
+c2 = 2
+c4 : [64]
+c4 = 4
+c16 : [64]
+c16 = 16
+c25 : [64]
+c25 = 25
+c42 : [64]
+c42 = 42
+c76 : [64]
+c76 = 76
+c255 : [64]
+c255 = 255
+c65535 : [64]
+c65535 = 65535
+c65536 : [64]
+c65536 = 65536
+c4294967295 : [64]
+c4294967295 = 4294967295
+
+// Each u64 chunk -> its 8 bytes in wire order (little-endian within the
+// chunk), concatenated.
+bytes6 : [6][64] -> [48][8]
+bytes6 cs = join (map reverse (map split (split (join cs) : [6][64])))
+
+bytes7 : [7][64] -> [56][8]
+bytes7 cs = join (map reverse (map split (split (join cs) : [7][64])))
+
+// -------------------------------------------------- canonical push prefix
+// script.h:408-424.  Result: (kind, prefix byte count, prefix bytes).
+// kind 0 = direct, 1 = PUSHDATA1, 2 = PUSHDATA2, 3 = PUSHDATA4.
+canon : [64] -> ([2], [4], [5][8])
+canon n =
+  if n < c76 then (0, 1, [b8 n, 0, 0, 0, 0])
+  else if n <= c255 then (1, 2, [0x4c, b8 n, 0, 0, 0])
+  else if n <= c65535 then (2, 3, [0x4d, b8 n, b8 (n >> 8), 0, 0])
+  else (3, 5, [0x4e, b8 n, b8 (n >> 8), b8 (n >> 16), b8 (n >> 24)])
+
+packedCanon : [64] -> [64]
+packedCanon n = zext k || (zext np << 2)
+  || (zext (pre @ 0) << 6) || (zext (pre @ 1) << 14)
+  || (zext (pre @ 2) << 22) || (zext (pre @ 3) << 30)
+  || (zext (pre @ 4) << 38)
+  where (k, np, pre) = canon n
+
+// ------------------------------------------------------- GetScriptOp at pc=0
+read16 : [56][8] -> [64]
+read16 bs = zext (bs @ 1) || (zext (bs @ 2) << 8)
+
+read32 : [56][8] -> [64]
+read32 bs = zext (bs @ 1) || (zext (bs @ 2) << 8)
+         || (zext (bs @ 3) << 16) || (zext (bs @ 4) << 24)
+
+// (ok, is_push, opcode, data length, next offset).  In Lean's getOp a failed
+// decode is `none` (no opcode); EvalScript only observes BAD_OPCODE (16), so
+// the five observables are defined only on success and are all zero on
+// failure (see the notes: F-DIV-001 seam).
+decode : [64] -> [56][8] -> (Bit, Bit, [8], [64], [64])
+decode n bs =
+  if n == c0 then (False, False, 0, 0, 0)
+  else if (bs @ 0) > 0x4e then (True, False, bs @ 0, 0, 1)
+  else if (bs @ 0) < 0x4c then
+    (if zext (bs @ 0) <= n - c1
+       then (True, True, bs @ 0, zext (bs @ 0), c1 + zext (bs @ 0))
+       else (False, False, 0, 0, 0))
+  else if (bs @ 0) == 0x4c then
+    (if n < c2 then (False, False, 0, 0, 0)
+     else if zext (bs @ 1) <= n - c2
+       then (True, True, bs @ 0, zext (bs @ 1), c2 + zext (bs @ 1))
+       else (False, False, 0, 0, 0))
+  else if (bs @ 0) == 0x4d then
+    (if n < c3 then (False, False, 0, 0, 0)
+     else if read16 bs <= n - c3
+       then (True, True, bs @ 0, read16 bs, c3 + read16 bs)
+       else (False, False, 0, 0, 0))
+  else
+    (if n < c5 then (False, False, 0, 0, 0)
+     else if read32 bs <= n - c5
+       then (True, True, bs @ 0, read32 bs, c5 + read32 bs)
+       else (False, False, 0, 0, 0))
+  where
+    c3 : [64]
+    c3 = 3
+    c5 : [64]
+    c5 = 5
+
+// script.cpp:373-396 CheckMinimalPush, reduced to its read set
+// (data.size(), data[0]) exactly like Core.
+minimal : [64] -> [8] -> [8] -> Bit
+minimal dlen first op =
+  if dlen == c0 then (op == 0x00)
+  else if (dlen == c1) && (0x01 <= first) && (first <= 0x10) then False
+  else if (dlen == c1) && (first == 0x81) then False
+  else if dlen <= c75 then (zext op == dlen)
+  else if dlen <= c255 then (op == 0x4c)
+  else if dlen <= c65535 then (op == 0x4d)
+  else True
+  where
+    c75 : [64]
+    c75 = 75
+
+// First payload byte for the four encodings (only read when dlen > 0).
+firstByte : [56][8] -> [8] -> [8]
+firstByte bs op =
+  if op < 0x4c then bs @ 1
+  else if op == 0x4c then bs @ 2
+  else if op == 0x4d then bs @ 3
+  else bs @ 5
+
+// script.cpp:250-264 IsWitnessProgram (the row's 4..42-byte template).
+wit : [64] -> [6][64] -> Bit
+wit plen pcs =
+  if (c4 <= plen) && (plen <= c42)
+    then (if ((pb @ 0) == 0x00) || ((0x51 <= (pb @ 0)) && ((pb @ 0) <= 0x60))
+            then (zext (pb @ 1) + c2 == plen)
+            else False)
+    else False
+  where pb = bytes6 pcs
+
+// ------------------------------------------------------- payload comparison
+// Byte-wise equality of s[start .. start+dlen) and p[0 .. dlen), guarded by
+// an explicit bound so no dynamic slice is needed.  The bound is 42 = the
+// largest redeemScript this cell admits; in `elemEq` the `dlen == plen`
+// conjunct forces dlen <= 42 whenever the result can be true.
+windowEq : [56][8] -> [48][8] -> [64] -> [64] -> Bit
+windowEq sb pb start dlen =
+  and [ (j >= dlen) || (sb @ (start + j) == pb @ j)
+      | j <- ([0 .. 41] : [42][64]) ]
+
+// ------------------------------------------- interpreter.cpp:2092 comparison
+// `scriptSig != CScript() << vector(pubKey2)`: on the row domain
+// AppendDataSize(plen) is the single byte `plen`, so the expected wire is
+// [plen] ++ p, and equality is size equality plus byte equality of the whole
+// scriptSig.
+wireEq : [64] -> [6][64] -> [64] -> [7][64] -> Bit
+wireEq plen pcs slen scs = (slen == plen + c1)
+  && (sb @ 0 == b8 plen)
+  && windowEq sb (bytes6 pcs) c1 plen
+  where sb = bytes7 scs
+
+// Produced element equals the redeemScript: the pushed window
+// s[start .. start+dlen) vs p[0 .. plen), with `start` selected by the
+// opcode class.
+elemEq : [8] -> [64] -> [64] -> [6][64] -> [7][64] -> Bit
+elemEq op dlen plen pcs scs = (dlen == plen) && arm
+  where
+    pb = bytes6 pcs
+    sb = bytes7 scs
+    arm = if op < 0x4c then windowEq sb pb c1 dlen
+          else if op == 0x4c then windowEq sb pb c2 dlen
+          else if op == 0x4d then windowEq sb pb c3 dlen
+          else windowEq sb pb c5 dlen
+    c3 : [64]
+    c3 = 3
+    c5 : [64]
+    c5 = 5
+
+// ------------------------------------------------------------ packed outputs
+// cell_sig_push: ok(1) | is_push(1)<<1 | single(1)<<2 | depth(2)<<3
+//                | err(6)<<5 | op(8)<<11 | dlen(16)<<19 | next(16)<<35
+//                | min_ok(1)<<51
+packedSigPush : [64] -> [7][64] -> [64] -> [64]
+packedSigPush slen scs md = bit64 ok
+  || (bit64 ispush << 1) || (bit64 single << 2) || (depth << 3)
+  || (err << 5) || (zext op << 11) || (dlen << 19)
+  || (next << 35) || (bit64 minok << 51)
+  where
+    sb = bytes7 scs
+    (ok, ispush, op, dlen, next) = decode slen sb
+    single = ok && ispush && (next == slen)
+    minok = ok && minimal dlen (firstByte sb op) op
+    err = if ok == False then c16
+          else if single && (md == c1) && (minok == False) then c25
+          else c0
+    depth = if single then c1 else c0
+
+// cell_p2sh_guard: verdict(2) | err(6)<<2 | eq(1)<<8 | single(1)<<9
+//                  | elem_eq(1)<<10 | elem_len(8)<<11 | wit(1)<<19
+packedGuard : [64] -> [6][64] -> [64] -> [7][64] -> [64] -> [64]
+packedGuard plen pcs slen scs md = verdict
+  || (err << 2) || (bit64 eq << 8) || (bit64 single << 9)
+  || (bit64 eleq << 10) || (zext (b8 elen) << 11) || (bit64 w << 19)
+  where
+    sb = bytes7 scs
+    (ok, ispush, op, dlen, next) = decode slen sb
+    single = ok && ispush && (next == slen)
+    minok = ok && minimal dlen (firstByte sb op) op
+    eq = wireEq plen pcs slen scs
+    w = wit plen pcs
+    eleq = single && elemEq op dlen plen pcs scs
+    elen = if single then dlen else c0
+    verdict = if ok == False then c0
+              else if single == False then c3v
+              else if (md == c1) && (minok == False) then c0
+              else if w && (eq == False) then c0
+              else c1
+    err = if ok == False then c16
+          else if single == False then c0
+          else if (md == c1) && (minok == False) then c25
+          else if w && (eq == False) then c42
+          else c0
+    c3v : [64]
+    c3v = 3

@@ -1,0 +1,96 @@
+# cell: checksig/C-L-checksig-invalid-pubkey
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: 40dea161f1e97500c57efc840931dd0b6f1665c9490d1bee777d7b67111b7a71
+# l source sha256: e0a0e62178c46bdae31aef1aa24ff7c1638c4e3faafe9031584150199a862de9
+# cell harness sha256: 5b9058cd2b7e6dffd7acd879563f4775bab45df05db83da846f70017cb9f2b01
+
+===== cell_invalid_pubkey =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_invalid_pubkey.ll build/l_cell_invalid_pubkey.ll
+# c IR sha256: 93bfcd46327a78f4ecf129fc260cdb00399e01a17c0043ee8de66423c714ecb5
+# l IR sha256: 65c7805b9b22905182dadb9275f16044f0450d28cf415ccc62f903259e506e93
+
+----------------------------------------
+define i64 @cell_invalid_pubkey(i32 noundef %pk_valid, i32 noundef %crypto_ok, i32 noundef %sig_len, i32 noundef %nullFail) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %sig_len, 0
+  %tobool.not.i = icmp eq i32 noundef %pk_valid, 0
+  %cmp.i4 = icmp eq i32 noundef %crypto_ok, 0
+  %narrow.not = or i1 %tobool.not.i, %cmp.i4
+  %cmp6.i = icmp ne i32 noundef %nullFail, 0
+  %#0 = and i1 %cmp6.i, %cmp.i
+  %. = select i1 %#0, i64 128, i64 264
+  %retval.0.i = select i1 %narrow.not, i64 %., i64 10497
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 128, i64 10498
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_invalid_pubkey(i32 noundef %pk_valid, i32 noundef %crypto_ok, i32 noundef %sig_len, i32 noundef %nullFail) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %sig_len, 0
+  %cmp.i4 = icmp eq i32 noundef %pk_valid, 0
+  %cmp1.i = icmp eq i32 noundef %crypto_ok, 0
+  %narrow.not = or i1 %cmp.i4, %cmp1.i
+  %cmp7.i = icmp ne i32 noundef %nullFail, 0
+  %#0 = and i1 %cmp7.i, %cmp.i
+  %. = select i1 %#0, i64 128, i64 264
+  %retval.0.i = select i1 %narrow.not, i64 %., i64 10497
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 128, i64 10498
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_invalid_pubkey=alive2-green
+===== cell_invalid_pubkey_continue =====
+# command: /usr/local/bin/alive-tv --bidirectional build/c_cell_invalid_pubkey_continue.ll build/l_cell_invalid_pubkey_continue.ll
+# c IR sha256: 0e275fbb201f20066a4d09a17a5ecffa64269a72d9a48ec3b0c8122ed4905f50
+# l IR sha256: 8ada1b5d6a1bc9ee36086370fc3baffe4d25068fae0408ed8d4afd12a591c38e
+
+----------------------------------------
+define i64 @cell_invalid_pubkey_continue(i32 noundef %pk_valid, i32 noundef %crypto_ok, i32 noundef %sig_len, i32 noundef %nullFail) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %sig_len, 0
+  %tobool.not.i = icmp eq i32 noundef %pk_valid, 0
+  %cmp.i5 = icmp eq i32 noundef %crypto_ok, 0
+  %narrow.not = or i1 %tobool.not.i, %cmp.i5
+  %cmp6.i = icmp ne i32 noundef %nullFail, 0
+  %#0 = and i1 %cmp6.i, %cmp.i
+  %. = select i1 %#0, i64 128, i64 10497
+  %retval.0.i = select i1 %narrow.not, i64 %., i64 2312
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 128, i64 10498
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_invalid_pubkey_continue(i32 noundef %pk_valid, i32 noundef %crypto_ok, i32 noundef %sig_len, i32 noundef %nullFail) nofree noundef willreturn memory(none) {
+entry:
+  %cmp.i = icmp ne i32 noundef %sig_len, 0
+  %cmp.i5 = icmp eq i32 noundef %pk_valid, 0
+  %cmp1.i = icmp eq i32 noundef %crypto_ok, 0
+  %narrow.not = or i1 %cmp.i5, %cmp1.i
+  %cmp7.i = icmp ne i32 noundef %nullFail, 0
+  %#0 = and i1 %cmp7.i, %cmp.i
+  %. = select i1 %#0, i64 128, i64 10497
+  %retval.0.i = select i1 %narrow.not, i64 %., i64 2312
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 128, i64 10498
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS_cell_invalid_pubkey_continue=alive2-green
+STATUS=alive2-green

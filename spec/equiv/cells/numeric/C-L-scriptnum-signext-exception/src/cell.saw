@@ -1,0 +1,31 @@
+import "cell.cry";
+mCrtr <- llvm_load_module "c_cell_signext_roundtrip.bc";
+mLrtr <- llvm_load_module "l_cell_signext_roundtrip.bc";
+mCpred <- llvm_load_module "c_cell_signext_pred.bc";
+mLpred <- llvm_load_module "l_cell_signext_pred.bc";
+
+// Encoder -> minimality guard -> set_vch, symbolic over the rank-8 magnitude
+// and the sign bit.  Instantiating mag = 255 gives Core's two named vectors:
+// +255 -> 0xff 0x00 and -255 -> 0xff 0x80, both accepted by the real guard.
+let spec_rt = do {
+  mag <- llvm_fresh_var "mag" (llvm_int 32);
+  neg <- llvm_fresh_var "neg" (llvm_int 32);
+  llvm_execute_func [llvm_term mag, llvm_term neg];
+  llvm_return (llvm_term {{ roundtrip mag neg }});
+};
+llvm_verify mCrtr "cell_signext_roundtrip" [] false spec_rt abc;
+llvm_verify mLrtr "cell_signext_roundtrip" [] false spec_rt abc;
+
+// The minimality predicate over every one- and two-byte payload, real guard
+// vs the same guard with the sign-extension exception removed.
+let spec_pred = do {
+  two <- llvm_fresh_var "two" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0"  (llvm_int 32);
+  b1  <- llvm_fresh_var "b1"  (llvm_int 32);
+  llvm_execute_func [llvm_term two, llvm_term b0, llvm_term b1];
+  llvm_return (llvm_term {{ predObs two b0 b1 }});
+};
+llvm_verify mCpred "cell_signext_pred" [] false spec_pred abc;
+llvm_verify mLpred "cell_signext_pred" [] false spec_pred abc;
+
+print "CELL_NUMERIC_SIGNEXT_SAW_GREEN";

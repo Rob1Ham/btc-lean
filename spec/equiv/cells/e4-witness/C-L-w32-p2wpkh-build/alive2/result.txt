@@ -1,0 +1,215 @@
+# cell: e4-witness/C-L-w32-p2wpkh-build
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# command: alive-tv --bidirectional build/c_<fn>.ll build/l_<fn>.ll
+
+===== cell_p2wpkh_w0 =====
+
+----------------------------------------
+define i64 @cell_p2wpkh_w0(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %and.i8 = shl i64 noundef %p0, 24
+  %shl.i = and i64 %and.i8, 4278190080
+  %#0 = shl i64 noundef %p0, 24
+  %shl2.i = and i64 %#0, 1095216660480
+  %#1 = shl i64 noundef %p0, 24
+  %shl5.i = and i64 %#1, 280375465082880
+  %#2 = shl i64 noundef %p0, 24
+  %shl8.i = and i64 %#2, 71776119061217280
+  %#3 = shl i64 noundef %p0, 24
+  %and.i = and i64 %#3, -72057594037927936
+  %or.i = or disjoint i64 %shl2.i, %shl.i
+  %or3.i = or disjoint i64 %or.i, %shl5.i
+  %or6.i = or disjoint i64 %or3.i, %shl8.i
+  %or9.i = or disjoint i64 %or6.i, %and.i
+  %or12.i = or disjoint i64 %or9.i, 1354102
+  %#range_0_%or12.i = !range i64 %or12.i, i64 1354102, i64 0
+  ret i64 %#range_0_%or12.i
+}
+=>
+define i64 @cell_p2wpkh_w0(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %conv16.i = shl i64 noundef %p0, 24
+  %shl17.i = and i64 %conv16.i, 4278190080
+  %#0 = shl i64 noundef %p0, 24
+  %shl24.i = and i64 %#0, 1095216660480
+  %#1 = shl i64 noundef %p0, 24
+  %shl31.i = and i64 %#1, 280375465082880
+  %#2 = shl i64 noundef %p0, 24
+  %shl38.i = and i64 %#2, 71776119061217280
+  %#3 = shl i64 noundef %p0, 24
+  %conv44.i = and i64 %#3, -72057594037927936
+  %or18.i = or disjoint i64 %shl24.i, %shl17.i
+  %or25.i = or disjoint i64 %or18.i, %shl31.i
+  %or32.i = or disjoint i64 %or25.i, %shl38.i
+  %or39.i = or disjoint i64 %or32.i, %conv44.i
+  %or46.i = or disjoint i64 %or39.i, 1354102
+  %#range_0_%or46.i = !range i64 %or46.i, i64 1354102, i64 0
+  ret i64 %#range_0_%or46.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_p2wpkh_w1 =====
+
+----------------------------------------
+define i64 @cell_p2wpkh_w1(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr.i13 = lshr i64 noundef %p0, 40
+  %and.i14 = and i64 %shr.i13, 255
+  %#0 = lshr i64 noundef %p0, 40
+  %shl.i = and i64 %#0, 65280
+  %or.i = or disjoint i64 %and.i14, %shl.i
+  %#1 = lshr i64 noundef %p0, 40
+  %shl3.i = and i64 %#1, 16711680
+  %or4.i = or disjoint i64 %or.i, %shl3.i
+  %and.i8 = shl i64 noundef %p1, 24
+  %shl6.i = and i64 %and.i8, 4278190080
+  %or7.i = or disjoint i64 %or4.i, %shl6.i
+  %#2 = shl i64 noundef %p1, 24
+  %shl9.i = and i64 %#2, 1095216660480
+  %or10.i = or disjoint i64 %or7.i, %shl9.i
+  %#3 = shl i64 noundef %p1, 24
+  %shl12.i = and i64 %#3, 280375465082880
+  %or13.i = or disjoint i64 %or10.i, %shl12.i
+  %#4 = shl i64 noundef %p1, 24
+  %shl15.i = and i64 %#4, 71776119061217280
+  %or16.i = or i64 %or13.i, %shl15.i
+  %#5 = shl i64 noundef %p1, 24
+  %and.i = and i64 %#5, -72057594037927936
+  %or19.i = or i64 %or16.i, %and.i
+  ret i64 %or19.i
+}
+=>
+define i64 @cell_p2wpkh_w1(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr.i30 = lshr i64 noundef %p0, 40
+  %conv.i = and i64 %shr.i30, 255
+  %#0 = lshr i64 noundef %p0, 40
+  %shl.i = and i64 %#0, 65280
+  %or.i = or disjoint i64 %shl.i, %conv.i
+  %#1 = lshr i64 noundef %p0, 40
+  %shl10.i = and i64 %#1, 16711680
+  %or11.i = or disjoint i64 %or.i, %shl10.i
+  %conv16.i = shl i64 noundef %p1, 24
+  %shl17.i = and i64 %conv16.i, 4278190080
+  %or18.i = or disjoint i64 %or11.i, %shl17.i
+  %#2 = shl i64 noundef %p1, 24
+  %shl24.i = and i64 %#2, 1095216660480
+  %or25.i = or disjoint i64 %or18.i, %shl24.i
+  %#3 = shl i64 noundef %p1, 24
+  %shl31.i = and i64 %#3, 280375465082880
+  %or32.i = or disjoint i64 %or25.i, %shl31.i
+  %#4 = shl i64 noundef %p1, 24
+  %shl38.i = and i64 %#4, 71776119061217280
+  %or39.i = or i64 %or32.i, %shl38.i
+  %#5 = shl i64 noundef %p1, 24
+  %conv44.i = and i64 %#5, -72057594037927936
+  %or46.i = or i64 %or39.i, %conv44.i
+  ret i64 %or46.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_p2wpkh_w2 =====
+
+----------------------------------------
+define i64 @cell_p2wpkh_w2(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr.i11 = lshr i64 noundef %p1, 40
+  %and.i12 = and i64 %shr.i11, 255
+  %#0 = lshr i64 noundef %p1, 40
+  %shl.i = and i64 %#0, 65280
+  %#1 = lshr i64 noundef %p1, 40
+  %shl3.i = and i64 %#1, 16711680
+  %and.i6 = shl i64 noundef %p2, 24
+  %shl6.i = and i64 %and.i6, 4278190080
+  %#2 = shl i64 noundef %p2, 24
+  %shl9.i = and i64 %#2, 1095216660480
+  %#3 = shl i64 noundef %p2, 24
+  %shl12.i = and i64 %#3, 280375465082880
+  %#4 = shl i64 noundef %p2, 24
+  %shl15.i = and i64 %#4, 71776119061217280
+  %or.i = or disjoint i64 %shl.i, %and.i12
+  %or4.i = or disjoint i64 %or.i, %shl3.i
+  %or7.i = or disjoint i64 %or4.i, %shl6.i
+  %or10.i = or disjoint i64 %or7.i, %shl9.i
+  %or13.i = or disjoint i64 %or10.i, %shl12.i
+  %or16.i = or i64 %or13.i, %shl15.i
+  %or17.i = or i64 %or16.i, -8646911284551352320
+  %#range_0_%or17.i = !range i64 %or17.i, i64 -8646911284551352320, i64 -8574853690513424384
+  ret i64 %#range_0_%or17.i
+}
+=>
+define i64 @cell_p2wpkh_w2(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree willreturn memory(none) {
+entry:
+  %shr.i14 = lshr i64 noundef %p1, 40
+  %conv.i = and i64 %shr.i14, 255
+  %#0 = lshr i64 noundef %p1, 40
+  %shl.i = and i64 %#0, 65280
+  %#1 = lshr i64 noundef %p1, 40
+  %shl10.i = and i64 %#1, 16711680
+  %conv16.i = shl i64 noundef %p2, 24
+  %shl17.i = and i64 %conv16.i, 4278190080
+  %#2 = shl i64 noundef %p2, 24
+  %shl24.i = and i64 %#2, 1095216660480
+  %#3 = shl i64 noundef %p2, 24
+  %shl31.i = and i64 %#3, 280375465082880
+  %#4 = shl i64 noundef %p2, 24
+  %shl38.i = and i64 %#4, 71776119061217280
+  %or.i = or disjoint i64 %conv.i, %shl.i
+  %or11.i = or disjoint i64 %or.i, %shl10.i
+  %or18.i = or disjoint i64 %or11.i, %shl17.i
+  %or25.i = or disjoint i64 %or18.i, %shl24.i
+  %or32.i = or disjoint i64 %or25.i, %shl31.i
+  %or39.i = or i64 %or32.i, %shl38.i
+  %or46.i = or i64 %or39.i, -8646911284551352320
+  %#range_0_%or46.i = !range i64 %or46.i, i64 -8646911284551352320, i64 -8574853690513424384
+  ret i64 %#range_0_%or46.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_p2wpkh_w3 =====
+
+----------------------------------------
+define i64 @cell_p2wpkh_w3(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 172
+}
+=>
+define i64 @cell_p2wpkh_w3(i64 noundef %p0, i64 noundef %p1, i64 noundef %p2) nofree noundef willreturn memory(none) {
+entry:
+  ret i64 172
+}
+Transformation seems to be correct! (syntactically equal)
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

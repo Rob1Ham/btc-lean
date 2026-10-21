@@ -1,0 +1,1058 @@
+# cell: C-L-tapleaf-taggedhash
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_tag_byte.ll build/l_cell_tag_byte.ll
+
+----------------------------------------
+define i16 @cell_tag_byte(i32 noundef %i) nofree willreturn zeroext memory(none) {
+entry:
+  switch i32 noundef %i, label %if.end18 [
+    i32 0, label %return
+    i32 1, label %if.then2
+    i32 2, label %if.then5
+    i32 3, label %if.then8
+    i32 4, label %if.then11
+    i32 5, label %if.then2
+    i32 6, label %if.then17
+  ]
+
+if.then17:
+  br label %return
+
+if.then11:
+  br label %return
+
+if.then8:
+  br label %return
+
+if.then5:
+  br label %return
+
+if.then2:
+  br label %return
+
+if.end18:
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ 353, %if.then2 ], [ 368, %if.then5 ], [ 332, %if.then8 ], [ 357, %if.then11 ], [ 358, %if.then17 ], [ 0, %if.end18 ], [ 340, %entry ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 369
+  ret i16 %#range_0_%retval.0
+}
+=>
+define i16 @cell_tag_byte(i32 noundef %i) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %i, 6
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  switch i32 noundef %i, label %cond.false13 [
+    i32 0, label %return
+    i32 1, label %cond.end22.fold.split
+    i32 2, label %cond.end22.fold.split33
+    i32 3, label %cond.end22.fold.split34
+    i32 4, label %cond.end22.fold.split35
+  ]
+
+cond.false13:
+  %cmp14 = icmp eq i32 noundef %i, 5
+  %#0 = select i1 %cmp14, i16 353, i16 358
+  br label %return
+
+cond.end22.fold.split:
+  br label %return
+
+cond.end22.fold.split33:
+  br label %return
+
+cond.end22.fold.split34:
+  br label %return
+
+cond.end22.fold.split35:
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ 0, %entry ], [ 340, %if.end ], [ %#0, %cond.false13 ], [ 353, %cond.end22.fold.split ], [ 368, %cond.end22.fold.split33 ], [ 332, %cond.end22.fold.split34 ], [ 357, %cond.end22.fold.split35 ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 369
+  ret i16 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_prefix_byte.ll build/l_cell_prefix_byte.ll
+
+----------------------------------------
+define i16 @cell_prefix_byte(i32 noundef %i, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2, i64 noundef %t3) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp = icmp ult i32 noundef %i, 64
+  br i1 %cmp, label %if.then, label %return
+
+if.then:
+  %and = and i32 noundef %i, 31
+  %and.i = and i32 noundef %i, 7
+  %cmp.i = icmp samesign ult i32 %and, 8
+  br i1 %cmp.i, label %if.then.i, label %if.end.i
+
+if.then.i:
+  %mul.i = shl nsw nuw i32 %and, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shr.i = lshr i64 noundef %t0, %sh_prom.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end.i:
+  %cmp1.i = icmp samesign ult i32 %and, 16
+  br i1 %cmp1.i, label %if.then2.i, label %if.end7.i
+
+if.then2.i:
+  %mul3.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom4.i = zext nneg i32 %mul3.i to i64
+  %shr5.i = lshr i64 noundef %t1, %sh_prom4.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end7.i:
+  %cmp8.i = icmp samesign ult i32 %and, 24
+  %mul10.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom11.i = zext nneg i32 %mul10.i to i64
+  br i1 %cmp8.i, label %if.then9.i, label %if.end14.i
+
+if.then9.i:
+  %shr12.i = lshr i64 noundef %t2, %sh_prom11.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end14.i:
+  %shr17.i = lshr i64 noundef %t3, %sh_prom11.i
+  br label %_ZL6t_bytemmmmj.exit
+
+_ZL6t_bytemmmmj.exit:
+  %retval.0.in.i = phi i64 [ %shr.i, %if.then.i ], [ %shr5.i, %if.then2.i ], [ %shr12.i, %if.then9.i ], [ %shr17.i, %if.end14.i ]
+  %retval.0.i = trunc i64 %retval.0.in.i to i16
+  %conv1 = and i16 %retval.0.i, 255
+  %or = or disjoint i16 %conv1, 256
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ %or, %_ZL6t_bytemmmmj.exit ], [ 0, %entry ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 512
+  ret i16 %#range_0_%retval.0
+}
+=>
+define i16 @cell_prefix_byte(i32 noundef %i, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2, i64 noundef %t3) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %i, 63
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %rem = and i32 noundef %i, 31
+  %and.i = and i32 noundef %i, 7
+  %cmp.i = icmp samesign ult i32 %rem, 8
+  br i1 %cmp.i, label %if.then.i, label %if.end.i
+
+if.then.i:
+  %mul.i = shl nsw nuw i32 %rem, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shr.i = lshr i64 noundef %t0, %sh_prom.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end.i:
+  %cmp1.i = icmp samesign ult i32 %rem, 16
+  br i1 %cmp1.i, label %if.then2.i, label %if.end7.i
+
+if.then2.i:
+  %mul3.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom4.i = zext nneg i32 %mul3.i to i64
+  %shr5.i = lshr i64 noundef %t1, %sh_prom4.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end7.i:
+  %cmp8.i = icmp samesign ult i32 %rem, 24
+  %mul10.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom11.i = zext nneg i32 %mul10.i to i64
+  br i1 %cmp8.i, label %if.then9.i, label %if.end14.i
+
+if.then9.i:
+  %shr12.i = lshr i64 noundef %t2, %sh_prom11.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end14.i:
+  %shr17.i = lshr i64 noundef %t3, %sh_prom11.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+_ZL11lean_t_bytemmmmj.exit:
+  %retval.0.in.i = phi i64 [ %shr.i, %if.then.i ], [ %shr5.i, %if.then2.i ], [ %shr12.i, %if.then9.i ], [ %shr17.i, %if.end14.i ]
+  %retval.0.i = trunc i64 %retval.0.in.i to i16
+  %conv1 = and i16 %retval.0.i, 255
+  %or = or disjoint i16 %conv1, 256
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ %or, %_ZL11lean_t_bytemmmmj.exit ], [ 0, %entry ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 512
+  ret i16 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_leaf_mask.ll build/l_cell_leaf_mask.ll
+
+----------------------------------------
+define i16 @cell_leaf_mask(i8 noundef zeroext %control0) nofree willreturn zeroext memory(none) {
+entry:
+  %and = and i8 noundef zeroext %control0, 254
+  %#0 = and i8 noundef zeroext %control0, 1
+  %conv6 = zext i8 %and to i16
+  %conv8 = zext nneg i8 %#0 to i16
+  %shl = shl nsw nuw i16 %conv8, 8
+  %or = or disjoint i16 %shl, %conv6
+  %#range_0_%or = !range i16 %or, i16 0, i16 512
+  ret i16 %#range_0_%or
+}
+=>
+define i16 @cell_leaf_mask(i8 noundef zeroext %control0) nofree willreturn zeroext memory(none) {
+entry:
+  %sub.i = and i8 noundef zeroext %control0, 254
+  %sub = and i8 noundef zeroext %control0, 1
+  %conv4 = zext i8 %sub.i to i16
+  %conv6 = zext nneg i8 %sub to i16
+  %shl = shl nsw nuw i16 %conv6, 8
+  %or = or disjoint i16 %shl, %conv4
+  %#range_0_%or = !range i16 %or, i16 0, i16 512
+  ret i16 %#range_0_%or
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_cs_size.ll build/l_cell_cs_size.ll
+
+----------------------------------------
+define i8 @cell_cs_size(i64 noundef %n) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL7cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL7cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %#0 = select i1 %cmp4.i, i8 5, i8 9
+  br label %_ZL7cs_sizem.exit
+
+_ZL7cs_sizem.exit:
+  %retval.0.i = phi i8 [ 1, %entry ], [ 3, %if.end.i ], [ %#0, %if.end3.i ]
+  %#range_0_%retval.0.i = !range i8 %retval.0.i, i8 1, i8 10
+  ret i8 %#range_0_%retval.0.i
+}
+=>
+define i8 @cell_cs_size(i64 noundef %n) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL12lean_cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL12lean_cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %#0 = select i1 %cmp4.i, i8 5, i8 9
+  br label %_ZL12lean_cs_sizem.exit
+
+_ZL12lean_cs_sizem.exit:
+  %retval.0.i = phi i8 [ 1, %entry ], [ 3, %if.end.i ], [ %#0, %if.end3.i ]
+  %#range_0_%retval.0.i = !range i8 %retval.0.i, i8 1, i8 10
+  ret i8 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_cs_byte.ll build/l_cell_cs_byte.ll
+
+----------------------------------------
+define i16 @cell_cs_byte(i64 noundef %n, i32 noundef %j) nofree willreturn zeroext memory(none) {
+entry:
+  %conv = zext i32 noundef %j to i64
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL7cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL7cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL7cs_sizem.exit
+
+_ZL7cs_sizem.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %cmp.not = icmp samesign ugt i64 %retval.0.i, %conv
+  br i1 %cmp.not, label %if.end, label %return
+
+if.end:
+  br i1 %cmp.i, label %_ZL7cs_sizem.exit.i, label %if.end.i.i
+
+if.end.i.i:
+  %cmp1.i.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i.i, label %_ZL7cs_sizem.exit.i, label %if.end3.i.i
+
+if.end3.i.i:
+  %cmp4.i.i = icmp ult i64 noundef %n, 4294967296
+  %..i.i = select i1 %cmp4.i.i, i64 5, i64 9
+  br label %_ZL7cs_sizem.exit.i
+
+_ZL7cs_sizem.exit.i:
+  %retval.0.i.i = phi i64 [ 1, %if.end ], [ 3, %if.end.i.i ], [ %..i.i, %if.end3.i.i ]
+  %cmp.not.i = icmp samesign ugt i64 %retval.0.i.i, %conv
+  br i1 %cmp.not.i, label %if.end.i8, label %_ZL7cs_bytemj.exit
+
+if.end.i8:
+  br i1 %cmp.i, label %if.then2.i, label %if.end4.i
+
+if.then2.i:
+  %conv3.i = trunc nuw i64 noundef %n to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.end4.i:
+  %cmp5.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp5.i, label %if.then6.i, label %if.end15.i
+
+if.then6.i:
+  switch i32 noundef %j, label %if.end13.i [
+    i32 0, label %_ZL7cs_bytemj.exit
+    i32 1, label %if.then11.i
+  ]
+
+if.end13.i:
+  %shr.i = lshr i64 noundef %n, 8
+  %conv14.i = trunc nuw i64 %shr.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then11.i:
+  %conv12.i = trunc nuw i64 noundef %n to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.end15.i:
+  %cmp16.i = icmp ult i64 noundef %n, 4294967296
+  br i1 %cmp16.i, label %if.then17.i, label %if.end37.i
+
+if.then17.i:
+  switch i32 noundef %j, label %if.end34.i [
+    i32 0, label %_ZL7cs_bytemj.exit
+    i32 1, label %if.then22.i
+    i32 2, label %if.then26.i
+    i32 3, label %if.then31.i
+  ]
+
+if.end34.i:
+  %shr35.i = lshr i64 noundef %n, 24
+  %conv36.i = trunc nuw i64 %shr35.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then22.i:
+  %conv23.i = trunc i64 noundef %n to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then26.i:
+  %shr27.i = lshr i64 noundef %n, 8
+  %conv28.i = trunc i64 %shr27.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then31.i:
+  %shr32.i = lshr i64 noundef %n, 16
+  %conv33.i = trunc nuw i64 %shr32.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.end37.i:
+  switch i32 noundef %j, label %if.end74.i [
+    i32 0, label %_ZL7cs_bytemj.exit
+    i32 1, label %if.then42.i
+    i32 2, label %if.then46.i
+    i32 3, label %if.then51.i
+    i32 4, label %if.then56.i
+    i32 5, label %if.then61.i
+    i32 6, label %if.then66.i
+    i32 7, label %if.then71.i
+  ]
+
+if.end74.i:
+  %shr75.i = lshr i64 noundef %n, 56
+  %conv76.i = trunc nsw nuw i64 %shr75.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then42.i:
+  %conv43.i = trunc i64 noundef %n to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then46.i:
+  %shr47.i = lshr i64 noundef %n, 8
+  %conv48.i = trunc i64 %shr47.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then51.i:
+  %shr52.i = lshr i64 noundef %n, 16
+  %conv53.i = trunc i64 %shr52.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then56.i:
+  %shr57.i = lshr i64 noundef %n, 24
+  %conv58.i = trunc i64 %shr57.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then61.i:
+  %shr62.i = lshr i64 noundef %n, 32
+  %conv63.i = trunc i64 %shr62.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then66.i:
+  %shr67.i = lshr i64 noundef %n, 40
+  %conv68.i = trunc i64 %shr67.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+if.then71.i:
+  %shr72.i = lshr i64 noundef %n, 48
+  %conv73.i = trunc nuw i64 %shr72.i to i16
+  br label %_ZL7cs_bytemj.exit
+
+_ZL7cs_bytemj.exit:
+  %retval.0.i7 = phi i16 [ %conv3.i, %if.then2.i ], [ %conv12.i, %if.then11.i ], [ %conv14.i, %if.end13.i ], [ %conv23.i, %if.then22.i ], [ %conv28.i, %if.then26.i ], [ %conv33.i, %if.then31.i ], [ %conv36.i, %if.end34.i ], [ %conv43.i, %if.then42.i ], [ %conv48.i, %if.then46.i ], [ %conv53.i, %if.then51.i ], [ %conv58.i, %if.then56.i ], [ %conv63.i, %if.then61.i ], [ %conv68.i, %if.then66.i ], [ %conv73.i, %if.then71.i ], [ %conv76.i, %if.end74.i ], [ 0, %_ZL7cs_sizem.exit.i ], [ 253, %if.then6.i ], [ 254, %if.then17.i ], [ 255, %if.end37.i ]
+  %conv3 = and i16 %retval.0.i7, 255
+  %or = or disjoint i16 %conv3, 256
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ %or, %_ZL7cs_bytemj.exit ], [ 0, %_ZL7cs_sizem.exit ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 512
+  ret i16 %#range_0_%retval.0
+}
+=>
+define i16 @cell_cs_byte(i64 noundef %n, i32 noundef %j) nofree willreturn zeroext memory(none) {
+entry:
+  %conv = zext i32 noundef %j to i64
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL12lean_cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL12lean_cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL12lean_cs_sizem.exit
+
+_ZL12lean_cs_sizem.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %cmp.not = icmp samesign ugt i64 %retval.0.i, %conv
+  br i1 %cmp.not, label %if.end, label %return
+
+if.end:
+  br i1 %cmp.i, label %if.then.i, label %if.end.i8
+
+if.then.i:
+  %cmp1.i10 = icmp eq i32 noundef %j, 0
+  %#0 = trunc nuw i64 noundef %n to i16
+  %conv3.i = select i1 %cmp1.i10, i16 %#0, i16 0
+  br label %_ZL12lean_cs_bytemj.exit
+
+if.end.i8:
+  %sub.i = add i32 noundef %j, 4294967295
+  %cmp4.i9 = icmp ult i64 noundef %n, 65536
+  br i1 %cmp4.i9, label %if.then5.i, label %if.end13.i
+
+if.then5.i:
+  %cmp6.i = icmp eq i32 noundef %j, 0
+  br i1 %cmp6.i, label %_ZL12lean_cs_bytemj.exit, label %if.end8.i
+
+if.end8.i:
+  %cmp9.i = icmp ult i32 noundef %j, 3
+  br i1 %cmp9.i, label %if.then10.i, label %_ZL12lean_cs_bytemj.exit
+
+if.then10.i:
+  %mul.i = shl i32 %sub.i, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shr.i = lshr i64 noundef %n, %sh_prom.i
+  %conv11.i = trunc nuw i64 %shr.i to i16
+  br label %_ZL12lean_cs_bytemj.exit
+
+if.end13.i:
+  %cmp14.i = icmp ult i64 noundef %n, 4294967296
+  %cmp16.i = icmp eq i32 noundef %j, 0
+  br i1 %cmp14.i, label %if.then15.i, label %if.end26.i
+
+if.then15.i:
+  br i1 %cmp16.i, label %_ZL12lean_cs_bytemj.exit, label %if.end18.i
+
+if.end18.i:
+  %cmp19.i = icmp ult i32 noundef %j, 5
+  br i1 %cmp19.i, label %if.then20.i, label %_ZL12lean_cs_bytemj.exit
+
+if.then20.i:
+  %mul21.i = shl i32 %sub.i, 3
+  %sh_prom22.i = zext nneg i32 %mul21.i to i64
+  %shr23.i = lshr i64 noundef %n, %sh_prom22.i
+  %conv24.i = trunc i64 %shr23.i to i16
+  br label %_ZL12lean_cs_bytemj.exit
+
+if.end26.i:
+  br i1 %cmp16.i, label %_ZL12lean_cs_bytemj.exit, label %if.end29.i
+
+if.end29.i:
+  %cmp30.i = icmp ult i32 noundef %j, 9
+  br i1 %cmp30.i, label %if.then31.i, label %_ZL12lean_cs_bytemj.exit
+
+if.then31.i:
+  %mul32.i = shl i32 %sub.i, 3
+  %sh_prom33.i = zext nneg i32 %mul32.i to i64
+  %shr34.i = lshr i64 noundef %n, %sh_prom33.i
+  %conv35.i = trunc i64 %shr34.i to i16
+  br label %_ZL12lean_cs_bytemj.exit
+
+_ZL12lean_cs_bytemj.exit:
+  %retval.1.i = phi i16 [ %conv3.i, %if.then.i ], [ %conv11.i, %if.then10.i ], [ %conv24.i, %if.then20.i ], [ %conv35.i, %if.then31.i ], [ 253, %if.then5.i ], [ 0, %if.end8.i ], [ 254, %if.then15.i ], [ 0, %if.end18.i ], [ 255, %if.end26.i ], [ 0, %if.end29.i ]
+  %conv3 = and i16 %retval.1.i, 255
+  %or = or disjoint i16 %conv3, 256
+  br label %return
+
+return:
+  %retval.0 = phi i16 [ %or, %_ZL12lean_cs_bytemj.exit ], [ 0, %_ZL12lean_cs_sizem.exit ]
+  %#range_0_%retval.0 = !range i16 %retval.0, i16 0, i16 512
+  ret i16 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_field_kind.ll build/l_cell_field_kind.ll
+
+----------------------------------------
+define i8 @cell_field_kind(i64 noundef %i, i64 noundef %len) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %len, 253
+  br i1 %cmp.i, label %_ZL7cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %len, 65536
+  br i1 %cmp1.i, label %_ZL7cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %len, 4294967296
+  %#0 = select i1 %cmp4.i, i64 70, i64 74
+  br label %_ZL7cs_sizem.exit
+
+_ZL7cs_sizem.exit:
+  %retval.0.i = phi i64 [ 66, %entry ], [ 68, %if.end.i ], [ %#0, %if.end3.i ]
+  %cmp = icmp ult i64 noundef %i, 32
+  br i1 %cmp, label %cleanup, label %if.end
+
+if.end:
+  %cmp1 = icmp ult i64 noundef %i, 64
+  br i1 %cmp1, label %cleanup, label %if.end3
+
+if.end3:
+  %cmp4 = icmp eq i64 noundef %i, 64
+  br i1 %cmp4, label %cleanup, label %if.end6
+
+if.end6:
+  %cmp7 = icmp ult i64 noundef %i, %retval.0.i
+  br i1 %cmp7, label %cleanup, label %if.end9
+
+if.end9:
+  %#1 = sub nuw i64 noundef %i, %retval.0.i
+  %cmp12 = icmp ult i64 %#1, noundef %len
+  %. = select i1 %cmp12, i8 4, i8 5
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i8 [ 0, %_ZL7cs_sizem.exit ], [ 1, %if.end ], [ 2, %if.end3 ], [ 3, %if.end6 ], [ %., %if.end9 ]
+  %#range_0_%retval.0 = !range i8 %retval.0, i8 0, i8 6
+  ret i8 %#range_0_%retval.0
+}
+=>
+define i8 @cell_field_kind(i64 noundef %i, i64 noundef %len) nofree willreturn zeroext memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %len, 253
+  br i1 %cmp.i, label %_ZL12lean_cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %len, 65536
+  br i1 %cmp1.i, label %_ZL12lean_cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %len, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL12lean_cs_sizem.exit
+
+_ZL12lean_cs_sizem.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %cmp = icmp ult i64 noundef %i, 32
+  br i1 %cmp, label %cleanup15, label %if.end
+
+if.end:
+  %cmp1 = icmp ult i64 noundef %i, 64
+  br i1 %cmp1, label %cleanup15, label %if.end3
+
+if.end3:
+  %cmp4 = icmp eq i64 noundef %i, 64
+  br i1 %cmp4, label %cleanup15, label %if.end6
+
+if.end6:
+  %#0 = add i64 noundef %i, -65
+  %cmp8 = icmp ult i64 %#0, %retval.0.i
+  br i1 %cmp8, label %cleanup15, label %if.end10
+
+if.end10:
+  %#1 = sub nuw i64 %#0, %retval.0.i
+  %cmp12 = icmp ult i64 %#1, noundef %len
+  %. = select i1 %cmp12, i8 4, i8 5
+  br label %cleanup15
+
+cleanup15:
+  %retval.1 = phi i8 [ 0, %_ZL12lean_cs_sizem.exit ], [ 1, %if.end ], [ 2, %if.end3 ], [ 3, %if.end6 ], [ %., %if.end10 ]
+  %#range_0_%retval.1 = !range i8 %retval.1, i8 0, i8 6
+  ret i8 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_field_index.ll build/l_cell_field_index.ll
+
+----------------------------------------
+define i64 @cell_field_index(i64 noundef %i, i64 noundef %len) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %len, 253
+  br i1 %cmp.i, label %_ZL7cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %len, 65536
+  br i1 %cmp1.i, label %_ZL7cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %len, 4294967296
+  %#0 = select i1 %cmp4.i, i64 70, i64 74
+  br label %_ZL7cs_sizem.exit
+
+_ZL7cs_sizem.exit:
+  %retval.0.i = phi i64 [ 66, %entry ], [ 68, %if.end.i ], [ %#0, %if.end3.i ]
+  %cmp = icmp ult i64 noundef %i, 32
+  br i1 %cmp, label %cleanup, label %if.end
+
+if.end:
+  %cmp1 = icmp ult i64 noundef %i, 64
+  br i1 %cmp1, label %if.then2, label %if.end4
+
+if.then2:
+  %#1 = add nsw i64 noundef %i, -32
+  br label %cleanup
+
+if.end4:
+  %cmp5 = icmp eq i64 noundef %i, 64
+  br i1 %cmp5, label %cleanup, label %if.end7
+
+if.end7:
+  %cmp8 = icmp ult i64 noundef %i, %retval.0.i
+  br i1 %cmp8, label %if.then9, label %if.end11
+
+if.then9:
+  %#2 = add i64 noundef %i, -65
+  br label %cleanup
+
+if.end11:
+  %#3 = sub nuw i64 noundef %i, %retval.0.i
+  %cmp14 = icmp ult i64 %#3, noundef %len
+  %spec.select = select i1 %cmp14, i64 %#3, i64 0
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ %#1, %if.then2 ], [ %#2, %if.then9 ], [ noundef %i, %_ZL7cs_sizem.exit ], [ 0, %if.end4 ], [ %spec.select, %if.end11 ]
+  ret i64 %retval.0
+}
+=>
+define i64 @cell_field_index(i64 noundef %i, i64 noundef %len) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ult i64 noundef %len, 253
+  br i1 %cmp.i, label %_ZL12lean_cs_sizem.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %len, 65536
+  br i1 %cmp1.i, label %_ZL12lean_cs_sizem.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %len, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL12lean_cs_sizem.exit
+
+_ZL12lean_cs_sizem.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %cmp = icmp ult i64 noundef %i, 32
+  br i1 %cmp, label %cleanup17, label %if.end
+
+if.end:
+  %cmp1 = icmp ult i64 noundef %i, 64
+  br i1 %cmp1, label %if.then2, label %if.end4
+
+if.then2:
+  %#0 = add nsw i64 noundef %i, -32
+  br label %cleanup17
+
+if.end4:
+  %cmp5 = icmp eq i64 noundef %i, 64
+  br i1 %cmp5, label %cleanup17, label %if.end7
+
+if.end7:
+  %#1 = add i64 noundef %i, -65
+  %cmp9 = icmp ult i64 %#1, %retval.0.i
+  br i1 %cmp9, label %cleanup17, label %if.end11
+
+if.end11:
+  %#2 = sub nuw i64 %#1, %retval.0.i
+  %cmp13 = icmp ult i64 %#2, noundef %len
+  %spec.select = select i1 %cmp13, i64 %#2, i64 0
+  br label %cleanup17
+
+cleanup17:
+  %retval.1 = phi i64 [ %#0, %if.then2 ], [ noundef %i, %_ZL12lean_cs_sizem.exit ], [ 0, %if.end4 ], [ %#1, %if.end7 ], [ %spec.select, %if.end11 ]
+  ret i64 %retval.1
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_preimage_byte.ll build/l_cell_preimage_byte.ll
+
+----------------------------------------
+define i16 @cell_preimage_byte(i64 noundef %i, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2, i64 noundef %t3, i8 noundef zeroext %control0, i64 noundef %len, i8 noundef zeroext %s0, i8 noundef zeroext %s1, i8 noundef zeroext %s2, i8 noundef zeroext %s3) nofree willreturn zeroext memory(none) {
+entry:
+  %script = alloca i64 4, align 1, dead
+  %cmp = icmp ugt i64 noundef %len, 4
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  start_lifetime ptr %script
+  store i8 noundef zeroext %s0, ptr %script, align 1
+  %arrayinit.element = gep inbounds nuw ptr %script, 1 x i64 1
+  store i8 noundef zeroext %s1, ptr %arrayinit.element, align 1
+  %arrayinit.element1 = gep inbounds nuw ptr %script, 1 x i64 2
+  store i8 noundef zeroext %s2, ptr %arrayinit.element1, align 1
+  %arrayinit.element2 = gep inbounds nuw ptr %script, 1 x i64 3
+  store i8 noundef zeroext %s3, ptr %arrayinit.element2, align 1
+  %#0 = add nsw nuw i64 noundef %len, 66
+  %cmp6.not = icmp ult i64 noundef %i, %#0
+  br i1 %cmp6.not, label %if.end8, label %cleanup49
+
+if.end8:
+  %cmp9 = icmp ult i64 noundef %i, 32
+  br i1 %cmp9, label %if.then10, label %if.end15
+
+if.then10:
+  %conv = trunc nsw nuw i64 noundef %i to i32
+  %and.i69 = and i32 %conv, 7
+  %cmp.i70 = icmp ult i64 noundef %i, 8
+  br i1 %cmp.i70, label %if.then.i89, label %if.end.i71
+
+if.then.i89:
+  %mul.i90 = shl nsw nuw i64 noundef %i, 3
+  %shr.i92 = lshr i64 noundef %t0, %mul.i90
+  br label %_ZL6t_bytemmmmj.exit93
+
+if.end.i71:
+  %cmp1.i72 = icmp ult i64 noundef %i, 16
+  br i1 %cmp1.i72, label %if.then2.i85, label %if.end7.i73
+
+if.then2.i85:
+  %mul3.i86 = shl nsw nuw i32 %and.i69, 3
+  %sh_prom4.i87 = zext nneg i32 %mul3.i86 to i64
+  %shr5.i88 = lshr i64 noundef %t1, %sh_prom4.i87
+  br label %_ZL6t_bytemmmmj.exit93
+
+if.end7.i73:
+  %cmp8.i74 = icmp ult i64 noundef %i, 24
+  %mul10.i82 = shl nsw nuw i32 %and.i69, 3
+  %sh_prom11.i83 = zext nneg i32 %mul10.i82 to i64
+  br i1 %cmp8.i74, label %if.then9.i81, label %if.end14.i75
+
+if.then9.i81:
+  %shr12.i84 = lshr i64 noundef %t2, %sh_prom11.i83
+  br label %_ZL6t_bytemmmmj.exit93
+
+if.end14.i75:
+  %shr17.i78 = lshr i64 noundef %t3, %sh_prom11.i83
+  br label %_ZL6t_bytemmmmj.exit93
+
+_ZL6t_bytemmmmj.exit93:
+  %retval.0.in.i79 = phi i64 [ %shr.i92, %if.then.i89 ], [ %shr5.i88, %if.then2.i85 ], [ %shr12.i84, %if.then9.i81 ], [ %shr17.i78, %if.end14.i75 ]
+  %retval.0.i80 = trunc i64 %retval.0.in.i79 to i16
+  %conv13 = and i16 %retval.0.i80, 255
+  %or = or disjoint i16 %conv13, 256
+  br label %cleanup49
+
+if.end15:
+  %cmp16 = icmp ult i64 noundef %i, 64
+  br i1 %cmp16, label %if.then17, label %if.end25
+
+if.then17:
+  %#1 = trunc nuw i64 noundef %i to i32
+  %conv19 = add nsw i32 %#1, 4294967264
+  %and.i = and i32 %#1, 7
+  %cmp.i = icmp ult i32 %conv19, 8
+  br i1 %cmp.i, label %if.then.i, label %if.end.i
+
+if.then.i:
+  %mul.i = shl nsw nuw i32 %conv19, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shr.i = lshr i64 noundef %t0, %sh_prom.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end.i:
+  %cmp1.i = icmp ult i32 %conv19, 16
+  br i1 %cmp1.i, label %if.then2.i, label %if.end7.i
+
+if.then2.i:
+  %mul3.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom4.i = zext nneg i32 %mul3.i to i64
+  %shr5.i = lshr i64 noundef %t1, %sh_prom4.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end7.i:
+  %cmp8.i = icmp ult i32 %conv19, 24
+  %mul10.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom11.i = zext nneg i32 %mul10.i to i64
+  br i1 %cmp8.i, label %if.then9.i, label %if.end14.i
+
+if.then9.i:
+  %shr12.i = lshr i64 noundef %t2, %sh_prom11.i
+  br label %_ZL6t_bytemmmmj.exit
+
+if.end14.i:
+  %shr17.i = lshr i64 noundef %t3, %sh_prom11.i
+  br label %_ZL6t_bytemmmmj.exit
+
+_ZL6t_bytemmmmj.exit:
+  %retval.0.in.i = phi i64 [ %shr.i, %if.then.i ], [ %shr5.i, %if.then2.i ], [ %shr12.i, %if.then9.i ], [ %shr17.i, %if.end14.i ]
+  %retval.0.i = trunc i64 %retval.0.in.i to i16
+  %conv22 = and i16 %retval.0.i, 255
+  %or23 = or disjoint i16 %conv22, 256
+  br label %cleanup49
+
+if.end25:
+  switch i64 noundef %i, label %if.end43 [
+    i64 64, label %if.then27
+    i64 65, label %if.then2.i102
+  ]
+
+if.end43:
+  %#2 = add i64 noundef %i, -66
+  %arrayidx = gep inbounds nuw ptr %script, 4 x i64 0, 1 x i64 %#2
+  %#3 = load i8, ptr %arrayidx, align 1
+  br label %cleanup
+
+if.then27:
+  %#4 = and i8 noundef zeroext %control0, 254
+  %conv30 = zext i8 %#4 to i16
+  %or31 = or disjoint i16 %conv30, 256
+  br label %cleanup49
+
+if.then2.i102:
+  %conv3.i = trunc nuw i64 noundef %len to i8
+  br label %cleanup
+
+cleanup:
+  %retval.0.in.in = phi i8 [ %#3, %if.end43 ], [ %conv3.i, %if.then2.i102 ]
+  %retval.0.in = zext i8 %retval.0.in.in to i16
+  %retval.0 = or disjoint i16 %retval.0.in, 256
+  br label %cleanup49
+
+cleanup49:
+  %retval.1 = phi i16 [ %or, %_ZL6t_bytemmmmj.exit93 ], [ %or23, %_ZL6t_bytemmmmj.exit ], [ %or31, %if.then27 ], [ %retval.0, %cleanup ], [ 0, %if.end ]
+  end_lifetime ptr %script
+  br label %return
+
+return:
+  %retval.2 = phi i16 [ %retval.1, %cleanup49 ], [ 0, %entry ]
+  %#range_0_%retval.2 = !range i16 %retval.2, i16 0, i16 512
+  ret i16 %#range_0_%retval.2
+}
+=>
+define i16 @cell_preimage_byte(i64 noundef %i, i64 noundef %t0, i64 noundef %t1, i64 noundef %t2, i64 noundef %t3, i8 noundef zeroext %control0, i64 noundef %len, i8 noundef zeroext %s0, i8 noundef zeroext %s1, i8 noundef zeroext %s2, i8 noundef zeroext %s3) nofree willreturn zeroext memory(none) {
+entry:
+  %script = alloca i64 4, align 1, dead
+  %cmp = icmp ugt i64 noundef %len, 4
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  start_lifetime ptr %script
+  store i8 noundef zeroext %s0, ptr %script, align 1
+  %arrayinit.element = gep inbounds nuw ptr %script, 1 x i64 1
+  store i8 noundef zeroext %s1, ptr %arrayinit.element, align 1
+  %arrayinit.element1 = gep inbounds nuw ptr %script, 1 x i64 2
+  store i8 noundef zeroext %s2, ptr %arrayinit.element1, align 1
+  %arrayinit.element2 = gep inbounds nuw ptr %script, 1 x i64 3
+  store i8 noundef zeroext %s3, ptr %arrayinit.element2, align 1
+  %#0 = add nsw nuw i64 noundef %len, 66
+  %cmp6.not = icmp ult i64 noundef %i, %#0
+  br i1 %cmp6.not, label %if.end8, label %cleanup39
+
+if.end8:
+  %cmp9 = icmp ult i64 noundef %i, 64
+  br i1 %cmp9, label %if.then10, label %if.end15
+
+if.then10:
+  %#1 = trunc nuw i64 noundef %i to i32
+  %conv = and i32 %#1, 31
+  %and.i = and i32 %#1, 7
+  %cmp.i = icmp samesign ult i32 %conv, 8
+  br i1 %cmp.i, label %if.then.i, label %if.end.i
+
+if.then.i:
+  %mul.i = shl nsw nuw i32 %conv, 3
+  %sh_prom.i = zext nneg i32 %mul.i to i64
+  %shr.i = lshr i64 noundef %t0, %sh_prom.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end.i:
+  %cmp1.i = icmp samesign ult i32 %conv, 16
+  br i1 %cmp1.i, label %if.then2.i, label %if.end7.i
+
+if.then2.i:
+  %mul3.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom4.i = zext nneg i32 %mul3.i to i64
+  %shr5.i = lshr i64 noundef %t1, %sh_prom4.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end7.i:
+  %cmp8.i = icmp samesign ult i32 %conv, 24
+  %mul10.i = shl nsw nuw i32 %and.i, 3
+  %sh_prom11.i = zext nneg i32 %mul10.i to i64
+  br i1 %cmp8.i, label %if.then9.i, label %if.end14.i
+
+if.then9.i:
+  %shr12.i = lshr i64 noundef %t2, %sh_prom11.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+if.end14.i:
+  %shr17.i = lshr i64 noundef %t3, %sh_prom11.i
+  br label %_ZL11lean_t_bytemmmmj.exit
+
+_ZL11lean_t_bytemmmmj.exit:
+  %retval.0.in.i = phi i64 [ %shr.i, %if.then.i ], [ %shr5.i, %if.then2.i ], [ %shr12.i, %if.then9.i ], [ %shr17.i, %if.end14.i ]
+  %retval.0.i = trunc i64 %retval.0.in.i to i16
+  %conv13 = and i16 %retval.0.i, 255
+  %or = or disjoint i16 %conv13, 256
+  br label %cleanup39
+
+if.end15:
+  switch i64 noundef %i, label %if.end33 [
+    i64 64, label %if.then17
+    i64 65, label %if.then.i64
+  ]
+
+if.end33:
+  %#2 = add i64 noundef %i, -66
+  %arrayidx = gep inbounds nuw ptr %script, 4 x i64 0, 1 x i64 %#2
+  %#3 = load i8, ptr %arrayidx, align 1
+  br label %cleanup
+
+if.then17:
+  %sub.i = and i8 noundef zeroext %control0, 254
+  %conv20 = zext i8 %sub.i to i16
+  %or21 = or disjoint i16 %conv20, 256
+  br label %cleanup39
+
+if.then.i64:
+  %#4 = trunc nuw i64 noundef %len to i8
+  br label %cleanup
+
+cleanup:
+  %retval.0.in.in = phi i8 [ %#3, %if.end33 ], [ %#4, %if.then.i64 ]
+  %retval.0.in = zext i8 %retval.0.in.in to i16
+  %retval.0 = or disjoint i16 %retval.0.in, 256
+  br label %cleanup39
+
+cleanup39:
+  %retval.1 = phi i16 [ %or, %_ZL11lean_t_bytemmmmj.exit ], [ %or21, %if.then17 ], [ %retval.0, %cleanup ], [ 0, %if.end ]
+  end_lifetime ptr %script
+  br label %return
+
+return:
+  %retval.2 = phi i16 [ %retval.1, %cleanup39 ], [ 0, %entry ]
+  %#range_0_%retval.2 = !range i16 %retval.2, i16 0, i16 512
+  ret i16 %#range_0_%retval.2
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --bidirectional --always-verify --smt-to=120000 build/c_cell_preimage_len.ll build/l_cell_preimage_len.ll
+
+----------------------------------------
+define i64 @cell_preimage_len(i64 noundef %len) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %len, 4
+  %#0 = add i64 noundef %len, 66
+  %retval.0 = select i1 %cmp, i64 0, i64 %#0
+  ret i64 %retval.0
+}
+=>
+define i64 @cell_preimage_len(i64 noundef %len) nofree noundef willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i64 noundef %len, 4
+  %#0 = add i64 noundef %len, 66
+  %retval.0 = select i1 %cmp, i64 0, i64 %#0
+  ret i64 %retval.0
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

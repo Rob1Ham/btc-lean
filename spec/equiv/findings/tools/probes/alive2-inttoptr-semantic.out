@@ -1,0 +1,40 @@
+
+----------------------------------------
+define ptr @f(ptr %p) {
+#0:
+  %i = ptrtoint ptr %p to i64
+  %q = int2ptr i64 %i to ptr
+  ret ptr %q
+}
+=>
+define ptr @f(ptr %p) {
+#0:
+  ret ptr %p
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+ptr %p = undef
+
+Source:
+i64 %i = #x0000000000000003 (3)	[based on undef]
+ptr %q = phy-ptr(addr=3) / Address=#x0000000000000003	[based on undef]
+
+SOURCE MEMORY STATE
+===================
+NON-LOCAL BLOCKS:
+Block 0 >	size: 0	align: 1	alloc type: 0	alive: false	address: 0
+Block 1 >	size: 0	align: 2	alloc type: 0	alive: true	address: 2
+Block 2 >	size: 0	align: 1	alloc type: 0	alive: true	address: 8
+
+Target:
+Source value: phy-ptr(addr=3) / Address=#x0000000000000003	[based on undef]
+Target value: pointer(non-local, block_id=3, offset=294744278171648) / Address=#xeeff7ff7f4000000
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

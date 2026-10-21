@@ -1,0 +1,169 @@
+; wave64/44-e5-heap-refinement -- proof wrappers for allocator model M2.
+;
+; Each wrapper returns i1 1 exactly when the model property holds, so a SAW
+; `llvm_return 1` proof is the property.  All wrappers avoid ptrtoint; the
+; cursor checks are integer loads from @w64_off, and block identities are
+; pointer comparisons.  These are properties of the abstraction, not claims
+; about glibc (that is O6 in REFINEMENT.md).
+
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+declare ptr @w64_raw_alloc(i64)
+declare ptr @_Znwm(i64)
+declare ptr @malloc(i64)
+declare ptr @realloc(ptr, i64)
+@w64_off = external global i64
+@w64_calls = external global i64
+@w64_failed = external global i64
+@w64_last_start = external global i64
+
+; 1. success on a fresh arena for any request inside the usable capacity
+define i1 @w64_lemma_nonnull(i64 %n) {
+entry:
+  %p = call ptr @w64_raw_alloc(i64 %n)
+  %c = icmp ne ptr %p, null
+  ret i1 %c
+}
+
+; 2. an over-capacity request fails (failure is observable)
+define i1 @w64_lemma_oversize(i64 %n) {
+entry:
+  %p = call ptr @w64_raw_alloc(i64 %n)
+  %c = icmp eq ptr %p, null
+  ret i1 %c
+}
+
+; 3. two successful requests on a fresh arena are distinct
+define i1 @w64_lemma_disjoint(i64 %a, i64 %b) {
+entry:
+  %p1 = call ptr @w64_raw_alloc(i64 %a)
+  %p2 = call ptr @w64_raw_alloc(i64 %b)
+  %n1 = icmp eq ptr %p1, null
+  %n2 = icmp eq ptr %p2, null
+  %bad = or i1 %n1, %n2
+  br i1 %bad, label %ret0, label %cmp
+
+cmp:
+  %eq = icmp eq ptr %p1, %p2
+  %ne = xor i1 %eq, true
+  ret i1 %ne
+
+ret0:
+  ret i1 false
+}
+
+; 4. three successful requests are pairwise distinct
+define i1 @w64_lemma_three_distinct(i64 %a, i64 %b, i64 %c) {
+entry:
+  %p1 = call ptr @w64_raw_alloc(i64 %a)
+  %p2 = call ptr @w64_raw_alloc(i64 %b)
+  %p3 = call ptr @w64_raw_alloc(i64 %c)
+  %n1 = icmp eq ptr %p1, null
+  %n2 = icmp eq ptr %p2, null
+  %n3 = icmp eq ptr %p3, null
+  %b0 = or i1 %n1, %n2
+  %bad = or i1 %b0, %n3
+  br i1 %bad, label %ret0, label %cmp
+
+cmp:
+  %e12 = icmp eq ptr %p1, %p2
+  %e13 = icmp eq ptr %p1, %p3
+  %e23 = icmp eq ptr %p2, %p3
+  %x0 = or i1 %e12, %e13
+  %any = or i1 %x0, %e23
+  %ok = xor i1 %any, true
+  ret i1 %ok
+
+ret0:
+  ret i1 false
+}
+
+; 5. after any three successful requests the cursor is <= CAP and the last
+;    block's GEP index is a multiple of 16.  (@w64_heap has align 16, so a
+;    16-multiple index yields a 16-aligned pointer in the LLVM object model;
+;    the pointer-level corollary is stated, not computed via ptrtoint.)
+define i1 @w64_lemma_alignment(i64 %a, i64 %b, i64 %c) {
+entry:
+  %p1 = call ptr @w64_raw_alloc(i64 %a)
+  %p2 = call ptr @w64_raw_alloc(i64 %b)
+  %p3 = call ptr @w64_raw_alloc(i64 %c)
+  %n1 = icmp eq ptr %p1, null
+  %n2 = icmp eq ptr %p2, null
+  %n3 = icmp eq ptr %p3, null
+  %b0 = or i1 %n1, %n2
+  %bad = or i1 %b0, %n3
+  br i1 %bad, label %ret0, label %chk
+
+chk:
+  %s = load i64, ptr @w64_last_start, align 8
+  %ms = and i64 %s, 15
+  %zs = icmp eq i64 %ms, 0
+  %o = load i64, ptr @w64_off, align 8
+  %le = icmp ule i64 %o, @CAP@
+  %r = and i1 %zs, %le
+  ret i1 %r
+
+ret0:
+  ret i1 false
+}
+
+; 6. malloc returns non-null for n <= CAP-17 on a fresh arena
+define i1 @w64_lemma_malloc_nonnull(i64 %n) {
+entry:
+  %p = call ptr @malloc(i64 %n)
+  %c = icmp ne ptr %p, null
+  ret i1 %c
+}
+
+; 7. on a full arena, one raw request fails AND increments w64_failed
+define i1 @w64_lemma_failed_counted() {
+entry:
+  %p = call ptr @w64_raw_alloc(i64 1)
+  %isnull = icmp eq ptr %p, null
+  %f = load i64, ptr @w64_failed, align 8
+  %one = icmp eq i64 %f, 1
+  %r = and i1 %isnull, %one
+  ret i1 %r
+}
+
+; 8. on a full arena, malloc reports failure by NULL (C contract)
+define i1 @w64_lemma_malloc_full_null() {
+entry:
+  %p = call ptr @malloc(i64 1)
+  %c = icmp eq ptr %p, null
+  ret i1 %c
+}
+
+; 9. on a full arena, operator new takes the throw branch.  There is no i1
+;    result: SAW is EXPECTED to stop at the uninterpreted throw helper.  A
+;    silent return here would be a modelling bug (see fail-new-full.saw).
+define i64 @w64_lemma_new_after_full() {
+entry:
+  %p = call ptr @_Znwm(i64 1)
+  ret i64 0
+}
+
+
+; 10. realloc preserves the first min(old,new) bytes of a malloc block.
+;     Concrete shape 8 -> 16; this checks the 16-byte size header and copy.
+define i1 @w64_lemma_realloc_preserve() {
+entry:
+  %p = call ptr @malloc(i64 8)
+  %pn = icmp eq ptr %p, null
+  br i1 %pn, label %ret0, label %fill
+
+fill:
+  store i64 81985529216486895, ptr %p, align 1
+  %q = call ptr @realloc(ptr %p, i64 16)
+  %qn = icmp eq ptr %q, null
+  br i1 %qn, label %ret0, label %cmp
+
+cmp:
+  %v = load i64, ptr %q, align 1
+  %c = icmp eq i64 %v, 81985529216486895
+  ret i1 %c
+
+ret0:
+  ret i1 false
+}

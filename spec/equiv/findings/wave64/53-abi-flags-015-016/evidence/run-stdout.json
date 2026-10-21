@@ -1,0 +1,76 @@
+{
+  "model_source": "/tmp/opencode/core-pin",
+  "source_sha256": {
+    "src/kernel/chainparams.cpp": "cfadf1478377c32625280520655b598674e6d487f08d7f7a80ac69252104b5e1",
+    "src/validation.cpp": "9fad490f96c86ec1561434d01fddba85f304f9304e816958698a21a16486e416",
+    "src/script/interpreter.h": "e22719ed2cdd2cd381ae183bb0b16c8204d7b8b1da103435d0f2e084fa809e96"
+  },
+  "parsed": {
+    "exceptions": [
+      {
+        "hash": "00000000000002dc756eebf4f49723ed8d30cc28a5f108eb94b1ba88ac4f9c22",
+        "flags": "0x0"
+      },
+      {
+        "hash": "0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad",
+        "flags": "0x801"
+      }
+    ],
+    "heights": {
+      "BIP66Height": 363725,
+      "BIP65Height": 388381,
+      "CSVHeight": 419328,
+      "SegwitHeight": 481824
+    },
+    "base": "0x20801",
+    "bits": {
+      "P2SH": "0x1",
+      "WITNESS": "0x800",
+      "TAPROOT": "0x20000",
+      "DERSIG": "0x4",
+      "CLTV": "0x200",
+      "CSV": "0x400",
+      "NULLDUMMY": "0x10"
+    },
+    "shape_checks": {
+      "base": true,
+      "replace": true,
+      "dersig": true,
+      "cltv": true,
+      "csv": true,
+      "nulldummy": true
+    }
+  },
+  "comparisons": 278033,
+  "mismatches": [],
+  "abi_domain_violations": 0,
+  "l2_act": {
+    "path": "spec/data/l2/act/cases.jsonl",
+    "class_E_cases": 49,
+    "agree": 49,
+    "mismatches": []
+  },
+  "negative_controls": {
+    "c_bip66_height_plus_one_caught": true,
+    "l_bip16_hash_limb_flip_caught": true
+  },
+  "named": {
+    "bip16@170060": "0x0",
+    "taproot@692261": "0xe15"
+  },
+  "artefacts": {
+    "C-L-w32-block-flags": {
+      "alive2_result": "STATUS=alive2-green",
+      "saw_result": "STATUS=saw-green",
+      "alive2_sha256": "737d257184d8cdd376755ae6c816a4d2ff0a733a50f87c1a8c4043b58ba04db3",
+      "saw_sha256": "b04f4031c0a81288fb1ba924b0ec3f1e40b8463975f6d9fcb986558980864449"
+    },
+    "C-L-w32-flag-exceptions": {
+      "alive2_result": "STATUS=alive2-green",
+      "saw_result": "STATUS=saw-green",
+      "alive2_sha256": "191ef720ed01065f24a1b70c8270a2651b0f693ab78a94f2047cc0514d6e14f2",
+      "saw_sha256": "e01c25dcf888657be32616b14a954172c4034b4accc12cef8a5b92a3adbea843"
+    }
+  },
+  "verdict": "PASS"
+}

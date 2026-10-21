@@ -1,0 +1,127 @@
+
+----------------------------------------
+declare i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr) noundef
+declare ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr, noundef i64) dereferenceable(1) nonnull noundef align(1)
+
+define i1 @_Z10CastToBoolRKSt6vectorIhSaIhEE(ptr nonnull dereferenceable(24) noundef align(8) %#0) noundef zeroext {
+#1:
+  %#12 = alloca i64 1, align 1
+  %#13 = alloca i64 8, align 8
+  %#14 = alloca i64 4, align 4
+  store ptr nonnull dereferenceable(24) noundef align(8) %#0, ptr %#13, align 8
+  store i32 0, ptr %#14, align 4
+  br label %#2
+
+#2:
+  %#15 = load i32, ptr %#14, align 4
+  %#16 = zext i32 %#15 to i64
+  %#17 = load ptr, ptr %#13, align 8
+  %#18 = call i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr %#17) noundef
+  %#19 = icmp ult i64 %#16, %#18
+  br i1 %#19, label %#3, label %#10
+
+#3:
+  %#20 = load ptr, ptr %#13, align 8
+  %#21 = load i32, ptr %#14, align 4
+  %#22 = zext i32 %#21 to i64
+  %#23 = call ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr %#20, noundef i64 %#22) dereferenceable(1) nonnull noundef align(1)
+  %#24 = load i8, ptr %#23, align 1
+  %#25 = zext i8 %#24 to i32
+  %#26 = icmp ne i32 %#25, 0
+  br i1 %#26, label %#4, label %#8
+
+#4:
+  %#27 = load i32, ptr %#14, align 4
+  %#28 = zext i32 %#27 to i64
+  %#29 = load ptr, ptr %#13, align 8
+  %#30 = call i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr %#29) noundef
+  %#31 = sub i64 %#30, 1
+  %#32 = icmp eq i64 %#28, %#31
+  br i1 %#32, label %#5, label %#7
+
+#5:
+  %#33 = load ptr, ptr %#13, align 8
+  %#34 = load i32, ptr %#14, align 4
+  %#35 = zext i32 %#34 to i64
+  %#36 = call ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr %#33, noundef i64 %#35) dereferenceable(1) nonnull noundef align(1)
+  %#37 = load i8, ptr %#36, align 1
+  %#38 = zext i8 %#37 to i32
+  %#39 = icmp eq i32 %#38, 128
+  br i1 %#39, label %#6, label %#7
+
+#6:
+  store i1 0, ptr %#12, align 1
+  br label %#11
+
+#7:
+  store i1 1, ptr %#12, align 1
+  br label %#11
+
+#8:
+  br label %#9
+
+#9:
+  %#40 = load i32, ptr %#14, align 4
+  %#41 = add i32 %#40, 1
+  store i32 %#41, ptr %#14, align 4
+  br label %#2
+
+#10:
+  store i1 0, ptr %#12, align 1
+  br label %#11
+
+#11:
+  %#42 = load i1, ptr %#12, align 1
+  ret i1 %#42
+}
+=>
+declare i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr) noundef
+declare ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr, noundef i64) dereferenceable(1) nonnull noundef align(1)
+
+define i1 @_Z10CastToBoolRKSt6vectorIhSaIhEE(ptr nonnull dereferenceable(24) noundef align(8) %#0) noundef zeroext {
+#1:
+  %#6 = tail call i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr nonnull dereferenceable(24) noundef align(8) %#0) noundef
+  %.not13 = icmp eq i64 %#6, 0
+  br i1 %.not13, label %.loopexit, label %.lr.ph
+
+.lr.ph:
+  %#7 = phi i64 [ %#11, %#2 ], [ 0, %#1 ]
+  %.012 = phi i32 [ %#10, %#2 ], [ 0, %#1 ]
+  %#8 = tail call ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr nonnull dereferenceable(24) noundef align(8) %#0, noundef i64 %#7) dereferenceable(1) nonnull noundef align(1)
+  %#9 = load i8, ptr %#8, align 1
+  %.not = icmp eq i8 %#9, 0
+  br i1 %.not, label %#2, label %#3
+
+#2:
+  %#10 = add i32 %.012, 1
+  %#11 = zext i32 %#10 to i64
+  %#12 = tail call i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr nonnull dereferenceable(24) noundef align(8) %#0) noundef
+  %#13 = icmp ugt i64 %#12, %#11
+  br i1 %#13, label %.lr.ph, label %.loopexit
+
+#3:
+  %#14 = tail call i64 @_ZNKSt6vectorIhSaIhEE4sizeEv(nonnull dereferenceable(24) noundef align(8) ptr nonnull dereferenceable(24) noundef align(8) %#0) noundef
+  %#15 = add i64 %#14, -1
+  %#16 = icmp eq i64 %#15, %#7
+  br i1 %#16, label %#4, label %#5
+
+#4:
+  %#17 = tail call ptr @_ZNKSt6vectorIhSaIhEEixEm(nonnull dereferenceable(24) noundef align(8) ptr nonnull dereferenceable(24) noundef align(8) %#0, noundef i64 %#7) dereferenceable(1) nonnull noundef align(1)
+  %#18 = load i8, ptr %#17, align 1
+  %#19 = icmp eq i8 %#18, 128
+  br i1 %#19, label %.loopexit, label %#5
+
+#5:
+  br label %.loopexit
+
+.loopexit:
+  %.09 = phi i1 [ 1, %#5 ], [ 0, %#4 ], [ 0, %#1 ], [ 0, %#2 ]
+  ret i1 %.09
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

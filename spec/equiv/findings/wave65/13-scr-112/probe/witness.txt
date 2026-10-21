@@ -1,0 +1,10 @@
+# concrete outcomes, same functions as the Alive2 probe
+# C = Core-exact; L = pinned Der.isValidPubKey (header-only)
+block policy, nonempty sig         hdr=02 len=1 se=0 wpt=0 sv=0 sig_len=1 crypto_ok=1 null_fail=0 -> core=264 pinned_lean=10497 DIVERGE
+block policy, crypto_ok=0          hdr=02 len=1 se=0 wpt=0 sv=0 sig_len=1 crypto_ok=0 null_fail=0 -> core=264 pinned_lean=264 agree
+block policy, empty sig            hdr=02 len=1 se=0 wpt=0 sv=0 sig_len=0 crypto_ok=1 null_fail=0 -> core=264 pinned_lean=264 agree
+STRICTENC policy                   hdr=02 len=1 se=1 wpt=0 sv=0 sig_len=1 crypto_ok=1 null_fail=0 -> core=116 pinned_lean=116 agree
+NULLFAIL policy                    hdr=02 len=1 se=0 wpt=0 sv=0 sig_len=1 crypto_ok=1 null_fail=1 -> core=128 pinned_lean=10497 DIVERGE
+canonical 33-byte 02               hdr=02 len=33 se=0 wpt=0 sv=0 sig_len=1 crypto_ok=1 null_fail=0 -> core=10497 pinned_lean=10497 agree
+v0 WITNESS_PUBKEYTYPE 65B          hdr=04 len=65 se=0 wpt=1 sv=1 sig_len=1 crypto_ok=1 null_fail=0 -> core=176 pinned_lean=176 agree
+block policy, 34-byte 02           hdr=02 len=34 se=0 wpt=0 sv=0 sig_len=1 crypto_ok=1 null_fail=0 -> core=264 pinned_lean=10497 DIVERGE

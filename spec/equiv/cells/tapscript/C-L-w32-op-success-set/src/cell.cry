@@ -1,0 +1,18 @@
+module CellOpSuccessSet where
+
+// Independent specification of IsOpSuccess (script.cpp:365-371, BIP342),
+// written as an explicit byte-interval table rather than as the C/L
+// disjunctions.
+//
+//   {80, 98, 126..129, 131..134, 137..138, 141..142, 149..153, 187..254}
+//
+// 87 of the 256 wire bytes.  The complement is
+//   0..79, 81..97, 99..125, 130, 135..136, 139..140, 143..148, 154..186, 255.
+// Pushes (0x00..0x60) are never in the set except OP_RESERVED (0x50 = 80),
+// which decodes as an opcode, not a push.
+
+success_set = [80] # [98] # [126..129] # [131..134] # [137..138] #
+              [141..142] # [149..153] # [187..254]
+
+is_op_success : [8] -> [32]
+is_op_success w = if any (\y -> y == w) success_set then 1 else 0

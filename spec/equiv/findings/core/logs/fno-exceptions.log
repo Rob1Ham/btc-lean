@@ -1,0 +1,80 @@
+In file included from src/script/interpreter.cpp:6:
+In file included from src/script/interpreter.h:10:
+In file included from src/hash.h:14:
+In file included from src/serialize.h:14:
+In file included from src/util/overflow.h:8:
+src/util/check.h:78:9: error: cannot use 'throw' with exceptions disabled
+   78 |         throw NonFatalCheckError{assertion, loc};
+      |         ^
+In file included from src/script/interpreter.cpp:6:
+In file included from src/script/interpreter.h:10:
+In file included from src/hash.h:14:
+src/serialize.h:345:13: error: cannot use 'throw' with exceptions disabled
+  345 |             throw std::ios_base::failure("non-canonical ReadCompactSize()");
+      |             ^
+src/serialize.h:351:13: error: cannot use 'throw' with exceptions disabled
+  351 |             throw std::ios_base::failure("non-canonical ReadCompactSize()");
+      |             ^
+src/serialize.h:357:13: error: cannot use 'throw' with exceptions disabled
+  357 |             throw std::ios_base::failure("non-canonical ReadCompactSize()");
+      |             ^
+src/serialize.h:360:9: error: cannot use 'throw' with exceptions disabled
+  360 |         throw std::ios_base::failure("ReadCompactSize(): size too large");
+      |         ^
+src/serialize.h:453:12: error: cannot use 'throw' with exceptions disabled
+  453 |            throw std::ios_base::failure("ReadVarInt(): size too large");
+      |            ^
+src/serialize.h:458:17: error: cannot use 'throw' with exceptions disabled
+  458 |                 throw std::ios_base::failure("ReadVarInt(): size too large");
+      |                 ^
+src/serialize.h:531:31: error: cannot use 'throw' with exceptions disabled
+  531 |         if (v < 0 || v > MAX) throw std::ios_base::failure("CustomUintFormatter value out of range");
+      |                               ^
+src/serialize.h:567:13: error: cannot use 'throw' with exceptions disabled
+  567 |             throw std::ios_base::failure("CompactSize exceeds limit of type");
+      |             ^
+src/serialize.h:639:13: error: cannot use 'throw' with exceptions disabled
+  639 |             throw std::ios_base::failure("String length limit exceeded");
+      |             ^
+src/serialize.h:808:13: error: cannot use 'throw' with exceptions disabled
+  808 |             throw std::ios_base::failure("Vector length limit exceeded");
+      |             ^
+In file included from src/script/interpreter.cpp:6:
+In file included from src/script/interpreter.h:10:
+In file included from src/hash.h:17:
+In file included from src/uint256.h:12:
+In file included from src/util/strencodings.h:13:
+src/util/string.h:44:37: error: cannot use 'throw' with exceptions disabled
+   44 |                 if (maybe_num == 0) throw "Positional format specifier must have position of at least 1";
+      |                                     ^
+src/util/string.h:76:26: error: cannot use 'throw' with exceptions disabled
+   76 |         if (*it == '\0') throw "Format specifier incorrectly terminated by end of string";
+      |                          ^
+src/util/string.h:81:36: error: cannot use 'throw' with exceptions disabled
+   81 |     if (count_normal && count_pos) throw "Format specifiers must be all positional or all non-positional!";
+      |                                    ^
+src/util/string.h:83:30: error: cannot use 'throw' with exceptions disabled
+   83 |     if (num_params != count) throw "Format specifier count must match the argument count!";
+      |                              ^
+In file included from src/script/interpreter.cpp:6:
+In file included from src/script/interpreter.h:10:
+In file included from src/hash.h:17:
+In file included from src/uint256.h:12:
+src/util/strencodings.h:336:5: error: cannot use 'throw' with exceptions disabled
+  336 |     throw "Only lowercase hex digits are allowed, for consistency";
+      |     ^
+src/util/strencodings.h:347:29: error: cannot use 'throw' with exceptions disabled
+  347 |         if (hex_str[N - 1]) throw "null terminator required";
+      |                             ^
+In file included from src/script/interpreter.cpp:6:
+In file included from src/script/interpreter.h:10:
+In file included from src/hash.h:17:
+src/uint256.h:127:48: error: cannot use 'throw' with exceptions disabled
+  127 |     if (hex_str.length() != m_data.size() * 2) throw "Hex string must fit exactly";
+      |                                                ^
+src/uint256.h:127:48: error: cannot use 'throw' with exceptions disabled
+src/uint256.h:201:60: note: in instantiation of member function 'base_blob<256>::base_blob' requested here
+  201 |     consteval explicit uint256(std::string_view hex_str) : base_blob<256>(hex_str) {}
+      |                                                            ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

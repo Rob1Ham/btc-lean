@@ -1,0 +1,39 @@
+# command: /opt/equiv-tools/saw-1.6/bin/saw /tmp/opencode/wave16b/02-e5-getscriptop/spec/equiv/cells/e5-whole/PROTO-w16b-getscriptop/neg/e5b-neg-nop-wrong-error.saw
+# date: 2026-10-20T19:11:49Z
+# saw: 1.6 (68eed5f release-1.6)
+Loading file "neg/e5b-neg-nop-wrong-error.saw"
+Verifying _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Simulating _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Checking proof obligations _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t...
+Subgoal failed: _Z12VerifyScriptRK7CScriptS1_PK14CScriptWitness19script_verify_flagsRK20BaseSignatureCheckerP13ScriptError_t neg/e5b-neg-nop-wrong-error.saw:19:6: error: in llvm_points_to
+Literal equality postcondition
+Expected term: 
+let { _x`1 = TCNum 8;
+      _x`2 = seq _x`1 Bool;
+      _x`3 = PLiteralSeqBool _x`1;
+      _x`4 = ecNumber (TCNum 0) _x`2 _x`3;
+    }
+ in [ ecNumber (TCNum 3) _x`2 _x`3
+    , _x`4
+    , _x`4
+    , _x`4
+    , _x`4
+    , _x`4
+    , _x`4
+    , _x`4 ]
+Actual term:
+let { _x`1 = bvNat 8 0;
+    }
+ in [bvNat 8 2, _x`1, _x`1, _x`1, _x`1, _x`1, _x`1, _x`1]
+
+Goal size 8. Provers used: SBV->Z3
+----------Counterexample----------
+<<All settings of the symbolic variables constitute a counterexample>>
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   neg/e5b-neg-nop-wrong-error.saw:21:7-21:9 in (callback)
+   (builtin) in llvm_verify
+   neg/e5b-neg-nop-wrong-error.saw:7:8-21:9 (at top level)
+Proof failed.
+

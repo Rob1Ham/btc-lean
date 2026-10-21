@@ -1,0 +1,68 @@
+# cell: push-encoding/C-L-w32-witness-program
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: build/build.txt
+# command: alive-tv --bidirectional --smt-to=60000 build/c_cell_wp.ll build/l_cell_wp.ll
+
+----------------------------------------
+define i64 @cell_wp(i8 noundef zeroext %v, i8 noundef zeroext %plen, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %#0 = add i32 noundef %n, 4294967253
+  %or.cond = icmp ult i32 %#0, 4294967257
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %cmp2 = icmp eq i8 noundef zeroext %v, 0
+  %#1 = add i8 noundef zeroext %v, 175
+  %or.cond14 = icmp ult i8 %#1, 16
+  %or.cond19 = or i1 %cmp2, %or.cond14
+  br i1 %or.cond19, label %if.end9, label %return
+
+if.end9:
+  %conv10 = zext i8 noundef zeroext %plen to i32
+  %add = add nsw nuw i32 %conv10, 2
+  %cmp11.not = icmp eq i32 %add, noundef %n
+  %. = zext i1 %cmp11.not to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 0, %entry ], [ 0, %if.end ], [ %., %if.end9 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 2
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_wp(i8 noundef zeroext %v, i8 noundef zeroext %plen, i32 noundef %n) nofree willreturn memory(none) {
+entry:
+  %#0 = add i32 noundef %n, 4294967253
+  %or.cond.i = icmp ult i32 %#0, 4294967257
+  br i1 %or.cond.i, label %_ZN4twinL18is_witness_programEPKhj.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i8 noundef zeroext %v, 0
+  %#1 = add i8 noundef zeroext %v, 175
+  %or.cond13.i = icmp ult i8 %#1, 16
+  %or.cond19.i = or i1 %cmp2.i, %or.cond13.i
+  br i1 %or.cond19.i, label %if.end9.i, label %_ZN4twinL18is_witness_programEPKhj.exit
+
+if.end9.i:
+  %conv11.i = zext i8 noundef zeroext %plen to i32
+  %add.i = add nsw nuw i32 %conv11.i, 2
+  %cmp12.i = icmp eq i32 %add.i, noundef %n
+  %#2 = zext i1 %cmp12.i to i64
+  br label %_ZN4twinL18is_witness_programEPKhj.exit
+
+_ZN4twinL18is_witness_programEPKhj.exit:
+  %retval.1.i = phi i64 [ 0, %entry ], [ %#2, %if.end9.i ], [ 0, %if.end.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 2
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+These functions seem to be equivalent!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

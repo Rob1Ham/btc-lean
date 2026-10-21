@@ -1,0 +1,157 @@
+# cell: C-L-bip143-layout
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_bip143_field cell_bip143_total_len 
+# command: alive-tv ir/c_cell_bip143_field.ll ir/l_cell_bip143_field.ll
+
+----------------------------------------
+define i64 @cell_bip143_field(i64 noundef %field, i64 noundef %script_len) nofree noundef willreturn memory(none) {
+entry:
+  switch i64 noundef %field, label %if.end80 [
+    i64 0, label %cleanup
+    i64 1, label %if.then5
+    i64 2, label %if.then14
+    i64 3, label %if.then23
+    i64 4, label %if.then32
+    i64 5, label %if.then41
+    i64 6, label %if.then50
+    i64 7, label %if.then59
+    i64 8, label %if.then68
+    i64 9, label %if.then77
+  ]
+
+if.then77:
+  %add72 = shl i64 noundef %script_len, 8
+  %add79 = add i64 %add72, 39172
+  br label %cleanup
+
+if.then68:
+  %add63 = shl i64 noundef %script_len, 8
+  %add70 = add i64 %add63, 38148
+  br label %cleanup
+
+if.then59:
+  %add54 = shl i64 noundef %script_len, 8
+  %add61 = add i64 %add54, 29984
+  br label %cleanup
+
+if.then50:
+  %add45 = shl i64 noundef %script_len, 8
+  %add52 = add i64 %add45, 28932
+  br label %cleanup
+
+if.then41:
+  %add36 = shl i64 noundef %script_len, 8
+  %add43 = add i64 %add36, 26888
+  br label %cleanup
+
+if.then32:
+  %add34 = add i64 noundef %script_len, 26625
+  br label %cleanup
+
+if.then23:
+  br label %cleanup
+
+if.then14:
+  br label %cleanup
+
+if.then5:
+  br label %cleanup
+
+if.end80:
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i64 [ 1056, %if.then5 ], [ 9248, %if.then14 ], [ 17444, %if.then23 ], [ %add34, %if.then32 ], [ %add43, %if.then41 ], [ %add52, %if.then50 ], [ %add61, %if.then59 ], [ %add70, %if.then68 ], [ %add79, %if.then77 ], [ 0, %if.end80 ], [ 4, %entry ]
+  ret i64 %retval.0
+}
+=>
+define i64 @cell_bip143_field(i64 noundef %field, i64 noundef %script_len) nofree noundef willreturn memory(none) {
+entry:
+  switch i64 noundef %field, label %if.end42 [
+    i64 0, label %return
+    i64 1, label %if.then2
+    i64 2, label %if.then5
+    i64 3, label %if.then8
+    i64 4, label %if.then11
+    i64 5, label %if.then15
+    i64 6, label %if.then20
+    i64 7, label %if.then26
+    i64 8, label %if.then32
+    i64 9, label %if.then38
+  ]
+
+if.then38:
+  %add39 = shl i64 noundef %script_len, 8
+  %add41 = add i64 %add39, 39172
+  br label %return
+
+if.then32:
+  %add33 = shl i64 noundef %script_len, 8
+  %add35 = add i64 %add33, 38148
+  br label %return
+
+if.then26:
+  %add27 = shl i64 noundef %script_len, 8
+  %add29 = add i64 %add27, 29984
+  br label %return
+
+if.then20:
+  %add21 = shl i64 noundef %script_len, 8
+  %add23 = add i64 %add21, 28932
+  br label %return
+
+if.then15:
+  %add16 = shl i64 noundef %script_len, 8
+  %add17 = add i64 %add16, 26888
+  br label %return
+
+if.then11:
+  %add12 = add i64 noundef %script_len, 26625
+  br label %return
+
+if.then8:
+  br label %return
+
+if.then5:
+  br label %return
+
+if.then2:
+  br label %return
+
+if.end42:
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ 1056, %if.then2 ], [ 9248, %if.then5 ], [ 17444, %if.then8 ], [ %add12, %if.then11 ], [ %add17, %if.then15 ], [ %add23, %if.then20 ], [ %add29, %if.then26 ], [ %add35, %if.then32 ], [ %add41, %if.then38 ], [ 0, %if.end42 ], [ 4, %entry ]
+  ret i64 %retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv ir/c_cell_bip143_total_len.ll ir/l_cell_bip143_total_len.ll
+
+----------------------------------------
+define i64 @cell_bip143_total_len(i64 noundef %script_len) nofree noundef willreturn memory(none) {
+entry:
+  %add6 = add i64 noundef %script_len, 157
+  ret i64 %add6
+}
+=>
+define i64 @cell_bip143_total_len(i64 noundef %script_len) nofree noundef willreturn memory(none) {
+entry:
+  %add3 = add i64 noundef %script_len, 157
+  ret i64 %add3
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

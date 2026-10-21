@@ -1,0 +1,98 @@
+{
+  "schema": "redteam-mutant-run-v2",
+  "mutant_id": "M-E3-002",
+  "target_kind": "e3-cell",
+  "cell": "cells/e3-cms/C-L-cms-1of1",
+  "operator": "wave64/48-mutations-e3e4 (subagent)",
+  "git_head": "5946c024546e39f55775bfd9a077b042e3feeef4",
+  "git_status_before": [
+    " M spec/equiv/cells/_redteam/mutate.py",
+    "?? spec/equiv/cells/_redteam/run_mutant_admissible.py"
+  ],
+  "target": "spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp",
+  "target_sha256_before": "f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41",
+  "target_sha256_mutant": "153279894bf80e4f7cd217357a6b46513cfe0bb7ec1b8dacd6c36e93ba46d716",
+  "target_sha256_after_revert": "f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41",
+  "cell_spec_sha256_before": "bce767c76e7474ec3993742424ca471be0e5b9ca387f01f49bc90d476ebef8ba",
+  "cell_spec_sha256_after": "bce767c76e7474ec3993742424ca471be0e5b9ca387f01f49bc90d476ebef8ba",
+  "witness_plan": "cell_cms_nulldummy: closed 1-of-1 CHECKMULTISIG, null_dummy=true, dummy element <0x55> (non-empty). Baseline: NULLDUMMY gate returns EQUIV_ERR_SIG_NULLDUMMY=28 with result 0. Mutant (gate dropped): dummy is popped, checker-true verdict pushes vchTrue, cell returns result 1 / error 0. Expected: cell_cms_nulldummy non-green on both tools; cell_cms, cell_cmsverify, cell_cms_empty stay green.",
+  "baseline_before": {
+    "alive2": {
+      "exit_code": 0,
+      "status": "alive2-green",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/alive2/result.txt",
+      "result_sha256": "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 0,
+      "status": "saw-green (16/16 proofs)",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/saw/result.txt",
+      "result_sha256": "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "mutant": {
+    "alive2": {
+      "exit_code": 1,
+      "status": "alive2-not-green",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/alive2/result.txt",
+      "result_sha256": "e38f0919dcfa300232fbfd809e5bc5fa4298f97c88c91aedc7d9e85dcb649289",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 1,
+      "status": "saw-not-green (10/16 proofs)",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/saw/result.txt",
+      "result_sha256": "370bb7b0c69101c2a6186daa26d1809ce13ffc784940371b3d224365dd82d84e",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "baseline_after": {
+    "alive2": {
+      "exit_code": 0,
+      "status": "alive2-green",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/alive2/result.txt",
+      "result_sha256": "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-alive2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "saw": {
+      "exit_code": 0,
+      "status": "saw-green (16/16 proofs)",
+      "result_path": "spec/equiv/cells/e3-cms/C-L-cms-1of1/saw/result.txt",
+      "result_sha256": "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689",
+      "log": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-saw.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "reverted": true,
+  "revert_output": "REVERTED M-E3-002 (e3-cell)\ntarget:      /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_tools/e3/cellsig/l_cms.cpp\nsha256 now:  f775117e523eed92cb5ffb91c598e468505667c2c272b24624eacbd7ab89fb41\nreceipt:     /tmp/opencode/wave64/48-mutations-e3e4/spec/equiv/cells/_redteam/mutants/M-E3-002-e3-cell-20261020T220759Z-f775117e.json.revert.json\nNext: rebuild and confirm the baseline cell is green again.",
+  "classification": "KILLED",
+  "witness": "alive2:\n=====\nSource value: #x0000000000000070 (112)\nTarget value: #x0000000000000108 (264)\nsaw:\n<<All settings of the symbolic variables constitute a counterexample>>",
+  "log_hashes": [
+    "aad9064577312f5c1efb8af1bd35677388166b1ef99b0a2a2115cdeb2691bca2  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/apply.log",
+    "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-alive2.log",
+    "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-after-saw.log",
+    "031a9f8b2694376a8606e2cfa63953371dcbd76a200db31572e581a67a8df7be  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-alive2.log",
+    "44820114496acc7e615265564de7106bc350e8168adb2a3035221bb7292e7689  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/baseline-before-saw.log",
+    "0230595a068e585ffd06a321a70283d9a1baadcf1d7143f5bbaeda3de7c47537  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/dry-run.log",
+    "e38f0919dcfa300232fbfd809e5bc5fa4298f97c88c91aedc7d9e85dcb649289  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-alive2-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-alive2.log",
+    "370bb7b0c69101c2a6186daa26d1809ce13ffc784940371b3d224365dd82d84e  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-saw-result.txt",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/mutant-saw.log",
+    "f4eba651a443b5b735eda113a5ab59a6a020cd5f693a7a98ab9c8f34bb2d0f02  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/plan.md",
+    "9300a2f78546f5832e79e608aec311e7585ec992e2058fa8316e483f23adc72e  spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z/revert.log"
+  ],
+  "record": "spec/equiv/cells/_redteam/mutants/M-E3-002-e3-cell-20261020T220759Z-f775117e.json",
+  "run_dir": "spec/equiv/cells/_redteam/runs/M-E3-002-e3-cell-20261020T220746Z",
+  "started_at_utc": "20261020T220746Z"
+}

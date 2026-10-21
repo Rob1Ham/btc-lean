@@ -1,0 +1,143 @@
+Loading file "cell.saw"
+Verifying cell_v0_exec...
+Simulating cell_v0_exec...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_v0_exec...
+Proof succeeded! cell_v0_exec
+Verifying cell_v0_exec...
+Simulating cell_v0_exec...
+Symbolic simulation completed with side conditions.
+Checking proof obligations cell_v0_exec...
+Subgoal failed: cell_v0_exec cell.saw:28:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+v0exec wit`6343 plen`6344 hash`6345 kind`6346 sigok`6347
+  fdfound`6348
+  constsc`6349
+Actual term:
+let { _x`1 = Vec 32 Bool;
+      _x`2 = Vec 64 Bool;
+      _x`3 = Vec 1 Bool;
+      _x`4 = bvNat 1 0;
+      _x`5 = bvNat 1 1;
+      _x`6 = bvNat 64 1;
+      _x`7 = bvNat 64 0;
+      _x`8 = bvNat 64 160;
+      _x`9 = bvNat 32 0;
+      _x`10 = bvNat 64 216172782113783808;
+      _x`11 = bvNat 32 1;
+      _x`12 = bvNat 32 2;
+      _x`13 = bvNat 64 30033;
+      _x`14 = bvToNat 64 (bvNat 64 16);
+      _x`15 = bvNat 8 0;
+      _x`16 = bvNat 8 81;
+      _x`17 = bvNat 32 16;
+      _x`18 = bvNat 64 257;
+      _x`19 = bvNat 64 18446744073709551615;
+      _x`20 = bvEq 64 _x`7 hash`6345;
+      _x`21 = slice Bool 32 32 0 kind`6346;
+      _x`22 = bvEq 32 _x`9 _x`21;
+      _x`23 = bvEq 32 _x`11 _x`21;
+      _x`24 = bvEq 32 _x`12 _x`21;
+      _x`25 = ite _x`2 _x`22 (bvNat 64 5338449)
+                (ite _x`2 _x`23 _x`13
+                   (ite _x`2 _x`24 (bvNat 64 1364292945) _x`13));
+      _x`26 = Prelude::and (Prelude::and (not _x`22) (not _x`23))
+                (not _x`24);
+      _x`27 = slice Bool 40 8 16 _x`25;
+      _x`28 = bvEq 8 _x`15 _x`27;
+      _x`29 = bvEq 8 _x`16 _x`27;
+      _x`30 = bvEq 1 _x`4
+                (bvAnd 1
+                   (ite _x`3 _x`22 _x`4
+                      (ite _x`3 _x`23 _x`4 (ite _x`3 _x`24 _x`5 _x`4)))
+                   (ite _x`3 _x`26 _x`5
+                      (ite _x`3 _x`28 _x`5 (ite _x`3 _x`29 _x`5 _x`4))));
+      _x`31 = ite _x`1 _x`26 _x`9
+                (ite _x`1 _x`28 _x`9 (ite _x`1 _x`29 _x`9 _x`17));
+      _x`32 = slice Bool 32 8 24 _x`25;
+      _x`33 = bvEq 8 _x`15 _x`32;
+      _x`34 = bvEq 8 _x`16 _x`32;
+      _x`35 = ite _x`1 _x`30 _x`31
+                (ite _x`1 _x`33 _x`31 (ite _x`1 _x`34 _x`31 _x`17));
+      _x`36 = bvEq 32 _x`9 _x`35;
+      _x`37 = ite _x`1 _x`26 _x`9
+                (ite _x`1 _x`28 _x`11 (ite _x`1 _x`29 _x`11 _x`9));
+      _x`38 = ite _x`1 _x`26 _x`11
+                (ite _x`1 _x`28 _x`12 (ite _x`1 _x`29 _x`12 _x`11));
+      _x`39 = ite _x`1 _x`30 _x`37
+                (ite _x`1 _x`33 _x`38 (ite _x`1 _x`34 _x`38 _x`37));
+      _x`40 = bvEq 32 _x`9 _x`39;
+      _x`41 = ite _x`2 _x`26 _x`7
+                (ite _x`2 _x`28 _x`7 (ite _x`2 _x`29 _x`18 _x`7));
+      _x`42 = bvShl 64 _x`41 _x`14;
+      _x`43 = ite _x`2 _x`30 _x`41
+                (ite _x`2 _x`33 _x`42
+                   (ite _x`2 _x`34 (bvOr 64 _x`18 _x`42) _x`41));
+      _x`44 = bvAnd 32 (bvNat 32 255) (slice Bool 32 32 0 _x`43);
+      _x`45 = bvEq 32 _x`9 _x`44;
+      _x`46 = bvEq 32 _x`11 _x`44;
+      _x`47 = bvEq 64 _x`7 (bvAnd 64 (bvNat 64 65280) _x`43);
+      _x`48 = bvShl 64 wit`6343 (bvToNat 64 (bvNat 64 11));
+    }
+ in ite _x`2
+      (bvEq 1 _x`4
+         (bvOr 1
+            (ite _x`3 (bvult 64 (bvNat 64 3) (bvOr 64 wit`6343 kind`6346))
+               _x`5
+               _x`4)
+            (ite _x`3
+               (bvult 64 _x`6
+                  (bvOr 64 (bvOr 64 (bvOr 64 hash`6345 sigok`6347) fdfound`6348)
+                     constsc`6349))
+               _x`5
+               _x`4)))
+      (ite _x`2 (bvEq 64 (bvNat 64 32) plen`6344)
+         (ite _x`2 (bvEq 64 _x`7 wit`6343) (bvNat 64 156)
+            (ite _x`2 (bvEq 64 _x`6 wit`6343)
+               (ite _x`2 _x`20 _x`8
+                  (bvOr 64
+                     (bvOr 64
+                        (ite _x`2 _x`22 _x`10
+                           (ite _x`2 _x`23 _x`10
+                              (ite _x`2 _x`24 (bvNat 64 288230376151711744)
+                                 (bvNat 64 144115188075855872))))
+                        (bvShl 64 _x`25 _x`14))
+                     (bvUExt 32 32
+                        (bvOr 32
+                           (bvOr 32
+                              (bvOr 32 (bvNat 32 1968267520)
+                                 (... ... _x`36 (... ... (... ...)) _x`9))
+                              (bvAnd 32 (bvNat 32 252)
+                                 (bvShl 32 (... ... (... ...) _x`35) (bvToNat 32 _x`12))))
+                           (bvAnd 32 (bvNat 32 6144)
+                              (bvShl 32 _x`39 (bvToNat 32 (bvNat 32 11))))))))
+               _x`19))
+         (ite _x`2 (bvEq 64 (bvNat 64 20) plen`6344)
+            (ite _x`2 (bvEq 64 (bvNat 64 2) wit`6343)
+               (ite _x`2 _x`20 (bvNat 64 1850003169266276656)
+                  (bvOr 64
+                     (bvOr 64 (bvNat 64 1850003169266280704)
+                        (ite _x`2 (bvEq 64 _x`7 sigok`6347) (bvNat 64 8) _x`7))
+                     sigok`6347))
+               (bvOr 64 _x`8 _x`48))
+            (bvOr 64 (bvNat 64 152) _x`48)))
+      _x`19
+
+Goal size 793. Provers used: abc_verilog
+----------Counterexample----------
+  wit: 1
+  plen: 32
+  hash: 1
+  kind: 2
+  sigok: 0
+  fdfound: 1
+  constsc: 1
+----------------------------------
+Stack trace:
+   (builtin) in abc
+   cell.saw:28:55-28:58 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:28:1-28:58 (at top level)
+Proof failed.
+

@@ -1,0 +1,17 @@
+import "cell.cry";
+
+mC <- llvm_load_module "c_cell_v0_dispatch.bc";
+mL <- llvm_load_module "l_cell_v0_dispatch.bc";
+
+let spec = do {
+  pl <- llvm_fresh_var "program_len" (llvm_int 64);
+  wn <- llvm_fresh_var "witness_n" (llvm_int 64);
+  hm <- llvm_fresh_var "hash_match" (llvm_int 1);
+  llvm_execute_func [llvm_term pl, llvm_term wn, llvm_term {{ zext hm : [64] }}];
+  llvm_return (llvm_term {{ v0_dispatch pl wn hm }});
+};
+
+llvm_verify mC "cell_v0_dispatch" [] false spec abc;
+llvm_verify mL "cell_v0_dispatch" [] false spec abc;
+
+print "CELL_WITNESS_V0_DISPATCH_SAW_GREEN";

@@ -1,0 +1,62 @@
+# cell: limits/C-L-stack-limit
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# limits_common source: build/build.txt sha256 cff8446af435b1b94290cdd9c983bab5b9dcbee5e12483b99424735744f20e92
+# command: alive-tv build/c_cell_stack_limit.ll build/l_cell_stack_limit.ll
+
+----------------------------------------
+define i64 @cell_stack_limit(i32 noundef %depth, i32 noundef %alt) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %cmp1 = icmp ugt i32 noundef %alt, 2000
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %add = add nsw nuw i32 noundef %alt, noundef %depth
+  %cmp2 = icmp ugt i32 %add, 1000
+  br i1 %cmp2, label %return, label %if.end5
+
+if.end5:
+  %#0 = shl nsw nuw i32 %add, 8
+  %or68.i = or disjoint i32 %#0, 1
+  %or6.i = zext nneg i32 %or68.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or6.i, %if.end5 ], [ 6, %entry ], [ 32, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 4294967042
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_stack_limit(i32 noundef %depth, i32 noundef %alt) nofree willreturn memory(none) {
+entry:
+  %cmp = icmp ugt i32 noundef %depth, 2000
+  %cmp1 = icmp ugt i32 noundef %alt, 2000
+  %or.cond = or i1 %cmp, %cmp1
+  br i1 %or.cond, label %return, label %if.end
+
+if.end:
+  %add = add nsw nuw i32 noundef %alt, noundef %depth
+  %cmp2 = icmp ugt i32 %add, 1000
+  br i1 %cmp2, label %return, label %if.end5
+
+if.end5:
+  %#0 = shl nsw nuw i32 %add, 8
+  %or68.i = or disjoint i32 %#0, 1
+  %or6.i = zext nneg i32 %or68.i to i64
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %or6.i, %if.end5 ], [ 6, %entry ], [ 32, %if.end ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 1, i64 4294967042
+  ret i64 %#range_0_%retval.0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

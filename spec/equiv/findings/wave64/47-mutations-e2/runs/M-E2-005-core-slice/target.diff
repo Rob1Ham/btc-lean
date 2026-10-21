@@ -1,0 +1,11 @@
+--- a/spec/equiv/cells/limits/C-L-opcount/src/c_leaf.cpp
++++ b/spec/equiv/cells/limits/C-L-opcount/src/c_leaf.cpp
+@@ -45,7 +45,7 @@
+   if (sv == LIM_SV_BASE || sv == LIM_SV_WITNESS_V0) {
+     if (wire > 0x60) {
+       ++nOpCount;
+-      if (nOpCount > LIM_MAX_OPS_PER_SCRIPT) {
++      if (nOpCount >= LIM_MAX_OPS_PER_SCRIPT) {  // M-E2-005 mutant: threshold 200
+         return lim_pack(0, EQUIV_ERR_OP_COUNT, 0);
+       }
+     }

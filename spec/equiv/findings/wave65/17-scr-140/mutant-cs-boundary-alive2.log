@@ -1,0 +1,133 @@
+
+----------------------------------------
+define i64 @cell_cs_width(i64 noundef %n) {
+entry:
+  %retval = alloca i64 8, align 8
+  %n.addr = alloca i64 8, align 8
+  store i64 noundef %n, ptr %n.addr, align 8
+  %#0 = load i64, ptr %n.addr, align 8
+  %cmp = icmp ult i64 %#0, 253
+  br i1 %cmp, label %if.then, label %if.end
+
+if.end:
+  %#1 = load i64, ptr %n.addr, align 8
+  %cmp1 = icmp ule i64 %#1, 65535
+  br i1 %cmp1, label %if.then2, label %if.end3
+
+if.then2:
+  store i64 3, ptr %retval, align 8
+  br label %return
+
+if.end3:
+  %#2 = load i64, ptr %n.addr, align 8
+  %cmp4 = icmp ule i64 %#2, 4294967295
+  br i1 %cmp4, label %if.then5, label %if.end6
+
+if.then5:
+  store i64 5, ptr %retval, align 8
+  br label %return
+
+if.end6:
+  store i64 9, ptr %retval, align 8
+  br label %return
+
+if.then:
+  store i64 1, ptr %retval, align 8
+  br label %return
+
+return:
+  %#3 = load i64, ptr %retval, align 8
+  ret i64 %#3
+}
+=>
+define i64 @cell_cs_width(i64 noundef %n) {
+entry:
+  %retval = alloca i64 8, align 8
+  %n.addr = alloca i64 8, align 8
+  store i64 noundef %n, ptr %n.addr, align 8
+  %#0 = load i64, ptr %n.addr, align 8
+  %cmp = icmp ule i64 %#0, 4294967295
+  br i1 %cmp, label %if.then, label %if.end4
+
+if.end4:
+  store i64 9, ptr %retval, align 8
+  br label %return
+
+if.then:
+  %#1 = load i64, ptr %n.addr, align 8
+  %cmp1 = icmp ule i64 %#1, 65535
+  br i1 %cmp1, label %if.then2, label %if.end
+
+if.then2:
+  %#2 = load i64, ptr %n.addr, align 8
+  %cmp3 = icmp ule i64 %#2, 253
+  %cond = select i1 %cmp3, i32 1, i32 3
+  %conv = zext nneg i32 %cond to i64
+  store i64 %conv, ptr %retval, align 8
+  br label %return
+
+if.end:
+  store i64 5, ptr %retval, align 8
+  br label %return
+
+return:
+  %#4 = load i64, ptr %retval, align 8
+  ret i64 %#4
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %n = #x00000000000000fd (253)
+
+Source:
+ptr %retval = pointer(local, block_id=0, offset=0) / Address=#x100
+ptr %n.addr = pointer(local, block_id=1, offset=0) / Address=#x120
+i64 %#0 = #x00000000000000fd (253)
+i1 %cmp = #x0 (0)
+  >> Jump to %if.end
+i64 %#1 = #x00000000000000fd (253)
+i1 %cmp1 = #x1 (1)
+  >> Jump to %if.then2
+  >> Jump to %return
+i64 %#3 = #x0000000000000003 (3)
+
+SOURCE MEMORY STATE
+===================
+NON-LOCAL BLOCKS:
+Block 0 >	alive: true
+
+LOCAL BLOCKS:
+Block 2 >	size: 8	align: 8	alloc type: 1	alive: true	address: 256
+Block 3 >	size: 8	align: 8	alloc type: 1	alive: true	address: 288
+
+Target:
+ptr %retval = pointer(local, block_id=0, offset=0) / Address=#x140
+ptr %n.addr = pointer(local, block_id=1, offset=0) / Address=#x100
+i64 %#0 = #x00000000000000fd (253)
+i1 %cmp = #x1 (1)
+  >> Jump to %if.then
+i64 %#1 = #x00000000000000fd (253)
+i1 %cmp1 = #x1 (1)
+  >> Jump to %if.then2
+i64 %#2 = #x00000000000000fd (253)
+i1 %cmp3 = #x1 (1)
+i32 %cond = #x00000001 (1)
+i64 %conv = #x0000000000000001 (1)
+  >> Jump to %return
+i64 %#4 = #x0000000000000001 (1)
+
+TARGET MEMORY STATE
+===================
+LOCAL BLOCKS:
+Block 2 >	size: 8	align: 8	alloc type: 1	alive: true	address: 320
+Block 3 >	size: 8	align: 8	alloc type: 1	alive: true	address: 256
+Source value: #x0000000000000003 (3)
+Target value: #x0000000000000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

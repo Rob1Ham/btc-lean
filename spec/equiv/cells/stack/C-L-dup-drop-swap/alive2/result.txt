@@ -1,0 +1,1538 @@
+# cell: stack/C-L-dup-drop-swap
+# command: per-function /usr/local/bin/alive-tv build/c_<fn>.ll build/l_<fn>.ll
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+
+### function: cell_dup_underflow
+# expected packed: 0x0000000000000048
+
+----------------------------------------
+define i64 @cell_dup_underflow() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 72, i64 2199023255552
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_dup_underflow() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+### function: cell_swap_underflow
+# expected packed: 0x0000000000000048
+
+----------------------------------------
+define i64 @cell_swap_underflow() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+=>
+define i64 @cell_swap_underflow() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+### function: cell_drop_underflow
+# expected packed: 0x0000000000000048
+
+----------------------------------------
+define i64 @cell_drop_underflow() nofree noundef willreturn memory(none) {
+entry:
+  %#range_0_72 = !range i64 72, i64 72, i64 2199023255552
+  ret i64 %#range_0_72
+}
+=>
+define i64 @cell_drop_underflow() nofree noundef willreturn memory(none) {
+entry:
+  ret i64 72
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+### function: cell_dup_drop_swap_ok
+# expected packed: 0x0000000001202a01
+
+----------------------------------------
+define i64 @cell_dup_drop_swap_ok() nofree willreturn memory(none) {
+entry:
+  %s = alloca i64 52, align 4, dead
+  start_lifetime ptr %s
+  %len.i96 = gep inbounds nuw ptr %s, 1 x i64 4
+  %val.i102 = gep inbounds nuw ptr %s, 1 x i64 28
+  memset ptr %s align 4, i8 0, i64 52
+  store i32 1, ptr %len.i96, align 4
+  store i32 1, ptr %val.i102, align 4
+  store i32 1, ptr %s, align 4
+  %arrayidx.i115 = gep inbounds nuw ptr %s, 1 x i64 8
+  store i32 1, ptr %arrayidx.i115, align 4
+  %arrayidx4.i118 = gep inbounds nuw ptr %s, 1 x i64 32
+  store i32 2, ptr %arrayidx4.i118, align 4
+  store i32 2, ptr %s, align 4
+  %arrayidx3.i = gep inbounds nuw ptr %s, 1 x i64 12
+  store i32 1, ptr %arrayidx3.i, align 4
+  %arrayidx8.i521 = gep inbounds nuw ptr %s, 1 x i64 36
+  store i32 2, ptr %arrayidx8.i521, align 4
+  store i32 3, ptr %s, align 4
+  %arrayidx.i461 = gep inbounds nuw ptr %s, 1 x i64 8
+  %#0 = load i32, ptr %arrayidx.i461, align 4
+  %arrayidx5.i = gep inbounds nuw ptr %s, 1 x i64 32
+  %#1 = load i32, ptr %arrayidx5.i, align 4
+  %arrayidx8.i463 = gep inbounds nuw ptr %s, 1 x i64 12
+  %#2 = load i32, ptr %arrayidx8.i463, align 4
+  store i32 %#2, ptr %arrayidx.i461, align 4
+  %arrayidx14.i = gep inbounds nuw ptr %s, 1 x i64 36
+  %#3 = load i32, ptr %arrayidx14.i, align 4
+  store i32 %#3, ptr %arrayidx5.i, align 4
+  store i32 %#0, ptr %arrayidx8.i463, align 4
+  store i32 %#1, ptr %arrayidx14.i, align 4
+  %arrayidx.i = gep inbounds nuw ptr %s, 1 x i64 16
+  store i32 1, ptr %arrayidx.i, align 4
+  %arrayidx4.i110 = gep inbounds nuw ptr %s, 1 x i64 40
+  store i32 2, ptr %arrayidx4.i110, align 4
+  store i32 4, ptr %s, align 4
+  %#4 = load i32, ptr %s, align 4
+  %cmp.i465 = icmp ugt i32 %#4, 1
+  br i1 %cmp.i465, label %if.end.i466, label %_ZL10core_equalR6BStack.exit
+
+if.end.i466:
+  %sub.i467 = add i32 %#4, 4294967294
+  %sub3.i468 = add i32 %#4, 4294967295
+  %idxprom.i470 = zext i32 %sub.i467 to i64
+  %arrayidx.i471 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i470
+  %#5 = load i32, ptr %arrayidx.i471, align 4
+  %idxprom5.i = zext i32 %sub3.i468 to i64
+  %arrayidx6.i472 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom5.i
+  %#6 = load i32, ptr %arrayidx6.i472, align 4
+  %cmp7.i = icmp eq i32 %#5, %#6
+  %cmp11.not.i = icmp ne i32 %#5, 0
+  %or.cond.i.not = and i1 %cmp11.not.i, %cmp7.i
+  br i1 %or.cond.i.not, label %land.lhs.true12.i, label %if.end16.i
+
+land.lhs.true12.i:
+  %arrayidx.i505 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i470
+  %#7 = load i32, ptr %arrayidx.i505, align 4
+  %arrayidx.i500 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom5.i
+  %#8 = load i32, ptr %arrayidx.i500, align 4
+  %#9 = xor i32 %#8, %#7
+  %#10 = and i32 %#9, 255
+  %cmp14.not.i = icmp eq i32 %#10, 0
+  %spec.select.i473 = and i1 %cmp7.i, %cmp14.not.i
+  br label %if.end16.i
+
+if.end16.i:
+  %eq.0.shrunk.i = phi i1 [ %cmp7.i, %if.end.i466 ], [ %spec.select.i473, %land.lhs.true12.i ]
+  br i1 %eq.0.shrunk.i, label %land.lhs.true18.i, label %if.end28.i
+
+land.lhs.true18.i:
+  %cmp22.i = icmp ugt i32 %#5, 1
+  br i1 %cmp22.i, label %land.lhs.true23.i, label %if.end28.i
+
+land.lhs.true23.i:
+  %arrayidx.i495 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i470
+  %#11 = load i32, ptr %arrayidx.i495, align 4
+  %arrayidx.i492 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom5.i
+  %#12 = load i32, ptr %arrayidx.i492, align 4
+  %shr.i496522 = xor i32 %#12, %#11
+  %#13 = and i32 %shr.i496522, 65280
+  %cmp26.not.i = icmp eq i32 %#13, 0
+  %spec.select68.i = zext i1 %cmp26.not.i to i32
+  br label %if.end28.i
+
+if.end28.i:
+  %not.tobool31.not.i = phi i32 [ 1, %land.lhs.true18.i ], [ 0, %if.end16.i ], [ %spec.select68.i, %land.lhs.true23.i ]
+  store i32 %sub.i467, ptr %s, align 4
+  store i32 %not.tobool31.not.i, ptr %arrayidx.i471, align 4
+  %arrayidx40.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i470
+  store i32 %not.tobool31.not.i, ptr %arrayidx40.i, align 4
+  %add.i475 = add i32 %#4, 4294967295
+  store i32 %add.i475, ptr %s, align 4
+  br label %_ZL10core_equalR6BStack.exit
+
+_ZL10core_equalR6BStack.exit:
+  %retval.0.i476 = phi i32 [ 0, %if.end28.i ], [ 72, %entry ]
+  br i1 %cmp.i465, label %cleanup57, label %if.then54
+
+if.then54:
+  %#14 = load i32, ptr %s, align 4
+  %switch.tableidx528 = add i32 %#14, 4294967292
+  %#15 = icmp ult i32 %switch.tableidx528, 3
+  %switch.offset529 = add i32 %#14, 4294967293
+  %k.0.i143 = select i1 %#15, i32 %switch.offset529, i32 0
+  %and17.i145 = shl i32 %#14, 8
+  %#16 = and i32 %and17.i145, 1792
+  %or20100.i146 = or disjoint i32 %#16, %retval.0.i476
+  %cmp21.not.i147 = icmp eq i32 %#14, 0
+  br i1 %cmp21.not.i147, label %if.end33.i157, label %if.then22.i148
+
+if.then22.i148:
+  %idxprom.i150 = zext nneg i32 %k.0.i143 to i64
+  %arrayidx.i151 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i150
+  %#17 = load i32, ptr %arrayidx.i151, align 4
+  %and23.i152 = shl i32 %#17, 11
+  %#18 = and i32 %and23.i152, 6144
+  %arrayidx28.i154 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i150
+  %#19 = load i32, ptr %arrayidx28.i154, align 4
+  %and29.i155 = shl i32 %#19, 13
+  %#20 = and i32 %and29.i155, 2088960
+  %#21 = or disjoint i32 %#18, %#20
+  %or32102.i156 = or disjoint i32 %#21, %or20100.i146
+  br label %if.end33.i157
+
+if.end33.i157:
+  %r.0.in.i158 = phi i32 [ %or32102.i156, %if.then22.i148 ], [ %or20100.i146, %if.then54 ]
+  %cmp34.i159 = icmp ugt i32 %#14, 1
+  br i1 %cmp34.i159, label %if.then35.i179, label %if.end51.i160
+
+if.then35.i179:
+  %add.i181 = add nsw nuw i32 %k.0.i143, 1
+  %idxprom37.i182 = zext nneg i32 %add.i181 to i64
+  %arrayidx38.i183 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom37.i182
+  %#22 = load i32, ptr %arrayidx38.i183, align 4
+  %and39.i184 = shl i32 %#22, 21
+  %#23 = and i32 %and39.i184, 6291456
+  %arrayidx46.i186 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom37.i182
+  %#24 = load i32, ptr %arrayidx46.i186, align 4
+  %and47.i187 = shl i32 %#24, 23
+  %#25 = and i32 %and47.i187, 2139095040
+  %#26 = or disjoint i32 %#23, %#25
+  %or50104.i188 = or i32 %#26, %r.0.in.i158
+  br label %if.end51.i160
+
+if.end51.i160:
+  %r.1.in.i161 = phi i32 [ %or50104.i188, %if.then35.i179 ], [ %r.0.in.i158, %if.end33.i157 ]
+  %r.1.i162 = zext i32 %r.1.in.i161 to i64
+  %cmp52.i163 = icmp ugt i32 %#14, 2
+  br i1 %cmp52.i163, label %if.then53.i165, label %cleanup57
+
+if.then53.i165:
+  %add55.i167 = add nsw nuw i32 %k.0.i143, 2
+  %idxprom56.i168 = zext nneg i32 %add55.i167 to i64
+  %arrayidx57.i169 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom56.i168
+  %#27 = load i32, ptr %arrayidx57.i169, align 4
+  %and58.i170 = and i32 %#27, 3
+  %conv59.i171 = zext nneg i32 %and58.i170 to i64
+  %shl60.i172 = shl nsw nuw i64 %conv59.i171, 31
+  %arrayidx65.i174 = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom56.i168
+  %#28 = load i32, ptr %arrayidx65.i174, align 4
+  %and66.i175 = and i32 %#28, 255
+  %conv67.i176 = zext nneg i32 %and66.i175 to i64
+  %shl68.i177 = shl nsw nuw i64 %conv67.i176, 33
+  %#29 = or disjoint i64 %shl68.i177, %shl60.i172
+  %or69.i178 = or i64 %#29, %r.1.i162
+  br label %cleanup57
+
+cleanup57:
+  %retval.5 = phi i64 [ undef, %_ZL10core_equalR6BStack.exit ], [ %or69.i178, %if.then53.i165 ], [ %r.1.i162, %if.end51.i160 ]
+  br i1 %cmp.i465, label %do.body62, label %cleanup75
+
+do.body62:
+  %#30 = load i32, ptr %s, align 4
+  %cmp.i486.not = icmp eq i32 %#30, 0
+  br i1 %cmp.i486.not, label %_ZL9core_dropR6BStack.exit, label %if.end.i487
+
+if.end.i487:
+  %sub.i488 = add i32 %#30, 4294967295
+  store i32 %sub.i488, ptr %s, align 4
+  br label %_ZL9core_dropR6BStack.exit
+
+_ZL9core_dropR6BStack.exit:
+  %retval.0.i489 = phi i32 [ 0, %if.end.i487 ], [ 72, %do.body62 ]
+  br i1 %cmp.i486.not, label %if.then66, label %cleanup69
+
+if.then66:
+  %#31 = load i32, ptr %s, align 4
+  %switch.tableidx531 = add i32 %#31, 4294967292
+  %#32 = icmp ult i32 %switch.tableidx531, 3
+  %switch.offset532 = add i32 %#31, 4294967293
+  %k.0.i = select i1 %#32, i32 %switch.offset532, i32 0
+  %and17.i = shl i32 %#31, 8
+  %#33 = and i32 %and17.i, 1792
+  %or20100.i = or disjoint i32 %#33, %retval.0.i489
+  %cmp21.not.i = icmp eq i32 %#31, 0
+  br i1 %cmp21.not.i, label %if.end33.i, label %if.then22.i
+
+if.then22.i:
+  %idxprom.i135 = zext nneg i32 %k.0.i to i64
+  %arrayidx.i136 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i135
+  %#34 = load i32, ptr %arrayidx.i136, align 4
+  %and23.i = shl i32 %#34, 11
+  %#35 = and i32 %and23.i, 6144
+  %arrayidx28.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i135
+  %#36 = load i32, ptr %arrayidx28.i, align 4
+  %and29.i = shl i32 %#36, 13
+  %#37 = and i32 %and29.i, 2088960
+  %#38 = or disjoint i32 %#35, %#37
+  %or32102.i = or disjoint i32 %#38, %or20100.i
+  br label %if.end33.i
+
+if.end33.i:
+  %r.0.in.i = phi i32 [ %or32102.i, %if.then22.i ], [ %or20100.i, %if.then66 ]
+  %cmp34.i = icmp ugt i32 %#31, 1
+  br i1 %cmp34.i, label %if.then35.i, label %if.end51.i
+
+if.then35.i:
+  %add.i138 = add nsw nuw i32 %k.0.i, 1
+  %idxprom37.i = zext nneg i32 %add.i138 to i64
+  %arrayidx38.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom37.i
+  %#39 = load i32, ptr %arrayidx38.i, align 4
+  %and39.i = shl i32 %#39, 21
+  %#40 = and i32 %and39.i, 6291456
+  %arrayidx46.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom37.i
+  %#41 = load i32, ptr %arrayidx46.i, align 4
+  %and47.i = shl i32 %#41, 23
+  %#42 = and i32 %and47.i, 2139095040
+  %#43 = or disjoint i32 %#40, %#42
+  %or50104.i = or i32 %#43, %r.0.in.i
+  br label %if.end51.i
+
+if.end51.i:
+  %r.1.in.i = phi i32 [ %or50104.i, %if.then35.i ], [ %r.0.in.i, %if.end33.i ]
+  %r.1.i = zext nneg i32 %r.1.in.i to i64
+  %cmp52.i = icmp ugt i32 %#31, 2
+  br i1 %cmp52.i, label %if.then53.i, label %cleanup69
+
+if.then53.i:
+  %add55.i = add nsw nuw i32 %k.0.i, 2
+  %idxprom56.i = zext nneg i32 %add55.i to i64
+  %arrayidx57.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom56.i
+  %#44 = load i32, ptr %arrayidx57.i, align 4
+  %and58.i = and i32 %#44, 3
+  %conv59.i = zext nneg i32 %and58.i to i64
+  %shl60.i = shl nsw nuw i64 %conv59.i, 31
+  %arrayidx65.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom56.i
+  %#45 = load i32, ptr %arrayidx65.i, align 4
+  %and66.i = and i32 %#45, 255
+  %conv67.i = zext nneg i32 %and66.i to i64
+  %shl68.i = shl nsw nuw i64 %conv67.i, 33
+  %#46 = or disjoint i64 %shl68.i, %shl60.i
+  %or69.i = or disjoint i64 %#46, %r.1.i
+  br label %cleanup69
+
+cleanup69:
+  %retval.6 = phi i64 [ %retval.5, %_ZL9core_dropR6BStack.exit ], [ %or69.i, %if.then53.i ], [ %r.1.i, %if.end51.i ]
+  br i1 %cmp.i486.not, label %cleanup75, label %if.end.i478
+
+if.end.i478:
+  %#47 = load i32, ptr %s, align 4
+  %cmp2.i = icmp eq i32 %#47, 0
+  br i1 %cmp2.i, label %cleanup75, label %if.end5.i
+
+if.end5.i:
+  %sub.i479 = add i32 %#47, 4294967295
+  %idxprom.i509 = zext i32 %sub.i479 to i64
+  %arrayidx.i510 = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i509
+  %#48 = load i32, ptr %arrayidx.i510, align 4
+  switch i32 %#48, label %if.end6.i [
+    i32 0, label %if.then8.i
+    i32 1, label %if.then2.i
+  ]
+
+if.end6.i:
+  %arrayidx.i37.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i509
+  %#49 = load i32, ptr %arrayidx.i37.i, align 4
+  %and.i39.i = and i32 %#49, 255
+  %cmp8.not.i = icmp eq i32 %and.i39.i, 0
+  br i1 %cmp8.not.i, label %if.end10.i512, label %if.end10.i
+
+if.end10.i512:
+  %#50 = and i32 %#49, 32512
+  br label %_ZL7b_truthRK6BStackj.exit
+
+if.then2.i:
+  %arrayidx.i47.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i509
+  %#51 = load i32, ptr %arrayidx.i47.i, align 4
+  %#52 = and i32 %#51, 127
+  br label %_ZL7b_truthRK6BStackj.exit
+
+_ZL7b_truthRK6BStackj.exit:
+  %retval.0.i511.shrunk.in = phi i32 [ %#52, %if.then2.i ], [ %#50, %if.end10.i512 ]
+  %retval.0.i511.shrunk.not = icmp eq i32 %retval.0.i511.shrunk.in, 0
+  br i1 %retval.0.i511.shrunk.not, label %if.then8.i, label %if.end10.i
+
+if.then8.i:
+  %switch.tableidx534 = add i32 %#47, 4294967292
+  %#53 = icmp ult i32 %switch.tableidx534, 3
+  %switch.offset535 = add i32 %#47, 4294967293
+  %k.0.i22.i = select i1 %#53, i32 %switch.offset535, i32 0
+  %and17.i23.i = shl i32 %#47, 8
+  %#54 = and i32 %and17.i23.i, 1792
+  %idxprom.i28.i = zext nneg i32 %k.0.i22.i to i64
+  %arrayidx.i29.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i28.i
+  %#55 = load i32, ptr %arrayidx.i29.i, align 4
+  %and23.i30.i = shl i32 %#55, 11
+  %#56 = and i32 %and23.i30.i, 6144
+  %arrayidx28.i32.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i28.i
+  %#57 = load i32, ptr %arrayidx28.i32.i, align 4
+  %and29.i33.i = shl i32 %#57, 13
+  %#58 = and i32 %and29.i33.i, 2088960
+  %#59 = or disjoint i32 %#54, %#56
+  %or20100.i24.i = or disjoint i32 %#59, %#58
+  %or32102.i34.i = or disjoint i32 %or20100.i24.i, 8
+  %cmp34.i37.i.not = icmp eq i32 %#47, 1
+  br i1 %cmp34.i37.i.not, label %if.end51.i38.i, label %if.then35.i57.i
+
+if.then35.i57.i:
+  %add.i59.i = add nsw nuw i32 %k.0.i22.i, 1
+  %idxprom37.i60.i = zext nneg i32 %add.i59.i to i64
+  %arrayidx38.i61.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom37.i60.i
+  %#60 = load i32, ptr %arrayidx38.i61.i, align 4
+  %and39.i62.i = shl i32 %#60, 21
+  %#61 = and i32 %and39.i62.i, 6291456
+  %arrayidx46.i64.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom37.i60.i
+  %#62 = load i32, ptr %arrayidx46.i64.i, align 4
+  %and47.i65.i = shl i32 %#62, 23
+  %#63 = and i32 %and47.i65.i, 2139095040
+  %#64 = or disjoint i32 %#61, %#63
+  %or50104.i66.i = or disjoint i32 %#64, %or32102.i34.i
+  br label %if.end51.i38.i
+
+if.end51.i38.i:
+  %r.1.in.i39.i = phi i32 [ %or50104.i66.i, %if.then35.i57.i ], [ %or32102.i34.i, %if.then8.i ]
+  %r.1.i40.i = zext nneg i32 %r.1.in.i39.i to i64
+  %cmp52.i41.i = icmp ugt i32 %#47, 2
+  br i1 %cmp52.i41.i, label %cleanup75.sink.split, label %cleanup75
+
+if.end10.i:
+  %switch.tableidx537 = add i32 %#47, 4294967292
+  %#65 = icmp ult i32 %switch.tableidx537, 3
+  %switch.offset538 = add i32 %#47, 4294967293
+  %k.0.i.i = select i1 %#65, i32 %switch.offset538, i32 0
+  %and17.i.i = shl i32 %#47, 8
+  %#66 = and i32 %and17.i.i, 1792
+  %idxprom.i.i = zext nneg i32 %k.0.i.i to i64
+  %arrayidx.i.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom.i.i
+  %#67 = load i32, ptr %arrayidx.i.i, align 4
+  %and23.i.i = shl i32 %#67, 11
+  %#68 = and i32 %and23.i.i, 6144
+  %arrayidx28.i.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom.i.i
+  %#69 = load i32, ptr %arrayidx28.i.i, align 4
+  %and29.i.i = shl i32 %#69, 13
+  %#70 = and i32 %and29.i.i, 2088960
+  %#71 = or disjoint i32 %#66, %#68
+  %or20100.i.i = or disjoint i32 %#71, %#70
+  %or32102.i.i = or disjoint i32 %or20100.i.i, 1
+  %cmp34.i.i.not = icmp eq i32 %#47, 1
+  br i1 %cmp34.i.i.not, label %if.end51.i.i, label %if.then35.i.i
+
+if.then35.i.i:
+  %add.i.i = add nsw nuw i32 %k.0.i.i, 1
+  %idxprom37.i.i = zext nneg i32 %add.i.i to i64
+  %arrayidx38.i.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom37.i.i
+  %#72 = load i32, ptr %arrayidx38.i.i, align 4
+  %and39.i.i = shl i32 %#72, 21
+  %#73 = and i32 %and39.i.i, 6291456
+  %arrayidx46.i.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom37.i.i
+  %#74 = load i32, ptr %arrayidx46.i.i, align 4
+  %and47.i.i = shl i32 %#74, 23
+  %#75 = and i32 %and47.i.i, 2139095040
+  %#76 = or disjoint i32 %#73, %#75
+  %or50104.i.i = or disjoint i32 %#76, %or32102.i.i
+  br label %if.end51.i.i
+
+if.end51.i.i:
+  %r.1.in.i.i = phi i32 [ %or50104.i.i, %if.then35.i.i ], [ %or32102.i.i, %if.end10.i ]
+  %r.1.i.i = zext nneg i32 %r.1.in.i.i to i64
+  %cmp52.i.i = icmp ugt i32 %#47, 2
+  br i1 %cmp52.i.i, label %cleanup75.sink.split, label %cleanup75
+
+cleanup75.sink.split:
+  %k.0.i22.i.sink = phi i32 [ %k.0.i22.i, %if.end51.i38.i ], [ %k.0.i.i, %if.end51.i.i ]
+  %r.1.i40.i.sink = phi i64 [ %r.1.i40.i, %if.end51.i38.i ], [ %r.1.i.i, %if.end51.i.i ]
+  %add55.i45.i = add nsw nuw i32 %k.0.i22.i.sink, 2
+  %idxprom56.i46.i = zext nneg i32 %add55.i45.i to i64
+  %arrayidx57.i47.i = gep inbounds nuw ptr %len.i96, 24 x i64 0, 4 x i64 %idxprom56.i46.i
+  %#77 = load i32, ptr %arrayidx57.i47.i, align 4
+  %and58.i48.i = and i32 %#77, 3
+  %conv59.i49.i = zext nneg i32 %and58.i48.i to i64
+  %shl60.i50.i = shl nsw nuw i64 %conv59.i49.i, 31
+  %arrayidx65.i52.i = gep inbounds nuw ptr %val.i102, 24 x i64 0, 4 x i64 %idxprom56.i46.i
+  %#78 = load i32, ptr %arrayidx65.i52.i, align 4
+  %and66.i53.i = and i32 %#78, 255
+  %conv67.i54.i = zext nneg i32 %and66.i53.i to i64
+  %shl68.i55.i = shl nsw nuw i64 %conv67.i54.i, 33
+  %#79 = or disjoint i64 %shl68.i55.i, %shl60.i50.i
+  %or69.i56.i = or disjoint i64 %#79, %r.1.i40.i.sink
+  br label %cleanup75
+
+cleanup75:
+  %retval.7 = phi i64 [ %retval.6, %cleanup69 ], [ %retval.5, %cleanup57 ], [ %r.1.i40.i, %if.end51.i38.i ], [ %r.1.i.i, %if.end51.i.i ], [ 8, %if.end.i478 ], [ %or69.i56.i, %cleanup75.sink.split ]
+  end_lifetime ptr %s
+  ret i64 %retval.7
+}
+=>
+@switch.table.cell_dup_drop_swap_ok.5 = constant 28 bytes, align 4
+
+define i64 @cell_dup_drop_swap_ok() nofree willreturn memory(none) {
+entry:
+  %s.i136 = alloca i64 52, align 4, dead
+  %s.i103 = alloca i64 52, align 4, dead
+  %s.i100 = alloca i64 52, align 4, dead
+  %s.i = alloca i64 52, align 4, dead
+  %st = alloca i64 152, align 8, dead
+  start_lifetime ptr %st
+  %len.i = gep inbounds nuw ptr %st, 1 x i64 4
+  %arrayidx4.i = gep inbounds nuw ptr %st, 1 x i64 8
+  %arrayidx7.i = gep inbounds nuw ptr %st, 1 x i64 12
+  %arrayidx10.i = gep inbounds nuw ptr %st, 1 x i64 16
+  %arrayidx13.i = gep inbounds nuw ptr %st, 1 x i64 20
+  %arrayidx16.i = gep inbounds nuw ptr %st, 1 x i64 24
+  %e.i = gep inbounds nuw ptr %st, 1 x i64 28
+  %arrayidx22.i = gep inbounds nuw ptr %st, 1 x i64 29
+  %arrayidx26.i = gep inbounds nuw ptr %st, 1 x i64 30
+  %arrayidx30.i = gep inbounds nuw ptr %st, 1 x i64 31
+  %arrayidx34.i = gep inbounds nuw ptr %st, 1 x i64 32
+  %arrayidx38.i = gep inbounds nuw ptr %st, 1 x i64 33
+  %alt.i = gep inbounds nuw ptr %st, 1 x i64 36
+  %saved.i = gep inbounds nuw ptr %st, 1 x i64 72
+  store i32 0, ptr %saved.i, align 8
+  %vf_n.i = gep inbounds nuw ptr %st, 1 x i64 112
+  store i32 0, ptr %vf_n.i, align 8
+  %opCount.i = gep inbounds nuw ptr %st, 1 x i64 116
+  store i32 0, ptr %opCount.i, align 4
+  %codeSep.i = gep inbounds nuw ptr %st, 1 x i64 120
+  store i32 0, ptr %codeSep.i, align 8
+  %codeSepPos.i = gep inbounds nuw ptr %st, 1 x i64 124
+  memset ptr %st align 8, i8 0, i64 34
+  memset ptr %alt.i align 4, i8 0, i64 34
+  store i32 4294967295, ptr %codeSepPos.i, align 4
+  %opcodeIndex.i = gep inbounds nuw ptr %st, 1 x i64 128
+  store i32 0, ptr %opcodeIndex.i, align 8
+  %vwLeft.i = gep inbounds nuw ptr %st, 1 x i64 136
+  store i64 0, ptr %vwLeft.i, align 8
+  %has_vw.i = gep inbounds nuw ptr %st, 1 x i64 144
+  store i8 0, ptr %has_vw.i, align 8
+  store i8 1, ptr %e.i, align 4
+  store i32 1, ptr %len.i, align 4
+  store i32 1, ptr %st, align 8
+  %arrayidx.i152 = gep inbounds nuw ptr %st, 1 x i64 29
+  store i8 2, ptr %arrayidx.i152, align 1
+  %arrayidx11.i155 = gep inbounds nuw ptr %st, 1 x i64 8
+  store i32 1, ptr %arrayidx11.i155, align 8
+  store i32 2, ptr %st, align 8
+  %arrayidx14.i1509 = gep inbounds nuw ptr %st, 1 x i64 29
+  %arrayidx11.i1508 = gep inbounds nuw ptr %st, 1 x i64 30
+  %#0 = load i8, ptr %arrayidx14.i1509, align 1
+  store i8 %#0, ptr %arrayidx11.i1508, align 2
+  %arrayidx19.i1516 = gep inbounds nuw ptr %st, 1 x i64 12
+  store i32 1, ptr %arrayidx19.i1516, align 4
+  store i32 3, ptr %st, align 8
+  %#1 = load i32, ptr %st, align 8
+  %cmp.i1476 = icmp ugt i32 %#1, 1
+  br i1 %cmp.i1476, label %if.end.i1477, label %_ZN8twinleafL10op_OP_SWAPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+if.end.i1477:
+  %sub.i1478 = add i32 %#1, 4294967295
+  %sub5.i = add i32 %#1, 4294967294
+  %idxprom.i1480 = zext i32 %sub.i1478 to i64
+  %arrayidx.i1481 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i1480
+  %#2 = load i32, ptr %arrayidx.i1481, align 4
+  %arrayidx9.i = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom.i1480
+  %cmp.not.i71.i = icmp eq i32 %#2, 0
+  br i1 %cmp.not.i71.i, label %if.end.i73.i, label %if.then.i72.i
+
+if.then.i72.i:
+  %#3 = load i8, ptr %arrayidx9.i, align 1
+  br label %if.end.i73.i
+
+if.end.i73.i:
+  %tmp.i.sroa.0.0 = phi i8 [ undef, %if.end.i1477 ], [ %#3, %if.then.i72.i ]
+  %idxprom18.i = zext i32 %sub5.i to i64
+  %arrayidx19.i1483 = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom18.i
+  %arrayidx24.i1484 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom18.i
+  %#4 = load i32, ptr %arrayidx24.i1484, align 4
+  %cmp.not.i63.i = icmp eq i32 %#4, 0
+  br i1 %cmp.not.i63.i, label %if.end.i65.i, label %if.then.i64.i
+
+if.then.i64.i:
+  %#5 = load i8, ptr %arrayidx19.i1483, align 1
+  store i8 %#5, ptr %arrayidx9.i, align 1
+  br label %if.end.i65.i
+
+if.end.i65.i:
+  %cmp2.i66.i = icmp ugt i32 %#4, 1
+  br i1 %cmp2.i66.i, label %if.then3.i67.i, label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit70.i
+
+if.then3.i67.i:
+  %arrayidx4.i68.i = gep inbounds nuw ptr %arrayidx19.i1483, 1 x i64 1
+  %#6 = load i8, ptr %arrayidx4.i68.i, align 1
+  %arrayidx5.i69.i = gep inbounds nuw ptr %arrayidx9.i, 1 x i64 1
+  store i8 %#6, ptr %arrayidx5.i69.i, align 1
+  br label %_ZN8twinleafL14bounded_memcpyEPhPKhj.exit70.i
+
+_ZN8twinleafL14bounded_memcpyEPhPKhj.exit70.i:
+  %#7 = load i32, ptr %arrayidx24.i1484, align 4
+  store i32 %#7, ptr %arrayidx.i1481, align 4
+  br i1 %cmp.not.i71.i, label %if.end.i.i, label %if.then.i.i
+
+if.then.i.i:
+  store i8 %tmp.i.sroa.0.0, ptr %arrayidx19.i1483, align 1
+  br label %if.end.i.i
+
+if.end.i.i:
+  store i32 %#2, ptr %arrayidx24.i1484, align 4
+  br label %_ZN8twinleafL10op_OP_SWAPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+_ZN8twinleafL10op_OP_SWAPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit:
+  %retval.0.i1485 = phi i64 [ 0, %if.end.i.i ], [ 6, %entry ]
+  br i1 %cmp.i1476, label %cleanup33, label %if.then30
+
+if.then30:
+  %cmp.not.i330 = icmp eq i32 %#1, 0
+  br i1 %cmp.not.i330, label %switch.lookup, label %if.then.i331
+
+if.then.i331:
+  %#8 = load i32, ptr %len.i, align 4
+  %#9 = load i8, ptr %e.i, align 4
+  %conv.i335 = zext i8 %#9 to i32
+  %#10 = shl i32 %#8, 11
+  %#11 = and i32 %#10, 6144
+  %#12 = shl nsw nuw i32 %conv.i335, 13
+  br label %switch.lookup
+
+switch.lookup:
+  %s.i106.sroa.4.0 = phi i32 [ 0, %if.then30 ], [ %#11, %if.then.i331 ]
+  %s.i106.sroa.61571.0 = phi i32 [ 0, %if.then30 ], [ %#12, %if.then.i331 ]
+  %switch.gep = gep inbounds nuw ptr @switch.table.cell_dup_drop_swap_ok.5, 28 x i64 0, 4 x i64 %retval.0.i1485
+  %switch.load = load i32, ptr %switch.gep, align 4
+  %and17.i847 = shl nsw nuw i32 %#1, 8
+  %or20100.i848 = or disjoint i32 %switch.load, %and17.i847
+  %cmp21.not.i849 = icmp eq i32 %#1, 0
+  %#13 = or disjoint i32 %s.i106.sroa.4.0, %s.i106.sroa.61571.0
+  %or32102.i858 = or disjoint i32 %#13, %or20100.i848
+  %r.0.in.i860 = select i1 %cmp21.not.i849, i32 %or20100.i848, i32 %or32102.i858
+  %r.1.i864 = zext i32 %r.0.in.i860 to i64
+  br label %cleanup33
+
+cleanup33:
+  %retval.3 = phi i64 [ %r.1.i864, %switch.lookup ], [ undef, %_ZN8twinleafL10op_OP_SWAPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit ]
+  br i1 %cmp.i1476, label %do.body38, label %cleanup75
+
+do.body38:
+  %cmp1.i160 = icmp ugt i32 %#1, 5
+  br i1 %cmp1.i160, label %if.then42, label %if.end3.i161
+
+if.then42:
+  start_lifetime ptr %s.i103
+  %len.i1400 = gep inbounds nuw ptr %s.i103, 1 x i64 4
+  %arrayidx2.i1401 = gep inbounds nuw ptr %s.i103, 1 x i64 8
+  %arrayidx4.i1402 = gep inbounds nuw ptr %s.i103, 1 x i64 12
+  %arrayidx6.i1403 = gep inbounds nuw ptr %s.i103, 1 x i64 16
+  %arrayidx8.i1404 = gep inbounds nuw ptr %s.i103, 1 x i64 20
+  %arrayidx10.i1405 = gep inbounds nuw ptr %s.i103, 1 x i64 24
+  %val.i1406 = gep inbounds nuw ptr %s.i103, 1 x i64 28
+  %arrayidx13.i1407 = gep inbounds nuw ptr %s.i103, 1 x i64 32
+  %arrayidx15.i1408 = gep inbounds nuw ptr %s.i103, 1 x i64 36
+  %arrayidx17.i1409 = gep inbounds nuw ptr %s.i103, 1 x i64 40
+  %arrayidx19.i1410 = gep inbounds nuw ptr %s.i103, 1 x i64 44
+  %arrayidx21.i1411 = gep inbounds nuw ptr %s.i103, 1 x i64 48
+  memset ptr %s.i103 align 4, i8 0, i64 52
+  %#14 = load i32, ptr %st, align 8
+  store i32 %#14, ptr %s.i103, align 4
+  %cmp.not.i378 = icmp eq i32 %#14, 0
+  br i1 %cmp.not.i378, label %if.end.i385, label %if.then.i379
+
+if.then.i379:
+  %#15 = load i32, ptr %len.i, align 4
+  store i32 %#15, ptr %len.i1400, align 4
+  %#16 = load i8, ptr %e.i, align 4
+  %conv.i383 = zext i8 %#16 to i32
+  store i32 %conv.i383, ptr %val.i1406, align 4
+  br label %if.end.i385
+
+if.end.i385:
+  %cmp11.i386 = icmp ugt i32 %#14, 1
+  br i1 %cmp11.i386, label %if.then12.i419, label %if.end25.i387
+
+if.then12.i419:
+  %#17 = load i32, ptr %arrayidx4.i, align 8
+  store i32 %#17, ptr %arrayidx2.i1401, align 4
+  %#18 = load i8, ptr %arrayidx22.i, align 1
+  %conv22.i423 = zext i8 %#18 to i32
+  store i32 %conv22.i423, ptr %arrayidx13.i1407, align 4
+  br label %if.end25.i387
+
+if.end25.i387:
+  %cmp27.i388 = icmp ugt i32 %#14, 2
+  br i1 %cmp27.i388, label %if.then28.i413, label %if.end41.i389
+
+if.then28.i413:
+  %#19 = load i32, ptr %arrayidx7.i, align 4
+  store i32 %#19, ptr %arrayidx4.i1402, align 4
+  %#20 = load i8, ptr %arrayidx26.i, align 2
+  %conv38.i417 = zext i8 %#20 to i32
+  store i32 %conv38.i417, ptr %arrayidx15.i1408, align 4
+  br label %if.end41.i389
+
+if.end41.i389:
+  %cmp43.i390 = icmp ugt i32 %#14, 3
+  br i1 %cmp43.i390, label %if.then44.i407, label %if.end57.i391
+
+if.then44.i407:
+  %#21 = load i32, ptr %arrayidx10.i, align 8
+  store i32 %#21, ptr %arrayidx6.i1403, align 4
+  %#22 = load i8, ptr %arrayidx30.i, align 1
+  %conv54.i411 = zext i8 %#22 to i32
+  store i32 %conv54.i411, ptr %arrayidx17.i1409, align 4
+  br label %if.end57.i391
+
+if.end57.i391:
+  %cmp59.i392 = icmp ugt i32 %#14, 4
+  br i1 %cmp59.i392, label %if.then60.i401, label %if.end73.i393
+
+if.then60.i401:
+  %#23 = load i32, ptr %arrayidx13.i, align 4
+  store i32 %#23, ptr %arrayidx8.i1404, align 4
+  %#24 = load i8, ptr %arrayidx34.i, align 8
+  %conv70.i405 = zext i8 %#24 to i32
+  store i32 %conv70.i405, ptr %arrayidx19.i1410, align 4
+  br label %if.end73.i393
+
+if.end73.i393:
+  %cmp75.i394 = icmp ugt i32 %#14, 5
+  br i1 %cmp75.i394, label %if.then76.i395, label %_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit425
+
+if.then76.i395:
+  %#25 = load i32, ptr %arrayidx16.i, align 8
+  store i32 %#25, ptr %arrayidx10.i1405, align 4
+  %#26 = load i8, ptr %arrayidx38.i, align 1
+  %conv86.i399 = zext i8 %#26 to i32
+  store i32 %conv86.i399, ptr %arrayidx21.i1411, align 4
+  br label %_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit425
+
+_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit425:
+  %switch.tableidx = add i32 %#14, 4294967292
+  %#27 = icmp ult i32 %switch.tableidx, 3
+  %switch.offset = add i32 %#14, 4294967293
+  %k.0.i898 = select i1 %#27, i32 %switch.offset, i32 0
+  %and17.i899 = shl i32 %#14, 8
+  %#28 = and i32 %and17.i899, 1792
+  %or20100.i900 = or disjoint i32 %#28, 32
+  %cmp21.not.i901 = icmp eq i32 %#14, 0
+  br i1 %cmp21.not.i901, label %if.end33.i911, label %if.then22.i902
+
+if.then22.i902:
+  %idxprom.i904 = zext nneg i32 %k.0.i898 to i64
+  %arrayidx.i905 = gep inbounds nuw ptr %len.i1400, 24 x i64 0, 4 x i64 %idxprom.i904
+  %#29 = load i32, ptr %arrayidx.i905, align 4
+  %and23.i906 = shl i32 %#29, 11
+  %#30 = and i32 %and23.i906, 6144
+  %arrayidx28.i908 = gep inbounds nuw ptr %val.i1406, 24 x i64 0, 4 x i64 %idxprom.i904
+  %#31 = load i32, ptr %arrayidx28.i908, align 4
+  %and29.i909 = shl i32 %#31, 13
+  %#32 = and i32 %and29.i909, 2088960
+  %#33 = or disjoint i32 %#30, %#32
+  %or32102.i910 = or disjoint i32 %#33, %or20100.i900
+  br label %if.end33.i911
+
+if.end33.i911:
+  %r.0.in.i912 = phi i32 [ %or32102.i910, %if.then22.i902 ], [ %or20100.i900, %_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit425 ]
+  %cmp34.i913 = icmp ugt i32 %#14, 1
+  br i1 %cmp34.i913, label %if.then35.i933, label %if.end51.i914
+
+if.then35.i933:
+  %add.i935 = add nsw nuw i32 %k.0.i898, 1
+  %idxprom37.i936 = zext nneg i32 %add.i935 to i64
+  %arrayidx38.i937 = gep inbounds nuw ptr %len.i1400, 24 x i64 0, 4 x i64 %idxprom37.i936
+  %#34 = load i32, ptr %arrayidx38.i937, align 4
+  %and39.i938 = shl i32 %#34, 21
+  %#35 = and i32 %and39.i938, 6291456
+  %arrayidx46.i940 = gep inbounds nuw ptr %val.i1406, 24 x i64 0, 4 x i64 %idxprom37.i936
+  %#36 = load i32, ptr %arrayidx46.i940, align 4
+  %and47.i941 = shl i32 %#36, 23
+  %#37 = and i32 %and47.i941, 2139095040
+  %#38 = or disjoint i32 %#35, %#37
+  %or50104.i942 = or i32 %#38, %r.0.in.i912
+  br label %if.end51.i914
+
+if.end51.i914:
+  %r.1.in.i915 = phi i32 [ %or50104.i942, %if.then35.i933 ], [ %r.0.in.i912, %if.end33.i911 ]
+  %r.1.i916 = zext nneg i32 %r.1.in.i915 to i64
+  %cmp52.i917 = icmp ugt i32 %#14, 2
+  br i1 %cmp52.i917, label %if.then53.i919, label %_ZL6b_packjjRK6BStack.exit945
+
+if.then53.i919:
+  %add55.i921 = add nsw nuw i32 %k.0.i898, 2
+  %idxprom56.i922 = zext nneg i32 %add55.i921 to i64
+  %arrayidx57.i923 = gep inbounds nuw ptr %len.i1400, 24 x i64 0, 4 x i64 %idxprom56.i922
+  %#39 = load i32, ptr %arrayidx57.i923, align 4
+  %and58.i924 = and i32 %#39, 3
+  %conv59.i925 = zext nneg i32 %and58.i924 to i64
+  %shl60.i926 = shl nsw nuw i64 %conv59.i925, 31
+  %arrayidx65.i928 = gep inbounds nuw ptr %val.i1406, 24 x i64 0, 4 x i64 %idxprom56.i922
+  %#40 = load i32, ptr %arrayidx65.i928, align 4
+  %and66.i929 = and i32 %#40, 255
+  %conv67.i930 = zext nneg i32 %and66.i929 to i64
+  %shl68.i931 = shl nsw nuw i64 %conv67.i930, 33
+  %#41 = or disjoint i64 %shl68.i931, %shl60.i926
+  %or69.i932 = or disjoint i64 %#41, %r.1.i916
+  br label %_ZL6b_packjjRK6BStack.exit945
+
+_ZL6b_packjjRK6BStack.exit945:
+  %r.2.i918 = phi i64 [ %or69.i932, %if.then53.i919 ], [ %r.1.i916, %if.end51.i914 ]
+  end_lifetime ptr %s.i103
+  br label %cleanup45
+
+if.end3.i161:
+  %idxprom.i163 = zext nneg i32 %#1 to i64
+  %arrayidx.i164 = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom.i163
+  store i8 2, ptr %arrayidx.i164, align 1
+  %arrayidx11.i167 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i163
+  store i32 1, ptr %arrayidx11.i167, align 4
+  %add.i168 = add nsw nuw i32 %#1, 1
+  store i32 %add.i168, ptr %st, align 8
+  br label %cleanup45
+
+cleanup45:
+  %retval.4 = phi i64 [ %r.2.i918, %_ZL6b_packjjRK6BStack.exit945 ], [ %retval.3, %if.end3.i161 ]
+  br i1 %cmp1.i160, label %cleanup75, label %do.body50
+
+do.body50:
+  %#42 = load i32, ptr %st, align 8
+  %cmp.i1487 = icmp ult i32 %#42, 2
+  br i1 %cmp.i1487, label %_ZN8twinleafL11op_OP_EQUALERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end.i1488
+
+if.end.i1488:
+  %sub.i1490 = add i32 %#42, 4294967294
+  %idxprom.i1491 = zext i32 %sub.i1490 to i64
+  %arrayidx.i1492 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i1491
+  %#43 = load i32, ptr %arrayidx.i1492, align 4
+  %sub8.i = add i32 %#42, 4294967295
+  %idxprom9.i = zext i32 %sub8.i to i64
+  %arrayidx10.i1493 = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom9.i
+  %#44 = load i32, ptr %arrayidx10.i1493, align 4
+  %cmp11.i1494 = icmp eq i32 %#43, %#44
+  br i1 %cmp11.i1494, label %land.rhs.i, label %if.end35.i
+
+land.rhs.i:
+  %cmp12.i = icmp eq i32 %#43, 0
+  br i1 %cmp12.i, label %if.end35.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %arrayidx18.i = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom.i1491
+  %arrayidx25.i = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom9.i
+  %#45 = load i8, ptr %arrayidx18.i, align 1
+  %#46 = load i8, ptr %arrayidx25.i, align 1
+  %cmp3.not.i = icmp eq i8 %#45, %#46
+  br i1 %cmp3.not.i, label %if.end.i1530, label %if.then.i1526
+
+if.end.i1530:
+  %cmp8.i.not = icmp eq i32 %#43, 1
+  br i1 %cmp8.i.not, label %_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit, label %land.lhs.true9.i
+
+land.lhs.true9.i:
+  %arrayidx10.i1531 = gep inbounds nuw ptr %arrayidx18.i, 1 x i64 1
+  %#47 = load i8, ptr %arrayidx10.i1531, align 1
+  %arrayidx12.i = gep inbounds nuw ptr %arrayidx25.i, 1 x i64 1
+  %#48 = load i8, ptr %arrayidx12.i, align 1
+  %cmp14.not.i = icmp eq i8 %#47, %#48
+  br i1 %cmp14.not.i, label %_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit, label %if.then15.i
+
+if.then15.i:
+  %conv13.i = zext i8 %#48 to i32
+  %conv11.i = zext i8 %#47 to i32
+  %sub20.i = sub nsw i32 %conv11.i, %conv13.i
+  br label %_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit
+
+if.then.i1526:
+  %conv2.i = zext i8 %#46 to i32
+  %conv.i1527 = zext i8 %#45 to i32
+  %sub.i1528 = sub nsw i32 %conv.i1527, %conv2.i
+  br label %_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit
+
+_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit:
+  %retval.0.i1529 = phi i32 [ %sub.i1528, %if.then.i1526 ], [ %sub20.i, %if.then15.i ], [ 0, %land.lhs.true9.i ], [ 0, %if.end.i1530 ]
+  %cmp27.i1498 = icmp eq i32 %retval.0.i1529, 0
+  %#49 = zext i1 %cmp27.i1498 to i32
+  br label %if.end35.i
+
+if.end35.i:
+  %cond.i = phi i32 [ 0, %if.end.i1488 ], [ 1, %land.rhs.i ], [ %#49, %_ZN8twinleafL14bounded_memcmpEPKhS1_j.exit ]
+  store i32 %sub.i1490, ptr %st, align 8
+  %cmp1.i.i = icmp ugt i32 %sub.i1490, 5
+  br i1 %cmp1.i.i, label %_ZN8twinleafL11op_OP_EQUALERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end3.i.i
+
+if.end3.i.i:
+  %cmp4.not.i.i = icmp eq i32 %cond.i, 0
+  br i1 %cmp4.not.i.i, label %if.end7.i.i, label %if.then5.i.i
+
+if.then5.i.i:
+  %arrayidx.i.i = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom.i1491
+  store i8 1, ptr %arrayidx.i.i, align 1
+  br label %if.end7.i.i
+
+if.end7.i.i:
+  store i32 %cond.i, ptr %arrayidx.i1492, align 4
+  %add.i.i = add nsw i32 %#42, 4294967295
+  store i32 %add.i.i, ptr %st, align 8
+  br label %_ZN8twinleafL11op_OP_EQUALERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+_ZN8twinleafL11op_OP_EQUALERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit:
+  %tobool53.not = phi i1 [ 0, %do.body50 ], [ 1, %if.end7.i.i ], [ 0, %if.end35.i ]
+  %retval.1.i1495 = phi i64 [ 6, %do.body50 ], [ 0, %if.end7.i.i ], [ 4, %if.end35.i ]
+  br i1 %tobool53.not, label %cleanup57, label %if.then54
+
+if.then54:
+  start_lifetime ptr %s.i100
+  %len.i1388 = gep inbounds nuw ptr %s.i100, 1 x i64 4
+  %arrayidx2.i1389 = gep inbounds nuw ptr %s.i100, 1 x i64 8
+  %arrayidx4.i1390 = gep inbounds nuw ptr %s.i100, 1 x i64 12
+  %arrayidx6.i1391 = gep inbounds nuw ptr %s.i100, 1 x i64 16
+  %arrayidx8.i1392 = gep inbounds nuw ptr %s.i100, 1 x i64 20
+  %arrayidx10.i1393 = gep inbounds nuw ptr %s.i100, 1 x i64 24
+  %val.i1394 = gep inbounds nuw ptr %s.i100, 1 x i64 28
+  %arrayidx13.i1395 = gep inbounds nuw ptr %s.i100, 1 x i64 32
+  %arrayidx15.i1396 = gep inbounds nuw ptr %s.i100, 1 x i64 36
+  %arrayidx17.i1397 = gep inbounds nuw ptr %s.i100, 1 x i64 40
+  %arrayidx19.i1398 = gep inbounds nuw ptr %s.i100, 1 x i64 44
+  %arrayidx21.i1399 = gep inbounds nuw ptr %s.i100, 1 x i64 48
+  memset ptr %s.i100 align 4, i8 0, i64 52
+  %#50 = load i32, ptr %st, align 8
+  store i32 %#50, ptr %s.i100, align 4
+  %cmp.not.i426 = icmp eq i32 %#50, 0
+  br i1 %cmp.not.i426, label %if.end.i433, label %if.then.i427
+
+if.then.i427:
+  %#51 = load i32, ptr %len.i, align 4
+  store i32 %#51, ptr %len.i1388, align 4
+  %#52 = load i8, ptr %e.i, align 4
+  %conv.i431 = zext i8 %#52 to i32
+  store i32 %conv.i431, ptr %val.i1394, align 4
+  br label %if.end.i433
+
+if.end.i433:
+  %cmp11.i434 = icmp ugt i32 %#50, 1
+  br i1 %cmp11.i434, label %if.then12.i467, label %if.end25.i435
+
+if.then12.i467:
+  %#53 = load i32, ptr %arrayidx4.i, align 8
+  store i32 %#53, ptr %arrayidx2.i1389, align 4
+  %#54 = load i8, ptr %arrayidx22.i, align 1
+  %conv22.i471 = zext i8 %#54 to i32
+  store i32 %conv22.i471, ptr %arrayidx13.i1395, align 4
+  br label %if.end25.i435
+
+if.end25.i435:
+  %cmp27.i436 = icmp ugt i32 %#50, 2
+  br i1 %cmp27.i436, label %if.then28.i461, label %if.end41.i437
+
+if.then28.i461:
+  %#55 = load i32, ptr %arrayidx7.i, align 4
+  store i32 %#55, ptr %arrayidx4.i1390, align 4
+  %#56 = load i8, ptr %arrayidx26.i, align 2
+  %conv38.i465 = zext i8 %#56 to i32
+  store i32 %conv38.i465, ptr %arrayidx15.i1396, align 4
+  br label %if.end41.i437
+
+if.end41.i437:
+  %cmp43.i438 = icmp ugt i32 %#50, 3
+  br i1 %cmp43.i438, label %if.then44.i455, label %if.end57.i439
+
+if.then44.i455:
+  %#57 = load i32, ptr %arrayidx10.i, align 8
+  store i32 %#57, ptr %arrayidx6.i1391, align 4
+  %#58 = load i8, ptr %arrayidx30.i, align 1
+  %conv54.i459 = zext i8 %#58 to i32
+  store i32 %conv54.i459, ptr %arrayidx17.i1397, align 4
+  br label %if.end57.i439
+
+if.end57.i439:
+  %cmp59.i440 = icmp ugt i32 %#50, 4
+  br i1 %cmp59.i440, label %if.then60.i449, label %if.end73.i441
+
+if.then60.i449:
+  %#59 = load i32, ptr %arrayidx13.i, align 4
+  store i32 %#59, ptr %arrayidx8.i1392, align 4
+  %#60 = load i8, ptr %arrayidx34.i, align 8
+  %conv70.i453 = zext i8 %#60 to i32
+  store i32 %conv70.i453, ptr %arrayidx19.i1398, align 4
+  br label %if.end73.i441
+
+if.end73.i441:
+  %cmp75.i442 = icmp ugt i32 %#50, 5
+  br i1 %cmp75.i442, label %if.then76.i443, label %switch.lookup1540
+
+if.then76.i443:
+  %#61 = load i32, ptr %arrayidx16.i, align 8
+  store i32 %#61, ptr %arrayidx10.i1393, align 4
+  %#62 = load i8, ptr %arrayidx38.i, align 1
+  %conv86.i447 = zext i8 %#62 to i32
+  store i32 %conv86.i447, ptr %arrayidx21.i1399, align 4
+  br label %switch.lookup1540
+
+switch.lookup1540:
+  %switch.gep1541 = gep inbounds nuw ptr @switch.table.cell_dup_drop_swap_ok.5, 28 x i64 0, 4 x i64 %retval.1.i1495
+  %switch.load1542 = load i32, ptr %switch.gep1541, align 4
+  %switch.tableidx1566 = add i32 %#50, 4294967292
+  %#63 = icmp ult i32 %switch.tableidx1566, 3
+  %switch.offset1567 = add i32 %#50, 4294967293
+  %k.0.i950 = select i1 %#63, i32 %switch.offset1567, i32 0
+  %and17.i951 = shl i32 %#50, 8
+  %#64 = and i32 %and17.i951, 1792
+  %or20100.i952 = or disjoint i32 %switch.load1542, %#64
+  %cmp21.not.i953 = icmp eq i32 %#50, 0
+  br i1 %cmp21.not.i953, label %if.end33.i963, label %if.then22.i954
+
+if.then22.i954:
+  %idxprom.i956 = zext nneg i32 %k.0.i950 to i64
+  %arrayidx.i957 = gep inbounds nuw ptr %len.i1388, 24 x i64 0, 4 x i64 %idxprom.i956
+  %#65 = load i32, ptr %arrayidx.i957, align 4
+  %and23.i958 = shl i32 %#65, 11
+  %#66 = and i32 %and23.i958, 6144
+  %arrayidx28.i960 = gep inbounds nuw ptr %val.i1394, 24 x i64 0, 4 x i64 %idxprom.i956
+  %#67 = load i32, ptr %arrayidx28.i960, align 4
+  %and29.i961 = shl i32 %#67, 13
+  %#68 = and i32 %and29.i961, 2088960
+  %#69 = or disjoint i32 %#66, %#68
+  %or32102.i962 = or disjoint i32 %#69, %or20100.i952
+  br label %if.end33.i963
+
+if.end33.i963:
+  %r.0.in.i964 = phi i32 [ %or32102.i962, %if.then22.i954 ], [ %or20100.i952, %switch.lookup1540 ]
+  %cmp34.i965 = icmp ugt i32 %#50, 1
+  br i1 %cmp34.i965, label %if.then35.i985, label %if.end51.i966
+
+if.then35.i985:
+  %add.i987 = add nsw nuw i32 %k.0.i950, 1
+  %idxprom37.i988 = zext nneg i32 %add.i987 to i64
+  %arrayidx38.i989 = gep inbounds nuw ptr %len.i1388, 24 x i64 0, 4 x i64 %idxprom37.i988
+  %#70 = load i32, ptr %arrayidx38.i989, align 4
+  %and39.i990 = shl i32 %#70, 21
+  %#71 = and i32 %and39.i990, 6291456
+  %arrayidx46.i992 = gep inbounds nuw ptr %val.i1394, 24 x i64 0, 4 x i64 %idxprom37.i988
+  %#72 = load i32, ptr %arrayidx46.i992, align 4
+  %and47.i993 = shl i32 %#72, 23
+  %#73 = and i32 %and47.i993, 2139095040
+  %#74 = or disjoint i32 %#71, %#73
+  %or50104.i994 = or i32 %#74, %r.0.in.i964
+  br label %if.end51.i966
+
+if.end51.i966:
+  %r.1.in.i967 = phi i32 [ %or50104.i994, %if.then35.i985 ], [ %r.0.in.i964, %if.end33.i963 ]
+  %r.1.i968 = zext nneg i32 %r.1.in.i967 to i64
+  %cmp52.i969 = icmp ugt i32 %#50, 2
+  br i1 %cmp52.i969, label %if.then53.i971, label %_ZL6b_packjjRK6BStack.exit997
+
+if.then53.i971:
+  %add55.i973 = add nsw nuw i32 %k.0.i950, 2
+  %idxprom56.i974 = zext nneg i32 %add55.i973 to i64
+  %arrayidx57.i975 = gep inbounds nuw ptr %len.i1388, 24 x i64 0, 4 x i64 %idxprom56.i974
+  %#75 = load i32, ptr %arrayidx57.i975, align 4
+  %and58.i976 = and i32 %#75, 3
+  %conv59.i977 = zext nneg i32 %and58.i976 to i64
+  %shl60.i978 = shl nsw nuw i64 %conv59.i977, 31
+  %arrayidx65.i980 = gep inbounds nuw ptr %val.i1394, 24 x i64 0, 4 x i64 %idxprom56.i974
+  %#76 = load i32, ptr %arrayidx65.i980, align 4
+  %and66.i981 = and i32 %#76, 255
+  %conv67.i982 = zext nneg i32 %and66.i981 to i64
+  %shl68.i983 = shl nsw nuw i64 %conv67.i982, 33
+  %#77 = or disjoint i64 %shl68.i983, %shl60.i978
+  %or69.i984 = or disjoint i64 %#77, %r.1.i968
+  br label %_ZL6b_packjjRK6BStack.exit997
+
+_ZL6b_packjjRK6BStack.exit997:
+  %r.2.i970 = phi i64 [ %or69.i984, %if.then53.i971 ], [ %r.1.i968, %if.end51.i966 ]
+  end_lifetime ptr %s.i100
+  br label %cleanup57
+
+cleanup57:
+  %retval.5 = phi i64 [ %r.2.i970, %_ZL6b_packjjRK6BStack.exit997 ], [ %retval.4, %_ZN8twinleafL11op_OP_EQUALERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit ]
+  br i1 %tobool53.not, label %do.body62, label %cleanup75
+
+do.body62:
+  %#78 = load i32, ptr %st, align 8
+  %cmp.i1472.not = icmp eq i32 %#78, 0
+  br i1 %cmp.i1472.not, label %_ZN8twinleafL10op_OP_DROPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit, label %if.end.i1473
+
+if.end.i1473:
+  %sub.i1474 = add i32 %#78, 4294967295
+  store i32 %sub.i1474, ptr %st, align 8
+  br label %_ZN8twinleafL10op_OP_DROPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit
+
+_ZN8twinleafL10op_OP_DROPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit:
+  %retval.0.i1475 = phi i64 [ 0, %if.end.i1473 ], [ 6, %do.body62 ]
+  br i1 %cmp.i1472.not, label %if.then66, label %cleanup69
+
+if.then66:
+  start_lifetime ptr %s.i
+  %len.i1381 = gep inbounds nuw ptr %s.i, 1 x i64 4
+  %arrayidx2.i = gep inbounds nuw ptr %s.i, 1 x i64 8
+  %arrayidx4.i1382 = gep inbounds nuw ptr %s.i, 1 x i64 12
+  %arrayidx6.i = gep inbounds nuw ptr %s.i, 1 x i64 16
+  %arrayidx8.i = gep inbounds nuw ptr %s.i, 1 x i64 20
+  %arrayidx10.i1383 = gep inbounds nuw ptr %s.i, 1 x i64 24
+  %val.i1384 = gep inbounds nuw ptr %s.i, 1 x i64 28
+  %arrayidx13.i1385 = gep inbounds nuw ptr %s.i, 1 x i64 32
+  %arrayidx15.i1386 = gep inbounds nuw ptr %s.i, 1 x i64 36
+  %arrayidx17.i1387 = gep inbounds nuw ptr %s.i, 1 x i64 40
+  %arrayidx19.i = gep inbounds nuw ptr %s.i, 1 x i64 44
+  %arrayidx21.i = gep inbounds nuw ptr %s.i, 1 x i64 48
+  memset ptr %s.i align 4, i8 0, i64 52
+  %#79 = load i32, ptr %st, align 8
+  store i32 %#79, ptr %s.i, align 4
+  %cmp.not.i474 = icmp eq i32 %#79, 0
+  br i1 %cmp.not.i474, label %if.end.i481, label %if.then.i475
+
+if.then.i475:
+  %#80 = load i32, ptr %len.i, align 4
+  store i32 %#80, ptr %len.i1381, align 4
+  %#81 = load i8, ptr %e.i, align 4
+  %conv.i479 = zext i8 %#81 to i32
+  store i32 %conv.i479, ptr %val.i1384, align 4
+  br label %if.end.i481
+
+if.end.i481:
+  %cmp11.i482 = icmp ugt i32 %#79, 1
+  br i1 %cmp11.i482, label %if.then12.i515, label %if.end25.i483
+
+if.then12.i515:
+  %#82 = load i32, ptr %arrayidx4.i, align 8
+  store i32 %#82, ptr %arrayidx2.i, align 4
+  %#83 = load i8, ptr %arrayidx22.i, align 1
+  %conv22.i519 = zext i8 %#83 to i32
+  store i32 %conv22.i519, ptr %arrayidx13.i1385, align 4
+  br label %if.end25.i483
+
+if.end25.i483:
+  %cmp27.i484 = icmp ugt i32 %#79, 2
+  br i1 %cmp27.i484, label %if.then28.i509, label %if.end41.i485
+
+if.then28.i509:
+  %#84 = load i32, ptr %arrayidx7.i, align 4
+  store i32 %#84, ptr %arrayidx4.i1382, align 4
+  %#85 = load i8, ptr %arrayidx26.i, align 2
+  %conv38.i513 = zext i8 %#85 to i32
+  store i32 %conv38.i513, ptr %arrayidx15.i1386, align 4
+  br label %if.end41.i485
+
+if.end41.i485:
+  %cmp43.i486 = icmp ugt i32 %#79, 3
+  br i1 %cmp43.i486, label %if.then44.i503, label %if.end57.i487
+
+if.then44.i503:
+  %#86 = load i32, ptr %arrayidx10.i, align 8
+  store i32 %#86, ptr %arrayidx6.i, align 4
+  %#87 = load i8, ptr %arrayidx30.i, align 1
+  %conv54.i507 = zext i8 %#87 to i32
+  store i32 %conv54.i507, ptr %arrayidx17.i1387, align 4
+  br label %if.end57.i487
+
+if.end57.i487:
+  %cmp59.i488 = icmp ugt i32 %#79, 4
+  br i1 %cmp59.i488, label %if.then60.i497, label %if.end73.i489
+
+if.then60.i497:
+  %#88 = load i32, ptr %arrayidx13.i, align 4
+  store i32 %#88, ptr %arrayidx8.i, align 4
+  %#89 = load i8, ptr %arrayidx34.i, align 8
+  %conv70.i501 = zext i8 %#89 to i32
+  store i32 %conv70.i501, ptr %arrayidx19.i, align 4
+  br label %if.end73.i489
+
+if.end73.i489:
+  %cmp75.i490 = icmp ugt i32 %#79, 5
+  br i1 %cmp75.i490, label %if.then76.i491, label %switch.lookup1543
+
+if.then76.i491:
+  %#90 = load i32, ptr %arrayidx16.i, align 8
+  store i32 %#90, ptr %arrayidx10.i1383, align 4
+  %#91 = load i8, ptr %arrayidx38.i, align 1
+  %conv86.i495 = zext i8 %#91 to i32
+  store i32 %conv86.i495, ptr %arrayidx21.i, align 4
+  br label %switch.lookup1543
+
+switch.lookup1543:
+  %switch.gep1544 = gep inbounds nuw ptr @switch.table.cell_dup_drop_swap_ok.5, 28 x i64 0, 4 x i64 %retval.0.i1475
+  %switch.load1545 = load i32, ptr %switch.gep1544, align 4
+  %switch.tableidx1569 = add i32 %#79, 4294967292
+  %#92 = icmp ult i32 %switch.tableidx1569, 3
+  %switch.offset1570 = add i32 %#79, 4294967293
+  %k.0.i1002 = select i1 %#92, i32 %switch.offset1570, i32 0
+  %and17.i1003 = shl i32 %#79, 8
+  %#93 = and i32 %and17.i1003, 1792
+  %or20100.i1004 = or disjoint i32 %switch.load1545, %#93
+  %cmp21.not.i1005 = icmp eq i32 %#79, 0
+  br i1 %cmp21.not.i1005, label %if.end33.i1015, label %if.then22.i1006
+
+if.then22.i1006:
+  %idxprom.i1008 = zext nneg i32 %k.0.i1002 to i64
+  %arrayidx.i1009 = gep inbounds nuw ptr %len.i1381, 24 x i64 0, 4 x i64 %idxprom.i1008
+  %#94 = load i32, ptr %arrayidx.i1009, align 4
+  %and23.i1010 = shl i32 %#94, 11
+  %#95 = and i32 %and23.i1010, 6144
+  %arrayidx28.i1012 = gep inbounds nuw ptr %val.i1384, 24 x i64 0, 4 x i64 %idxprom.i1008
+  %#96 = load i32, ptr %arrayidx28.i1012, align 4
+  %and29.i1013 = shl i32 %#96, 13
+  %#97 = and i32 %and29.i1013, 2088960
+  %#98 = or disjoint i32 %#95, %#97
+  %or32102.i1014 = or disjoint i32 %#98, %or20100.i1004
+  br label %if.end33.i1015
+
+if.end33.i1015:
+  %r.0.in.i1016 = phi i32 [ %or32102.i1014, %if.then22.i1006 ], [ %or20100.i1004, %switch.lookup1543 ]
+  %cmp34.i1017 = icmp ugt i32 %#79, 1
+  br i1 %cmp34.i1017, label %if.then35.i1037, label %if.end51.i1018
+
+if.then35.i1037:
+  %add.i1039 = add nsw nuw i32 %k.0.i1002, 1
+  %idxprom37.i1040 = zext nneg i32 %add.i1039 to i64
+  %arrayidx38.i1041 = gep inbounds nuw ptr %len.i1381, 24 x i64 0, 4 x i64 %idxprom37.i1040
+  %#99 = load i32, ptr %arrayidx38.i1041, align 4
+  %and39.i1042 = shl i32 %#99, 21
+  %#100 = and i32 %and39.i1042, 6291456
+  %arrayidx46.i1044 = gep inbounds nuw ptr %val.i1384, 24 x i64 0, 4 x i64 %idxprom37.i1040
+  %#101 = load i32, ptr %arrayidx46.i1044, align 4
+  %and47.i1045 = shl i32 %#101, 23
+  %#102 = and i32 %and47.i1045, 2139095040
+  %#103 = or disjoint i32 %#100, %#102
+  %or50104.i1046 = or i32 %#103, %r.0.in.i1016
+  br label %if.end51.i1018
+
+if.end51.i1018:
+  %r.1.in.i1019 = phi i32 [ %or50104.i1046, %if.then35.i1037 ], [ %r.0.in.i1016, %if.end33.i1015 ]
+  %r.1.i1020 = zext nneg i32 %r.1.in.i1019 to i64
+  %cmp52.i1021 = icmp ugt i32 %#79, 2
+  br i1 %cmp52.i1021, label %if.then53.i1023, label %_ZL6b_packjjRK6BStack.exit1049
+
+if.then53.i1023:
+  %add55.i1025 = add nsw nuw i32 %k.0.i1002, 2
+  %idxprom56.i1026 = zext nneg i32 %add55.i1025 to i64
+  %arrayidx57.i1027 = gep inbounds nuw ptr %len.i1381, 24 x i64 0, 4 x i64 %idxprom56.i1026
+  %#104 = load i32, ptr %arrayidx57.i1027, align 4
+  %and58.i1028 = and i32 %#104, 3
+  %conv59.i1029 = zext nneg i32 %and58.i1028 to i64
+  %shl60.i1030 = shl nsw nuw i64 %conv59.i1029, 31
+  %arrayidx65.i1032 = gep inbounds nuw ptr %val.i1384, 24 x i64 0, 4 x i64 %idxprom56.i1026
+  %#105 = load i32, ptr %arrayidx65.i1032, align 4
+  %and66.i1033 = and i32 %#105, 255
+  %conv67.i1034 = zext nneg i32 %and66.i1033 to i64
+  %shl68.i1035 = shl nsw nuw i64 %conv67.i1034, 33
+  %#106 = or disjoint i64 %shl68.i1035, %shl60.i1030
+  %or69.i1036 = or disjoint i64 %#106, %r.1.i1020
+  br label %_ZL6b_packjjRK6BStack.exit1049
+
+_ZL6b_packjjRK6BStack.exit1049:
+  %r.2.i1022 = phi i64 [ %or69.i1036, %if.then53.i1023 ], [ %r.1.i1020, %if.end51.i1018 ]
+  end_lifetime ptr %s.i
+  br label %cleanup69
+
+cleanup69:
+  %retval.6 = phi i64 [ %r.2.i1022, %_ZL6b_packjjRK6BStack.exit1049 ], [ %retval.5, %_ZN8twinleafL10op_OP_DROPERNS_5StateERKNS_3CtxERKNS_7DecodedE.exit ]
+  br i1 %cmp.i1472.not, label %cleanup75, label %do.end73
+
+do.end73:
+  start_lifetime ptr %s.i136
+  %len.i1460 = gep inbounds nuw ptr %s.i136, 1 x i64 4
+  %arrayidx2.i1461 = gep inbounds nuw ptr %s.i136, 1 x i64 8
+  %arrayidx4.i1462 = gep inbounds nuw ptr %s.i136, 1 x i64 12
+  %arrayidx6.i1463 = gep inbounds nuw ptr %s.i136, 1 x i64 16
+  %arrayidx8.i1464 = gep inbounds nuw ptr %s.i136, 1 x i64 20
+  %arrayidx10.i1465 = gep inbounds nuw ptr %s.i136, 1 x i64 24
+  %val.i1466 = gep inbounds nuw ptr %s.i136, 1 x i64 28
+  %arrayidx13.i1467 = gep inbounds nuw ptr %s.i136, 1 x i64 32
+  %arrayidx15.i1468 = gep inbounds nuw ptr %s.i136, 1 x i64 36
+  %arrayidx17.i1469 = gep inbounds nuw ptr %s.i136, 1 x i64 40
+  %arrayidx19.i1470 = gep inbounds nuw ptr %s.i136, 1 x i64 44
+  %arrayidx21.i1471 = gep inbounds nuw ptr %s.i136, 1 x i64 48
+  memset ptr %s.i136 align 4, i8 0, i64 52
+  %#107 = load i32, ptr %st, align 8
+  store i32 %#107, ptr %s.i136, align 4
+  %cmp.not.i177 = icmp eq i32 %#107, 0
+  br i1 %cmp.not.i177, label %if.end.i181, label %if.then.i178
+
+if.then.i178:
+  %#108 = load i32, ptr %len.i, align 4
+  store i32 %#108, ptr %len.i1460, align 4
+  %#109 = load i8, ptr %e.i, align 4
+  %conv.i = zext i8 %#109 to i32
+  store i32 %conv.i, ptr %val.i1466, align 4
+  br label %if.end.i181
+
+if.end.i181:
+  %cmp11.i = icmp ugt i32 %#107, 1
+  br i1 %cmp11.i, label %if.then12.i, label %if.end25.i
+
+if.then12.i:
+  %#110 = load i32, ptr %arrayidx4.i, align 8
+  store i32 %#110, ptr %arrayidx2.i1461, align 4
+  %#111 = load i8, ptr %arrayidx22.i, align 1
+  %conv22.i = zext i8 %#111 to i32
+  store i32 %conv22.i, ptr %arrayidx13.i1467, align 4
+  br label %if.end25.i
+
+if.end25.i:
+  %cmp27.i = icmp ugt i32 %#107, 2
+  br i1 %cmp27.i, label %if.then28.i, label %if.end41.i
+
+if.then28.i:
+  %#112 = load i32, ptr %arrayidx7.i, align 4
+  store i32 %#112, ptr %arrayidx4.i1462, align 4
+  %#113 = load i8, ptr %arrayidx26.i, align 2
+  %conv38.i = zext i8 %#113 to i32
+  store i32 %conv38.i, ptr %arrayidx15.i1468, align 4
+  br label %if.end41.i
+
+if.end41.i:
+  %cmp43.i = icmp ugt i32 %#107, 3
+  br i1 %cmp43.i, label %if.then44.i, label %if.end57.i
+
+if.then44.i:
+  %#114 = load i32, ptr %arrayidx10.i, align 8
+  store i32 %#114, ptr %arrayidx6.i1463, align 4
+  %#115 = load i8, ptr %arrayidx30.i, align 1
+  %conv54.i = zext i8 %#115 to i32
+  store i32 %conv54.i, ptr %arrayidx17.i1469, align 4
+  br label %if.end57.i
+
+if.end57.i:
+  %cmp59.i = icmp ugt i32 %#107, 4
+  br i1 %cmp59.i, label %if.then60.i, label %if.end73.i
+
+if.then60.i:
+  %#116 = load i32, ptr %arrayidx13.i, align 4
+  store i32 %#116, ptr %arrayidx8.i1464, align 4
+  %#117 = load i8, ptr %arrayidx34.i, align 8
+  %conv70.i = zext i8 %#117 to i32
+  store i32 %conv70.i, ptr %arrayidx19.i1470, align 4
+  br label %if.end73.i
+
+if.end73.i:
+  %cmp75.i = icmp ugt i32 %#107, 5
+  br i1 %cmp75.i, label %if.then76.i, label %_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit
+
+if.then76.i:
+  %#118 = load i32, ptr %arrayidx16.i, align 8
+  store i32 %#118, ptr %arrayidx10.i1465, align 4
+  %#119 = load i8, ptr %arrayidx38.i, align 1
+  %conv86.i = zext i8 %#119 to i32
+  store i32 %conv86.i, ptr %arrayidx21.i1471, align 4
+  br label %_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit
+
+_ZL6l_to_bRKN8twinleaf5StateER6BStack.exit:
+  %#120 = load i32, ptr %alt.i, align 4
+  %cmp.not.i = icmp eq i32 %#120, 0
+  br i1 %cmp.not.i, label %if.end.i, label %if.then.i
+
+if.end.i:
+  br i1 %cmp.not.i177, label %_ZL8l_finishRKN8twinleaf5StateE.exit, label %if.end5.i
+
+if.end5.i:
+  %sub.i = add i32 %#107, 4294967295
+  %idxprom.i = zext i32 %sub.i to i64
+  %arrayidx.i = gep inbounds nuw ptr %len.i, 24 x i64 0, 4 x i64 %idxprom.i
+  %#121 = load i32, ptr %arrayidx.i, align 4
+  %arrayidx14.i = gep inbounds nuw ptr %e.i, 6 x i64 0, 1 x i64 %idxprom.i
+  switch i32 %#121, label %if.then16.i [
+    i32 2, label %if.then9.i
+    i32 1, label %_ZN8twinleafL12cast_to_boolEPKhj.exit
+  ]
+
+if.then9.i:
+  %#122 = load i8, ptr %arrayidx14.i, align 1
+  %cmp12.not.i = icmp eq i8 %#122, 0
+  br i1 %cmp12.not.i, label %if.end14.i, label %if.end18.i
+
+if.end14.i:
+  %arrayidx15.i1525 = gep inbounds nuw ptr %arrayidx14.i, 1 x i64 1
+  br label %_ZN8twinleafL12cast_to_boolEPKhj.exit
+
+_ZN8twinleafL12cast_to_boolEPKhj.exit:
+  %retval.0.i1524.in.in.in = phi ptr [ %arrayidx15.i1525, %if.end14.i ], [ %arrayidx14.i, %if.end5.i ]
+  %retval.0.i1524.in.in = load i8, ptr %retval.0.i1524.in.in.in, align 1
+  %retval.0.i1524.in = and i8 %retval.0.i1524.in.in, 127
+  %retval.0.i1524.not = icmp eq i8 %retval.0.i1524.in, 0
+  br i1 %retval.0.i1524.not, label %if.then16.i, label %if.end18.i
+
+if.then16.i:
+  %switch.tableidx1553 = add i32 %#107, 4294967292
+  %#123 = icmp ult i32 %switch.tableidx1553, 3
+  %switch.offset1554 = add i32 %#107, 4294967293
+  %k.0.i586 = select i1 %#123, i32 %switch.offset1554, i32 0
+  %and17.i587 = shl i32 %#107, 8
+  %#124 = and i32 %and17.i587, 1792
+  %idxprom.i592 = zext nneg i32 %k.0.i586 to i64
+  %arrayidx.i593 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom.i592
+  %#125 = load i32, ptr %arrayidx.i593, align 4
+  %and23.i594 = shl i32 %#125, 11
+  %#126 = and i32 %and23.i594, 6144
+  %arrayidx28.i596 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom.i592
+  %#127 = load i32, ptr %arrayidx28.i596, align 4
+  %and29.i597 = shl i32 %#127, 13
+  %#128 = and i32 %and29.i597, 2088960
+  %#129 = or disjoint i32 %#124, %#126
+  %or20100.i588 = or disjoint i32 %#129, %#128
+  %or32102.i598 = or disjoint i32 %or20100.i588, 8
+  %cmp34.i601.not = icmp eq i32 %#107, 1
+  br i1 %cmp34.i601.not, label %if.end51.i602, label %if.then35.i621
+
+if.then35.i621:
+  %add.i623 = add nsw nuw i32 %k.0.i586, 1
+  %idxprom37.i624 = zext nneg i32 %add.i623 to i64
+  %arrayidx38.i625 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom37.i624
+  %#130 = load i32, ptr %arrayidx38.i625, align 4
+  %and39.i626 = shl i32 %#130, 21
+  %#131 = and i32 %and39.i626, 6291456
+  %arrayidx46.i628 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom37.i624
+  %#132 = load i32, ptr %arrayidx46.i628, align 4
+  %and47.i629 = shl i32 %#132, 23
+  %#133 = and i32 %and47.i629, 2139095040
+  %#134 = or disjoint i32 %#131, %#133
+  %or50104.i630 = or disjoint i32 %#134, %or32102.i598
+  br label %if.end51.i602
+
+if.end51.i602:
+  %r.1.in.i603 = phi i32 [ %or50104.i630, %if.then35.i621 ], [ %or32102.i598, %if.then16.i ]
+  %r.1.i604 = zext nneg i32 %r.1.in.i603 to i64
+  %cmp52.i605 = icmp ugt i32 %#107, 2
+  br i1 %cmp52.i605, label %_ZL8l_finishRKN8twinleaf5StateE.exit.sink.split, label %_ZL8l_finishRKN8twinleaf5StateE.exit
+
+if.end18.i:
+  %switch.tableidx1556 = add i32 %#107, 4294967292
+  %#135 = icmp ult i32 %switch.tableidx1556, 3
+  %switch.offset1557 = add i32 %#107, 4294967293
+  %k.0.i534 = select i1 %#135, i32 %switch.offset1557, i32 0
+  %and17.i535 = shl i32 %#107, 8
+  %#136 = and i32 %and17.i535, 1792
+  %idxprom.i540 = zext nneg i32 %k.0.i534 to i64
+  %arrayidx.i541 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom.i540
+  %#137 = load i32, ptr %arrayidx.i541, align 4
+  %and23.i542 = shl i32 %#137, 11
+  %#138 = and i32 %and23.i542, 6144
+  %arrayidx28.i544 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom.i540
+  %#139 = load i32, ptr %arrayidx28.i544, align 4
+  %and29.i545 = shl i32 %#139, 13
+  %#140 = and i32 %and29.i545, 2088960
+  %#141 = or disjoint i32 %#136, %#138
+  %or20100.i536 = or disjoint i32 %#141, %#140
+  %or32102.i546 = or disjoint i32 %or20100.i536, 1
+  %cmp34.i549.not = icmp eq i32 %#107, 1
+  br i1 %cmp34.i549.not, label %if.end51.i550, label %if.then35.i569
+
+if.then35.i569:
+  %add.i571 = add nsw nuw i32 %k.0.i534, 1
+  %idxprom37.i572 = zext nneg i32 %add.i571 to i64
+  %arrayidx38.i573 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom37.i572
+  %#142 = load i32, ptr %arrayidx38.i573, align 4
+  %and39.i574 = shl i32 %#142, 21
+  %#143 = and i32 %and39.i574, 6291456
+  %arrayidx46.i576 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom37.i572
+  %#144 = load i32, ptr %arrayidx46.i576, align 4
+  %and47.i577 = shl i32 %#144, 23
+  %#145 = and i32 %and47.i577, 2139095040
+  %#146 = or disjoint i32 %#143, %#145
+  %or50104.i578 = or disjoint i32 %#146, %or32102.i546
+  br label %if.end51.i550
+
+if.end51.i550:
+  %r.1.in.i551 = phi i32 [ %or50104.i578, %if.then35.i569 ], [ %or32102.i546, %if.end18.i ]
+  %r.1.i552 = zext nneg i32 %r.1.in.i551 to i64
+  %cmp52.i553 = icmp ugt i32 %#107, 2
+  br i1 %cmp52.i553, label %_ZL8l_finishRKN8twinleaf5StateE.exit.sink.split, label %_ZL8l_finishRKN8twinleaf5StateE.exit
+
+if.then.i:
+  %switch.tableidx1547 = add i32 %#107, 4294967292
+  %#147 = icmp ult i32 %switch.tableidx1547, 3
+  %switch.offset1548 = add i32 %#107, 4294967293
+  %k.0.i638 = select i1 %#147, i32 %switch.offset1548, i32 0
+  %and17.i639 = shl i32 %#107, 8
+  %#148 = and i32 %and17.i639, 1792
+  %or20100.i640 = or disjoint i32 %#148, 7
+  %cmp21.not.i641 = icmp eq i32 %#107, 0
+  br i1 %cmp21.not.i641, label %if.end33.i651, label %if.then22.i642
+
+if.then22.i642:
+  %idxprom.i644 = zext nneg i32 %k.0.i638 to i64
+  %arrayidx.i645 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom.i644
+  %#149 = load i32, ptr %arrayidx.i645, align 4
+  %and23.i646 = shl i32 %#149, 11
+  %#150 = and i32 %and23.i646, 6144
+  %arrayidx28.i648 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom.i644
+  %#151 = load i32, ptr %arrayidx28.i648, align 4
+  %and29.i649 = shl i32 %#151, 13
+  %#152 = and i32 %and29.i649, 2088960
+  %#153 = or disjoint i32 %#150, %#152
+  %or32102.i650 = or disjoint i32 %#153, %or20100.i640
+  br label %if.end33.i651
+
+if.end33.i651:
+  %r.0.in.i652 = phi i32 [ %or32102.i650, %if.then22.i642 ], [ %or20100.i640, %if.then.i ]
+  %cmp34.i653 = icmp ugt i32 %#107, 1
+  br i1 %cmp34.i653, label %if.then35.i673, label %if.end51.i654
+
+if.then35.i673:
+  %add.i675 = add nsw nuw i32 %k.0.i638, 1
+  %idxprom37.i676 = zext nneg i32 %add.i675 to i64
+  %arrayidx38.i677 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom37.i676
+  %#154 = load i32, ptr %arrayidx38.i677, align 4
+  %and39.i678 = shl i32 %#154, 21
+  %#155 = and i32 %and39.i678, 6291456
+  %arrayidx46.i680 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom37.i676
+  %#156 = load i32, ptr %arrayidx46.i680, align 4
+  %and47.i681 = shl i32 %#156, 23
+  %#157 = and i32 %and47.i681, 2139095040
+  %#158 = or disjoint i32 %#155, %#157
+  %or50104.i682 = or i32 %#158, %r.0.in.i652
+  br label %if.end51.i654
+
+if.end51.i654:
+  %r.1.in.i655 = phi i32 [ %or50104.i682, %if.then35.i673 ], [ %r.0.in.i652, %if.end33.i651 ]
+  %r.1.i656 = zext nneg i32 %r.1.in.i655 to i64
+  %cmp52.i657 = icmp ugt i32 %#107, 2
+  br i1 %cmp52.i657, label %_ZL8l_finishRKN8twinleaf5StateE.exit.sink.split, label %_ZL8l_finishRKN8twinleaf5StateE.exit
+
+_ZL8l_finishRKN8twinleaf5StateE.exit.sink.split:
+  %k.0.i534.sink = phi i32 [ %k.0.i638, %if.end51.i654 ], [ %k.0.i586, %if.end51.i602 ], [ %k.0.i534, %if.end51.i550 ]
+  %r.1.i552.sink = phi i64 [ %r.1.i656, %if.end51.i654 ], [ %r.1.i604, %if.end51.i602 ], [ %r.1.i552, %if.end51.i550 ]
+  %add55.i557 = add nsw nuw i32 %k.0.i534.sink, 2
+  %idxprom56.i558 = zext nneg i32 %add55.i557 to i64
+  %arrayidx57.i559 = gep inbounds nuw ptr %len.i1460, 24 x i64 0, 4 x i64 %idxprom56.i558
+  %#159 = load i32, ptr %arrayidx57.i559, align 4
+  %and58.i560 = and i32 %#159, 3
+  %conv59.i561 = zext nneg i32 %and58.i560 to i64
+  %shl60.i562 = shl nsw nuw i64 %conv59.i561, 31
+  %arrayidx65.i564 = gep inbounds nuw ptr %val.i1466, 24 x i64 0, 4 x i64 %idxprom56.i558
+  %#160 = load i32, ptr %arrayidx65.i564, align 4
+  %and66.i565 = and i32 %#160, 255
+  %conv67.i566 = zext nneg i32 %and66.i565 to i64
+  %shl68.i567 = shl nsw nuw i64 %conv67.i566, 33
+  %#161 = or disjoint i64 %shl68.i567, %shl60.i562
+  %or69.i568 = or disjoint i64 %#161, %r.1.i552.sink
+  br label %_ZL8l_finishRKN8twinleaf5StateE.exit
+
+_ZL8l_finishRKN8twinleaf5StateE.exit:
+  %retval.1.i = phi i64 [ %r.1.i656, %if.end51.i654 ], [ %r.1.i604, %if.end51.i602 ], [ %r.1.i552, %if.end51.i550 ], [ %or69.i568, %_ZL8l_finishRKN8twinleaf5StateE.exit.sink.split ], [ 8, %if.end.i ]
+  end_lifetime ptr %s.i136
+  br label %cleanup75
+
+cleanup75:
+  %retval.7 = phi i64 [ %retval.1.i, %_ZL8l_finishRKN8twinleaf5StateE.exit ], [ %retval.6, %cleanup69 ], [ %retval.5, %cleanup57 ], [ %retval.4, %cleanup45 ], [ %retval.3, %cleanup33 ]
+  end_lifetime ptr %st
+  ret i64 %retval.7
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green

@@ -1,0 +1,146 @@
+# cell: policy-flags/C-L-cleanstack-base
+# tool: alive-tv v20.0 (LLVM 20.1.2)
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# roots: cell_cleanstack
+# direction: each root is checked in both directions (L⊑C then C⊑L)
+# modules: tracked textual IR in ir/ (llvm-dis of the compiled .bc)
+
+===== cell_cleanstack (L ⊑ C) =====
+# command: alive-tv ir/c_cell_cleanstack.ll ir/l_cell_cleanstack.ll
+
+----------------------------------------
+define i64 @cell_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 1
+  br i1 %cmp.i, label %_Z12c_cleanstackmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %sigversion, 0
+  br i1 %cmp1.i, label %if.then2.i, label %if.else.i
+
+if.then2.i:
+  %and.i = and i64 noundef %flags, 256
+  %cmp3.i = icmp ne i64 %and.i, 0
+  %cmp5.i = icmp ne i64 noundef %finalLen, 1
+  %or.cond.i = and i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond.i, label %_Z12c_cleanstackmmm.exit, label %if.end12.i
+
+if.else.i:
+  %cmp9.not.i = icmp eq i64 noundef %finalLen, 1
+  br i1 %cmp9.not.i, label %if.end12.i, label %_Z12c_cleanstackmmm.exit
+
+if.end12.i:
+  br label %_Z12c_cleanstackmmm.exit
+
+_Z12c_cleanstackmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end12.i ], [ 255, %entry ], [ 30, %if.then2.i ], [ 30, %if.else.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 1
+  br i1 %cmp.i, label %_Z12l_cleanstackmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %sigversion, 0
+  br i1 %cmp2.i, label %if.then3.i, label %if.else.i
+
+if.then3.i:
+  %and.i = and i64 noundef %flags, 256
+  %cmp1.i = icmp ne i64 %and.i, 0
+  %cmp4.i = icmp ne i64 noundef %finalLen, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp4.i
+  br i1 %or.cond.i, label %_Z12l_cleanstackmmm.exit, label %if.end10.i
+
+if.else.i:
+  %cmp7.not.i = icmp eq i64 noundef %finalLen, 1
+  br i1 %cmp7.not.i, label %if.end10.i, label %_Z12l_cleanstackmmm.exit
+
+if.end10.i:
+  br label %_Z12l_cleanstackmmm.exit
+
+_Z12l_cleanstackmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end10.i ], [ 30, %if.then3.i ], [ 30, %if.else.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+===== cell_cleanstack (C ⊑ L) =====
+# command: alive-tv ir/l_cell_cleanstack.ll ir/c_cell_cleanstack.ll
+
+----------------------------------------
+define i64 @cell_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 1
+  br i1 %cmp.i, label %_Z12l_cleanstackmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp2.i = icmp eq i64 noundef %sigversion, 0
+  br i1 %cmp2.i, label %if.then3.i, label %if.else.i
+
+if.then3.i:
+  %and.i = and i64 noundef %flags, 256
+  %cmp1.i = icmp ne i64 %and.i, 0
+  %cmp4.i = icmp ne i64 noundef %finalLen, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp4.i
+  br i1 %or.cond.i, label %_Z12l_cleanstackmmm.exit, label %if.end10.i
+
+if.else.i:
+  %cmp7.not.i = icmp eq i64 noundef %finalLen, 1
+  br i1 %cmp7.not.i, label %if.end10.i, label %_Z12l_cleanstackmmm.exit
+
+if.end10.i:
+  br label %_Z12l_cleanstackmmm.exit
+
+_Z12l_cleanstackmmm.exit:
+  %retval.1.i = phi i64 [ 255, %entry ], [ 0, %if.end10.i ], [ 30, %if.then3.i ], [ 30, %if.else.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_cleanstack(i64 noundef %flags, i64 noundef %sigversion, i64 noundef %finalLen) nofree willreturn memory(none) {
+entry:
+  %cmp.i = icmp ugt i64 noundef %sigversion, 1
+  br i1 %cmp.i, label %_Z12c_cleanstackmmm.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp eq i64 noundef %sigversion, 0
+  br i1 %cmp1.i, label %if.then2.i, label %if.else.i
+
+if.then2.i:
+  %and.i = and i64 noundef %flags, 256
+  %cmp3.i = icmp ne i64 %and.i, 0
+  %cmp5.i = icmp ne i64 noundef %finalLen, 1
+  %or.cond.i = and i1 %cmp3.i, %cmp5.i
+  br i1 %or.cond.i, label %_Z12c_cleanstackmmm.exit, label %if.end12.i
+
+if.else.i:
+  %cmp9.not.i = icmp eq i64 noundef %finalLen, 1
+  br i1 %cmp9.not.i, label %if.end12.i, label %_Z12c_cleanstackmmm.exit
+
+if.end12.i:
+  br label %_Z12c_cleanstackmmm.exit
+
+_Z12c_cleanstackmmm.exit:
+  %retval.0.i = phi i64 [ 0, %if.end12.i ], [ 255, %entry ], [ 30, %if.then2.i ], [ 30, %if.else.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 0, i64 256
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+STATUS=alive2-green (2 direction checks)

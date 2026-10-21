@@ -1,0 +1,32 @@
+import "cell.cry";
+mC <- llvm_load_module "c_cell_guard.bc";
+mL <- llvm_load_module "l_cell_guard.bc";
+mCd <- llvm_load_module "c_cell_default.bc";
+mLd <- llvm_load_module "l_cell_default.bc";
+
+// SCR-170/171: both legs against the independent predicate, for every
+// 32-bit w, sigversion selector, op-count and fExec value.
+let sGuard = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  fe <- llvm_fresh_var "fe" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term sv, llvm_term oc, llvm_term fe];
+  llvm_return (llvm_term {{ guard w sv oc fe }});
+};
+llvm_verify mC "cell_guard" [] false sGuard abc;
+llvm_verify mL "cell_guard" [] false sGuard abc;
+
+// SCR-174: the same guards plus the switch/default classification.
+let sDefault = do {
+  w  <- llvm_fresh_var "w"  (llvm_int 8);
+  sv <- llvm_fresh_var "sv" (llvm_int 32);
+  oc <- llvm_fresh_var "oc" (llvm_int 32);
+  fe <- llvm_fresh_var "fe" (llvm_int 32);
+  llvm_execute_func [llvm_term w, llvm_term sv, llvm_term oc, llvm_term fe];
+  llvm_return (llvm_term {{ dispatchOut w sv oc fe }});
+};
+llvm_verify mCd "cell_default" [] false sDefault abc;
+llvm_verify mLd "cell_default" [] false sDefault abc;
+
+print "CELL_W32_DISABLED_DISPATCH_SAW_GREEN";
