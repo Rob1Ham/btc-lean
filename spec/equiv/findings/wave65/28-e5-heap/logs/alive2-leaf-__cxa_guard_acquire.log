@@ -1,0 +1,38 @@
+# alive-tv self-comparison (translation check only, not a proof)
+# func: __cxa_guard_acquire
+
+----------------------------------------
+define i32 @__cxa_guard_acquire(ptr %g) {
+entry:
+  %b = load i8, ptr %g, align 8
+  %z = icmp eq i8 %b, 0
+  br i1 %z, label %init, label %done
+
+done:
+  ret i32 0
+
+init:
+  store i8 1, ptr %g, align 8
+  ret i32 1
+}
+=>
+define i32 @__cxa_guard_acquire(ptr %g) {
+entry:
+  %b = load i8, ptr %g, align 8
+  %z = icmp eq i8 %b, 0
+  br i1 %z, label %init, label %done
+
+done:
+  ret i32 0
+
+init:
+  store i8 1, ptr %g, align 8
+  ret i32 1
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

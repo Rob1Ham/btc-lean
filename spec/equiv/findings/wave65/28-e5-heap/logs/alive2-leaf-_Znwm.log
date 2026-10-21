@@ -1,0 +1,44 @@
+# alive-tv self-comparison (translation check only, not a proof)
+# func: _Znwm
+
+----------------------------------------
+declare ptr @w65_alloc_raw(i64)
+declare void @_ZSt17__throw_bad_allocv() noreturn
+
+define ptr @_Znwm(i64 noundef %n) nofree noundef noalias willreturn alloc-family(_Znwm) allockind(alloc, uninitialized) allocsize(0) {
+entry:
+  %p = call ptr @w65_alloc_raw(i64 noundef %n)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %throw, label %ret
+
+ret:
+  ret ptr %p
+
+throw:
+  call void @_ZSt17__throw_bad_allocv() noreturn
+  assume i1 0
+}
+=>
+declare ptr @w65_alloc_raw(i64)
+declare void @_ZSt17__throw_bad_allocv() noreturn
+
+define ptr @_Znwm(i64 noundef %n) nofree noundef noalias willreturn alloc-family(_Znwm) allockind(alloc, uninitialized) allocsize(0) {
+entry:
+  %p = call ptr @w65_alloc_raw(i64 noundef %n)
+  %isnull = icmp eq ptr %p, null
+  br i1 %isnull, label %throw, label %ret
+
+ret:
+  ret ptr %p
+
+throw:
+  call void @_ZSt17__throw_bad_allocv() noreturn
+  assume i1 0
+}
+Transformation seems to be correct! (syntactically equal)
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
