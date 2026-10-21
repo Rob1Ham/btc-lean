@@ -645,6 +645,31 @@ def _partial_coverage(cell: Cell, rule_id: str) -> bool:
     return False
 
 
+def _row_coverage_text(cell: Cell, rule_id: str) -> str:
+    """Return the coverage bullet for one row, not sibling-row bullets."""
+    cov = cell.spec.get("scr_row_coverage")
+    if not isinstance(cov, str):
+        return ""
+    text = cov.strip()
+    for match in re.finditer(
+        r"(?ms)^\s*-\s*(SCR-\d+)\b(.*?)(?=^\s*-\s*SCR-\d+\b|\Z)", text
+    ):
+        if match.group(1) == rule_id:
+            return match.group(0).strip()
+    # No per-row bullet: keep the first paragraph, not a wall of sibling data.
+    out = re.split(r"\n\s*\n", text, maxsplit=1)[0].strip()
+    if len(out) < 80:
+        notes = cell.path / "notes.md"
+        if notes.is_file():
+            m = re.search(
+                r"(?ms)^##\s+Why partial\s*(.*?)(?=^##\s|\Z)",
+                notes.read_text(errors="replace"),
+            )
+            if m:
+                return re.sub(r"\s+", " ", m.group(1)).strip()
+    return out
+
+
 def _green_record(cell: Cell, leg: Leg) -> dict[str, Any]:
     return {
         "result": "green",
@@ -728,7 +753,7 @@ def compute_row_states(
         if status == "gap" and partial_green and not red:
             notes = []
             for cell in partial_green:
-                cov = _as_text(cell.spec.get("scr_row_coverage"))
+                cov = _row_coverage_text(cell, rule_id)
                 notes.append(f"{cell.rel}: {cov}")
             note = "auto(cells): partial row coverage; " + "; ".join(notes)
             states[rule_id] = RowState(
@@ -762,7 +787,9 @@ def compute_row_states(
                 both = [
                     cell
                     for cell in row_cells
-                    if cell.alive2.state == "green" and cell.saw.state == "green"
+                    if cell.alive2.state == "green"
+                    and cell.saw.state == "green"
+                    and not _partial_coverage(cell, rule_id)
                 ]
                 alive2_cell = both[0] if both else alive2_green[0]
                 saw_cell = both[0] if both else saw_green[0]
