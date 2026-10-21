@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -42,6 +43,32 @@ def digest(path: Path) -> str:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def drop_git_ignored(files: set[Path]) -> set[Path]:
+    """Drop generated/ignored paths while keeping untracked new-cell inputs.
+
+    The normalizer may run before a new cell is committed, so a tracked-files
+    check would incorrectly discard the cell itself.  ``git check-ignore``
+    distinguishes generated build artifacts from new source inputs.
+    """
+    rels: dict[Path, str] = {}
+    for p in files:
+        try:
+            rels[p] = p.resolve().relative_to(ROOT).as_posix()
+        except ValueError:
+            continue
+    if not rels:
+        return set()
+    proc = subprocess.run(
+        ["git", "-C", str(ROOT), "check-ignore", "--stdin"],
+        input="\n".join(rels.values()),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    ignored = set(proc.stdout.splitlines())
+    return {p for p, rel in rels.items() if rel not in ignored}
 
 
 def wanted(path: Path) -> bool:
@@ -108,6 +135,7 @@ def main() -> int:
         for required in (cell / "spec.md", result):
             if required.is_file():
                 files.add(required.resolve())
+        files = drop_git_ignored(files)
         entries = []
         for p in files:
             try:
