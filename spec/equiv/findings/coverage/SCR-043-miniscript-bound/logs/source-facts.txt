@@ -1,0 +1,198 @@
++ git -C /tmp/pcore01 rev-parse HEAD
+cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66
++ git -C /tmp/pcore01 status --porcelain -- src/script/interpreter.cpp src/script/script.h
+ M src/script/interpreter.cpp
+ M src/script/script.h
++ git -C /tmp/pcore01 grep -n MAX_PUBKEYS_PER_MULTI_A HEAD -- src
+HEAD:src/script/descriptor.cpp:2469:        } else if ((multi_a || sortedmulti_a) && (providers.empty() || providers.size() > MAX_PUBKEYS_PER_MULTI_A)) {
+HEAD:src/script/descriptor.cpp:2470:            error = strprintf("Cannot have %u keys in multi_a; must have between 1 and %d keys, inclusive", providers.size(), MAX_PUBKEYS_PER_MULTI_A);
+HEAD:src/script/miniscript.cpp:79:        CHECK_NONFATAL(n_keys >= 1 && n_keys <= MAX_PUBKEYS_PER_MULTI_A);
+HEAD:src/script/miniscript.h:1879:        const auto max_keys{is_multi_a ? MAX_PUBKEYS_PER_MULTI_A : MAX_PUBKEYS_PER_MULTISIG};
+HEAD:src/script/miniscript.h:2404:                if (*k < 1 || *k > MAX_PUBKEYS_PER_MULTI_A) return {};
+HEAD:src/script/miniscript.h:2418:                    if (keys.size() > MAX_PUBKEYS_PER_MULTI_A) return {};
+HEAD:src/script/script.h:38:inline constexpr unsigned int MAX_PUBKEYS_PER_MULTI_A = 999;
+HEAD:src/script/solver.cpp:124:    if (keyspans.size() == 0 || keyspans.size() > MAX_PUBKEYS_PER_MULTI_A) return {};
++ sed -n 35,45p
++ git -C /tmp/pcore01 show HEAD:src/script/script.h
+inline constexpr int MAX_PUBKEYS_PER_MULTISIG = 20;
+
+/** The limit of keys in OP_CHECKSIGADD-based scripts. It is due to the stack limit in BIP342. */
+inline constexpr unsigned int MAX_PUBKEYS_PER_MULTI_A = 999;
+
+// Maximum script length in bytes
+inline constexpr int MAX_SCRIPT_SIZE{10'000};
+
+// Maximum number of values on script interpreter stack
+inline constexpr int MAX_STACK_SIZE = 1000;
+
++ echo '--- interpreter/consensus references (expect none) ---'
+--- interpreter/consensus references (expect none) ---
++ git -C /tmp/pcore01 show HEAD:src/script/interpreter.cpp
++ grep -n MAX_PUBKEYS_PER_MULTI_A
++ echo 'rc=1 (no match)'
+rc=1 (no match)
++ grep -n MAX_PUBKEYS_PER_MULTI_A
++ git -C /tmp/pcore01 show HEAD:src/script/interpreter.h
++ echo 'rc=1 (no match)'
+rc=1 (no match)
++ git -C /tmp/pcore01 grep -n MAX_PUBKEYS_PER_MULTI_A HEAD -- src/consensus
++ echo 'rc=1 (no match)'
+rc=1 (no match)
++ echo '--- interpreter limits that ARE read (pin line numbers via git show) ---'
+--- interpreter limits that ARE read (pin line numbers via git show) ---
++ grep -n 'MAX_PUBKEYS_PER_MULTISIG\|MAX_SCRIPT_SIZE\|MAX_STACK_SIZE'
++ git -C /tmp/pcore01 show HEAD:src/script/interpreter.cpp
+438:    if ((sigversion == SigVersion::BASE || sigversion == SigVersion::WITNESS_V0) && script.size() > MAX_SCRIPT_SIZE) {
+1127:                    if (nKeysCount < 0 || nKeysCount > MAX_PUBKEYS_PER_MULTISIG)
+1232:            if (stack.size() + altstack.size() > MAX_STACK_SIZE)
+1865:        if (stack.size() > MAX_STACK_SIZE) return set_error(serror, SCRIPT_ERR_STACK_SIZE);
++ echo '--- CHECK_NONFATAL throws ---'
+--- CHECK_NONFATAL throws ---
++ sed -n '70,80p;110,114p'
++ git -C /tmp/pcore01 show HEAD:src/util/check.h
+/** Helper for CHECK_NONFATAL() */
+template <typename T>
+T&& inline_check_non_fatal(LIFETIMEBOUND T&& val, const std::source_location& loc, std::string_view assertion)
+{
+    if (!val) {
+        if constexpr (G_ABORT_ON_FAILED_ASSUME) {
+            assertion_fail(loc, assertion);
+        }
+        throw NonFatalCheckError{assertion, loc};
+    }
+    return std::forward<T>(val);
+ * caller, which can then report the issue to the developers.
+ */
+#define CHECK_NONFATAL(condition) \
+    inline_check_non_fatal(condition, std::source_location::current(), #condition)
+
++ echo '--- miniscript bound sites ---'
+--- miniscript bound sites ---
++ git -C /tmp/pcore01 show HEAD:src/script/miniscript.h
++ sed -n '1878,1880p;1899,1903p;2402,2406p;2416,2420p'
+    const auto parse_multi_exp = [&](std::span<const char>& in, const bool is_multi_a) -> bool {
+        const auto max_keys{is_multi_a ? MAX_PUBKEYS_PER_MULTI_A : MAX_PUBKEYS_PER_MULTISIG};
+        const auto required_ctx{is_multi_a ? MiniscriptContext::TAPSCRIPT : MiniscriptContext::P2WSH};
+            in = in.subspan(key_length + 1);
+        }
+        if (keys.size() < 1 || keys.size() > max_keys) return false;
+        if (k < 1 || k > (int64_t)keys.size()) return false;
+        if (is_multi_a) {
+                const auto k = ParseScriptNumber(in[1]);
+                if (!k) return {};
+                if (*k < 1 || *k > MAX_PUBKEYS_PER_MULTI_A) return {};
+                if (last - in < 2 + *k * 2) return {};
+                std::vector<Key> keys;
+                    keys.push_back(std::move(*key));
+                    // Make sure early we don't parse an arbitrary large expression.
+                    if (keys.size() > MAX_PUBKEYS_PER_MULTI_A) return {};
+                    // OP_CHECKSIG means it was the last one to parse.
+                    if (in[pos].first == OP_CHECKSIG) break;
++ git -C /tmp/pcore01 show HEAD:src/script/miniscript.cpp
++ sed -n 77,81p
+        CHECK_NONFATAL(!IsTapscript(ms_ctx));
+    } else if (fragment == Fragment::MULTI_A) {
+        CHECK_NONFATAL(n_keys >= 1 && n_keys <= MAX_PUBKEYS_PER_MULTI_A);
+        CHECK_NONFATAL(IsTapscript(ms_ctx));
+    } else {
++ git -C /tmp/pcore01 show HEAD:src/script/solver.cpp
++ sed -n 122,126p
+        ++it;
+    }
+    if (keyspans.size() == 0 || keyspans.size() > MAX_PUBKEYS_PER_MULTI_A) return {};
+
+    // Parse threshold.
++ sed -n 2467,2472p
++ git -C /tmp/pcore01 show HEAD:src/script/descriptor.cpp
+            error = strprintf("Cannot have %u keys in multisig; must have between 1 and %d keys, inclusive", providers.size(), MAX_PUBKEYS_PER_MULTISIG);
+            return {};
+        } else if ((multi_a || sortedmulti_a) && (providers.empty() || providers.size() > MAX_PUBKEYS_PER_MULTI_A)) {
+            error = strprintf("Cannot have %u keys in multi_a; must have between 1 and %d keys, inclusive", providers.size(), MAX_PUBKEYS_PER_MULTI_A);
+            return {};
+        } else if (thres < 1) {
++ echo '--- enclosing parse entry points ---'
+--- enclosing parse entry points ---
++ git -C /tmp/pcore01 show HEAD:src/script/miniscript.h
++ grep -n 'inline std::optional<Node<Key>> Parse(\|inline std::optional<Node<Key>> DecodeScript(\|inline std::optional<Node<typename Ctx::Key>> FromString\|inline std::optional<Node<typename Ctx::Key>> FromScript'
+1854:inline std::optional<Node<Key>> Parse(std::span<const char> in, const Ctx& ctx)
+2296:inline std::optional<Node<Key>> DecodeScript(I& in, I last, const Ctx& ctx)
+2685:inline std::optional<Node<typename Ctx::Key>> FromString(const std::string& str, const Ctx& ctx)
+2691:inline std::optional<Node<typename Ctx::Key>> FromScript(const CScript& script, const Ctx& ctx)
++ echo '--- ABI entry / no descriptor channel ---'
+--- ABI entry / no descriptor channel ---
++ sed -n 15,24p ../../../contract/ABI.md
+```c
+/* Normative, proof-bearing symbol. `error_kind` MUST be non-NULL. */
+extern "C" int equiv_entry(
+    const uint8_t *tx_bytes, uint64_t tx_len,   /* serialized tx, TX_WITH_WITNESS */
+    const uint8_t *spk,      uint64_t spk_len,  /* scriptPubKey, raw bytes */
+    int64_t amount,                              /* value of the spent output */
+    uint32_t input_index,                        /* input being verified */
+    uint64_t flags,                              /* Core script-verify flag bits */
+    equiv_error_kind *error_kind);               /* out: shared taxonomy */
+
++ grep -n 'Miniscript\|Descriptor' ../../../shims/core/entry.cpp
++ echo 'rc=1 (no match)'
+rc=1 (no match)
++ python3 -
+manifest TU count: 15
+miniscript/descriptor in manifest: []
++ echo '--- Lean side ---'
+--- Lean side ---
++ grep -n MAX_PUBKEYS_PER_MULTI_A ../../../../../spec/core/Bitcoin/Interpreter/Rules.lean
+346:/-- `MAX_PUBKEYS_PER_MULTI_A` (script.h:37-38): the tapscript
+351:def MAX_PUBKEYS_PER_MULTI_A : Nat := 999
++ sed -n 344,353p ../../../../../spec/core/Bitcoin/Interpreter/Rules.lean
+def MAX_STANDARD_TX_SIGOPS_COST : Nat := 16000
+
+/-- `MAX_PUBKEYS_PER_MULTI_A` (script.h:37-38): the tapscript
+CHECKMULTISIG-mimic (miniscript `multi_a`) pubkey bound — a
+miniscript-side resource limit, not an interpreter check (the BIP342
+interpreter never reads it; it bounds script construction). -/
+@[rule "SCR-043"]
+def MAX_PUBKEYS_PER_MULTI_A : Nat := 999
+
+/-- `MIN_TRANSACTION_WEIGHT` (consensus/consensus.h:24): the lower bound
++ grep -n 'MAX_PUBKEYS_PER_MULTI_A_eq\|MAX_PUBKEYS_PER_MULTI_A_lt_thousand' -A3 ../../../../../spec/proofs/BitcoinProofs/AF/PDW36/PDW36.lean
+196:theorem MAX_PUBKEYS_PER_MULTI_A_eq : MAX_PUBKEYS_PER_MULTI_A = 999 := rfl
+197-
+198-/-- **SCR-043** bound face: the 999 cap is strictly below 1000, so any
+199-`multi_a` script family stays under the 1000-pubkey resource tier. -/
+200:theorem MAX_PUBKEYS_PER_MULTI_A_lt_thousand :
+201-    MAX_PUBKEYS_PER_MULTI_A < 1000 := by
+202:  rw [MAX_PUBKEYS_PER_MULTI_A_eq]
+203-  decide
+204-
+205-end BitcoinProofs.AF.PDW36
++ sed -n 10,26p ../../../../../spec/core/Bitcoin/Wallet/Miniscript/Node.lean
+`tapscript`.  The model does **not** validate key encodings; that belongs
+to the key-expression and descriptor layers.
+
+`calcType` is a direct transliteration of
+`internal::ComputeType` (`src/script/miniscript.cpp:43-259`), including
+Core's per-fragment "k" timelock-mix rule for `and_v`, `and_b`, `or_b`,
+`or_d`, `or_c`, `or_i` and `thresh`.  Invalid parameters that Core rejects
+while parsing (for example `older(0)`, `multi(k)` with `k > n`, or a
+`multi_a` outside tapscript) yield the empty type, so that `IsSane`
+rejects them.
+
+Modelled fragments: `pk_k`, `pk_h`, `older`, `after`, `sha256`, `hash256`,
+`ripemd160`, `hash160`, the wrappers `a s c d v j n`, and `and_v`,
+`and_b`, `or_b`, `or_d`, `or_c`, `or_i`, `thresh`, `multi`, `multi_a`.
+The constant fragments `0`/`1`, `andor` and its `and_n` abbreviation, and
+the policy compiler are **not** modelled.
+-/
++ sed -n 438,445p ../../../../../spec/core/Bitcoin/Wallet/Miniscript/Node.lean
+  | .multi k ks =>
+    if ctx = .tapscript || k = 0 || k > ks.length || ks.length > 20 then MSType.empty
+    else ty [.B, .n, .u, .d, .e, .m, .s, .k]
+  | .multiA k ks =>
+    if ctx = .p2wsh || k = 0 || k > ks.length || ks.length > 999 then MSType.empty
+    else ty [.B, .u, .d, .e, .m, .s, .k]
+
+termination_by n => sizeOf n
++ grep -n 'no policy compiler' -A1 ../../../../../spec/core/Bitcoin/Wallet/Miniscript.lean
+18:Scope limits: no policy compiler, no descriptor parser, no `ToString` or
+19-`FromScript`, no `just_0`/`just_1`/`andor`, and no malleability model.
++ grep -n MS-035 ../../../../../spec/db/rules-wallet.obligations.tsv
+66:MS-035	theorem	no obligation: unmodelled	FromString accepts multi_a only in TAPSCRIPT context and multi only in P2WSH context, and rejects key counts above the context's MAX_PUBKEYS bound.	Bitcoin.Wallet.Miniscript.Satisfy	No Miniscript FromString parser is committed (Bitcoin/Wallet/Miniscript.lean scope note: no FromString); Core anchor script/miniscript.h:1901. No API for context-sensitive multi/multi_a acceptance or the MAX_PUBKEYS bound.
