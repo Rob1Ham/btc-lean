@@ -12,8 +12,8 @@ cd /home/ubuntu/btc-lean-public/spec/equiv
 ```
 
 Bitcode under `/tmp/opencode/equiv-work/` is regenerable and deliberately not
-tracked. `spec/equiv/` itself is untracked in the surrounding repo; all changes
-remain uncommitted by instruction.
+tracked. `spec/equiv/` is tracked on PR #29; generated `build/` outputs and
+`/tmp` artifacts remain uncommitted.
 
 ---
 
@@ -96,16 +96,16 @@ Observed:
 OK    all required pins are filled
 
 == 2. cell records ==
-  cell directories: 17; with a record file: 17
+  cell directories: 177; with a record file: 177
 
 == 3. SCR coverage ==
   SCR rows in rules.yaml: 183
   rows in equiv-cells.yaml: 183
-  status counts: both-green=152, gap=29, unjudged-seam=2
+  status counts: both-green=159, gap=23, unjudged-seam=1
 OK    all 183 SCR rows adjudicated
 
 == summary ==
-  cell records: 17
+  cell records: 177
   failures: 0; warnings: 0
 RESULT: PASS
 rc=0
@@ -156,8 +156,8 @@ rc=0
 ```
 
 **Reading:** the suite is green at the tool level and the ledger is fully
-adjudicated, but only 152 SCR rows are both-tool green. The remaining 2 are
-unjudged seams and 29 are filed gaps; partial cells do not promote rows.
+adjudicated, but only 159 SCR rows are both-tool green. The remaining 1 is
+an unjudged seam and 23 are filed gaps; partial cells do not promote rows.
 
 ---
 
@@ -212,7 +212,7 @@ M-E1-008, M-E2-010, M-E4-004.
 - `make equiv` green means **every recorded cell has a raw tool success
   marker**, not that its SCR row is fully covered. Read `scr_row_coverage`.
 - The authoritative green-row list is `results/matrix.md`; the ledger is
-  152/2/29 after the wave65/32 audit correction.
+  159/1/23 after the wave66 accepted-cell integration.
 - No whole-function `VerifyScript`/`EvalScript` proof exists. E5 is a scoped
   residual (`findings/e5/E5-RESIDUAL.md`); its one green empty-script SAW run
   is concolic/non-pin and is not a ledger row.
@@ -220,8 +220,9 @@ M-E1-008, M-E2-010, M-E4-004.
 - Crypto/hash transforms are abstracted or concrete-witness only; the claim is
   conditional on same-crypto (`docs/DECISION-lax-ecdsa.md`).
 - Core patches P-CORE-01/02/03 are PROPOSED and used by no green cell.
-- The tree is untracked; results are reproducible from the working tree and
-  pins, not from a commit.
+- `spec/equiv/` is tracked on PR #29; generated `build/` outputs are not
+  committed. Results are reproducible from the tree and pins, and the
+  certificated inputs are hash-pinned.
 
 ---
 

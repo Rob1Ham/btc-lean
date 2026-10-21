@@ -1,19 +1,19 @@
 # Cell index — all recorded cells
 
-**Snapshot:** `2026-10-20` (wave64 integration)
+**Snapshot:** `2026-10-21` (wave66 accepted integration)
 Contract: `f1841e36406389d6589c870da1f153ce6ddb0a5663ef0191f11cf15c7773c1c6`.
 Pinned Core: `cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66`.
 
-There are **164 valid cell directories**; all have Alive2 and SAW attempts
+There are **177 valid cell directories**; all have Alive2 and SAW attempts
 or a filed inapplicability, and replayable certificates. Only cells whose
 `scr_row_coverage` is `full` for the named row promote that ledger row;
-per-row `partial` coverage is honoured. The current ledger is **152
-both-green, 2 unjudged-seam, 29 filed gap, 0 planned**. `gate-ir-pin` replays
-344 certificates with 0 failures. See `../results/matrix.md` and
+per-row `partial` coverage is honoured. The current ledger is **159
+both-green, 1 unjudged-seam, 23 filed gap, 0 planned**. `gate-ir-pin` replays
+376 certificates with 0 failures. See `../results/matrix.md` and
 `../findings/coverage/F-E6-GAPS.md` for the authoritative generated view.
 
 The table below is retained as the historical E1/E2/E3/E4 core-cell set; the
-wave-16/32/64 cells are listed in the generated matrix and find gaps.
+wave-16/32/64/65/66 cells are listed in the generated matrix and findings.
 
 | Cell | Family | Alive2 | SAW | SCR rows | Row coverage |
 |---|---|---|---|---|---|

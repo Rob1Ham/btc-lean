@@ -1,0 +1,292 @@
+# SCR-008 full-domain probe — PINNED Lean model
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# defs_blob=363d3738b66049e260577e9c1fa2cd24d05f6e3b
+# command: alive-tv build/c_core.ll build/l_pinned.ll
+# expected: counterexample at p2sh=1 spk_p2sh=1 witness=1 redeem_wit=1 cleanstack=1 inner_len!=1
+
+
+----------------------------------------
+define i64 @probe_scr008(i64 noundef %cleanstack, i64 noundef %witness, i64 noundef %p2sh, i64 noundef %st_n, i64 noundef %spk_wit, i64 noundef %spk_p2sh, i64 noundef %redeem_wit, i64 noundef %ss_push_ok, i64 noundef %sig_n, i64 noundef %wit_n, i64 noundef %inner_len) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %cleanstack, 1
+  %and1 = and i64 noundef %witness, 1
+  %and3 = and i64 noundef %st_n, 3
+  %and7 = and i64 noundef %ss_push_ok, 1
+  %and8 = and i64 noundef %sig_n, 3
+  %and9 = and i64 noundef %wit_n, 3
+  %and10 = and i64 noundef %inner_len, 3
+  %#0 = and i64 noundef %spk_wit, 1
+  %#1 = and i64 %#0, noundef %spk_p2sh
+  %or.cond.i = icmp ne i64 %#1, 0
+  %cmp.i = icmp eq i64 %and3, 0
+  %or.cond64.i = or i1 %cmp.i, %or.cond.i
+  br i1 %or.cond64.i, label %_ZL6c_coremmmmmmmmmmm.exit, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  %#2 = and i64 noundef %spk_p2sh, 1
+  %#3 = and i64 %#2, noundef %p2sh
+  %or.cond47.i = icmp ne i64 %#3, 0
+  %cmp6.i = icmp eq i64 %and10, 0
+  %or.cond48.i = and i1 %or.cond47.i, %cmp6.i
+  br i1 %or.cond48.i, label %_ZL6c_coremmmmmmmmmmm.exit, label %if.end8.i
+
+if.end8.i:
+  %tobool9.i = icmp ne i64 %and1, 0
+  %#4 = and i64 noundef %witness, 1
+  %#5 = and i64 %#4, noundef %spk_wit
+  %or.cond49.i.not = icmp eq i64 %#5, 0
+  br i1 %or.cond49.i.not, label %if.end16.i, label %if.then12.i
+
+if.then12.i:
+  %cmp13.not.i = icmp eq i64 %and8, 0
+  br i1 %cmp13.not.i, label %if.end16.i, label %_ZL6c_coremmmmmmmmmmm.exit
+
+if.end16.i:
+  %len.0.i = phi i64 [ %and3, %if.end8.i ], [ 1, %if.then12.i ]
+  %had.0.i = phi i64 [ 0, %if.end8.i ], [ 1, %if.then12.i ]
+  br i1 %or.cond47.i, label %if.then20.i, label %if.end30.i
+
+if.then20.i:
+  %#6 = and i64 noundef %witness, 1
+  %#7 = and i64 %#6, noundef %redeem_wit
+  %or.cond51.i.not = icmp eq i64 %#7, 0
+  br i1 %or.cond51.i.not, label %if.end30.i, label %if.then24.i
+
+if.then24.i:
+  %tobool25.not.i = icmp eq i64 %and7, 0
+  br i1 %tobool25.not.i, label %_ZL6c_coremmmmmmmmmmm.exit, label %if.end30.i
+
+if.end30.i:
+  %len.1.i = phi i64 [ %len.0.i, %if.end16.i ], [ 1, %if.then24.i ], [ %and10, %if.then20.i ]
+  %had.1.i = phi i64 [ %had.0.i, %if.end16.i ], [ 1, %if.then24.i ], [ %had.0.i, %if.then20.i ]
+  %tobool31.i = icmp ne i64 %and, 0
+  %cmp33.i = icmp ne i64 %len.1.i, 1
+  %or.cond52.i = and i1 %tobool31.i, %cmp33.i
+  br i1 %or.cond52.i, label %_ZL6c_coremmmmmmmmmmm.exit, label %if.end36.i
+
+if.end36.i:
+  %tobool39.i = icmp eq i64 %had.1.i, 0
+  %or.cond53.not63.i = and i1 %tobool9.i, %tobool39.i
+  %cmp41.i = icmp ne i64 %and9, 0
+  %or.cond54.i = and i1 %cmp41.i, %or.cond53.not63.i
+  %. = select i1 %or.cond54.i, i64 172, i64 1
+  br label %_ZL6c_coremmmmmmmmmmm.exit
+
+_ZL6c_coremmmmmmmmmmm.exit:
+  %retval.1.i = phi i64 [ -1, %entry ], [ -1, %lor.lhs.false.i ], [ 164, %if.then12.i ], [ 168, %if.then24.i ], [ 120, %if.end30.i ], [ %., %if.end36.i ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 -1, i64 173
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @probe_scr008(i64 noundef %cleanstack, i64 noundef %witness, i64 noundef %p2sh, i64 noundef %st_n, i64 noundef %spk_wit, i64 noundef %spk_p2sh, i64 noundef %redeem_wit, i64 noundef %ss_push_ok, i64 noundef %sig_n, i64 noundef %wit_n, i64 noundef %inner_len) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %cleanstack, 1
+  %and1 = and i64 noundef %witness, 1
+  %and3 = and i64 noundef %st_n, 3
+  %and4 = and i64 noundef %spk_wit, 1
+  %and5 = and i64 noundef %spk_p2sh, 1
+  %and7 = and i64 noundef %ss_push_ok, 1
+  %and8 = and i64 noundef %sig_n, 3
+  %and9 = and i64 noundef %wit_n, 3
+  %and10 = and i64 noundef %inner_len, 3
+  %#0 = and i64 noundef %spk_p2sh, 1
+  %#1 = and i64 %#0, noundef %spk_wit
+  %or.cond.i = icmp ne i64 %#1, 0
+  %cmp.i = icmp eq i64 %and3, 0
+  %or.cond103.i = or i1 %cmp.i, %or.cond.i
+  br i1 %or.cond103.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %lor.lhs.false.i
+
+lor.lhs.false.i:
+  %cmp6.i = icmp eq i64 %and10, 0
+  %#2 = and i64 noundef %spk_p2sh, 1
+  %#3 = and i64 %#2, noundef %p2sh
+  %#4 = icmp ne i64 %#3, 0
+  %or.cond72.i = and i1 %#4, %cmp6.i
+  br i1 %or.cond72.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %if.end8.i
+
+if.end8.i:
+  %and.i = and i64 %and4, noundef %witness
+  %and9.i = and i64 %and5, noundef %p2sh
+  %and10.i = and i64 noundef %redeem_wit, noundef %witness
+  %and11.i = and i64 %and10.i, %and9.i
+  %tobool12.i = icmp ne i64 %and.i, 0
+  %cmp14.i = icmp ne i64 %and8, 0
+  %or.cond73.i = and i1 %tobool12.i, %cmp14.i
+  br i1 %or.cond73.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %if.end16.i
+
+if.end16.i:
+  %tobool17.not.i = icmp eq i64 %and9.i, 0
+  br i1 %tobool17.not.i, label %if.end46.i, label %if.then18.i
+
+if.end46.i:
+  %tobool52.i = icmp ne i64 %and, 0
+  %cmp5499.i = icmp ne i64 %and3, 1
+  %not.tobool12.i = xor i1 %tobool12.i, 1
+  %cmp54.i = and i1 %cmp5499.i, %not.tobool12.i
+  %or.cond77.i = and i1 %tobool52.i, %cmp54.i
+  br i1 %or.cond77.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %if.end57.i
+
+if.end57.i:
+  %tobool58.i = icmp eq i64 %and1, 0
+  %cmp60.i = icmp eq i64 %and9, 0
+  %or.cond78.not100.i = or i1 %tobool58.i, %cmp60.i
+  %or.cond79.i = or i1 %tobool12.i, %or.cond78.not100.i
+  %. = select i1 %or.cond79.i, i64 1, i64 172
+  br label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit
+
+if.then18.i:
+  %tobool19.i = icmp eq i64 %and11.i, 0
+  %tobool21.i = icmp ne i64 %and7, 0
+  %or.cond74.i = or i1 %tobool21.i, %tobool19.i
+  br i1 %or.cond74.i, label %if.end24.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit
+
+if.end24.i:
+  %tobool26.i = icmp ne i64 %and, 0
+  %cmp28101.i = icmp ne i64 %and10, 1
+  %not.tobool12102.i = xor i1 %tobool12.i, 1
+  %cmp28.i = and i1 %cmp28101.i, %not.tobool12102.i
+  %or.cond75.i = and i1 %tobool26.i, %cmp28.i
+  br i1 %or.cond75.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %if.end31.i
+
+if.end31.i:
+  %tobool35.i = icmp ne i64 %and1, 0
+  %cmp37.i = icmp ne i64 %and9, 0
+  %or.cond76.i = and i1 %tobool35.i, %cmp37.i
+  br i1 %or.cond76.i, label %land.lhs.true38.i, label %if.end42.i
+
+land.lhs.true38.i:
+  %and34.i = and i64 %and7, noundef %redeem_wit
+  %cmp32.i = icmp eq i64 %and8, 0
+  %and33.i = select i1 %cmp32.i, i64 %and4, i64 0
+  %or.i = or i64 %and33.i, %and34.i
+  %tobool39.not.i = icmp eq i64 %or.i, 0
+  br i1 %tobool39.not.i, label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit, label %if.end42.i
+
+if.end42.i:
+  br label %_ZL13l_lean_pinnedmmmmmmmmmmm.exit
+
+_ZL13l_lean_pinnedmmmmmmmmmmm.exit:
+  %retval.4.i = phi i64 [ -1, %entry ], [ -1, %lor.lhs.false.i ], [ 1, %if.end42.i ], [ 164, %if.end8.i ], [ 168, %if.then18.i ], [ 120, %if.end24.i ], [ 172, %land.lhs.true38.i ], [ 120, %if.end46.i ], [ %., %if.end57.i ]
+  %#range_0_%retval.4.i = !range i64 %retval.4.i, i64 -1, i64 173
+  ret i64 %#range_0_%retval.4.i
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i64 noundef %cleanstack = #x0000000000000001 (1)
+i64 noundef %witness = #x0000000000000001 (1)
+i64 noundef %p2sh = #x0000000000000001 (1)
+i64 noundef %st_n = #x0000000000000002 (2)
+i64 noundef %spk_wit = #x0000000000000000 (0)
+i64 noundef %spk_p2sh = #x0000000000000001 (1)
+i64 noundef %redeem_wit = #x0000000000000001 (1)
+i64 noundef %ss_push_ok = #x0000000000000001 (1)
+i64 noundef %sig_n = #x0000000000000000 (0)
+i64 noundef %wit_n = #x0000000000000000 (0)
+i64 noundef %inner_len = #x0000000000000002 (2)
+
+Source:
+i64 %and = #x0000000000000001 (1)
+i64 %and1 = #x0000000000000001 (1)
+i64 %and3 = #x0000000000000002 (2)
+i64 %and7 = #x0000000000000001 (1)
+i64 %and8 = #x0000000000000000 (0)
+i64 %and9 = #x0000000000000000 (0)
+i64 %and10 = #x0000000000000002 (2)
+i64 %#0 = #x0000000000000000 (0)
+i64 %#1 = #x0000000000000000 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp.i = #x0 (0)
+i1 %or.cond64.i = #x0 (0)
+  >> Jump to %lor.lhs.false.i
+i64 %#2 = #x0000000000000001 (1)
+i64 %#3 = #x0000000000000001 (1)
+i1 %or.cond47.i = #x1 (1)
+i1 %cmp6.i = #x0 (0)
+i1 %or.cond48.i = #x0 (0)
+  >> Jump to %if.end8.i
+i1 %tobool9.i = #x1 (1)
+i64 %#4 = #x0000000000000001 (1)
+i64 %#5 = #x0000000000000000 (0)
+i1 %or.cond49.i.not = #x1 (1)
+  >> Jump to %if.end16.i
+i64 %len.0.i = #x0000000000000002 (2)
+i64 %had.0.i = #x0000000000000000 (0)
+  >> Jump to %if.then20.i
+i64 %#6 = #x0000000000000001 (1)
+i64 %#7 = #x0000000000000001 (1)
+i1 %or.cond51.i.not = #x0 (0)
+  >> Jump to %if.then24.i
+i1 %tobool25.not.i = #x0 (0)
+  >> Jump to %if.end30.i
+i64 %len.1.i = #x0000000000000001 (1)
+i64 %had.1.i = #x0000000000000001 (1)
+i1 %tobool31.i = #x1 (1)
+i1 %cmp33.i = #x0 (0)
+i1 %or.cond52.i = #x0 (0)
+  >> Jump to %if.end36.i
+i1 %tobool39.i = #x0 (0)
+i1 %or.cond53.not63.i = #x0 (0)
+i1 %cmp41.i = #x0 (0)
+i1 %or.cond54.i = #x0 (0)
+i64 %. = #x0000000000000001 (1)
+  >> Jump to %_ZL6c_coremmmmmmmmmmm.exit
+i64 %retval.1.i = #x0000000000000001 (1)
+i64 %#range_0_%retval.1.i = #x0000000000000001 (1)
+
+Target:
+i64 %and = #x0000000000000001 (1)
+i64 %and1 = #x0000000000000001 (1)
+i64 %and3 = #x0000000000000002 (2)
+i64 %and4 = #x0000000000000000 (0)
+i64 %and5 = #x0000000000000001 (1)
+i64 %and7 = #x0000000000000001 (1)
+i64 %and8 = #x0000000000000000 (0)
+i64 %and9 = #x0000000000000000 (0)
+i64 %and10 = #x0000000000000002 (2)
+i64 %#0 = #x0000000000000001 (1)
+i64 %#1 = #x0000000000000000 (0)
+i1 %or.cond.i = #x0 (0)
+i1 %cmp.i = #x0 (0)
+i1 %or.cond103.i = #x0 (0)
+  >> Jump to %lor.lhs.false.i
+i1 %cmp6.i = #x0 (0)
+i64 %#2 = #x0000000000000001 (1)
+i64 %#3 = #x0000000000000001 (1)
+i1 %#4 = #x1 (1)
+i1 %or.cond72.i = #x0 (0)
+  >> Jump to %if.end8.i
+i64 %and.i = #x0000000000000000 (0)
+i64 %and9.i = #x0000000000000001 (1)
+i64 %and10.i = #x0000000000000001 (1)
+i64 %and11.i = #x0000000000000001 (1)
+i1 %tobool12.i = #x0 (0)
+i1 %cmp14.i = #x0 (0)
+i1 %or.cond73.i = #x0 (0)
+  >> Jump to %if.end16.i
+i1 %tobool17.not.i = #x0 (0)
+  >> Jump to %if.then18.i
+i1 %tobool19.i = #x0 (0)
+i1 %tobool21.i = #x1 (1)
+i1 %or.cond74.i = #x1 (1)
+  >> Jump to %if.end24.i
+i1 %tobool26.i = #x1 (1)
+i1 %cmp28101.i = #x1 (1)
+i1 %not.tobool12102.i = #x1 (1)
+i1 %cmp28.i = #x1 (1)
+i1 %or.cond75.i = #x1 (1)
+  >> Jump to %_ZL13l_lean_pinnedmmmmmmmmmmm.exit
+i64 %retval.4.i = #x0000000000000078 (120)
+i64 %#range_0_%retval.4.i = #x0000000000000078 (120)
+Source value: #x0000000000000001 (1)
+Target value: #x0000000000000078 (120)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-counterexample-as-expected

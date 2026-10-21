@@ -1,0 +1,193 @@
+module TapLeafTaggedHash where
+
+// Independent specification of the BIP341 TapLeaf *tagged-hash input*
+// (interpreter.cpp:1882-1884; hash.cpp:85-91; BIP341 §3 k_0).
+//
+// The construction is written with a NAMED OPAQUE ORACLE H:
+//
+//   H        : {n} (fin n) => [n][8] -> [32][8]     (never defined here)
+//   T        := H("TapLeaf")                         (one tag hash, 32 bytes)
+//   pre(v,s) = T ++ T ++ serU8(v & 0xfe)
+//                        ++ CompactSize(|s|) ++ s
+//   digest   = H(pre(v,s))
+//
+// This module specifies pre and the tag string only.  It never computes a
+// digest, never assumes H is SHA256, and never introduces an opaque
+// `sha256_tagged` that would hide the tag structure: the 64-byte prefix, its
+// two copies, the tag bytes, the mask and the CompactSize placement are all
+// explicit below.  T is a purely symbolic 32-byte value (four little-endian
+// 64-bit words), so the proofs hold for every possible tag hash, including
+// the real SHA256("TapLeaf").
+//
+// Observable packing is the harness documented in c_leaf.cpp:
+//   tagByte(i)     bit8 = i < 7,  low byte = tag byte i
+//   prefixByte(i)  bit8 = i < 64, low byte = prefix byte i (T[i mod 32])
+//   leafMask(c)    byte0 = c&0xfe, byte1 = c&1
+//   csByte(n,j)    bit8 = j < CompactSize size, low byte = encoding byte j
+//   fieldKind(i)   field code at preimage offset i
+//   fieldIndex(i)  index inside the field at offset i
+//   preByte(...)   exact preimage byte i, len <= 4
+//   preLen(len)    exact preimage length, len <= 4
+
+// ---------------------------------------------------------------- tag bytes
+
+// "TapLeaf".toUTF8 (TaggedHash.lean:46; hash.cpp:89 writes tag.data(), 7 B).
+flag : [16]
+flag = 0x0100 : [16]
+
+tagByte : [64] -> [16]
+tagByte i =
+  if i == 0 then (0x0154 : [16])      // 'T'
+  else if i == 1 then (0x0161 : [16]) // 'a'
+  else if i == 2 then (0x0170 : [16]) // 'p'
+  else if i == 3 then (0x014c : [16]) // 'L'
+  else if i == 4 then (0x0165 : [16]) // 'e'
+  else if i == 5 then (0x0161 : [16]) // 'a'
+  else if i == 6 then (0x0166 : [16]) // 'f'
+  else (0 : [16])
+
+// ------------------------------------------------------- 64-byte tag prefix
+
+// The byte j (0..7) of a word, little-endian (split puts the most significant
+// byte first, so reverse names byte 0 = least significant).
+wordBytes : [64] -> [8][8]
+wordBytes w = reverse (split w)
+
+// Safe fixed-index selector (literal indices only).
+nth8 : [8][8] -> [64] -> [8]
+nth8 v j =
+  if j == 0 then v @ 0
+  else if j == 1 then v @ 1
+  else if j == 2 then v @ 2
+  else if j == 3 then v @ 3
+  else if j == 4 then v @ 4
+  else if j == 5 then v @ 5
+  else if j == 6 then v @ 6
+  else v @ 7
+
+tByte : [64] -> [64] -> [64] -> [64] -> [64] -> [8]
+tByte t0 t1 t2 t3 j =
+  if j < 8 then nth8 (wordBytes t0) j
+  else if j < 16 then nth8 (wordBytes t1) (j - 8)
+  else if j < 24 then nth8 (wordBytes t2) (j - 16)
+  else nth8 (wordBytes t3) (j - 24)
+
+// `writer << taghash << taghash` (hash.cpp:90): one T value, written twice.
+prefixByte : [64] -> [64] -> [64] -> [64] -> [64] -> [16]
+prefixByte i t0 t1 t2 t3 =
+  if i < 64 then flag || (zext (tByte t0 t1 t2 t3 (i % 32)) : [16])
+  else 0
+
+// ------------------------------------------------------------- leaf version
+
+leafMask : [8] -> [16]
+leafMask c = (zext (c && 0xfe) : [16]) || ((zext (c && 1) : [16]) << 8)
+
+// --------------------------------------------------------- CompactSize prefix
+
+t253 : [64]
+t253 = 0x00000000000000fd
+
+t16 : [64]
+t16 = 0x000000000000ffff
+
+t32 : [64]
+t32 = 0x00000000ffffffff
+
+csSize : [64] -> [8]
+csSize n = if n < t253 then 1
+           else if n <= t16 then 3
+           else if n <= t32 then 5
+           else 9
+
+// Byte j of the uint64 payload, little-endian.
+lowByte : [64] -> [64] -> [8]
+lowByte n j = nth8 (wordBytes n) j
+
+// WriteCompactSize (serialize.h:301-323): 1 / 0xfd+2LE / 0xfe+4LE / 0xff+8LE.
+csLow : [64] -> [64] -> [8]
+csLow n j =
+  if n < t253 then
+    (if j == 0 then lowByte n 0 else 0)
+  else if n <= t16 then
+    (if j == 0 then 0xfd
+     else if j == 1 then lowByte n 0
+     else if j == 2 then lowByte n 1
+     else 0)
+  else if n <= t32 then
+    (if j == 0 then 0xfe
+     else if j == 1 then lowByte n 0
+     else if j == 2 then lowByte n 1
+     else if j == 3 then lowByte n 2
+     else if j == 4 then lowByte n 3
+     else 0)
+  else
+    (if j == 0 then 0xff
+     else if j == 1 then lowByte n 0
+     else if j == 2 then lowByte n 1
+     else if j == 3 then lowByte n 2
+     else if j == 4 then lowByte n 3
+     else if j == 5 then lowByte n 4
+     else if j == 6 then lowByte n 5
+     else if j == 7 then lowByte n 6
+     else if j == 8 then lowByte n 7
+     else 0)
+
+csByte : [64] -> [64] -> [16]
+csByte n j =
+  if j >= (zext (csSize n) : [64]) then 0
+  else flag || (zext (csLow n j) : [16])
+
+// ------------------------------------------------- field map (all lengths)
+// 0 = T copy 0, 1 = T copy 1, 2 = version, 3 = CompactSize, 4 = script,
+// 5 = past the end.  Total over every 64-bit script length: no overflow is
+// needed because the script test uses `i - (65 + cs) < len`, never `+ len`.
+
+fieldKind : [64] -> [64] -> [8]
+fieldKind i len =
+  if i < 32 then 0
+  else if i < 64 then 1
+  else if i == 64 then 2
+  else if i < 65 + (zext (csSize len) : [64]) then 3
+  else if (i - (65 + (zext (csSize len) : [64]))) < len then 4
+  else 5
+
+fieldIndex : [64] -> [64] -> [64]
+fieldIndex i len =
+  if i < 32 then i
+  else if i < 64 then i - 32
+  else if i == 64 then 0
+  else if i < 65 + (zext (csSize len) : [64]) then i - 65
+  else if (i - (65 + (zext (csSize len) : [64]))) < len
+         then i - (65 + (zext (csSize len) : [64]))
+  else 0
+
+// ------------------------------------------------- exact composed preimage
+
+scriptByte : [64] -> [8] -> [8] -> [8] -> [8] -> [8]
+scriptByte k s0 s1 s2 s3 =
+  if k == 0 then s0
+  else if k == 1 then s1
+  else if k == 2 then s2
+  else if k == 3 then s3
+  else 0
+
+// pre(v,s) byte i for |s| <= 4 (domain guard).  Total over all 64-bit i.
+preByte : [64] -> [64] -> [64] -> [64] -> [64] -> [8] -> [64] ->
+          [8] -> [8] -> [8] -> [8] -> [16]
+preByte i t0 t1 t2 t3 c l s0 s1 s2 s3 =
+  if l > 4 then 0
+  else if i >= tot then 0
+  else if i < 32 then flag || (zext (tByte t0 t1 t2 t3 i) : [16])
+  else if i < 64 then flag || (zext (tByte t0 t1 t2 t3 (i - 32)) : [16])
+  else if i == 64 then flag || (zext (c && 0xfe) : [16])
+  else if (i - 65) < cs then flag || (zext (csLow l (i - 65)) : [16])
+  else flag || (zext (scriptByte ((i - 65) - cs) s0 s1 s2 s3) : [16])
+  where
+    cs  = zext (csSize l) : [64]
+    tot = 64 + 1 + cs + l
+
+preLen : [64] -> [64]
+preLen l =
+  if l > 4 then 0
+  else 64 + 1 + (zext (csSize l) : [64]) + l

@@ -1,0 +1,122 @@
+# SCR-008 full-domain probe — PINNED Lean model — SAW
+# saw: 1.6 (68eed5f release-1.6)
+# defs_blob=363d3738b66049e260577e9c1fa2cd24d05f6e3b
+# command: (cd saw-pinned && saw cell.saw)   [cwd = the saw/ dir; module paths are ../build/...]
+# expected: C succeeds, pinned-L refuted at p2sh/wrapped/cleanstack
+
+Loading file "cell.saw"
+Verifying probe_scr008...
+Simulating probe_scr008...
+Checking proof obligations probe_scr008...
+Proof succeeded! probe_scr008
+Verifying probe_scr008...
+Simulating probe_scr008...
+Checking proof obligations probe_scr008...
+Subgoal failed: probe_scr008 cell.saw:31:1: error: in _SAW_LLVM_withMethodSpec
+Literal equality postcondition
+Expected term: 
+core_arms cleanstack`6363 witness`6364 p2sh`6365 st_n`6366
+  spk_wit`6367
+  spk_p2sh`6368
+  redeem_wit`6369
+  ss_push_ok`6370
+  sig_n`6371
+  wit_n`6372
+  inner_len`6373
+Actual term:
+let { _x`1 = Vec 64 Bool;
+      _x`2 = Vec 1 Bool;
+      _x`3 = bvNat 1 0;
+      _x`4 = bvNat 64 0;
+      _x`5 = bvNat 64 1;
+      _x`6 = bvNat 1 1;
+      _x`7 = bvNat 64 3;
+      _x`8 = bvNat 64 172;
+      _x`9 = bvNat 64 120;
+      _x`10 = bvNat 64 18446744073709551615;
+      _x`11 = bvAnd 64 _x`7 st_n`6366;
+      _x`12 = bvAnd 64 _x`7 inner_len`6373;
+      _x`13 = bvEq 64 _x`4
+                (bvAnd 64 _x`5 (bvAnd 64 p2sh`6365 spk_p2sh`6368));
+      _x`14 = bvEq 64 _x`4
+                (bvAnd 64 _x`5 (bvAnd 64 witness`6364 spk_wit`6367));
+      _x`15 = ite _x`2 _x`14 _x`3 _x`6;
+      _x`16 = bvEq 64 _x`4 (bvAnd 64 _x`7 sig_n`6371);
+      _x`17 = ite _x`2 (bvEq 64 _x`4 (bvAnd 64 _x`5 cleanstack`6363))
+                _x`3
+                _x`6;
+      _x`18 = ite _x`2 _x`14 _x`6 _x`3;
+      _x`19 = bvEq 64 _x`4 (bvAnd 64 _x`5 witness`6364);
+      _x`20 = bvEq 64 _x`4 (bvAnd 64 _x`7 wit_n`6372);
+    }
+ in ite _x`1
+      (bvEq 1 _x`3
+         (bvOr 1
+            (ite _x`2
+               (bvEq 64 _x`4
+                  (bvAnd 64 _x`5 (bvAnd 64 spk_wit`6367 spk_p2sh`6368)))
+               _x`3
+               _x`6)
+            (ite _x`2 (bvEq 64 _x`4 _x`11) _x`6 _x`3)))
+      (ite _x`1
+         (bvEq 1 _x`3
+            (bvAnd 1 (ite _x`2 (bvEq 64 _x`4 _x`12) _x`6 _x`3)
+               (ite _x`2 _x`13 _x`3 _x`6)))
+         (ite _x`1
+            (bvEq 1 _x`3 (bvAnd 1 _x`15 (ite _x`2 _x`16 _x`3 _x`6)))
+            (ite _x`1 _x`13
+               (ite _x`1
+                  (bvEq 1 _x`3
+                     (bvAnd 1 (bvAnd 1 _x`17 (... ... (... ...) _x`3 _x`6)) _x`18))
+                  (ite _x`1
+                     (bvEq 1 _x`3
+                        (bvOr 1 (... ... _x`15 (... ... _x`3))
+                           (... ... _x`20 _x`6 _x`3)))
+                     _x`8
+                     _x`5)
+                  _x`9)
+               (ite _x`1
+                  (bvEq 1 _x`3
+                     (bvOr 1 (ite _x`2 (... ... _x`4 (... ... (... ...))) _x`6 _x`3)
+                        (ite _x`2 (bvEq 64 _x`4 (... ... _x`5 ss_push_ok`6370)) _x`3
+                           _x`6)))
+                  (bvNat 64 168)
+                  (ite _x`1
+                     (bvEq 1 _x`3
+                        (bvAnd 1 (bvAnd 1 _x`17 (... ... (... ...) _x`3 _x`6)) _x`18))
+                     (ite _x`1
+                        (bvEq 1 _x`3
+                           (bvAnd 1 (... ... _x`3 _x`6) (... ... _x`20 _x`3 _x`6)))
+                        _x`5
+                        (ite _x`1
+                           (bvEq 64 _x`4
+                              (bvOr 64 (... ... (... ...)) (... ... (... ...) _x`4)))
+                           _x`8
+                           _x`5))
+                     _x`9)))
+            (bvNat 64 164))
+         _x`10)
+      _x`10
+
+Goal size 320. Provers used: SBV->Z3
+----------Counterexample----------
+  cleanstack: 1
+  witness: 1
+  p2sh: 1
+  st_n: 2
+  spk_wit: 0
+  spk_p2sh: 1
+  redeem_wit: 1
+  ss_push_ok: 1
+  sig_n: 0
+  wit_n: 0
+  inner_len: 3
+----------------------------------
+Stack trace:
+   (builtin) in z3
+   cell.saw:31:50-31:52 in (callback)
+   (builtin) in llvm_verify
+   cell.saw:31:1-31:52 (at top level)
+Proof failed.
+
+STATUS=saw-divergence-as-expected

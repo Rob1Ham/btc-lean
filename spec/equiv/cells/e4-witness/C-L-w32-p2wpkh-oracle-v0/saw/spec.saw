@@ -1,0 +1,96 @@
+import "spec.cry";
+
+// Four obligations: each exported function of each leg is verified against the
+// same independent Cryptol contract as the sibling leg.  Therefore
+//   C.outcome = spec.verdict = L.outcome
+//   C.seam    = spec.seam    = L.seam
+// for every input.  Plain llvm_verify: no overrides, no assumptions, no
+// unsupported-feature fallback.  Solver z3 (the reviewed L transliteration
+// keeps the five parse/step transitions, so z3 is used, as in the sibling
+// C-L-w32-p2wpkh-exec cell).
+
+mC <- llvm_load_module "c_cell_p2wpkh_scr136.bc";
+mL <- llvm_load_module "l_cell_p2wpkh_scr136.bc";
+mCs <- llvm_load_module "c_cell_p2wpkh_seam.bc";
+mLs <- llvm_load_module "l_cell_p2wpkh_seam.bc";
+
+// (A) total execution outcome
+let verdict_spec = do {
+  p0      <- llvm_fresh_var "p0"      (llvm_int 64);
+  p1      <- llvm_fresh_var "p1"      (llvm_int 64);
+  p2      <- llvm_fresh_var "p2"      (llvm_int 64);
+  n_wit   <- llvm_fresh_var "n_wit"   (llvm_int 64);
+  sig_len <- llvm_fresh_var "sig_len" (llvm_int 64);
+  pk_len  <- llvm_fresh_var "pk_len"  (llvm_int 64);
+  h0      <- llvm_fresh_var "h0"      (llvm_int 64);
+  h1      <- llvm_fresh_var "h1"      (llvm_int 64);
+  h2      <- llvm_fresh_var "h2"      (llvm_int 64);
+  ck_err  <- llvm_fresh_var "ck_err"  (llvm_int 64);
+  ck_ok   <- llvm_fresh_var "ck_ok"   (llvm_int 64);
+  llvm_execute_func [ llvm_term p0, llvm_term p1, llvm_term p2,
+                      llvm_term n_wit, llvm_term sig_len, llvm_term pk_len,
+                      llvm_term h0, llvm_term h1, llvm_term h2,
+                      llvm_term ck_err, llvm_term ck_ok ];
+  llvm_return (llvm_term {{ verdict p0 p1 p2 n_wit sig_len pk_len
+                                    h0 h1 h2 ck_err ck_ok }});
+};
+
+llvm_verify mC "cell_p2wpkh_scr136" [] false verdict_spec z3;
+llvm_verify mL "cell_p2wpkh_scr136" [] false verdict_spec z3;
+
+// (B) oracle-interface transcript, symbolic in sel and k
+let seam_spec = do {
+  sel     <- llvm_fresh_var "sel"     (llvm_int 64);
+  k       <- llvm_fresh_var "k"       (llvm_int 64);
+  p0      <- llvm_fresh_var "p0"      (llvm_int 64);
+  p1      <- llvm_fresh_var "p1"      (llvm_int 64);
+  p2      <- llvm_fresh_var "p2"      (llvm_int 64);
+  n_wit   <- llvm_fresh_var "n_wit"   (llvm_int 64);
+  sig_len <- llvm_fresh_var "sig_len" (llvm_int 64);
+  pk_len  <- llvm_fresh_var "pk_len"  (llvm_int 64);
+  h0      <- llvm_fresh_var "h0"      (llvm_int 64);
+  h1      <- llvm_fresh_var "h1"      (llvm_int 64);
+  h2      <- llvm_fresh_var "h2"      (llvm_int 64);
+  ck_err  <- llvm_fresh_var "ck_err"  (llvm_int 64);
+  ck_ok   <- llvm_fresh_var "ck_ok"   (llvm_int 64);
+  s0      <- llvm_fresh_var "s0"      (llvm_int 64);
+  s1      <- llvm_fresh_var "s1"      (llvm_int 64);
+  s2      <- llvm_fresh_var "s2"      (llvm_int 64);
+  s3      <- llvm_fresh_var "s3"      (llvm_int 64);
+  s4      <- llvm_fresh_var "s4"      (llvm_int 64);
+  s5      <- llvm_fresh_var "s5"      (llvm_int 64);
+  s6      <- llvm_fresh_var "s6"      (llvm_int 64);
+  s7      <- llvm_fresh_var "s7"      (llvm_int 64);
+  s8      <- llvm_fresh_var "s8"      (llvm_int 64);
+  s9      <- llvm_fresh_var "s9"      (llvm_int 64);
+  k0      <- llvm_fresh_var "k0"      (llvm_int 64);
+  k1      <- llvm_fresh_var "k1"      (llvm_int 64);
+  k2      <- llvm_fresh_var "k2"      (llvm_int 64);
+  k3      <- llvm_fresh_var "k3"      (llvm_int 64);
+  k4      <- llvm_fresh_var "k4"      (llvm_int 64);
+  k5      <- llvm_fresh_var "k5"      (llvm_int 64);
+  k6      <- llvm_fresh_var "k6"      (llvm_int 64);
+  k7      <- llvm_fresh_var "k7"      (llvm_int 64);
+  k8      <- llvm_fresh_var "k8"      (llvm_int 64);
+  llvm_execute_func [ llvm_term sel, llvm_term k,
+                      llvm_term p0, llvm_term p1, llvm_term p2,
+                      llvm_term n_wit, llvm_term sig_len, llvm_term pk_len,
+                      llvm_term h0, llvm_term h1, llvm_term h2,
+                      llvm_term ck_err, llvm_term ck_ok,
+                      llvm_term s0, llvm_term s1, llvm_term s2,
+                      llvm_term s3, llvm_term s4, llvm_term s5,
+                      llvm_term s6, llvm_term s7, llvm_term s8,
+                      llvm_term s9,
+                      llvm_term k0, llvm_term k1, llvm_term k2,
+                      llvm_term k3, llvm_term k4, llvm_term k5,
+                      llvm_term k6, llvm_term k7, llvm_term k8 ];
+  // The transcript contract does not depend on the checker verdict: the
+  // checksig seam returns before the verdict is consulted.
+  llvm_return (llvm_term {{ seam sel k p0 p1 p2 n_wit sig_len pk_len
+                                  h0 h1 h2
+                                  s0 s1 s2 s3 s4 s5 s6 s7 s8 s9
+                                  k0 k1 k2 k3 k4 k5 k6 k7 k8 }});
+};
+
+llvm_verify mCs "cell_p2wpkh_seam" [] false seam_spec z3;
+llvm_verify mLs "cell_p2wpkh_seam" [] false seam_spec z3;

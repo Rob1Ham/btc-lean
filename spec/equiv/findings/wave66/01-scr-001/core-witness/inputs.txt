@@ -1,0 +1,24 @@
+# Provenance of the real pinned-Core IR used by this witness.
+#
+# The module is not rebuilt here; it is the PROTO-w16b-getscriptop linked
+# probe, whose builder verifies the pinned interpreter bitcode hash from
+# spec/equiv/PINS.lock before linking the real script.cpp parser.
+#
+# module
+2795c02ea67c77ff3674d16da074b1f8b884861fc6f157b6274feba9d8227ae1  /tmp/opencode/wave16b/02-e5-getscriptop/spec/equiv/cells/e5-whole/PROTO-w16b-getscriptop/build/out/interp-script-roots3.bc
+#
+# upstream inputs (from that probe's README)
+#   pinned interpreter-O0.bc (PINS.lock [core.ir] O0_bc_sha256)
+f5718af79c56ccfd5a5437a313d957573cb87c0de0cdf5641013991268801b2c
+#   real script.cpp at pin, compiled -O0 -emit-llvm
+657530a8d18741b40e09653a681c5d11438ed453bcccf8bde14f0b2037a6d51c  script-O0.bc
+#   linked, unpatched interpreter + script.cpp
+f52f6a9d26ea176fa6b1c4de1cf8b12dea626320d51762574de8f0bae9c998aa  interp-script-O0.bc
+#
+# builder used by that probe (transform record: exception erasure,
+# internalize to five-symbol API, ABI-global stubs, __cxa_guard pinned to 1)
+20c8199f37d8ce7cd2a75a3bdaf15bf9a7d8d0d8e63bf483cd799d5db2047827  /tmp/opencode/wave16b/02-e5-getscriptop/spec/equiv/cells/e5-whole/PROTO-w16b-getscriptop/builder/build-pinned-linked.sh
+#
+# pinned Core source blobs (for the cited lines)
+57a6f328c7e6202f499e48366a86eb26e09c8ebb78e92eef7e839207230be333  /tmp/opencode/L2SWT/core-src/cce32b16/script/interpreter.cpp
+210b1720acce295de54c6a08c76b97fa4cfe835f64e0ff7e0730c57ebebb8c55  /tmp/opencode/L2SWT/core-src/cce32b16/script/script.cpp

@@ -1,0 +1,274 @@
+# probe: SCR-112 / F-DIV-004 pinned-Lean vs Core-exact
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c source sha256: 016da853e061f3c89510d7aca78b6fdbbb33acff5180c9e0439da40219edd5a2
+# l source sha256: f2ddfe6a51b65ecb8cc53bbaf35c9af6e95ac5915f032309cf4dadb79b2cf5b1
+# command: /usr/local/bin/alive-tv --bidirectional build/c_probe_fn.ll build/l_probe_fn.ll (L symbol renamed probe_core for name matching)
+
+
+----------------------------------------
+define i64 @probe_core(i8 noundef zeroext %hdr, i32 noundef %len, i32 noundef %strict_enc, i32 noundef %witness_pubkey_type, i32 noundef %sv, i32 noundef %sig_len, i32 noundef %crypto_ok, i32 noundef %null_fail) nofree willreturn memory(none) {
+entry:
+  %conv = zext i8 noundef zeroext %hdr to i32
+  %cmp.not.i = icmp eq i32 noundef %strict_enc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i42 = icmp ult i32 noundef %len, 33
+  br i1 %cmp.i42, label %_ZL16p_check_encodingjjjjj.exit, label %if.end.i43
+
+if.end.i43:
+  %cmp1.i44 = icmp eq i8 noundef zeroext %hdr, 4
+  br i1 %cmp1.i44, label %if.then2.i48, label %if.end4.i45
+
+if.then2.i48:
+  %cmp3.i49 = icmp eq i32 noundef %len, 65
+  br label %_ZL5p_icujj.exit
+
+if.end4.i45:
+  %#0 = and i32 %conv, 254
+  %or.cond.i46 = icmp eq i32 %#0, 2
+  %cmp8.i = icmp eq i32 noundef %len, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i46
+  br label %_ZL5p_icujj.exit
+
+_ZL5p_icujj.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp3.i49, %if.then2.i48 ], [ %spec.select.i, %if.end4.i45 ]
+  br i1 %retval.0.shrunk.i, label %if.end.i, label %_ZL16p_check_encodingjjjjj.exit
+
+if.end.i:
+  %cmp1.i = icmp ne i32 noundef %witness_pubkey_type, 0
+  %cmp3.i = icmp eq i32 noundef %sv, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %land.lhs.true4.i, label %if.end8.i
+
+land.lhs.true4.i:
+  %cmp.not.i50 = icmp ne i32 noundef %len, 33
+  %#1 = and i32 %conv, 254
+  %#2 = icmp ne i32 %#1, 2
+  %narrow.not = or i1 %cmp.not.i50, %#2
+  br i1 %narrow.not, label %_ZL16p_check_encodingjjjjj.exit, label %if.end8.i
+
+if.end8.i:
+  br label %_ZL16p_check_encodingjjjjj.exit
+
+_ZL16p_check_encodingjjjjj.exit:
+  %cmp.not = phi i1 [ 1, %if.end8.i ], [ 0, %_ZL5p_icujj.exit ], [ 0, %land.lhs.true4.i ], [ 0, %land.lhs.true.i ]
+  %retval.0.i = phi i64 [ 0, %if.end8.i ], [ 116, %_ZL5p_icujj.exit ], [ 176, %land.lhs.true4.i ], [ 116, %land.lhs.true.i ]
+  br i1 %cmp.not, label %if.end, label %cleanup15
+
+if.end:
+  %cmp.not.i26 = icmp eq i32 noundef %len, 0
+  br i1 %cmp.not.i26, label %_ZL17p_core_valid_sizejj.exit, label %land.rhs.i
+
+land.rhs.i:
+  %#3 = and i32 %conv, 254
+  %or.cond.i110 = icmp eq i32 %#3, 2
+  br i1 %or.cond.i110, label %_ZL9p_get_lenj.exit, label %if.end.i111
+
+if.end.i111:
+  %#4 = and i32 %conv, 253
+  %or.cond9.i = icmp eq i32 %#4, 4
+  %cmp6.i = icmp eq i8 noundef zeroext %hdr, 7
+  %or.cond10.i = or i1 %cmp6.i, %or.cond9.i
+  %..i = select i1 %or.cond10.i, i32 65, i32 0
+  br label %_ZL9p_get_lenj.exit
+
+_ZL9p_get_lenj.exit:
+  %retval.0.i112 = phi i32 [ 33, %land.rhs.i ], [ %..i, %if.end.i111 ]
+  %cmp1.i28 = icmp eq i32 %retval.0.i112, noundef %len
+  br label %_ZL17p_core_valid_sizejj.exit
+
+_ZL17p_core_valid_sizejj.exit:
+  %cond.i = phi i1 [ 0, %if.end ], [ %cmp1.i28, %_ZL9p_get_lenj.exit ]
+  %cmp4 = icmp ne i32 noundef %sig_len, 0
+  %cmp5 = icmp ne i32 noundef %crypto_ok, 0
+  %#5 = and i1 %cmp5, %cond.i
+  %cmp8 = icmp ne i32 noundef %null_fail, 0
+  %#6 = xor i1 %#5, 1
+  %#7 = and i1 %cmp8, %#6
+  %or.cond17 = and i1 %cmp4, %#7
+  br i1 %or.cond17, label %cleanup15, label %if.end.i35
+
+if.end.i35:
+  %narrow = and i1 %cmp4, %#5
+  %. = select i1 %narrow, i64 10497, i64 264
+  br label %cleanup15
+
+cleanup15:
+  %retval.1 = phi i64 [ %retval.0.i, %_ZL16p_check_encodingjjjjj.exit ], [ 128, %_ZL17p_core_valid_sizejj.exit ], [ %., %if.end.i35 ]
+  ret i64 %retval.1
+}
+=>
+define i64 @probe_core(i8 noundef zeroext %hdr, i32 noundef %len, i32 noundef %strict_enc, i32 noundef %witness_pubkey_type, i32 noundef %sv, i32 noundef %sig_len, i32 noundef %crypto_ok, i32 noundef %null_fail) nofree willreturn memory(none) {
+entry:
+  %conv = zext i8 noundef zeroext %hdr to i32
+  %cmp.not.i = icmp eq i32 noundef %strict_enc, 0
+  br i1 %cmp.not.i, label %if.end.i, label %land.lhs.true.i
+
+land.lhs.true.i:
+  %cmp.i43 = icmp ult i32 noundef %len, 33
+  br i1 %cmp.i43, label %_ZL16p_check_encodingjjjjj.exit, label %if.end.i44
+
+if.end.i44:
+  %cmp1.i45 = icmp eq i8 noundef zeroext %hdr, 4
+  br i1 %cmp1.i45, label %if.then2.i49, label %if.end4.i46
+
+if.then2.i49:
+  %cmp3.i50 = icmp eq i32 noundef %len, 65
+  br label %_ZL5p_icujj.exit
+
+if.end4.i46:
+  %#0 = and i32 %conv, 254
+  %or.cond.i47 = icmp eq i32 %#0, 2
+  %cmp8.i = icmp eq i32 noundef %len, 33
+  %spec.select.i = and i1 %cmp8.i, %or.cond.i47
+  br label %_ZL5p_icujj.exit
+
+_ZL5p_icujj.exit:
+  %retval.0.shrunk.i = phi i1 [ %cmp3.i50, %if.then2.i49 ], [ %spec.select.i, %if.end4.i46 ]
+  br i1 %retval.0.shrunk.i, label %if.end.i, label %_ZL16p_check_encodingjjjjj.exit
+
+if.end.i:
+  %cmp1.i = icmp ne i32 noundef %witness_pubkey_type, 0
+  %cmp3.i = icmp eq i32 noundef %sv, 1
+  %or.cond.i = and i1 %cmp1.i, %cmp3.i
+  br i1 %or.cond.i, label %land.lhs.true4.i, label %if.end8.i
+
+land.lhs.true4.i:
+  %cmp.not.i51 = icmp ne i32 noundef %len, 33
+  %#1 = and i32 %conv, 254
+  %#2 = icmp ne i32 %#1, 2
+  %narrow.not = or i1 %cmp.not.i51, %#2
+  br i1 %narrow.not, label %_ZL16p_check_encodingjjjjj.exit, label %if.end8.i
+
+if.end8.i:
+  br label %_ZL16p_check_encodingjjjjj.exit
+
+_ZL16p_check_encodingjjjjj.exit:
+  %cmp.not = phi i1 [ 1, %if.end8.i ], [ 0, %_ZL5p_icujj.exit ], [ 0, %land.lhs.true4.i ], [ 0, %land.lhs.true.i ]
+  %retval.0.i = phi i64 [ 0, %if.end8.i ], [ 116, %_ZL5p_icujj.exit ], [ 176, %land.lhs.true4.i ], [ 116, %land.lhs.true.i ]
+  br i1 %cmp.not, label %if.end, label %cleanup15
+
+if.end:
+  %cmp.i = icmp eq i32 noundef %len, 0
+  br i1 %cmp.i, label %_ZL25p_pinned_is_valid_pub_keyjj.exit, label %if.end.i26
+
+if.end.i26:
+  %#3 = and i32 %conv, 254
+  %or.cond.i111 = icmp eq i32 %#3, 2
+  br i1 %or.cond.i111, label %_ZL25p_pinned_is_valid_pub_keyjj.exit, label %if.end.i112
+
+if.end.i112:
+  %#4 = and i32 %conv, 253
+  %or.cond9.i = icmp eq i32 %#4, 4
+  %cmp6.i = icmp eq i8 noundef zeroext %hdr, 7
+  %or.cond10.i = or i1 %cmp6.i, %or.cond9.i
+  br label %_ZL25p_pinned_is_valid_pub_keyjj.exit
+
+_ZL25p_pinned_is_valid_pub_keyjj.exit:
+  %retval.0.i28 = phi i1 [ 0, %if.end ], [ 1, %if.end.i26 ], [ %or.cond10.i, %if.end.i112 ]
+  %cmp4 = icmp ne i32 noundef %sig_len, 0
+  %cmp5 = icmp ne i32 noundef %crypto_ok, 0
+  %#5 = and i1 %cmp5, %retval.0.i28
+  %cmp8 = icmp ne i32 noundef %null_fail, 0
+  %#6 = xor i1 %#5, 1
+  %#7 = and i1 %cmp8, %#6
+  %or.cond17 = and i1 %cmp4, %#7
+  br i1 %or.cond17, label %cleanup15, label %if.end.i36
+
+if.end.i36:
+  %narrow = and i1 %cmp4, %#5
+  %. = select i1 %narrow, i64 10497, i64 264
+  br label %cleanup15
+
+cleanup15:
+  %retval.1 = phi i64 [ %retval.0.i, %_ZL16p_check_encodingjjjjj.exit ], [ 128, %_ZL25p_pinned_is_valid_pub_keyjj.exit ], [ %., %if.end.i36 ]
+  ret i64 %retval.1
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i8 noundef zeroext %hdr = #x03 (3)
+i32 noundef %len = #x00000001 (1)
+i32 noundef %strict_enc = #x00000000 (0)
+i32 noundef %witness_pubkey_type = #x00000000 (0)
+i32 noundef %sv = #x00000000 (0)
+i32 noundef %sig_len = #x00000001 (1)
+i32 noundef %crypto_ok = #x00000001 (1)
+i32 noundef %null_fail = #x00000000 (0)
+
+Source:
+i32 %conv = #x00000003 (3)
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end.i
+i1 %cmp1.i = #x0 (0)
+i1 %cmp3.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+  >> Jump to %if.end8.i
+  >> Jump to %_ZL16p_check_encodingjjjjj.exit
+i1 %cmp.not = #x1 (1)
+i64 %retval.0.i = #x0000000000000000 (0)
+  >> Jump to %if.end
+i1 %cmp.not.i26 = #x0 (0)
+  >> Jump to %land.rhs.i
+i32 %#3 = #x00000002 (2)
+i1 %or.cond.i110 = #x1 (1)
+  >> Jump to %_ZL9p_get_lenj.exit
+i32 %retval.0.i112 = #x00000021 (33)
+i1 %cmp1.i28 = #x0 (0)
+  >> Jump to %_ZL17p_core_valid_sizejj.exit
+i1 %cond.i = #x0 (0)
+i1 %cmp4 = #x1 (1)
+i1 %cmp5 = #x1 (1)
+i1 %#5 = #x0 (0)
+i1 %cmp8 = #x0 (0)
+i1 %#6 = #x1 (1)
+i1 %#7 = #x0 (0)
+i1 %or.cond17 = #x0 (0)
+  >> Jump to %if.end.i35
+i1 %narrow = #x0 (0)
+i64 %. = #x0000000000000108 (264)
+  >> Jump to %cleanup15
+i64 %retval.1 = #x0000000000000108 (264)
+
+Target:
+i32 %conv = #x00000003 (3)
+i1 %cmp.not.i = #x1 (1)
+  >> Jump to %if.end.i
+i1 %cmp1.i = #x0 (0)
+i1 %cmp3.i = #x0 (0)
+i1 %or.cond.i = #x0 (0)
+  >> Jump to %if.end8.i
+  >> Jump to %_ZL16p_check_encodingjjjjj.exit
+i1 %cmp.not = #x1 (1)
+i64 %retval.0.i = #x0000000000000000 (0)
+  >> Jump to %if.end
+i1 %cmp.i = #x0 (0)
+  >> Jump to %if.end.i26
+i32 %#3 = #x00000002 (2)
+i1 %or.cond.i111 = #x1 (1)
+  >> Jump to %_ZL25p_pinned_is_valid_pub_keyjj.exit
+i1 %retval.0.i28 = #x1 (1)
+i1 %cmp4 = #x1 (1)
+i1 %cmp5 = #x1 (1)
+i1 %#5 = #x1 (1)
+i1 %cmp8 = #x0 (0)
+i1 %#6 = #x0 (0)
+i1 %#7 = #x0 (0)
+i1 %or.cond17 = #x0 (0)
+  >> Jump to %if.end.i36
+i1 %narrow = #x1 (1)
+i64 %. = #x0000000000002901 (10497)
+  >> Jump to %cleanup15
+i64 %retval.1 = #x0000000000002901 (10497)
+Source value: #x0000000000000108 (264)
+Target value: #x0000000000002901 (10497)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

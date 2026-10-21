@@ -18,7 +18,7 @@ OK=1
   echo "# clang: $(/usr/bin/clang++-20 --version | head -1)"
   for fn in "${FNS[@]}"; do
     echo "# command: alive-tv build/c_${fn}.ll build/l_${fn}.ll"
-    fnout="$(/usr/local/bin/alive-tv "$BUILD/c_${fn}.ll" "$BUILD/l_${fn}.ll" 2>&1 || true)"
+    fnout="$(/usr/local/bin/alive-tv --smt-to=300000 "$BUILD/c_${fn}.ll" "$BUILD/l_${fn}.ll" 2>&1 || true)"
     printf '%s\n' "$fnout"
     if ! printf '%s' "$fnout" | grep -q "Transformation seems to be correct" \
        || ! printf '%s' "$fnout" | grep -q "1 correct transformations" \

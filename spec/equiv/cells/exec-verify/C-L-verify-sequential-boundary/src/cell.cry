@@ -1,0 +1,120 @@
+module CellVerifySequentialBoundary where
+
+// SCR-001 face -- sequential evaluation, not concatenation
+// (interpreter.cpp:2026-2036; CVE-2010-5141).
+//
+// The closed forms below are the *claim*, written independently of either
+// leg: a push is rejected by the parser exactly when its declared payload
+// length exceeds the bytes left before the script-buffer end, so the
+// scriptSig parse is truncated at the scriptSig end while a concatenated
+// parse would consume scriptPubKey bytes.
+//
+// Cell encoding: pack result (2 bits) | error (6 bits) << 2, as the sibling
+// exec-verify cells.  The split pair is
+//   bits 0-7 seq_result, 8-15 seq_err, 16-23 cat_result, 24-31 cat_err.
+// 2 is the out-of-domain sentinel on both legs.
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 3) || ((e && 63) << 2)
+
+pair : [64] -> [64] -> [64]
+pair s c =
+  (s && 255) || (((s >> 2) && 63) << 8) ||
+  ((c && 255) << 16) || (((c >> 2) && 63) << 24)
+
+zext8 : [8] -> [64]
+zext8 x = (0 : [56]) # x
+
+zext16 : [8] -> [8] -> [64]
+zext16 b0 b1 = (0 : [48]) # b1 # b0
+
+zext32 : [8] -> [8] -> [8] -> [8] -> [64]
+zext32 b0 b1 b2 b3 = (0 : [32]) # b3 # b2 # b1 # b0
+
+// ---- CastToBool (Core interpreter.cpp:46-59) on a 0..8-byte element ----
+byte : [64] -> [64] -> [64]
+byte w i = (w >> (8 * i)) && 255
+
+cast_bool : [64] -> [64] -> Bit
+cast_bool w len =
+  (((len > 0) && (byte w 0 != 0)) && ~((len == 1) && (byte w 0 == 128))) ||
+  (((len > 1) && (byte w 1 != 0)) && ~((len == 2) && (byte w 1 == 128))) ||
+  (((len > 2) && (byte w 2 != 0)) && ~((len == 3) && (byte w 2 == 128))) ||
+  (((len > 3) && (byte w 3 != 0)) && ~((len == 4) && (byte w 3 == 128))) ||
+  (((len > 4) && (byte w 4 != 0)) && ~((len == 5) && (byte w 4 == 128))) ||
+  (((len > 5) && (byte w 5 != 0)) && ~((len == 6) && (byte w 5 == 128))) ||
+  (((len > 6) && (byte w 6 != 0)) && ~((len == 7) && (byte w 6 == 128))) ||
+  (((len > 7) && (byte w 7 != 0)) && ~((len == 8) && (byte w 7 == 128)))
+
+// ---------------------------------------------------------------------------
+// GetScriptOp boundary decision, complete over the declared length:
+// 1 = GetScriptOp returns false (truncated push / missing length bytes).
+// `after` = end - pc after the opcode byte has been read.
+// ---------------------------------------------------------------------------
+push_boundary : [8] -> [8] -> [8] -> [8] -> [8] -> [64] -> [64]
+push_boundary op b0 b1 b2 b3 after =
+  if after > 10000 then 2
+  else if op <= 75 then                        // direct push (incl. OP_0)
+    if (zext8 op) > after then 1 else 0
+  else if op == 76 then                        // OP_PUSHDATA1
+    if after < 1 then 1
+    else if (zext8 b0) > (after - 1) then 1 else 0
+  else if op == 77 then                        // OP_PUSHDATA2
+    if after < 2 then 1
+    else if (zext16 b0 b1) > (after - 2) then 1 else 0
+  else if op == 78 then                        // OP_PUSHDATA4
+    if after < 4 then 1
+    else if (zext32 b0 b1 b2 b3) > (after - 4) then 1 else 0
+  else 0                                       // not a data push
+
+// Length-prefix width of the canonical push encoding (0 / 1 / 2 bytes).
+header_len : [64] -> [64]
+header_len d = if d <= 75 then 0 else if d <= 255 then 1 else 2
+
+// ---------------------------------------------------------------------------
+// Sequential vs concatenated verdict for the straddling-push family.
+// scriptSig = canonical push of `declared` payload bytes with only `after`
+// payload bytes present; scriptPubKey supplies the other `declared - after`
+// bytes.  The whole concatenated buffer is 1 opcode + header_len + declared
+// bytes, so the MAX_SCRIPT_SIZE pre-check (interpreter.cpp:419-421) puts the
+// family out of domain when that exceeds 10000.
+// `truthy` = CastToBool of the pushed element.
+// ---------------------------------------------------------------------------
+split_verdict : [64] -> [64] -> [64] -> [64]
+split_verdict declared after truthy =
+  if (declared == 0) || (declared > 10000) || (after > declared) ||
+     (truthy > 1) || (1 + header_len declared + declared > 10000)
+  then 2
+  else pair (if seq_fits then element else bad)
+            (if cat_fits then element else bad)
+  where
+    element = if truthy == 1 then pack 1 0 else pack 0 2
+    bad = pack 0 16                       // SCRIPT_ERR_BAD_OPCODE
+    seq_fits = declared <= after          // end = scriptSig.end()
+    cat_fits = declared <= after + (declared - after)  // end includes spk
+
+// The row's distinction, stated on its own: the sequential and concatenated
+// verdicts differ exactly when the push straddles the scriptSig boundary.
+// This holds for either truth value of the element: sequentially the
+// truncated push is BAD_OPCODE, while concatenation accepts it and then
+// either succeeds (truthy) or yields EVAL_FALSE.
+split_diff : [64] -> [64] -> [64] -> [64]
+split_diff declared after truthy =
+  if (declared == 0) || (declared > 10000) || (after > declared) ||
+     (truthy > 1) || (1 + header_len declared + declared > 10000)
+  then 2
+  else if after < declared then 1 else 0
+
+// ---------------------------------------------------------------------------
+// VerifyScript order / handoff / final truth for a complete scriptSig push.
+// trunc = scriptSig push rejected; word/len = the single element it left;
+// kind: 0 = empty scriptPubKey, 1 = OP_1, 2 = OP_0.
+// ---------------------------------------------------------------------------
+verify_tail : [64] -> [64] -> [64] -> [64] -> [64]
+verify_tail truncated word len kind =
+  if (truncated > 1) || (len > 8) || (kind > 2) then 2
+  else if truncated == 1 then pack 0 16          // scriptSig error wins, spk skipped
+  else if kind == 0 then
+    if cast_bool word len then pack 1 0 else pack 0 2
+  else if kind == 1 then pack 1 0            // OP_1
+  else pack 0 2                              // OP_0

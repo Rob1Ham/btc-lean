@@ -1,6 +1,6 @@
 # LEDGER REPORT — current SCR coverage ledger
 
-**Date:** 2026-10-20 (wave64 integration; evidence tier)
+**Date:** 2026-10-21 (wave66 accepted integration; evidence tier)
 **Census pin:** Bitcoin Core v32.99 @ `cce32b168`
 **Scope:** `spec/db/rules.yaml` → `spec/db/equiv-cells.yaml`
 
@@ -18,14 +18,14 @@
 | Consensus `true` | **156** |
 | Consensus `false` (policy/boundary) | **27** |
 | Ledger status `planned` | **0** |
-| Green (`alive2`/`saw`/`both`) | 0 / 0 / **152** |
-| `unjudged-seam` | **2** |
-| Filed `gap` | **29** |
+| Green (`alive2`/`saw`/`both`) | 0 / 0 / **159** |
+| `unjudged-seam` | **1** |
+| Filed `gap` | **23** |
 | Missing from ledger | 0 |
 | Ledger ids absent from `rules.yaml` | 0 |
 
 Current `coverage_report.py --strict` result: **PASS**. All 183 rows are
-adjudicated; the 152 green rows are listed in `results/matrix.md` and the
+adjudicated; the 159 green rows are listed in `results/matrix.md` and the
 non-green dispositions in `findings/coverage/F-E6-GAPS.md`.
 
 ## 2. Family mapping and green coverage
@@ -35,22 +35,22 @@ intended directory name under `spec/equiv/cells/`.
 
 | Family id | Source | Rows | Consensus | Non-consensus | Green |
 |---|---|---:|---:|---:|---:|
-| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 11 |
-| `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 | 22 |
-| `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 | 10 |
-| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 16 |
+| `exec-verify` | `06-script-interpreter.md` §B.1 Execution model & VerifyScript | 17 | 14 | 3 | 12 |
+| `limits` | `06-script-interpreter.md` §B.2 Limits & accounting | 27 | 26 | 1 | 23 |
+| `push-encoding` | `06-script-interpreter.md` §B.3 Push & encoding rules | 11 | 7 | 4 | 11 |
+| `control-flow` | `06-script-interpreter.md` §B.4 Control flow | 17 | 16 | 1 | 17 |
 | `stack-ops` | `06-script-interpreter.md` §B.5 Stack ops | 6 | 6 | 0 | 5 |
 | `numeric` | `06-script-interpreter.md` §B.6 Numeric ops & ScriptNum | 14 | 14 | 0 | 13 |
 | `hash-ops` | `06-script-interpreter.md` §B.7 Hash ops | 3 | 3 | 0 | 3 |
 | `checksig` | `06-script-interpreter.md` §B.8 Checksig (pre-tapscript) | 18 | 11 | 7 | 16 |
 | `checkmultisig` | `06-script-interpreter.md` §B.9 CHECKMULTISIG | 8 | 8 | 0 | 7 |
 | `locktime` | `06-script-interpreter.md` §B.10 Locktime | 11 | 11 | 0 | 10 |
-| `witness-v0` | `06-script-interpreter.md` §B.11 SegWit v0 | 9 | 9 | 0 | 6 |
+| `witness-v0` | `06-script-interpreter.md` §B.11 SegWit v0 | 9 | 9 | 0 | 7 |
 | `tapscript` | `06-script-interpreter.md` §B.12 Taproot/Tapscript | 28 | 26 | 2 | 21 |
 | `disabled-opcodes` | `06-script-interpreter.md` §B.13 Disabled opcodes | 5 | 4 | 1 | 4 |
 | `tapscript-reimport` | `w2-06-flags-activation.md` §B.1 Tapscript re-import | 1 | 1 | 0 | 1 |
 | `policy-flags` | `w2-06-flags-activation.md` §B.12 Policy-only flags | 8 | 0 | 8 | 7 |
-| **Total** | | **183** | **156** | **27** | **152** |
+| **Total** | | **183** | **156** | **27** | **159** |
 
 Every family is present; the sum of family row counts equals 183. Green counts
 are row counts, not cell counts; a row may cite more than one cell.
@@ -132,7 +132,7 @@ Determinism check: `python3 .../build_equiv_cells.py --check` reports
   cell records. It fails loudly (no write) if a green row has no cell or if
   the ledger disagrees with the cell-derived state.
 - **Certificate gate:** `tools/gate_ir_pin.py` replays all nested
-  certificates; the current tree has 344 certificates and 0 failures. The
+  certificates; the current tree has 376 certificates and 0 failures. The
   clean-checkout checker
   `findings/wave64/51-cert-repro-hardening/tools/cert_repro_check.py`
   additionally replays manifests and moves non-tracked historical hashes to
@@ -140,11 +140,10 @@ Determinism check: `python3 .../build_equiv_cells.py --check` reports
 
 ## 6. Current non-green dispositions
 
-- **`unjudged-seam` (2):** SCR-146 (TapLeaf tagged-hash preimage) and
-  SCR-147 (Taproot tweak/commitment).
-- **Filed gaps (25):** SCR-001, 005, 008, 010, 021, 036, 040, 043, 044,
-  051, 078, 086, 104, 112, 115, 133, 136, 140, 142, 153, 154, 167, 169, 172,
-  175.
+- **`unjudged-seam` (1):** SCR-147 (Taproot tweak/commitment).
+- **Filed gaps (23):** SCR-003, 005, 006, 008, 010, 021, 036, 043, 044,
+  078, 104, 112, 115, 133, 140, 142, 146, 153, 154, 167, 169, 172, 175.
+  SCR-001/040/051/057/086/132 were closed by the accepted wave66 cells.
 - Each row has a row-specific blocker in `findings/coverage/F-E6-GAPS.md`;
   wave64 added exact witnesses for SCR-008 (`F-DIV-W32-01`), SCR-112
   (`F-DIV-004`), SCR-043 (miniscript bound), SCR-142 (no pin height gate), and

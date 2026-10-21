@@ -1,0 +1,61 @@
+module Spec where
+
+// Core postcondition for the SCR-008 full-domain probe.
+//
+// Same table as cells/exec-verify/C-L-w65-scr008-cleanstack-arms/saw/cell.cry,
+// except that the F-DIV-W32-01 class is *not* fenced out: only script-shape
+// and reachable-ok-path restrictions remain.
+//
+// Observable: result (2) | error (6) << 2.  Ordinals: 30 CLEANSTACK,
+// 41 WITNESS_MALLEATED, 42 WITNESS_MALLEATED_P2SH, 43 WITNESS_UNEXPECTED.
+
+m1 : [64] -> [64]
+m1 x = x && 0x0000000000000001
+m2 : [64] -> [64]
+m2 x = x && 0x0000000000000003
+
+one : [64]
+one = 0x0000000000000001
+zero : [64]
+zero = 0x0000000000000000
+ood : [64]
+ood = 0xffffffffffffffff
+
+pack : [64] -> [64] -> [64]
+pack r e = (r && 0x0000000000000003) || ((e && 0x000000000000003f) << 2)
+
+// shape-valid: not (spk_wit && spk_p2sh)
+shape_ok : [64] -> [64] -> [64]
+shape_ok spkw spkp = if (m1 spkw && m1 spkp) == zero then one else zero
+
+// reachable ok paths: st_n != 0, and inner_len != 0 for the P2SH branch
+reach_ok : [64] -> [64] -> [64] -> [64] -> [64]
+reach_ok n p spkp ilen =
+  if m2 n == zero then zero
+  else if (m1 p && m1 spkp) != zero /\ m2 ilen == zero then zero
+  else one
+
+final_len_c : [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+final_len_c w p n spkw spkp pwit ilen =
+  if (m1 p && m1 spkp) != zero
+    then (if (m1 w && m1 pwit) != zero then one else m2 ilen)
+    else (if (m1 w && m1 spkw) != zero then one else m2 n)
+
+had_c : [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+had_c w p spkw spkp pwit =
+  (m1 w && m1 spkw) || (m1 p && m1 spkp && m1 w && m1 pwit)
+
+core_arms : [64] -> [64] -> [64] -> [64] -> [64] -> [64] ->
+            [64] -> [64] -> [64] -> [64] -> [64] -> [64]
+core_arms cs w p n spkw spkp pwit pshok sign witn ilen =
+  if shape_ok spkw spkp == zero then ood
+  else if reach_ok n p spkp ilen == zero then ood
+  else if m1 w != zero /\ m1 spkw != zero /\ m2 sign != zero
+    then pack zero 0x0000000000000029
+  else if (m1 p && m1 spkp && m1 w && m1 pwit) != zero /\ m1 pshok == zero
+    then pack zero 0x000000000000002a
+  else if m1 cs != zero /\ final_len_c w p n spkw spkp pwit ilen != one
+    then pack zero 0x000000000000001e
+  else if m1 w != zero /\ had_c w p spkw spkp pwit == zero /\ m2 witn != zero
+    then pack zero 0x000000000000002b
+  else pack one zero

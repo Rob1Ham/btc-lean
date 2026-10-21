@@ -1,0 +1,72 @@
+{
+  "finding": "F-DIV-W32-01 (proposed global id F-DIV-003)",
+  "wave": "wave65",
+  "agent": "02-scr008-full-cell",
+  "base": "76dbfe5e42f8a337e41a7308158b0de078afafd9",
+  "branch": "wave65/02-scr-008",
+  "pin": "cce32b16874e85e8a00cfa1a2190f0b6f4dcaf66",
+  "lean_defs_blob": "363d3738b66049e260577e9c1fa2cd24d05f6e3b",
+  "description": "Lean verifyScriptFull finalLen keys the witness resize off isWitnessProgram spk (the P2SH scriptPubKey), so the P2SH-wrapped witness arm is never resized. Core resizes to one element at interpreter.cpp:2102. With pol.cleanstack = true, real Core accepts a valid P2SH-wrapped v0 witness spend and the pinned Lean model rejects it with CLEANSTACK. Re-established at base 76dbfe5 by running both sides on the same byte tapes.",
+  "flags": {"p2sh": true, "witness": true, "cleanstack": true},
+  "checker": "Bitcoin.Crypto.Seam.stubChecker (Lean) / AcceptAllChecker (Core BaseSignatureChecker subclass)",
+  "tapes": {
+    "p2sh-p2wpkh": {
+      "role": "divergent witness (minimal redeem script: 22 bytes)",
+      "scriptSig": "160014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "scriptPubKey": "a914173727a17ada832a0fd90be6c628f63598b3400f87",
+      "redeemScript": "0014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "witness": ["300101", "02" + "11" * 32],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "fail", "err": "cleanstack", "measured_at": "76dbfe5"},
+      "lean_eval_redeem_len": 2
+    },
+    "p2sh-p2wsh": {
+      "role": "divergent witness (minimal witness data: one 1-byte item)",
+      "scriptSig": "2200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "scriptPubKey": "a91472c44f957fc011d97e3406667dca5b1c930c402687",
+      "redeemScript": "00204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "witnessScript": "51",
+      "witness": ["51"],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "fail", "err": "cleanstack", "measured_at": "76dbfe5"},
+      "lean_eval_redeem_len": 2
+    },
+    "bare-p2wpkh": {
+      "role": "control: the bare arm the Lean model resizes correctly",
+      "scriptSig": "",
+      "scriptPubKey": "0014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "witness": ["300101", "02" + "11" * 32],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "ok", "err": null, "measured_at": "76dbfe5"}
+    },
+    "p2sh-plain": {
+      "role": "control: non-witness P2SH; the finalLen re-evaluation agrees with Core",
+      "scriptSig": "0151",
+      "scriptPubKey": "a914da1745e9b549bd0bfa1a569971c77eba30cd5a4b87",
+      "redeemScript": "51",
+      "witness": [],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "ok", "err": null, "measured_at": "76dbfe5"}
+    },
+    "p2sh-p2wpkh-cleanstack-off": {
+      "role": "control: same tape with pol.cleanstack = false; both accept",
+      "scriptSig": "160014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "scriptPubKey": "a914173727a17ada832a0fd90be6c628f63598b3400f87",
+      "redeemScript": "0014adfce54f529b2154e3c361bbe3f7d41db0635717",
+      "witness": ["300101", "02" + "11" * 32],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "ok", "err": null, "measured_at": "76dbfe5"}
+    },
+    "p2sh-p2wsh-cleanstack-off": {
+      "role": "control: same tape with pol.cleanstack = false; both accept",
+      "scriptSig": "2200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "scriptPubKey": "a91472c44f957fc011d97e3406667dca5b1c930c402687",
+      "redeemScript": "00204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc33260",
+      "witnessScript": "51",
+      "witness": ["51"],
+      "core": {"verify": true, "err": "OK", "measured_at": "76dbfe5"},
+      "lean": {"outcome": "ok", "err": null, "measured_at": "76dbfe5"}
+    }
+  },
+  "note": "CLEANSTACK is policy-only (spec/db/rules.yaml SCR-008 consensus: false); the divergence is a false rejection at the mempool/policy face, not a consensus split. The divergence is independent of the witness contents: finalLen is computed from the redeem script, so every valid P2SH-wrapped v0 spend has inner length 2 and is rejected."
+}

@@ -1,0 +1,306 @@
+module CellMinimaldataArbitraryNum where
+
+// Independent specification of SCR-051: the numeric-operand minimal-encoding
+// predicate under SCRIPT_VERIFY_MINIMALDATA at the five cited decode sites,
+// for an operand of ARBITRARY length (full 32-bit `len`, not a 3-bit field).
+//
+//   CLTV/CSV  CScriptNum(stacktop(-1), fRequireMinimal, 5)
+//             (interpreter.cpp:556, :584; Defs.lean:860, :869)
+//   CMS       CScriptNum(stacktop(-i), fRequireMinimal)  x2, default cap 4
+//             (interpreter.cpp:1126, :1140; Defs.lean:1076, :1082)
+//   CHECKSIGADD  CScriptNum(stacktop(-2), fRequireMinimal), default cap 4
+//             (interpreter.cpp:1103; Defs.lean:803-811)
+//
+// fRequireMinimal is *derived from the pinned flags word* exactly as in
+// interpreter.cpp:442 (`flags & SCRIPT_VERIFY_MINIMALDATA`, bit 6 = 0x40).
+// The CLTV/CSV activation bits are 0x200/0x400.  The decoded number is
+// carried as a 64-bit two's-complement word: five operand bytes give a
+// magnitude below 2^39, so the value is exact.  Negative zero decodes to 0
+// (set_vch).
+//
+// POLICY / CONSENSUS.  MINIMALDATA is a *policy* (standardness) flag, not a
+// consensus rule.  The model keeps the two lanes explicit: the decoder is
+// parameterised by `md` (fRequireMinimal), and `accept` under md is exactly
+// the canonical-encoding predicate; with md clear every in-width operand is
+// accepted.  `rtOK` below is the independent round-trip characterisation
+//   operand is minimal  <=>  serialize(set_vch(operand)) == operand
+// and is checked against the two-byte `minimalOkBE` test rather than derived
+// from it.
+//
+// Observable (both legs): result(2) | error_kind(6) << 2.  result 1 = the
+// handler continued (opcode OK), 0 = it returned the error in the field.
+// Error ordinals are Core's ScriptError ordinals (contract/error_kind.h):
+// SCRIPTNUM=4, OP_COUNT=7, SIG_COUNT=9, PUBKEY_COUNT=10, BAD_OPCODE=16,
+// INVALID_STACK_OPERATION=18, NEGATIVE_LOCKTIME=21,
+// TAPSCRIPT_CHECKMULTISIG=50.
+//
+// The full 32-bit `len` covers every legal element size 0..520 (a larger push
+// is rejected at interpreter.cpp:457-458 before any decode) as well as the
+// unreachable >520 values.  Both caps are <= 5, so the width guard runs before
+// any byte below index 5 is consulted.
+
+// ---- operand access --------------------------------------------------------
+
+byteAt : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [8]
+byteAt a b c d e k =
+  if k == (0 : [32]) then a
+  else if k == (1 : [32]) then b
+  else if k == (2 : [32]) then c
+  else if k == (3 : [32]) then d
+  else if k == (4 : [32]) then e
+  else 0
+
+// Minimality test of script.h:255-268, for a length `l` operand:
+// (top & 0x7f) == 0 and (l <= 1 or (next & 0x80) == 0).
+// The width guard runs first, so only l <= 5 reaches this test.
+nonmin : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit
+nonmin a b c d e l =
+  (((byteAt a b c d e (l - (1 : [32]))) && (0x7f : [8])) == (0 : [8])) &&
+  ((l <= (1 : [32])) ||
+   (((byteAt a b c d e (l - (2 : [32]))) && (0x80 : [8])) == (0 : [8])))
+
+// The predicate as applied by CScriptNum: the test only runs for len > 0.
+nonminPos : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit
+nonminPos a b c d e l = (l != (0 : [32])) && nonmin a b c d e l
+
+// set_vch magnitude: little-endian bytes, most-significant byte's 0x80 removed.
+raw64 : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64]
+raw64 a b c d e l =
+  if l == (0 : [32]) then (0 : [64])
+  else if l == (1 : [32]) then (zext a : [64])
+  else if l == (2 : [32]) then (zext a : [64]) + ((zext b : [64]) << (8 : [64]))
+  else if l == (3 : [32]) then (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+                      ((zext c : [64]) << (16 : [64]))
+  else if l == (4 : [32]) then (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+                      ((zext c : [64]) << (16 : [64])) +
+                      ((zext d : [64]) << (24 : [64]))
+  else (zext a : [64]) + ((zext b : [64]) << (8 : [64])) +
+       ((zext c : [64]) << (16 : [64])) + ((zext d : [64]) << (24 : [64])) +
+       ((zext e : [64]) << (32 : [64]))
+
+// 0x80 << (8 * (l - 1)) for the five in-range lengths.
+signbit : [32] -> [64]
+signbit l =
+  if l == (1 : [32]) then (128 : [64])
+  else if l == (2 : [32]) then (32768 : [64])
+  else if l == (3 : [32]) then (8388608 : [64])
+  else if l == (4 : [32]) then (2147483648 : [64])
+  else (549755813888 : [64])
+
+negb : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit
+negb a b c d e l =
+  (l != (0 : [32])) && (byteAt a b c d e (l - (1 : [32])) >= (0x80 : [8]))
+
+mag : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64]
+mag a b c d e l =
+  if l == (0 : [32]) then (0 : [64])
+  else if negb a b c d e l then (raw64 a b c d e l - signbit l)
+  else raw64 a b c d e l
+
+// A value is negative iff the sign bit is set AND the magnitude is non-zero
+// (negative zero compares equal to zero, as in set_vch).
+isneg : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit
+isneg a b c d e l = (negb a b c d e l) && (mag a b c d e l != (0 : [64]))
+
+// 64-bit two's-complement decoded value (negative zero is 0).
+value64 : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64]
+value64 a b c d e l =
+  if negb a b c d e l then ((0 : [64]) - mag a b c d e l)
+  else mag a b c d e l
+
+// ---- canonical re-encoding (script.h:342-373 / encode_num) ----------------
+
+nbytes : [64] -> [32]
+nbytes a =
+  if a < (0x0000000000000100 : [64]) then (1 : [32])
+  else if a < (0x0000000000010000 : [64]) then (2 : [32])
+  else if a < (0x0000000001000000 : [64]) then (3 : [32])
+  else if a < (0x0000000100000000 : [64]) then (4 : [32])
+  else (5 : [32])
+
+// serialize(mag with sign `neg`), packed little-endian.  Closed form of
+// script.h:354-369: `n` magnitude bytes, then one 0x00/0x80 sign-pad byte if
+// the magnitude's top byte has bit 7 set, else the sign bit is folded into
+// the top magnitude byte.
+canonPack : Bit -> [64] -> [64]
+canonPack neg a =
+  if a == (0 : [64]) then (0 : [64])
+  else if nbytes a == (1 : [32]) then
+    (if ((a && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then a + (if neg then (0x0000000000008000 : [64]) else (0 : [64]))
+       else if neg then a || (0x0000000000000080 : [64]) else a)
+  else if nbytes a == (2 : [32]) then
+    (if (((a >> (8 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then a + (if neg then (0x0000000000800000 : [64]) else (0 : [64]))
+       else if neg then a || (0x0000000000008000 : [64]) else a)
+  else if nbytes a == (3 : [32]) then
+    (if (((a >> (16 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then a + (if neg then (0x0000000080000000 : [64]) else (0 : [64]))
+       else if neg then a || (0x0000000000800000 : [64]) else a)
+  else if nbytes a == (4 : [32]) then
+    (if (((a >> (24 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then a + (if neg then (0x0000008000000000 : [64]) else (0 : [64]))
+       else if neg then a || (0x0000000080000000 : [64]) else a)
+  else
+    (if (((a >> (32 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then a + (if neg then (0x0000800000000000 : [64]) else (0 : [64]))
+       else if neg then a || (0x0000008000000000 : [64]) else a)
+
+canonLen : [64] -> [32]
+canonLen a =
+  if a == (0 : [64]) then (0 : [32])
+  else if nbytes a == (1 : [32]) then
+    (if ((a && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64])) then (2 : [32]) else (1 : [32]))
+  else if nbytes a == (2 : [32]) then
+    (if (((a >> (8 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then (3 : [32]) else (2 : [32]))
+  else if nbytes a == (3 : [32]) then
+    (if (((a >> (16 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then (4 : [32]) else (3 : [32]))
+  else if nbytes a == (4 : [32]) then
+    (if (((a >> (24 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then (5 : [32]) else (4 : [32]))
+  else
+    (if (((a >> (32 : [64])) && (0x00000000000000ff : [64])) >= (0x0000000000000080 : [64]))
+       then (6 : [32]) else (5 : [32]))
+
+// The independent predicate: canonical re-encoding reproduces the operand.
+rtOK : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit
+rtOK a b c d e l =
+  if l > (5 : [32]) then False
+  else if mag a b c d e l == (0 : [64]) then l == (0 : [32])
+  else (canonLen (mag a b c d e l) == l) &&
+       (canonPack (isneg a b c d e l) (mag a b c d e l) == raw64 a b c d e l)
+
+// ---- decode verdict --------------------------------------------------------
+
+// OK iff the width cap and (under the flag) the minimality test both pass.
+decOK : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [32] -> Bit
+decOK a b c d e l md maxs =
+  if (l > maxs) then False
+  else if (md && (l != (0 : [32])) && (nonmin a b c d e l)) then False
+  else True
+
+// ---- verdict encoding ------------------------------------------------------
+
+okv : [64]
+okv = 1
+
+err : [64] -> [64]
+err k = k << (2 : [64])
+
+// ---- pinned flag bits (contract/tape.md:119-124) ---------------------------
+
+mdBit : [64] -> Bit
+mdBit f = (f && (0x0000000000000040 : [64])) != (0 : [64])
+
+cltvBit : [64] -> Bit
+cltvBit f = (f && (0x0000000000000200 : [64])) != (0 : [64])
+
+csvBit : [64] -> Bit
+csvBit f = (f && (0x0000000000000400 : [64])) != (0 : [64])
+
+// ---- predicate observable (pred_cap4 / pred_cap5) --------------------------
+
+// bit 0 accept | bit 1 width reject | bit 2 non-minimal | bit 3 roundtrip |
+// bit 4 value < 0 | bit 5 value == 0 | bit 6 fRequireMinimal |
+// bits 8..63 low 56 bits of the decoded value (0 when rejected).
+predObs : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [32] -> [64]
+predObs a b c d e len flags cap =
+  if len > cap then
+    // C/L initialise zero=true, neg=rt=nonmin=accept=false on this path.
+    ((1 : [64]) << (1 : [64])) ||
+    ((1 : [64]) << (5 : [64])) ||
+    (if mdBit flags then ((1 : [64]) << (6 : [64])) else (0 : [64]))
+  else
+    (if ~(mdBit flags && nonminPos a b c d e len) then (1 : [64]) else (0 : [64]))
+    || ((if nonminPos a b c d e len then (1 : [64]) else (0 : [64])) << (2 : [64]))
+    || ((if rtOK a b c d e len then (1 : [64]) else (0 : [64])) << (3 : [64]))
+    || ((if isneg a b c d e len then (1 : [64]) else (0 : [64])) << (4 : [64]))
+    || ((if mag a b c d e len == (0 : [64]) then (1 : [64]) else (0 : [64])) << (5 : [64]))
+    || ((if mdBit flags then (1 : [64]) else (0 : [64])) << (6 : [64]))
+    || ((if ~(mdBit flags && nonminPos a b c d e len)
+           then (value64 a b c d e len && (0x00FFFFFFFFFFFFFF : [64]))
+           else (0 : [64])) << (8 : [64]))
+
+predCap5 : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [64]
+predCap5 a b c d e len flags = predObs a b c d e len flags (5 : [32])
+
+predCap4 : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [64]
+predCap4 a b c d e len flags = predObs a b c d e len flags (4 : [32])
+
+// ---- OP_CHECKLOCKTIMEVERIFY (cap 5) ---------------------------------------
+
+cltvBody : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [64]
+cltvBody a b c d e l md =
+  if ~(decOK a b c d e l md (5 : [32])) then err 4
+  else if (isneg a b c d e l) then err 21
+  else okv
+
+cltv : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [16] -> [64]
+cltv a b c d e len flags depth =
+  if ~(cltvBit flags) then okv
+  else if depth < (1 : [16]) then err 18
+  else cltvBody a b c d e len (mdBit flags)
+
+// ---- OP_CHECKSEQUENCEVERIFY (cap 5) ---------------------------------------
+
+csvBody : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [64]
+csvBody a b c d e l md =
+  if ~(decOK a b c d e l md (5 : [32])) then err 4
+  else if (isneg a b c d e l) then err 21
+  else if (((mag a b c d e l) && (2147483648 : [64])) != (0 : [64])) then okv
+  else okv
+
+csv : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [16] -> [64]
+csv a b c d e len flags depth =
+  if ~(csvBit flags) then okv
+  else if depth < (1 : [16]) then err 18
+  else csvBody a b c d e len (mdBit flags)
+
+// ---- OP_CHECKMULTISIG key/sig counts (cap 4) ------------------------------
+
+cmsSigs : [64] -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [16]
+          -> [64]
+cmsSigs nk s0 s1 s2 s3 s4 sl md depth =
+  if ~(decOK s0 s1 s2 s3 s4 sl md (4 : [32])) then err 4
+  else if ((isneg s0 s1 s2 s3 s4 sl) ||
+           (nk < (mag s0 s1 s2 s3 s4 sl))) then err 9
+  else if ((zext depth : [64]) < (nk + (mag s0 s1 s2 s3 s4 sl) + (3 : [64])))
+    then err 18
+  else okv
+
+cmsKeys : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [16] -> [16]
+          -> [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64]
+cmsKeys k0 k1 k2 k3 k4 kl md depth opcount s0 s1 s2 s3 s4 sl =
+  if ~(decOK k0 k1 k2 k3 k4 kl md (4 : [32])) then err 4
+  else if ((isneg k0 k1 k2 k3 k4 kl) ||
+           ((mag k0 k1 k2 k3 k4 kl) > (20 : [64]))) then err 10
+  else if (((zext opcount : [64]) + (mag k0 k1 k2 k3 k4 kl)) > (201 : [64]))
+    then err 7
+  else if ((zext depth : [64]) < ((mag k0 k1 k2 k3 k4 kl) + (2 : [64])))
+    then err 18
+  else cmsSigs (mag k0 k1 k2 k3 k4 kl) s0 s1 s2 s3 s4 sl md depth
+
+cms : [8] -> [8] -> [8] -> [8] -> [8] -> [32] ->
+      [8] -> [8] -> [8] -> [8] -> [8] -> [32] ->
+      [64] -> [16] -> [16] -> [8] -> [64]
+cms k0 k1 k2 k3 k4 klen s0 s1 s2 s3 s4 slen flags depth opcount sigversion =
+  if sigversion == (2 : [8]) then err 50
+  else if depth < (1 : [16]) then err 18
+  else cmsKeys k0 k1 k2 k3 k4 klen (mdBit flags) depth opcount
+               s0 s1 s2 s3 s4 slen
+
+// ---- OP_CHECKSIGADD number (cap 4, tapscript only) ------------------------
+
+csaBody : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> Bit -> [16] -> [64]
+csaBody a b c d e l md depth =
+  if depth < (3 : [16]) then err 18
+  else if ~(decOK a b c d e l md (4 : [32])) then err 4
+  else okv
+
+checksigadd : [8] -> [8] -> [8] -> [8] -> [8] -> [32] -> [64] -> [16] -> [8]
+              -> [64]
+checksigadd a b c d e len flags depth sigversion =
+  if (sigversion == (0 : [8])) || (sigversion == (1 : [8])) then err 16
+  else csaBody a b c d e len (mdBit flags) depth

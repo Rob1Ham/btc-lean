@@ -1,0 +1,11 @@
+--- /tmp/opencode/wave66/01-scr-001/spec/equiv/cells/exec-verify/C-L-verify-sequential-boundary/src/c_cell.cpp	2026-10-21 09:33:24.926170152 +0000
++++ /tmp/opencode/wave66/01-scr-001/spec/equiv/findings/wave66/01-scr-001/mutant/build/c_cell_mutant.cpp	2026-10-21 09:37:00.388598695 +0000
+@@ -136,7 +136,7 @@
+   // Sequential: scriptSig.end() is 1 + hdr + after_op bytes in; `end - pc`
+   // after the opcode byte is hdr + after_op.
+   const bool seq_fits =
+-      (c_push_boundary(op, b0, b1, 0, 0, hdr + after_op) == 0);
++      (c_push_boundary(op, b0, b1, 0, 0, hdr + declared) == 0);
+   // Concatenated: scriptPubKey supplies the remaining declared - after_op
+   // bytes, so the buffer is 1 + hdr + declared bytes and `end - pc` after the
+   // opcode byte is hdr + declared.

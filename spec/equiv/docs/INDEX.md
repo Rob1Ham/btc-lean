@@ -1,6 +1,6 @@
 # INDEX — `spec/equiv` reading map
 
-**Snapshot:** `2026-10-21` (post-wave65 audit correction)
+**Snapshot:** `2026-10-21` (post-wave66 accepted integration)
 **Purpose:** get a reviewer from "what is this?" to "what exactly is proved,
 what is only claimed, and what is missing" without reading every role report.
 
@@ -18,7 +18,7 @@ what is only claimed, and what is missing" without reading every role report.
 > **Current status in one line:** E0 passes; E1 has bounded cells and killed
 > mutations; E2/E3/E4 have tool-green but **partial** cells; E5 is a scoped
 > residual with no whole-function proof; E6 has **183/183 SCR rows
-> adjudicated** (152 both-tool green, 2 unjudged seams, 29 filed gaps, 0
+> adjudicated** (159 both-tool green, 1 unjudged seam, 23 filed gaps, 0
 > planned). `make pins`, `make e0`, `make gate-ir-pin`, and `make equiv` all
 > exit 0. The result is **conditional evidence-tier**, not an all-green or
 > Lean-kernel claim.
@@ -40,10 +40,10 @@ Evidence tiers actually present:
 |---|---|---|
 | **T0 — pins/contract** | verified versions, HEADs, contract v3 hash, ABI v2, 56-entry enum | the harness, not the engines |
 | **T1 — tool probes** | Alive2/SAW positive + negative controls; capability matrix | tool ingestion, not cells |
-| **T2 — bounded cells** | 17 cell directories, all with Alive2 and SAW success markers | bounded leaves/predicates; only 4 rows full |
+| **T2 — bounded cells** | 177 cell directories, all with Alive2 and SAW success markers | bounded leaves/predicates; partial cells do not promote rows |
 | **T3 — behavioral differential** | C vs expected 1258/1258; C vs Lean model 1251/1258; C vs twin 922/0/336 (v2-historical) | behavior, not IR; R absent |
 | **T4 — E0 triple** | C/L/R agree on 4/4 tapes; clean 1.95 R shim | harness/ABI smoke, not proof |
-| **T5 — ledger** | 152 both-green, 2 unjudged-seam, 29 gap, 0 planned | every row has a disposition |
+| **T5 — ledger** | 159 both-green, 1 unjudged-seam, 23 gap, 0 planned | every row has a disposition |
 | **T6 — whole-engine proof** | **none** | E5 residual, not a proof |
 
 ---
@@ -90,7 +90,7 @@ The recipe now includes `error_enum.md` and recomputes to
 | Path | State |
 |---|---|
 | [`../results/STATUS.md`](../results/STATUS.md) | current E0–E6 checkpoint |
-| [`../results/matrix.md`](../results/matrix.md) | generated; 152 green / 2 seam / 29 gap; named trust base |
+| [`../results/matrix.md`](../results/matrix.md) | generated; 159 green / 1 seam / 23 gap; named trust base |
 | [`../results/e0/README.md`](../results/e0/README.md) | three-leg PASS, R `73e3d2d9…`, L `b9ed129b…`; C provenance caveat |
 | [`../results/LEDGER-REPORT.md`](../results/LEDGER-REPORT.md) | bootstrap history; current counts in its addendum |
 | [`../findings/coverage/F-E6-GAPS.md`](../findings/coverage/F-E6-GAPS.md) | every non-green SCR row and disposition |
@@ -101,7 +101,7 @@ The recipe now includes `error_enum.md` and recomputes to
 | [`../findings/e4/report.md`](../findings/e4/report.md) | v0 dispatch cell and seam inventory |
 | [`../findings/e5/E5-RESIDUAL.md`](../findings/e5/E5-RESIDUAL.md) | why whole-function proof is blocked |
 | [`../findings/redteam/redteam-report.md`](../findings/redteam/redteam-report.md) | mutation catalogue and eight kills |
-| [`../cells/INDEX.md`](../cells/INDEX.md) | all 17 cell directories and coverage |
+| [`../cells/INDEX.md`](../cells/INDEX.md) | all 177 cell directories and coverage |
 
 ### Historical snapshots
 

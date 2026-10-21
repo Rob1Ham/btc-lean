@@ -1,0 +1,99 @@
+# cell: disabled/C-L-w65-row172-arbscan
+# expected: 0 correct / 1 incorrect; source 16 (Core BAD_OPCODE),
+#           target 8 (Lean STACK_SIZE)
+# command: alive-tv --smt-to=300000 build/c_cell_tail.ll build/l_cell_tail.ll
+# witness: found=0 decode_fail=2 too_many=1
+
+----------------------------------------
+define i64 @cell_tail(i32 noundef %found, i32 noundef %decode_fail, i32 noundef %discourage, i32 noundef %too_many, i32 noundef %oversize) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %found, 0
+  br i1 %cmp.not, label %if.end, label %if.then
+
+if.then:
+  %cmp1.not = icmp eq i32 noundef %discourage, 0
+  %cond = select i1 %cmp1.not, i64 0, i64 36
+  br label %return
+
+if.end:
+  %cmp2.not = icmp eq i32 noundef %decode_fail, 0
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %cmp5.not = icmp eq i32 noundef %too_many, 0
+  br i1 %cmp5.not, label %if.end7, label %return
+
+if.end7:
+  %cmp8.not = icmp eq i32 noundef %oversize, 0
+  %. = select i1 %cmp8.not, i64 66, i64 6
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %cond, %if.then ], [ 16, %if.end ], [ 8, %if.end4 ], [ %., %if.end7 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 67
+  ret i64 %#range_0_%retval.0
+}
+=>
+define i64 @cell_tail(i32 noundef %found, i32 noundef %decode_fail, i32 noundef %discourage, i32 noundef %too_many, i32 noundef %oversize) nofree willreturn memory(none) {
+entry:
+  %cmp.not = icmp eq i32 noundef %found, 0
+  br i1 %cmp.not, label %if.end, label %if.then
+
+if.then:
+  %cmp1.not = icmp eq i32 noundef %discourage, 0
+  %cond = select i1 %cmp1.not, i64 0, i64 36
+  br label %return
+
+if.end:
+  %cmp2.not = icmp eq i32 noundef %too_many, 0
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %cmp5.not = icmp eq i32 noundef %oversize, 0
+  br i1 %cmp5.not, label %if.end7, label %return
+
+if.end7:
+  %cmp8.not = icmp eq i32 noundef %decode_fail, 0
+  %. = select i1 %cmp8.not, i64 66, i64 16
+  br label %return
+
+return:
+  %retval.0 = phi i64 [ %cond, %if.then ], [ 8, %if.end ], [ 6, %if.end4 ], [ %., %if.end7 ]
+  %#range_0_%retval.0 = !range i64 %retval.0, i64 0, i64 67
+  ret i64 %#range_0_%retval.0
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+i32 noundef %found = #x00000000 (0)
+i32 noundef %decode_fail = #x00000002 (2)
+i32 noundef %discourage = #x00000000 (0)
+i32 noundef %too_many = #x00000001 (1)
+i32 noundef %oversize = #x00000000 (0)
+
+Source:
+i1 %cmp.not = #x1 (1)
+  >> Jump to %if.end
+i1 %cmp2.not = #x0 (0)
+  >> Jump to %return
+i64 %retval.0 = #x0000000000000010 (16)
+i64 %#range_0_%retval.0 = #x0000000000000010 (16)
+
+Target:
+i1 %cmp.not = #x1 (1)
+  >> Jump to %if.end
+i1 %cmp2.not = #x0 (0)
+  >> Jump to %return
+i64 %retval.0 = #x0000000000000008 (8)
+i64 %#range_0_%retval.0 = #x0000000000000008 (8)
+Source value: #x0000000000000010 (16)
+Target value: #x0000000000000008 (8)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=expected-divergence-recorded

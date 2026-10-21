@@ -1,11 +1,11 @@
 # STATUS — three-leg LLVM IR equivalence
 
-**Last updated:** 2026-10-21 (wave65 audit integration; evidence tier)
+**Last updated:** 2026-10-21 (wave66 accepted-cell integration; evidence tier)
 **Current state:** **E0 PASS; E6 evidence-tier closure published.**
 
-The ledger has **183/183 SCR rows adjudicated**: **152 both-tool green**,
-**2 unjudged seams**, **29 filed gaps**, and **0 planned**. `coverage_report.py
---strict` passes. `make gate-ir-pin` replays **344 certificates** with 0
+The ledger has **183/183 SCR rows adjudicated**: **159 both-tool green**,
+**1 unjudged seam**, **23 filed gaps**, and **0 planned**. `coverage_report.py
+--strict` passes. `make gate-ir-pin` replays **376 certificates** with 0
 failures and 0 warnings. This is **not** an all-rows-green claim and not a
 whole-engine equivalence proof; the limits are below.
 
@@ -20,7 +20,7 @@ whole-engine equivalence proof; the limits are below.
 | **E4** | SegWit v0 / taproot dispatch; seam-unjudged cells enumerated | **attempted; partial cells + inventory** | witness/tapscript cells green; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed; two rows unobserved) |
 | **E5** | Whole-function `VerifyScript` (SAW invariants) or scoped residual | **scoped residual; bounded probes advanced** | `findings/e5/E5-RESIDUAL.md`, `findings/wave64/44-e5-heap-refinement/`, `findings/wave64/45-e5-exceptions-pcore01/`; no whole-function proof |
 | **E6** | Three-leg closure, full SCR coverage, `gate-ir-pin`, published matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` 0 failures; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| **E6+** | Wave 16/32/64 row-family cells integrated | **partial, additive** | 152 total green; see family table below |
+| **E6+** | Wave 16/32/64/65/66 row-family cells integrated | **partial, additive** | 159 total green; see family table below |
 
 ## Ledger snapshot
 
@@ -29,45 +29,39 @@ whole-engine equivalence proof; the limits are below.
 | SCR rows in `spec/db/rules.yaml` | 183 |
 | Ledger entries in `spec/db/equiv-cells.yaml` | 183 |
 | Families | 15 |
-| Proof-cell directories (recorded) | 164 |
+| Proof-cell directories (recorded) | 177 |
 | `planned` | 0 |
-| Both-tool green rows | 152 |
+| Both-tool green rows | 159 |
 | Alive2-only / SAW-only green rows | 0 / 0 |
-| `unjudged-seam` | 2 |
-| Filed `gap` | 29 |
+| `unjudged-seam` | 1 |
+| Filed `gap` | 23 |
 | Malformed cell records | 0 |
-| `make gate-ir-pin` | PASS (344 certificates, 0 failures, 0 warnings) |
-| `make equiv` | PASS (164 cells, 164 with >=1 green tool, 0 red, 0 TODO) |
+| `make gate-ir-pin` | PASS (376 certificates, 0 failures, 0 warnings) |
+| `make equiv` | PASS (177 cells, 177 with >=1 green tool, 0 red, 0 TODO) |
 | `coverage_report.py --strict` | PASS — all 183 rows adjudicated |
 
-Green rows by family (authoritative list is `results/matrix.md`):
+Green rows by family (authoritative per-row list is `results/matrix.md`):
 
-- **control-flow (16):** SCR-056, 058–072.
-- **limits (22):** SCR-018–020, 022–035, 037–039, 041, 042.
-- **tapscript (21):** SCR-143–145, 148–152, 155–166, 168.
-- **locktime (10):** SCR-122–131.
-- **checksig (16):** SCR-096–103, 105–111, 113.
-- **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
-- **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
-- **exec-verify (11):** SCR-002, 004, 007, 009, 011–017.
-- **checkmultisig (7):** SCR-114, 116–121.
-- **push-encoding (10):** SCR-045–050, 052–055.
-- **stack-ops (5):** SCR-073–077; **numeric (13):** SCR-079–085, 087–092.
-- **disabled-opcodes (4):** SCR-170, 171, 173, 174.
-- **hash-ops (3):** SCR-093–095.
+| Family | Green | Family | Green |
+|---|---:|---|---:|
+| control-flow | 17 | limits | 23 |
+| tapscript | 21 | locktime | 11 |
+| checksig | 16 | witness-v0 | 7 |
+| exec-verify | 12 | checkmultisig | 7 |
+| push-encoding | 11 | stack-ops | 5 |
+| numeric | 14 | hash-ops | 3 |
+| disabled-opcodes | 4 | tapscript-reimport | 1 |
+| policy-flags | 7 | **total** | **159** |
 
 Non-green rows:
 
-- **`unjudged-seam` (2):** SCR-146 (TapLeaf tagged-hash preimage) and
-  SCR-147 (Taproot tweak/commitment). Both require the same-crypto premise;
-  the wave64 partial evidence (`findings/wave64/33-scr-146/`,
-  `findings/wave64/34-scr-147/`) narrows the non-crypto content but does not
-  promote the rows.
-- **Filed gaps (29):** SCR-001, 003, 005, 006, 008, 010, 021, 036, 040, 043,
-  044, 051, 057, 078, 086, 104, 112, 115, 132, 133, 136, 140, 142, 153, 154,
-  167, 169, 172, 175. Per-row blockers are in
-  `findings/coverage/F-E6-GAPS.md` and in the wave64/wave65 reports referenced
-  there.
+- **`unjudged-seam` (1):** SCR-147 (Taproot tweak/commitment). It requires
+  the same-crypto premise and a libsecp tweak proof; the wave64/wave66
+  partial evidence narrows the non-crypto content but does not promote it.
+- **Filed gaps (23):** SCR-003, 005, 006, 008, 010, 021, 036, 043, 044, 078,
+  104, 112, 115, 133, 140, 142, 146, 153, 154, 167, 169, 172, 175.
+  Per-row blockers are in `findings/coverage/F-E6-GAPS.md` and the
+  wave65/wave66 reports referenced there.
 
 ## Wave65 audit correction (independent snapshot audit)
 
@@ -76,13 +70,36 @@ Non-green rows:
   script with ops; SCR-006 (`scriptSig push-only`) excluded the malformed-tail
   error-kind divergence F-DIV-001; SCR-057 (`CastToBool`) covered only lengths
   0..2; and SCR-132 (`CheckLockTime/Sequence`) covered a bounded two-input
-  instance, not an arbitrary vin list. All four cells are now `partial`, and
-  the rows are filed gaps. Counts are **152 both-green / 2 seams / 29 gaps**.
-  The audit report is `findings/wave65/32-audit/report.md`.
+  instance, not an arbitrary vin list. All four cells were demoted at that
+  snapshot. SCR-001/040/051/057/086/132 were later re-closed by complete
+  wave66 cells; SCR-003/006 remain gaps. Counts after the accepted wave66
+  batch are **159 both-green / 1 seam / 23 gaps**. The audit report is
+  `findings/wave65/32-audit/report.md`.
 - **The matrix headline was corrected.** It previously said “the three engines
   agree”; there are no R cells and the R lane remains advisory/blocked. The
   generated claim now reads: the Core slice and the Lean-derived twin agree,
   C/L only.
+
+## Wave66 accepted batch and held overclaims
+
+The accepted batch adds six row-closing cells and 32 certificates:
+SCR-001 (full sequencing/parse-boundary), SCR-040 (loop-to-fold bridge),
+SCR-051 (arbitrary-length MINIMALDATA), SCR-057 (0..520 symbolic loop),
+SCR-086 (all four clamp sites), and SCR-132 (arbitrary `List TxIn`). The
+staging tree passed clean-tree `gate_ir_pin.py`; this tree passes the full
+177-cell `make equiv` with 0 red and 0 TODO.
+
+Held as partial evidence, **not promoted**: SCR-003 (NOP-only), SCR-006
+(0..4-byte arm + Lean fold), SCR-008 (full only after a `finalLen` model
+patch), SCR-010 (8-byte driver / 48-byte walk; C++ wrapper unmodelled),
+SCR-021/044/153/154 (C loop or serializer unproved), SCR-036 (ABI bounds
+48/16), SCR-078 (depth ≤12 and malformed record), SCR-104 (LOW_S model
+divergence), SCR-112 (`F-DIV-004`), SCR-115 (C→Lean all-length link absent),
+SCR-133 (SHA-256 driver/instantiation), SCR-146 (short-script digest and
+compression premise), SCR-167 (`stepBody → absStep` projection), SCR-169
+(fixed decoded-tx shape; primitive link unproved), SCR-172 (O-SKIP), and
+SCR-175 (SAW policy-gate timeout). The detailed blockers remain in the
+per-wave findings and `F-E6-GAPS.md`.
 
 ## Wave64 audit outcomes that changed or constrain the ledger
 

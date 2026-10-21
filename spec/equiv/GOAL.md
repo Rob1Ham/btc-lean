@@ -7,7 +7,7 @@ contract is `contract/ABI.md`.
 
 > **Current checkpoint (2026-10-21):** E0 and E1 cells pass; E2/E3/E4 are
 > tool-green but partial; E5 is a scoped residual; E6 has 183/183 SCR rows
-> adjudicated (152 both-green, 2 seams, 29 gaps, 0 planned). `make pins`,
+> adjudicated (159 both-green, 1 seam, 23 gaps, 0 planned). `make pins`,
 > `make e0`, `make gate-ir-pin`, and `make equiv` pass. This is evidence-tier,
 > not an all-rows-green or whole-engine result. Read `results/STATUS.md`.
 

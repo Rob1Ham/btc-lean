@@ -1,0 +1,60 @@
+module CellScr040WitnessBudget where
+
+// Independent specification of the SCR-040 tapscript validation-weight
+// budget, written from the Core source (interpreter.cpp:1991-1992,
+// script.h:62-65, serialize.h:291-297,898-906,1156-1160) and the Lean model
+// (Program.lean:599-642 witnessSerSize/validationWeightInit).
+//
+//   budget(stack) = CompactSize(|stack|)
+//                 + sum over items (CompactSize(len_i) + len_i)
+//                 + 50
+//
+// `serialized_size` below is the SizeComputer count of the actual byte
+// stream: the count prefix, then each item's length prefix and payload.
+// The IR loop checks this shape for a *symbolic count <= 8*; the
+// arbitrary-count encoding identity is a separate cell-local Lean proof
+// (src/lean/BudgetComposition.lean), not this bounded Cryptol predicate.
+
+t253 : [64]
+t253 = 0x00000000000000fd
+
+t16 : [64]
+t16 = 0x000000000000ffff
+
+t32 : [64]
+t32 = 0x00000000ffffffff
+
+// GetSizeOfCompactSize over the full 64-bit domain.  The 9-byte branch is
+// reachable only for n > 0xffffffff; it is implemented and proved, not
+// silently dropped.
+cs_size : [64] -> [64]
+cs_size n = if n < t253 then 1
+            else if n <= t16 then 3
+            else if n <= t32 then 5
+            else 9
+
+// Stack-count term: CompactSize(|stack|) + 50 (input is a 32-bit count).
+budget_count : [32] -> [64]
+budget_count n = cs_size (zext n) + 50
+
+// One serializer element: write CompactSize(len), then len payload bytes.
+item_step : [32] -> [64] -> [64]
+item_step len acc = acc + cs_size (zext len) + zext len
+
+indices : [8][32]
+indices = [0, 1, 2, 3, 4, 5, 6, 7]
+
+// The serialized stack size written by the Core vector serializer:
+// CompactSize(count), then for each i < count (CompactSize(len_i) + len_i).
+// This is the byte count of
+//   CS(n) || (CS(l_0) || item_0) || ... || (CS(l_{n-1}) || item_{n-1})
+// because the SizeComputer adds exactly the bytes a write() emits.
+serialized_size : [32] -> [8][32] -> [64]
+serialized_size n ls =
+  cs_size (zext n) +
+  sum [ if i < n then cs_size (zext (ls @ i)) + zext (ls @ i) else 0
+      | i <- indices ]
+
+// interpreter.cpp:1991-1992: budget = whole serialized stack + 50 WU.
+budget : [32] -> [8][32] -> [64]
+budget n ls = serialized_size n ls + 50

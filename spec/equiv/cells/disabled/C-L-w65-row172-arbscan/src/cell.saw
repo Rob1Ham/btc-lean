@@ -1,0 +1,98 @@
+// SAW 1.6 script for disabled/C-L-w65-row172-arbscan.
+//
+// The Cryptol spec (cell.cry) keeps Core's variable-`next` jump form, so these
+// proofs machine-check the shift-register encoding of both IR legs instead of
+// assuming it.
+import "cell.cry";
+
+mC  <- llvm_load_module "c_cell_flip.bc";
+mL  <- llvm_load_module "l_cell_flip.bc";
+mCt <- llvm_load_module "c_cell_tail.bc";
+mLt <- llvm_load_module "l_cell_tail.bc";
+
+// ---------------------------------------------------------------------------
+// 1. The bounded context pair: every script of length 0..8, all byte values.
+// ---------------------------------------------------------------------------
+let sFlip = do {
+  len <- llvm_fresh_var "len" (llvm_int 32);
+  b0  <- llvm_fresh_var "b0"  (llvm_int 8);
+  b1  <- llvm_fresh_var "b1"  (llvm_int 8);
+  b2  <- llvm_fresh_var "b2"  (llvm_int 8);
+  b3  <- llvm_fresh_var "b3"  (llvm_int 8);
+  b4  <- llvm_fresh_var "b4"  (llvm_int 8);
+  b5  <- llvm_fresh_var "b5"  (llvm_int 8);
+  b6  <- llvm_fresh_var "b6"  (llvm_int 8);
+  b7  <- llvm_fresh_var "b7"  (llvm_int 8);
+  disc <- llvm_fresh_var "disc" (llvm_int 32);
+  llvm_execute_func [llvm_term len, llvm_term b0, llvm_term b1, llvm_term b2,
+                     llvm_term b3, llvm_term b4, llvm_term b5, llvm_term b6,
+                     llvm_term b7, llvm_term disc];
+  llvm_return (llvm_term {{ flip len b0 b1 b2 b3 b4 b5 b6 b7 disc }});
+};
+
+llvm_verify mC "cell_flip" [] false sFlip z3;
+llvm_verify mL "cell_flip" [] false sFlip z3;
+
+// ---------------------------------------------------------------------------
+// 2. Each leg against *its own* ordering spec.  These are deliberately
+//    different specs; the next section proves exactly where they differ.
+// ---------------------------------------------------------------------------
+let sTailCore = do {
+  found       <- llvm_fresh_var "found"       (llvm_int 32);
+  decode_fail <- llvm_fresh_var "decode_fail" (llvm_int 32);
+  disc        <- llvm_fresh_var "disc"        (llvm_int 32);
+  too_many    <- llvm_fresh_var "too_many"    (llvm_int 32);
+  oversize    <- llvm_fresh_var "oversize"    (llvm_int 32);
+  llvm_execute_func [llvm_term found, llvm_term decode_fail, llvm_term disc,
+                     llvm_term too_many, llvm_term oversize];
+  llvm_return (llvm_term {{ zext (tail_core found decode_fail disc too_many oversize) : [64] }});
+};
+
+let sTailLean = do {
+  found       <- llvm_fresh_var "found"       (llvm_int 32);
+  decode_fail <- llvm_fresh_var "decode_fail" (llvm_int 32);
+  disc        <- llvm_fresh_var "disc"        (llvm_int 32);
+  too_many    <- llvm_fresh_var "too_many"    (llvm_int 32);
+  oversize    <- llvm_fresh_var "oversize"    (llvm_int 32);
+  llvm_execute_func [llvm_term found, llvm_term decode_fail, llvm_term disc,
+                     llvm_term too_many, llvm_term oversize];
+  llvm_return (llvm_term {{ zext (tail_lean found decode_fail disc too_many oversize) : [64] }});
+};
+
+llvm_verify mCt "cell_tail" [] false sTailCore z3;
+llvm_verify mLt "cell_tail" [] false sTailLean z3;
+
+// ---------------------------------------------------------------------------
+// 3. Spec-level cross-theorems.  `prove_print` is silent on success in SAW
+//    1.6; the runner counts lines and the final marker.
+// ---------------------------------------------------------------------------
+
+// The exact divergence boundary (Core BAD_OPCODE vs Lean size preemption).
+prove_print z3 {{ \f df d tm os ->
+  prop_divergence f df d tm os }};
+print "Proof succeeded! divergence boundary";
+
+// ... and the two directions in which the contexts DO agree.
+prove_print z3 {{ \f df d tm os ->
+  prop_agree_found f df d tm os }};
+print "Proof succeeded! agreement when the scan found success";
+prove_print z3 {{ \f df d tm os ->
+  prop_agree_no_size f df d tm os }};
+print "Proof succeeded! agreement when no size check preempts";
+
+// Rows: a decoded legacy-disabled opcode forces tapscript success.
+prove_print z3 {{ \len b0 b1 b2 b3 b4 b5 b6 b7 d ->
+  prop_base17_tap_success len b0 b1 b2 b3 b4 b5 b6 b7 d }};
+print "Proof succeeded! base 17 => tapscript success (len <= 8)";
+
+// The fifteen disabled bytes as one-byte scripts flip 17 -> 0.
+prove_print z3 {{ \c -> prop_disabled_byte_flip c }};
+print "Proof succeeded! disabled byte flip";
+// Non-disabled OP_SUCCESSx wins tapscript but is not a legacy flip.
+prove_print z3 {{ prop_non_disabled_success }};
+print "Proof succeeded! non-disabled success is not a flip";
+// A disabled byte inside a push payload is data on both legs.
+prove_print z3 {{ prop_push_payload_no_flip }};
+print "Proof succeeded! push payload does not flip";
+
+print "CELL_W65_ROW172_ARBSCAN_SAW_GREEN";

@@ -1,0 +1,30 @@
+# cell: push-encoding/C-L-w66-minimaldata-arbitrary-num (negative controls)
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# c_leaf.cpp sha256 79b234c0c756ef09062299b896c7560c00b43ae62fb9c3d8dec01b6ae2035c7d
+# l_leaf.cpp sha256 43a60b82b80e4cda29c30e593fe5734b41157835784c2d378e837f466f45de33
+# mutants patch a scratch copy of src/c_leaf.cpp only; tracked src untouched
+
+== m1: F_MINIMALDATA 0x40 -> 0x20
+== m2: drop second-byte (0x80) exception
+== m3: negative-zero (0x80) accepted as minimal
+== m4: width guard len > maxsize + 1
+== m5: CHECKMULTISIG OP_COUNT before PUBKEY_COUNT
+== m6: dropped NEGATIVE_LOCKTIME (CLTV and CSV)
+== m7: round-trip bit polarity flipped in pred_body
+
+pred_cap5    m1    red   red   Transformation doesn't verify!
+cell_cltv    m1    red   red   Transformation doesn't verify!
+cell_cms     m1    red   red   Transformation doesn't verify!
+cell_cltv    m2    red   red   Transformation doesn't verify!
+cell_cms     m2    red   red   Transformation doesn't verify!
+cell_cltv    m3    red   red   Transformation doesn't verify!
+cell_cms     m3    red   red   Transformation doesn't verify!
+cell_cltv    m4    red   red   Transformation doesn't verify!
+cell_cms     m4    red   red   Transformation doesn't verify!
+cell_cms     m5    red   red   Transformation doesn't verify!
+cell_cltv    m6    red   red   Transformation doesn't verify!
+pred_cap5    m7    red   red   Transformation doesn't verify!
+cell_cltv    m7    green green -
+
+STATUS=mutants-killed

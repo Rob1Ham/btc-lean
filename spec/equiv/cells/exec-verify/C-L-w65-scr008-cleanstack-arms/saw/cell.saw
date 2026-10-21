@@ -1,0 +1,30 @@
+import "cell.cry";
+
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+
+let spec_arms =
+  do {
+    cs    <- llvm_fresh_var "cleanstack" (llvm_int 64);
+    w     <- llvm_fresh_var "witness" (llvm_int 64);
+    p     <- llvm_fresh_var "p2sh" (llvm_int 64);
+    n     <- llvm_fresh_var "st_n" (llvm_int 64);
+    spkw  <- llvm_fresh_var "spk_wit" (llvm_int 64);
+    spkp  <- llvm_fresh_var "spk_p2sh" (llvm_int 64);
+    pwit  <- llvm_fresh_var "redeem_wit" (llvm_int 64);
+    pshok <- llvm_fresh_var "ss_push_ok" (llvm_int 64);
+    sign  <- llvm_fresh_var "sig_n" (llvm_int 64);
+    witn  <- llvm_fresh_var "wit_n" (llvm_int 64);
+    ilen  <- llvm_fresh_var "inner_len" (llvm_int 64);
+    llvm_execute_func [llvm_term cs, llvm_term w, llvm_term p, llvm_term n,
+                       llvm_term spkw, llvm_term spkp, llvm_term pwit,
+                       llvm_term pshok, llvm_term sign, llvm_term witn,
+                       llvm_term ilen];
+    llvm_return (llvm_term {{ scr008_arms cs w p n spkw spkp pwit pshok
+                                          sign witn ilen }});
+  };
+
+llvm_verify mC "cell_scr008_arms" [] false spec_arms z3;
+llvm_verify mL "cell_scr008_arms" [] false spec_arms z3;
+
+print "CELL_C_L_w65_scr008_cleanstack_arms_SAW_GREEN";

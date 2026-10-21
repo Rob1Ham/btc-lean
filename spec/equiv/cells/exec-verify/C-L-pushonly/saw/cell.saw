@@ -30,11 +30,11 @@ let spec_p2sh =
     llvm_return (llvm_term {{ pushonly_p2sh p sh n sc }});
   };
 
-llvm_verify mC "cell_ispushonly" [] false spec_push abc;
-llvm_verify mL "cell_ispushonly" [] false spec_push abc;
-llvm_verify mC "cell_pushonly_early" [] false spec_early abc;
-llvm_verify mL "cell_pushonly_early" [] false spec_early abc;
-llvm_verify mC "cell_pushonly_p2sh" [] false spec_p2sh abc;
-llvm_verify mL "cell_pushonly_p2sh" [] false spec_p2sh abc;
+llvm_verify mC "cell_ispushonly" [] false spec_push bitwuzla;
+llvm_verify mL "cell_ispushonly" [] false spec_push bitwuzla;
+llvm_verify mC "cell_pushonly_early" [] false spec_early bitwuzla;
+llvm_verify mL "cell_pushonly_early" [] false spec_early bitwuzla;
+llvm_verify mC "cell_pushonly_p2sh" [] false spec_p2sh bitwuzla;
+llvm_verify mL "cell_pushonly_p2sh" [] false spec_p2sh bitwuzla;
 
 print "CELL_C_L_pushonly_SAW_GREEN";

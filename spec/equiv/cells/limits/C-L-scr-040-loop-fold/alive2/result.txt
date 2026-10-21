@@ -1,0 +1,1735 @@
+# cell: limits/C-L-scr-040-loop-fold
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# ir prep: src/normalize_alive2.py drops nocapture/readonly/writeonly/memory() ABI hints and clang-inferred nsw/nuw flags
+# flags: --always-verify --smt-to=60000 --time-verify
+# scope: per-count instantiations k=0..8, all item lengths symbolic
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_compact_size_size.alive.ll build/l_cell_compact_size_size.alive.ll
+
+----------------------------------------
+define i64 @cell_compact_size_size(i64 noundef %n) nofree willreturn {
+entry:
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL7cg_cs64m.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL7cg_cs64m.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL7cg_cs64m.exit
+
+_ZL7cg_cs64m.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 10
+  ret i64 %#range_0_%retval.0.i
+}
+=>
+define i64 @cell_compact_size_size(i64 noundef %n) nofree willreturn {
+entry:
+  %cmp.i = icmp ult i64 noundef %n, 253
+  br i1 %cmp.i, label %_ZL7lg_cs64m.exit, label %if.end.i
+
+if.end.i:
+  %cmp1.i = icmp ult i64 noundef %n, 65536
+  br i1 %cmp1.i, label %_ZL7lg_cs64m.exit, label %if.end3.i
+
+if.end3.i:
+  %cmp4.i = icmp ult i64 noundef %n, 4294967296
+  %..i = select i1 %cmp4.i, i64 5, i64 9
+  br label %_ZL7lg_cs64m.exit
+
+_ZL7lg_cs64m.exit:
+  %retval.0.i = phi i64 [ 1, %entry ], [ 3, %if.end.i ], [ %..i, %if.end3.i ]
+  %#range_0_%retval.0.i = !range i64 %retval.0.i, i64 1, i64 10
+  ret i64 %#range_0_%retval.0.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_basic_byte_ser.alive.ll build/l_cell_basic_byte_ser.alive.ll
+
+----------------------------------------
+define i64 @cell_basic_byte_ser(i64 noundef %acc, i32 noundef %len) nofree noundef willreturn {
+entry:
+  %conv.i = zext i32 noundef %len to i64
+  %cmp.i.i = icmp ult i32 noundef %len, 253
+  %cmp1.i.i = icmp ult i32 noundef %len, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i = add i64 noundef %acc, %conv.i
+  %add.i1 = add i64 %add.i, %retval.0.i.i
+  ret i64 %add.i1
+}
+=>
+define i64 @cell_basic_byte_ser(i64 noundef %acc, i32 noundef %len) nofree noundef willreturn {
+entry:
+  %conv.i = zext i32 noundef %len to i64
+  %cmp.i.i = icmp ult i32 noundef %len, 253
+  %cmp1.i.i = icmp ult i32 noundef %len, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i = add i64 noundef %acc, %conv.i
+  %add2.i = add i64 %add.i, %retval.0.i.i
+  ret i64 %add2.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_0.alive.ll build/l_cell_vector_ser_0.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_0(ptr noread nowrite noundef %lens) nofree noundef willreturn {
+entry:
+  ret i64 1
+}
+=>
+define i64 @cell_vector_ser_0(ptr noread nowrite noundef %lens) nofree noundef willreturn {
+entry:
+  ret i64 1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_1.alive.ll build/l_cell_vector_ser_1.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_1(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %#range_0_%add.i3 = !range i64 %add.i3, i64 2, i64 4294967302
+  ret i64 %#range_0_%add.i3
+}
+=>
+define i64 @cell_vector_ser_1(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %add.i = add i64 %add2.i.i, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 2, i64 4294967302
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_2.alive.ll build/l_cell_vector_ser_2.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_2(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %#range_0_%add.i3.1 = !range i64 %add.i3.1, i64 3, i64 8589934602
+  ret i64 %#range_0_%add.i3.1
+}
+=>
+define i64 @cell_vector_ser_2(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %add.i = add i64 %add2.i.i.1, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 3, i64 8589934602
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_3.alive.ll build/l_cell_vector_ser_3.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_3(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %#range_0_%add.i3.2 = !range i64 %add.i3.2, i64 4, i64 12884901902
+  ret i64 %#range_0_%add.i3.2
+}
+=>
+define i64 @cell_vector_ser_3(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %add.i = add i64 %add2.i.i.2, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 4, i64 12884901902
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_4.alive.ll build/l_cell_vector_ser_4.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_4(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %#range_0_%add.i3.3 = !range i64 %add.i3.3, i64 5, i64 17179869202
+  ret i64 %#range_0_%add.i3.3
+}
+=>
+define i64 @cell_vector_ser_4(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %add.i = add i64 %add2.i.i.3, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 5, i64 17179869202
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_5.alive.ll build/l_cell_vector_ser_5.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_5(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %#range_0_%add.i3.4 = !range i64 %add.i3.4, i64 6, i64 21474836502
+  ret i64 %#range_0_%add.i3.4
+}
+=>
+define i64 @cell_vector_ser_5(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %add.i = add i64 %add2.i.i.4, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 6, i64 21474836502
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_6.alive.ll build/l_cell_vector_ser_6.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_6(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %#range_0_%add.i3.5 = !range i64 %add.i3.5, i64 7, i64 25769803802
+  ret i64 %#range_0_%add.i3.5
+}
+=>
+define i64 @cell_vector_ser_6(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %add.i = add i64 %add2.i.i.5, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 7, i64 25769803802
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_7.alive.ll build/l_cell_vector_ser_7.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_7(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %add.i.6 = add i64 %add.i3.5, %conv.i.i.6
+  %cmp.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.6, i64 3, i64 5
+  %retval.0.i.i.6 = select i1 %cmp.i.i.6, i64 1, i64 %spec.select.6
+  %add.i3.6 = add i64 %add.i.6, %retval.0.i.i.6
+  %#range_0_%add.i3.6 = !range i64 %add.i3.6, i64 8, i64 30064771102
+  ret i64 %#range_0_%add.i3.6
+}
+=>
+define i64 @cell_vector_ser_7(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %add.i.i.6 = add i64 %add2.i.i.5, %conv.i.i.6
+  %cmp.i.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.i.6, i64 3, i64 5
+  %retval.0.i.i.i.6 = select i1 %cmp.i.i.i.6, i64 1, i64 %spec.select.6
+  %add2.i.i.6 = add i64 %add.i.i.6, %retval.0.i.i.i.6
+  %add.i = add i64 %add2.i.i.6, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 8, i64 30064771102
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_vector_ser_8.alive.ll build/l_cell_vector_ser_8.alive.ll
+
+----------------------------------------
+define i64 @cell_vector_ser_8(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i = add i64 %conv.i.i, 1
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %cmp.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.6, i64 3, i64 5
+  %retval.0.i.i.6 = select i1 %cmp.i.i.6, i64 1, i64 %spec.select.6
+  %add.i.6 = add i64 %add.i3.5, %conv.i.i.6
+  %add.i3.6 = add i64 %add.i.6, %retval.0.i.i.6
+  %arrayidx.i.7 = gep inbounds ptr noundef %lens, 1 x i64 28
+  %#7 = load i32, ptr %arrayidx.i.7, align 4
+  %conv.i.i.7 = zext i32 %#7 to i64
+  %cmp.i.i.7 = icmp ult i32 %#7, 253
+  %cmp1.i.i.7 = icmp ult i32 %#7, 65536
+  %spec.select.7 = select i1 %cmp1.i.i.7, i64 3, i64 5
+  %retval.0.i.i.7 = select i1 %cmp.i.i.7, i64 1, i64 %spec.select.7
+  %add.i.7 = add i64 %add.i3.6, %conv.i.i.7
+  %add.i3.7 = add i64 %add.i.7, %retval.0.i.i.7
+  %#range_0_%add.i3.7 = !range i64 %add.i3.7, i64 9, i64 34359738402
+  ret i64 %#range_0_%add.i3.7
+}
+=>
+define i64 @cell_vector_ser_8(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %cmp.i.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.i.6, i64 3, i64 5
+  %retval.0.i.i.i.6 = select i1 %cmp.i.i.i.6, i64 1, i64 %spec.select.6
+  %add.i.i.6 = add i64 %add2.i.i.5, %conv.i.i.6
+  %add2.i.i.6 = add i64 %add.i.i.6, %retval.0.i.i.i.6
+  %arrayidx.i.7 = gep inbounds ptr noundef %lens, 1 x i64 28
+  %#7 = load i32, ptr %arrayidx.i.7, align 4
+  %conv.i.i.7 = zext i32 %#7 to i64
+  %cmp.i.i.i.7 = icmp ult i32 %#7, 253
+  %cmp1.i.i.i.7 = icmp ult i32 %#7, 65536
+  %spec.select.7 = select i1 %cmp1.i.i.i.7, i64 3, i64 5
+  %retval.0.i.i.i.7 = select i1 %cmp.i.i.i.7, i64 1, i64 %spec.select.7
+  %add.i.i.7 = add i64 %add2.i.i.6, %conv.i.i.7
+  %add2.i.i.7 = add i64 %add.i.i.7, %retval.0.i.i.i.7
+  %add.i = add i64 %add2.i.i.7, 1
+  %#range_0_%add.i = !range i64 %add.i, i64 9, i64 34359738402
+  ret i64 %#range_0_%add.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_0.alive.ll build/l_cell_seed_0.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_0(ptr noread nowrite noundef %lens) nofree noundef willreturn {
+entry:
+  ret i64 51
+}
+=>
+define i64 @cell_seed_0(ptr noread nowrite noundef %lens) nofree noundef willreturn {
+entry:
+  ret i64 51
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_1.alive.ll build/l_cell_seed_1.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_1(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %add = add i64 %add.i3, 50
+  %#range_0_%add = !range i64 %add, i64 52, i64 4294967352
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_1(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %add = add i64 %add2.i.i, 51
+  %#range_0_%add = !range i64 %add, i64 52, i64 4294967352
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_2.alive.ll build/l_cell_seed_2.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_2(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %add = add i64 %add.i3.1, 50
+  %#range_0_%add = !range i64 %add, i64 53, i64 8589934652
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_2(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %add = add i64 %add2.i.i.1, 51
+  %#range_0_%add = !range i64 %add, i64 53, i64 8589934652
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_3.alive.ll build/l_cell_seed_3.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_3(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %add = add i64 %add.i3.2, 50
+  %#range_0_%add = !range i64 %add, i64 54, i64 12884901952
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_3(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %add = add i64 %add2.i.i.2, 51
+  %#range_0_%add = !range i64 %add, i64 54, i64 12884901952
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_4.alive.ll build/l_cell_seed_4.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_4(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %add = add i64 %add.i3.3, 50
+  %#range_0_%add = !range i64 %add, i64 55, i64 17179869252
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_4(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %add = add i64 %add2.i.i.3, 51
+  %#range_0_%add = !range i64 %add, i64 55, i64 17179869252
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_5.alive.ll build/l_cell_seed_5.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_5(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %add = add i64 %add.i3.4, 50
+  %#range_0_%add = !range i64 %add, i64 56, i64 21474836552
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_5(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %add = add i64 %add2.i.i.4, 51
+  %#range_0_%add = !range i64 %add, i64 56, i64 21474836552
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_6.alive.ll build/l_cell_seed_6.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_6(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %add = add i64 %add.i3.5, 50
+  %#range_0_%add = !range i64 %add, i64 57, i64 25769803852
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_6(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %add = add i64 %add2.i.i.5, 51
+  %#range_0_%add = !range i64 %add, i64 57, i64 25769803852
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_7.alive.ll build/l_cell_seed_7.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_7(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %add.i = add i64 %conv.i.i, 1
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %add.i.6 = add i64 %add.i3.5, %conv.i.i.6
+  %cmp.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.6, i64 3, i64 5
+  %retval.0.i.i.6 = select i1 %cmp.i.i.6, i64 1, i64 %spec.select.6
+  %add.i3.6 = add i64 %add.i.6, %retval.0.i.i.6
+  %add = add i64 %add.i3.6, 50
+  %#range_0_%add = !range i64 %add, i64 58, i64 30064771152
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_7(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %conv.i.i = zext i32 %#0 to i64
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %add.i.i.6 = add i64 %add2.i.i.5, %conv.i.i.6
+  %cmp.i.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.i.6, i64 3, i64 5
+  %retval.0.i.i.i.6 = select i1 %cmp.i.i.i.6, i64 1, i64 %spec.select.6
+  %add2.i.i.6 = add i64 %add.i.i.6, %retval.0.i.i.i.6
+  %add = add i64 %add2.i.i.6, 51
+  %#range_0_%add = !range i64 %add, i64 58, i64 30064771152
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+# command: alive-tv --always-verify --smt-to=60000 --time-verify build/c_cell_seed_8.alive.ll build/l_cell_seed_8.alive.ll
+
+----------------------------------------
+define i64 @cell_seed_8(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i, i64 3, i64 5
+  %retval.0.i.i = select i1 %cmp.i.i, i64 1, i64 %spec.select
+  %add.i = add i64 %conv.i.i, 1
+  %add.i3 = add i64 %add.i, %retval.0.i.i
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %cmp.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.1, i64 3, i64 5
+  %retval.0.i.i.1 = select i1 %cmp.i.i.1, i64 1, i64 %spec.select.1
+  %add.i.1 = add i64 %add.i3, %conv.i.i.1
+  %add.i3.1 = add i64 %add.i.1, %retval.0.i.i.1
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %cmp.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.2, i64 3, i64 5
+  %retval.0.i.i.2 = select i1 %cmp.i.i.2, i64 1, i64 %spec.select.2
+  %add.i.2 = add i64 %add.i3.1, %conv.i.i.2
+  %add.i3.2 = add i64 %add.i.2, %retval.0.i.i.2
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %cmp.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.3, i64 3, i64 5
+  %retval.0.i.i.3 = select i1 %cmp.i.i.3, i64 1, i64 %spec.select.3
+  %add.i.3 = add i64 %add.i3.2, %conv.i.i.3
+  %add.i3.3 = add i64 %add.i.3, %retval.0.i.i.3
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %cmp.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.4, i64 3, i64 5
+  %retval.0.i.i.4 = select i1 %cmp.i.i.4, i64 1, i64 %spec.select.4
+  %add.i.4 = add i64 %add.i3.3, %conv.i.i.4
+  %add.i3.4 = add i64 %add.i.4, %retval.0.i.i.4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %cmp.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.5, i64 3, i64 5
+  %retval.0.i.i.5 = select i1 %cmp.i.i.5, i64 1, i64 %spec.select.5
+  %add.i.5 = add i64 %add.i3.4, %conv.i.i.5
+  %add.i3.5 = add i64 %add.i.5, %retval.0.i.i.5
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %cmp.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.6, i64 3, i64 5
+  %retval.0.i.i.6 = select i1 %cmp.i.i.6, i64 1, i64 %spec.select.6
+  %add.i.6 = add i64 %add.i3.5, %conv.i.i.6
+  %add.i3.6 = add i64 %add.i.6, %retval.0.i.i.6
+  %arrayidx.i.7 = gep inbounds ptr noundef %lens, 1 x i64 28
+  %#7 = load i32, ptr %arrayidx.i.7, align 4
+  %conv.i.i.7 = zext i32 %#7 to i64
+  %cmp.i.i.7 = icmp ult i32 %#7, 253
+  %cmp1.i.i.7 = icmp ult i32 %#7, 65536
+  %spec.select.7 = select i1 %cmp1.i.i.7, i64 3, i64 5
+  %retval.0.i.i.7 = select i1 %cmp.i.i.7, i64 1, i64 %spec.select.7
+  %add.i.7 = add i64 %add.i3.6, %conv.i.i.7
+  %add.i3.7 = add i64 %add.i.7, %retval.0.i.i.7
+  %add = add i64 %add.i3.7, 50
+  %#range_0_%add = !range i64 %add, i64 59, i64 34359738452
+  ret i64 %#range_0_%add
+}
+=>
+define i64 @cell_seed_8(ptr noundef %lens) nofree willreturn {
+entry:
+  %#0 = load i32, ptr noundef %lens, align 4
+  %conv.i.i = zext i32 %#0 to i64
+  %cmp.i.i.i = icmp ult i32 %#0, 253
+  %cmp1.i.i.i = icmp ult i32 %#0, 65536
+  %spec.select = select i1 %cmp1.i.i.i, i64 3, i64 5
+  %retval.0.i.i.i = select i1 %cmp.i.i.i, i64 1, i64 %spec.select
+  %add2.i.i = add i64 %retval.0.i.i.i, %conv.i.i
+  %arrayidx.i.1 = gep inbounds ptr noundef %lens, 1 x i64 4
+  %#1 = load i32, ptr %arrayidx.i.1, align 4
+  %conv.i.i.1 = zext i32 %#1 to i64
+  %cmp.i.i.i.1 = icmp ult i32 %#1, 253
+  %cmp1.i.i.i.1 = icmp ult i32 %#1, 65536
+  %spec.select.1 = select i1 %cmp1.i.i.i.1, i64 3, i64 5
+  %retval.0.i.i.i.1 = select i1 %cmp.i.i.i.1, i64 1, i64 %spec.select.1
+  %add.i.i.1 = add i64 %add2.i.i, %conv.i.i.1
+  %add2.i.i.1 = add i64 %add.i.i.1, %retval.0.i.i.i.1
+  %arrayidx.i.2 = gep inbounds ptr noundef %lens, 1 x i64 8
+  %#2 = load i32, ptr %arrayidx.i.2, align 4
+  %conv.i.i.2 = zext i32 %#2 to i64
+  %cmp.i.i.i.2 = icmp ult i32 %#2, 253
+  %cmp1.i.i.i.2 = icmp ult i32 %#2, 65536
+  %spec.select.2 = select i1 %cmp1.i.i.i.2, i64 3, i64 5
+  %retval.0.i.i.i.2 = select i1 %cmp.i.i.i.2, i64 1, i64 %spec.select.2
+  %add.i.i.2 = add i64 %add2.i.i.1, %conv.i.i.2
+  %add2.i.i.2 = add i64 %add.i.i.2, %retval.0.i.i.i.2
+  %arrayidx.i.3 = gep inbounds ptr noundef %lens, 1 x i64 12
+  %#3 = load i32, ptr %arrayidx.i.3, align 4
+  %conv.i.i.3 = zext i32 %#3 to i64
+  %cmp.i.i.i.3 = icmp ult i32 %#3, 253
+  %cmp1.i.i.i.3 = icmp ult i32 %#3, 65536
+  %spec.select.3 = select i1 %cmp1.i.i.i.3, i64 3, i64 5
+  %retval.0.i.i.i.3 = select i1 %cmp.i.i.i.3, i64 1, i64 %spec.select.3
+  %add.i.i.3 = add i64 %add2.i.i.2, %conv.i.i.3
+  %add2.i.i.3 = add i64 %add.i.i.3, %retval.0.i.i.i.3
+  %arrayidx.i.4 = gep inbounds ptr noundef %lens, 1 x i64 16
+  %#4 = load i32, ptr %arrayidx.i.4, align 4
+  %conv.i.i.4 = zext i32 %#4 to i64
+  %cmp.i.i.i.4 = icmp ult i32 %#4, 253
+  %cmp1.i.i.i.4 = icmp ult i32 %#4, 65536
+  %spec.select.4 = select i1 %cmp1.i.i.i.4, i64 3, i64 5
+  %retval.0.i.i.i.4 = select i1 %cmp.i.i.i.4, i64 1, i64 %spec.select.4
+  %add.i.i.4 = add i64 %add2.i.i.3, %conv.i.i.4
+  %add2.i.i.4 = add i64 %add.i.i.4, %retval.0.i.i.i.4
+  %arrayidx.i.5 = gep inbounds ptr noundef %lens, 1 x i64 20
+  %#5 = load i32, ptr %arrayidx.i.5, align 4
+  %conv.i.i.5 = zext i32 %#5 to i64
+  %cmp.i.i.i.5 = icmp ult i32 %#5, 253
+  %cmp1.i.i.i.5 = icmp ult i32 %#5, 65536
+  %spec.select.5 = select i1 %cmp1.i.i.i.5, i64 3, i64 5
+  %retval.0.i.i.i.5 = select i1 %cmp.i.i.i.5, i64 1, i64 %spec.select.5
+  %add.i.i.5 = add i64 %add2.i.i.4, %conv.i.i.5
+  %add2.i.i.5 = add i64 %add.i.i.5, %retval.0.i.i.i.5
+  %arrayidx.i.6 = gep inbounds ptr noundef %lens, 1 x i64 24
+  %#6 = load i32, ptr %arrayidx.i.6, align 4
+  %conv.i.i.6 = zext i32 %#6 to i64
+  %cmp.i.i.i.6 = icmp ult i32 %#6, 253
+  %cmp1.i.i.i.6 = icmp ult i32 %#6, 65536
+  %spec.select.6 = select i1 %cmp1.i.i.i.6, i64 3, i64 5
+  %retval.0.i.i.i.6 = select i1 %cmp.i.i.i.6, i64 1, i64 %spec.select.6
+  %add.i.i.6 = add i64 %add2.i.i.5, %conv.i.i.6
+  %add2.i.i.6 = add i64 %add.i.i.6, %retval.0.i.i.i.6
+  %arrayidx.i.7 = gep inbounds ptr noundef %lens, 1 x i64 28
+  %#7 = load i32, ptr %arrayidx.i.7, align 4
+  %conv.i.i.7 = zext i32 %#7 to i64
+  %cmp.i.i.i.7 = icmp ult i32 %#7, 253
+  %cmp1.i.i.i.7 = icmp ult i32 %#7, 65536
+  %spec.select.7 = select i1 %cmp1.i.i.i.7, i64 3, i64 5
+  %retval.0.i.i.i.7 = select i1 %cmp.i.i.i.7, i64 1, i64 %spec.select.7
+  %add.i.i.7 = add i64 %add2.i.i.6, %conv.i.i.7
+  %add2.i.i.7 = add i64 %add.i.i.7, %retval.0.i.i.i.7
+  %add = add i64 %add2.i.i.7, 51
+  %#range_0_%add = !range i64 %add, i64 59, i64 34359738452
+  ret i64 %#range_0_%add
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

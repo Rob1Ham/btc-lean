@@ -1,0 +1,96 @@
+import "cell.cry";
+
+mCcltv <- llvm_load_module "c_cell_cltv_general.bc";
+mLcltv <- llvm_load_module "l_cell_cltv_general.bc";
+mCcsv  <- llvm_load_module "c_cell_csv_general.bc";
+mLcsv  <- llvm_load_module "l_cell_csv_general.bc";
+
+// 16 symbolic vin slots, symbolic index (4 bits) and symbolic length.  Each
+// leg is checked against the independent Cryptol predicate above; the
+// unselected slots are never named by the spec.  The arbitrary-length
+// dimension is closed by the Alive2 leg (nondeterministic input-block size)
+// and by src/GeneralIndex.lean (induction over List TxIn); this SAW leg is
+// the concrete compiled-checker cross-check at a disclosed 16-slot bound.
+let cltv_spec = do {
+  arr  <- llvm_fresh_var "arr"     (llvm_array 16 (llvm_int 32));
+  len  <- llvm_fresh_var "len"     (llvm_int 64);
+  d    <- llvm_fresh_var "def"     (llvm_int 32);
+  i    <- llvm_fresh_var "nIn"     (llvm_int 4);
+  txlt <- llvm_fresh_var "txlt"    (llvm_int 32);
+  n    <- llvm_fresh_var "operand" (llvm_int 64);
+  p    <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  llvm_points_to p (llvm_term arr);
+  llvm_execute_func [p, llvm_term len, llvm_term d,
+                     llvm_term {{ zext i : [32] }}, llvm_term txlt, llvm_term n];
+  llvm_return (llvm_term {{ cltv txlt n len d arr i }});
+};
+llvm_verify mCcltv "cell_cltv_general" [] false cltv_spec abc;
+llvm_verify mLcltv "cell_cltv_general" [] false cltv_spec abc;
+
+let csv_spec = do {
+  arr  <- llvm_fresh_var "arr"     (llvm_array 16 (llvm_int 32));
+  len  <- llvm_fresh_var "len"     (llvm_int 64);
+  d    <- llvm_fresh_var "def"     (llvm_int 32);
+  i    <- llvm_fresh_var "nIn"     (llvm_int 4);
+  ver  <- llvm_fresh_var "ver"     (llvm_int 32);
+  n    <- llvm_fresh_var "operand" (llvm_int 64);
+  p    <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  llvm_points_to p (llvm_term arr);
+  llvm_execute_func [p, llvm_term len, llvm_term d,
+                     llvm_term {{ zext i : [32] }}, llvm_term ver, llvm_term n];
+  llvm_return (llvm_term {{ csv ver n len d arr i }});
+};
+llvm_verify mCcsv "cell_csv_general" [] false csv_spec abc;
+llvm_verify mLcsv "cell_csv_general" [] false csv_spec abc;
+
+// Non-interference over two arbitrary 16-slot vins: when the selected slots
+// agree (including both out of range, where both take the default), each leg
+// returns its own verdict computed from that one slot and nothing else.  The
+// two specs differ only in which array the verdict is taken from; equality of
+// the proved postconditions is the locality statement.
+mCcltvNi <- llvm_load_module "c_cell_cltv_noninterf_b.bc";
+mLcltvNi <- llvm_load_module "l_cell_cltv_noninterf_b.bc";
+mCcsvNi  <- llvm_load_module "c_cell_csv_noninterf_b.bc";
+mLcsvNi  <- llvm_load_module "l_cell_csv_noninterf_b.bc";
+
+let cltv_ni_spec = do {
+  a    <- llvm_fresh_var "a"       (llvm_array 16 (llvm_int 32));
+  b    <- llvm_fresh_var "b"       (llvm_array 16 (llvm_int 32));
+  len  <- llvm_fresh_var "len"     (llvm_int 64);
+  d    <- llvm_fresh_var "def"     (llvm_int 32);
+  i    <- llvm_fresh_var "nIn"     (llvm_int 4);
+  txlt <- llvm_fresh_var "txlt"    (llvm_int 32);
+  n    <- llvm_fresh_var "operand" (llvm_int 64);
+  pa <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  pb <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  llvm_points_to pa (llvm_term a);
+  llvm_points_to pb (llvm_term b);
+  llvm_precond {{ (getd len d a i) == (getd len d b i) }};
+  llvm_execute_func [pa, pb, llvm_term len, llvm_term d,
+                     llvm_term {{ zext i : [32] }}, llvm_term txlt, llvm_term n];
+  llvm_return (llvm_term {{ cltv_core txlt n (getd len d a i) }});
+};
+llvm_verify mCcltvNi "cell_cltv_noninterf_b" [] false cltv_ni_spec abc;
+llvm_verify mLcltvNi "cell_cltv_noninterf_b" [] false cltv_ni_spec abc;
+
+let csv_ni_spec = do {
+  a    <- llvm_fresh_var "a"       (llvm_array 16 (llvm_int 32));
+  b    <- llvm_fresh_var "b"       (llvm_array 16 (llvm_int 32));
+  len  <- llvm_fresh_var "len"     (llvm_int 64);
+  d    <- llvm_fresh_var "def"     (llvm_int 32);
+  i    <- llvm_fresh_var "nIn"     (llvm_int 4);
+  ver  <- llvm_fresh_var "ver"     (llvm_int 32);
+  n    <- llvm_fresh_var "operand" (llvm_int 64);
+  pa <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  pb <- llvm_alloc (llvm_array 16 (llvm_int 32));
+  llvm_points_to pa (llvm_term a);
+  llvm_points_to pb (llvm_term b);
+  llvm_precond {{ (getd len d a i) == (getd len d b i) }};
+  llvm_execute_func [pa, pb, llvm_term len, llvm_term d,
+                     llvm_term {{ zext i : [32] }}, llvm_term ver, llvm_term n];
+  llvm_return (llvm_term {{ csv_core ver n (getd len d a i) }});
+};
+llvm_verify mCcsvNi "cell_csv_noninterf_b" [] false csv_ni_spec abc;
+llvm_verify mLcsvNi "cell_csv_noninterf_b" [] false csv_ni_spec abc;
+
+print "CELL_LOCKTIME_INPUT_INDEX_GENERAL_SAW_GREEN";

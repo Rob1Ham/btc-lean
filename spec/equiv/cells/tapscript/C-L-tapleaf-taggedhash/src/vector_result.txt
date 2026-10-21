@@ -1,0 +1,33 @@
+# TapLeaf preimage: published BIP341 wallet-vector corroboration (NOT a proof)
+# source: bitcoin/bitcoin cce32b168 src/test/data/bip341_wallet_vectors.json
+# taghash = sha256(b'TapLeaf') = aeea8fdc4208983105734b58081d1e2638d35f1cb54008d4d357ca03be78e9ee
+
+PASS bip341 wallet vector 1 (single leaf)
+  script(34 B) = 20d85a959b0290bf19bb89ed43c916be835475d013da4b362117393e25a48229b8ac
+  leafVersion = 0xc0; control bytes 0xc0/0xc1
+  computed = 5b75adecf53548f3ec6ad7d78383bf84cc57b55a3127c72b9a2481752dd88b21
+  expected = 5b75adecf53548f3ec6ad7d78383bf84cc57b55a3127c72b9a2481752dd88b21
+  control[0]&0xfe parity check: 5b75adecf53548f3ec6ad7d78383bf84cc57b55a3127c72b9a2481752dd88b21
+
+PASS bip341 wallet vector 3 leaf 0 (version 0xc0)
+  script(34 B) = 20387671353e273264c495656e27e39ba899ea8fee3bb69fb2a680e22093447d48ac
+  leafVersion = 0xc0; control bytes 0xc0/0xc1
+  computed = 8ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7
+  expected = 8ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7
+  control[0]&0xfe parity check: 8ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7
+
+PASS bip341 wallet vector 3 leaf 1 (version 0xfa)
+  script(7 B) = 06424950333431
+  leafVersion = 0xfa; control bytes 0xfa/0xfb
+  computed = f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a
+  expected = f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a
+  control[0]&0xfe parity check: f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a
+
+PASS bip341 wallet vector 4 leaf 1 (OP_RETURN leaf)
+  script(8 B) = 07546170726f6f74
+  leafVersion = 0xc0; control bytes 0xc0/0xc1
+  computed = 2cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb
+  expected = 2cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb
+  control[0]&0xfe parity check: 2cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb
+
+VECTOR_CHECK=PASS

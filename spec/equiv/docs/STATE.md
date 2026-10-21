@@ -1,6 +1,6 @@
 # STATE — three-leg LLVM IR equivalence
 
-**Snapshot:** `2026-10-21 (wave64 integration; evidence tier)`
+**Snapshot:** `2026-10-21 (wave66 accepted integration; evidence tier)`
 **Owner:** orchestrator; independent evaluator snapshot archived at
 `docs/archive/STATE-2026-10-19T223700Z.md`
 **Tree:** `spec/equiv/` on PR branch `equiv/llvm-three-leg`
@@ -20,9 +20,9 @@ gates, with the current certificate/ledger status below.
 
 It is **not** an all-rows-green result and **not** a whole-engine proof:
 
-- 152 of 183 SCR rows are both-tool green;
-- 2 are explicitly `unjudged-seam`;
-- 29 are filed `gap`s with named blockers;
+- 159 of 183 SCR rows are both-tool green;
+- 1 is explicitly `unjudged-seam` (SCR-147);
+- 23 are filed `gap`s with named blockers;
 - 0 are `planned`;
 - no `EvalScript`/`VerifyScript` whole-function proof exists (E5 residual);
 - no admissible R proof-lane artifact exists (the R behavioral E0 leg does);
@@ -42,7 +42,7 @@ conditional and must remain so.
 | E4 SegWit v0/taproot dispatch, seam inventory | **attempted; partial cells + inventory** | witness/tapscript cells green; **mutation 3/5 required** (`M-E4-003`, `M-E4-004`, `M-E4-007` killed) |
 | E5 whole-function VerifyScript or residual | **scoped residual; bounded probes advanced** | `findings/e5/E5-RESIDUAL.md`; `findings/wave64/44-e5-heap-refinement/`; `findings/wave64/45-e5-exceptions-pcore01/`; no whole-function proof |
 | E6 three-leg closure, coverage, gate, matrix | **PASS for the evidence-tier deliverable** | 183/183 adjudicated; `make gate-ir-pin` PASS; `results/matrix.md`; `findings/coverage/F-E6-GAPS.md` |
-| E6+ wave16/32/64 row-family cells | **partial, additive** | 152 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/`, `findings/wave65/` |
+| E6+ wave16/32/64/65/66 row-family cells | **partial, additive** | 159 total green; families below; `findings/wave16/`, `findings/wave32/`, `findings/wave64/`, `findings/wave65/`, `findings/wave66/` |
 
 ## 3. Ledger and cells
 
@@ -51,8 +51,8 @@ Commands at this snapshot:
 ```text
 make pins          -> RESULT: OK (pins complete and tool probes passed)
 make e0            -> RESULT: PASS (E0_TRIPLE_OK; 4/4 tapes)
-make gate-ir-pin   -> RESULT: PASS (344 certificates, 0 failures, 0 warnings)
-make equiv         -> PASS (164 cells, 0 red, 0 TODO)
+make gate-ir-pin   -> RESULT: PASS (376 certificates, 0 failures, 0 warnings)
+make equiv         -> PASS (177 cells, 0 red, 0 TODO)
 coverage_report.py --strict -> PASS; all 183 SCR rows adjudicated
 cert_repro_check.py --rev HEAD --fuzz 0 -> PASS (all cell certs + manifests)
 make gate-repro    -> PASS
@@ -62,33 +62,32 @@ Ledger counts:
 
 | Status | Rows |
 |---|---:|
-| `both-green` | 152 |
+| `both-green` | 159 |
 | `alive2-green` / `saw-green` | 0 / 0 |
-| `unjudged-seam` | 2 |
-| `gap` | 29 |
+| `unjudged-seam` | 1 |
+| `gap` | 23 |
 | `planned` | 0 |
 | **Total** | **183** |
 
-Green rows by family (authoritative list: `results/matrix.md`):
+Green rows by family (authoritative per-row list: `results/matrix.md`):
 
-- **control-flow (16):** SCR-056, 058–072.
-- **limits (22):** SCR-018–020, 022–035, 037–039, 041, 042.
-- **tapscript (21):** SCR-143–145, 148–152, 155–166, 168.
-- **locktime (10):** SCR-122–131.
-- **checksig (16):** SCR-096–103, 105–111, 113.
-- **policy-flags (7):** SCR-176–182; **tapscript-reimport (1):** SCR-183.
-- **witness-v0 (6):** SCR-134, 135, 137, 138, 139, 141.
-- **exec-verify (11):** SCR-002, 004, 007, 009, 011–017.
-- **checkmultisig (7):** SCR-114, 116–121.
-- **push-encoding (10):** SCR-045–050, 052–055.
-- **stack-ops (5):** SCR-073–077; **numeric (13):** SCR-079–085, 087–092.
-- **disabled-opcodes (4):** SCR-170, 171, 173, 174.
-- **hash-ops (3):** SCR-093–095.
+| Family | Green | Family | Green |
+|---|---:|---|---:|
+| control-flow | 17 | limits | 23 |
+| tapscript | 21 | locktime | 11 |
+| checksig | 16 | witness-v0 | 7 |
+| exec-verify | 12 | checkmultisig | 7 |
+| push-encoding | 11 | stack-ops | 5 |
+| numeric | 14 | hash-ops | 3 |
+| disabled-opcodes | 4 | tapscript-reimport | 1 |
+| policy-flags | 7 | **total** | **159** |
 
-The 2 seams are SCR-146/147; the 29 gaps are SCR-001, 003, 005, 006, 008,
-010, 021, 036, 040, 043, 044, 051, 057, 078, 086, 104, 112, 115, 132, 133,
-136, 140, 142, 153, 154, 167, 169, 172, 175. Each has a row-specific blocker in
-`findings/coverage/F-E6-GAPS.md`; the wave64 reports add exact witnesses.
+The 1 seam is SCR-147. The 23 gaps are SCR-003, 005, 006, 008, 010, 021,
+036, 043, 044, 078, 104, 112, 115, 133, 140, 142, 146, 153, 154, 167, 169,
+172, 175. Each has a row-specific blocker in
+`findings/coverage/F-E6-GAPS.md`; the wave64/wave66 reports add exact
+witnesses. SCR-001/040/051/057/086/132 were re-closed by accepted wave66
+cells.
 
 ## 4. What is established
 
@@ -121,13 +120,13 @@ The 2 seams are SCR-146/147; the 29 gaps are SCR-001, 003, 005, 006, 008,
    rbitcoin artifacts and verifies their hashes. The pinned rustc 1.95 /
    LLVM-22 R IR is not Alive2-ingestible; the LLVM-20 lane is advisory and
    off-pin.
-9. **Certificates.** 344 cell certificates replay in `gate-ir-pin`. The
+9. **Certificates.** 376 cell certificates replay in `gate-ir-pin`. The
    clean-checkout checker replays all cell certificates and manifests with
    zero errors; 531 hygiene warnings remain (`cross-leg`, absolute machine
    paths inside bound sources, nested divergence manifests) and are listed
    by the checker rather than hidden.
 10. **Matrix.** `results/matrix.md` is generated deterministically and names
-    the source, tool, contract, IR, and E5 premises, plus the 152/2/29
+    the source, tool, contract, IR, and E5 premises, plus the 159/1/23
     coverage counts and cell links.
 
 ## 5. What is not established

@@ -1,0 +1,182 @@
+# cell: C-L-w65-scr008-cleanstack-arms
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# functions: cell_scr008_arms
+# command: alive-tv  build/c_cell_scr008_arms.ll build/l_cell_scr008_arms.ll
+
+----------------------------------------
+define i64 @cell_scr008_arms(i64 noundef %cleanstack, i64 noundef %witness, i64 noundef %p2sh, i64 noundef %st_n, i64 noundef %spk_wit, i64 noundef %spk_p2sh, i64 noundef %redeem_wit, i64 noundef %ss_push_ok, i64 noundef %sig_n, i64 noundef %wit_n, i64 noundef %inner_len) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %cleanstack, 1
+  %and1 = and i64 noundef %witness, 1
+  %and3 = and i64 noundef %st_n, 3
+  %and7 = and i64 noundef %ss_push_ok, 1
+  %and8 = and i64 noundef %sig_n, 3
+  %and9 = and i64 noundef %wit_n, 3
+  %and10 = and i64 noundef %inner_len, 3
+  %#0 = and i64 noundef %spk_p2sh, 1
+  %#1 = and i64 %#0, noundef %spk_wit
+  %or.cond.i12.not = icmp eq i64 %#1, 0
+  br i1 %or.cond.i12.not, label %if.end.i13, label %_ZL13c_scr008_armsmmmmmmmmmmm.exit
+
+if.end.i13:
+  %#2 = and i64 noundef %witness, 1
+  %#3 = and i64 %#2, noundef %cleanstack
+  %#4 = and i64 %#3, noundef %p2sh
+  %#5 = and i64 %#4, noundef %spk_p2sh
+  %#6 = and i64 %#5, noundef %redeem_wit
+  %#7 = and i64 %#6, noundef %ss_push_ok
+  %.not = icmp eq i64 %#7, 0
+  br i1 %.not, label %if.end.i, label %_ZL13c_scr008_armsmmmmmmmmmmm.exit
+
+if.end.i:
+  %tobool1.i = icmp ne i64 %and1, 0
+  %#8 = and i64 noundef %witness, 1
+  %#9 = and i64 %#8, noundef %spk_wit
+  %or.cond.i.not = icmp eq i64 %#9, 0
+  br i1 %or.cond.i.not, label %if.end7.i, label %if.then3.i
+
+if.then3.i:
+  %cmp.not.i = icmp eq i64 %and8, 0
+  br i1 %cmp.not.i, label %if.end7.i, label %_ZL13c_scr008_armsmmmmmmmmmmm.exit
+
+if.end7.i:
+  %len.0.i = phi i64 [ %and3, %if.end.i ], [ 1, %if.then3.i ]
+  %had.0.i = phi i64 [ 0, %if.end.i ], [ 1, %if.then3.i ]
+  %#10 = and i64 noundef %spk_p2sh, 1
+  %#11 = and i64 %#10, noundef %p2sh
+  %or.cond38.i.not = icmp eq i64 %#11, 0
+  br i1 %or.cond38.i.not, label %if.end21.i, label %if.then11.i
+
+if.then11.i:
+  %#12 = and i64 noundef %witness, 1
+  %#13 = and i64 %#12, noundef %redeem_wit
+  %or.cond39.i.not = icmp eq i64 %#13, 0
+  br i1 %or.cond39.i.not, label %if.end21.i, label %if.then15.i
+
+if.then15.i:
+  %tobool16.not.i = icmp eq i64 %and7, 0
+  br i1 %tobool16.not.i, label %_ZL13c_scr008_armsmmmmmmmmmmm.exit, label %if.end21.i
+
+if.end21.i:
+  %len.1.i = phi i64 [ %len.0.i, %if.end7.i ], [ 1, %if.then15.i ], [ %and10, %if.then11.i ]
+  %had.1.i = phi i64 [ %had.0.i, %if.end7.i ], [ 1, %if.then15.i ], [ %had.0.i, %if.then11.i ]
+  %tobool22.i = icmp ne i64 %and, 0
+  %cmp24.i = icmp ne i64 %len.1.i, 1
+  %or.cond40.i = and i1 %tobool22.i, %cmp24.i
+  br i1 %or.cond40.i, label %_ZL13c_scr008_armsmmmmmmmmmmm.exit, label %if.end27.i
+
+if.end27.i:
+  %tobool30.i = icmp eq i64 %had.1.i, 0
+  %or.cond41.not52.i = and i1 %tobool1.i, %tobool30.i
+  %cmp32.i = icmp ne i64 %and9, 0
+  %or.cond42.i = and i1 %cmp32.i, %or.cond41.not52.i
+  %. = select i1 %or.cond42.i, i64 172, i64 1
+  br label %_ZL13c_scr008_armsmmmmmmmmmmm.exit
+
+_ZL13c_scr008_armsmmmmmmmmmmm.exit:
+  %retval.1.i = phi i64 [ -1, %if.end.i13 ], [ 164, %if.then3.i ], [ 168, %if.then15.i ], [ 120, %if.end21.i ], [ %., %if.end27.i ], [ -1, %entry ]
+  %#range_0_%retval.1.i = !range i64 %retval.1.i, i64 -1, i64 173
+  ret i64 %#range_0_%retval.1.i
+}
+=>
+define i64 @cell_scr008_arms(i64 noundef %cleanstack, i64 noundef %witness, i64 noundef %p2sh, i64 noundef %st_n, i64 noundef %spk_wit, i64 noundef %spk_p2sh, i64 noundef %redeem_wit, i64 noundef %ss_push_ok, i64 noundef %sig_n, i64 noundef %wit_n, i64 noundef %inner_len) nofree willreturn memory(none) {
+entry:
+  %and = and i64 noundef %cleanstack, 1
+  %and1 = and i64 noundef %witness, 1
+  %and3 = and i64 noundef %st_n, 3
+  %and4 = and i64 noundef %spk_wit, 1
+  %and5 = and i64 noundef %spk_p2sh, 1
+  %and7 = and i64 noundef %ss_push_ok, 1
+  %and8 = and i64 noundef %sig_n, 3
+  %and9 = and i64 noundef %wit_n, 3
+  %and10 = and i64 noundef %inner_len, 3
+  %#0 = and i64 noundef %spk_p2sh, 1
+  %#1 = and i64 %#0, noundef %spk_wit
+  %or.cond.i11.not = icmp eq i64 %#1, 0
+  br i1 %or.cond.i11.not, label %if.end.i12, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit
+
+if.end.i12:
+  %#2 = and i64 noundef %spk_p2sh, 1
+  %#3 = and i64 %#2, noundef %cleanstack
+  %#4 = and i64 %#3, noundef %witness
+  %#5 = and i64 %#4, noundef %p2sh
+  %#6 = and i64 %#5, noundef %redeem_wit
+  %#7 = and i64 %#6, noundef %ss_push_ok
+  %.not = icmp eq i64 %#7, 0
+  br i1 %.not, label %if.end.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit
+
+if.end.i:
+  %and.i = and i64 %and4, noundef %witness
+  %and1.i = and i64 %and5, noundef %p2sh
+  %and2.i = and i64 noundef %redeem_wit, noundef %witness
+  %and3.i = and i64 %and2.i, %and1.i
+  %tobool4.i = icmp ne i64 %and.i, 0
+  %cmp.i = icmp ne i64 %and8, 0
+  %or.cond.i = and i1 %tobool4.i, %cmp.i
+  br i1 %or.cond.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit, label %if.end7.i
+
+if.end7.i:
+  %tobool8.not.i = icmp eq i64 %and1.i, 0
+  br i1 %tobool8.not.i, label %if.end37.i, label %if.then9.i
+
+if.end37.i:
+  %tobool43.i = icmp ne i64 %and, 0
+  %cmp4588.i = icmp ne i64 %and3, 1
+  %not.tobool4.i = xor i1 %tobool4.i, 1
+  %cmp45.i = and i1 %cmp4588.i, %not.tobool4.i
+  %or.cond65.i = and i1 %tobool43.i, %cmp45.i
+  br i1 %or.cond65.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit, label %if.end48.i
+
+if.end48.i:
+  %tobool49.i = icmp eq i64 %and1, 0
+  %cmp51.i = icmp eq i64 %and9, 0
+  %or.cond66.not89.i = or i1 %tobool49.i, %cmp51.i
+  %or.cond67.i = or i1 %tobool4.i, %or.cond66.not89.i
+  %. = select i1 %or.cond67.i, i64 1, i64 172
+  br label %_ZL13l_scr008_armsmmmmmmmmmmm.exit
+
+if.then9.i:
+  %tobool10.i = icmp eq i64 %and3.i, 0
+  %tobool12.i = icmp ne i64 %and7, 0
+  %or.cond62.i = or i1 %tobool12.i, %tobool10.i
+  br i1 %or.cond62.i, label %if.end15.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit
+
+if.end15.i:
+  %tobool17.i = icmp ne i64 %and, 0
+  %cmp1990.i = icmp ne i64 %and10, 1
+  %not.tobool491.i = xor i1 %tobool4.i, 1
+  %cmp19.i = and i1 %cmp1990.i, %not.tobool491.i
+  %or.cond63.i = and i1 %tobool17.i, %cmp19.i
+  br i1 %or.cond63.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit, label %if.end22.i
+
+if.end22.i:
+  %tobool26.i = icmp ne i64 %and1, 0
+  %cmp28.i = icmp ne i64 %and9, 0
+  %or.cond64.i = and i1 %tobool26.i, %cmp28.i
+  br i1 %or.cond64.i, label %land.lhs.true29.i, label %if.end33.i
+
+land.lhs.true29.i:
+  %and25.i = and i64 %and7, noundef %redeem_wit
+  %cmp23.i = icmp eq i64 %and8, 0
+  %and24.i = select i1 %cmp23.i, i64 %and4, i64 0
+  %or.i = or i64 %and24.i, %and25.i
+  %tobool30.not.i = icmp eq i64 %or.i, 0
+  br i1 %tobool30.not.i, label %_ZL13l_scr008_armsmmmmmmmmmmm.exit, label %if.end33.i
+
+if.end33.i:
+  br label %_ZL13l_scr008_armsmmmmmmmmmmm.exit
+
+_ZL13l_scr008_armsmmmmmmmmmmm.exit:
+  %retval.4.i = phi i64 [ -1, %if.end.i12 ], [ 1, %if.end33.i ], [ 164, %if.end.i ], [ 168, %if.then9.i ], [ 120, %if.end15.i ], [ 172, %land.lhs.true29.i ], [ 120, %if.end37.i ], [ %., %if.end48.i ], [ -1, %entry ]
+  %#range_0_%retval.4.i = !range i64 %retval.4.i, i64 -1, i64 173
+  ret i64 %#range_0_%retval.4.i
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

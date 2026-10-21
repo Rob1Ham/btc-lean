@@ -1,0 +1,79 @@
+module pk_encoding where
+
+// Independent Cryptol reference for cell
+// checksig/C-L-checksig-pubkey-encoding (SCR-112).
+//
+// Restates the pinned rules from Bitcoin Core cce32b168:
+//   src/pubkey.h:69-88             GetLen + ValidSize (CPubKey::Set accept)
+//   interpreter.cpp:74-99          IsCompressedOrUncompressedPubKey / IsCompressedPubKey
+//   interpreter.cpp:228-237        CheckPubKeyEncoding (PUBKEYTYPE / WITNESS_PUBKEYTYPE)
+//   interpreter.cpp:331-356        EvalChecksigPreTapscript (NULLFAIL gate)
+//   interpreter.cpp:1069-1092      OP_CHECKSIG push-false/true and continue
+//   interpreter.cpp:1701-1724      CheckECDSASignature (CPubKey gate first)
+//   interpreter.cpp:1876-1880      EVAL_FALSE tail
+//
+// The reference is a restatement of the rule, not extracted from either leg.
+// Error ordinals are the contract ABI v2 values: EVAL_FALSE=2,
+// PUBKEYTYPE=29, SIG_NULLFAIL=32, WITNESS_PUBKEYTYPE=44.
+
+getLen : [8] -> [32]
+getLen h = if (h == 2) || (h == 3) then 33
+           else if (h == 4) || (h == 6) || (h == 7) then 65
+           else 0
+
+validSize : [8] -> [32] -> Bit
+validSize h l = (l != 0) && (getLen h == l)
+
+isCompressedOrUncompressed : [8] -> [32] -> Bit
+isCompressedOrUncompressed h l =
+  if l < 33 then False
+  else if h == 4 then l == 65
+  else if (h == 2) || (h == 3) then l == 33
+  else False
+
+isCompressed : [8] -> [32] -> Bit
+isCompressed h l = (l == 33) && ((h == 2) || (h == 3))
+
+encodingErr : [8] -> [32] -> [32] -> [32] -> [32] -> [32]
+encodingErr h l se wpt sv =
+  if (se != 0) && ~ (isCompressedOrUncompressed h l) then 29
+  else if (wpt != 0) && (sv == 1) && ~ (isCompressed h l) then 44
+  else 0
+
+// CheckECDSASignature: CPubKey validity, then the empty-sig false, then the
+// abstract EC verdict.
+checker : [8] -> [32] -> [32] -> [32] -> Bit
+checker h l sl co =
+  if validSize h l then ((sl != 0) && (co != 0)) else False
+
+// ABI v2 packed observable: result(2) | error(6) | depth(3) | len(2) | val(8).
+pack : Bit -> [32] -> [32] -> [32] -> [32] -> [32]
+pack res err n len val =
+  (if res then (1 : [32]) else 0)
+  + (err << 2) + (n << 8) + (len << 11) + (val << 13)
+
+pack64 : Bit -> [32] -> [32] -> [32] -> [32] -> [64]
+pack64 res err n len val = (0 : [32]) # pack res err n len val
+
+// cell_pubkey_encoding: 0/29/44 policy decision.
+encodingOut : [8] -> [32] -> [32] -> [32] -> [32] -> [64]
+encodingOut h l se wpt sv =
+  if e != 0 then pack64 False e 0 0 0
+  else pack64 True 0 0 0 0
+  where
+    e = encodingErr h l se wpt sv
+
+// cell_pubkey_encoding_checksig (tailNot=False) and
+// cell_pubkey_encoding_continue (tailNot=True).
+checksigOut : [8] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [32] -> [64]
+checksigOut h l se wpt sv sl co nf tailNot =
+  if e != 0 then pack64 False e 0 0 0
+  else if (~ f) && (nf != 0) && (sl != 0) then pack64 False 32 0 0 0
+  else if tailNot != 0 then
+    (if f then pack64 False 2 1 1 0     // OP_NOT true -> false: EVAL_FALSE
+          else pack64 True 0 1 1 1)     // OP_NOT false -> true: continue
+  else if f then pack64 True 0 1 1 1
+  else pack64 False 2 1 0 0             // push false, EVAL_FALSE
+  where
+    e = encodingErr h l se wpt sv
+    f = checker h l sl co

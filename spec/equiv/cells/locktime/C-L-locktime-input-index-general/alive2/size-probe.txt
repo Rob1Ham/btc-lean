@@ -1,0 +1,100 @@
+# probe: Alive2 input block size is nondeterministic
+# command: alive-tv --smt-to=120000 probe/size_src.dis.ll probe/size_tgt.dis.ll
+# expected: a value mismatch at i=100 with a huge NON-LOCAL block size
+
+----------------------------------------
+define i32 @probe(ptr noundef %p, i64 noundef %i) {
+entry:
+  %p.addr = alloca i64 8, align 8
+  %i.addr = alloca i64 8, align 8
+  %v = alloca i64 4, align 4
+  store ptr noundef %p, ptr %p.addr, align 8
+  store i64 noundef %i, ptr %i.addr, align 8
+  %#0 = load ptr, ptr %p.addr, align 8
+  %#1 = load i64, ptr %i.addr, align 8
+  %arrayidx = gep inbounds nuw ptr %#0, 4 x i64 %#1
+  %#2 = load i32, ptr %arrayidx, align 4
+  store i32 %#2, ptr %v, align 4
+  %#3 = load i32, ptr %v, align 4
+  %cmp = icmp eq i32 %#3, 3735928559
+  %cond = select i1 %cmp, i32 0, i32 0
+  ret i32 %cond
+}
+=>
+define i32 @probe(ptr noundef %p, i64 noundef %i) {
+entry:
+  %p.addr = alloca i64 8, align 8
+  %i.addr = alloca i64 8, align 8
+  %v = alloca i64 4, align 4
+  store ptr noundef %p, ptr %p.addr, align 8
+  store i64 noundef %i, ptr %i.addr, align 8
+  %#0 = load ptr, ptr %p.addr, align 8
+  %#1 = load i64, ptr %i.addr, align 8
+  %arrayidx = gep inbounds nuw ptr %#0, 4 x i64 %#1
+  %#2 = load i32, ptr %arrayidx, align 4
+  store i32 %#2, ptr %v, align 4
+  %#3 = load i64, ptr %i.addr, align 8
+  %cmp = icmp eq i64 %#3, 100
+  %cond = select i1 %cmp, i32 1, i32 0
+  ret i32 %cond
+}
+Transformation doesn't verify!
+
+ERROR: Value mismatch
+
+Example:
+ptr noundef %p = pointer(non-local, block_id=1, offset=2) / Address=#x0000000000000004
+i64 noundef %i = #x0000000000000064 (100)
+
+Source:
+ptr %p.addr = pointer(local, block_id=0, offset=0) / Address=#x8000000000000010
+ptr %i.addr = pointer(local, block_id=1, offset=0) / Address=#x8000000000000000
+ptr %v = pointer(local, block_id=2, offset=0) / Address=#x8000000000000020
+ptr %#0 = pointer(non-local, block_id=1, offset=2) / Address=#x0000000000000004
+i64 %#1 = #x0000000000000064 (100)
+ptr %arrayidx = pointer(non-local, block_id=1, offset=402) / Address=#x0000000000000194
+i32 %#2 = #x00000000 (0)
+i32 %#3 = #x00000000 (0)
+i1 %cmp = #x0 (0)
+i32 %cond = #x00000000 (0)
+
+SOURCE MEMORY STATE
+===================
+NON-LOCAL BLOCKS:
+Block 0 >	size: 0	align: 4	alloc type: 0	alive: false	address: 0
+Block 1 >	size: 5242225155463184514	align: 1	alloc type: 0	alive: true	address: 2
+Contents:
+*: #x00000000
+
+
+LOCAL BLOCKS:
+Block 4 >	size: 8	align: 8	alloc type: 1	alive: true	address: 9223372036854775824
+Block 5 >	size: 8	align: 8	alloc type: 1	alive: true	address: 9223372036854775808
+Block 6 >	size: 4	align: 4	alloc type: 1	alive: true	address: 9223372036854775840
+
+Target:
+ptr %p.addr = pointer(local, block_id=0, offset=0) / Address=#x8000000000000040
+ptr %i.addr = pointer(local, block_id=1, offset=0) / Address=#x8000000000000008
+ptr %v = pointer(local, block_id=2, offset=0) / Address=#x8000000000000000
+ptr %#0 = pointer(non-local, block_id=1, offset=2) / Address=#x0000000000000004
+i64 %#1 = #x0000000000000064 (100)
+ptr %arrayidx = pointer(non-local, block_id=1, offset=402) / Address=#x0000000000000194
+i32 %#2 = #x00000000 (0)
+i64 %#3 = #x0000000000000064 (100)
+i1 %cmp = #x1 (1)
+i32 %cond = #x00000001 (1)
+
+TARGET MEMORY STATE
+===================
+LOCAL BLOCKS:
+Block 4 >	size: 8	align: 8	alloc type: 1	alive: true	address: 9223372036854775872
+Block 5 >	size: 8	align: 8	alloc type: 1	alive: true	address: 9223372036854775816
+Block 6 >	size: 4	align: 4	alloc type: 1	alive: true	address: 9223372036854775808
+Source value: #x00000000 (0)
+Target value: #x00000001 (1)
+
+Summary:
+  0 correct transformations
+  1 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors

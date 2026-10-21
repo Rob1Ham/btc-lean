@@ -1,0 +1,706 @@
+# cell: locktime/C-L-locktime-input-index-general
+# alive-tv: Ubuntu LLVM version 20.1.2
+# clang: Ubuntu clang version 20.1.2 (0ubuntu1~24.04.3)
+# build: src/build.sh (flags in build/build.txt)
+# contract: contract/error_kind.h sha256 7a5f778f4aed8947a7768da3d3856c99eec2715f5502cb8f59af576c72dca170
+# vin: pointer argument; Alive2's input block size is nondeterministic,
+#      so the checked domain has arbitrary vin length (nIn in range).
+# nIn: uint32, fully symbolic.
+
+# pair: cltv
+# command: alive-tv --smt-to=300000 build/cltv_src.ll build/cltv_tgt.ll
+# ir: src_sha256=e57220d382639845388da55cd9f0b7babe9c1decc92cd36275a8f03502673694 tgt_sha256=b7d1e4384442336374d7afd134ba500782e5eaef16290ddbff637672eae4a4a7
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  %conv.i2 = zext i32 noundef %tx_locktime to i64
+  %cmp.i3 = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp.i.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i3, %cmp.i.i
+  %cmp.i32.old.i = icmp sgt i64 noundef %operand, %conv.i2
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp.i32.old.i, label %return, label %if.end21.i
+
+lor.lhs.false.i:
+  %#1 = or i1 %cmp.i.i, %cmp.i32.old.i
+  %or.cond34.i = or i1 %cmp.i3, %#1
+  br i1 %or.cond34.i, label %return, label %if.end21.i
+
+if.end21.i:
+  %cmp22.i = icmp ne i32 %cond.i, 4294967295
+  %#2 = zext i1 %cmp22.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#2, %if.end21.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 2
+  ret i32 %#range_0_%retval.0
+}
+=>
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  %conv.i3 = zext i32 noundef %tx_locktime to i64
+  %cmp.i4 = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp1.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i4, %cmp1.i
+  %cmp5.old.i = icmp sgt i64 noundef %operand, %conv.i3
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp5.old.i, label %return, label %if.end7.i
+
+lor.lhs.false.i:
+  %#1 = or i1 %cmp.i4, %cmp5.old.i
+  %or.cond17.i = or i1 %cmp1.i, %#1
+  br i1 %or.cond17.i, label %return, label %if.end7.i
+
+if.end7.i:
+  %cmp8.i = icmp ne i32 %cond.i, 4294967295
+  %#2 = zext i1 %cmp8.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#2, %if.end7.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 2
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: csv
+# command: alive-tv --smt-to=300000 build/csv_src.ll build/csv_tgt.ll
+# ir: src_sha256=3c1681ca75cdd50e68ab44171ddaa336bedf38978150cb574752819160b54184 tgt_sha256=7238af7d96b667a27344d776cca0439daba1c1ddf94006f0f5389063f5fdadba
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  %cmp.i2 = icmp ugt i32 noundef %tx_version, 1
+  %tobool.not.i = icmp sgt i32 %cond.i, 4294967295
+  %or.cond.i = and i1 %cmp.i2, %tobool.not.i
+  br i1 %or.cond.i, label %if.end2.i, label %return
+
+if.end2.i:
+  %#1 = and i32 %cond.i, 4259839
+  %and.i.i = and i64 noundef %operand, 4259839
+  %cmp4.i = icmp samesign ult i32 %#1, 4194304
+  %cmp.i.i = icmp samesign ult i64 %and.i.i, 4194304
+  %or.cond = xor i1 %cmp.i.i, %cmp4.i
+  br i1 %or.cond, label %return, label %if.end20.i
+
+if.end20.i:
+  %and3.i = zext nneg i32 %#1 to i64
+  %cmp.i35.i = icmp samesign ule i64 %and.i.i, %and3.i
+  %#2 = zext i1 %cmp.i35.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 0, %_ZN10core_slice13getd_sequenceEPKjmjj.exit ], [ %#2, %if.end20.i ], [ 0, %if.end2.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 2
+  ret i32 %#range_0_%retval.0
+}
+=>
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  %cmp.i3 = icmp ugt i32 noundef %tx_version, 1
+  %cmp1.not.i = icmp sgt i32 %cond.i, 4294967295
+  %or.cond = select i1 %cmp.i3, i1 %cmp1.not.i, i1 0
+  br i1 %or.cond, label %if.end3.i, label %return
+
+if.end3.i:
+  %and5.i = and i32 %cond.i, 4259839
+  %conv.i4 = trunc i64 noundef %operand to i32
+  %and6.i = and i32 %conv.i4, 4259839
+  %#1 = or i32 %cond.i, %conv.i4
+  %#2 = and i32 %#1, 4194304
+  %or.cond.i = icmp eq i32 %#2, 0
+  br i1 %or.cond.i, label %if.end12.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %cmp9.i = icmp samesign ugt i32 %and5.i, 4194303
+  %cmp10.i = icmp samesign ugt i32 %and6.i, 4194303
+  %#3 = select i1 %cmp9.i, i1 %cmp10.i, i1 0
+  br i1 %#3, label %if.end12.i, label %return
+
+if.end12.i:
+  %cmp13.i = icmp samesign ule i32 %and6.i, %and5.i
+  %#4 = zext i1 %cmp13.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 0, %_ZN10lean_slice8vin_getdEPKjmjj.exit ], [ 0, %lor.rhs.i ], [ %#4, %if.end12.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 2
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: cltv_raw
+# command: alive-tv --smt-to=300000 build/cltv_raw_src.ll build/cltv_raw_tgt.ll
+# ir: src_sha256=f321c753f8c9e5145e2e05c31af9d1c640d6ff2042e0aec63933aa287cc48f89 tgt_sha256=55e472491cba8a9aa8d4f6c1fea4ebc2463c472b48f6247a5d8d1a2c1d22b3ec
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp1.not = icmp ugt i64 noundef %len, %conv
+  br i1 %cmp1.not, label %if.end3, label %return
+
+if.end3:
+  %arrayidx = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#0 = load i32, ptr %arrayidx, align 4
+  %conv.i = zext i32 noundef %tx_locktime to i64
+  %cmp.i = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp.i.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i, %cmp.i.i
+  %cmp.i32.old.i = icmp sgt i64 noundef %operand, %conv.i
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp.i32.old.i, label %return, label %if.end21.i
+
+lor.lhs.false.i:
+  %#1 = or i1 %cmp.i.i, %cmp.i32.old.i
+  %or.cond34.i = or i1 %cmp.i, %#1
+  br i1 %or.cond34.i, label %return, label %if.end21.i
+
+if.end21.i:
+  %cmp22.i = icmp ne i32 %#0, 4294967295
+  %#2 = zext i1 %cmp22.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 2, %if.end ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#2, %if.end21.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.0
+}
+=>
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp1.not = icmp ugt i64 noundef %len, %conv
+  br i1 %cmp1.not, label %if.end3, label %return
+
+if.end3:
+  %arrayidx = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#0 = load i32, ptr %arrayidx, align 4
+  %conv.i = zext i32 noundef %tx_locktime to i64
+  %cmp.i = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp1.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i, %cmp1.i
+  %cmp5.old.i = icmp sgt i64 noundef %operand, %conv.i
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp5.old.i, label %return, label %if.end7.i
+
+lor.lhs.false.i:
+  %#1 = or i1 %cmp.i, %cmp5.old.i
+  %or.cond17.i = or i1 %cmp1.i, %#1
+  br i1 %or.cond17.i, label %return, label %if.end7.i
+
+if.end7.i:
+  %cmp8.i = icmp ne i32 %#0, 4294967295
+  %#2 = zext i1 %cmp8.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 2, %if.end ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#2, %if.end7.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: csv_raw
+# command: alive-tv --smt-to=300000 build/csv_raw_src.ll build/csv_raw_tgt.ll
+# ir: src_sha256=a39b61818c2a14497842d5cb8adf5395f1c5e2bf82baf81f609db7d38dc35c4a tgt_sha256=e91a22c19081d519cd6e48284461dae811b0aacc36726cf1aade5d1669d13f3a
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp1.not = icmp ugt i64 noundef %len, %conv
+  br i1 %cmp1.not, label %if.end3, label %return
+
+if.end3:
+  %arrayidx = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#0 = load i32, ptr %arrayidx, align 4
+  %cmp.i = icmp ugt i32 noundef %tx_version, 1
+  %tobool.not.i = icmp sgt i32 %#0, 4294967295
+  %or.cond.i = and i1 %cmp.i, %tobool.not.i
+  br i1 %or.cond.i, label %if.end2.i, label %return
+
+if.end2.i:
+  %#1 = and i32 %#0, 4259839
+  %and.i.i = and i64 noundef %operand, 4259839
+  %cmp4.i = icmp samesign ult i32 %#1, 4194304
+  %cmp.i.i = icmp samesign ult i64 %and.i.i, 4194304
+  %or.cond = xor i1 %cmp.i.i, %cmp4.i
+  br i1 %or.cond, label %return, label %if.end20.i
+
+if.end20.i:
+  %and3.i = zext nneg i32 %#1 to i64
+  %cmp.i35.i = icmp samesign ule i64 %and.i.i, %and3.i
+  %#2 = zext i1 %cmp.i35.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 2, %if.end ], [ 0, %if.end3 ], [ %#2, %if.end20.i ], [ 0, %if.end2.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.0
+}
+=>
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp1.not = icmp ugt i64 noundef %len, %conv
+  br i1 %cmp1.not, label %if.end3, label %return
+
+if.end3:
+  %arrayidx = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#0 = load i32, ptr %arrayidx, align 4
+  %cmp.i = icmp ugt i32 noundef %tx_version, 1
+  %cmp1.not.i = icmp sgt i32 %#0, 4294967295
+  %or.cond = select i1 %cmp.i, i1 %cmp1.not.i, i1 0
+  br i1 %or.cond, label %if.end3.i, label %return
+
+if.end3.i:
+  %and5.i = and i32 %#0, 4259839
+  %conv.i = trunc i64 noundef %operand to i32
+  %and6.i = and i32 %conv.i, 4259839
+  %#1 = or i32 %#0, %conv.i
+  %#2 = and i32 %#1, 4194304
+  %or.cond.i = icmp eq i32 %#2, 0
+  br i1 %or.cond.i, label %if.end12.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %cmp9.i = icmp samesign ugt i32 %and5.i, 4194303
+  %cmp10.i = icmp samesign ugt i32 %and6.i, 4194303
+  %#3 = select i1 %cmp9.i, i1 %cmp10.i, i1 0
+  br i1 %#3, label %if.end12.i, label %return
+
+if.end12.i:
+  %cmp13.i = icmp samesign ule i32 %and6.i, %and5.i
+  %#4 = zext i1 %cmp13.i to i32
+  br label %return
+
+return:
+  %retval.0 = phi i32 [ 4294967295, %entry ], [ 2, %if.end ], [ 0, %if.end3 ], [ 0, %lor.rhs.i ], [ %#4, %if.end12.i ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.0
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: cltv_ni
+# command: alive-tv --smt-to=300000 build/cltv_ni_src.ll build/cltv_ni_tgt.ll
+# ir: src_sha256=5aca9daffc48129bf28c0f78ba5320492e68a79e0c5d90280514808b18885d12 tgt_sha256=c34a89eea11fbd65afd2acf1c9158325795eb7f11d3a7f20be0e7b0c86680991
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %a, ptr nowrite noundef %b, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %a, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  br i1 %cmp.i, label %cond.true.i14, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit16
+
+cond.true.i14:
+  %arrayidx.i15 = gep inbounds nuw ptr nowrite noundef %b, 4 x i64 %conv.i
+  %#1 = load i32, ptr %arrayidx.i15, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit16
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit16:
+  %cond.i13 = phi i32 [ %#1, %cond.true.i14 ], [ noundef %def, %_ZN10core_slice13getd_sequenceEPKjmjj.exit ]
+  %cmp2.not = icmp eq i32 %cond.i, %cond.i13
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %conv.i17 = zext i32 noundef %tx_locktime to i64
+  %cmp.i18 = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp.i.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i18, %cmp.i.i
+  %cmp.i32.old.i = icmp sgt i64 noundef %operand, %conv.i17
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp.i32.old.i, label %return, label %if.end21.i
+
+lor.lhs.false.i:
+  %#2 = or i1 %cmp.i.i, %cmp.i32.old.i
+  %or.cond34.i = or i1 %cmp.i18, %#2
+  br i1 %or.cond34.i, label %return, label %if.end21.i
+
+if.end21.i:
+  %cmp22.i = icmp ne i32 %cond.i, 4294967295
+  %#3 = zext i1 %cmp22.i to i32
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 4294967295, %entry ], [ 2, %_ZN10core_slice13getd_sequenceEPKjmjj.exit16 ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#3, %if.end21.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.1
+}
+=>
+define i32 @f(ptr nowrite noundef %a, ptr nowrite noundef %b, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_locktime, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %a, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  br i1 %cmp.i, label %cond.true.i15, label %_ZN10lean_slice8vin_getdEPKjmjj.exit17
+
+cond.true.i15:
+  %arrayidx.i16 = gep inbounds nuw ptr nowrite noundef %b, 4 x i64 %conv.i
+  %#1 = load i32, ptr %arrayidx.i16, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit17
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit17:
+  %cond.i14 = phi i32 [ %#1, %cond.true.i15 ], [ noundef %def, %_ZN10lean_slice8vin_getdEPKjmjj.exit ]
+  %cmp2.not = icmp eq i32 %cond.i, %cond.i14
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %conv.i18 = zext i32 noundef %tx_locktime to i64
+  %cmp.i19 = icmp ult i32 noundef %tx_locktime, 500000000
+  %cmp1.i = icmp slt i64 noundef %operand, 500000000
+  %or.cond.i = and i1 %cmp.i19, %cmp1.i
+  %cmp5.old.i = icmp sgt i64 noundef %operand, %conv.i18
+  br i1 %or.cond.i, label %if.end.i, label %lor.lhs.false.i
+
+if.end.i:
+  br i1 %cmp5.old.i, label %return, label %if.end7.i
+
+lor.lhs.false.i:
+  %#2 = or i1 %cmp.i19, %cmp5.old.i
+  %or.cond17.i = or i1 %cmp1.i, %#2
+  br i1 %or.cond17.i, label %return, label %if.end7.i
+
+if.end7.i:
+  %cmp8.i = icmp ne i32 %cond.i14, 4294967295
+  %#3 = zext i1 %cmp8.i to i32
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 4294967295, %entry ], [ 2, %_ZN10lean_slice8vin_getdEPKjmjj.exit17 ], [ 0, %lor.lhs.false.i ], [ 0, %if.end.i ], [ %#3, %if.end7.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: csv_ni
+# command: alive-tv --smt-to=300000 build/csv_ni_src.ll build/csv_ni_tgt.ll
+# ir: src_sha256=415dfab40d6a5231e6cb2b8e55094013fbcb03996531ec7df1fa64d0b18a1a48 tgt_sha256=3de44810b0cbde30384b1a65f8541df3d7e25e4c5180814b28ff653c3400a610
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %a, ptr nowrite noundef %b, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %a, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  br i1 %cmp.i, label %cond.true.i14, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit16
+
+cond.true.i14:
+  %arrayidx.i15 = gep inbounds nuw ptr nowrite noundef %b, 4 x i64 %conv.i
+  %#1 = load i32, ptr %arrayidx.i15, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit16
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit16:
+  %cond.i13 = phi i32 [ %#1, %cond.true.i14 ], [ noundef %def, %_ZN10core_slice13getd_sequenceEPKjmjj.exit ]
+  %cmp2.not = icmp eq i32 %cond.i, %cond.i13
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %cmp.i17 = icmp ugt i32 noundef %tx_version, 1
+  %tobool.not.i = icmp sgt i32 %cond.i, 4294967295
+  %or.cond.i = and i1 %cmp.i17, %tobool.not.i
+  br i1 %or.cond.i, label %if.end2.i, label %return
+
+if.end2.i:
+  %#2 = and i32 %cond.i, 4259839
+  %and.i.i = and i64 noundef %operand, 4259839
+  %cmp4.i = icmp samesign ult i32 %#2, 4194304
+  %cmp.i.i = icmp samesign ult i64 %and.i.i, 4194304
+  %or.cond = xor i1 %cmp.i.i, %cmp4.i
+  br i1 %or.cond, label %return, label %if.end20.i
+
+if.end20.i:
+  %and3.i = zext nneg i32 %#2 to i64
+  %cmp.i35.i = icmp samesign ule i64 %and.i.i, %and3.i
+  %#3 = zext i1 %cmp.i35.i to i32
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 4294967295, %entry ], [ 2, %_ZN10core_slice13getd_sequenceEPKjmjj.exit16 ], [ 0, %if.end4 ], [ %#3, %if.end20.i ], [ 0, %if.end2.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.1
+}
+=>
+define i32 @f(ptr nowrite noundef %a, ptr nowrite noundef %b, i64 noundef %len, i32 noundef %def, i32 noundef %nIn, i32 noundef %tx_version, i64 noundef %operand) nofree willreturn memory(argmem: read) {
+entry:
+  %cmp = icmp slt i64 noundef %operand, 0
+  br i1 %cmp, label %return, label %if.end
+
+if.end:
+  %conv.i = zext i32 noundef %nIn to i64
+  %cmp.i = icmp ugt i64 noundef %len, %conv.i
+  br i1 %cmp.i, label %cond.true.i, label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %a, 4 x i64 %conv.i
+  %#0 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit:
+  %cond.i = phi i32 [ %#0, %cond.true.i ], [ noundef %def, %if.end ]
+  br i1 %cmp.i, label %cond.true.i15, label %_ZN10lean_slice8vin_getdEPKjmjj.exit17
+
+cond.true.i15:
+  %arrayidx.i16 = gep inbounds nuw ptr nowrite noundef %b, 4 x i64 %conv.i
+  %#1 = load i32, ptr %arrayidx.i16, align 4
+  br label %_ZN10lean_slice8vin_getdEPKjmjj.exit17
+
+_ZN10lean_slice8vin_getdEPKjmjj.exit17:
+  %cond.i14 = phi i32 [ %#1, %cond.true.i15 ], [ noundef %def, %_ZN10lean_slice8vin_getdEPKjmjj.exit ]
+  %cmp2.not = icmp eq i32 %cond.i, %cond.i14
+  br i1 %cmp2.not, label %if.end4, label %return
+
+if.end4:
+  %cmp.i18 = icmp ugt i32 noundef %tx_version, 1
+  %cmp1.not.i = icmp sgt i32 %cond.i14, 4294967295
+  %or.cond = and i1 %cmp.i18, %cmp1.not.i
+  br i1 %or.cond, label %if.end3.i, label %return
+
+if.end3.i:
+  %and5.i = and i32 %cond.i14, 4259839
+  %conv.i19 = trunc i64 noundef %operand to i32
+  %and6.i = and i32 %conv.i19, 4259839
+  %#2 = or i32 %cond.i14, %conv.i19
+  %#3 = and i32 %#2, 4194304
+  %or.cond.i = icmp eq i32 %#3, 0
+  br i1 %or.cond.i, label %if.end12.i, label %lor.rhs.i
+
+lor.rhs.i:
+  %cmp9.i = icmp samesign ugt i32 %and5.i, 4194303
+  %cmp10.i = icmp samesign ugt i32 %and6.i, 4194303
+  %#4 = select i1 %cmp9.i, i1 %cmp10.i, i1 0
+  br i1 %#4, label %if.end12.i, label %return
+
+if.end12.i:
+  %cmp13.i = icmp samesign ule i32 %and6.i, %and5.i
+  %#5 = zext i1 %cmp13.i to i32
+  br label %return
+
+return:
+  %retval.1 = phi i32 [ 4294967295, %entry ], [ 2, %_ZN10lean_slice8vin_getdEPKjmjj.exit17 ], [ 0, %if.end4 ], [ 0, %lor.rhs.i ], [ %#5, %if.end12.i ]
+  %#range_0_%retval.1 = !range i32 %retval.1, i32 4294967295, i32 3
+  ret i32 %#range_0_%retval.1
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+
+# pair: getd_len
+# command: alive-tv --smt-to=300000 build/getd_len_src.ll build/getd_len_tgt.ll
+# ir: src_sha256=d906e8f0085b0af6f7d3875ccaadb4447f307eadc00edad402a5db4639fb1cb6 tgt_sha256=cf02dae27b58d2f55f0599e2edcdaa5e2b7b95dbd262a65f871da8cee34be884
+
+----------------------------------------
+define i32 @f(ptr nowrite noundef %vin, i64 noundef %len1, i64 noundef %len2, i32 noundef %def, i32 noundef %nIn) nofree willreturn memory(argmem: read) {
+entry:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp = icmp ugt i64 noundef %len1, %conv
+  %#0 = icmp ule i64 noundef %len2, %conv
+  %cmp7.not = xor i1 %cmp, %#0
+  br i1 %cmp7.not, label %if.end, label %cleanup
+
+if.end:
+  br i1 %cmp, label %cond.true.i, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+cond.true.i:
+  %arrayidx.i = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#1 = load i32, ptr %arrayidx.i, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit:
+  %cond.i = phi i32 [ %#1, %cond.true.i ], [ noundef %def, %if.end ]
+  %cmp.i19 = icmp ugt i64 noundef %len2, %conv
+  br i1 %cmp.i19, label %cond.true.i21, label %_ZN10core_slice13getd_sequenceEPKjmjj.exit23
+
+cond.true.i21:
+  %arrayidx.i22 = gep inbounds nuw ptr nowrite noundef %vin, 4 x i64 %conv
+  %#2 = load i32, ptr %arrayidx.i22, align 4
+  br label %_ZN10core_slice13getd_sequenceEPKjmjj.exit23
+
+_ZN10core_slice13getd_sequenceEPKjmjj.exit23:
+  %cond.i20 = phi i32 [ %#2, %cond.true.i21 ], [ noundef %def, %_ZN10core_slice13getd_sequenceEPKjmjj.exit ]
+  %cmp9 = icmp eq i32 %cond.i, %cond.i20
+  %cond = zext i1 %cmp9 to i32
+  br label %cleanup
+
+cleanup:
+  %retval.0 = phi i32 [ %cond, %_ZN10core_slice13getd_sequenceEPKjmjj.exit23 ], [ 2, %entry ]
+  %#range_0_%retval.0 = !range i32 %retval.0, i32 0, i32 3
+  ret i32 %#range_0_%retval.0
+}
+=>
+define i32 @f(ptr noread nowrite noundef %vin, i64 noundef %len1, i64 noundef %len2, i32 noundef %def, i32 noundef %nIn) nofree noundef willreturn memory(none) {
+entry:
+  %conv = zext i32 noundef %nIn to i64
+  %cmp = icmp ugt i64 noundef %len1, %conv
+  %#0 = icmp ule i64 noundef %len2, %conv
+  %cmp7.not = xor i1 %cmp, %#0
+  %. = select i1 %cmp7.not, i32 1, i32 2
+  %#range_0_%. = !range i32 %., i32 1, i32 3
+  ret i32 %#range_0_%.
+}
+Transformation seems to be correct!
+
+Summary:
+  1 correct transformations
+  0 incorrect transformations
+  0 failed-to-prove transformations
+  0 Alive2 errors
+STATUS=alive2-green

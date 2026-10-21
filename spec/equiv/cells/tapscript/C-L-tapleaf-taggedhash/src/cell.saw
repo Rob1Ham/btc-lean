@@ -1,0 +1,122 @@
+import "cell.cry";
+
+// SCR-146 (TapLeaf tagged-hash input), both legs against ONE independent
+// Cryptol statement.  Nine total functions.  The tagged SHA256 oracle H is
+// opaque and named in cell.cry: this script proves the tag string, the
+// 64-byte duplicated prefix, the leaf-version mask, the CompactSize prefix,
+// the field map for every 64-bit script length, and the exact composed
+// preimage for bounded scripts.  No digest is computed anywhere.
+
+mTag  <- llvm_load_module "c_cell_tag_byte.bc";
+lTag  <- llvm_load_module "l_cell_tag_byte.bc";
+mPre  <- llvm_load_module "c_cell_prefix_byte.bc";
+lPre  <- llvm_load_module "l_cell_prefix_byte.bc";
+mMask <- llvm_load_module "c_cell_leaf_mask.bc";
+lMask <- llvm_load_module "l_cell_leaf_mask.bc";
+mCSz  <- llvm_load_module "c_cell_cs_size.bc";
+lCSz  <- llvm_load_module "l_cell_cs_size.bc";
+mCSb  <- llvm_load_module "c_cell_cs_byte.bc";
+lCSb  <- llvm_load_module "l_cell_cs_byte.bc";
+mFK   <- llvm_load_module "c_cell_field_kind.bc";
+lFK   <- llvm_load_module "l_cell_field_kind.bc";
+mFI   <- llvm_load_module "c_cell_field_index.bc";
+lFI   <- llvm_load_module "l_cell_field_index.bc";
+mPB   <- llvm_load_module "c_cell_preimage_byte.bc";
+lPB   <- llvm_load_module "l_cell_preimage_byte.bc";
+mPL   <- llvm_load_module "c_cell_preimage_len.bc";
+lPL   <- llvm_load_module "l_cell_preimage_len.bc";
+
+let sTag = do {
+  i <- llvm_fresh_var "i" (llvm_int 32);
+  llvm_execute_func [llvm_term i];
+  llvm_return (llvm_term {{ tagByte (zext i : [64]) }});
+};
+
+let sPrefix = do {
+  i  <- llvm_fresh_var "i" (llvm_int 32);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  llvm_execute_func [llvm_term i, llvm_term t0, llvm_term t1,
+                     llvm_term t2, llvm_term t3];
+  llvm_return (llvm_term {{ prefixByte (zext i : [64]) t0 t1 t2 t3 }});
+};
+
+let sMask = do {
+  c <- llvm_fresh_var "control0" (llvm_int 8);
+  llvm_execute_func [llvm_term c];
+  llvm_return (llvm_term {{ leafMask c }});
+};
+
+let sCSz = do {
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ csSize n }});
+};
+
+let sCSb = do {
+  n <- llvm_fresh_var "n" (llvm_int 64);
+  j <- llvm_fresh_var "j" (llvm_int 32);
+  llvm_execute_func [llvm_term n, llvm_term j];
+  llvm_return (llvm_term {{ csByte n (zext j : [64]) }});
+};
+
+let sFK = do {
+  i   <- llvm_fresh_var "i" (llvm_int 64);
+  len <- llvm_fresh_var "len" (llvm_int 64);
+  llvm_execute_func [llvm_term i, llvm_term len];
+  llvm_return (llvm_term {{ fieldKind i len }});
+};
+
+let sFI = do {
+  i   <- llvm_fresh_var "i" (llvm_int 64);
+  len <- llvm_fresh_var "len" (llvm_int 64);
+  llvm_execute_func [llvm_term i, llvm_term len];
+  llvm_return (llvm_term {{ fieldIndex i len }});
+};
+
+let sPB = do {
+  i  <- llvm_fresh_var "i" (llvm_int 64);
+  t0 <- llvm_fresh_var "t0" (llvm_int 64);
+  t1 <- llvm_fresh_var "t1" (llvm_int 64);
+  t2 <- llvm_fresh_var "t2" (llvm_int 64);
+  t3 <- llvm_fresh_var "t3" (llvm_int 64);
+  c  <- llvm_fresh_var "control0" (llvm_int 8);
+  n  <- llvm_fresh_var "len" (llvm_int 64);
+  s0 <- llvm_fresh_var "s0" (llvm_int 8);
+  s1 <- llvm_fresh_var "s1" (llvm_int 8);
+  s2 <- llvm_fresh_var "s2" (llvm_int 8);
+  s3 <- llvm_fresh_var "s3" (llvm_int 8);
+  llvm_execute_func [llvm_term i, llvm_term t0, llvm_term t1, llvm_term t2,
+                     llvm_term t3, llvm_term c, llvm_term n, llvm_term s0,
+                     llvm_term s1, llvm_term s2, llvm_term s3];
+  llvm_return (llvm_term {{ preByte i t0 t1 t2 t3 c n s0 s1 s2 s3 }});
+};
+
+let sPL = do {
+  n <- llvm_fresh_var "len" (llvm_int 64);
+  llvm_execute_func [llvm_term n];
+  llvm_return (llvm_term {{ preLen n }});
+};
+
+llvm_verify mTag  "cell_tag_byte"     [] false sTag    abc;
+llvm_verify lTag  "cell_tag_byte"     [] false sTag    abc;
+llvm_verify mPre  "cell_prefix_byte"  [] false sPrefix abc;
+llvm_verify lPre  "cell_prefix_byte"  [] false sPrefix abc;
+llvm_verify mMask "cell_leaf_mask"    [] false sMask   abc;
+llvm_verify lMask "cell_leaf_mask"    [] false sMask   abc;
+llvm_verify mCSz  "cell_cs_size"      [] false sCSz    abc;
+llvm_verify lCSz  "cell_cs_size"      [] false sCSz    abc;
+llvm_verify mCSb  "cell_cs_byte"      [] false sCSb    abc;
+llvm_verify lCSb  "cell_cs_byte"      [] false sCSb    abc;
+llvm_verify mFK   "cell_field_kind"   [] false sFK     abc;
+llvm_verify lFK   "cell_field_kind"   [] false sFK     abc;
+llvm_verify mFI   "cell_field_index"  [] false sFI     abc;
+llvm_verify lFI   "cell_field_index"  [] false sFI     abc;
+llvm_verify mPB   "cell_preimage_byte" [] false sPB    abc;
+llvm_verify lPB   "cell_preimage_byte" [] false sPB    abc;
+llvm_verify mPL   "cell_preimage_len" [] false sPL     abc;
+llvm_verify lPL   "cell_preimage_len" [] false sPL     abc;
+
+print "CELL_TAPLEAF_TAGGEDHASH_SAW_GREEN";
