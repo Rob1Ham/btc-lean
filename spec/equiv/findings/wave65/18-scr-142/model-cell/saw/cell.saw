@@ -1,0 +1,21 @@
+import "cell.cry";
+mC <- llvm_load_module "../build/c_leaf.bc";
+mL <- llvm_load_module "../build/l_leaf.bc";
+let spec = do {
+  h0 <- llvm_fresh_var "h0" (llvm_int 64);
+  h1 <- llvm_fresh_var "h1" (llvm_int 64);
+  h2 <- llvm_fresh_var "h2" (llvm_int 64);
+  h3 <- llvm_fresh_var "h3" (llvm_int 64);
+  height <- llvm_fresh_var "height" (llvm_int 32);
+  version <- llvm_fresh_var "version" (llvm_int 64);
+  plen <- llvm_fresh_var "plen" (llvm_int 64);
+  p2sh <- llvm_fresh_var "p2sh" (llvm_int 64);
+  wn <- llvm_fresh_var "wn" (llvm_int 64);
+  llvm_execute_func [llvm_term h0, llvm_term h1, llvm_term h2, llvm_term h3,
+                     llvm_term height, llvm_term version, llvm_term plen,
+                     llvm_term p2sh, llvm_term wn];
+  llvm_return (llvm_term {{ model h0 h1 h2 h3 height version plen p2sh wn }});
+};
+llvm_verify mC "cell_model_taproot" [] false spec abc;
+llvm_verify mL "cell_model_taproot" [] false spec abc;
+print "CELL_w65_taproot_bip9_model_SAW_GREEN";
